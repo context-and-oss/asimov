@@ -1,0 +1,151 @@
+<!--
+  SEQUENCE DIAGRAM — UML 2.5 Interactions (sequence diagram). Asimov skin.
+
+  USE WHEN:      "Who talks to whom, in what order?" Two or more actors exchange
+                 messages and the reader needs the ordering of the exchange, not
+                 just the list of steps.
+  DO NOT USE:    for a single-actor run of steps (use flowchart-template.svg); for
+                 an ordered process whose point is step OWNERSHIP rather than
+                 message order (use activity-swimlane-template.svg); or for the
+                 legal transitions of one thing (use state-machine-template.svg).
+  BUDGET:        max 5 lifelines, 12 messages, 1 combined fragment, 2 accent-
+                 coloured messages. Over budget: split into an overview diagram
+                 (the main path) plus a detail diagram, rather than growing this
+                 one.
+  NOTATION:      head box per participant across the top; dashed vertical lifeline
+                 below each head; solid line + filled arrowhead = synchronous call;
+                 dashed line + open arrowhead = return; solid line + open
+                 arrowhead = asynchronous send; 8px-wide activation bar on the
+                 lifeline while that participant is active; one combined fragment
+                 drawn as a frame with a corner tab holding the operator name
+                 (alt), a [guard] label under the tab, and a dashed divider
+                 between the two regions with the second region guard under it.
+                 Internal work with no addressee (a participant calling itself) is
+                 drawn as a self-message: an orthogonal loop leaving the lifeline,
+                 dropping, and returning to the same lifeline with an arrowhead,
+                 labelled to the right of the loop. It is never expressed as
+                 activation-bar length alone — a longer bar says "still active",
+                 not "did a step", so a step drawn that way is invisible.
+  COLOUR:        each head box and its activation bars carry the participant kind —
+                 green = the human / entry actor, amber = a processing component,
+                 cyan = a data store, dashed border on #122039 = delegated
+                 downstream / out of scope. Messages are #a8b8d0 by default; up to
+                 two may be accented, and each accent needs its own marker element
+                 (a marker cannot reliably inherit the line stroke colour).
+  GEOMETRY:      viewBox width 980; heads 168 wide, 76 apart, y 24..72; lifelines
+                 72..488; at least 24px between consecutive message y-levels (here
+                 112, 152, 184, 288, 360, the self-message loop at 408/432, and
+                 464); activation bar 8px wide centred on the lifeline
+                 (x = centre - 4); fragment frame inset 20px outside the outermost
+                 lifeline THE FRAGMENT INVOLVES — here the component, the store and
+                 the downstream participant take part, but the entry actor does
+                 not, so the frame spans x 348..876 and the entry actor stays
+                 outside it; operator tab 64x24 at the frame top-left; guard label
+                 24px below the tab and 32px inside the frame's left edge (x 380
+                 for a frame starting at 348), which puts it clear of the leftmost
+                 activation bar the frame covers (x 364..372); self-message loop
+                 48 wide and 24 tall off the right side of its own lifeline, its
+                 label 12px right of the loop (x 432); message labels 8px above
+                 their own line. Every coordinate divisible by 4.
+  ANTI-PATTERNS: - a lifeline that neither sends nor receives anything (delete it);
+                 - drawing a return for every call — show returns only where the
+                   returned value is load-bearing;
+                 - a fragment with no [guard], so the reader cannot tell which
+                   region fires;
+                 - nesting fragments (over budget by definition — split instead);
+                 - diagonal message lines, or a label straddling a head box;
+                 - using this type for a lifecycle: states are not messages.
+
+  The first child is a background rect filling the whole viewBox with #14253f (the
+  bg-card token); keep it — it is what makes the white text readable when the file is
+  opened standalone.
+-->
+<svg viewBox="0 0 980 512" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="UML sequence diagram template">
+  <rect x="0" y="0" width="980" height="512" fill="#14253f"/>
+  <defs>
+    <marker id="seq-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#a8b8d0"/>
+    </marker>
+    <marker id="seq-arr-accent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#66bb6a"/>
+    </marker>
+    <marker id="seq-arr-open" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10" fill="none" stroke="#a8b8d0" stroke-width="1.4"/>
+    </marker>
+  </defs>
+
+  <!-- Participant heads: green = human/entry, amber = processing, cyan = store, dashed = delegated -->
+  <g>
+    <rect x="40" y="24" width="168" height="48" rx="8" fill="#66bb6a22" stroke="#66bb6a"/>
+    <text x="124" y="44" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">{{Actor A}}</text>
+    <text x="124" y="60" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">human · entry point</text>
+  </g>
+  <g>
+    <rect x="284" y="24" width="168" height="48" rx="8" fill="#ffb74d1a" stroke="#ffb74d"/>
+    <text x="368" y="44" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">{{Component B}}</text>
+    <text x="368" y="60" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">processing component</text>
+  </g>
+  <g>
+    <rect x="528" y="24" width="168" height="48" rx="8" fill="#4fc3f71a" stroke="#4fc3f7"/>
+    <text x="612" y="44" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">{{Store C}}</text>
+    <text x="612" y="60" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">data store</text>
+  </g>
+  <g>
+    <rect x="772" y="24" width="168" height="48" rx="8" fill="#122039" stroke="#3b5e8f" stroke-dasharray="4 4"/>
+    <text x="856" y="44" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">{{Downstream D}}</text>
+    <text x="856" y="60" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">delegated · out of scope</text>
+  </g>
+
+  <!-- Lifelines -->
+  <line x1="124" y1="72" x2="124" y2="488" stroke="#3b5e8f" stroke-width="1.5" stroke-dasharray="4 4"/>
+  <line x1="368" y1="72" x2="368" y2="488" stroke="#3b5e8f" stroke-width="1.5" stroke-dasharray="4 4"/>
+  <line x1="612" y1="72" x2="612" y2="488" stroke="#3b5e8f" stroke-width="1.5" stroke-dasharray="4 4"/>
+  <line x1="856" y1="72" x2="856" y2="488" stroke="#3b5e8f" stroke-width="1.5" stroke-dasharray="4 4"/>
+
+  <!-- Activation bars: 8px wide, centred on the lifeline -->
+  <rect x="120" y="112" width="8" height="352" fill="#66bb6a22" stroke="#66bb6a"/>
+  <rect x="364" y="112" width="8" height="352" fill="#ffb74d1a" stroke="#ffb74d"/>
+  <rect x="608" y="152" width="8" height="32" fill="#4fc3f71a" stroke="#4fc3f7"/>
+  <rect x="608" y="360" width="8" height="24" fill="#4fc3f71a" stroke="#4fc3f7"/>
+  <rect x="852" y="288" width="8" height="24" fill="#122039" stroke="#3b5e8f" stroke-dasharray="4 4"/>
+
+  <!-- Combined fragment (alt): frame inset 20px outside the outermost lifeline the
+       fragment involves - Component B, Store C and Downstream D all take part inside it
+       but the entry actor does not, so the frame starts 20px left of Component B's
+       lifeline and the entry actor is left outside. Guards sit 32px inside
+       the frame's left edge, clear of the component's activation bar. -->
+  <rect x="348" y="216" width="528" height="176" fill="none" stroke="#3b5e8f" stroke-width="1.5"/>
+  <rect x="348" y="216" width="64" height="24" fill="#122039" stroke="#3b5e8f"/>
+  <text x="380" y="232" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700">alt</text>
+  <text x="380" y="264" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">[{{guardCondition}}]</text>
+  <line x1="348" y1="312" x2="876" y2="312" stroke="#3b5e8f" stroke-width="1.5" stroke-dasharray="4 4"/>
+  <text x="380" y="336" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">[{{elseCondition}}]</text>
+
+  <!-- m1: synchronous call, accented green (entry) -->
+  <line x1="128" y1="112" x2="364" y2="112" stroke="#66bb6a" stroke-width="1.5" marker-end="url(#seq-arr-accent)"/>
+  <text x="246" y="104" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">{{requestLabel}}</text>
+
+  <!-- m2: synchronous call -->
+  <line x1="372" y1="152" x2="608" y2="152" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#seq-arr)"/>
+  <text x="490" y="144" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">{{readKey}}</text>
+
+  <!-- m3: return (dashed line, open head) -->
+  <line x1="608" y1="184" x2="372" y2="184" stroke="#a8b8d0" stroke-width="1.5" stroke-dasharray="4 4" marker-end="url(#seq-arr-open)"/>
+  <text x="490" y="176" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">{{payload}}</text>
+
+  <!-- m4: synchronous call, first region of the fragment -->
+  <line x1="372" y1="288" x2="852" y2="288" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#seq-arr)"/>
+  <text x="612" y="280" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">{{delegateLabel}}</text>
+
+  <!-- m5: asynchronous send (solid line, open head), second region -->
+  <line x1="372" y1="360" x2="608" y2="360" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#seq-arr-open)"/>
+  <text x="490" y="352" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">{{writeKey}} · async</text>
+
+  <!-- m6: self-message - the component's own internal work, no addressee -->
+  <polyline points="372,408 420,408 420,432 372,432" fill="none" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#seq-arr)"/>
+  <text x="432" y="424" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">{{internalWork}}</text>
+
+  <!-- m7: return to the entry actor -->
+  <line x1="364" y1="464" x2="128" y2="464" stroke="#a8b8d0" stroke-width="1.5" stroke-dasharray="4 4" marker-end="url(#seq-arr-open)"/>
+  <text x="246" y="456" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">{{resultLabel}}</text>
+</svg>

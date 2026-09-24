@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What's inside · Asimov</title>
+<meta name="description" content="What the Asimov plugin contains: commands, artifacts, personas, agents, and the delivery model behind project management.">
+<link rel="stylesheet" href="../site.css">
+</head>
+<body class="has-subnav">
+<nav class="nav"><div class="in">
+  <a class="brand" href="../index.html">ASIMOV</a>
+  <a href="../index.html">Home</a>
+  <a href="../why.html">Why</a>
+  <a href="../how-it-works.html">How it works</a>
+  <a class="on" href="../inside/index.html">What's inside</a>
+  <span class="sep" aria-hidden="true"></span>
+  <span class="grp">Artifacts:</span>
+  <a href="../artifacts/documentation/index.html">Documentation</a>
+  <a href="../artifacts/project-management/index.html">Project management</a>
+  <a href="../artifacts/general/index.html">General</a>
+  <span class="sep" aria-hidden="true"></span>
+  <a href="../ai-transition.html">AI transition</a>
+  <a class="cta" href="../get-started.html">Get started</a>
+</div></nav>
+<nav class="subnav" aria-label="What's inside"><div class="in">
+  <a class="on" href="../inside/index.html">Overview</a>
+  <a href="../inside/commands.html">Commands</a>
+  <a href="../inside/personas.html">Personas</a>
+  <a href="../inside/agents.html">Agents</a>
+  <a href="../inside/project-management.html">Project management</a>
+</div></nav>
+
+<main class="page">
+  <h1>What's inside</h1>
+  <p class="lede">Commands, artifacts, personas, agents, and the model an engagement runs on. Click any box to read about it.</p>
+
+  <div class="figure">
+<svg class="insidemap" viewBox="0 0 1200 400" style="min-width:900px" role="img" aria-label="Map of what is inside the plugin. Project management frames everything: the engagement around the work, Proposal, Scoping, Development, Operations. Inside the frame, from left to right: you describe a feature; a command writes artifacts into your repository, a D101 design, convention read-lists and asimov.md; personas read the design as the people who sign and report where they stopped; agents read your conventions and return code, tests and findings. Every box opens its page.">
+  <style>
+    .insidemap { font-family: 'Inter', system-ui, sans-serif; }
+    .insidemap text { font-size: 13px; fill: var(--text, #fff); }
+    .insidemap .mono { font-family: 'JetBrains Mono', ui-monospace, Consolas, monospace; }
+    .insidemap a { cursor: pointer; }
+    .insidemap a, .insidemap a:hover { text-decoration: none; }
+    .insidemap .sub { font-size: 11px; fill: var(--text-dim, #a8b8d0); }
+    .insidemap .lbl { font-size: 10px; letter-spacing: 0.14em; fill: var(--text-mute, #6b7a93); }
+    .insidemap .head { font-size: 11px; letter-spacing: 0.08em; font-weight: 700; }
+    .insidemap .go { font-size: 13px; }
+    .insidemap .head .go { font-size: 11px; }
+
+    /* the frame: project management, violet */
+    .insidemap .frame { fill: var(--bg2, #122039); stroke: var(--violet, #ab47bc); stroke-width: 1.5; }
+    .insidemap .framehead rect { fill: var(--violet, #ab47bc); fill-opacity: 0.16; }
+    .insidemap .framehead .go, .insidemap .framehead .head { fill: var(--violet, #ab47bc); }
+    .insidemap .framehead .head tspan.plain { fill: var(--text-dim, #a8b8d0); font-weight: 500; letter-spacing: 0; }
+
+    /* you: green */
+    .insidemap .you rect { fill: var(--green, #66bb6a); fill-opacity: 0.14; stroke: var(--green, #66bb6a); stroke-width: 1.5; }
+    .insidemap .you .go { fill: var(--green, #66bb6a); }
+    /* Asimov writes: cyan */
+    .insidemap .writes rect { fill: var(--cyan, #4fc3f7); fill-opacity: 0.16; stroke: var(--cyan, #4fc3f7); stroke-width: 1.5; }
+    .insidemap .writes .go, .insidemap .writes .head { fill: var(--cyan, #4fc3f7); }
+    /* reads and reviews or builds: amber */
+    .insidemap .reads rect { fill: var(--amber, #ffb74d); fill-opacity: 0.14; stroke: var(--amber, #ffb74d); stroke-width: 1.5; }
+    .insidemap .reads .go, .insidemap .reads .head { fill: var(--amber, #ffb74d); }
+    /* your repository: yours, so green like you */
+    .insidemap .repo { fill: var(--green, #66bb6a); fill-opacity: 0.08; stroke: var(--green, #66bb6a); stroke-width: 1.5; }
+    .insidemap .repohead rect { fill: var(--green, #66bb6a); fill-opacity: 0.16; }
+    .insidemap .repohead .head { fill: var(--green, #66bb6a); }
+
+    /* arrows take the colour of the box they enter */
+    .insidemap .flow { fill: none; stroke-width: 1.75; }
+    .insidemap .flow.into-writes, .insidemap #imArrowCyan path { stroke: var(--cyan, #4fc3f7); fill: var(--cyan, #4fc3f7); }
+    .insidemap .flow.into-reads, .insidemap #imArrowAmber path { stroke: var(--amber, #ffb74d); fill: var(--amber, #ffb74d); }
+    .insidemap .flow.into-repo, .insidemap #imArrowGrey path { stroke: var(--green, #66bb6a); fill: var(--green, #66bb6a); }
+    .insidemap .flow { fill: none; }
+
+    .insidemap a rect { transition: fill-opacity 0.15s ease; }
+    .insidemap a:hover rect { fill-opacity: 0.34; }
+  </style>
+  <defs>
+    <marker id="imArrowCyan" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 Z"/></marker>
+    <marker id="imArrowAmber" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 Z"/></marker>
+    <marker id="imArrowGrey" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 Z"/></marker>
+  </defs>
+
+  <!-- ─── the frame: project management ─── -->
+  <rect class="frame" x="0.75" y="0.75" width="1198.5" height="398.5" rx="12"/>
+  <a class="framehead" href="../inside/project-management.html">
+    <title>Open Project management — the delivery model and the advisor that reads it</title>
+    <rect x="0.75" y="0.75" width="1198.5" height="38" rx="12"/>
+    <text class="head mono" x="16" y="25">PROJECT MANAGEMENT<tspan class="plain" dx="14">the engagement around the work: Proposal · Scoping · Development · Operations</tspan><tspan class="go" dx="10">→</tspan></text>
+  </a>
+
+  <!-- ─── you ─── -->
+  <a class="you" href="../how-it-works.html">
+    <title>Open How it works</title>
+    <rect x="24" y="200" width="140" height="64" rx="8"/>
+    <text x="40" y="226" style="font-weight:700">You</text>
+    <text class="sub" x="40" y="246">describe the feature</text>
+    <text class="go" x="150" y="226" text-anchor="end">→</text>
+  </a>
+
+  <!-- ─── commands ─── -->
+  <a class="writes" href="../inside/commands.html">
+    <title>Open Commands — what you type in Claude Code</title>
+    <rect x="204" y="140" width="230" height="184" rx="10"/>
+    <text class="head mono" x="220" y="166">COMMANDS<tspan class="go" dx="8">→</tspan></text>
+    <text class="sub" x="220" y="186">what you type in Claude Code</text>
+    <text class="mono" x="220" y="220" style="font-size:12px">/d101-feature-design</text>
+    <text class="mono" x="220" y="244" style="font-size:12px">/d101-review</text>
+    <text class="mono" x="220" y="268" style="font-size:12px">/persona-new</text>
+    <text class="sub" x="220" y="296">interview first, then write</text>
+  </a>
+
+  <!-- ─── your repository, with the artifacts inside ─── -->
+  <rect class="repo" x="484" y="96" width="280" height="272" rx="12"/>
+  <g class="repohead">
+    <rect x="484" y="96" width="280" height="34" rx="12"/>
+    <text class="head mono" x="500" y="118">YOUR REPOSITORY</text>
+  </g>
+  <text class="lbl mono" x="504" y="152">ARTIFACTS</text>
+  <a class="writes" href="../artifacts/documentation/index.html">
+    <title>Open Documentation — the documents a feature passes through</title>
+    <rect x="504" y="162" width="240" height="52" rx="8"/>
+    <text x="520" y="184" style="font-weight:700">D101 design</text>
+    <text class="sub" x="520" y="203">one per feature, two bars</text>
+    <text class="go" x="730" y="203" text-anchor="end">→</text>
+  </a>
+  <a class="writes" href="../artifacts/general/conventions.html">
+    <title>Open Conventions read-list</title>
+    <rect x="504" y="224" width="240" height="52" rx="8"/>
+    <text x="520" y="246" style="font-weight:700">conventions/</text>
+    <text class="sub" x="520" y="265">what the agents read</text>
+    <text class="go" x="730" y="265" text-anchor="end">→</text>
+  </a>
+  <a class="writes" href="../artifacts/general/asimov-md.html">
+    <title>Open asimov.md — the one file Asimov owns</title>
+    <rect x="504" y="286" width="240" height="52" rx="8"/>
+    <text x="520" y="308" style="font-weight:700">asimov.md</text>
+    <text class="sub" x="520" y="327">the one file Asimov owns</text>
+    <text class="go" x="730" y="327" text-anchor="end">→</text>
+  </a>
+
+  <!-- ─── personas ─── -->
+  <a class="reads" href="../inside/personas.html">
+    <title>Open Personas — readers who stand in for the people who sign</title>
+    <rect x="834" y="110" width="340" height="96" rx="10"/>
+    <text class="head mono" x="850" y="136">PERSONAS<tspan class="go" dx="8">→</tspan></text>
+    <text class="sub" x="850" y="158">read the design as the people who sign</text>
+    <text class="sub" x="850" y="178">report where they stopped, what to cut</text>
+  </a>
+
+  <!-- ─── agents ─── -->
+  <a class="reads" href="../inside/agents.html">
+    <title>Open Agents — builders, a tester and a reviewer in your house style</title>
+    <rect x="834" y="250" width="340" height="96" rx="10"/>
+    <text class="head mono" x="850" y="276">AGENTS<tspan class="go" dx="8">→</tspan></text>
+    <text class="sub" x="850" y="298">read your conventions, write code and tests</text>
+    <text class="sub" x="850" y="318">review the diff: findings, never a verdict</text>
+  </a>
+
+  <!-- ─── connectors: an arrow takes the colour of the box it enters ─── -->
+  <g class="flow into-writes" marker-end="url(#imArrowCyan)">
+    <path d="M164 232 H200"/>
+  </g>
+  <g class="flow into-repo" marker-end="url(#imArrowGrey)">
+    <path d="M434 232 H480"/>
+    <path d="M834 320 H768"/>
+  </g>
+  <g class="flow into-reads" marker-end="url(#imArrowAmber)">
+    <path d="M764 158 H830"/>
+    <path d="M764 288 H830"/>
+  </g>
+  <text class="lbl mono" x="457" y="222" text-anchor="middle">WRITES</text>
+  <text class="lbl mono" x="799" y="148" text-anchor="middle">READS</text>
+  <text class="lbl mono" x="799" y="278" text-anchor="middle">READS</text>
+  <text class="lbl mono" x="799" y="336" text-anchor="middle">CODE</text>
+</svg>
+    <div class="key" aria-label="Map colour key">
+      <b>Key</b>
+      <span><i style="--sw: var(--green)"></i>Yours: you and your repository</span>
+      <span><i style="--sw: var(--cyan)"></i>Asimov writes</span>
+      <span><i style="--sw: var(--amber)"></i>Asimov reads, then reviews or builds</span>
+      <span><i style="--sw: var(--violet)"></i>The frame around the work</span>
+      <span class="hint">→ opens the page</span>
+    </div>
+  </div>
+
+  <ul>
+    <li><strong>Everything lives in your repository.</strong> Commands write into it; personas and agents read from it. There is no copy inside the plugin to drift.</li>
+    <li><strong>Only the commands write.</strong> Personas hand back where they stopped reading; agents hand back code, tests and findings. The decisions stay yours.</li>
+    <li><strong>The frame is not a step.</strong> Project management is the engagement around the feature work; the artifacts it needs, a risk log among them, land in the repository later.</li>
+  </ul>
+
+</main>
+
+<footer class="foot"><div class="in">
+  <span>Asimov · by <a href="https://contextand.com">Context&amp;</a></span>
+  <a href="https://github.com/context-and-oss/asimov">GitHub</a>
+  <a href="https://github.com/context-and-oss/asimov/blob/main/CONTRIBUTING.md">Contributing</a>
+  <a href="https://github.com/context-and-oss/asimov/blob/main/LICENSE">MIT licence</a>
+</div></footer>
+</body>
+</html>

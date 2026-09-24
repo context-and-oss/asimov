@@ -1,0 +1,97 @@
+name: Asimov Release
+
+run-name: "Asimov Release"
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Tag and publish
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0 # full history + tags, needed to find the last version
+
+      - name: Determine next version
+        run: |
+          # Release tags are semver majors: 1.0.0, 2.0.0, ... (no "v" prefix),
+          # so the tag equals the plugin version exactly.
+          latest=$(git tag --list '[0-9]*.0.0' \
+            | sed 's/\..*//' \
+            | grep -E '^[0-9]+$' \
+            | sort -n \
+            | tail -1 || true)
+          num=$(( ${latest:-0} + 1 ))
+          if [ -z "$latest" ]; then
+            echo "No release tags found — this is the first release, starting at $num.0.0"
+          else
+            echo "Latest tag: $latest.0.0  ->  next: $num.0.0"
+          fi
+          {
+            echo "TAG=$num.0.0"
+            echo "DATE=$(date -u +%Y-%m-%d)"
+          } >> "$GITHUB_ENV"
+
+      - name: Refuse if the tag already exists
+        run: |
+          if git rev-parse -q --verify "refs/tags/$TAG" >/dev/null; then
+            echo "::error::Tag $TAG already exists."
+            exit 1
+          fi
+
+      - name: Bump plugin version and create release tags
+        run: |
+          # Stamp the plugin version to equal the release tag (e.g. 3.0.0).
+          manifest="plugins/asimov-plugin/.claude-plugin/plugin.json"
+          tmp="$(mktemp)"
+          jq --arg v "$TAG" '.version = $v' "$manifest" > "$tmp" \
+            && mv "$tmp" "$manifest"
+
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add plugins/asimov-plugin/.claude-plugin/plugin.json
+          
+          # Off-main commit: it lands only on tags, never on the protected main branch.
+          git commit -m "chore(release): asimov-plugin $TAG"
+
+          # Immutable per-release tag + the rolling "latest" pointer the marketplace tracks.
+          git tag "$TAG"
+          git tag -f latest
+          git push origin "refs/tags/$TAG"
+          git push -f origin refs/tags/latest
+
+      - name: Create source archive
+        run: |
+          name="${GITHUB_REPOSITORY##*/}"
+          zip="${name}-${TAG}.zip"
+          git archive --format=zip --prefix="${name}-${TAG}/" -o "$zip" HEAD
+          echo "ZIP=$zip" >> "$GITHUB_ENV"
+          unzip -l "$zip" | tail -5
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # The $TAG tag already exists (created above), so release from it directly.
+          gh release create "$TAG" "$ZIP" \
+            --title "Release $TAG - $DATE" \
+            --generate-notes
+
+      - name: Summary
+        run: |
+          sha="$(git rev-parse HEAD)"
+          echo "Published **$TAG** from \`${sha:0:7}\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "https://github.com/$GITHUB_REPOSITORY/releases/tag/$TAG" >> "$GITHUB_STEP_SUMMARY"

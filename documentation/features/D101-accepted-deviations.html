@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D101 — Accepted deviations — asimov docs</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+:root {
+  --bg:        #0a1424;
+  --bg2:       #122039;
+  --bg3:       #1b2e4d;
+  --bg-card:   #14253f;
+  --border:    #2b4a73;
+  --border-2:  #3b5e8f;
+  --text:      #fff;
+  --text-dim:  #a8b8d0;
+  --text-mute: #6b7a93;
+  --cyan:      #4fc3f7;
+  --teal:      #26c6da;
+  --green:     #66bb6a;
+  --amber:     #ffb74d;
+  --coral:     #ef5350;
+  --gold:      #ffd54f;
+  --violet:    #ab47bc;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; font-size: 15px; line-height: 1.6; overflow-x: hidden; padding-top: 56px; }
+a { color: inherit; text-decoration: none; }
+code, .mono { font-family: 'JetBrains Mono', monospace; font-size: 0.88em; }
+code { background: var(--bg3); padding: 1px 6px; border-radius: 4px; color: var(--cyan); }
+
+/* Top nav (site-wide — every D101 links to documentation home + chapter sections of the index) */
+.top-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(10,20,36,0.85); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 0.55rem 2rem; display: flex; gap: 1.4rem; align-items: center; font-size: 0.82rem; }
+.top-nav .brand, .top-nav .brand a { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--cyan); letter-spacing: 0.04em; text-decoration: none; }
+.top-nav .brand .sep { color: var(--border); margin: 0 0.5rem; }
+.top-nav a { color: var(--text-dim); font-weight: 500; }
+.top-nav a:hover { color: #fff; }
+.top-nav .spacer { flex: 1; }
+.top-nav .status-chip { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.25rem 0.7rem; border-radius: 999px; background: #ffd54f15; border: 1px solid #ffd54f44; color: var(--gold); font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 700; }
+.top-nav .status-chip::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--gold); }
+/* Phase chip — the authoring axis, deliberately NOT the status axis (see ground rule 12).
+   Square marker + cyan so the two chips never read as one control. */
+.top-nav .phase-chip { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.25rem 0.7rem; border-radius: 999px; background: #4fc3f715; border: 1px solid #4fc3f744; color: var(--cyan); font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 700; }
+.top-nav .phase-chip::before { content: ''; width: 6px; height: 6px; border-radius: 1px; background: var(--cyan); }
+.top-nav .phase-chip.full { background: #66bb6a15; border-color: #66bb6a44; color: var(--green); }
+.top-nav .phase-chip.full::before { background: var(--green); }
+
+/* Layout with left sidebar (per-page TOC) + content column */
+.layout-doc { display: grid; grid-template-columns: 200px minmax(0, 1fr); max-width: 1300px; margin: 0 auto; gap: 1.8rem; padding: 0.5rem 1.5rem; }
+.side-nav { position: sticky; top: 76px; align-self: start; max-height: calc(100vh - 90px); overflow-y: auto; padding: 0.7rem 0.5rem 1rem 0.2rem; font-size: 0.85rem; }
+.side-nav .side-head { font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-mute); margin-bottom: 0.7rem; padding-left: 0.6rem; }
+.side-nav ul { list-style: none; padding: 0; margin: 0; }
+.side-nav ul ul { padding-left: 0.9rem; margin-top: 0.1rem; }
+.side-nav li { margin: 0.1rem 0; }
+.side-nav a { display: block; padding: 0.32rem 0.7rem; color: var(--text-dim); border-left: 2px solid transparent; font-size: 0.86rem; line-height: 1.4; border-radius: 0 4px 4px 0; }
+.side-nav a:hover { color: #fff; background: #4fc3f708; border-left-color: var(--border-2); }
+.content { min-width: 0; }
+
+/* Hero (compact — top-nav already provides separation from page chrome) */
+.hero { padding: 1.5rem 2rem 1.5rem; position: relative; overflow: hidden; max-width: 1300px; margin: 0 auto; }
+.hero::before { content: ''; position: absolute; inset: 0; z-index: 0; background: radial-gradient(ellipse at 20% 30%, #4fc3f718 0%, transparent 50%), radial-gradient(ellipse at 80% 60%, #26c6da14 0%, transparent 50%); }
+.hero > * { position: relative; z-index: 1; }
+.kicker { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--cyan); padding: 0.3rem 0.8rem; border-radius: 999px; border: 1px solid #4fc3f744; background: #4fc3f711; margin-bottom: 1rem; }
+.hero h1 { font-size: clamp(2rem, 4.5vw, 3.4rem); font-weight: 900; letter-spacing: -0.03em; line-height: 1.05; background: linear-gradient(135deg, #fff 0%, var(--cyan) 50%, var(--teal) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.hero .tagline { font-size: 1.05rem; color: var(--text-dim); margin-top: 1rem; max-width: 760px; line-height: 1.6; }
+
+/* Metadata strip */
+.meta-strip { max-width: 1300px; margin: 1rem auto 0; padding: 0 2rem; display: grid; grid-template-columns: repeat(6, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.meta-cell { background: var(--bg-card); padding: 1rem 1.2rem; }
+.meta-cell .label { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-mute); margin-bottom: 0.35rem; }
+.meta-cell .value { font-size: 0.95rem; font-weight: 600; color: var(--text); }
+.meta-cell .value.mono { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; }
+
+/* Sections + chapter bands */
+section.s { max-width: 1300px; margin: 0 auto; padding: 3rem 2rem 0; }
+.chapter-band + section.s { padding-top: 1.5rem; }
+.section-title { font-size: clamp(1.5rem, 2.6vw, 2rem); font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.7rem; }
+.section-title .sec-ref { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; font-weight: 600; color: var(--text-mute); letter-spacing: 0.04em; margin-right: 0.7rem; vertical-align: middle; padding: 0.2rem 0.5rem; border-radius: 4px; background: var(--bg2); border: 1px solid var(--border); }
+.section-desc { color: var(--text-dim); font-size: 1rem; max-width: 780px; margin-bottom: 1.8rem; line-height: 1.65; }
+.chapter-band { max-width: 1300px; margin: 3.5rem auto 0; padding: 0 2rem; }
+.chapter-band-inner { display: grid; grid-template-columns: auto 1fr; gap: 1.5rem; align-items: center; padding: 1.4rem 1.8rem; border-radius: 12px; background: linear-gradient(135deg, #4fc3f714 0%, #26c6da05 100%); border: 1px solid var(--border); border-left: 4px solid var(--cyan); }
+.chapter-band .ch-num { font-family: 'JetBrains Mono', monospace; font-size: 2.6rem; font-weight: 800; color: var(--cyan); line-height: 1; }
+.chapter-band .ch-name { font-size: 1.35rem; font-weight: 700; color: #fff; letter-spacing: 0.01em; margin-bottom: 0.25rem; }
+.chapter-band .ch-summary { font-size: 0.88rem; color: var(--text-dim); line-height: 1.5; }
+
+/* Doc-scope line below metadata strip */
+.doc-scope { max-width: 1300px; margin: 0.7rem auto 0; padding: 0 2.2rem; font-size: 0.82rem; color: var(--text-mute); line-height: 1.5; }
+.doc-scope strong { color: var(--text-dim); font-weight: 600; }
+
+/* Principles */
+.principles { display: grid; gap: 0.65rem; }
+.principle { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 0.95rem 1.3rem; display: flex; gap: 1rem; align-items: center; }
+.principle .num { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; font-weight: 700; width: 30px; height: 30px; border-radius: 8px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--cyan), var(--teal)); color: #0a1424; }
+.principle .text { font-size: 0.95rem; }
+.principle .text strong { color: var(--cyan); font-weight: 700; }
+
+/* Generic bullet list — used anywhere with → / ⚠ items */
+ul.bullets { list-style: none; padding: 0; margin: 0.7rem 0 0; }
+ul.bullets li { position: relative; padding: 0.3rem 0 0.3rem 1.5rem; font-size: 0.9rem; color: var(--text-dim); line-height: 1.6; }
+ul.bullets li + li { margin-top: 0.15rem; }
+ul.bullets li::before { content: '→'; position: absolute; left: 0; top: 0.3rem; font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--cyan); }
+ul.bullets li.warn::before { content: '!'; color: var(--amber); }
+ul.bullets li code { font-size: 0.78rem; }
+
+/* Requirements — flat lists (Functional / Non-functional / Out of scope), all visible, no tabs */
+.req-list { display: grid; gap: 0.5rem; margin-bottom: 1.6rem; }
+.req-list:last-child { margin-bottom: 0; }
+.req { display: grid; grid-template-columns: 60px 1fr; gap: 1rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 0.7rem 1rem; align-items: start; }
+.req .id { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; font-weight: 700; color: var(--cyan); padding-top: 2px; }
+.req .body { font-size: 0.9rem; color: var(--text); line-height: 1.55; }
+.req.oos .id, .req-list.nf .req .id { color: var(--amber); }
+
+/* Data flow SVG diagram */
+.flow-wrap { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.8rem; overflow-x: auto; }
+.flow-wrap svg { display: block; margin: 0 auto; max-width: 100%; height: auto; }
+.flow-legend { display: flex; flex-wrap: wrap; gap: 1.2rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); font-size: 0.82rem; color: var(--text-dim); }
+.flow-legend .item { display: inline-flex; align-items: center; gap: 0.4rem; }
+.flow-legend .swatch { width: 14px; height: 4px; border-radius: 2px; }
+
+/* Interactive UI mockup (embedded via iframe; the mockup file is separate + self-contained) */
+.mockup-wrap { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 0.5rem; margin: 0.6rem 0 1rem; overflow: hidden; }
+.mockup-frame { display: block; width: 100%; border: none; border-radius: 8px; background: #fff; }
+
+/* Code map */
+.codemap { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.codemap-row { display: grid; grid-template-columns: 1fr 1.5fr; gap: 1rem; padding: 0.7rem 1.2rem; border-bottom: 1px solid var(--border); font-size: 0.85rem; align-items: center; }
+.codemap-row:last-child { border-bottom: none; }
+.codemap-row:nth-child(odd) { background: rgba(255,255,255,0.015); }
+.codemap-row .what { color: var(--text); }
+.codemap-row .where { color: var(--cyan); font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; word-break: break-all; }
+
+/* Decisions matrix */
+.decisions { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.decisions-head, .decision-row { display: grid; grid-template-columns: 1.2fr 1fr 1.4fr; gap: 1rem; padding: 0.9rem 1.2rem; align-items: start; border-bottom: 1px solid var(--border); }
+.decisions-head { background: var(--bg2); font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); }
+.decision-row { font-size: 0.85rem; }
+.decision-row:last-child { border-bottom: none; }
+.decision-row .decided { color: #fff; font-weight: 600; }
+.decision-row .alt { color: var(--amber); font-style: italic; font-size: 0.82rem; line-height: 1.5; }
+.decision-row .why { color: var(--text-dim); font-size: 0.82rem; line-height: 1.55; }
+
+/* Generic data table (Shapes §6.4, Configuration §6.6) */
+.data-table { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.data-table .row { display: grid; gap: 1rem; padding: 0.65rem 1.2rem; border-bottom: 1px solid var(--border); font-size: 0.85rem; align-items: start; }
+.data-table .row.head { background: var(--bg2); font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); font-weight: 700; }
+.data-table .row:last-child { border-bottom: none; }
+.data-table .row.cols-2 { grid-template-columns: 1fr 2fr; }
+.data-table .row.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+.data-table .row code { font-size: 0.78rem; }
+.data-table .row .label-cell { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; color: var(--cyan); }
+
+/* Inline-path list (Shapes §6.4) */
+.gps-paths { list-style: none; padding: 0.7rem 0 0; margin: 0; display: grid; gap: 0.4rem; }
+.gps-paths li { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--cyan); background: var(--bg2); border: 1px solid var(--border); border-radius: 6px; padding: 0.45rem 0.8rem; }
+
+/* Sub-section heading (Shapes has multiple sub-blocks) */
+.subhead { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-dim); font-weight: 700; margin: 1.5rem 0 0.6rem; }
+.subhead:first-child { margin-top: 0; }
+/* Anchored subhead (§7 per-unit blocks key to §6 contracts by number) — scroll-margin clears the fixed nav */
+.subhead[id] { scroll-margin-top: 80px; }
+.subhead .s-ref { color: var(--text-mute); margin-right: 0.45rem; }
+/* Implementation label under a §6 contract (§7 build notes) — lighter sibling of .subhead */
+.impl-head { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); font-weight: 700; margin: 1rem 0 0.3rem; }
+
+/* Build-status chip on §7 implementation rows (reuse / new / note) */
+.tag { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+.tag.reuse { background: #66bb6a22; color: var(--green); border: 1px solid #66bb6a55; }
+.tag.new   { background: #ffb74d22; color: var(--amber); border: 1px solid #ffb74d55; }
+.tag.note  { background: var(--bg2); color: var(--text-mute); border: 1px solid var(--border); }
+/* Per-unit build-notes table (§7.x) — a .data-table variant: Aspect | Build tag | Details-with-bullets */
+.impl-table .row { grid-template-columns: 0.5fr 0.45fr 2.75fr; }
+.impl-table .row ul { list-style: disc; margin: 0; padding-left: 1.05rem; display: grid; gap: 0.35rem; }
+.impl-table .row li { line-height: 1.5; }
+
+/* Failure handling */
+.failures { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.failures-head, .failure-row { display: grid; grid-template-columns: 1fr 1fr 80px 1.2fr; gap: 1rem; padding: 0.85rem 1.2rem; align-items: center; border-bottom: 1px solid var(--border); }
+.failures-head { background: var(--bg2); font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); }
+.failure-row { font-size: 0.85rem; }
+.failure-row:last-child { border-bottom: none; }
+.sev { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; font-weight: 700; padding: 0.2rem 0.55rem; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.06em; }
+.sev.med  { background: #ffb74d22; color: var(--amber); border: 1px solid #ffb74d55; }
+.sev.low  { background: #66bb6a22; color: var(--green); border: 1px solid #66bb6a55; }
+.sev.high { background: #ef535022; color: var(--coral); border: 1px solid #ef535055; }
+
+/* Acceptance criteria */
+.ac-table { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.ac-head, .ac-row { display: grid; grid-template-columns: 60px 150px 1fr; gap: 1rem; padding: 0.8rem 1.2rem; align-items: start; border-bottom: 1px solid var(--border); }
+.ac-head { background: var(--bg2); font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); }
+.ac-row { font-size: 0.86rem; }
+.ac-row:last-child { border-bottom: none; }
+.ac-row .ac-id { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--cyan); }
+.ac-row .ac-verifies { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+.verify-chip { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; padding: 0.15rem 0.5rem; border-radius: 4px; background: #4fc3f714; border: 1px solid #4fc3f744; color: var(--cyan); }
+
+/* Open questions — auto-fit */
+.q-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 0.7rem; }
+.q-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.2rem; border-left: 3px solid var(--gold); }
+.q-card .q-head { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
+.q-card .q-id { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; color: var(--gold); background: #ffd54f15; padding: 0.15rem 0.5rem; border-radius: 4px; }
+.q-card .q-decider { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--text-mute); }
+.q-card .q-body { font-size: 0.88rem; color: var(--text); line-height: 1.55; }
+
+/* Accepted deviation (d101-feature-design-definition §4.9) */
+.accepted { margin-top: 0.5rem; padding: 0.5rem 0.7rem; border-left: 3px solid var(--violet); border-radius: 0 6px 6px 0; background: #ab47bc12; font-size: 0.82rem; color: var(--text-dim); line-height: 1.55; }
+.accepted .accepted-tag { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--violet); background: #ab47bc22; border: 1px solid #ab47bc55; border-radius: 4px; padding: 0.1rem 0.45rem; margin-right: 0.45rem; }
+.accepted .accepted-rule { color: var(--text); font-weight: 600; }
+.accepted .accepted-by { display: block; margin-top: 0.3rem; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--text-mute); }
+
+/* References — auto-fit */
+.refs { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+.refs-block { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 1.1rem 1.3rem; }
+.refs-block h4 { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--cyan); margin-bottom: 0.7rem; }
+.refs-block ul { list-style: none; }
+.refs-block li { font-family: 'JetBrains Mono', monospace; font-size: 0.76rem; color: var(--text-dim); padding: 0.2rem 0; line-height: 1.5; word-break: break-all; }
+
+/* Callouts */
+.callout { background: linear-gradient(135deg, #4fc3f712, #26c6da08); border: 1px solid #4fc3f744; border-radius: 10px; padding: 1rem 1.3rem; margin: 1.2rem 0; font-size: 0.9rem; color: var(--text-dim); line-height: 1.6; }
+.callout strong { color: var(--cyan); }
+.callout.warn { background: linear-gradient(135deg, #ffd54f15, #ff890608); border-color: #ffd54f55; }
+.callout.warn strong { color: var(--gold); }
+
+footer.site-footer { max-width: 1300px; margin: 4rem auto 0; padding: 2rem; border-top: 1px solid var(--border); text-align: center; color: var(--text-mute); font-size: 0.82rem; line-height: 1.7; }
+footer.site-footer .mono { color: var(--text-dim); font-family: 'JetBrains Mono', monospace; }
+footer.site-footer a { color: var(--cyan); }
+
+@media (max-width: 1100px) {
+  .meta-strip { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 900px) {
+  .layout-doc { grid-template-columns: 1fr; gap: 1rem; padding: 1rem 1.2rem; }
+  .side-nav { position: static; max-height: none; overflow: visible; border: 1px solid var(--border); border-radius: 8px; padding: 1rem; background: var(--bg-card); }
+}
+@media (max-width: 720px) {
+  .top-nav { overflow-x: auto; padding: 0.55rem 1rem; gap: 1rem; }
+  .top-nav .spacer { display: none; }
+  .hero { padding: 1.2rem 1.2rem 1rem; }
+  section.s { padding: 2.5rem 1.2rem 0; }
+  .meta-strip { grid-template-columns: repeat(2, 1fr); margin: 1rem 1.2rem 0; }
+  .chapter-band { padding: 0 1.2rem; margin-top: 3rem; }
+  .chapter-band-inner { grid-template-columns: 1fr; gap: 0.5rem; padding: 1.2rem 1.4rem; }
+  .chapter-band .ch-num { font-size: 2rem; }
+  .decisions-head, .decision-row { grid-template-columns: 1fr; gap: 0.4rem; }
+  .failures-head, .failure-row { grid-template-columns: 1fr; }
+  .ac-head, .ac-row { grid-template-columns: 1fr; }
+}
+
+/* Resolved open questions (§9) — doc-local: the template has no resolved-question shape yet. */
+.q-card.resolved { border-left-color: var(--green); }
+.q-card.resolved .q-id { color: var(--green); background: #66bb6a15; }
+.q-card .q-resolution { font-size: 0.82rem; color: var(--text-dim); line-height: 1.5; margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--border); }
+.q-card .q-resolution strong { color: var(--green); }
+.refs-block li a { color: var(--cyan); }
+</style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <span class="brand"><a href="../index.html">ASIMOV<span class="sep">/</span>docs</a></span>
+  <a href="../index.html#s1">Architecture</a>
+  <a href="../index.html#s2">Features</a>
+  <span class="spacer"></span>
+  <span class="phase-chip full">Full design</span>
+  <span class="status-chip">Draft v0.2</span>
+</nav>
+
+<div class="layout-doc">
+  <aside class="side-nav">
+    <div class="side-head">On this page</div>
+    <ul>
+      <li><a href="#s2">§2 Purpose &amp; audience</a></li>
+      <li><a href="#s3">§3 Requirements</a></li>
+      <li><a href="#c4">§4 Business design</a>
+        <ul>
+          <li><a href="#s4-1">§4.1 Design principles</a></li>
+          <li><a href="#s4-2">§4.2 Model / concepts</a></li>
+          <li><a href="#s4-3">§4.3 Flow</a></li>
+          <li><a href="#s4-4">§4.4 Rules / constraints</a></li>
+          <li><a href="#s4-5">§4.5 Decisions</a></li>
+        </ul>
+      </li>
+      <li><a href="#s5">§5 UI Design</a></li>
+      <li><a href="#c6">§6 Technical design</a>
+        <ul>
+          <li><a href="#s6-1">§6.1 Platform</a></li>
+          <li><a href="#s6-2">§6.2 Data flow</a></li>
+          <li><a href="#s6-3">§6.3 Code map</a></li>
+          <li><a href="#s6-4">§6.4 Shapes / data model</a></li>
+          <li><a href="#s6-5">§6.5 APIs &amp; contracts</a></li>
+          <li><a href="#s6-6">§6.6 Configuration</a></li>
+          <li><a href="#s6-7">§6.7 Failure handling</a></li>
+          <li><a href="#s6-8">§6.8 Gotchas</a></li>
+        </ul>
+      </li>
+      <li><a href="#c7">§7 Implementation</a>
+        <ul>
+          <li><a href="#s7-1">§7.1 New vs. reuse</a></li>
+          <li><a href="#s7-2">§7.2 The files</a></li>
+          <li><a href="#s7-3">§7.3 Each touched file</a></li>
+          <li><a href="#s7-4">§7.4 Cross-cutting</a></li>
+        </ul>
+      </li>
+      <li><a href="#s8">§8 Acceptance</a></li>
+      <li><a href="#s9">§9 Open questions</a></li>
+      <li><a href="#s10">§10 References</a></li>
+    </ul>
+  </aside>
+
+  <article class="content">
+
+<header class="hero">
+  <div class="kicker">D101 · Feature design · asimov</div>
+  <h1>Accepted deviations</h1>
+  <p class="tagline">A way to record, <em>in the D101 and next to the thing it excuses</em>, that a rule of <code>d101-feature-design-definition.md</code> is deliberately not met — naming the rule, the reason, the person who accepted it and the date. The review then reports it as <strong>Accepted</strong> on every run instead of asking the author to decide again. It never silences a finding, never covers a whole check, and is never written by the reviewer.</p>
+</header>
+
+<div class="meta-strip">
+  <div class="meta-cell"><div class="label">Owner</div><div class="value">Context&amp;; lead <span class="mono">alb</span></div></div>
+  <div class="meta-cell"><div class="label">Business approver</div><div class="value">Allan Borup</div></div>
+  <div class="meta-cell"><div class="label">Kind</div><div class="value mono">cross-cutting</div></div>
+  <div class="meta-cell"><div class="label">Files touched</div><div class="value mono">8</div></div>
+  <div class="meta-cell"><div class="label">Last updated</div><div class="value mono">2026-09-15</div></div>
+  <div class="meta-cell"><div class="label">Status</div><div class="value">Draft</div></div>
+</div>
+
+<div class="doc-scope">
+  <strong>Scope:</strong> The Design stage of the L3 pipeline (D100 §3, stage 1). This D101 covers a convention that spans the definition, the template and both D101 commands — it adds no new command and no new subagent. The bar it modifies is <a href="../../plugins/asimov-plugin/artifacts/documentation/d101-feature-design/d101-feature-design-definition.md" style="color:var(--cyan)">d101-feature-design-definition.md</a> §4.9; the review behaviour it defines is <a href="D101-d101-review.html" style="color:var(--cyan)">D101 — /d101-review</a>'s to implement.
+</div>
+
+<!-- ═════════ §2 — Purpose & audience ═════════ -->
+<section class="s" id="s2">
+  <h2 class="section-title"><span class="sec-ref">§2</span>Purpose &amp; audience</h2>
+  <p class="section-desc">A review that re-reports a finding the team has already considered and chosen to live with spends the author's decision again on every run, and there is nowhere to put the fact that the decision was taken.</p>
+
+  <ul class="bullets">
+    <li><strong>The same finding costs a decision every time.</strong> One compound requirement was reported in three consecutive reviews of the same document; each round the author had to weigh it again, and nothing anywhere recorded that they already had.</li>
+    <li><strong>A decision taken in conversation does not survive the conversation.</strong> The reasoning lives in a chat that ends, while the next review starts from the document alone and reaches the same conclusion the same way.</li>
+    <li><strong>Silence is the only tool the author has.</strong> Faced with a finding they disagree with, the choice is to change the document or hear it again — so genuine accommodations get made by leaving the finding unaddressed, which is indistinguishable from neglect.</li>
+    <li><strong>A reviewer cannot tell an accommodation from an oversight.</strong> An unmet rule reads identically whether somebody weighed it and chose it or nobody noticed, which is precisely the judgement the human reviewer is there to make.</li>
+    <li><strong>Repetition trains people to stop reading.</strong> A report whose findings are partly known-and-settled teaches its reader to skim, and the finding that mattered goes past with the ones that didn't.</li>
+  </ul>
+
+  <div class="callout">
+    <strong>Audience.</strong> <strong>Primary:</strong> authors of D101s in any product repo, who decide what to fix and what to live with. <strong>Secondary:</strong> the human reviewers (≠ author) who own the gap-free verdict and must see every deviation they are signing off.
+  </div>
+  <div class="callout warn">
+    <strong>Not for.</strong> Weakening either bar. An accepted deviation excuses one named rule instance, never a check from <code>d101-feature-design-definition.md</code> §8 — a document is never <em>accepted</em> to the gap-free bar, only ever reaches it. It is also not a code-review mechanism: Baley judges code against repo conventions and is untouched by this.
+  </div>
+</section>
+
+<!-- ═════════ §3 — Requirements ═════════ -->
+<section class="s" id="s3">
+  <h2 class="section-title"><span class="sec-ref">§3</span>Requirements</h2>
+
+  <div class="subhead">Functional — 22</div>
+  <div class="req-list">
+    <div class="req"><div class="id">R1</div><div class="body">A D101 MUST be able to record that a named rule of <code>d101-feature-design-definition.md</code> is deliberately not met.</div></div>
+    <div class="req"><div class="id">R2</div><div class="body">The record MUST sit inside the D101, adjacent to the element the rule was applied to.</div></div>
+    <div class="req"><div class="id">R3</div><div class="body">The record MUST NOT live in any file other than the D101 it applies to — no side file, no repo-level register, no external tracker.</div></div>
+    <div class="req"><div class="id">R4</div><div class="body">The record MUST name the rule it departs from, by its section in <code>d101-feature-design-definition.md</code>.</div></div>
+    <div class="req"><div class="id">R5</div><div class="body">The record MUST give, in one sentence, why the instance is lived with rather than fixed.</div></div>
+    <div class="req"><div class="id">R6</div><div class="body">The record MUST name the person who accepted the deviation.</div></div>
+    <div class="req"><div class="id">R7</div><div class="body">The record MUST carry the date the deviation was accepted, as <code>YYYY-MM-DD</code>.</div></div>
+    <div class="req"><div class="id">R8</div><div class="body">The record MUST cover exactly one named rule instance.</div></div>
+    <div class="req"><div class="id">R9</div><div class="body">The record MUST NOT be written against a check from <code>d101-feature-design-definition.md</code> §8.</div></div>
+    <div class="req"><div class="id">R10</div><div class="body"><code>d101-feature-design-definition.md</code> MUST carry the single definition of what an accepted deviation is and what it may cover; the commands and the template MUST reference it by path rather than restating it.</div></div>
+    <div class="req"><div class="id">R11</div><div class="body"><code>d101-feature-design-template.html</code> MUST carry the markup shape and the styling of an accepted deviation, so a D101 that uses one is not a structural divergence.</div></div>
+    <div class="req"><div class="id">R12</div><div class="body"><code>/d101-review</code> MUST report every valid accepted deviation it finds, on every run, naming the rule, the reason and the accepter.</div></div>
+    <div class="req"><div class="id">R13</div><div class="body"><code>/d101-review</code> MUST mark the section-walk row of the annotated element <strong>Accepted</strong>.</div></div>
+    <div class="req"><div class="id">R14</div><div class="body"><code>/d101-review</code> MUST mark the §8 check that the accepted instance belongs to <strong>Accepted</strong> rather than Pass.</div></div>
+    <div class="req"><div class="id">R15</div><div class="body"><code>/d101-review</code> MUST judge every other finding in the annotated element at its normal severity, unaffected by the acceptance.</div></div>
+    <div class="req"><div class="id">R16</div><div class="body">When a record names no person or carries no date, <code>/d101-review</code> MUST report the underlying finding at its normal severity, as though the record were absent.</div></div>
+    <div class="req"><div class="id">R17</div><div class="body">When a record names no person or carries no date, <code>/d101-review</code> MUST additionally flag the record itself as a suppression, naming the §7 anti-pattern.</div></div>
+    <div class="req"><div class="id">R18</div><div class="body">When a record is written against a §8 check, <code>/d101-review</code> MUST mark it <strong>Fail</strong>, naming the §7 anti-pattern.</div></div>
+    <div class="req"><div class="id">R19</div><div class="body"><code>/d101-review</code> MUST NOT author an accepted deviation.</div></div>
+    <div class="req"><div class="id">R20</div><div class="body"><code>/d101-review</code> MUST NOT suggest that a finding be accepted rather than fixed.</div></div>
+    <div class="req"><div class="id">R21</div><div class="body">When a developer declines a rule of <code>d101-feature-design-definition.md</code> during authoring, <code>/d101-feature-design</code> MUST record it as an accepted deviation rather than silently complying or silently applying the rule anyway.</div></div>
+    <div class="req"><div class="id">R22</div><div class="body">When the developer has not named who accepts a deviation, <code>/d101-feature-design</code> MUST ask before writing the record.</div></div>
+  </div>
+
+  <div class="subhead">Non-functional — 4</div>
+  <div class="req-list nf">
+    <div class="req"><div class="id">NF1</div><div class="body"><strong>Visibility, never suppression.</strong> The mechanism removes a repeated <em>decision</em>, never a repeated <em>report</em>. The moment an acceptance makes a finding stop being printed, the reviewer who owns the §8b verdict is being kept from evidence.</div></div>
+    <div class="req"><div class="id">NF2</div><div class="body"><strong>Narrow by construction.</strong> The ceiling on what the mechanism can excuse is one named rule instance at a time — not a check, not a section, not a document. A bar that can be waived wholesale is not a bar.</div></div>
+    <div class="req"><div class="id">NF3</div><div class="body"><strong>No state outside the document.</strong> The D101 stays the whole record. Nothing to sync, nothing to migrate, and nothing that can silently disagree with the document it describes.</div></div>
+    <div class="req"><div class="id">NF4</div><div class="body"><strong>No product-specific assumptions.</strong> The convention names no product entity and works in any repo that follows the <code>documentation/features/</code> convention.</div></div>
+  </div>
+
+  <div class="subhead">Out of scope — 6</div>
+  <div class="req-list">
+    <div class="req oos"><div class="id">OOS1</div><div class="body"><strong>Accepting a whole §8 check.</strong> Reason: it converts <em>reaching</em> the gap-free bar into <em>being excused from</em> it, and the bar is the only thing making the reviewer-not-author gate meaningful.</div></div>
+    <div class="req oos"><div class="id">OOS2</div><div class="body"><strong>A repo-wide or org-wide deviation policy.</strong> Reason: a standing waiver applies to documents nobody had read when it was written, and per-document records keep the decision next to the evidence that produced it. A deviation that recurs across D101s is a signal about the rule, handled by the maturity convention (Q2).</div></div>
+    <div class="req oos"><div class="id">OOS3</div><div class="body"><strong>Expiry dates and automatic re-review of old acceptances.</strong> Reason: it needs a scheduler and a definition of staleness the toolkit has no home for; the date is recorded so a human can judge age for themselves.</div></div>
+    <div class="req oos"><div class="id">OOS4</div><div class="body"><strong>Extending the mechanism to Baley or to code review.</strong> Reason: code has its own conventions layer and its own reviewer; this convention is about the D101 bar only.</div></div>
+    <div class="req oos"><div class="id">OOS5</div><div class="body"><strong>Counting or scoring accepted deviations.</strong> Reason: a number invites optimising the number, and the mechanism's whole defence is that each instance is read individually by a human.</div></div>
+    <div class="req oos"><div class="id">OOS6</div><div class="body"><strong>Recording who proposed a deviation.</strong> Reason: only accountability matters and that belongs to the accepter; a proposer field would invite accepting on someone else's suggestion without owning it.</div></div>
+  </div>
+</section>
+
+<!-- ═════════ §4 — Chapter band ═════════ -->
+<div class="chapter-band" id="c4">
+  <div class="chapter-band-inner">
+    <div class="ch-num">4</div>
+    <div>
+      <div class="ch-name">Business design</div>
+      <div class="ch-summary">The principles that keep the mechanism from becoming a waiver system, the vocabulary it adds, the life of a finding from report to acceptance to lapse, the rules that decide when a record counts, and the decisions with their rejected alternatives.</div>
+    </div>
+  </div>
+</div>
+
+<!-- §4.1 Principles -->
+<section class="s" id="s4-1">
+  <h2 class="section-title"><span class="sec-ref">§4.1</span>Design principles</h2>
+  <div class="principles">
+    <div class="principle"><div class="num">1</div><div class="text"><strong>Record, don't suppress.</strong> The mechanism removes the repeated decision, not the repeated report — a finding covered by an acceptance is printed on every run, with its reason and its accepter.</div></div>
+    <div class="principle"><div class="num">2</div><div class="text"><strong>Next to the evidence.</strong> The record sits on the element it excuses, so it moves with the text and a reader meets it where the question arises rather than in a register they must think to open.</div></div>
+    <div class="principle"><div class="num">3</div><div class="text"><strong>A name, or it did not happen.</strong> A deviation with nobody's name on it is an assertion that someone decided, with nobody answerable — which is the anonymous-TBD failure wearing different clothes.</div></div>
+    <div class="principle"><div class="num">4</div><div class="text"><strong>One instance at a time.</strong> The ceiling on what a single record can excuse is one named rule instance, so the mechanism can never accumulate into a general exemption.</div></div>
+    <div class="principle"><div class="num">5</div><div class="text"><strong>Accepted is never Pass.</strong> A deliberate state gets its own name, exactly as <em>Open</em> does for an unwritten technical design — so a reader mistakes it neither for a shortfall nor for a clean bill.</div></div>
+    <div class="principle"><div class="num">6</div><div class="text"><strong>The reviewer never offers the waiver.</strong> Accepting belongs to the author and the accepter; a reviewer that proposes an acceptance is excusing itself from the finding it just raised.</div></div>
+    <div class="principle"><div class="num">7</div><div class="text"><strong>A fix is the default and stays the better outcome.</strong> The mechanism is deliberately narrow and deliberately public so that accepting always costs slightly more than fixing, wherever fixing is possible at all.</div></div>
+  </div>
+</section>
+
+<!-- §4.2 Model / concepts -->
+<section class="s" id="s4-2">
+  <h2 class="section-title"><span class="sec-ref">§4.2</span>Model / concepts</h2>
+  <p class="section-desc">Five terms this convention adds to the D101 vocabulary. Everything else — the bars, the phases, the checks — it inherits from <code>d101-feature-design-definition.md</code> unchanged.</p>
+
+  <div class="data-table">
+    <div class="row head cols-2"><div>Concept</div><div>What it means</div></div>
+    <div class="row cols-2"><div class="label-cell">Accepted deviation</div><div>A recorded decision that one named rule of the definition is deliberately not met at one named place in this D101.</div></div>
+    <div class="row cols-2"><div class="label-cell">Rule instance</div><div>The pairing of a rule with the single element it was applied to — the unit a deviation may cover, and never larger.</div></div>
+    <div class="row cols-2"><div class="label-cell">Accepter</div><div>The named person answerable for the deviation, which may be the author but is never nobody.</div></div>
+    <div class="row cols-2"><div class="label-cell"><code>Accepted</code> (severity)</div><div>The review verdict for an element or check whose only outstanding item is a valid deviation — a terminal state that never resolves into Pass.</div></div>
+    <div class="row cols-2"><div class="label-cell">Lapse</div><div>What happens to an acceptance when the text it annotates is materially rewritten: it stops applying, and the finding returns.</div></div>
+  </div>
+
+  <div class="subhead">The three deliberate states, side by side</div>
+  <p style="color: var(--text-dim); font-size: 0.9rem; line-height: 1.65;">
+    The definition now carries three ways of saying <em>this is on purpose</em>, and they are kept distinct in shape so that one-line stubs cannot be mistaken for each other.
+  </p>
+  <div class="data-table">
+    <div class="row head cols-3"><div>State</div><div>Says</div><div>Shape</div></div>
+    <div class="row cols-3"><div class="label-cell">N/A</div><div>This section does not apply to this feature.</div><div>A reason.</div></div>
+    <div class="row cols-3"><div class="label-cell">Open</div><div>This section applies and is not settled yet.</div><div>A list of what is outstanding.</div></div>
+    <div class="row cols-3"><div class="label-cell">Accepted</div><div>This rule applies, is not met, and that was decided.</div><div>A decision with a name and a date on it.</div></div>
+  </div>
+</section>
+
+<!-- §4.3 Flow -->
+<section class="s" id="s4-3">
+  <h2 class="section-title"><span class="sec-ref">§4.3</span>Flow</h2>
+  <p class="section-desc"><strong>Trigger.</strong> A review reports a finding the team looks at and decides to live with. <strong>Outcome:</strong> the decision is written into the D101 next to the element it excuses, and every later review reports it as <em>Accepted</em> instead of asking for the decision again. The finding leaves the author's queue, never the report.</p>
+
+  <div class="flow-wrap">
+    <!-- UML state machine, drawn from plugins/asimov-plugin/resources/diagrams/state-machine-template.svg.
+         Chosen because the subject is the LIFE of a finding — the states it can be in and what moves it
+         between them — which is what a reader must hold to see why Accepted is terminal but not permanent.
+         Budget: 4 states, 1 initial, 1 final, 6 transitions. -->
+    <svg viewBox="0 0 940 350" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="UML state machine for the life of a review finding. From an initial node the finding enters the Reported state. From Reported it moves to Fixed, a final state, when the author changes the document; or to Accepted, when a named person records the rule, a reason and a date. Accepted carries a self-transition: every later review reports it again without asking for a new decision. Accepted moves to Lapsed when the annotated text is rewritten, and Lapsed returns to Reported.">
+      <rect x="0" y="0" width="940" height="350" fill="#14253f"/>
+      <defs>
+        <marker id="sm-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 Z" fill="#a8b8d0"/>
+        </marker>
+      </defs>
+
+      <circle cx="40" cy="150" r="8" fill="#66bb6a"/>
+
+      <g>
+        <rect x="80" y="118" width="150" height="64" rx="10" fill="#66bb6a22" stroke="#66bb6a"/>
+        <text x="155" y="145" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="12" font-weight="700">Reported</text>
+        <text x="155" y="163" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">a finding, undecided</text>
+      </g>
+
+      <g>
+        <rect x="380" y="28" width="150" height="64" rx="10" fill="#26c6da1a" stroke="#26c6da"/>
+        <text x="455" y="55" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="12" font-weight="700">Fixed</text>
+        <text x="455" y="73" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">the document changed</text>
+      </g>
+
+      <g>
+        <rect x="380" y="216" width="150" height="64" rx="10" fill="#ab47bc1a" stroke="#ab47bc"/>
+        <text x="455" y="243" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="12" font-weight="700">Accepted</text>
+        <text x="455" y="261" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">named · reasoned · dated</text>
+      </g>
+
+      <g>
+        <rect x="680" y="216" width="150" height="64" rx="10" fill="#ffb74d1a" stroke="#ffb74d"/>
+        <text x="755" y="243" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="12" font-weight="700">Lapsed</text>
+        <text x="755" y="261" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">the acceptance expired</text>
+      </g>
+
+      <circle cx="640" cy="60" r="12" fill="none" stroke="#ef5350" stroke-width="1.5"/>
+      <circle cx="640" cy="60" r="6" fill="#ef5350"/>
+
+      <line x1="48" y1="150" x2="78" y2="150" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#sm-arr)"/>
+
+      <line x1="230" y1="136" x2="378" y2="72" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#sm-arr)"/>
+      <text x="250" y="96" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">author changes the document</text>
+
+      <line x1="230" y1="164" x2="378" y2="236" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#sm-arr)"/>
+      <text x="244" y="214" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">accepter records rule · why · date</text>
+
+      <line x1="530" y1="60" x2="626" y2="60" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#sm-arr)"/>
+
+      <path d="M410,280 C400,326 510,326 500,282" fill="none" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#sm-arr)"/>
+      <text x="455" y="344" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">every later review: reported, not re-decided</text>
+
+      <line x1="530" y1="248" x2="678" y2="248" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#sm-arr)"/>
+      <text x="604" y="238" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">annotated text rewritten</text>
+
+      <path d="M755,216 V108 H155 V116" fill="none" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#sm-arr)"/>
+      <text x="450" y="122" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">the finding returns, undecided</text>
+    </svg>
+    <div class="flow-legend">
+      <span class="item"><span class="swatch" style="background:var(--green)"></span>Entry — the finding as a review raises it</span>
+      <span class="item"><span class="swatch" style="background:var(--teal)"></span>Fixed — the only state that ends the story</span>
+      <span class="item"><span class="swatch" style="background:var(--violet)"></span>Accepted — terminal, but not permanent</span>
+      <span class="item"><span class="swatch" style="background:var(--amber)"></span>Lapsed — the text moved out from under the decision</span>
+      <span class="item"><span class="swatch" style="background:var(--coral)"></span>Final node</span>
+    </div>
+  </div>
+  <p style="color: var(--text-dim); font-size: 0.9rem; line-height: 1.65; margin-top: 0.8rem;">
+    Notation: UML state machine, per <code>plugins/asimov-plugin/resources/diagrams/state-machine-template.svg</code>. <em>Accepted</em> is drawn as a terminal state with a self-transition rather than as a final state, because the finding stops moving without the story being over — it resumes through <em>Lapsed</em> if the annotated text is rewritten. Only <em>Fixed</em> reaches the final node.
+  </p>
+
+  <div class="subhead">Steps</div>
+  <div class="principles">
+    <div class="principle"><div class="num">1</div><div class="text">A review reports a finding — a rule of <code>d101-feature-design-definition.md</code> not met at a named place in the document.</div></div>
+    <div class="principle"><div class="num">2</div><div class="text">The author decides: change the document, or live with it. Changing it ends the matter and nothing is recorded.</div></div>
+    <div class="principle"><div class="num">3</div><div class="text">To live with it, the author records the deviation through <code>/d101-feature-design</code>, next to the element the rule was applied to (R2, R21).</div></div>
+    <div class="principle"><div class="num">4</div><div class="text">The record names the rule, gives one sentence of reason, and carries the accepter's name and the date; the command asks for a name when the developer did not supply one (R4–R7, R22).</div></div>
+    <div class="principle"><div class="num">5</div><div class="text">Every later <code>/d101-review</code> run reports the deviation, marks that element and that check <strong>Accepted</strong>, and judges everything else in the element normally (R12–R15).</div></div>
+    <div class="principle"><div class="num">6</div><div class="text">The human reviewer reads the deviations alongside the findings and owns the gap-free verdict with both in view — which is what the record exists for.</div></div>
+    <div class="principle"><div class="num">7</div><div class="text">If the annotated text is later rewritten, the acceptance lapses and the finding returns as an ordinary one (BR4).</div></div>
+  </div>
+
+  <div class="subhead">Error paths</div>
+  <div class="data-table">
+    <div class="row head cols-2"><div>Error path</div><div>Response</div></div>
+    <div class="row cols-2"><div class="label-cell">Record names no accepter, or carries no date</div><div>The underlying finding stands at its normal severity, and the record itself is flagged as a suppression (R16).</div></div>
+    <div class="row cols-2"><div class="label-cell">Record is written against a §8 check</div><div>Fail, naming the anti-pattern — a document is never excused from a check (R18).</div></div>
+    <div class="row cols-2"><div class="label-cell">Author asks the reviewer to accept a finding on their behalf</div><div>Declines and points at <code>/d101-feature-design</code>; the reviewer neither writes nor proposes an acceptance (R19).</div></div>
+    <div class="row cols-2"><div class="label-cell">Record's reason no longer describes the text it sits on</div><div>Treated as lapsed: the acceptance does not apply and the finding is reported normally (BR4).</div></div>
+    <div class="row cols-2"><div class="label-cell">Record covers several rules at once</div><div>Judged as covering none of them — one record, one rule instance (R8, BR2).</div></div>
+    <div class="row cols-2"><div class="label-cell">A deviation is recorded where a fix was entirely possible</div><div>Nothing mechanical stops it; the record is public and signed, and the human reviewer is the check (NF1).</div></div>
+  </div>
+</section>
+
+<!-- §4.4 Rules / constraints -->
+<section class="s" id="s4-4">
+  <h2 class="section-title"><span class="sec-ref">§4.4</span>Rules / constraints</h2>
+  <p class="section-desc">Five conditional rules decide when a record counts and what it covers. Each names the case where it fires and the adjacent case where it does not, per <code>d101-feature-design-definition.md</code> §6.3. BR1–BR2 govern validity and scope; BR3–BR4 govern reach and lifetime; BR5 governs who may write one.</p>
+
+  <div class="subhead">BR1 — validity</div>
+  <p class="section-desc" style="margin-bottom:0.4rem"><strong style="color:var(--text)">Four fields, or it is not an acceptance.</strong> A record counts only when it names the rule, gives a reason, names a person and carries a date.</p>
+  <ul class="bullets">
+    <li><strong>Fires when</strong> all four are present — the element and its check read <strong>Accepted</strong>, and the author is not asked to decide again (R12–R14).</li>
+    <li><strong>Stays quiet when</strong> the person or the date is missing: the underlying finding stands at its normal severity <em>and</em> the record is flagged as a suppression (R16). A partial record is worse than none, because it looks decided.</li>
+  </ul>
+
+  <div class="subhead">BR2 — scope</div>
+  <p class="section-desc" style="margin-bottom:0.4rem"><strong style="color:var(--text)">One rule instance, never a check.</strong> What a record may excuse is bounded by construction rather than by good intentions.</p>
+  <ul class="bullets">
+    <li><strong>Fires when</strong> the record names one rule as applied at one place — <em>"atomic requirement (§5), at R6"</em> — and covers exactly that (R8).</li>
+    <li><strong>Stays quiet when</strong> the record names a check from §8, or names a rule without a place: it is marked <strong>Fail</strong> as the anti-pattern <em>a deviation that swallows a check</em> (R18). Accepting a check would replace <em>reaching</em> the bar with <em>being excused from</em> it.</li>
+  </ul>
+
+  <div class="subhead">BR3 — containment</div>
+  <p class="section-desc" style="margin-bottom:0.4rem"><strong style="color:var(--text)">An acceptance never covers its neighbours.</strong> The rest of the annotated element is judged exactly as it would have been.</p>
+  <ul class="bullets">
+    <li><strong>Fires when</strong> a requirement carries an accepted deviation for one rule — every other rule still applies to that same requirement, at full severity (R15).</li>
+    <li><strong>Stays quiet when</strong> an author reads the record as covering the row: a requirement accepted as compound is still failed for having no acceptance criterion, because that is a different rule.</li>
+  </ul>
+
+  <div class="subhead">BR4 — lapse</div>
+  <p class="section-desc" style="margin-bottom:0.4rem"><strong style="color:var(--text)">The decision is bound to the text.</strong> An acceptance describes one piece of writing, so it cannot outlive it.</p>
+  <ul class="bullets">
+    <li><strong>Fires when</strong> the annotated element is materially rewritten — the acceptance no longer applies, and the finding returns as an ordinary one needing a new decision.</li>
+    <li><strong>Stays quiet when</strong> the edit is cosmetic and the reason still describes the text: a typo fix or a reworded clause does not reopen a settled question.</li>
+    <li class="warn">Nothing detects a lapse automatically. The reason sentence is what a reader compares against the text, which is why it names the specific shape being accepted rather than saying <em>"as discussed"</em>.</li>
+  </ul>
+
+  <div class="subhead">BR5 — who may write one</div>
+  <p class="section-desc" style="margin-bottom:0.4rem"><strong style="color:var(--text)">The author records; the reviewer never offers.</strong> Writing an acceptance is an authoring act, and it happens where authoring happens.</p>
+  <ul class="bullets">
+    <li><strong>Fires when</strong> the developer declines a rule during <code>/d101-feature-design</code> — the command records the deviation and asks who is accepting it if no name was given (R21, R22).</li>
+    <li><strong>Stays quiet when</strong> the request reaches <code>/d101-review</code>: it declines, because a reviewer that writes or even suggests a waiver is excusing itself from the finding it just raised (R19).</li>
+  </ul>
+</section>
+
+<!-- §4.5 Decisions -->
+<section class="s" id="s4-5">
+  <h2 class="section-title"><span class="sec-ref">§4.5</span>Decisions and alternatives</h2>
+  <p class="section-desc">A decision recorded without its rejected alternative is one that gets re-litigated.</p>
+  <div class="decisions">
+    <div class="decisions-head">
+      <div>Decided</div>
+      <div>Alternative considered</div>
+      <div>Why this won</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided"><strong>Location:</strong> inline in the D101, on the element it excuses (R2, R3)</div>
+      <div class="alt">A per-document exceptions file; a repo-level review-exceptions register</div>
+      <div class="why">A side file keys its entries to numbers, and numbers move — this repo watched one citation drift through three wrong requirement numbers across two renumberings. Inline, the record travels with the text and the reviewer meets it where the question arises.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided"><strong>Effect on the review:</strong> the finding is still reported, every run (R12, NF1)</div>
+      <div class="alt">Suppress the finding once accepted, the way a linter ignore-comment does</div>
+      <div class="why">Suppression hides the deviation from the human reviewer who owns the §8b verdict, which moves a decision from the reviewer to the author. Removing the repeated <em>decision</em> was the actual problem; removing the repeated <em>report</em> was never asked for.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided"><strong>Severity:</strong> a fifth value, <code>Accepted</code>, that never resolves to Pass (R13, R14)</div>
+      <div class="alt">Report the element as Pass once a deviation covers it; or keep Flag and add a note</div>
+      <div class="why"><em>Pass</em> would tell a reviewer the rule was met when it was not, and <em>Flag</em> would keep asking for the decision that was already taken. The toolkit already made this move once, inventing <em>Open</em> for a deliberately unwritten §6.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided"><strong>Scope ceiling:</strong> one named rule instance; a §8 check may never be accepted (R8, R9)</div>
+      <div class="alt">Allow a check-level deviation with a stronger accepter (e.g. the business approver)</div>
+      <div class="why">A check is the bar. Making it waivable by anyone turns the gap-free verdict into a negotiation, and the seniority of the waiver only changes who conducts it.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided"><strong>Accountability:</strong> a named person plus a date, both required (R6, R7)</div>
+      <div class="alt">A role (&ldquo;the team&rdquo;, &ldquo;architecture&rdquo;); or no attribution at all, since the record is in a version-controlled file</div>
+      <div class="why">Git says who typed it, not who decided it, and a role is nobody in particular when the deviation is questioned a year later. This is the same rule the definition already applies to open questions.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided"><strong>Lifetime:</strong> bound to the annotated text; no expiry dates (BR4, OOS3)</div>
+      <div class="alt">Expire acceptances after N months; require re-confirmation each release</div>
+      <div class="why">An expiry needs a scheduler and a notion of staleness the toolkit has nowhere to keep, and it would fire on deviations that are still perfectly sound. Binding to the text expires exactly the ones that stopped describing reality.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided"><strong>Authorship:</strong> the reviewer may neither write nor propose an acceptance (R19, BR5)</div>
+      <div class="alt">Let <code>/d101-review</code> offer &ldquo;accept this finding?&rdquo; at the point it reports it</div>
+      <div class="why">It is the shortest path to a document full of waivers: the tool that raised the finding would be offering the way out of it, at the moment the author is most inclined to take it.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided"><strong>Reach:</strong> D101s only — not code review, not S101 (OOS4)</div>
+      <div class="alt">One deviation mechanism spanning every Asimov artifact</div>
+      <div class="why">Code already has a conventions layer with its own escape hatches, and S101 does not exist yet. A mechanism generalised before its second case is a guess about the second case.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════ §5 — UI Design (top-level) ═════════ -->
+<section class="s" id="s5">
+  <h2 class="section-title"><span class="sec-ref">§5</span>UI Design</h2>
+  <p class="section-desc">This convention has no user-facing surface.</p>
+  <div class="callout">N/A — a document convention and a review behaviour, with no product screen. The one thing it renders is a block inside a D101 page, which is a document component specified as markup and styling in <a href="#s6-4" style="color:var(--cyan)">§6.4</a>, not a UI a user navigates.</div>
+</section>
+
+<!-- ═════════ §6 — Chapter band ═════════ -->
+<div class="chapter-band" id="c6">
+  <div class="chapter-band-inner">
+    <div class="ch-num">6</div>
+    <div>
+      <div class="ch-name">Technical design</div>
+      <div class="ch-summary">Where the convention lives across five files, how a record moves from the document into a report, the markup contract that carries the four fields, and the ways a record fails. Code map is one table of files; there is no data model, no API and no configuration.</div>
+    </div>
+  </div>
+</div>
+
+<!-- §6.1 Platform -->
+<section class="s" id="s6-1">
+  <h2 class="section-title"><span class="sec-ref">§6.1</span>Platform</h2>
+  <p class="section-desc">No runtime and no new artifact: the convention is a definition section, a markup shape in the template, and a branch in each of the two D101 commands. It ships with the plugin and takes effect on the next invocation after install.</p>
+  <div class="data-table">
+    <div class="row head cols-2"><div>Attribute</div><div>Value</div></div>
+    <div class="row cols-2"><div class="label-cell">Contract</div><div><code>plugins/asimov-plugin/artifacts/documentation/d101-feature-design/d101-feature-design-definition.md</code> §4.9 — the sole definition (R10)</div></div>
+    <div class="row cols-2"><div class="label-cell">Shape</div><div><code>plugins/asimov-plugin/artifacts/documentation/d101-feature-design/d101-feature-design-template.html</code> — markup, styling, N/A-policy entry, ground rule 14 (R11)</div></div>
+    <div class="row cols-2"><div class="label-cell">Reader</div><div><code>plugins/asimov-plugin/commands/d101-review.md</code> — the <code>Accepted</code> severity and the validity branch (R12–R19)</div></div>
+    <div class="row cols-2"><div class="label-cell">Writer</div><div><code>plugins/asimov-plugin/commands/d101-feature-design.md</code> — records a deviation, asks for the accepter (R21, R22)</div></div>
+    <div class="row cols-2"><div class="label-cell">Storage</div><div>The D101 file itself; no index, no register, no external state (NF3)</div></div>
+    <div class="row cols-2"><div class="label-cell">Escalation gate</div><div>None — additive to two commands and one definition, with no schema, install or infrastructure change</div></div>
+  </div>
+</section>
+
+<!-- §6.2 Data flow -->
+<section class="s" id="s6-2">
+  <h2 class="section-title"><span class="sec-ref">§6.2</span>Data flow</h2>
+  <p class="section-desc">A deviation is written once by the authoring command and read on every review run. Nothing leaves the document: the record is data in the D101, and the report is the only thing produced. The lifecycle view — what states a finding passes through — is <a href="#s4-3" style="color:var(--cyan)">§4.3</a>.</p>
+  <div class="flow-wrap">
+    <!-- Data-flow flowchart: the definition and the developer's decision on the left, the authoring
+         command writing the record into the D101 in the middle, the review command reading it back out
+         on the right. Deliberately the data-movement view, distinct from the §4.3 state machine.
+         Budget: 2 sources, 2 processes, 1 store, 1 sink. -->
+    <svg viewBox="0 0 960 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Data-flow diagram. The definition section 4.9 and the developer decision feed the authoring command, which writes an accepted-deviation record into the D101 file. The review command reads the definition and the same D101 file, and emits a report to chat that marks the element and its check Accepted. Nothing is written anywhere but the D101.">
+      <rect x="0" y="0" width="960" height="300" fill="#14253f"/>
+      <defs>
+        <marker id="ad-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 Z" fill="#a8b8d0"/>
+        </marker>
+      </defs>
+
+      <g>
+        <rect x="20" y="36" width="196" height="48" rx="8" fill="#4fc3f71a" stroke="#4fc3f7"/>
+        <text x="118" y="56" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="10.5" font-weight="700">definition §4.9</text>
+        <text x="118" y="72" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">what may be accepted</text>
+      </g>
+      <g>
+        <rect x="20" y="120" width="196" height="48" rx="8" fill="#66bb6a22" stroke="#66bb6a"/>
+        <text x="118" y="140" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="10.5" font-weight="700">the decision</text>
+        <text x="118" y="156" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">accepter · reason · date</text>
+      </g>
+
+      <g>
+        <rect x="288" y="108" width="164" height="72" rx="10" fill="#ffb74d1a" stroke="#ffb74d"/>
+        <text x="370" y="136" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">/d101-feature-design</text>
+        <text x="370" y="154" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">writes the record</text>
+        <text x="370" y="170" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">asks for a name</text>
+      </g>
+
+      <g>
+        <rect x="524" y="108" width="164" height="72" rx="10" fill="#26c6da1a" stroke="#26c6da"/>
+        <text x="606" y="140" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">the D101</text>
+        <text x="606" y="158" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">the whole record lives here</text>
+      </g>
+
+      <g>
+        <rect x="760" y="36" width="180" height="64" rx="10" fill="#ffb74d1a" stroke="#ffb74d"/>
+        <text x="850" y="62" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">/d101-review</text>
+        <text x="850" y="80" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">validates · reports</text>
+      </g>
+
+      <g>
+        <rect x="760" y="204" width="180" height="64" rx="10" fill="#ab47bc1a" stroke="#ab47bc"/>
+        <text x="850" y="230" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">report → chat</text>
+        <text x="850" y="248" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">element + check: Accepted</text>
+      </g>
+
+      <line x1="216" y1="60" x2="286" y2="126" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#ad-arr)"/>
+      <line x1="216" y1="144" x2="286" y2="144" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#ad-arr)"/>
+      <line x1="452" y1="144" x2="522" y2="144" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#ad-arr)"/>
+      <text x="487" y="136" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">write</text>
+
+      <path d="M688,126 H726 V68 H758" fill="none" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#ad-arr)"/>
+      <text x="726" y="112" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">read</text>
+
+      <path d="M118,84 V246 H758" fill="none" stroke="#a8b8d0" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#ad-arr)"/>
+      <text x="330" y="240" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">the same §4.9, re-read at review time</text>
+
+      <line x1="850" y1="100" x2="850" y2="202" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#ad-arr)"/>
+    </svg>
+    <div class="flow-legend">
+      <span class="item"><span class="swatch" style="background:var(--cyan)"></span>The contract — read by both commands</span>
+      <span class="item"><span class="swatch" style="background:var(--green)"></span>The decision — supplied by people</span>
+      <span class="item"><span class="swatch" style="background:var(--amber)"></span>The commands</span>
+      <span class="item"><span class="swatch" style="background:var(--teal)"></span>The D101 — the only store</span>
+      <span class="item"><span class="swatch" style="background:var(--violet)"></span>The report — Accepted, every run</span>
+    </div>
+  </div>
+  <p style="color: var(--text-dim); font-size: 0.9rem; line-height: 1.65; margin-top: 0.8rem;">Notation: a data-flow flowchart — sources on the left, the two commands as processes, the D101 as the single store, the report as the sink. The dashed edge is the same definition section reaching the review at run time, which is what keeps writer and reader on one contract.</p>
+
+  <div class="subhead">Inputs</div>
+  <div class="data-table">
+    <div class="row head cols-2"><div>Input</div><div>Source</div></div>
+    <div class="row cols-2"><div class="label-cell">What may be accepted</div><div><code>d101-feature-design-definition.md</code> §4.9, read at run time by both commands (R10)</div></div>
+    <div class="row cols-2"><div class="label-cell">The markup shape</div><div><code>d101-feature-design-template.html</code> — component catalogue entry, N/A-policy entry and ground rule 14 (R11)</div></div>
+    <div class="row cols-2"><div class="label-cell">The decision itself</div><div>The developer, during authoring: which rule, why, and who accepts it (R21, R22)</div></div>
+    <div class="row cols-2"><div class="label-cell">Existing records</div><div>The <code>.accepted</code> blocks already in the target D101, read with the rest of the file</div></div>
+  </div>
+
+  <div class="subhead">Outputs</div>
+  <ul class="bullets">
+    <li><strong>Into the document</strong> — one <code>.accepted</code> block inside the element it excuses, carrying the four fields (R2, R4–R7).</li>
+    <li><strong>Into the section walk</strong> — the annotated element's row reads <strong>Accepted</strong>, with the rule, the reason and the accepter in the reason cell (R13).</li>
+    <li><strong>Into the bar table</strong> — the check that instance belongs to reads <strong>Accepted</strong> rather than Pass, carrying the same reason (R14).</li>
+    <li><strong>Nowhere else</strong> — no register, no count, no index; the document remains the whole record (NF3, OOS5).</li>
+  </ul>
+</section>
+
+<!-- §6.3 Code map -->
+<section class="s" id="s6-3">
+  <h2 class="section-title"><span class="sec-ref">§6.3</span>Code map</h2>
+  <div class="codemap">
+    <div class="codemap-row"><div class="what">The definition of an accepted deviation, its four fields and its three limits</div><div class="where">plugins/asimov-plugin/artifacts/documentation/d101-feature-design/d101-feature-design-definition.md §4.9</div></div>
+    <div class="codemap-row"><div class="what">The two anti-patterns that catch an invalid record</div><div class="where">plugins/asimov-plugin/artifacts/documentation/d101-feature-design/d101-feature-design-definition.md §7</div></div>
+    <div class="codemap-row"><div class="what">The bar-level statement that no check may be accepted</div><div class="where">plugins/asimov-plugin/artifacts/documentation/d101-feature-design/d101-feature-design-definition.md §8</div></div>
+    <div class="codemap-row"><div class="what">Markup shape, styling, N/A-policy entry, component catalogue, ground rule 14</div><div class="where">plugins/asimov-plugin/artifacts/documentation/d101-feature-design/d101-feature-design-template.html</div></div>
+    <div class="codemap-row"><div class="what">The Accepted severity, the validity branch and the never-author hard rule</div><div class="where">plugins/asimov-plugin/commands/d101-review.md</div></div>
+    <div class="codemap-row"><div class="what">Recording a deviation and asking for the accepter</div><div class="where">plugins/asimov-plugin/commands/d101-feature-design.md</div></div>
+  </div>
+</section>
+
+<!-- §6.4 Shapes / data model -->
+<section class="s" id="s6-4">
+  <h2 class="section-title"><span class="sec-ref">§6.4</span>Shapes / data model</h2>
+  <p class="section-desc">One shape: the record itself. It is markup inside the D101, so the &ldquo;model&rdquo; is which field lands in which element — that mapping is the contract a review validates against.</p>
+
+  <div class="subhead">The record</div>
+  <div class="data-table">
+    <div class="row head cols-3"><div>Field</div><div>Carried by</div><div>Rule</div></div>
+    <div class="row cols-3"><div class="label-cell">Marker</div><div><code>.accepted-tag</code></div><div>The literal word <em>Accepted</em>, so the block is recognisable before it is read.</div></div>
+    <div class="row cols-3"><div class="label-cell">Rule</div><div><code>.accepted-rule</code></div><div>The departed-from rule named with its section in the definition (R4).</div></div>
+    <div class="row cols-3"><div class="label-cell">Reason</div><div>The block's own text</div><div>One sentence, specific enough that a reader can tell whether it still describes the text (R5, BR4).</div></div>
+    <div class="row cols-3"><div class="label-cell">Accepter and date</div><div><code>.accepted-by</code></div><div>A person's name, then the date as <code>YYYY-MM-DD</code> (R6, R7).</div></div>
+    <div class="row cols-3"><div class="label-cell">Placement</div><div>Nesting</div><div>Inside the <code>.req</code>, <code>.ac-row</code> or section the rule was applied to — placement <em>is</em> the instance (R2, R8).</div></div>
+  </div>
+
+  <div class="subhead">Styling</div>
+  <ul class="bullets">
+    <li>Violet (<code>--violet</code>), deliberately neither the amber of a warning nor the green of a pass — the third state gets a third colour.</li>
+    <li>A left border and an indent, so the block reads as an annotation on its parent rather than as a sibling of it.</li>
+    <li>The accepter line is rendered muted and monospaced, matching how deciders are shown on open questions.</li>
+  </ul>
+</section>
+
+<!-- §6.5 APIs & contracts -->
+<section class="s" id="s6-5">
+  <h2 class="section-title"><span class="sec-ref">§6.5</span>APIs &amp; contracts</h2>
+  <div class="callout">N/A — no API. The only outward contract is the markup shape in <a href="#s6-4" style="color:var(--cyan)">§6.4</a>, which the template publishes and the review validates.</div>
+</section>
+
+<!-- §6.6 Configuration & secrets -->
+<section class="s" id="s6-6">
+  <h2 class="section-title"><span class="sec-ref">§6.6</span>Configuration &amp; secrets</h2>
+  <div class="callout">N/A — nothing configurable and no secret. What may be accepted is fixed by <code>d101-feature-design-definition.md</code> §4.9; a repo cannot loosen it, which is the point (NF2).</div>
+</section>
+
+<!-- §6.7 Failure handling -->
+<section class="s" id="s6-7">
+  <h2 class="section-title"><span class="sec-ref">§6.7</span>Failure handling</h2>
+  <p class="section-desc">Every failure here is a record that claims more than it earns. The response in each case is the same in kind: fall back to reporting the finding. The first five rows are the five invalidity cases <code>/d101-review</code> checks, in the order its validity branch lists them.</p>
+  <div class="failures">
+    <div class="failures-head"><div>Failure</div><div>Effect</div><div>Severity</div><div>Recovery</div></div>
+    <div class="failure-row"><div>Record names no accepter, or no date</div><div>A deviation appears decided while nobody is answerable</div><div><span class="sev high">High</span></div><div>The finding stands at normal severity and the record is flagged as a suppression (R16).</div></div>
+    <div class="failure-row"><div>Record is written against a §8 check</div><div>The document would be excused from the bar rather than reaching it</div><div><span class="sev high">High</span></div><div>Marked Fail, naming the anti-pattern; the check is judged as if the record were absent (R18).</div></div>
+    <div class="failure-row"><div>Record covers several rules in one block</div><div>Its scope is unbounded in practice</div><div><span class="sev med">Med</span></div><div>Covers none of them — every finding stands at normal severity, the report names the reason, and the author splits it into one record per rule instance (R8, BR2).</div></div>
+    <div class="failure-row"><div>Record names a rule but sits on no element</div><div>A general claim wears the shape of an instance</div><div><span class="sev med">Med</span></div><div>Not honoured — the finding stands at normal severity and the report names the missing placement; the author moves the record into the element it excuses (R8, BR2).</div></div>
+    <div class="failure-row"><div>Annotated text rewritten, record left behind</div><div>A stale decision silently excuses new text</div><div><span class="sev med">Med</span></div><div>The acceptance lapses and the finding returns; the reason sentence is what makes the staleness visible (BR4).</div></div>
+    <div class="failure-row"><div>Reviewer is asked to accept a finding</div><div>The tool that raised the finding would be waiving it</div><div><span class="sev high">High</span></div><div>Declines and points at <code>/d101-feature-design</code> (R19).</div></div>
+    <div class="failure-row"><div>A D101 accumulates many deviations</div><div>The bar is met on paper and not in fact</div><div><span class="sev med">Med</span></div><div>Nothing mechanical intervenes; every record is printed, named and dated, and the human reviewer is the check (NF1, OOS5).</div></div>
+    <div class="failure-row"><div>Template not updated in a consuming repo</div><div>The block renders unstyled</div><div><span class="sev low">Low</span></div><div>The four fields are still readable as text and the review still validates them; the styling is cosmetic.</div></div>
+  </div>
+</section>
+
+<!-- §6.8 Known constraints & gotchas -->
+<section class="s" id="s6-8">
+  <h2 class="section-title"><span class="sec-ref">§6.8</span>Known constraints &amp; gotchas</h2>
+  <ul class="bullets">
+    <li><strong>Nothing detects a lapse.</strong> BR4 is enforced by a human comparing the reason against the text, which is why the reason must name the specific shape being accepted rather than gesturing at a conversation.</li>
+    <li><strong>The mechanism cannot tell a good acceptance from a lazy one.</strong> It guarantees only that a lazy one is signed, dated and printed on every run — the deterrent is visibility, not validation.</li>
+    <li><strong>One reader today.</strong> <code>/d101-review</code> is the only tool that reads a D101 against the definition; any second reader added later must honour <code>.accepted</code> the same way, or a deviation this toolkit honours returns there as a plain finding (Q3).</li>
+    <li><strong>Placement carries meaning.</strong> A record moved out of its element loses its instance and becomes a general claim, which BR2 then rejects — the nesting is data, not layout.</li>
+    <li><strong>The two anti-patterns are what keep the mechanism honest.</strong> Without them an unsigned or check-level record would simply be believed, and the mechanism would become the waiver system it exists not to be.</li>
+  </ul>
+</section>
+
+<!-- ═════════ §7 — Chapter band ═════════ -->
+<div class="chapter-band" id="c7">
+  <div class="chapter-band-inner">
+    <div class="ch-num">7</div>
+    <div>
+      <div class="ch-name">Implementation</div>
+      <div class="ch-summary">What is genuinely new against what already exists, the seven files the change lands in, the per-file build notes keyed to the §6 contracts, and the concerns shared across all of them.</div>
+    </div>
+  </div>
+</div>
+
+<!-- §7.1 New vs. reuse -->
+<section class="s" id="s7-1">
+  <h2 class="section-title"><span class="sec-ref">§7.1</span>What is genuinely new to build</h2>
+  <p class="section-desc">Everything not listed here arrives by reuse. The section sits outside both bars (<code>d101-feature-design-definition.md</code> §4.8) — it gates no verdict and moves neither chip.</p>
+  <div class="callout">
+    <strong>These notes are code-grounded design.</strong> Each was checked against the files as they stand in the plugin; where the built artifact already differs from §3, it is marked inline rather than smoothed over.
+  </div>
+  <ul class="bullets">
+    <li><strong>The definition section.</strong> §4.9 is the whole contract — four fields, three limits, and the rule that <em>Accepted</em> never becomes <em>Pass</em>; everything else references it (R10).</li>
+    <li><strong>Two anti-patterns.</strong> <em>Deviation without an accepter</em> and <em>a deviation that swallows a check</em> are what make an invalid record fail rather than be believed (R16, R18).</li>
+    <li><strong>A fifth severity.</strong> <code>Accepted</code> joins Pass / Open / Flag / Fail in the ladder the review already shares between the section walk and the bar table, so it lands in both tables without new machinery (R13, R14).</li>
+    <li><strong>The markup shape.</strong> A <code>.accepted</code> block with three named spans, nesting inside whichever element it excuses — new, and the only rendering this feature adds (R11).</li>
+    <li><strong>The authoring branch.</strong> <code>/d101-feature-design</code> gains a response to <em>&ldquo;we have already decided to live with that&rdquo;</em>, including asking who accepts it (R21, R22).</li>
+    <li><strong>Reused, not built.</strong> The severity-ladder machinery, the section walk, the N/A-policy structure that already distinguishes N/A from OPEN from PENDING, and the anti-pattern list the two new entries join.</li>
+    <li class="warn"><strong>The worked example is real, not illustrative.</strong> NF2 and NF3 of <a href="D101-d101-review.html" style="color:var(--cyan)">D101 — /d101-review</a> carried their deviation as prose no tool could read; they now carry it as two records, which is the mechanism's first live use.</li>
+  </ul>
+</section>
+
+<!-- §7.2 The files -->
+<section class="s" id="s7-2">
+  <h2 class="section-title"><span class="sec-ref">§7.2</span>The files</h2>
+  <p class="section-desc" style="margin-bottom:0.9rem">No new file is created in the plugin — the change is edits to seven existing files plus this design. Paths are relative to <code>plugins/asimov-plugin/</code> unless stated.</p>
+  <div class="data-table">
+    <div class="row head" style="grid-template-columns: 0.9fr 2fr;"><div>File</div><div>What lands in it</div></div>
+    <div class="row" style="grid-template-columns: 0.9fr 2fr;">
+      <div class="label-cell">artifacts/documentation/d101-feature-design/</div>
+      <div><ul class="bullets" style="margin:0"><li><code>d101-feature-design-definition.md</code> — §4.9, two §7 anti-patterns, and the §8 statement that no check may be accepted.</li><li><code>d101-feature-design-template.html</code> — CSS, the fifth N/A-policy form, a component-catalogue entry, ground rule 14, and a filled example inside the §3 shell.</li></ul></div>
+    </div>
+    <div class="row" style="grid-template-columns: 0.9fr 2fr;">
+      <div class="label-cell">commands/</div>
+      <div><ul class="bullets" style="margin:0"><li><code>d101-review.md</code> — the fifth severity, the validity branch, and the never-author hard rule.</li><li><code>d101-feature-design.md</code> — the authoring branch in the push-back list.</li></ul></div>
+    </div>
+    <div class="row" style="grid-template-columns: 0.9fr 2fr;">
+      <div class="label-cell">documentation/ <em>(repo, not plugin)</em></div>
+      <div><ul class="bullets" style="margin:0"><li>This D101, plus its row in <code>D100-Asimov-architecture.md</code> and its card on <code>index.html</code>.</li><li><code>CLAUDE.md</code> — the hard rule that a deviation never covers a check.</li></ul></div>
+    </div>
+  </div>
+</section>
+
+<!-- §7.3 Per-file build notes -->
+<section class="s" id="s7-3">
+  <h2 class="section-title"><span class="sec-ref">§7.3</span>Each touched file</h2>
+  <p class="section-desc">Build notes per file, keyed to the §6 contracts — where the behaviour comes from, what bounds it, and what is enforced rather than left to the model's discretion.</p>
+
+  <div class="subhead" id="s7-3-1"><span class="s-ref">§7.3.1</span><code>d101-feature-design-definition.md</code> · contract <a href="#s6-1">§6.1</a></div>
+  <div class="data-table impl-table">
+    <div class="row head"><div>Aspect</div><div>Build</div><div>Details</div></div>
+    <div class="row">
+      <div class="label-cell">Source</div><div><span class="tag new">new</span></div>
+      <div><ul><li>§4.9 states the four fields and the three limits in one place (R10).</li><li>Placed after §4.8 so the deliberate states — open, then outside-the-bars, then accepted — read in sequence.</li></ul></div>
+    </div>
+    <div class="row">
+      <div class="label-cell">Enforce</div><div><span class="tag new">new</span></div>
+      <div><ul><li>Two §7 anti-patterns catch the unsigned record and the check-level record.</li><li>§8 carries the sentence that no check may be accepted, so the limit sits where the checks are read.</li></ul></div>
+    </div>
+    <div class="row">
+      <div class="label-cell">Bound</div><div><span class="tag note">note</span></div>
+      <div><ul><li>The definition describes the record; it does not describe the markup, which is the template's job.</li></ul></div>
+    </div>
+  </div>
+
+  <div class="subhead" id="s7-3-2"><span class="s-ref">§7.3.2</span><code>d101-feature-design-template.html</code> · contract <a href="#s6-4">§6.4</a></div>
+  <div class="data-table impl-table">
+    <div class="row head"><div>Aspect</div><div>Build</div><div>Details</div></div>
+    <div class="row">
+      <div class="label-cell">Source</div><div><span class="tag new">new</span></div>
+      <div><ul><li>Four CSS rules for <code>.accepted</code> and its three spans, using the existing <code>--violet</code> token.</li><li>A filled example inside the §3 requirements shell, so an author copies rather than invents.</li></ul></div>
+    </div>
+    <div class="row">
+      <div class="label-cell">Enforce</div><div><span class="tag new">new</span></div>
+      <div><ul><li>The N/A policy grows from four shapes to five, with the one-line contrast: N/A gives a reason, OPEN a list, ACCEPTED a decision with a name.</li><li>Ground rule 14 states the no-side-file rule where authors read the ground rules.</li></ul></div>
+    </div>
+    <div class="row">
+      <div class="label-cell">Reuse</div><div><span class="tag reuse">reuse</span></div>
+      <div><ul><li>The component catalogue, the ground-rule list and the N/A policy already exist; each gains one entry.</li></ul></div>
+    </div>
+  </div>
+
+  <div class="subhead" id="s7-3-3"><span class="s-ref">§7.3.3</span><code>d101-review.md</code> · contract <a href="#s6-2">§6.2</a></div>
+  <div class="data-table impl-table">
+    <div class="row head"><div>Aspect</div><div>Build</div><div>Details</div></div>
+    <div class="row">
+      <div class="label-cell">Source</div><div><span class="tag reuse">reuse</span></div>
+      <div><ul><li>§4.9 arrives with the definition the command already re-reads on every run.</li><li>The <code>.accepted</code> block arrives with the target D101, which is already read in full.</li></ul></div>
+    </div>
+    <div class="row">
+      <div class="label-cell">Judgement</div><div><span class="tag new">new</span></div>
+      <div><ul><li>A validity branch with five invalid cases: no person or date; a whole §8 check; several rules in one block; a rule attached to no element; annotated text since rewritten (§6.7).</li><li>A valid record marks both the section-walk row and its §8 check <strong>Accepted</strong> (R13, R14).</li></ul></div>
+    </div>
+    <div class="row">
+      <div class="label-cell">Bound</div><div><span class="tag new">new</span></div>
+      <div><ul><li>An acceptance covers its one instance; everything else in the element is judged normally (R15, BR3).</li><li><code>Accepted</code> never resolves to Pass, in either table.</li></ul></div>
+    </div>
+    <div class="row">
+      <div class="label-cell">Enforce</div><div><span class="tag new">new</span></div>
+      <div><ul><li>A hard rule forbids authoring <em>or proposing</em> an acceptance (R19).</li><li>An invalid record is reported twice — the finding at its own severity, and the record as a suppression (R16).</li></ul></div>
+    </div>
+  </div>
+
+  <div class="subhead" id="s7-3-4"><span class="s-ref">§7.3.4</span><code>d101-feature-design.md</code> · contract <a href="#s6-2">§6.2</a></div>
+  <div class="data-table impl-table">
+    <div class="row head"><div>Aspect</div><div>Build</div><div>Details</div></div>
+    <div class="row">
+      <div class="label-cell">Source</div><div><span class="tag reuse">reuse</span></div>
+      <div><ul><li>The push-back list already exists; the branch joins it beside the anonymous-TBD rule it mirrors.</li></ul></div>
+    </div>
+    <div class="row">
+      <div class="label-cell">Judgement</div><div><span class="tag new">new</span></div>
+      <div><ul><li>A declined rule is neither silently obeyed nor silently dropped — it becomes a record (R21).</li><li>An unnamed accepter is asked for before the block is written (R22).</li></ul></div>
+    </div>
+    <div class="row">
+      <div class="label-cell">Enforce</div><div><span class="tag new">new</span></div>
+      <div><ul><li>The command never proposes an acceptance the developer did not ask for — the fix stays the default.</li></ul></div>
+    </div>
+  </div>
+</section>
+
+<!-- §7.4 Cross-cutting -->
+<section class="s" id="s7-4">
+  <h2 class="section-title"><span class="sec-ref">§7.4</span>Cross-cutting — shared by the four files</h2>
+  <ul class="bullets">
+    <li><strong>One definition, referenced by path.</strong> The template and both commands point at §4.9 rather than restating it, so the contract cannot drift between writer and reader (hard rule 3).</li>
+    <li><strong>The mechanism mirrors one that already works.</strong> <em>Accepted</em> is built the way <em>Open</em> was — a deliberate state given its own name so a reader cannot read it as either a failure or a pass.</li>
+    <li><strong>Nothing is added to either axis.</strong> A deviation moves neither the phase chip nor the status chip, and no command records one on the author's behalf.</li>
+    <li><strong>The two anti-patterns are the load-bearing part.</strong> Without them the mechanism degrades into a waiver system on the first unsigned record.</li>
+    <li class="warn"><strong>Consuming repos pick the change up on plugin update, not on write.</strong> A D101 authored against the new template renders unstyled in a repo running an older plugin, though its four fields stay readable and reviewable.</li>
+  </ul>
+</section>
+
+<!-- ═════════ §8 — Acceptance criteria ═════════ -->
+<section class="s" id="s8">
+  <h2 class="section-title"><span class="sec-ref">§8</span>Acceptance criteria</h2>
+  <div class="ac-table">
+    <div class="ac-head"><div>#</div><div>Verifies</div><div>Description</div></div>
+    <div class="ac-row"><div class="ac-id">AC1</div><div class="ac-verifies"><span class="verify-chip">R1</span><span class="verify-chip">R2</span></div><div><strong>A rule can be declined on the record.</strong> A D101 whose requirement carries a <code>.accepted</code> block naming a rule of the definition renders that block inside the requirement row, not beside it or below the section.</div></div>
+    <div class="ac-row"><div class="ac-id">AC2</div><div class="ac-verifies"><span class="verify-chip">R3</span></div><div><strong>No second home.</strong> A repo-wide grep for an exceptions or waivers file finds none, and removing a D101 removes every deviation recorded against it.</div></div>
+    <div class="ac-row"><div class="ac-id">AC3</div><div class="ac-verifies"><span class="verify-chip">R4</span><span class="verify-chip">R5</span><span class="verify-chip">R6</span><span class="verify-chip">R7</span></div><div><strong>Four fields present.</strong> Each <code>.accepted</code> block in the repo names a definition section, one sentence of reason, a person, and a date in <code>YYYY-MM-DD</code>.</div></div>
+    <div class="ac-row"><div class="ac-id">AC4</div><div class="ac-verifies"><span class="verify-chip">R12</span></div><div><strong>Reported every run.</strong> Two consecutive <code>/d101-review</code> runs against an unchanged D101 both name the same deviation, its rule and its accepter.</div></div>
+    <div class="ac-row"><div class="ac-id">AC5</div><div class="ac-verifies"><span class="verify-chip">R13</span></div><div><strong>The element reads Accepted.</strong> On a D101 whose NF row carries a valid deviation, the section-walk row for §3 is <strong>Accepted</strong> — not Pass, not Flag.</div></div>
+    <div class="ac-row"><div class="ac-id">AC6</div><div class="ac-verifies"><span class="verify-chip">R14</span></div><div><strong>The check reads Accepted.</strong> The §8b row for the check that instance belongs to is <strong>Accepted</strong>, carrying the same reason, and the report contains no Pass for it.</div></div>
+    <div class="ac-row"><div class="ac-id">AC7</div><div class="ac-verifies"><span class="verify-chip">R15</span><span class="verify-chip">BR3</span></div><div><strong>Containment.</strong> Add a second, unrelated defect to a requirement that already carries a deviation: the review reports that defect at full severity in the same run.</div></div>
+    <div class="ac-row"><div class="ac-id">AC8</div><div class="ac-verifies"><span class="verify-chip">R16</span><span class="verify-chip">R17</span></div><div><strong>Unsigned is not accepted.</strong> Delete the accepter line from a valid block: the underlying finding returns at its normal severity and the report additionally flags the record, naming the anti-pattern.</div></div>
+    <div class="ac-row"><div class="ac-id">AC9</div><div class="ac-verifies"><span class="verify-chip">R9</span><span class="verify-chip">R18</span></div><div><strong>A check cannot be accepted.</strong> A block written against &ldquo;check 1&rdquo; instead of a rule instance is marked <strong>Fail</strong>, and check 1 is judged as though the block were absent.</div></div>
+    <div class="ac-row"><div class="ac-id">AC10</div><div class="ac-verifies"><span class="verify-chip">R8</span><span class="verify-chip">BR2</span></div><div><strong>One instance per record.</strong> A block naming two rules covers neither: both findings appear at their normal severities.</div></div>
+    <div class="ac-row"><div class="ac-id">AC11</div><div class="ac-verifies"><span class="verify-chip">R19</span><span class="verify-chip">R20</span></div><div><strong>The reviewer never waives.</strong> Asked to accept a finding, <code>/d101-review</code> declines and points at <code>/d101-feature-design</code>; no report it produces suggests accepting anything.</div></div>
+    <div class="ac-row"><div class="ac-id">AC12</div><div class="ac-verifies"><span class="verify-chip">R21</span></div><div><strong>Authoring records it.</strong> Telling <code>/d101-feature-design</code> that a compound requirement is deliberate produces a <code>.accepted</code> block on that requirement — neither a silent split nor a silent acceptance.</div></div>
+    <div class="ac-row"><div class="ac-id">AC13</div><div class="ac-verifies"><span class="verify-chip">R22</span></div><div><strong>The name is asked for.</strong> Declining a rule without naming an accepter makes the command ask who accepts it before writing anything.</div></div>
+    <div class="ac-row"><div class="ac-id">AC14</div><div class="ac-verifies"><span class="verify-chip">R10</span></div><div><strong>One contract, read at run time.</strong> Editing §4.9 changes both commands' behaviour on the next invocation, and neither command file restates the definition.</div></div>
+    <div class="ac-row"><div class="ac-id">AC15</div><div class="ac-verifies"><span class="verify-chip">R11</span></div><div><strong>Not a structural divergence.</strong> A D101 using <code>.accepted</code> draws no structural-divergence finding, because the class is in the template's component catalogue.</div></div>
+    <div class="ac-row"><div class="ac-id">AC16</div><div class="ac-verifies"><span class="verify-chip">BR4</span></div><div><strong>Lapse on rewrite.</strong> Rewrite an annotated requirement so the reason no longer describes it: the review reports the finding as ordinary and does not honour the stale record.</div></div>
+    <div class="ac-row"><div class="ac-id">AC17</div><div class="ac-verifies"><span class="verify-chip">BR1</span></div><div><strong>Validity is all-or-nothing.</strong> A block missing any one of the four fields is treated as invalid, whichever field is missing.</div></div>
+    <div class="ac-row"><div class="ac-id">AC18</div><div class="ac-verifies"><span class="verify-chip">BR5</span></div><div><strong>Only authoring writes.</strong> After a <code>/d101-review</code> run, <code>git status</code> shows no change to any D101, including one whose findings were discussed as acceptable.</div></div>
+    <div class="ac-row"><div class="ac-id">AC19</div><div class="ac-verifies"><span class="verify-chip">NF1</span></div><div><strong>Visibility preserved.</strong> No configuration, flag or phrasing makes an accepted deviation stop appearing in a report.</div></div>
+    <div class="ac-row"><div class="ac-id">AC20</div><div class="ac-verifies"><span class="verify-chip">NF2</span></div><div><strong>Ceiling holds.</strong> There is no supported way to record a deviation covering a section, a document, or a check — only a rule instance.</div></div>
+    <div class="ac-row"><div class="ac-id">AC21</div><div class="ac-verifies"><span class="verify-chip">NF3</span></div><div><strong>No outside state.</strong> Copying a D101 into another repo carries its deviations with it, complete, with nothing left behind.</div></div>
+    <div class="ac-row"><div class="ac-id">AC22</div><div class="ac-verifies"><span class="verify-chip">NF4</span></div><div><strong>No product-specific assumptions.</strong> §4.9, the template entry and both command branches name no product entity, and the mechanism works unchanged in a repo sharing none of this repo's vocabulary.</div></div>
+  </div>
+</section>
+
+<!-- ═════════ §9 — Open questions ═════════ -->
+<section class="s" id="s9">
+  <h2 class="section-title"><span class="sec-ref">§9</span>Open questions</h2>
+  <p class="section-desc">Open:</p>
+  <div class="q-grid">
+    <div class="q-card">
+      <div class="q-head"><span class="q-id">Q1</span><span class="q-decider">Context&amp; lead (alb)</span></div>
+      <div class="q-body">Should an accepted deviation require an accepter who is <em>not</em> the author, mirroring the reviewer-not-author gate on the gap-free bar?</div>
+      <div class="q-resolution">Resolution path: decide after the first handful of real deviations — if authors are routinely signing their own, the separation is worth its cost; if deviations are rare, it is ceremony.</div>
+    </div>
+  </div>
+
+  <p class="section-desc" style="margin-top:1.8rem;">Resolved:</p>
+  <div class="q-grid">
+    <div class="q-card resolved">
+      <div class="q-head"><span class="q-id">Q2</span><span class="q-decider">Resolved 2026-09-10</span></div>
+      <div class="q-body">If one deviation recurs across many D101s — the same rule declined for the same reason every time — is that a signal to relax the rule in <code>d101-feature-design-definition.md</code> rather than to accept it repeatedly (OOS2)?</div>
+      <div class="q-resolution"><strong>Decision:</strong> Yes, by the artifact-maturity convention — <a href="D101-artifact-maturity.html#s4-3" style="color:var(--cyan)">D101 — Artifact maturity</a> §4.3 rule 3: below <code>adopt</code>, a rule declined by accepted deviation on three documents is reworded; at <code>adopt</code> the same signal opens a D101 instead.</div>
+    </div>
+    <div class="q-card resolved">
+      <div class="q-head"><span class="q-id">Q3</span><span class="q-decider">Resolved 2026-09-15</span></div>
+      <div class="q-body">A second tool reading D101s against the definition would not know §4.9 and would report findings this toolkit honours as accepted. Should such a reader learn the convention, or is the duplicate report acceptable noise?</div>
+      <div class="q-resolution"><strong>Decision:</strong> Deferred until a second reader exists — none does today (§6.8). When one is added it must honour <code>.accepted</code> the same way <code>/d101-review</code> does, so the record is read from the D101 and never re-litigated elsewhere.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════ §10 — References ═════════ -->
+<section class="s" id="s10">
+  <h2 class="section-title"><span class="sec-ref">§10</span>References</h2>
+  <div class="refs">
+    <div class="refs-block">
+      <h4>Sibling docs</h4>
+      <ul>
+        <li><a href="D101-d101-review.html">D101 — /d101-review</a> — the reader of an accepted deviation, and the first document to carry one</li>
+        <li><a href="D101-d101-feature-design.html">D101 — /d101-feature-design</a> — the writer of an accepted deviation</li>
+        <li><a href="../D100-Asimov-architecture.md">D100-Asimov-architecture.md</a> — system architecture and the L3 process this convention lives in</li>
+      </ul>
+    </div>
+    <div class="refs-block">
+      <h4>Files this convention lives in</h4>
+      <ul>
+        <li><a href="../../plugins/asimov-plugin/artifacts/documentation/d101-feature-design/d101-feature-design-definition.md">artifacts/documentation/d101-feature-design/d101-feature-design-definition.md</a> — §4.9 the definition, §7 the two anti-patterns, §8 the no-check limit</li>
+        <li><a href="../../plugins/asimov-plugin/artifacts/documentation/d101-feature-design/d101-feature-design-template.html">artifacts/documentation/d101-feature-design/d101-feature-design-template.html</a> — markup, styling, N/A policy, ground rule 14</li>
+        <li><code>commands/d101-review.md</code> — the <code>Accepted</code> severity and the validity branch</li>
+        <li><code>commands/d101-feature-design.md</code> — the authoring branch</li>
+      </ul>
+    </div>
+    <div class="refs-block">
+      <h4>Prior art</h4>
+      <ul>
+        <li>Linter suppression comments (<code>eslint-disable</code>, <code>noqa</code>) — inline placement borrowed; silent suppression deliberately not</li>
+        <li>SonarQube <em>won't fix</em> — the accepter-and-reason shape, moved out of a separate database and into the artifact</li>
+        <li><code>d101-feature-design-definition.md</code> §4.6 <em>open</em> — the precedent for giving a deliberate state its own name</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+  </article>
+</div>
+
+<footer class="site-footer">
+  <div>
+    <a href="../index.html">← Documentation home</a>
+    · <span class="mono">features/D101-accepted-deviations.html</span>
+  </div>
+  <div style="margin-top: 0.4rem">
+    D101 · Accepted deviations · asimov · Full design · Draft v0.2 · 2026-09-15
+  </div>
+</footer>
+
+</body>
+</html>

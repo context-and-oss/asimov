@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D101 — Build subagents — asimov-plugin docs</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+:root {
+  --bg:        #0a1424;
+  --bg2:       #122039;
+  --bg3:       #1b2e4d;
+  --bg-card:   #14253f;
+  --border:    #2b4a73;
+  --border-2:  #3b5e8f;
+  --text:      #fff;
+  --text-dim:  #a8b8d0;
+  --text-mute: #6b7a93;
+  --cyan:      #4fc3f7;
+  --teal:      #26c6da;
+  --green:     #66bb6a;
+  --amber:     #ffb74d;
+  --coral:     #ef5350;
+  --gold:      #ffd54f;
+  --violet:    #ab47bc;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; font-size: 15px; line-height: 1.6; overflow-x: hidden; padding-top: 56px; }
+a { color: inherit; text-decoration: none; }
+code, .mono { font-family: 'JetBrains Mono', monospace; font-size: 0.88em; }
+code { background: var(--bg3); padding: 1px 6px; border-radius: 4px; color: var(--cyan); }
+
+/* Top nav (site-wide — every D101 links to documentation home + chapter sections of the index) */
+.top-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(10,20,36,0.85); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 0.55rem 2rem; display: flex; gap: 1.4rem; align-items: center; font-size: 0.82rem; }
+.top-nav .brand, .top-nav .brand a { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--cyan); letter-spacing: 0.04em; text-decoration: none; }
+.top-nav .brand .sep { color: var(--border); margin: 0 0.5rem; }
+.top-nav a { color: var(--text-dim); font-weight: 500; }
+.top-nav a:hover { color: #fff; }
+.top-nav .spacer { flex: 1; }
+.top-nav .status-chip { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.25rem 0.7rem; border-radius: 999px; background: #ffd54f15; border: 1px solid #ffd54f44; color: var(--gold); font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 700; }
+.top-nav .status-chip::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--gold); }
+.top-nav .phase-chip { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.25rem 0.7rem; border-radius: 999px; background: #4fc3f715; border: 1px solid #4fc3f744; color: var(--cyan); font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 700; }
+.top-nav .phase-chip::before { content: ''; width: 6px; height: 6px; border-radius: 1px; background: var(--cyan); }
+.top-nav .phase-chip.full { background: #66bb6a15; border-color: #66bb6a44; color: var(--green); }
+.top-nav .phase-chip.full::before { background: var(--green); }
+
+/* Layout with left sidebar (per-page TOC) + content column */
+.layout-doc { display: grid; grid-template-columns: 200px minmax(0, 1fr); max-width: 1300px; margin: 0 auto; gap: 1.8rem; padding: 0.5rem 1.5rem; }
+.side-nav { position: sticky; top: 76px; align-self: start; max-height: calc(100vh - 90px); overflow-y: auto; padding: 0.7rem 0.5rem 1rem 0.2rem; font-size: 0.85rem; }
+.side-nav .side-head { font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-mute); margin-bottom: 0.7rem; padding-left: 0.6rem; }
+.side-nav ul { list-style: none; padding: 0; margin: 0; }
+.side-nav ul ul { padding-left: 0.9rem; margin-top: 0.1rem; }
+.side-nav li { margin: 0.1rem 0; }
+.side-nav a { display: block; padding: 0.32rem 0.7rem; color: var(--text-dim); border-left: 2px solid transparent; font-size: 0.86rem; line-height: 1.4; border-radius: 0 4px 4px 0; }
+.side-nav a:hover { color: #fff; background: #4fc3f708; border-left-color: var(--border-2); }
+.content { min-width: 0; }
+
+/* Hero (compact — top-nav already provides separation from page chrome) */
+.hero { padding: 1.5rem 2rem 1.5rem; position: relative; overflow: hidden; max-width: 1300px; margin: 0 auto; }
+.hero::before { content: ''; position: absolute; inset: 0; z-index: 0; background: radial-gradient(ellipse at 20% 30%, #4fc3f718 0%, transparent 50%), radial-gradient(ellipse at 80% 60%, #26c6da14 0%, transparent 50%); }
+.hero > * { position: relative; z-index: 1; }
+.kicker { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--cyan); padding: 0.3rem 0.8rem; border-radius: 999px; border: 1px solid #4fc3f744; background: #4fc3f711; margin-bottom: 1rem; }
+.hero h1 { font-size: clamp(2rem, 4.5vw, 3.4rem); font-weight: 900; letter-spacing: -0.03em; line-height: 1.05; background: linear-gradient(135deg, #fff 0%, var(--cyan) 50%, var(--teal) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.hero .tagline { font-size: 1.05rem; color: var(--text-dim); margin-top: 1rem; max-width: 760px; line-height: 1.6; }
+
+/* Metadata strip */
+.meta-strip { max-width: 1300px; margin: 1rem auto 0; padding: 0 2rem; display: grid; grid-template-columns: repeat(6, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.meta-cell { background: var(--bg-card); padding: 1rem 1.2rem; }
+.meta-cell .label { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-mute); margin-bottom: 0.35rem; }
+.meta-cell .value { font-size: 0.95rem; font-weight: 600; color: var(--text); }
+.meta-cell .value.mono { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; }
+
+/* Sections + chapter bands */
+section.s { max-width: 1300px; margin: 0 auto; padding: 3rem 2rem 0; }
+.chapter-band + section.s { padding-top: 1.5rem; }
+.section-title { font-size: clamp(1.5rem, 2.6vw, 2rem); font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.7rem; }
+.section-title .sec-ref { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; font-weight: 600; color: var(--text-mute); letter-spacing: 0.04em; margin-right: 0.7rem; vertical-align: middle; padding: 0.2rem 0.5rem; border-radius: 4px; background: var(--bg2); border: 1px solid var(--border); }
+.section-desc { color: var(--text-dim); font-size: 1rem; max-width: 780px; margin-bottom: 1.8rem; line-height: 1.65; }
+.chapter-band { max-width: 1300px; margin: 3.5rem auto 0; padding: 0 2rem; }
+.chapter-band-inner { display: grid; grid-template-columns: auto 1fr; gap: 1.5rem; align-items: center; padding: 1.4rem 1.8rem; border-radius: 12px; background: linear-gradient(135deg, #4fc3f714 0%, #26c6da05 100%); border: 1px solid var(--border); border-left: 4px solid var(--cyan); }
+.chapter-band .ch-num { font-family: 'JetBrains Mono', monospace; font-size: 2.6rem; font-weight: 800; color: var(--cyan); line-height: 1; }
+.chapter-band .ch-name { font-size: 1.35rem; font-weight: 700; color: #fff; letter-spacing: 0.01em; margin-bottom: 0.25rem; }
+.chapter-band .ch-summary { font-size: 0.88rem; color: var(--text-dim); line-height: 1.5; }
+
+/* Doc-scope line below metadata strip */
+.doc-scope { max-width: 1300px; margin: 0.7rem auto 0; padding: 0 2.2rem; font-size: 0.82rem; color: var(--text-mute); line-height: 1.5; }
+.doc-scope strong { color: var(--text-dim); font-weight: 600; }
+
+/* Problem cards — auto-fit so they scale with the content column (narrower under sidebar) */
+.problem-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; }
+.problem-card { background: linear-gradient(160deg, #ef535018 0%, var(--bg-card) 60%); border: 1px solid #ef535044; border-radius: 12px; padding: 1.2rem 1.3rem; }
+.problem-card .pc-head { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.5rem; }
+.problem-card .pc-num { font-family: 'JetBrains Mono', monospace; font-size: 1.4rem; font-weight: 800; color: var(--coral); line-height: 1; }
+.problem-card .pc-title { font-size: 0.95rem; font-weight: 700; color: #fff; }
+.problem-card .pc-body { font-size: 0.85rem; color: var(--text-dim); line-height: 1.55; }
+
+/* Concept pills — auto-fit */
+.concept-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin-top: 1.4rem; }
+.concept { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.2rem 1.3rem; position: relative; border-left-width: 4px; }
+.concept.reading  { border-left-color: var(--green); }
+.concept.inferred { border-left-color: var(--amber); }
+.concept.history  { border-left-color: var(--cyan); }
+.concept .c-head { display: flex; align-items: center; gap: 0.7rem; margin-bottom: 0.6rem; }
+.concept .c-name { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+.concept.reading  .c-name { color: var(--green); }
+.concept.inferred .c-name { color: var(--amber); }
+.concept.history  .c-name { color: var(--cyan); }
+.concept .c-accuracy { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--text-mute); margin-left: auto; }
+.concept p { font-size: 0.88rem; color: var(--text-dim); line-height: 1.55; }
+.concept .c-sources { margin-top: 0.7rem; display: flex; flex-wrap: wrap; gap: 0.3rem; }
+.tag-pill { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; padding: 0.18rem 0.55rem; border-radius: 4px; background: var(--bg3); border: 1px solid var(--border); color: var(--text-dim); }
+
+/* Principles */
+.principles { display: grid; gap: 0.65rem; }
+.principle { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 0.95rem 1.3rem; display: flex; gap: 1rem; align-items: center; }
+.principle .num { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; font-weight: 700; width: 30px; height: 30px; border-radius: 8px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--cyan), var(--teal)); color: #0a1424; }
+.principle .text { font-size: 0.95rem; }
+.principle .text strong { color: var(--cyan); font-weight: 700; }
+
+/* Field cards — auto-fit (min 400px per card → 2 cols at typical sidebar-content width) */
+.fields-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 1rem; }
+.field-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
+.field-card .f-thumb { height: 110px; display: flex; align-items: center; justify-content: center; font-size: 2.6rem; position: relative; color: rgba(255,255,255,0.92); text-shadow: 0 1px 3px rgba(10,20,36,0.4); font-family: 'JetBrains Mono', monospace; font-weight: 800; letter-spacing: 0.04em; }
+.field-card .f-thumb.t1 { background: linear-gradient(135deg, #66bb6a, #26c6da); }
+.field-card .f-thumb.t2 { background: linear-gradient(135deg, #26c6da, #4fc3f7); }
+.field-card .f-thumb.t3 { background: linear-gradient(135deg, #4fc3f7, #ab47bc); }
+.field-card .f-thumb.t4 { background: linear-gradient(135deg, #ffb74d, #ef5350); }
+.field-card .f-thumb .badge-tl { position: absolute; top: 0.6rem; left: 0.6rem; font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; background: rgba(10,20,36,0.55); padding: 0.2rem 0.55rem; border-radius: 4px; backdrop-filter: blur(4px); }
+.field-card .f-body { padding: 1.1rem 1.2rem; flex: 1; display: flex; flex-direction: column; }
+.field-card .f-name { font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; font-weight: 700; color: #fff; margin-bottom: 0.3rem; }
+.field-card .f-question { font-style: italic; color: var(--text-dim); font-size: 0.85rem; margin-bottom: 0.7rem; }
+.field-card .f-rule { font-size: 0.83rem; color: var(--text-dim); line-height: 1.55; flex: 1; }
+
+/* Generic bullet list — used in fields, history, anywhere with → / ⚠ items */
+ul.bullets { list-style: none; padding: 0; margin: 0.7rem 0 0; }
+ul.bullets li { position: relative; padding: 0.4rem 0 0.4rem 1.3rem; font-size: 0.82rem; color: var(--text-dim); line-height: 1.55; border-top: 1px solid var(--border); }
+ul.bullets li::before { content: '→'; position: absolute; left: 0; top: 0.4rem; font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--cyan); }
+ul.bullets li.warn::before { content: '!'; color: var(--amber); }
+ul.bullets li code { font-size: 0.78rem; }
+
+/* Requirements with tabs */
+.req-tabs { display: flex; gap: 0.4rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border); }
+.req-tab { padding: 0.6rem 1rem; cursor: pointer; font-size: 0.82rem; font-weight: 600; color: var(--text-dim); border-bottom: 2px solid transparent; margin-bottom: -1px; user-select: none; }
+.req-tab:hover { color: #fff; }
+.req-tab.active { color: var(--cyan); border-bottom-color: var(--cyan); }
+.req-tab .count { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; padding: 0.05rem 0.4rem; border-radius: 4px; background: var(--bg3); margin-left: 0.4rem; color: var(--text-mute); }
+.req-tab.active .count { color: var(--cyan); background: #4fc3f722; }
+.req-list { display: grid; gap: 0.5rem; }
+.req { display: grid; grid-template-columns: 60px 1fr; gap: 1rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 0.7rem 1rem; align-items: start; }
+.req .id { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; font-weight: 700; color: var(--cyan); padding-top: 2px; }
+.req .body { font-size: 0.9rem; color: var(--text); line-height: 1.55; }
+.req.oos .id { color: var(--text-mute); }
+.req-list[data-tab="nf"] .req .id, .req-list[data-tab="oos"] .req .id { color: var(--amber); }
+
+/* History cards (for §4.4-style named rules) — auto-fit */
+.history-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; }
+.hist-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.3rem; border-top: 3px solid var(--cyan); }
+.hist-card.flag { border-top-color: var(--amber); }
+.hist-card .h-label { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--cyan); margin-bottom: 0.4rem; word-break: break-word; }
+.hist-card.flag .h-label { color: var(--amber); }
+.hist-card .h-value { font-family: 'JetBrains Mono', monospace; font-size: 1.6rem; font-weight: 800; color: #fff; margin-bottom: 0.6rem; line-height: 1; }
+.hist-card .h-value .unit { font-size: 0.65em; color: var(--text-mute); font-weight: 600; margin-left: 0.25rem; letter-spacing: 0; }
+.hist-card .h-desc { font-size: 0.88rem; color: var(--text-dim); margin-bottom: 0.8rem; line-height: 1.55; }
+
+/* Data flow SVG diagram */
+.flow-wrap { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.8rem; overflow-x: auto; }
+.flow-wrap svg { display: block; margin: 0 auto; max-width: 100%; height: auto; }
+.flow-legend { display: flex; flex-wrap: wrap; gap: 1.2rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); font-size: 0.82rem; color: var(--text-dim); }
+.flow-legend .item { display: inline-flex; align-items: center; gap: 0.4rem; }
+.flow-legend .swatch { width: 14px; height: 4px; border-radius: 2px; }
+
+/* Code map */
+.codemap { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.codemap-row { display: grid; grid-template-columns: 1fr 1.5fr; gap: 1rem; padding: 0.7rem 1.2rem; border-bottom: 1px solid var(--border); font-size: 0.85rem; align-items: center; }
+.codemap-row:last-child { border-bottom: none; }
+.codemap-row:nth-child(odd) { background: rgba(255,255,255,0.015); }
+.codemap-row .what { color: var(--text); }
+.codemap-row .where { color: var(--cyan); font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; word-break: break-all; }
+
+/* Decisions matrix */
+.decisions { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.decisions-head, .decision-row { display: grid; grid-template-columns: 1.2fr 1fr 1.4fr; gap: 1rem; padding: 0.9rem 1.2rem; align-items: start; border-bottom: 1px solid var(--border); }
+.decisions-head { background: var(--bg2); font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); }
+.decision-row { font-size: 0.85rem; }
+.decision-row:last-child { border-bottom: none; }
+.decision-row .decided { color: #fff; font-weight: 600; }
+.decision-row .alt { color: var(--amber); font-style: italic; font-size: 0.82rem; line-height: 1.5; }
+.decision-row .why { color: var(--text-dim); font-size: 0.82rem; line-height: 1.55; }
+
+/* Generic data table (Shapes §6.4, Configuration §6.6) */
+.data-table { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.data-table .row { display: grid; gap: 1rem; padding: 0.65rem 1.2rem; border-bottom: 1px solid var(--border); font-size: 0.85rem; align-items: start; }
+.data-table .row.head { background: var(--bg2); font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); font-weight: 700; }
+.data-table .row:last-child { border-bottom: none; }
+.data-table .row.cols-2 { grid-template-columns: 1fr 2fr; }
+.data-table .row.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+.data-table .row code { font-size: 0.78rem; }
+.data-table .row .label-cell { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; color: var(--cyan); }
+
+/* Inline-path list (Shapes §6.4) */
+.gps-paths { list-style: none; padding: 0.7rem 0 0; margin: 0; display: grid; gap: 0.4rem; }
+.gps-paths li { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--cyan); background: var(--bg2); border: 1px solid var(--border); border-radius: 6px; padding: 0.45rem 0.8rem; }
+
+/* Sub-section heading (Shapes has multiple sub-blocks) */
+.subhead { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-dim); font-weight: 700; margin: 1.5rem 0 0.6rem; }
+.subhead:first-child { margin-top: 0; }
+
+/* Failure handling */
+.failures { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.failures-head, .failure-row { display: grid; grid-template-columns: 1fr 1fr 80px 1.2fr; gap: 1rem; padding: 0.85rem 1.2rem; align-items: center; border-bottom: 1px solid var(--border); }
+.failures-head { background: var(--bg2); font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); }
+.failure-row { font-size: 0.85rem; }
+.failure-row:last-child { border-bottom: none; }
+.sev { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; font-weight: 700; padding: 0.2rem 0.55rem; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.06em; }
+.sev.med  { background: #ffb74d22; color: var(--amber); border: 1px solid #ffb74d55; }
+.sev.low  { background: #66bb6a22; color: var(--green); border: 1px solid #66bb6a55; }
+.sev.high { background: #ef535022; color: var(--coral); border: 1px solid #ef535055; }
+
+/* Acceptance criteria */
+.ac-table { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.ac-head, .ac-row { display: grid; grid-template-columns: 60px 150px 1fr; gap: 1rem; padding: 0.8rem 1.2rem; align-items: start; border-bottom: 1px solid var(--border); }
+.ac-head { background: var(--bg2); font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); }
+.ac-row { font-size: 0.86rem; }
+.ac-row:last-child { border-bottom: none; }
+.ac-row .ac-id { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--cyan); }
+.ac-row .ac-verifies { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+.verify-chip { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; padding: 0.15rem 0.5rem; border-radius: 4px; background: #4fc3f714; border: 1px solid #4fc3f744; color: var(--cyan); }
+
+/* Open questions — auto-fit */
+.q-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 0.7rem; }
+.q-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.2rem; border-left: 3px solid var(--gold); }
+.q-card .q-head { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
+.q-card .q-id { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; color: var(--gold); background: #ffd54f15; padding: 0.15rem 0.5rem; border-radius: 4px; }
+.q-card .q-decider { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--text-mute); }
+.q-card .q-body { font-size: 0.88rem; color: var(--text); line-height: 1.55; }
+
+/* References — auto-fit */
+.refs { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+.refs-block { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 1.1rem 1.3rem; }
+.refs-block h4 { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--cyan); margin-bottom: 0.7rem; }
+.refs-block ul { list-style: none; }
+.refs-block li { font-family: 'JetBrains Mono', monospace; font-size: 0.76rem; color: var(--text-dim); padding: 0.2rem 0; line-height: 1.5; word-break: break-all; }
+
+/* Callouts */
+.callout { background: linear-gradient(135deg, #4fc3f712, #26c6da08); border: 1px solid #4fc3f744; border-radius: 10px; padding: 1rem 1.3rem; margin: 1.2rem 0; font-size: 0.9rem; color: var(--text-dim); line-height: 1.6; }
+.callout strong { color: var(--cyan); }
+.callout.warn { background: linear-gradient(135deg, #ffd54f15, #ff890608); border-color: #ffd54f55; }
+.callout.warn strong { color: var(--gold); }
+
+footer.site-footer { max-width: 1300px; margin: 4rem auto 0; padding: 2rem; border-top: 1px solid var(--border); text-align: center; color: var(--text-mute); font-size: 0.82rem; line-height: 1.7; }
+footer.site-footer .mono { color: var(--text-dim); font-family: 'JetBrains Mono', monospace; }
+footer.site-footer a { color: var(--cyan); }
+
+@media (max-width: 1100px) {
+  .meta-strip { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 900px) {
+  .layout-doc { grid-template-columns: 1fr; gap: 1rem; padding: 1rem 1.2rem; }
+  .side-nav { position: static; max-height: none; overflow: visible; border: 1px solid var(--border); border-radius: 8px; padding: 1rem; background: var(--bg-card); }
+}
+@media (max-width: 720px) {
+  .top-nav { overflow-x: auto; padding: 0.55rem 1rem; gap: 1rem; }
+  .top-nav .spacer { display: none; }
+  .hero { padding: 1.2rem 1.2rem 1rem; }
+  section.s { padding: 2.5rem 1.2rem 0; }
+  .meta-strip { grid-template-columns: repeat(2, 1fr); margin: 1rem 1.2rem 0; }
+  .chapter-band { padding: 0 1.2rem; margin-top: 3rem; }
+  .chapter-band-inner { grid-template-columns: 1fr; gap: 0.5rem; padding: 1.2rem 1.4rem; }
+  .chapter-band .ch-num { font-size: 2rem; }
+  .decisions-head, .decision-row { grid-template-columns: 1fr; gap: 0.4rem; }
+  .failures-head, .failure-row { grid-template-columns: 1fr; }
+  .ac-head, .ac-row { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <span class="brand"><a href="../index.html">asimov-plugin<span class="sep">/</span>docs</a></span>
+  <a href="../index.html#s1">Architecture</a>
+  <a href="../index.html#s2">Features</a>
+  <a href="../index.html#s3">Environments</a>
+  <a href="../index.html#s4">Conventions</a>
+  <a href="../index.html#s5">Reference</a>
+  <a href="../index.html#s6">Diagrams</a>
+  <span class="spacer"></span>
+  <span class="phase-chip full">Full design</span>
+  <span class="status-chip">Draft v0.2</span>
+</nav>
+
+<div class="layout-doc">
+  <aside class="side-nav">
+    <div class="side-head">On this page</div>
+    <ul>
+      <li><a href="#s2">§2 Why this exists</a></li>
+      <li><a href="#s3">§3 Requirements</a></li>
+      <li><a href="#c4">§4 Business design</a>
+        <ul>
+          <li><a href="#s4-1">§4.1 Principles</a></li>
+          <li><a href="#s4-2">§4.2 Concepts</a></li>
+          <li><a href="#s4-3">§4.3 The three agents</a></li>
+          <li><a href="#s4-4">§4.4 Rules</a></li>
+          <li><a href="#s4-5">§4.5 Decisions</a></li>
+        </ul>
+      </li>
+      <li><a href="#s5">§5 UI Design</a></li>
+      <li><a href="#c6">§6 Technical design</a>
+        <ul>
+          <li><a href="#s6-1">§6.1 Platform</a></li>
+          <li><a href="#s6-2">§6.2 Data flow</a></li>
+          <li><a href="#s6-3">§6.3 Code map</a></li>
+          <li><a href="#s6-6">§6.6 Configuration</a></li>
+          <li><a href="#s6-7">§6.7 Failure handling</a></li>
+          <li><a href="#s6-8">§6.8 Gotchas</a></li>
+        </ul>
+      </li>
+      <li><a href="#s7">§7 Acceptance</a></li>
+      <li><a href="#s8">§8 Open questions</a></li>
+      <li><a href="#s9">§9 References</a></li>
+    </ul>
+  </aside>
+
+  <article class="content">
+
+<header class="hero">
+  <div class="kicker">D101 · Feature design · asimov-plugin</div>
+  <h1>Build subagents</h1>
+  <p class="tagline">The three Accelerate <em>build</em>-role subagents — two builders (.NET, Angular) and a tester — that carry a reusable core but load the active product repo's own conventions at run-time, and flag gaps or conflicts instead of guessing a default the team never approved. The shared subagent mechanism lives in D100 §7.2.1; this D101 covers what's specific to the three.</p>
+</header>
+
+<div class="meta-strip">
+  <div class="meta-cell"><div class="label">Owner</div><div class="value">Allan Borup</div></div>
+  <div class="meta-cell"><div class="label">Business approver</div><div class="value">Allan Borup</div></div>
+  <div class="meta-cell"><div class="label">Subagents</div><div class="value mono">3</div></div>
+  <div class="meta-cell"><div class="label">Accelerate role</div><div class="value">Builder · Tester</div></div>
+  <div class="meta-cell"><div class="label">Last updated</div><div class="value mono">2026-09-15</div></div>
+  <div class="meta-cell"><div class="label">Model</div><div class="value">Sonnet 4.6</div></div>
+</div>
+
+<div class="doc-scope">
+  <strong>Scope:</strong> asimov-plugin — the three build-role subagents (two builders + a tester) that load a product repo's per-stack conventions at run-time via a canonical entry README, and flag uncovered or conflicting cases rather than inventing a default. The reviewer (Baley) is a separate role with its own D101.
+</div>
+
+<!-- ═════════════════════ §2 — Problem / Purpose ═════════════════════ -->
+<section class="s" id="s2">
+  <h2 class="section-title"><span class="sec-ref">§2</span>Why this exists</h2>
+  <p class="section-desc">The toolkit covers the Design stage but ships no coding agents. A generic AI assistant doesn't know a given repo's patterns — its naming, its layer model, its test style — so its output has to be reconciled with the house conventions by hand, every time. A mature repo can carry dozens of convention files; re-explaining them in each prompt is its own tax.</p>
+
+  <div class="problem-grid">
+    <div class="problem-card">
+      <div class="pc-head">
+        <div class="pc-num">01</div>
+        <div class="pc-title">Manual style fixes</div>
+      </div>
+      <div class="pc-body">Generic output ignores the repo's patterns — naming, project structure, test shape — so a reviewer hand-corrects it to match before it can merge.</div>
+    </div>
+    <div class="problem-card">
+      <div class="pc-head">
+        <div class="pc-num">02</div>
+        <div class="pc-title">Conventions re-explained</div>
+      </div>
+      <div class="pc-body">The repo's convention files get pasted or paraphrased into prompts again and again — context burned on every turn, and the paraphrase drifts from the source.</div>
+    </div>
+    <div class="problem-card">
+      <div class="pc-head">
+        <div class="pc-num">03</div>
+        <div class="pc-title">Silent wrong defaults</div>
+      </div>
+      <div class="pc-body">Where a convention is missing, or the task contradicts one, a generic agent quietly picks something — a default the team never reviewed and may not want.</div>
+    </div>
+  </div>
+
+  <div class="callout">
+    <strong>Audience.</strong> Developers using asimov-plugin inside a product repo who want AI coding and test help that respects that repo's established conventions without re-stating them each time.
+  </div>
+</section>
+
+<!-- ═════════════════════ §3 — Requirements ═════════════════════ -->
+<section class="s" id="s3">
+  <h2 class="section-title"><span class="sec-ref">§3</span>Requirements</h2>
+
+  <div class="req-tabs">
+    <div class="req-tab active" data-target="func">Functional <span class="count">13</span></div>
+    <div class="req-tab" data-target="nf">Non-functional <span class="count">2</span></div>
+    <div class="req-tab" data-target="oos">Out of scope <span class="count">5</span></div>
+  </div>
+
+  <div class="req-list" data-tab="func">
+    <div class="req"><div class="id">R1</div><div class="body">The plugin ships three subagents: a .NET developer, an Angular developer, and a test author.</div></div>
+    <div class="req"><div class="id">R2</div><div class="body">Each subagent carries base info following a shared six-field skeleton — Role, Stack competence, Reads, Workflow, Boundaries, Output — independent of any product repo. The tester adds a seventh field, Target (R11), between Stack competence and Reads.</div></div>
+    <div class="req"><div class="id">R3</div><div class="body">At run-time, each subagent reads exactly one canonical per-stack entry file, addressed by exact path (not a bare folder reference).</div></div>
+    <div class="req"><div class="id">R4</div><div class="body">The entry-file mapping is: .NET → <code>documentation/conventions/dotnet/README.md</code>; Angular → <code>documentation/conventions/angular/README.md</code>; test → <code>documentation/conventions/test/README.md</code>.</div></div>
+    <div class="req"><div class="id">R5</div><div class="body">Each per-stack entry README <code>@</code>-references every convention file in its stack, giving the agent the complete read-list from one file; the agent then reads each referenced file (the <code>@</code>-list is not auto-expanded by the Read tool — see §6.8).</div></div>
+    <div class="req"><div class="id">R6</div><div class="body">When the conventions for a stack are absent or do not cover the task, the agent proceeds on base info and flags the uncovered area.</div></div>
+    <div class="req"><div class="id">R7</div><div class="body">When the task contradicts a convention, the agent flags the conflict rather than silently following either the task or the convention.</div></div>
+    <div class="req"><div class="id">R8</div><div class="body">For each non-trivial decision, the agent cites the convention file that backed it, so a reviewer can verify the choice against the source.</div></div>
+    <div class="req"><div class="id">R9</div><div class="body">The test author may flag production code as hard-to-test (a design smell) back to its author, in addition to the gap and conflict flags.</div></div>
+    <div class="req"><div class="id">R10</div><div class="body">The two builders share Workflow and Output verbatim. The tester extends both — Workflow with a resolve-the-target step and an author-with-restraint step, Output with a resolved-target line and a suite-size note — and is otherwise the same.</div></div>
+    <div class="req"><div class="id">R11</div><div class="body">The tester authors tests for production code touched by the current branch, not the whole repo: base from <code>git remote show origin</code> (fallback <code>main</code>, then <code>master</code>), changeset via <code>git diff --merge-base &lt;base&gt;...HEAD --name-only</code>. It does not extend into pre-existing untouched code. An explicit invoker target (file, class, symbol) or a named base overrides the default; the resolved target is narrated before conventions are read.</div></div>
+    <div class="req"><div class="id">R12</div><div class="body">When there is no diff (branch even with base, or base unresolvable) and no explicit invoker target, the tester says so and stops — nothing is authored.</div></div>
+    <div class="req"><div class="id">R13</div><div class="body">When pre-existing untouched code in or near the target has thin coverage, the tester surfaces a coverage flag naming the location; it does not expand scope to add those tests unprompted.</div></div>
+  </div>
+
+  <div class="req-list" data-tab="nf" style="display:none">
+    <div class="req"><div class="id">NF1</div><div class="body">No product-specific identifiers appear in the agent prompts shipped by the plugin — stack names are generic, examples are illustrative (reusability, repo hard rule 7).</div></div>
+    <div class="req"><div class="id">NF2</div><div class="body">Each agent declares its model in YAML frontmatter (<code>claude-sonnet-4-6</code>) matching a row in <code>documentation/model-choice.md</code>, updated in the same commit (repo hard rule 2).</div></div>
+  </div>
+
+  <div class="req-list" data-tab="oos" style="display:none">
+    <div class="req oos"><div class="id">OOS1</div><div class="body">Authoring the convention content itself — that is the product repo's job; the agents only consume it.</div></div>
+    <div class="req oos"><div class="id">OOS2</div><div class="body">The code-level "how" of generation (file signatures, libraries, data structures) — that is S101 territory.</div></div>
+    <div class="req oos"><div class="id">OOS3</div><div class="body">Agents calling one another / orchestration — deferred; cross-agent coordination is its own design and not needed for this version.</div></div>
+    <div class="req oos"><div class="id">OOS4</div><div class="body">Additional stack agents (e.g. Vue, Python) — no current plans; revisit if a new primary stack appears.</div></div>
+    <div class="req oos"><div class="id">OOS5</div><div class="body">Additional test types or stacks in <code>documentation/conventions/test/</code> (integration, load, Angular specs) — no current plans; .NET unit tests only for now.</div></div>
+  </div>
+</section>
+
+<!-- ═════════════════════ §4 — Chapter band ═════════════════════ -->
+<div class="chapter-band" id="c4">
+  <div class="chapter-band-inner">
+    <div class="ch-num">4</div>
+    <div>
+      <div class="ch-name">Business design</div>
+      <div class="ch-summary">The principles behind a reusable core plus a repo-owned overlay, the vocabulary that names the pieces, the three agents themselves, the flag-don't-guess rules, and the decisions that shaped them.</div>
+    </div>
+  </div>
+</div>
+
+<!-- §4.1 Principles -->
+<section class="s" id="s4-1">
+  <h2 class="section-title"><span class="sec-ref">§4.1</span>Principles</h2>
+  <div class="principles">
+    <div class="principle">
+      <div class="num">1</div>
+      <div class="text"><strong>Reusable core, local overlay.</strong> Base info is stack knowledge that travels with the plugin; the product repo owns the conventions that adapt the agent to its house style.</div>
+    </div>
+    <div class="principle">
+      <div class="num">2</div>
+      <div class="text"><strong>Flag, don't guess.</strong> Where a convention is missing or conflicts with the task, the agent surfaces it instead of inventing a default the team never approved.</div>
+    </div>
+    <div class="principle">
+      <div class="num">3</div>
+      <div class="text"><strong>Reference by path, never inline.</strong> The repo's convention files are the run-time source of truth; the agent reads them, it does not carry copies that drift (repo hard rule 3).</div>
+    </div>
+    <div class="principle">
+      <div class="num">4</div>
+      <div class="text"><strong>Shared mechanism, role per agent.</strong> All three read a per-stack entry README, apply it, and flag; only the role and stack knowledge differ between them — plus the tester's Target, which scopes <em>what</em> it works on (§4.3.3).</div>
+    </div>
+  </div>
+</section>
+
+<!-- §4.2 Concepts -->
+<section class="s" id="s4-2">
+  <h2 class="section-title"><span class="sec-ref">§4.2</span>Concepts</h2>
+  <p class="section-desc">Four terms the rest of the document leans on. The split between what ships with the plugin and what the repo owns is the load-bearing distinction.</p>
+  <div class="concept-row">
+    <div class="concept reading">
+      <div class="c-head">
+        <div class="c-name">Base info</div>
+        <div class="c-accuracy">ships in plugin</div>
+      </div>
+      <p>The repo-independent core of each agent, following a shared skeleton — Role, Stack competence, Reads, Workflow, Boundaries, Output. Travels with the plugin; the builders share Workflow and Output verbatim, the tester extends them and adds Target (§4.3).</p>
+    </div>
+    <div class="concept history">
+      <div class="c-head">
+        <div class="c-name">Entry README</div>
+        <div class="c-accuracy">repo-owned</div>
+      </div>
+      <p>The single canonical file an agent reads — <code>documentation/conventions/&lt;stack&gt;/README.md</code>. Curated by the product repo; the one place that decides what the agent sees.</p>
+    </div>
+    <div class="concept history">
+      <div class="c-head">
+        <div class="c-name">Convention file</div>
+        <div class="c-accuracy">repo-owned</div>
+      </div>
+      <p>An individual rule file (<code>naming.md</code>, <code>service-pattern.md</code>). The agent reaches it by reading every file the entry README <code>@</code>-references — the README lists them; the agent loads each.</p>
+    </div>
+    <div class="concept inferred">
+      <div class="c-head">
+        <div class="c-name">Overlay &amp; precedence</div>
+        <div class="c-accuracy">combination rule</div>
+      </div>
+      <p>How the two combine: conventions refine and constrain base info. On conflict the agent flags rather than silently choosing; on a gap it proceeds on base info and flags.</p>
+    </div>
+  </div>
+</section>
+
+<!-- §4.3 The three agents -->
+<section class="s" id="s4-3">
+  <h2 class="section-title"><span class="sec-ref">§4.3</span>The three agents</h2>
+  <p class="section-desc">Same mechanism, three personas — Giskard, Daneel, and Calvin. Each agent's base info follows a shared skeleton; the cards carry the per-agent fields.</p>
+
+  <div class="callout">
+    <strong>Base-info skeleton.</strong> Every agent's base info carries the same six fields so the three stay consistent; the tester adds a seventh, <strong>Target</strong> (R11). Two are shared by the builders verbatim and stated once here: <strong>Workflow</strong> — read the entry README, apply conventions over base info, cite the source file, and flag any gap or conflict (§4.1, §4.4); <strong>Output</strong> — code or tests a reviewer accepts without style fixes, plus a short summary citing the conventions applied and listing any flags raised (§2, R8). The tester extends Workflow with a resolve-the-target step first and an author-with-restraint step, and Output with a resolved-target line (<code>Authoring tests for: …</code>) and a suite-size note (R10). The per-agent fields — <strong>Role</strong>, <strong>Stack competence</strong>, and <strong>Boundaries</strong> — are on the cards below; <strong>Reads</strong> is each card's entry path.
+  </div>
+
+  <div class="fields-grid">
+    <div class="field-card">
+      <div class="f-thumb t1">
+        <span class="badge-tl">§4.3.1</span>
+        Giskard
+      </div>
+      <div class="f-body">
+        <div class="f-name">Giskard — the .NET developer</div>
+        <div class="f-question">"How should this C#/.NET code be written in this repo?"</div>
+        <div class="f-rule"><strong>Role:</strong> writes and modifies production C#/.NET backend code. Reads <code>documentation/conventions/dotnet/README.md</code> and the files it @-references, then conforms to them.</div>
+        <ul class="bullets">
+          <li><strong>Competence:</strong> idiomatic C#, async, dependency injection, common backend patterns — repo-independent</li>
+          <li><strong>Boundary:</strong> backend only — tests are Calvin's, frontend is Daneel's (no auto hand-off, OOS3)</li>
+          <li class="warn">A repo's .NET set is usually the largest, so this agent typically loads the most convention context of the three</li>
+        </ul>
+      </div>
+    </div>
+    <div class="field-card">
+      <div class="f-thumb t2">
+        <span class="badge-tl">§4.3.2</span>
+        Daneel
+      </div>
+      <div class="f-body">
+        <div class="f-name">Daneel — the Angular developer</div>
+        <div class="f-question">"How should this TypeScript/Angular code be written in this repo?"</div>
+        <div class="f-rule"><strong>Role:</strong> writes and modifies frontend TypeScript/Angular code. Reads <code>documentation/conventions/angular/README.md</code> and the files it @-references.</div>
+        <ul class="bullets">
+          <li><strong>Competence:</strong> Angular, TypeScript, component/template and RxJS idioms — repo-independent</li>
+          <li><strong>Boundary:</strong> frontend only — tests go to Calvin, backend to Giskard</li>
+          <li class="warn">Where a repo's Angular set is thin or in flux, this agent hits the gap rule (§4.4) often until the repo fills it in</li>
+        </ul>
+      </div>
+    </div>
+    <div class="field-card">
+      <div class="f-thumb t3">
+        <span class="badge-tl">§4.3.3</span>
+        Calvin
+      </div>
+      <div class="f-body">
+        <div class="f-name">Calvin — the test author</div>
+        <div class="f-question">"How should tests be written in this repo?"</div>
+        <div class="f-rule"><strong>Role:</strong> authors tests for the production code touched by the current branch — a diff against base, not the whole repo — or for an explicit invoker target (R11). Reads <code>documentation/conventions/test/README.md</code> and the files it @-references.</div>
+        <ul class="bullets">
+          <li><strong>Competence:</strong> unit-testing craft — arrange-act-assert, test naming, coverage thinking — repo-independent</li>
+          <li><strong>Target:</strong> base via <code>git remote show origin</code>, changeset via <code>git diff --merge-base</code>; narrated before conventions are read. No diff and no explicit target → says so and stops (R12)</li>
+          <li><strong>Boundary:</strong> writes tests, not production code; may flag production code as hard-to-test (R9) and untouched code with thin coverage (R13) back to its author — never expands scope on its own</li>
+          <li class="warn">Scope is .NET unit tests only for now — other test types/stacks are out of scope (OOS5)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout">
+    <strong>Naming &amp; Accelerate roles.</strong> Agents are named from Isaac Asimov's canon — fitting for a toolkit called Asimov — and each maps to an Accelerate multi-agent role (D100 §4.4). In this D101: <strong>Giskard</strong> (.NET) and <strong>Daneel</strong> (Angular) are <em>builders</em>; <strong>Calvin</strong> is the <em>tester</em>. The <em>reviewer</em> role — <strong>Baley</strong>, the detective who verifies — now ships in its own D101 (<code>D101-baley-the-code-reviewer.html</code>). Still reserved: <strong>Hari</strong> and <strong>Dornick</strong> for the <em>planner</em>/architect and spec-author roles, not yet built.
+  </div>
+</section>
+
+<!-- §4.4 Named rules -->
+<section class="s" id="s4-4">
+  <h2 class="section-title"><span class="sec-ref">§4.4</span>Rules</h2>
+  <p class="section-desc">Three conditional rules govern what an agent does at the edges — the third is the tester's alone — plus the traceability expectation. Each conditional rule carries the case where it fires and the adjacent case where it does not.</p>
+  <div class="history-grid">
+    <div class="hist-card flag">
+      <div class="h-label">Conflict rule</div>
+      <div class="h-value">Flag</div>
+      <div class="h-desc">When the task contradicts a convention, the agent flags the conflict and stops for a decision — it does not silently follow either side.</div>
+      <ul class="bullets">
+        <li>Fires: the README says "no AutoMapper", the task asks for AutoMapper → the agent flags the conflict</li>
+        <li>Does not fire: the task says nothing about mapping → the agent just follows the README, no flag needed</li>
+      </ul>
+    </div>
+    <div class="hist-card flag">
+      <div class="h-label">Gap rule</div>
+      <div class="h-value">Flag + proceed</div>
+      <div class="h-desc">When a convention for the area is missing or sparse, the agent delivers on base info and flags that no convention governed the choice.</div>
+      <ul class="bullets">
+        <li>Fires: <code>angular/</code> only has <code>naming.md</code>, the task touches an uncovered area → the agent proceeds and flags the gap</li>
+        <li>Does not fire: <code>dotnet/</code> fully covers the task → the agent applies the conventions, no gap flag</li>
+      </ul>
+    </div>
+    <div class="hist-card flag">
+      <div class="h-label">Coverage rule (tester)</div>
+      <div class="h-value">Flag, stay in scope</div>
+      <div class="h-desc">When pre-existing untouched code in or near the target has thin coverage, the tester names the location as a flag and leaves it — the developer routes the follow-up (R13).</div>
+      <ul class="bullets">
+        <li>Fires: the branch adds one method to a class whose other methods have no tests → tests for the new method, a coverage flag for the rest</li>
+        <li>Does not fire: the invoker hands an explicit target ("cover <code>OrderRepository</code>") → the whole target is in scope, nothing to flag</li>
+      </ul>
+    </div>
+    <div class="hist-card">
+      <div class="h-label">Traceability</div>
+      <div class="h-value">Cite source</div>
+      <div class="h-desc">Each non-trivial decision points back to the convention file that backed it, so a reviewer can verify it against the source (R8).</div>
+      <ul class="bullets">
+        <li>"private fields are camelCase per <code>dotnet/service-pattern.md</code>"</li>
+        <li>Pure base-info decisions (language syntax, framework idioms) need no citation</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- §4.5 Decisions -->
+<section class="s" id="s4-5">
+  <h2 class="section-title"><span class="sec-ref">§4.5</span>Decisions</h2>
+  <p class="section-desc">A decision recorded without its rejected alternative is one that gets re-litigated.</p>
+  <div class="decisions">
+    <div class="decisions-head">
+      <div>Decided</div>
+      <div>Alternative considered</div>
+      <div>Why rejected</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided">Agents read one canonical per-stack entry README by exact path; its <code>@</code>-references are the read-list the agent then loads file by file.</div>
+      <div class="alt">Point the agent at the conventions folder and let it glob for what to read.</div>
+      <div class="why">Bare folder references are empirically unreliable — the agent has to guess what's relevant. A single curated entry file gives a predictable, reviewable read-list and one place for the repo to curate. (The <code>@</code>-list is read explicitly, not auto-expanded — see §6.8.)</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided">Three stack-specific agents (.NET, Angular, test author).</div>
+      <div class="alt">One generic coding agent parametrised by stack.</div>
+      <div class="why">Stack knowledge and conventions differ enough that a single prompt would be diluted; separate agents keep each role sharp and each convention set focused.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided">Conventions live in the product repo and are read at run-time.</div>
+      <div class="alt">Ship the conventions inside the plugin.</div>
+      <div class="why">Conventions are repo-specific; baking them in breaks reusability (hard rule 7) and would force a plugin release for every repo's house style.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided">All three agents run on Sonnet 4.6.</div>
+      <div class="alt">Opus for code/test generation.</div>
+      <div class="why">Code and test generation is contract-bounded work that runs often; Sonnet's reasoning suffices and throughput matters (model-choice.md §2).</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided">Agents are named from Isaac Asimov's canon (Giskard, Daneel, Calvin; Baley since built as the reviewer; Hari / Dornick reserved for later roles).</div>
+      <div class="alt">Role-based names only (e.g. dotnet-developer), or persona-only (e.g. giskard).</div>
+      <div class="why">The repo is named Asimov; canon personas give the toolkit identity and a coherent, extensible scheme. The agent <code>name:</code> and file combine persona + role (<code>giskard-the-dotnet-developer</code>), so the persona carries identity while the role keeps it discoverable for auto-delegation — both in one identifier, nothing lost.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════════════════ §5 — UI Design (top-level) ═════════════════════ -->
+<section class="s" id="s5">
+  <h2 class="section-title"><span class="sec-ref">§5</span>UI Design</h2>
+  <p class="section-desc">This feature has no user-facing surface.</p>
+  <div class="callout">N/A — backend/tooling feature, no user-facing surface.</div>
+</section>
+
+<!-- ═════════════════════ §6 — Chapter band ═════════════════════ -->
+<div class="chapter-band" id="c6">
+  <div class="chapter-band-inner">
+    <div class="ch-num">6</div>
+    <div>
+      <div class="ch-name">Technical design</div>
+      <div class="ch-summary">Where the agents live, how conventions get loaded and applied at run-time, the files that change, the fixed paths and model, how failures are handled, and the gotchas to watch.</div>
+    </div>
+  </div>
+</div>
+
+<!-- §6.1 Platform -->
+<section class="s" id="s6-1">
+  <h2 class="section-title"><span class="sec-ref">§6.1</span>Platform</h2>
+  <p style="color: var(--text-dim); font-size: 0.95rem; line-height: 1.65;">
+    The three agents are Claude Code subagents living in the <code>agents/</code> directory in asimov-plugin. Each is a markdown file with YAML frontmatter declaring <code>model: claude-sonnet-4-6</code>. None declares <code>tools:</code>, so each inherits the full tool set — the tester relies on that for <code>git</code> via Bash (R11); contrast Baley, whose frontmatter lists <code>tools: Read, Grep, Glob, Bash</code> to enforce read-only. The conventions they read live in the consuming product repo under <code>documentation/conventions/</code> — nothing about them ships in the plugin. No SQL, schema, or infrastructure change.
+  </p>
+  <div class="callout">
+    <strong>Model-choice sync.</strong> Each agent's <code>model:</code> frontmatter must be paired with a row in <code>documentation/model-choice.md</code> in the same commit (hard rule 2). The rows are added when the agent files are authored — not from this design doc — to avoid an index that names agents that don't exist yet.
+  </div>
+</section>
+
+<!-- §6.2 Data flow -->
+<section class="s" id="s6-2">
+  <h2 class="section-title"><span class="sec-ref">§6.2</span>Data flow</h2>
+  <p class="section-desc">What happens from the moment an agent is invoked: it reads its stack's entry README, then reads each convention file the README <code>@</code>-references, and applies them alongside its base info — branching to a flag whenever it hits a gap or a conflict. The tester alone has a step before the README: it resolves its target (branch diff or explicit target) and stops if there is nothing to test.</p>
+  <div class="flow-wrap">
+    <svg viewBox="0 0 940 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Coding subagent run-time data flow">
+      <defs>
+        <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 Z" fill="#a8b8d0"/>
+        </marker>
+      </defs>
+
+      <!-- Stage 1: invoked -->
+      <g>
+        <rect x="10" y="50" width="160" height="66" rx="8" fill="#14253f" stroke="#66bb6a" stroke-width="2"/>
+        <text x="90" y="80" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="12" font-weight="700">1. Agent invoked</text>
+        <text x="90" y="98" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10.5">.NET / Angular / test</text>
+      </g>
+      <!-- Stage 2: read README -->
+      <g>
+        <rect x="200" y="50" width="160" height="66" rx="8" fill="#14253f" stroke="#4fc3f7" stroke-width="2"/>
+        <text x="280" y="80" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="12" font-weight="700">2. Read README</text>
+        <text x="280" y="98" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10.5">conventions/&lt;stack&gt;/</text>
+      </g>
+      <!-- Stage 3: @-refs expand -->
+      <g>
+        <rect x="390" y="50" width="160" height="66" rx="8" fill="#14253f" stroke="#4fc3f7" stroke-width="2"/>
+        <text x="470" y="80" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="12" font-weight="700">3. Read @-files</text>
+        <text x="470" y="98" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10.5">each listed file loaded</text>
+      </g>
+      <!-- Stage 4: apply -->
+      <g>
+        <rect x="580" y="50" width="160" height="66" rx="8" fill="#14253f" stroke="#ffb74d" stroke-width="2"/>
+        <text x="660" y="80" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="12" font-weight="700">4. Apply</text>
+        <text x="660" y="98" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10.5">base info + conventions</text>
+      </g>
+      <!-- Stage 5: produce -->
+      <g>
+        <rect x="770" y="50" width="160" height="66" rx="8" fill="#14253f" stroke="#4fc3f7" stroke-width="2"/>
+        <text x="850" y="80" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="12" font-weight="700">5. Produce</text>
+        <text x="850" y="98" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10.5">code / test + citation</text>
+      </g>
+
+      <!-- arrows between stages -->
+      <line x1="170" y1="83" x2="200" y2="83" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="360" y1="83" x2="390" y2="83" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="550" y1="83" x2="580" y2="83" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="740" y1="83" x2="770" y2="83" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#arr)"/>
+
+      <!-- tester only: resolve target before reading conventions (dashed) -->
+      <line x1="90" y1="116" x2="90" y2="196" stroke="#66bb6a" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#arr)"/>
+      <g>
+        <rect x="10" y="196" width="220" height="66" rx="8" fill="#14253f" stroke="#66bb6a" stroke-width="2" stroke-dasharray="5 4"/>
+        <text x="120" y="226" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="12" font-weight="700">1b. Resolve target</text>
+        <text x="120" y="244" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10.5">tester only · branch diff · no diff → stop</text>
+      </g>
+
+      <!-- branch down from stage 4 to flag -->
+      <line x1="660" y1="116" x2="660" y2="196" stroke="#ef5350" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#arr)"/>
+      <g>
+        <rect x="540" y="196" width="240" height="66" rx="8" fill="#14253f" stroke="#ef5350" stroke-width="2"/>
+        <text x="660" y="226" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="12" font-weight="700">Gap / conflict / coverage → flag</text>
+        <text x="660" y="244" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10.5">surface it, don't guess</text>
+      </g>
+    </svg>
+    <div class="flow-legend">
+      <span class="item"><span class="swatch" style="background:var(--green)"></span>Entry / invocation</span>
+      <span class="item"><span class="swatch" style="background:var(--cyan)"></span>Repo conventions (read)</span>
+      <span class="item"><span class="swatch" style="background:var(--amber)"></span>Apply / combine</span>
+      <span class="item"><span class="swatch" style="background:var(--coral)"></span>Flag (gap / conflict / coverage)</span>
+      <span class="item"><span class="swatch" style="background:var(--green); opacity:0.6"></span>Dashed — tester only</span>
+    </div>
+  </div>
+  <div class="principles" style="margin-top:1.4rem">
+    <div class="principle"><div class="num">1</div><div class="text">Agent is <strong>invoked</strong> for a coding/test task in a product repo.</div></div>
+    <div class="principle"><div class="num">1b</div><div class="text">Tester only: <strong>resolves the target</strong> — base branch and changeset, or the invoker's explicit target — and narrates it (R11). No diff and no explicit target → says so and stops (R12).</div></div>
+    <div class="principle"><div class="num">2</div><div class="text">Agent <strong>reads</strong> its stack's entry README at the fixed path (R3, R4).</div></div>
+    <div class="principle"><div class="num">3</div><div class="text">The agent <strong>reads each <code>@</code>-referenced file</strong> the README lists, loading every convention file in the stack (R5).</div></div>
+    <div class="principle"><div class="num">4</div><div class="text">Agent <strong>applies</strong> conventions over base info; precedence and edge handling per §4.2 / §4.4.</div></div>
+    <div class="principle"><div class="num">5</div><div class="text">Agent <strong>produces</strong> code or tests, citing the convention file behind each non-trivial choice (R8). Any gap or conflict is flagged instead of guessed (R6, R7); the tester also flags thin coverage outside its target (R13) and opens with its resolved-target line (R10).</div></div>
+  </div>
+</section>
+
+<!-- §6.3 Code map -->
+<section class="s" id="s6-3">
+  <h2 class="section-title"><span class="sec-ref">§6.3</span>Code map</h2>
+  <p class="section-desc">File names are proposed; exact shapes are S101. The product-repo READMEs are listed for orientation — they are not part of the plugin.</p>
+  <div class="codemap">
+    <div class="codemap-row">
+      <div class="what">.NET developer agent (Giskard)</div>
+      <div class="where">plugins/asimov-plugin/agents/giskard-the-dotnet-developer.md</div>
+    </div>
+    <div class="codemap-row">
+      <div class="what">Angular developer agent (Daneel)</div>
+      <div class="where">plugins/asimov-plugin/agents/daneel-the-angular-developer.md</div>
+    </div>
+    <div class="codemap-row">
+      <div class="what">Test author agent (Calvin)</div>
+      <div class="where">plugins/asimov-plugin/agents/calvin-the-test-author.md</div>
+    </div>
+    <div class="codemap-row">
+      <div class="what">Model declarations (one row per agent)</div>
+      <div class="where">documentation/model-choice.md</div>
+    </div>
+    <div class="codemap-row">
+      <div class="what">Per-stack entry READMEs (product repo, not plugin)</div>
+      <div class="where">documentation/conventions/{dotnet,angular,test}/README.md</div>
+    </div>
+  </div>
+</section>
+
+<!-- §6.4 Shapes — N/A -->
+<section class="s" id="s6-4">
+  <h2 class="section-title"><span class="sec-ref">§6.4</span>Shapes / Data model</h2>
+  <div class="callout">
+    N/A — this feature introduces no new data model or persisted shapes. The agents read markdown and produce source files.
+  </div>
+</section>
+
+<!-- §6.5 APIs — N/A -->
+<section class="s" id="s6-5">
+  <h2 class="section-title"><span class="sec-ref">§6.5</span>APIs &amp; contracts</h2>
+  <div class="callout">
+    N/A — no new APIs or service contracts; the agents are local Claude Code subagents. The only "contract" is the per-stack entry-file path mapping in R4.
+  </div>
+</section>
+
+<!-- §6.6 Configuration -->
+<section class="s" id="s6-6">
+  <h2 class="section-title"><span class="sec-ref">§6.6</span>Configuration</h2>
+  <p class="section-desc">There is little to tune: the entry-file paths are fixed by R4, and the model is fixed per agent. Listed here so the fixed values are explicit. Shown as a table rather than the default value-cards because the values are file paths, which read more clearly inline than as headline values.</p>
+  <div class="data-table">
+    <div class="row head cols-3"><div>Setting</div><div>Value</div><div>Justification</div></div>
+    <div class="row cols-3"><div class="label-cell">agent model</div><div><code>claude-sonnet-4-6</code></div><div>Contract-bounded, frequently-run work (model-choice.md §2)</div></div>
+    <div class="row cols-3"><div class="label-cell">.NET entry path</div><div><code>documentation/conventions/dotnet/README.md</code></div><div>Fixed by R4; the .NET agent's only entry point</div></div>
+    <div class="row cols-3"><div class="label-cell">Angular entry path</div><div><code>documentation/conventions/angular/README.md</code></div><div>Fixed by R4; the Angular agent's only entry point</div></div>
+    <div class="row cols-3"><div class="label-cell">test entry path</div><div><code>documentation/conventions/test/README.md</code></div><div>Fixed by R4; new folder, .NET unit tests for now</div></div>
+    <div class="row cols-3"><div class="label-cell">tester base branch</div><div><code>git remote show origin</code> HEAD branch → <code>main</code> → <code>master</code></div><div>R11; the invoker may name another base or an explicit target instead</div></div>
+  </div>
+</section>
+
+<!-- §6.7 Failure handling -->
+<section class="s" id="s6-7">
+  <h2 class="section-title"><span class="sec-ref">§6.7</span>Failure handling</h2>
+  <div class="failures">
+    <div class="failures-head">
+      <div>Failure</div><div>Effect</div><div>Severity</div><div>Recovery</div>
+    </div>
+    <div class="failure-row">
+      <div>Conventions folder absent for the stack</div>
+      <div>Agent has no repo conventions to apply</div>
+      <div><span class="sev med">Med</span></div>
+      <div>Proceed on base info; flag that no conventions were found (gap rule, R6). <code>/asimov-init</code> scaffolds the missing read-list from <code>conventions-readme-template.md</code> for each detected stack.</div>
+    </div>
+    <div class="failure-row">
+      <div>Tester: base unresolvable or no diff (branch even with base), no explicit target</div>
+      <div>Nothing to test</div>
+      <div><span class="sev low">Low</span></div>
+      <div>Report the resolved base and that there is no changeset; stop without authoring (R12). Builders have no Target and are unaffected.</div>
+    </div>
+    <div class="failure-row">
+      <div>Entry README omits a convention file's @-reference</div>
+      <div>That file never loads; the agent may violate it unknowingly</div>
+      <div><span class="sev high">High</span></div>
+      <div>The README is the load-bearing index (R5); a child left out is invisible — caught by review of the README against its folder</div>
+    </div>
+    <div class="failure-row">
+      <div>Task contradicts a convention</div>
+      <div>Risk of shipping code against the house style</div>
+      <div><span class="sev med">Med</span></div>
+      <div>Agent flags and stops for a decision (conflict rule, R7); it does not silently pick a side</div>
+    </div>
+    <div class="failure-row">
+      <div>Agent skips a file in the README's <code>@</code>-list</div>
+      <div>That convention is silently not applied</div>
+      <div><span class="sev med">Med</span></div>
+      <div>The Workflow's read step mandates reading <em>every</em> <code>@</code>-referenced file; the list is short and reviewable, and output cites its sources (R8) so a reviewer can spot a convention that should have applied but didn't</div>
+    </div>
+  </div>
+</section>
+
+<!-- §6.8 Gotchas -->
+<section class="s" id="s6-8">
+  <h2 class="section-title"><span class="sec-ref">§6.8</span>Known constraints &amp; gotchas</h2>
+  <div class="problem-grid">
+    <div class="problem-card">
+      <div class="pc-head">
+        <div class="pc-num">01</div>
+        <div class="pc-title"><code>@</code>-list is read, not auto-expanded</div>
+      </div>
+      <div class="pc-body">The Read tool does not transclude <code>@</code>-imports — that only fires in the CLAUDE.md memory chain, not for a file read on demand. So the entry README is a <em>read-list</em> the agent loads file by file (the Workflow's read step), not a self-expanding index. Keep each stack's list short enough that the agent reliably reads all of it.</div>
+    </div>
+    <div class="problem-card">
+      <div class="pc-head">
+        <div class="pc-num">02</div>
+        <div class="pc-title">README is load-bearing</div>
+      </div>
+      <div class="pc-body">A convention file that isn't @-referenced from its stack README is invisible to the agent (R5). Adding a convention file means also adding its reference, or the agent never sees it.</div>
+    </div>
+    <div class="problem-card">
+      <div class="pc-head">
+        <div class="pc-num">03</div>
+        <div class="pc-title">Sparse Angular conventions</div>
+      </div>
+      <div class="pc-body">The angular/ set is deliberately thin and in flux, so the Angular agent will hit the gap rule frequently until the repo fills it in. That is expected behaviour, not a defect.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════════════════ §7 — Acceptance criteria ═════════════════════ -->
+<section class="s" id="s7">
+  <h2 class="section-title"><span class="sec-ref">§7</span>Acceptance criteria</h2>
+  <div class="ac-table">
+    <div class="ac-head"><div>#</div><div>Verifies</div><div>Description</div></div>
+    <div class="ac-row">
+      <div class="ac-id">AC1</div>
+      <div class="ac-verifies"><span class="verify-chip">R1</span></div>
+      <div>Three agent files exist under <code>plugins/asimov-plugin/agents/</code> — one each for .NET developer, Angular developer, and test author.</div>
+    </div>
+    <div class="ac-row">
+      <div class="ac-id">AC2</div>
+      <div class="ac-verifies"><span class="verify-chip">R2</span><span class="verify-chip">NF1</span></div>
+      <div>Each agent prompt carries base info and contains no product-specific identifier (reviewable by reading the prompt).</div>
+    </div>
+    <div class="ac-row">
+      <div class="ac-id">AC3</div>
+      <div class="ac-verifies"><span class="verify-chip">R3</span><span class="verify-chip">R4</span></div>
+      <div>Each agent prompt instructs it to read its mapped entry README at the exact path in R4 — no bare folder reference.</div>
+    </div>
+    <div class="ac-row">
+      <div class="ac-id">AC4</div>
+      <div class="ac-verifies"><span class="verify-chip">R5</span></div>
+      <div>For a populated stack, reading the entry README brings every convention file in that folder into context (the README @-references each).</div>
+    </div>
+    <div class="ac-row">
+      <div class="ac-id">AC5</div>
+      <div class="ac-verifies"><span class="verify-chip">R6</span><span class="verify-chip">§4.4</span></div>
+      <div>Run an agent in a repo where the stack's conventions are missing or don't cover the task → it delivers on base info and emits a gap flag.</div>
+    </div>
+    <div class="ac-row">
+      <div class="ac-id">AC6</div>
+      <div class="ac-verifies"><span class="verify-chip">R7</span><span class="verify-chip">§4.4</span></div>
+      <div>Give an agent a task that contradicts a convention → it emits a conflict flag and stops for a decision rather than choosing a side.</div>
+    </div>
+    <div class="ac-row">
+      <div class="ac-id">AC7</div>
+      <div class="ac-verifies"><span class="verify-chip">R8</span></div>
+      <div>Agent output cites the convention file behind each non-trivial decision (reviewable in the produced summary).</div>
+    </div>
+    <div class="ac-row">
+      <div class="ac-id">AC8</div>
+      <div class="ac-verifies"><span class="verify-chip">NF2</span></div>
+      <div>Each agent's <code>model:</code> frontmatter is <code>claude-sonnet-4-6</code> and matches its row in <code>model-choice.md</code> (grep both, same commit).</div>
+    </div>
+    <div class="ac-row">
+      <div class="ac-id">AC9</div>
+      <div class="ac-verifies"><span class="verify-chip">R2</span></div>
+      <div>Each agent's base info contains all six shared skeleton fields — Role, Stack competence, Reads, Workflow, Boundaries, Output — and the tester's additionally carries Target; reviewable by reading the prompt.</div>
+    </div>
+    <div class="ac-row">
+      <div class="ac-id">AC10</div>
+      <div class="ac-verifies"><span class="verify-chip">R9</span></div>
+      <div>Give the test author production code that is hard to unit-test → it flags the testability problem back to the author rather than forcing a brittle test.</div>
+    </div>
+    <div class="ac-row">
+      <div class="ac-id">AC11</div>
+      <div class="ac-verifies"><span class="verify-chip">R10</span></div>
+      <div>Diff the Workflow and Output sections across the three agent prompts → the two builders' are textually identical; the tester's differ only by the resolve-the-target step, the author-with-restraint step, the resolved-target line and the suite-size note.</div>
+    </div>
+    <div class="ac-row">
+      <div class="ac-id">AC12</div>
+      <div class="ac-verifies"><span class="verify-chip">R11</span><span class="verify-chip">R10</span></div>
+      <div>Invoke the tester on a branch with a diff and no explicit target → it prints <code>Authoring tests for: &lt;base&gt;...HEAD — &lt;n&gt; files</code> before reading conventions and writes tests only for the methods and branches the diff touched.</div>
+    </div>
+    <div class="ac-row">
+      <div class="ac-id">AC13</div>
+      <div class="ac-verifies"><span class="verify-chip">R11</span></div>
+      <div>Hand the tester an explicit target that predates the branch → it skips diff resolution, prints <code>Authoring tests for: &lt;explicit target&gt;</code>, and covers that target.</div>
+    </div>
+    <div class="ac-row">
+      <div class="ac-id">AC14</div>
+      <div class="ac-verifies"><span class="verify-chip">R12</span></div>
+      <div>Invoke the tester on a branch even with base, no explicit target → it reports there is nothing to test and stops; no test file is written.</div>
+    </div>
+    <div class="ac-row">
+      <div class="ac-id">AC15</div>
+      <div class="ac-verifies"><span class="verify-chip">R13</span><span class="verify-chip">§4.4</span></div>
+      <div>Give the tester a diff that adds one method to a class whose untouched methods lack tests → it emits a coverage flag naming the class and adds no tests for the untouched methods.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════════════════ §8 — Open questions ═════════════════════ -->
+<section class="s" id="s8">
+  <h2 class="section-title"><span class="sec-ref">§8</span>Open questions</h2>
+  <div class="q-grid">
+    <div class="q-card">
+      <div class="q-head">
+        <span class="q-id">Q1</span>
+        <span class="q-decider">Allan Borup</span>
+      </div>
+      <div class="q-body"><strong>Resolved (2026-06-02; wording updated 2026-09-15):</strong> Giskard + Daneel <strong>supersede</strong> the generic "S101 implementer subagent" row (replaced in <code>model-choice.md</code>); Calvin is added as a <strong>Code</strong>-stage test-author row — authoring a test is a build activity (D100 §4.4). The "S101 validator subagent" row <strong>stays</strong> — none of the three validates code against a spec. The reviewer role (Baley) shipped 2026-06-11 in its own D101.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════════════════ §9 — References ═════════════════════ -->
+<section class="s" id="s9">
+  <h2 class="section-title"><span class="sec-ref">§9</span>References</h2>
+  <div class="refs">
+    <div class="refs-block">
+      <h4>Code</h4>
+      <ul>
+        <li>plugins/asimov-plugin/agents/giskard-the-dotnet-developer.md</li>
+        <li>plugins/asimov-plugin/agents/daneel-the-angular-developer.md</li>
+        <li>plugins/asimov-plugin/agents/calvin-the-test-author.md</li>
+        <li>plugins/asimov-plugin/commands/asimov-init.md (scaffolds the per-stack read-lists the agents consume)</li>
+        <li>documentation/model-choice.md</li>
+      </ul>
+    </div>
+    <div class="refs-block">
+      <h4>Docs</h4>
+      <ul>
+        <li>documentation/D100-Asimov-architecture.md §4.4 (subagent inventory + Accelerate roles)</li>
+        <li>documentation/D100-Asimov-architecture.md §7.2.1 (shared convention-overlay mechanism)</li>
+        <li>CLAUDE.md — "How to add a new subagent"</li>
+        <li>artifacts/documentation/d101-feature-design/d101-feature-design-definition.md</li>
+        <li>plugins/asimov-plugin/artifacts/documentation/conventions/conventions-definition.md (what a per-stack read-list must contain)</li>
+        <li>plugins/asimov-plugin/artifacts/documentation/conventions/conventions-readme-template.md (the README skeleton /asimov-init writes)</li>
+      </ul>
+    </div>
+    <div class="refs-block">
+      <h4>Related</h4>
+      <ul>
+        <li>documentation/features/D101-d101-feature-design.html (run-time read-by-path pattern)</li>
+        <li>documentation/features/D101-baley-the-code-reviewer.html (Target field — the same branch-diff scoping the tester uses)</li>
+      </ul>
+    </div>
+    <div class="refs-block">
+      <h4>Example (illustration only)</h4>
+      <ul>
+        <li>A product repo's documentation/conventions/ — a real per-stack conventions tree (dotnet/, angular/)</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+  </article>
+</div>
+
+<footer class="site-footer">
+  <div>
+    <a href="../index.html">← Documentation home</a>
+    · <span class="mono">features/D101-build-subagents.html</span>
+  </div>
+  <div style="margin-top: 0.4rem">
+    D101 · Build subagents · asimov-plugin · Full design · Draft v0.2 · 2026-09-15
+  </div>
+</footer>
+
+<script>
+  // Requirements tab switching — purely cosmetic, no state persistence.
+  document.querySelectorAll('.req-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      const target = tab.dataset.target;
+      document.querySelectorAll('.req-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      document.querySelectorAll('.req-list').forEach(l => {
+        l.style.display = (l.dataset.tab === target) ? '' : 'none';
+      });
+    });
+  });
+</script>
+
+</body>
+</html>

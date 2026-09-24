@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Commands · Asimov</title>
+<meta name="description" content="The slash commands you type in Claude Code, and what each one does.">
+<link rel="stylesheet" href="../site.css">
+</head>
+<body class="has-subnav">
+<nav class="nav"><div class="in">
+  <a class="brand" href="../index.html">ASIMOV</a>
+  <a href="../index.html">Home</a>
+  <a href="../why.html">Why</a>
+  <a href="../how-it-works.html">How it works</a>
+  <a class="on" href="../inside/index.html">What's inside</a>
+  <span class="sep" aria-hidden="true"></span>
+  <span class="grp">Artifacts:</span>
+  <a href="../artifacts/documentation/index.html">Documentation</a>
+  <a href="../artifacts/project-management/index.html">Project management</a>
+  <a href="../artifacts/general/index.html">General</a>
+  <span class="sep" aria-hidden="true"></span>
+  <a href="../ai-transition.html">AI transition</a>
+  <a class="cta" href="../get-started.html">Get started</a>
+</div></nav>
+<nav class="subnav" aria-label="What's inside"><div class="in">
+  <a href="../inside/index.html">Overview</a>
+  <a class="on" href="../inside/commands.html">Commands</a>
+  <a href="../inside/personas.html">Personas</a>
+  <a href="../inside/agents.html">Agents</a>
+  <a href="../inside/project-management.html">Project management</a>
+</div></nav>
+
+<main class="page">
+  <h1>Commands</h1>
+  <p class="lede">What you type in Claude Code.</p>
+
+  <p>Each command reads the repo's definitions and conventions at run time. There is no copy inside the plugin to drift.</p>
+
+  <div style="overflow-x:auto">
+  <table>
+    <tr><th>Command</th><th>Stage</th><th>What it does</th></tr>
+    <tr><td><code>/asimov-init</code></td><td>Setup</td><td>Writes <code>asimov.md</code>, imports it from <code>CLAUDE.md</code>, scaffolds convention read-lists, generates the docs landing page.</td></tr>
+    <tr><td><code>/d101-feature-design</code></td><td>Design</td><td>Interview → D101 as HTML. Stops after the business design; run again for the technical design.</td></tr>
+    <tr><td><code>/d101-review</code></td><td>Design</td><td>Gap check against the bar plus persona reads. Never edits, never approves.</td></tr>
+    <tr><td><code>/d101-convert-to-html</code></td><td>Design</td><td>Legacy markdown D101 → HTML.</td></tr>
+    <tr><td><code>/persona-new</code></td><td>Design</td><td>Interview → a custom persona skill in your repo.</td></tr>
+    <tr><td><code>/persona-list</code></td><td>Design</td><td>Lists standard and custom personas.</td></tr>
+  </table>
+  </div>
+
+  <ul>
+    <li><strong>A command interviews before it writes.</strong> It asks for what the artifact needs and stops when the artifact's own bar says so.</li>
+    <li><strong>A command that reviews never edits.</strong> Findings go to you; the verdict stays a person's.</li>
+    <li><strong>Every command tells you how mature its artifact is</strong> before its first question, when the level is below adopt. See <a href="../artifacts/documentation/index.html#maturity">Maturity</a>.</li>
+  </ul>
+
+</main>
+
+<footer class="foot"><div class="in">
+  <span>Asimov · by <a href="https://contextand.com">Context&amp;</a></span>
+  <a href="https://github.com/context-and-oss/asimov">GitHub</a>
+  <a href="https://github.com/context-and-oss/asimov/blob/main/CONTRIBUTING.md">Contributing</a>
+  <a href="https://github.com/context-and-oss/asimov/blob/main/LICENSE">MIT licence</a>
+</div></footer>
+</body>
+</html>

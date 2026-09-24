@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Get started · Asimov</title>
+<meta name="description" content="Install Asimov, wire up a repo, write a first design.">
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<nav class="nav"><div class="in">
+  <a class="brand" href="index.html">ASIMOV</a>
+  <a href="index.html">Home</a>
+  <a href="why.html">Why</a>
+  <a href="how-it-works.html">How it works</a>
+  <a href="inside/index.html">What's inside</a>
+  <span class="sep" aria-hidden="true"></span>
+  <span class="grp">Artifacts:</span>
+  <a href="artifacts/documentation/index.html">Documentation</a>
+  <a href="artifacts/project-management/index.html">Project management</a>
+  <a href="artifacts/general/index.html">General</a>
+  <span class="sep" aria-hidden="true"></span>
+  <a href="ai-transition.html">AI transition</a>
+  <a class="cta on" href="get-started.html">Get started</a>
+</div></nav>
+
+<main class="page">
+  <h1>Get started</h1>
+  <p class="lede">An afternoon to install and wire up a repo, and a first feature through design the same week.</p>
+
+  <h2>Supported</h2>
+  <ul>
+    <li><strong>Coding agents</strong>: Claude Code. Codex is planned.</li>
+    <li><strong>Software stacks</strong>: C#/.NET and TypeScript/Angular. Tests in .NET.</li>
+  </ul>
+
+  <h2>Install</h2>
+  <h3>Claude Code</h3>
+  <pre class="mono" style="color:#fff;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:1rem;overflow-x:auto">/plugin marketplace add context-and-oss/asimov
+/plugin install asimov-plugin</pre>
+  <ul>
+    <li>Update later with <code>/plugin marketplace update asimov-marketplace</code>. No auto-update.</li>
+    <li>Versions are major-only. Any release may change a bar or a template, so read the release notes before updating a repo with designs in flight.</li>
+    <li>Needs access to the models the commands pin, mapped in <a href="https://github.com/context-and-oss/asimov/blob/main/documentation/model-choice.md">model-choice.md</a>.</li>
+  </ul>
+  <h3>Codex</h3>
+  <p>Planned.</p>
+
+  <h2>Your first feature</h2>
+  <div class="figure">
+    <svg viewBox="0 0 1200 230" style="min-width:760px" role="img" aria-label="Your first feature as a track: wire up, describe, read, signed by the business approver, design the how, checked gap-free by a reviewer who is not the author, build with the agents, approved by a person on the pull request.">
+      <!-- phase bands, drawn first so the track reads on top -->
+      <g fill="var(--cyan,#4fc3f7)" fill-opacity="0.10" stroke="var(--cyan,#4fc3f7)" stroke-opacity="0.45" stroke-width="1">
+        <rect x="190" y="166" width="356" height="26" rx="6"/>
+        <rect x="652" y="166" width="202" height="26" rx="6"/>
+        <rect x="960" y="166" width="202" height="26" rx="6"/>
+      </g>
+      <g fill="var(--text-dim,#a8b8d0)" font-family="JetBrains Mono, monospace" font-size="11" letter-spacing="0.14em" text-anchor="middle">
+        <text x="368" y="183">BUSINESS DESIGN</text>
+        <text x="753" y="183">TECHNICAL DESIGN</text>
+        <text x="1061" y="183">BUILD</text>
+      </g>
+
+      <!-- the track -->
+      <line x1="60" y1="90" x2="1140" y2="90" stroke="var(--border-2,#3b5e8f)" stroke-width="2"/>
+
+      <!-- stations you do: a circle on the track -->
+      <g fill="var(--bg-card,#14253f)" stroke="var(--cyan,#4fc3f7)" stroke-width="2">
+        <circle cx="60" cy="90" r="8"/>
+        <circle cx="214" cy="90" r="8"/>
+        <circle cx="368" cy="90" r="8"/>
+        <circle cx="676" cy="90" r="8"/>
+        <circle cx="984" cy="90" r="8"/>
+      </g>
+      <!-- stations a person decides: a diamond -->
+      <g fill="var(--green,#66bb6a)" fill-opacity="0.22" stroke="var(--green,#66bb6a)" stroke-width="2">
+        <polygon points="522,76 536,90 522,104 508,90"/>
+        <polygon points="830,76 844,90 830,104 816,90"/>
+        <polygon points="1138,76 1152,90 1138,104 1124,90"/>
+      </g>
+
+      <!-- station names -->
+      <g fill="var(--text-mute,#6b7a93)" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700" letter-spacing="0.08em" text-anchor="middle">
+        <text x="60" y="60">WIRE UP</text>
+        <text x="214" y="60">DESCRIBE</text>
+        <text x="368" y="60">READ</text>
+        <text x="522" y="60">SIGNED</text>
+        <text x="676" y="60">DESIGN THE HOW</text>
+        <text x="830" y="60">GAP-FREE</text>
+        <text x="984" y="60">BUILD</text>
+        <text x="1138" y="60">APPROVED</text>
+      </g>
+
+      <!-- what you type -->
+      <g fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" text-anchor="middle">
+        <text x="60" y="120">/asimov-init</text>
+        <text x="214" y="120">/d101-feature-design</text>
+        <text x="368" y="120">/d101-review</text>
+        <text x="676" y="120">/d101-feature-design</text>
+        <text x="984" y="120">agents by name</text>
+      </g>
+      <!-- who decides -->
+      <g fill="var(--text-dim,#a8b8d0)" font-family="JetBrains Mono, monospace" font-size="11" text-anchor="middle">
+        <text x="522" y="120">business approver</text>
+        <text x="830" y="120">reviewer &#8800; author</text>
+        <text x="1138" y="120">a person,<tspan x="1138" dy="14">on the PR</tspan></text>
+      </g>
+    </svg>
+    <div class="key" aria-label="Track key">
+      <b>Key</b>
+      <span><i style="--sw: var(--cyan); border-radius:50%"></i>Something you do</span>
+      <span><i class="dia" style="--sw: var(--green)"></i>A person decides</span>
+      <span class="hint">Three decisions, three people, and no command can move any of them.</span>
+    </div>
+  </div>
+  <div style="overflow-x:auto">
+  <table>
+    <tr><th>Step</th><th>You type</th><th>What happens</th><th>Who decides</th></tr>
+    <tr><td>Wire up</td><td><code>/asimov-init</code></td><td><code>asimov.md</code>, one import line in <code>CLAUDE.md</code>, a convention read-list per stack, the docs landing page</td><td>—</td></tr>
+    <tr><td>Describe</td><td><code>/d101-feature-design</code></td><td>The business design in <code>documentation/features/</code>, technical section declared open</td><td>—</td></tr>
+    <tr><td>Read</td><td><code>/d101-review</code></td><td>Findings in a sibling <code>.review.md</code> the next run picks up</td><td>—</td></tr>
+    <tr><td>Sign</td><td>—</td><td>The business approver signs the what and why. No technology chosen yet.</td><td>Business approver</td></tr>
+    <tr><td>Design the how</td><td><code>/d101-feature-design</code> again</td><td>The technical design in the same file. Phase moves to full design.</td><td>—</td></tr>
+    <tr><td>Check it is gap-free</td><td>—</td><td>A gap-free verdict. Status can move to approved now that the estimate holds.</td><td>A reviewer who is not the author; the business approver for status</td></tr>
+    <tr><td>Build</td><td>Ask for an agent by name: "Use the giskard-the-dotnet-developer subagent to implement §6 of D101-&lt;feature&gt;.html"</td><td>Code and tests in your conventions; Baley's findings in the pull request</td><td>—</td></tr>
+    <tr><td>Ship</td><td>—</td><td>A merged pull request</td><td>A person approves it</td></tr>
+  </table>
+  </div>
+
+  <h2>Make it yours</h2>
+  <ul>
+    <li><code>/persona-new</code> captures your real approver as a persona in ten minutes. Every design from then on is read as them before they see it.</li>
+    <li><code>/persona-list</code> shows who is on the roster, standard and custom.</li>
+    <li>When a command produces an artifact below <span class="chip adopt">adopt</span>, it prints the level as one line before its first question. Say so to the team.</li>
+  </ul>
+
+  <h2>A first step that proves something</h2>
+  <p>Pick one team and one real feature. Take it through the design stage and the agents. Count the clarifications asked during coding, before and after.</p>
+
+</main>
+
+<footer class="foot"><div class="in">
+  <span>Asimov · by <a href="https://contextand.com">Context&amp;</a></span>
+  <a href="https://github.com/context-and-oss/asimov">GitHub</a>
+  <a href="https://github.com/context-and-oss/asimov/blob/main/CONTRIBUTING.md">Contributing</a>
+  <a href="https://github.com/context-and-oss/asimov/blob/main/LICENSE">MIT licence</a>
+</div></footer>
+</body>
+</html>

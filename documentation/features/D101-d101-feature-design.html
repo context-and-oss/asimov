@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D101 — /d101-feature-design — asimov docs</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+:root {
+  --bg:        #0a1424;
+  --bg2:       #122039;
+  --bg3:       #1b2e4d;
+  --bg-card:   #14253f;
+  --border:    #2b4a73;
+  --border-2:  #3b5e8f;
+  --text:      #fff;
+  --text-dim:  #a8b8d0;
+  --text-mute: #6b7a93;
+  --cyan:      #4fc3f7;
+  --teal:      #26c6da;
+  --green:     #66bb6a;
+  --amber:     #ffb74d;
+  --coral:     #ef5350;
+  --gold:      #ffd54f;
+  --violet:    #ab47bc;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; font-size: 15px; line-height: 1.6; overflow-x: hidden; padding-top: 56px; }
+a { color: inherit; text-decoration: none; }
+code, .mono { font-family: 'JetBrains Mono', monospace; font-size: 0.88em; }
+code { background: var(--bg3); padding: 1px 6px; border-radius: 4px; color: var(--cyan); }
+
+/* Top nav (site-wide) */
+.top-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(10,20,36,0.85); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 0.55rem 2rem; display: flex; gap: 1.4rem; align-items: center; font-size: 0.82rem; }
+.top-nav .brand, .top-nav .brand a { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--cyan); letter-spacing: 0.04em; text-decoration: none; }
+.top-nav .brand .sep { color: var(--border); margin: 0 0.5rem; }
+.top-nav a { color: var(--text-dim); font-weight: 500; }
+.top-nav a:hover { color: #fff; }
+.top-nav .spacer { flex: 1; }
+.top-nav .status-chip { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.25rem 0.7rem; border-radius: 999px; background: #ffd54f15; border: 1px solid #ffd54f44; color: var(--gold); font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 700; }
+.top-nav .status-chip::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--gold); }
+.top-nav .phase-chip { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.25rem 0.7rem; border-radius: 999px; background: #4fc3f715; border: 1px solid #4fc3f744; color: var(--cyan); font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 700; }
+.top-nav .phase-chip::before { content: ''; width: 6px; height: 6px; border-radius: 1px; background: var(--cyan); }
+.top-nav .phase-chip.full { background: #66bb6a15; border-color: #66bb6a44; color: var(--green); }
+.top-nav .phase-chip.full::before { background: var(--green); }
+
+/* Layout with left sidebar (per-page TOC) + content column */
+.layout-doc { display: grid; grid-template-columns: 200px minmax(0, 1fr); max-width: 1300px; margin: 0 auto; gap: 1.8rem; padding: 0.5rem 1.5rem; }
+.side-nav { position: sticky; top: 76px; align-self: start; max-height: calc(100vh - 90px); overflow-y: auto; padding: 0.7rem 0.5rem 1rem 0.2rem; font-size: 0.85rem; }
+.side-nav .side-head { font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-mute); margin-bottom: 0.7rem; padding-left: 0.6rem; }
+.side-nav ul { list-style: none; padding: 0; margin: 0; }
+.side-nav ul ul { padding-left: 0.9rem; margin-top: 0.1rem; }
+.side-nav li { margin: 0.1rem 0; }
+.side-nav a { display: block; padding: 0.32rem 0.7rem; color: var(--text-dim); border-left: 2px solid transparent; font-size: 0.86rem; line-height: 1.4; border-radius: 0 4px 4px 0; }
+.side-nav a:hover { color: #fff; background: #4fc3f708; border-left-color: var(--border-2); }
+.content { min-width: 0; }
+
+/* Hero */
+.hero { padding: 1.5rem 2rem 1.5rem; position: relative; overflow: hidden; max-width: 1300px; margin: 0 auto; }
+.hero::before { content: ''; position: absolute; inset: 0; z-index: 0; background: radial-gradient(ellipse at 20% 30%, #4fc3f718 0%, transparent 50%), radial-gradient(ellipse at 80% 60%, #26c6da14 0%, transparent 50%); }
+.hero > * { position: relative; z-index: 1; }
+.kicker { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--cyan); padding: 0.3rem 0.8rem; border-radius: 999px; border: 1px solid #4fc3f744; background: #4fc3f711; margin-bottom: 1rem; }
+.hero h1 { font-size: clamp(2rem, 4.5vw, 3.4rem); font-weight: 900; letter-spacing: -0.03em; line-height: 1.05; background: linear-gradient(135deg, #fff 0%, var(--cyan) 50%, var(--teal) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.hero .tagline { font-size: 1.05rem; color: var(--text-dim); margin-top: 1rem; max-width: 760px; line-height: 1.6; }
+
+/* Metadata strip */
+.meta-strip { max-width: 1300px; margin: 1rem auto 0; padding: 0 2rem; display: grid; grid-template-columns: repeat(6, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.meta-cell { background: var(--bg-card); padding: 1rem 1.2rem; }
+.meta-cell .label { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-mute); margin-bottom: 0.35rem; }
+.meta-cell .value { font-size: 0.95rem; font-weight: 600; color: var(--text); }
+.meta-cell .value.mono { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; }
+
+/* Sections + chapter bands */
+section.s { max-width: 1300px; margin: 0 auto; padding: 3rem 2rem 0; }
+.chapter-band + section.s { padding-top: 1.5rem; }
+.section-title { font-size: clamp(1.5rem, 2.6vw, 2rem); font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.7rem; }
+.section-title .sec-ref { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; font-weight: 600; color: var(--text-mute); letter-spacing: 0.04em; margin-right: 0.7rem; vertical-align: middle; padding: 0.2rem 0.5rem; border-radius: 4px; background: var(--bg2); border: 1px solid var(--border); }
+.section-desc { color: var(--text-dim); font-size: 1rem; max-width: 780px; margin-bottom: 1.8rem; line-height: 1.65; }
+.chapter-band { max-width: 1300px; margin: 3.5rem auto 0; padding: 0 2rem; }
+.chapter-band-inner { display: grid; grid-template-columns: auto 1fr; gap: 1.5rem; align-items: center; padding: 1.4rem 1.8rem; border-radius: 12px; background: linear-gradient(135deg, #4fc3f714 0%, #26c6da05 100%); border: 1px solid var(--border); border-left: 4px solid var(--cyan); }
+.chapter-band .ch-num { font-family: 'JetBrains Mono', monospace; font-size: 2.6rem; font-weight: 800; color: var(--cyan); line-height: 1; }
+.chapter-band .ch-name { font-size: 1.35rem; font-weight: 700; color: #fff; letter-spacing: 0.01em; margin-bottom: 0.25rem; }
+.chapter-band .ch-summary { font-size: 0.88rem; color: var(--text-dim); line-height: 1.5; }
+
+/* Doc-scope line below metadata strip */
+.doc-scope { max-width: 1300px; margin: 0.7rem auto 0; padding: 0 2.2rem; font-size: 0.82rem; color: var(--text-mute); line-height: 1.5; }
+.doc-scope strong { color: var(--text-dim); font-weight: 600; }
+
+/* Problem cards */
+.problem-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; }
+.problem-card { background: linear-gradient(160deg, #ef535018 0%, var(--bg-card) 60%); border: 1px solid #ef535044; border-radius: 12px; padding: 1.2rem 1.3rem; }
+.problem-card .pc-head { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.5rem; }
+.problem-card .pc-num { font-family: 'JetBrains Mono', monospace; font-size: 1.4rem; font-weight: 800; color: var(--coral); line-height: 1; }
+.problem-card .pc-title { font-size: 0.95rem; font-weight: 700; color: #fff; }
+.problem-card .pc-body { font-size: 0.85rem; color: var(--text-dim); line-height: 1.55; }
+
+/* Concept pills */
+.concept-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin-top: 1.4rem; }
+.concept { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.2rem 1.3rem; position: relative; border-left-width: 4px; }
+.concept.reading  { border-left-color: var(--green); }
+.concept.inferred { border-left-color: var(--amber); }
+.concept.history  { border-left-color: var(--cyan); }
+.concept .c-head { display: flex; align-items: center; gap: 0.7rem; margin-bottom: 0.6rem; }
+.concept .c-name { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+.concept.reading  .c-name { color: var(--green); }
+.concept.inferred .c-name { color: var(--amber); }
+.concept.history  .c-name { color: var(--cyan); }
+.concept p { font-size: 0.88rem; color: var(--text-dim); line-height: 1.55; }
+
+/* Principles */
+.principles { display: grid; gap: 0.65rem; }
+.principle { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 0.95rem 1.3rem; display: flex; gap: 1rem; align-items: center; }
+.principle .num { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; font-weight: 700; width: 30px; height: 30px; border-radius: 8px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--cyan), var(--teal)); color: #0a1424; }
+.principle .text { font-size: 0.95rem; }
+.principle .text strong { color: var(--cyan); font-weight: 700; }
+
+/* Field cards */
+.fields-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 1rem; }
+.field-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
+.field-card .f-thumb { height: 110px; display: flex; align-items: center; justify-content: center; font-size: 2.6rem; position: relative; color: rgba(255,255,255,0.92); text-shadow: 0 1px 3px rgba(10,20,36,0.4); font-family: 'JetBrains Mono', monospace; font-weight: 800; letter-spacing: 0.04em; }
+.field-card .f-thumb.t1 { background: linear-gradient(135deg, #66bb6a, #26c6da); }
+.field-card .f-thumb.t2 { background: linear-gradient(135deg, #26c6da, #4fc3f7); }
+.field-card .f-thumb.t3 { background: linear-gradient(135deg, #4fc3f7, #ab47bc); }
+.field-card .f-thumb.t4 { background: linear-gradient(135deg, #ffb74d, #ef5350); }
+.field-card .f-thumb .badge-tl { position: absolute; top: 0.6rem; left: 0.6rem; font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; background: rgba(10,20,36,0.55); padding: 0.2rem 0.55rem; border-radius: 4px; backdrop-filter: blur(4px); }
+.field-card .f-body { padding: 1.1rem 1.2rem; flex: 1; display: flex; flex-direction: column; }
+.field-card .f-name { font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; font-weight: 700; color: #fff; margin-bottom: 0.3rem; }
+.field-card .f-question { font-style: italic; color: var(--text-dim); font-size: 0.85rem; margin-bottom: 0.7rem; }
+.field-card .f-rule { font-size: 0.83rem; color: var(--text-dim); line-height: 1.55; flex: 1; }
+
+/* Named-rule cards (§4.4) — mirrors d101-feature-design-template.html */
+.history-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; }
+.hist-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.3rem; border-top: 3px solid var(--cyan); }
+.hist-card.flag { border-top-color: var(--amber); }
+.hist-card .h-label { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--cyan); margin-bottom: 0.4rem; word-break: break-word; }
+.hist-card.flag .h-label { color: var(--amber); }
+.hist-card .h-value { font-family: 'JetBrains Mono', monospace; font-size: 1.6rem; font-weight: 800; color: #fff; margin-bottom: 0.6rem; line-height: 1; }
+.hist-card .h-value .unit { font-size: 0.65em; color: var(--text-mute); font-weight: 600; margin-left: 0.25rem; letter-spacing: 0; }
+.hist-card .h-desc { font-size: 0.88rem; color: var(--text-dim); margin-bottom: 0.8rem; line-height: 1.55; }
+
+/* Generic bullet list */
+ul.bullets { list-style: none; padding: 0; margin: 0.7rem 0 0; }
+ul.bullets li { position: relative; padding: 0.4rem 0 0.4rem 1.3rem; font-size: 0.82rem; color: var(--text-dim); line-height: 1.55; border-top: 1px solid var(--border); }
+ul.bullets li::before { content: '→'; position: absolute; left: 0; top: 0.4rem; font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--cyan); }
+ul.bullets li.warn::before { content: '!'; color: var(--amber); }
+ul.bullets li code { font-size: 0.78rem; }
+
+/* Requirements with tabs */
+.req-tabs { display: flex; gap: 0.4rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border); }
+.req-tab { padding: 0.6rem 1rem; cursor: pointer; font-size: 0.82rem; font-weight: 600; color: var(--text-dim); border-bottom: 2px solid transparent; margin-bottom: -1px; user-select: none; }
+.req-tab:hover { color: #fff; }
+.req-tab.active { color: var(--cyan); border-bottom-color: var(--cyan); }
+.req-tab .count { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; padding: 0.05rem 0.4rem; border-radius: 4px; background: var(--bg3); margin-left: 0.4rem; color: var(--text-mute); }
+.req-tab.active .count { color: var(--cyan); background: #4fc3f722; }
+.req-list { display: grid; gap: 0.5rem; }
+.req { display: grid; grid-template-columns: 60px 1fr; gap: 1rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 0.7rem 1rem; align-items: start; }
+.req .id { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; font-weight: 700; color: var(--cyan); padding-top: 2px; }
+.req .body { font-size: 0.9rem; color: var(--text); line-height: 1.55; }
+.req.oos .id { color: var(--text-mute); }
+.req-list[data-tab="nf"] .req .id, .req-list[data-tab="oos"] .req .id { color: var(--amber); }
+
+/* Decisions matrix */
+.decisions { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.decisions-head, .decision-row { display: grid; grid-template-columns: 1.2fr 1fr 1.4fr; gap: 1rem; padding: 0.9rem 1.2rem; align-items: start; border-bottom: 1px solid var(--border); }
+.decisions-head { background: var(--bg2); font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); }
+.decision-row { font-size: 0.85rem; }
+.decision-row:last-child { border-bottom: none; }
+.decision-row .decided { color: #fff; font-weight: 600; }
+.decision-row .alt { color: var(--amber); font-style: italic; font-size: 0.82rem; line-height: 1.5; }
+.decision-row .why { color: var(--text-dim); font-size: 0.82rem; line-height: 1.55; }
+
+/* Generic data table */
+.data-table { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.data-table .row { display: grid; gap: 1rem; padding: 0.65rem 1.2rem; border-bottom: 1px solid var(--border); font-size: 0.85rem; align-items: start; }
+.data-table .row.head { background: var(--bg2); font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); font-weight: 700; }
+.data-table .row:last-child { border-bottom: none; }
+.data-table .row.cols-2 { grid-template-columns: 1fr 2fr; }
+.data-table .row.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+.data-table .row code { font-size: 0.78rem; }
+.data-table .row .label-cell { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; color: var(--cyan); }
+
+/* Data flow SVG diagram */
+.flow-wrap { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.8rem; overflow-x: auto; }
+.flow-wrap svg { display: block; margin: 0 auto; max-width: 100%; height: auto; }
+.flow-legend { display: flex; flex-wrap: wrap; gap: 1.2rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); font-size: 0.82rem; color: var(--text-dim); }
+.flow-legend .item { display: inline-flex; align-items: center; gap: 0.4rem; }
+.flow-legend .swatch { width: 14px; height: 4px; border-radius: 2px; }
+
+/* Sub-section heading */
+.subhead { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-dim); font-weight: 700; margin: 1.5rem 0 0.6rem; }
+.subhead:first-child { margin-top: 0; }
+
+/* Acceptance criteria */
+.ac-table { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.ac-head, .ac-row { display: grid; grid-template-columns: 60px 150px 1fr; gap: 1rem; padding: 0.8rem 1.2rem; align-items: start; border-bottom: 1px solid var(--border); }
+.ac-head { background: var(--bg2); font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); }
+.ac-row { font-size: 0.86rem; }
+.ac-row:last-child { border-bottom: none; }
+.ac-row .ac-id { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--cyan); }
+.ac-row .ac-verifies { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+.verify-chip { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; padding: 0.15rem 0.5rem; border-radius: 4px; background: #4fc3f714; border: 1px solid #4fc3f744; color: var(--cyan); }
+
+/* Open questions */
+.q-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 0.7rem; }
+.q-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.2rem; border-left: 3px solid var(--gold); }
+.q-card.resolved { border-left-color: var(--green); }
+.q-card .q-head { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
+.q-card .q-id { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; color: var(--gold); background: #ffd54f15; padding: 0.15rem 0.5rem; border-radius: 4px; }
+.q-card.resolved .q-id { color: var(--green); background: #66bb6a15; }
+.q-card .q-decider { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--text-mute); }
+.q-card .q-body { font-size: 0.88rem; color: var(--text); line-height: 1.55; }
+.q-card .q-resolution { font-size: 0.82rem; color: var(--text-dim); line-height: 1.5; margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--border); }
+.q-card .q-resolution strong { color: var(--green); }
+
+/* References */
+.refs { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+.refs-block { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 1.1rem 1.3rem; }
+.refs-block h4 { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--cyan); margin-bottom: 0.7rem; }
+.refs-block ul { list-style: none; }
+.refs-block li { font-family: 'JetBrains Mono', monospace; font-size: 0.76rem; color: var(--text-dim); padding: 0.2rem 0; line-height: 1.5; word-break: break-all; }
+.refs-block li a { color: var(--cyan); }
+
+/* Callouts */
+.callout { background: linear-gradient(135deg, #4fc3f712, #26c6da08); border: 1px solid #4fc3f744; border-radius: 10px; padding: 1rem 1.3rem; margin: 1.2rem 0; font-size: 0.9rem; color: var(--text-dim); line-height: 1.6; }
+.callout strong { color: var(--cyan); }
+.callout.warn { background: linear-gradient(135deg, #ffd54f15, #ff890608); border-color: #ffd54f55; }
+.callout.warn strong { color: var(--gold); }
+
+footer.site-footer { max-width: 1300px; margin: 4rem auto 0; padding: 2rem; border-top: 1px solid var(--border); text-align: center; color: var(--text-mute); font-size: 0.82rem; line-height: 1.7; }
+footer.site-footer .mono { color: var(--text-dim); font-family: 'JetBrains Mono', monospace; }
+footer.site-footer a { color: var(--cyan); }
+
+@media (max-width: 1100px) {
+  .meta-strip { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 900px) {
+  .layout-doc { grid-template-columns: 1fr; gap: 1rem; padding: 1rem 1.2rem; }
+  .side-nav { position: static; max-height: none; overflow: visible; border: 1px solid var(--border); border-radius: 8px; padding: 1rem; background: var(--bg-card); }
+}
+@media (max-width: 720px) {
+  .top-nav { overflow-x: auto; padding: 0.55rem 1rem; gap: 1rem; }
+  .top-nav .spacer { display: none; }
+  .hero { padding: 1.2rem 1.2rem 1rem; }
+  section.s { padding: 2.5rem 1.2rem 0; }
+  .meta-strip { grid-template-columns: repeat(2, 1fr); margin: 1rem 1.2rem 0; }
+  .chapter-band { padding: 0 1.2rem; margin-top: 3rem; }
+  .chapter-band-inner { grid-template-columns: 1fr; gap: 0.5rem; padding: 1.2rem 1.4rem; }
+  .chapter-band .ch-num { font-size: 2rem; }
+  .decisions-head, .decision-row { grid-template-columns: 1fr; gap: 0.4rem; }
+  .ac-head, .ac-row { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <span class="brand"><a href="../index.html">ASIMOV<span class="sep">/</span>docs</a></span>
+  <a href="../index.html#s1">Architecture</a>
+  <a href="../index.html#s2">Features</a>
+  <span class="spacer"></span>
+  <span class="phase-chip full">Full design</span>
+  <span class="status-chip">Draft v0.6</span>
+</nav>
+
+<div class="layout-doc">
+  <aside class="side-nav">
+    <div class="side-head">On this page</div>
+    <ul>
+      <li><a href="#s2">§2 Purpose &amp; audience</a></li>
+      <li><a href="#s3">§3 Requirements</a></li>
+      <li><a href="#c4">§4 Business design</a>
+        <ul>
+          <li><a href="#s4-1">§4.1 Design principles</a></li>
+          <li><a href="#s4-2">§4.2 Model / concepts</a></li>
+          <li><a href="#s4-3">§4.3 Flow</a></li>
+          <li><a href="#s4-4">§4.4 Rules / constraints</a></li>
+          <li><a href="#s4-5">§4.5 Decisions</a></li>
+        </ul>
+      </li>
+      <li><a href="#s5">§5 UI Design</a></li>
+      <li><a href="#c6">§6 Technical design</a>
+        <ul>
+          <li><a href="#s6-1">§6.1 Command file</a></li>
+          <li><a href="#s6-2">§6.2 Inputs</a></li>
+          <li><a href="#s6-3">§6.3 Outputs</a></li>
+          <li><a href="#s6-4">§6.4 Failure handling</a></li>
+          <li><a href="#s6-5">§6.5 Gotchas</a></li>
+        </ul>
+      </li>
+      <li><a href="#s7">§7 Acceptance</a></li>
+      <li><a href="#s8">§8 Open questions</a></li>
+      <li><a href="#s9">§9 References</a></li>
+    </ul>
+  </aside>
+
+  <article class="content">
+
+<header class="hero">
+  <div class="kicker">D101 · Feature design · asimov</div>
+  <h1>/d101-feature-design</h1>
+  <p class="tagline">Turns a thin feature brief — a paragraph in chat, a pasted Jira ticket, a meeting note — into a D101, in <strong>three phases with a stop in the middle</strong>: requirements, then business design, then technical design. The run ends when the business design is written to disk; the mechanism waits for a second invocation.</p>
+</header>
+
+<div class="meta-strip">
+  <div class="meta-cell"><div class="label">Owner</div><div class="value">Context&amp;; lead <span class="mono">alb</span></div></div>
+  <div class="meta-cell"><div class="label">Business approver</div><div class="value">—</div></div>
+  <div class="meta-cell"><div class="label">Model</div><div class="value mono">opus-4-8 · xhigh</div></div>
+  <div class="meta-cell"><div class="label">Phases</div><div class="value mono">3 · 2 writes</div></div>
+  <div class="meta-cell"><div class="label">Last updated</div><div class="value mono">2026-09-15</div></div>
+  <div class="meta-cell"><div class="label">Status</div><div class="value">Draft</div></div>
+</div>
+
+<div class="doc-scope">
+  <strong>Scope:</strong> The Design stage of the L3 pipeline (D100 §3, stage 1). System-level architecture (marketplace, plugin shape, distribution, model declaration) lives in <a href="../D100-Asimov-architecture.md" style="color:var(--cyan)">D100-Asimov-architecture.md</a>; this D101 covers the <code>/d101-feature-design</code> command itself. Its section shapes predate the toolkit's switch to HTML-first authoring — inherited, not exemplary, until a re-author via the command lands. Its reviewer-side counterpart is <a href="D101-d101-review.html" style="color:var(--cyan)">D101 — /d101-review</a>.
+</div>
+
+
+<!-- ═════════ §2 — Purpose & audience ═════════ -->
+<section class="s" id="s2">
+  <h2 class="section-title"><span class="sec-ref">§2</span>Purpose &amp; audience</h2>
+  <p class="section-desc"><code>/d101-feature-design</code> turns a thin feature brief into a D101, in three phases against the two bars in <code>d101-feature-design-definition.md</code> §2 — <strong>business-complete</strong> first (a business reviewer can agree to what will be built and why, before any mechanism exists), <strong>gap-free</strong> second (an implementer who never saw the conversation can act on it). It interviews the developer for missing inputs and writes the D101 into the active repo's <code>documentation/features/</code> folder, once per design phase. Together with <code>/d101-review</code> it covers the AI-assisted half of the Design stage: authoring, then self-check. The human reviewer (≠ author) gate on the specs PR (<code>D100-Asimov-architecture.md</code> §3) is unchanged — the command makes that gate cheaper to pass, not redundant.</p>
+
+  <div class="problem-grid">
+    <div class="problem-card">
+      <div class="pc-head">
+        <div class="pc-num">01</div>
+        <div class="pc-title">A full design arrives too early</div>
+      </div>
+      <div class="pc-body">Without a stop, one run produced §2 through §6 in a single pass. The document was well-formed and the business shape had never been argued — the fastest way to a design nobody agrees with.</div>
+    </div>
+    <div class="problem-card">
+      <div class="pc-head">
+        <div class="pc-num">02</div>
+        <div class="pc-title">Mechanism anchors the business design</div>
+      </div>
+      <div class="pc-body">Settling §6 while §4 still moves quietly reshapes §4 toward whatever was convenient to build. Afterwards nothing in the document marks which way the influence ran.</div>
+    </div>
+    <div class="problem-card">
+      <div class="pc-head">
+        <div class="pc-num">03</div>
+        <div class="pc-title">Chat is not a document</div>
+      </div>
+      <div class="pc-body">A business design the developer has only seen as conversation is a business design they have not read. Judgement about §4 needs the rendered page, side by side, in one view.</div>
+    </div>
+    <div class="problem-card">
+      <div class="pc-head">
+        <div class="pc-num">04</div>
+        <div class="pc-title">One bar had no name for "not yet"</div>
+      </div>
+      <div class="pc-body">With gap-free as the only bar, a deliberately unfinished §6 looked identical to a failed one — so the pressure was to invent mechanism rather than declare it open.</div>
+    </div>
+  </div>
+
+  <div class="callout">
+    <strong>Primary audience.</strong> Developers in any product repo authoring D101s during the Design phase. <strong>Secondary:</strong> reviewers of the resulting D101 — they read what the command produced, so they care that the structure is predictable.
+  </div>
+
+  <div class="callout warn">
+    <strong>Not for.</strong> The Spec / Code / Review+Test stages — those have their own commands and subagents. Not for purely descriptive documentation of code where no design decisions remain to surface; reverse-engineered features <em>are</em> in scope (see R10, AC8) when there is design intent worth capturing — the command stays interview-driven either way.
+  </div>
+</section>
+
+<!-- ═════════ §3 — Requirements ═════════ -->
+<section class="s" id="s3">
+  <h2 class="section-title"><span class="sec-ref">§3</span>Requirements</h2>
+
+  <div class="req-tabs">
+    <div class="req-tab active" data-target="func">Functional <span class="count">30</span></div>
+    <div class="req-tab" data-target="nf">Non-functional <span class="count">4</span></div>
+    <div class="req-tab" data-target="oos">Out of scope <span class="count">5</span></div>
+  </div>
+
+  <div class="req-list" data-tab="func">
+    <div class="req"><div class="id">R1</div><div class="body">The command MUST be invokable as <code>/d101-feature-design</code> in any product repo where the Asimov Plugin is installed.</div></div>
+    <div class="req"><div class="id">R2</div><div class="body">The command MUST declare <code>model: claude-opus-4-8</code> and <code>effort: xhigh</code> in YAML frontmatter, matching the (Design, <code>/d101-feature-design</code>) row in <code>documentation/model-choice.md</code>.</div></div>
+    <div class="req"><div class="id">R3</div><div class="body">The command MUST load <code>plugins/asimov-plugin/artifacts/documentation/d101-feature-design/d101-feature-design-template.html</code> at run-time to determine the output structure.</div></div>
+    <div class="req"><div class="id">R4</div><div class="body">The command MUST load <code>plugins/asimov-plugin/artifacts/documentation/d101-feature-design/d101-feature-design-definition.md</code> at run-time to determine both bars.</div></div>
+    <div class="req"><div class="id">R5</div><div class="body">The command MUST write its output as a styled, self-contained HTML file to <code>documentation/features/D101-&lt;feature-slug&gt;.html</code> in the active product repo's working tree — no markdown intermediate.</div></div>
+    <div class="req"><div class="id">R6</div><div class="body">The command MUST be runnable with no <code>$ARGUMENTS</code>. When invoked without input, it MUST open by inviting the developer to share feature context (Jira ticket, meeting notes, idea, or anything else) before proceeding. When <code>$ARGUMENTS</code> is non-empty, it MUST treat it as the developer's opening reply.</div></div>
+    <div class="req"><div class="id">R7</div><div class="body">When the collected input is too thin to clear the bar the current phase works to, the command MUST stay in <strong>interview mode</strong> and ask the developer for missing inputs section-by-section rather than guess or invent.</div></div>
+    <div class="req"><div class="id">R8</div><div class="body">When rewriting a file that already stands at <code>Business design</code>, the command MUST show a diff summary and present three options — <em>overwrite</em> (default), <em>write to an alternative path</em>, or <em>cancel</em> — and wait for an explicit choice. It MUST NOT overwrite without one.</div></div>
+    <div class="req"><div class="id">R9</div><div class="body">The generated D101 MUST cover §1–§10 of the template (§7 <em>Implementation</em> as the pending stub at phase B — R27).</div></div>
+    <div class="req"><div class="id">R10</div><div class="body">When the feature is reverse-engineered, the generated D101 MUST include §11 (<em>Changes from source</em>).</div></div>
+    <div class="req"><div class="id">R11</div><div class="body">When the feature is greenfield, the generated D101 MUST NOT include §11.</div></div>
+    <div class="req"><div class="id">R12</div><div class="body">Unresolved decisions MUST be captured in §9 <em>Open questions</em> as <code>TBD — verify</code>, not guessed.</div></div>
+    <div class="req"><div class="id">R13</div><div class="body">The command MUST run in three phases: <strong>A</strong> requirements (§2, §3), <strong>B</strong> business design (§4, §5, §8, §9, then §1), <strong>C</strong> technical design (§6, §7, §10).</div></div>
+    <div class="req"><div class="id">R14</div><div class="body">Phase A MUST NOT write any file.</div></div>
+    <div class="req"><div class="id">R15</div><div class="body">Phase B MUST end by writing the target file and terminating the run.</div></div>
+    <div class="req"><div class="id">R16</div><div class="body">The command MUST NOT enter phase C in the same invocation as phase B, including when the developer asks it to directly.</div></div>
+    <div class="req"><div class="id">R17</div><div class="body">When the developer asks to skip to the technical design during phase B, the command MUST offer to record the mechanism they have in mind as a §9 open question or an outstanding item in the open-§6 list, so the input is not lost.</div></div>
+    <div class="req"><div class="id">R18</div><div class="body">On invocation against an existing D101, the command MUST resolve the document's phase before asking anything else — from the <code>.phase-chip</code> value, falling back to the presence of a <code>#s6-open</code> section, falling back to treating the document as <code>Full design</code>.</div></div>
+    <div class="req"><div class="id">R19</div><div class="body">When the resolved phase is <code>Business design</code>, the command MUST ask whether to continue in phase B or move to phase C, and MUST wait for the answer.</div></div>
+    <div class="req"><div class="id">R20</div><div class="body">The command MUST NOT enter phase C against a document that has never been written at <code>Business design</code> or beyond.</div></div>
+    <div class="req"><div class="id">R21</div><div class="body">The command MUST set the <code>.phase-chip</code> on every write — <code>Business design</code> at the end of phase B, <code>Full design</code> (with the <code>.full</code> class) at the end of phase C — and MUST NOT alter the <code>.status-chip</code> from <code>Draft</code> to <code>Approved</code> under any circumstances.</div></div>
+    <div class="req"><div class="id">R22</div><div class="body">When it draws a diagram, the command SHOULD load <code>plugins/asimov-plugin/resources/diagrams/README.md</code> and the notation template that routing table points to, and follow that template's notation, node budget and geometry. This input is <strong>best-effort</strong>, not a hard dependency: when the README or the routed template cannot be read, the command MUST draw a flowchart instead, MUST say so in chat, and MUST NOT stop the run.</div></div>
+    <div class="req"><div class="id">R23</div><div class="body">On invocation against an existing D101, the command MUST check for a sibling <code>D101-&lt;slug&gt;.review.md</code> (<code>d101-feature-design-definition.md</code> §4.10) and, if present, offer to use its findings as input for this session.</div></div>
+    <div class="req"><div class="id">R24</div><div class="body">Before offering review notes, the command MUST compare the notes' recorded fingerprint (last-updated date, phase, status) against the target's current values, and MUST tell the developer when they disagree rather than presenting stale notes as current.</div></div>
+    <div class="req"><div class="id">R25</div><div class="body">When the developer accepts the offered review notes, the command MUST fold each finding into the session's agenda the same way a finding raised in chat would be — never by transcribing the notes file into the D101 verbatim.</div></div>
+    <div class="req"><div class="id">R26</div><div class="body">The command MUST delete the <code>.review.md</code> sibling only in the same run that consumed it as input <em>and</em> wrote the D101. It MUST NOT delete it on a declined offer, and MUST NOT delete it in a run that writes no file.</div></div>
+    <div class="req"><div class="id">R27</div><div class="body">At the end of phase B, the command MUST write §7 <em>Implementation</em> as the <code>#s7-pending</code> stub — one <code>.callout.warn</code> saying the build recipe waits on §6, with no list of its own, no <code>#c7</code> chapter band, no §7.1+, and a single flat side-nav entry (<code>d101-feature-design-definition.md</code> §4.8).</div></div>
+    <div class="req"><div class="id">R28</div><div class="body">In phase C, after §6 is settled, the command MUST author §7.1–§7.5 as the build recipe realising the §6 contracts — or the §7 N/A stub when the build is pure reuse. §7 sits outside both bars (<code>d101-feature-design-definition.md</code> §4.8): it moves neither chip, and a thin or N/A §7 MUST NOT be reported as a §8b failure.</div></div>
+    <div class="req"><div class="id">R29</div><div class="body">After loading the definition, the command MUST resolve its opening YAML block (<code>artifact</code>, <code>maturity</code>, <code>since</code>) to at most one chat line printed before the conversation opens — nothing for <code>adopt</code> — and MUST NOT write the maturity level into the D101 (<a href="D101-artifact-maturity.html" style="color:var(--cyan)">D101 — Artifact maturity</a>).</div></div>
+    <div class="req"><div class="id">R30</div><div class="body">When the developer deliberately declines a rule of <code>d101-feature-design-definition.md</code>, the command MUST record it as an accepted deviation (definition §4.9): a <code>.accepted</code> block inside the element it excuses, naming the rule, a one-sentence reason, the accepter and the date — asking for the accepter if unnamed. Only on the developer's explicit decision, never on the command's initiative, and never against a §8 check (<a href="D101-accepted-deviations.html" style="color:var(--cyan)">D101 — Accepted deviations</a>).</div></div>
+  </div>
+
+  <div class="req-list" data-tab="nf" style="display:none">
+    <div class="req"><div class="id">NF1</div><div class="body"><strong>Interview is the default.</strong> The command does not produce a D101 from a one-sentence brief — it interviews until it has enough to clear the bar the current phase is working to.</div></div>
+    <div class="req"><div class="id">NF2</div><div class="body"><strong>No silent destruction.</strong> R8 is load-bearing — developers will run the command repeatedly during iteration, and overwriting prior work without a prompt would erode trust.</div></div>
+    <div class="req"><div class="id">NF3</div><div class="body"><strong>No product-specific assumptions in the command body.</strong> Per D100 §8.4, the command works in any repo that follows the <code>documentation/features/</code> convention.</div></div>
+    <div class="req"><div class="id">NF4</div><div class="body"><strong>The stop survives pressure.</strong> R16 holds against a direct instruction, and across a second message repeating it. A gate that yields to insistence is not a gate — it's a suggestion, and this one exists precisely for the moments when momentum is highest.</div></div>
+  </div>
+
+  <div class="req-list" data-tab="oos" style="display:none">
+    <div class="req oos"><div class="id">OOS1</div><div class="body"><strong>S101 generation</strong> — belongs to <code>/s101-implementation-spec</code> (planned). The command stops at the D101.</div></div>
+    <div class="req oos"><div class="id">OOS2</div><div class="body"><strong>Validation that §1–§10 are <em>correct</em></strong> — the command produces structurally-complete output; whether the requirements are <em>right</em> is a human-review question caught by the reviewer (≠ author) on the specs PR (<code>D100-Asimov-architecture.md</code> §3).</div></div>
+    <div class="req oos"><div class="id">OOS3</div><div class="body"><strong>Cross-repo references</strong> — not resolved by the command; reviewers add links to sibling D101s in other repos when relevant.</div></div>
+    <div class="req oos"><div class="id">OOS4</div><div class="body"><strong>Image embedding</strong> — the command produces an HTML D101; non-text assets are referenced as relative <code>&lt;img&gt;</code>/links and added manually by the developer (template ground rules).</div></div>
+    <div class="req oos"><div class="id">OOS5</div><div class="body"><strong>Moving the status axis</strong> — <code>Draft</code> → <code>Approved</code> is the business approver's move, made outside the toolkit. The command owns the phase axis only (R21). Deliberately out: a command that could record an approval would let the author approve their own document, which is the one thing the L3 process forbids (<code>D100-Asimov-architecture.md</code> §3).</div></div>
+  </div>
+</section>
+
+<!-- ═════════ §4 — Chapter band ═════════ -->
+<div class="chapter-band" id="c4">
+  <div class="chapter-band-inner">
+    <div class="ch-num">4</div>
+    <div>
+      <div class="ch-name">Business design</div>
+      <div class="ch-summary">Design principles, the (N/A) concept model, the authoring flow with its error paths, the (N/A) business rules, and the recorded decisions with their rejected alternatives.</div>
+    </div>
+  </div>
+</div>
+
+<!-- §4.1 Principles -->
+<section class="s" id="s4-1">
+  <h2 class="section-title"><span class="sec-ref">§4.1</span>Design principles</h2>
+  <div class="principles">
+    <div class="principle">
+      <div class="num">1</div>
+      <div class="text"><strong>The business shape is settled before the mechanism.</strong> Phase B ends with a file on disk and the run over. What the business agrees to is argued while changing the answer is still cheap, and §6 cannot quietly pull §4 toward whatever is convenient to build.</div>
+    </div>
+    <div class="principle">
+      <div class="num">2</div>
+      <div class="text"><strong>The stop is a file, not a question.</strong> Ending the run at a written document — rather than asking "happy with §4?" and continuing — is what makes the gate real. The developer judges the business design by reading the rendered page, which is the only form their reviewers will ever see it in.</div>
+    </div>
+    <div class="principle">
+      <div class="num">3</div>
+      <div class="text"><strong>Unsettled is a state, not a failure.</strong> §6 at phase B is <em>declared open</em> with a named list of what is outstanding (<code>d101-feature-design-definition.md</code> §4.6). Naming the gap costs one paragraph; hiding it behind invented mechanism costs a rewrite, and a reader cannot tell the two apart.</div>
+    </div>
+    <div class="principle">
+      <div class="num">4</div>
+      <div class="text"><strong>Interview, don't guess.</strong> When the brief doesn't say, the command asks. Invented values rot silently; explicit <code>TBD — verify</code> is loud and reviewable.</div>
+    </div>
+    <div class="principle">
+      <div class="num">5</div>
+      <div class="text"><strong>The template is the contract.</strong> The command structures every D101 the same way. Predictable structure is what makes reviews cheap.</div>
+    </div>
+    <div class="principle">
+      <div class="num">6</div>
+      <div class="text"><strong>Neither bar's verdict is the command's.</strong> It previews §8a or §8b and says which checks it believes are weak. Business-complete is the author's call, gap-free the human reviewer's — a command that graded its own output would collapse both gates.</div>
+    </div>
+    <div class="principle">
+      <div class="num">7</div>
+      <div class="text"><strong>Stop at the boundary.</strong> The command does Design only. Beyond what §6 invites and what §7 records as the build recipe (<code>d101-feature-design-definition.md</code> §4.8), it does not propose implementation paths, file structures, or code — those belong to the S101 stage.</div>
+    </div>
+  </div>
+</section>
+
+<!-- §4.2 Model / concepts -->
+<section class="s" id="s4-2">
+  <h2 class="section-title"><span class="sec-ref">§4.2</span>Model / concepts</h2>
+  <div class="callout">
+    <strong>N/A</strong> — this feature is a single command, not a domain with named entities and relationships. Concept vocabulary inherits from <code>d101-feature-design-definition.md</code> (D101, S101, gap-free, etc.).
+  </div>
+</section>
+
+<!-- §4.3 Flow -->
+<section class="s" id="s4-3">
+  <h2 class="section-title"><span class="sec-ref">§4.3</span>Flow</h2>
+  <p class="section-desc"><strong>Trigger.</strong> A developer in a product repo runs <code>/d101-feature-design</code>. The command is normally invoked with <strong>no argument</strong> — the natural CC pattern is "run command, AI guides from there". An optional argument is treated as the developer's opening reply, or as a path to a D101 to continue. <strong>Outcome of run 1:</strong> a business design on disk, §6 declared open, the run over. <strong>Outcome of run 2:</strong> the same file at <code>Full design</code>, ready for human review.</p>
+
+  <div class="flow-wrap">
+    <svg viewBox="0 0 980 310" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="d101-feature-design three-phase authoring flow across two invocations">
+      <defs>
+        <marker id="arrp" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 Z" fill="#a8b8d0"/>
+        </marker>
+        <marker id="arrc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 Z" fill="#ef5350"/>
+        </marker>
+      </defs>
+
+      <text x="20" y="22" fill="#6b7a93" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" letter-spacing="1.5">RUN 1</text>
+      <text x="20" y="222" fill="#6b7a93" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" letter-spacing="1.5">RUN 2</text>
+
+      <!-- Row 1, L→R -->
+      <g>
+        <rect x="20" y="30" width="200" height="62" rx="8" fill="#66bb6a22" stroke="#66bb6a"/>
+        <text x="120" y="56" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">1 · Run command</text>
+        <text x="120" y="74" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">in product repo</text>
+      </g>
+      <g>
+        <rect x="260" y="30" width="200" height="62" rx="8" fill="#4fc3f71a" stroke="#4fc3f7"/>
+        <text x="360" y="56" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">2 · Load contract</text>
+        <text x="360" y="74" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">template + both bars · maturity line</text>
+      </g>
+      <g>
+        <rect x="500" y="30" width="200" height="62" rx="8" fill="#4fc3f71a" stroke="#4fc3f7"/>
+        <text x="600" y="56" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">3 · Resolve phase</text>
+        <text x="600" y="74" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">new, or read the file</text>
+      </g>
+      <g>
+        <rect x="740" y="30" width="200" height="62" rx="8" fill="#ffb74d1a" stroke="#ffb74d"/>
+        <text x="840" y="56" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">4 · Phase A</text>
+        <text x="840" y="74" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">§2 audience · §3 requirements</text>
+      </g>
+      <line x1="220" y1="61" x2="256" y2="61" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#arrp)"/>
+      <line x1="460" y1="61" x2="496" y2="61" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#arrp)"/>
+      <line x1="700" y1="61" x2="736" y2="61" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#arrp)"/>
+      <line x1="840" y1="92" x2="840" y2="126" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#arrp)"/>
+
+      <!-- Row 2, R→L -->
+      <g>
+        <rect x="740" y="130" width="200" height="62" rx="8" fill="#ffb74d1a" stroke="#ffb74d"/>
+        <text x="840" y="156" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">5 · Phase B</text>
+        <text x="840" y="174" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">§4 · §5 · §8 · §9 · then §1</text>
+      </g>
+      <g>
+        <rect x="500" y="130" width="200" height="62" rx="8" fill="#ffb74d1a" stroke="#ffb74d"/>
+        <text x="600" y="156" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">6 · Preview §8a</text>
+        <text x="600" y="174" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">business-complete · no verdict</text>
+      </g>
+      <g>
+        <rect x="260" y="130" width="200" height="62" rx="8" fill="#4fc3f71a" stroke="#4fc3f7"/>
+        <text x="360" y="156" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">7 · Write file</text>
+        <text x="360" y="174" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">Business design · §6 open · §7 stub</text>
+      </g>
+      <g>
+        <rect x="20" y="130" width="200" height="62" rx="8" fill="#ef53501a" stroke="#ef5350"/>
+        <text x="120" y="156" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">8 · Run ends</text>
+        <text x="120" y="174" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">open it · /d101-review · persona</text>
+      </g>
+      <line x1="740" y1="161" x2="704" y2="161" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#arrp)"/>
+      <line x1="500" y1="161" x2="464" y2="161" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#arrp)"/>
+      <line x1="260" y1="161" x2="224" y2="161" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#arrp)"/>
+      <line x1="120" y1="192" x2="120" y2="226" stroke="#ef5350" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arrc)"/>
+      <text x="132" y="213" fill="#ef5350" font-family="Inter, sans-serif" font-size="9.5">a second invocation, after the developer has read it</text>
+
+      <!-- Row 3, L→R -->
+      <g>
+        <rect x="20" y="230" width="200" height="62" rx="8" fill="#66bb6a22" stroke="#66bb6a"/>
+        <text x="120" y="256" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">9 · Re-run on file</text>
+        <text x="120" y="274" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">fix §4, or move to §6</text>
+      </g>
+      <g>
+        <rect x="260" y="230" width="200" height="62" rx="8" fill="#ffb74d1a" stroke="#ffb74d"/>
+        <text x="360" y="256" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">10 · Phase C</text>
+        <text x="360" y="274" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">§6 mechanism · §7 recipe · §10 refs</text>
+      </g>
+      <g>
+        <rect x="500" y="230" width="200" height="62" rx="8" fill="#ffb74d1a" stroke="#ffb74d"/>
+        <text x="600" y="256" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">11 · Preview §8b</text>
+        <text x="600" y="274" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">gap-free · no verdict</text>
+      </g>
+      <g>
+        <rect x="740" y="230" width="200" height="62" rx="8" fill="#4fc3f71a" stroke="#4fc3f7"/>
+        <text x="840" y="256" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">12 · Write file</text>
+        <text x="840" y="274" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">phase: Full design</text>
+      </g>
+      <line x1="220" y1="261" x2="256" y2="261" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#arrp)"/>
+      <line x1="460" y1="261" x2="496" y2="261" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#arrp)"/>
+      <line x1="700" y1="261" x2="736" y2="261" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#arrp)"/>
+    </svg>
+    <div class="flow-legend">
+      <span class="item"><span class="swatch" style="background:var(--green)"></span>Entry / handoff to human</span>
+      <span class="item"><span class="swatch" style="background:var(--cyan)"></span>Read contract / write file</span>
+      <span class="item"><span class="swatch" style="background:var(--amber)"></span>Interview &amp; bar preview</span>
+      <span class="item"><span class="swatch" style="background:var(--coral)"></span>Hard stop — the run ends here</span>
+    </div>
+  </div>
+
+  <div class="subhead">Steps (from the developer's perspective)</div>
+  <div class="principles">
+    <div class="principle"><div class="num">1</div><div class="text">Developer runs <code>/d101-feature-design</code> in the product repo.</div></div>
+    <div class="principle"><div class="num">2</div><div class="text">Command loads <code>d101-feature-design-template.html</code> and <code>d101-feature-design-definition.md</code> from the installed plugin — both bars, not one (R4). Then it resolves the definition's maturity block to at most one chat line — the step 1b notice — and says nothing more about maturity for the rest of the run (R29).</div></div>
+    <div class="principle"><div class="num">3</div><div class="text"><strong>Open, then resolve the phase (R18).</strong> Command lists the existing D101s and asks: continuing one, or starting fresh? Fresh → phase A. Continuing → it <em>reads</em> the file and takes the phase from the <code>.phase-chip</code>, falling back to whether a <code>#s6-open</code> section is present, falling back to <code>Full design</code> for legacy documents. A <code>Business design</code> file gets one question: keep working on §2–§5, or move to §6 (R19)?</div></div>
+    <div class="principle"><div class="num">4</div><div class="text"><strong>Restate and confirm.</strong> Command paraphrases the feature back. Developer corrects misreadings.</div></div>
+    <div class="principle"><div class="num">5</div><div class="text"><strong>Framing questions.</strong> Command asks: which product / repo; the <em>business approver</em> who will sign off (a target, not a recorded approval); the named decider for open questions; any sibling D101 to cross-reference; and the working slug.</div></div>
+    <div class="principle"><div class="num">6</div><div class="text"><strong>Show the path — both runs.</strong> Command states that this run ends at §5 with a file on disk, and that §6 comes from a second run.</div></div>
+    <div class="principle"><div class="num">7</div><div class="text"><strong>Phase A — requirements (R14).</strong> §2 audience and purpose, §3 requirements. Command infers what it can, asks only about gaps, pushes back on compound requirements, non-goals without reasons, and purpose written at code altitude. Ends with a summary in chat and a confirmation. Nothing is written.</div></div>
+    <div class="principle"><div class="num">8</div><div class="text"><strong>Phase B — business design.</strong> §4 with its subsections, then §5 UI design and its interactive mockups (which are business design, not mechanism), then §8 acceptance criteria, §9 open questions, and back to §1. Command pushes back on rules without counter-examples, anonymous TBDs, code-altitude narrative, and ACs that root back to nothing. A rule the developer deliberately declines is recorded as an accepted deviation, signed and dated (R30). Every parked mechanism goes on the outstanding list for §6.</div></div>
+    <div class="principle"><div class="num">9</div><div class="text"><strong>Preview §8a (no verdict).</strong> Command summarises the business design and runs the business-complete checks — 1, 2, 3, 4, 5, 7, 8 if user-facing, and 9 — flagging which it believes are weak. Check 6 is not run: a document at this bar deliberately cannot be turned into an S101 yet. Developer confirms before drafting.</div></div>
+    <div class="principle"><div class="num">10</div><div class="text"><strong>Write, then stop (R15, R16).</strong> Command writes <code>documentation/features/D101-&lt;feature-slug&gt;.html</code> with the phase chip on <code>Business design</code>, §6 rendered as the <em>Still to write</em> block and §7 as the pending stub (R27), reports the path, names the next steps — and ends the run. Asked to continue to §6 anyway, it declines and offers to keep working on §2–§5, or to record the mechanism as an open question (R17).</div></div>
+    <div class="principle"><div class="num">11</div><div class="text"><strong>Developer reads the rendered page.</strong> Optionally runs <code>/d101-review</code>, which resolves the same phase and reports against §8a, or a persona review that reads §2/§4 as one of the document's intended readers (<code>/persona-list</code> shows who is available; <code>/persona-new</code> authors a product-specific reader). Iterating on §2–§5 means running this command again against the file — which is phase B once more, not phase C.</div></div>
+    <div class="principle"><div class="num">12</div><div class="text"><strong>Phase C — technical design, second run.</strong> Command re-reads the file, works the outstanding list as its agenda, fills §6.1–§6.8, then §7.1–§7.5 as the build recipe (outside both bars — R28), then §10, previews §8b (now including check 6 and check 10; §7 is not part of it), and writes — phase chip to <code>Full design</code>, open block and pending stub gone. If closing an outstanding item turns out to change §4, it says so and stops: that is a return to phase B, not something to paper over in §6.</div></div>
+    <div class="principle"><div class="num">13</div><div class="text">Developer takes the document and an estimate to the business approver named in §1, and opens the specs PR for human review (≠ author) per <code>D100-Asimov-architecture.md</code> §3. The status chip moves to <code>Approved</code> by their hand, never the command's (R21).</div></div>
+  </div>
+
+  <div class="subhead">Error paths</div>
+  <div class="fields-grid">
+    <div class="field-card">
+      <div class="f-thumb t4"><span class="badge-tl">01</span>⚠</div>
+      <div class="f-body">
+        <div class="f-name">Opening reply too thin</div>
+        <div class="f-question">"e.g. one word"</div>
+        <div class="f-rule">Asks for one or two paragraphs of context before walking the template.</div>
+      </div>
+    </div>
+    <div class="field-card">
+      <div class="f-thumb t4"><span class="badge-tl">02</span>⚠</div>
+      <div class="f-body">
+        <div class="f-name">Developer can't answer a section gap</div>
+        <div class="f-question">"missing input"</div>
+        <div class="f-rule">Records the gap as a <code>TBD — verify</code> in §9 <em>Open questions</em> with a named decider (the one from framing question 3).</div>
+      </div>
+    </div>
+    <div class="field-card">
+      <div class="f-thumb t4"><span class="badge-tl">03</span>⚠</div>
+      <div class="f-body">
+        <div class="f-name">Target <code>.html</code> already at <code>Business design</code></div>
+        <div class="f-question">"re-run on same slug"</div>
+        <div class="f-rule">Shows a diff summary; asks "overwrite / alternative path / cancel" and waits (R8).</div>
+      </div>
+    </div>
+    <div class="field-card">
+      <div class="f-thumb t4"><span class="badge-tl">04</span>⚠</div>
+      <div class="f-body">
+        <div class="f-name">Repo doesn't follow the convention</div>
+        <div class="f-question">"no D100, no documentation/features/"</div>
+        <div class="f-rule">Drafts anyway; marks the missing cross-references as <code>TBD — verify</code> in §10 and as <code>Q*</code> rows in §9.</div>
+      </div>
+    </div>
+    <div class="field-card">
+      <div class="f-thumb t4"><span class="badge-tl">05</span>⚠</div>
+      <div class="f-body">
+        <div class="f-name">"Just draft something" with thin input</div>
+        <div class="f-question">"skip the interview"</div>
+        <div class="f-rule">Says what is missing and offers to keep interviewing. If the developer reaffirms, writes it — it is their document — and states plainly in chat which §8a checks it believes the result fails.</div>
+      </div>
+    </div>
+    <div class="field-card">
+      <div class="f-thumb t4"><span class="badge-tl">06</span>⚠</div>
+      <div class="f-body">
+        <div class="f-name">Asked to go straight to §6 in run 1</div>
+        <div class="f-question">"just do the technical design too"</div>
+        <div class="f-rule">Declines (R16), gives the one-sentence reason, and offers two alternatives: keep working on §2–§5, or record the mechanism the developer has in mind as a §9 open question or an outstanding item (R17). Holds across a repeat of the request (NF4).</div>
+      </div>
+    </div>
+    <div class="field-card">
+      <div class="f-thumb t4"><span class="badge-tl">07</span>⚠</div>
+      <div class="f-body">
+        <div class="f-name">Phase C asked for on a feature with no file</div>
+        <div class="f-question">"design the mechanism for X"</div>
+        <div class="f-rule">Explains that §6 comes from a second run and offers to start phase A now (R20). There is nothing on disk for phase C to conform to.</div>
+      </div>
+    </div>
+    <div class="field-card">
+      <div class="f-thumb t4"><span class="badge-tl">08</span>⚠</div>
+      <div class="f-body">
+        <div class="f-name">Closing a §6 unknown changes §4</div>
+        <div class="f-question">"the mechanism can't do what §4 promised"</div>
+        <div class="f-rule">Stops and says so rather than quietly reshaping §4 or narrowing it inside §6. Returning to phase B is the correct move — a business rule changed by mechanism is a business decision, and it is not the command's to make.</div>
+      </div>
+    </div>
+    <div class="field-card">
+      <div class="f-thumb t4"><span class="badge-tl">09</span>⚠</div>
+      <div class="f-body">
+        <div class="f-name">Phase chip and body disagree</div>
+        <div class="f-question">"Full design chip, §6 still open"</div>
+        <div class="f-rule">Trusts the body over the chip when resolving the phase (R18), says which signal it went with in one sentence, and corrects the chip on the next write.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- §4.4 Rules / constraints -->
+<section class="s" id="s4-4">
+  <h2 class="section-title"><span class="sec-ref">§4.4</span>Rules / constraints</h2>
+  <p class="section-desc">The phase model introduces three conditional rules. Each is stated with the case where it fires and the adjacent case where it does not, per <code>d101-feature-design-definition.md</code> §6.3 — the counter-example is what stops the rule being read more broadly than it is.</p>
+
+  <div class="history-grid">
+    <div class="hist-card">
+      <div class="h-label">BR1 — the phase gate</div>
+      <div class="h-value">One design phase per run</div>
+      <div class="h-desc">Phase C is reachable only in an invocation that did not itself run phase B.</div>
+      <ul class="bullets">
+        <li><strong>Fires when</strong> phase B has just written the file in this run and the developer asks for §6 — the command declines and the run ends (R16).</li>
+        <li><strong>Stays quiet when</strong> the run <em>began</em> against a file already at <code>Business design</code> and the developer chose to move to §6. Phase C is then this run's only design phase, and it proceeds normally.</li>
+        <li>The rule is about <em>phases per run</em>, not <em>writes per file</em>. A file may be rewritten at phase B any number of times across runs.</li>
+      </ul>
+    </div>
+    <div class="hist-card">
+      <div class="h-label">BR2 — §6 is open, not absent</div>
+      <div class="h-value">A named outstanding list</div>
+      <div class="h-desc">At the <code>Business design</code> phase, §6 renders as one <em>Still to write</em> block carrying a list of real unknowns.</div>
+      <ul class="bullets">
+        <li><strong>Fires when</strong> the interview parked mechanism — the block states the document is not gap-free and lists each unknown by the consequence of not knowing it.</li>
+        <li><strong>Stays quiet when</strong> a section genuinely does not apply to the feature: an N/A stub with a one-line reason is correct there, and the outstanding list is not the place for it. N/A gives a reason; open gives a list.</li>
+        <li class="warn">A bare <code>TBD</code>, or a restatement of the §6.1–§6.8 headings, satisfies neither shape and fails check 9.</li>
+      </ul>
+    </div>
+    <div class="hist-card">
+      <div class="h-label">BR3 — the command owns one axis</div>
+      <div class="h-value">Phase yes, status never</div>
+      <div class="h-desc">The command sets the <code>.phase-chip</code> on every write and never touches the <code>Draft</code> → <code>Approved</code> transition.</div>
+      <ul class="bullets">
+        <li><strong>Fires when</strong> a write completes: the phase chip is set to match what was just written, whether or not the developer mentioned it.</li>
+        <li><strong>Stays quiet when</strong> the developer says the business has approved the design. The command may record <em>who</em> the approver is in §1, but the status chip stays <code>Draft</code> — the transition is theirs to make, outside the toolkit (OOS5).</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- §4.5 Decisions -->
+<section class="s" id="s4-5">
+  <h2 class="section-title"><span class="sec-ref">§4.5</span>Decisions and alternatives</h2>
+  <p class="section-desc">A decision recorded without its rejected alternative is one that gets re-litigated.</p>
+  <div class="decisions">
+    <div class="decisions-head">
+      <div>Decided</div>
+      <div>Alternative considered</div>
+      <div>Why this won</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided"><strong>Argument default:</strong> No argument required — opens with invitation, treats argument (if any) as opening reply</div>
+      <div class="alt">Required argument with <code>argument-hint</code> suggesting "paste Jira ticket"; no-argument with shorter greeting</div>
+      <div class="why">Most natural CC flow is "run command, AI prompts." Requiring an inline brief creates blank-page friction (the <em>most reported</em> friction per <code>additional-command-ideas.md</code> filter discussion). Long multi-line input on the command line is also awkward UX.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided"><strong>Interactive vs autonomous drafting:</strong> Interactive (interview mode by default)</div>
+      <div class="alt">Autonomous draft from input, manual revise after</div>
+      <div class="why">Gap-free bar is hard to meet from a thin input; interviewing surfaces gaps before drafting, avoiding throwaway drafts.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided"><strong>Opening shape:</strong> Invitation → restate → 5 framing questions → show-the-path</div>
+      <div class="alt">Skip framing, go straight to §-walk; or ask framing questions interleaved with §-walk</div>
+      <div class="why">"Blank page" is the load-bearing friction. Framing (system, approver, decider, sibling, slug) + showing-the-path tells the developer where they are and what's coming, <em>before</em> the section-by-section labor.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided"><strong>Slug derivation:</strong> Interactive confirmation</div>
+      <div class="alt">Heuristic from feature name</div>
+      <div class="why">Input is often ambiguous; weird slugs are hard to rename across <code>D101-</code>, image folders, and references.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided"><strong>Template + definition handling:</strong> Read at run-time (by reference)</div>
+      <div class="alt">Embed in prompt body at install time</div>
+      <div class="why">Updates to template / definition apply immediately on the next invocation without reinstalling (D100 §7.4).</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided"><strong>Existing-file handling:</strong> Diff + 3 options (overwrite / alternative path / cancel), never silent overwrite</div>
+      <div class="alt">Always update in place; or always create variant</div>
+      <div class="why">Developers iterate; silent overwrite erodes trust, always-variant litters the features folder.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided"><strong>Output writes during interview:</strong> One write per design phase — none in phase A, one at the end of B, one at the end of C</div>
+      <div class="alt">A single write at the very end (the previous rule); or streaming draft sections as the conversation proceeds</div>
+      <div class="why">Reverses the earlier "exactly once" rule. The objection to partial files — that they read as "done" to other tools — is answered by the phase chip and the open-§6 block, which mark the state <em>in</em> the document. Streaming is still rejected: a half-written §4 on disk carries no such marker.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided"><strong>Where the business/technical boundary is enforced:</strong> A hard stop that ends the run, requiring a second invocation</div>
+      <div class="alt">Ask "is §4 finished?" and continue in the same run on a yes</div>
+      <div class="why">A conversational yes can be given without opening the file, which is the failure the gate exists to prevent — judgement about §4 needs the rendered page. Ending the run makes reading it the only way forward, at the cost of one extra command invocation.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided"><strong>Command shape:</strong> One command with three internal phases, routed by the target file's phase</div>
+      <div class="alt">Two commands — <code>/d101-business-design</code> and <code>/d101-technical-design</code></div>
+      <div class="why">The file is the state, so a single command can resolve where it is and route correctly; two commands would add a second row to <code>model-choice.md</code>, D100 §4.3 and this documentation set without making the gate any harder to cross. The developer's mental model stays "I am designing a feature".</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided"><strong>Phase and approval as two axes:</strong> Separate chips — phase (author) and status (business approver)</div>
+      <div class="alt">One chip with a combined scale (<code>Business design</code> → <code>Full design</code> → <code>Approved</code>)</div>
+      <div class="why">They move independently and by different hands. A combined scale would imply a <code>Full design</code> document is closer to approved than a <code>Business design</code> one, and would let the phase axis drag the approval axis along with it.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided"><strong>UI mockups belong to phase B</strong></div>
+      <div class="alt">Generate them in phase C alongside the mechanism</div>
+      <div class="why">A UI surface is what the business agrees to, not how it is built — it is exactly the part of the design a non-technical reviewer can correct. Deferring it to phase C would leave the business design without its most reviewable artifact.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided"><strong>Review notes are folded in as input, never transcribed</strong> (R25, <code>d101-feature-design-definition.md</code> §4.10)</div>
+      <div class="alt">Copy the notes file's findings verbatim into the D101 as a record of what was reviewed</div>
+      <div class="why">A transcribed finding is a fact about a past review, not about the feature — it would sit in the document like an anonymous TBD nobody asked. Folding a finding in the way a chat comment would be treated keeps the D101 about the feature, not about its own review history.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided"><strong>Deletion is gated on consumption, not on offer</strong> (R26)</div>
+      <div class="alt">Delete the notes file as soon as it is found, whether or not the developer used it</div>
+      <div class="why">Deleting on sight would destroy the developer's only cross-session copy of findings they haven't acted on yet — the file exists precisely so a "not now" doesn't cost anything. It is disposable only once its content has actually reached the document.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════════════════ §5 — UI Design (top-level) ═════════════════════ -->
+<section class="s" id="s5">
+  <h2 class="section-title"><span class="sec-ref">§5</span>UI Design</h2>
+  <p class="section-desc">This feature has no user-facing surface.</p>
+  <div class="callout">N/A — backend/tooling feature, no user-facing surface.</div>
+</section>
+
+<!-- ═════════ §6 — Chapter band ═════════ -->
+<div class="chapter-band" id="c6">
+  <div class="chapter-band-inner">
+    <div class="ch-num">6</div>
+    <div>
+      <div class="ch-name">Technical design</div>
+      <div class="ch-summary">The command file and its runtime contract, the inputs it consumes, the HTML output it writes, command-specific failure handling, and the known gotchas.</div>
+    </div>
+  </div>
+</div>
+
+<!-- §6.1 Command file -->
+<section class="s" id="s6-1">
+  <h2 class="section-title"><span class="sec-ref">§6.1</span>Command file</h2>
+  <div class="data-table">
+    <div class="row head cols-2"><div>Attribute</div><div>Value</div></div>
+    <div class="row cols-2"><div class="label-cell">Path</div><div><code>plugins/asimov-plugin/commands/d101-feature-design.md</code></div></div>
+    <div class="row cols-2"><div class="label-cell">Model (frontmatter)</div><div><code>model: claude-opus-4-8</code>, <code>effort: xhigh</code> — declared in YAML frontmatter</div></div>
+    <div class="row cols-2"><div class="label-cell">Tools</div><div>Standard CC file-reading/writing tools; no special tool restrictions</div></div>
+    <div class="row cols-2"><div class="label-cell">Reads at run-time</div><div><code>d101-feature-design-template.html</code>, <code>d101-feature-design-definition.md</code>, — optional / best-effort — <code>resources/diagrams/README.md</code> plus the notation template it routes to, and — when present — the target's sibling <code>D101-&lt;slug&gt;.review.md</code> (R23)</div></div>
+    <div class="row cols-2"><div class="label-cell">Writes</div><div><code>documentation/features/D101-&lt;slug&gt;.html</code> in the active repo's working tree; deletes the sibling <code>.review.md</code> once its findings are consumed (R26)</div></div>
+  </div>
+  <div class="callout">
+    The prompt body — drafting / interview heuristics — lives in the command file itself.
+  </div>
+</section>
+
+<!-- §6.2 Inputs -->
+<section class="s" id="s6-2">
+  <h2 class="section-title"><span class="sec-ref">§6.2</span>Inputs</h2>
+  <div class="data-table">
+    <div class="row head cols-2"><div>Input</div><div>Source</div></div>
+    <div class="row cols-2"><div class="label-cell">Feature context</div><div>Collected interactively via the opening invitation. May also arrive as <code>$ARGUMENTS</code> (treated as opening reply). Subsequent answers to framing + section-walk questions accumulate in chat.</div></div>
+    <div class="row cols-2"><div class="label-cell">Template structure</div><div><code>d101-feature-design-template.html</code> (read by the command at run-time)</div></div>
+    <div class="row cols-2"><div class="label-cell">Diagram notations <em>(optional)</em></div><div><code>plugins/asimov-plugin/resources/diagrams/README.md</code> plus the notation template it routes to (read at run-time, when a diagram is drawn) — <strong>best-effort</strong>: unreadable means a flowchart fallback, reported in chat, and the run continues (R22)</div></div>
+    <div class="row cols-2"><div class="label-cell">Both bars</div><div><code>d101-feature-design-definition.md</code> (read by the command at run-time) — §2 for the bars, §4.6 for the open-§6 rules, §4.8 for the §7 stub and its place outside both bars, §4.9 for accepted deviations, §8 for the checks and their bar membership; its opening YAML block feeds the maturity notice (R29)</div></div>
+    <div class="row cols-2"><div class="label-cell">Target document phase</div><div>Read from the target file when continuing an existing D101: the <code>.phase-chip</code> value, falling back to the presence of a <code>#s6-open</code> section, falling back to <code>Full design</code>. Not asked for — the file is the state (R18).</div></div>
+    <div class="row cols-2"><div class="label-cell">Active repo path</div><div>CC working directory</div></div>
+    <div class="row cols-2"><div class="label-cell">Active repo's <code>CLAUDE.md</code></div><div>Read opportunistically if present, for repo-specific conventions and structure that should shape the D101's framing. Absent <code>CLAUDE.md</code> is not an error.</div></div>
+    <div class="row cols-2"><div class="label-cell">Feature slug</div><div>Derived by the command from the feature name, interactively confirmed with the developer</div></div>
+  </div>
+</section>
+
+<!-- §6.3 Outputs -->
+<section class="s" id="s6-3">
+  <h2 class="section-title"><span class="sec-ref">§6.3</span>Outputs</h2>
+  <p class="section-desc">Writes a styled, self-contained HTML file at <code>&lt;repo&gt;/documentation/features/D101-&lt;feature-slug&gt;.html</code>. Structure matches <code>d101-feature-design-template.html</code>. <strong>Two write points</strong>, to the same path — the second supersedes the first in place.</p>
+
+  <div class="subhead">Write 1 — end of phase B</div>
+  <ul class="bullets">
+    <li><code>.phase-chip</code> = <code>Business design</code> (no <code>.full</code> class); <code>.status-chip</code> = <code>Draft v0.1</code>, or the next minor version when rewriting</li>
+    <li>§1 Document information — owner, business approver, version, status, scope. The <code>.doc-scope</code> line ends by naming what is settled and what is not</li>
+    <li>§2 Purpose &amp; audience</li>
+    <li>§3 Requirements (functional, non-functional, out of scope)</li>
+    <li>§4 Business design (principles, concepts, rules with counter-examples, decisions)</li>
+    <li>§5 UI design with its embedded mockups when user-facing</li>
+    <li>§6 — the <code>#s6-open</code> <em>Still to write</em> block: a <code>.callout.warn</code> plus the named outstanding list. No <code>#c6</code> chapter band, no §6.1–§6.8, one flat side-nav entry</li>
+    <li>§7 — the <code>#s7-pending</code> stub: one <code>.callout.warn</code>, no list, no <code>#c7</code> band, one flat side-nav entry (R27)</li>
+    <li>§8 Acceptance criteria; §9 Open questions; §10 References, as far as they exist</li>
+    <li>§11 Changes from source — <em>omitted for greenfield, included for reverse-engineered</em></li>
+  </ul>
+  <div class="subhead">Write 2 — end of phase C</div>
+  <ul class="bullets">
+    <li><code>.phase-chip</code> = <code>Full design</code> <em>with</em> the <code>.full</code> class; <code>.status-chip</code> version bumped, <code>Draft</code> unchanged</li>
+    <li>§6 replaced: the <code>#s6-open</code> block removed, the <code>#c6</code> chapter band and §6.1–§6.8 emitted, side-nav §6 entry nested</li>
+    <li>§7 replaced: the <code>#s7-pending</code> stub removed, the <code>#c7</code> band and §7.1–§7.5 emitted — or the §7 N/A stub for a pure-reuse build — side-nav §7 entry nested (R28)</li>
+    <li>§10 References completed</li>
+    <li>Everything else carried forward from write 1 unless the developer changed it</li>
+  </ul>
+  <div class="callout warn">
+    <strong>⚠ Only §6, §7 and §10 are expected to change between the two writes.</strong> A phase-C write that also rewrites §4 has either quietly reshaped the business design to fit the mechanism, or is closing a §4 gap that should have sent the document back to phase B (§4.3 error path 08).
+  </div>
+
+  <div class="subhead">Mockup files — written in phase B, outside the D101</div>
+  <ul class="bullets">
+    <li>Written alongside write 1, as separate self-contained documents under <code>documentation/features/mockups/d101-&lt;slug&gt;/</code> — one per surface, or one per screen with its overlays.</li>
+    <li>Not part of the D101 file, and not rewritten in phase C unless the UI design itself changed.</li>
+    <li>Each carries its own inline CSS and JS, approximates the <strong>product</strong> UI rather than the D101's dark chrome, and is embedded via <code>&lt;iframe class="mockup-frame"&gt;</code> with a relative path.</li>
+  </ul>
+</section>
+
+<!-- §6.4 Failure handling -->
+<section class="s" id="s6-4">
+  <h2 class="section-title"><span class="sec-ref">§6.4</span>Failure handling (command-specific)</h2>
+  <p class="section-desc">System-wide failure modes (install, manifest, missing model) are in <a href="../D100-Asimov-architecture.md#85-failure-modes-system-wide" style="color:var(--cyan)">D100 §8.5</a>. Command-specific:</p>
+  <div class="fields-grid">
+    <div class="field-card">
+      <div class="f-thumb t4"><span class="badge-tl">01</span>⚠</div>
+      <div class="f-body">
+        <div class="f-name">Template file unreadable</div>
+        <div class="f-rule">Command halts and reports the missing path before any interview begins.</div>
+      </div>
+    </div>
+    <div class="field-card">
+      <div class="f-thumb t4"><span class="badge-tl">02</span>⚠</div>
+      <div class="f-body">
+        <div class="f-name">Developer abandons mid-phase</div>
+        <div class="f-rule">Nothing is written for the abandoned phase; CC's chat history retains the in-progress state. Abandoning phase C leaves the file at <code>Business design</code>, which is a valid state to be found in — the loss is one conversation, not the document.</div>
+      </div>
+    </div>
+    <div class="field-card">
+      <div class="f-thumb t4"><span class="badge-tl">03</span>⚠</div>
+      <div class="f-body">
+        <div class="f-name">Document doesn't meet its bar despite the interview</div>
+        <div class="f-rule">§8a is caught by the author reading the written page, optionally via <code>/d101-review</code>; §8b is caught at human review on the specs PR. The command surfaces gaps before drafting; closing them is a developer + command joint responsibility.</div>
+      </div>
+    </div>
+    <div class="field-card">
+      <div class="f-thumb t4"><span class="badge-tl">04</span>⚠</div>
+      <div class="f-body">
+        <div class="f-name">Existing D101 has unrelated content the command doesn't recognise</div>
+        <div class="f-rule">Treated as a structural mismatch; command shows the diff and presents the same three options as R8 (overwrite / alternative path / cancel).</div>
+      </div>
+    </div>
+    <div class="field-card">
+      <div class="f-thumb t4"><span class="badge-tl">05</span>⚠</div>
+      <div class="f-body">
+        <div class="f-name">Phase unresolvable from the file</div>
+        <div class="f-rule">No chip, no open block, and §6 ambiguous — the command treats the document as <code>Full design</code>, says so in one sentence, and sets the chip on the next write. Legacy <code>.md</code> D101s land here by design (R18).</div>
+      </div>
+    </div>
+    <div class="field-card">
+      <div class="f-thumb t4"><span class="badge-tl">06</span>⚠</div>
+      <div class="f-body">
+        <div class="f-name">Diagram templates missing or unreadable</div>
+        <div class="f-rule">No standard notation available. Severity low: the command draws a flowchart instead, reports that in chat, and carries on — the diagram templates are a best-effort input, not a hard stop like the visual template (R22).</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- §6.5 Gotchas -->
+<section class="s" id="s6-5">
+  <h2 class="section-title"><span class="sec-ref">§6.5</span>Known constraints &amp; gotchas</h2>
+  <div class="problem-grid">
+    <div class="problem-card">
+      <div class="pc-head"><div class="pc-num">01</div><div class="pc-title">Slug derivation</div></div>
+      <div class="pc-body">Feature slugs come from interactive confirmation, not heuristic parsing — "Account Administration" should land as <code>D101-account-administration.html</code>, not <code>D101-account-admin.html</code>, and the developer confirms.</div>
+    </div>
+    <div class="problem-card">
+      <div class="pc-head"><div class="pc-num">04</div><div class="pc-title">Phase C starts from the file, not the conversation</div></div>
+      <div class="pc-body">The two runs are usually separated by hours or days, so phase C has no memory of phase B — it re-reads the document. Anything agreed in the phase-B chat but never written down is gone. That is the intended pressure (it forces the document to carry the design), but it means a phase-B run that ends without a write loses real work.</div>
+    </div>
+    <div class="problem-card">
+      <div class="pc-head"><div class="pc-num">05</div><div class="pc-title">Legacy D101s have no phase</div></div>
+      <div class="pc-body">Every D101 written before this change carries no phase chip and is treated as <code>Full design</code> — which is right for finished documents and wrong for any that were abandoned half-written. The chip is set on the next write; until then the fallback can flatter an unfinished document.</div>
+    </div>
+    <div class="problem-card">
+      <div class="pc-head"><div class="pc-num">02</div><div class="pc-title">Template fork</div></div>
+      <div class="pc-body">The command reads the template <em>as installed</em> — if <code>d101-feature-design-template.html</code> lags behind the source template in any product repo, the command produces stale-structure D101s. See D100 §10 Q3.</div>
+    </div>
+    <div class="problem-card">
+      <div class="pc-head"><div class="pc-num">03</div><div class="pc-title">No multi-feature drafting</div></div>
+      <div class="pc-body">One invocation produces one D101. Drafting two related features is two runs.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════ §7 — Acceptance criteria ═════════ -->
+<section class="s" id="s7">
+  <h2 class="section-title"><span class="sec-ref">§7</span>Acceptance criteria</h2>
+  <div class="ac-table">
+    <div class="ac-head"><div>#</div><div>Verifies</div><div>Description</div></div>
+    <div class="ac-row"><div class="ac-id">AC1</div><div class="ac-verifies"><span class="verify-chip">R1</span></div><div><strong>Command discovery.</strong> After <code>/plugin marketplace add</code> of the toolkit, <code>/d101-feature-design</code> appears in the CC slash-command list inside any product repo.</div></div>
+    <div class="ac-row"><div class="ac-id">AC2</div><div class="ac-verifies"><span class="verify-chip">R2</span></div><div><strong>Model declared.</strong> The command's frontmatter contains <code>model: claude-opus-4-8</code> and <code>effort: xhigh</code>; invoking it uses that model + effort level (verified via CC's runtime model indicator).</div></div>
+    <div class="ac-row"><div class="ac-id">AC3</div><div class="ac-verifies"><span class="verify-chip">R2</span></div><div><strong>Model-choice consistency.</strong> The (Design, <code>/d101-feature-design</code>) row in <code>model-choice.md</code> shows <code>claude-opus-4-8</code> / <code>xhigh</code>, exactly matching the command's frontmatter.</div></div>
+    <div class="ac-row"><div class="ac-id">AC4</div><div class="ac-verifies"><span class="verify-chip">R6</span></div><div><strong>No-argument default.</strong> Invoked as just <code>/d101-feature-design</code> (no argument), the command opens with an invitation to share feature context and waits for the developer's reply before walking the template.</div></div>
+    <div class="ac-row"><div class="ac-id">AC5</div><div class="ac-verifies"><span class="verify-chip">R6</span></div><div><strong>Argument-as-opening-reply.</strong> Invoked as <code>/d101-feature-design &lt;text&gt;</code>, the command skips the invitation and treats the text as the developer's opening reply (restates it, then asks the five framing questions).</div></div>
+    <div class="ac-row"><div class="ac-id">AC6</div><div class="ac-verifies"><span class="verify-chip">R7</span></div><div><strong>Interview when thin.</strong> A one-sentence opening reply that does not pin scope triggers interview mode — no D101 is written until the input is enriched.</div></div>
+    <div class="ac-row"><div class="ac-id">AC7</div><div class="ac-verifies"><span class="verify-chip">R3</span><span class="verify-chip">R5</span><span class="verify-chip">R9</span><span class="verify-chip">R11</span></div><div><strong>End-to-end greenfield.</strong> A two-paragraph opening reply in any product repo produces <code>documentation/features/D101-&lt;slug&gt;.html</code> covering §1–§10 of the template (§11 omitted).</div></div>
+    <div class="ac-row"><div class="ac-id">AC8</div><div class="ac-verifies"><span class="verify-chip">R9</span><span class="verify-chip">R10</span></div><div><strong>End-to-end reverse-engineered.</strong> An opening reply describing already-shipped code produces a D101 including §11 <em>Changes from source</em> with at least one drift row.</div></div>
+    <div class="ac-row"><div class="ac-id">AC9</div><div class="ac-verifies"><span class="verify-chip">R12</span></div><div><strong>Open-questions discipline.</strong> Sections the developer couldn't answer during interview show up as <code>TBD — verify</code> rows in §9, not invented values.</div></div>
+    <div class="ac-row"><div class="ac-id">AC10</div><div class="ac-verifies"><span class="verify-chip">R8</span></div><div><strong>Existing-file guard.</strong> Re-run phase B against a file already at <code>Business design</code>: the command shows a diff, presents three options (overwrite / alternative path / cancel) and waits; it never overwrites without an explicit choice.</div></div>
+    <div class="ac-row"><div class="ac-id">AC11</div><div class="ac-verifies"><span class="verify-chip">R4</span></div><div><strong>Definition reference.</strong> Editing <code>d101-feature-design-definition.md</code> to tighten either bar changes the command's interview behaviour on the next run — verifying the command reads the definition at run-time, not at install time.</div></div>
+    <div class="ac-row"><div class="ac-id">AC12</div><div class="ac-verifies"><span class="verify-chip">R3</span></div><div><strong>Template reference.</strong> Editing <code>d101-feature-design-template.html</code> to add a section changes the command's output structure on the next run.</div></div>
+    <div class="ac-row"><div class="ac-id">AC13</div><div class="ac-verifies"><span class="verify-chip">R5</span></div><div><strong>Repo without convention.</strong> Invoked in a repo that doesn't follow the path convention, the command still produces a D101 but flags missing cross-repo references as <code>TBD — verify</code> in §10 <em>References</em> and surfaces them as <code>Q*</code> rows in §9 <em>Open questions</em>.</div></div>
+    <div class="ac-row"><div class="ac-id">AC14</div><div class="ac-verifies"><span class="verify-chip">R13</span><span class="verify-chip">R14</span><span class="verify-chip">R15</span><span class="verify-chip">R27</span></div><div><strong>Phase B ends the run.</strong> A full first run on a new feature produces the target <code>.html</code> and then stops. The file contains §1–§5, §8, §9, a <code>#s6-open</code> section and a <code>#s7-pending</code> stub; it contains no <code>#c6</code> or <code>#c7</code> chapter band, no §6.1 and no §7.1. The command emits no further questions after reporting the path.</div></div>
+    <div class="ac-row"><div class="ac-id">AC15</div><div class="ac-verifies"><span class="verify-chip">R14</span></div><div><strong>Phase A writes nothing.</strong> Interrupt the run after the §3 summary and before confirming. No file exists at <code>documentation/features/D101-&lt;slug&gt;.html</code>.</div></div>
+    <div class="ac-row"><div class="ac-id">AC16</div><div class="ac-verifies"><span class="verify-chip">R16</span><span class="verify-chip">R17</span><span class="verify-chip">BR1</span></div><div><strong>The stop holds.</strong> Ask, immediately after write 1, for the technical design. The command declines, gives a reason, and offers either to keep working on §2–§5 or to record the mechanism as an open question. Repeat the request once — it declines again, and no §6.1 is written.</div></div>
+    <div class="ac-row"><div class="ac-id">AC17</div><div class="ac-verifies"><span class="verify-chip">R18</span><span class="verify-chip">R19</span></div><div><strong>Phase resolution and routing.</strong> Re-invoke against the file from AC14. The command reports the phase as <code>Business design</code> and asks whether to continue on §2–§5 or move to §6, without re-asking the framing questions.</div></div>
+    <div class="ac-row"><div class="ac-id">AC18</div><div class="ac-verifies"><span class="verify-chip">R20</span></div><div><strong>No phase C without a file.</strong> On a feature with no D101 on disk, ask for the technical design directly. The command explains that §6 needs a second run and offers phase A. No file with a populated §6 is produced.</div></div>
+    <div class="ac-row"><div class="ac-id">AC19</div><div class="ac-verifies"><span class="verify-chip">R21</span><span class="verify-chip">BR3</span></div><div><strong>Both chips, correct axes.</strong> After write 1 the top-nav carries <code>Business design</code> and <code>Draft vX</code>. After write 2 it carries <code>Full design</code> (with the <code>.full</code> class) and <code>Draft vY</code> — still <code>Draft</code>. Tell the command the business has approved it: the status chip does not change.</div></div>
+    <div class="ac-row"><div class="ac-id">AC20</div><div class="ac-verifies"><span class="verify-chip">BR2</span></div><div><strong>The open list is real.</strong> In the file from AC14, every bullet in the <code>#s6-open</code> block names a specific unknown traceable to something the interview left unsettled. None reads <code>TBD</code>, <code>technical design to follow</code>, or the name of a §6 subsection.</div></div>
+    <div class="ac-row"><div class="ac-id">AC21</div><div class="ac-verifies"><span class="verify-chip">R13</span><span class="verify-chip">R21</span></div><div><strong>Phase C completes the document.</strong> Run phase C against the file. §6.1–§6.8 and the <code>#c6</code> band are present, §7.1+ under the <code>#c7</code> band (or the §7 N/A stub) replaces the <code>#s7-pending</code> stub, the <code>#s6-open</code> block is gone, the side-nav §6 and §7 entries are nested, and §4's rendered text is unchanged from write 1.</div></div>
+    <div class="ac-row"><div class="ac-id">AC22</div><div class="ac-verifies"><span class="verify-chip">R4</span></div><div><strong>Bar selection follows the phase.</strong> The phase-B preview reports on checks 1–5, 7, (8) and 9, and does not report on check 6. The phase-C preview reports on check 6 and check 10, and does not report on check 9.</div></div>
+    <div class="ac-row"><div class="ac-id">AC23</div><div class="ac-verifies"><span class="verify-chip">R22</span></div><div><strong>Diagram templates are best-effort.</strong> With <code>plugins/asimov-plugin/resources/diagrams/</code> made unreadable, a phase-C run still completes: §6.2 carries a flowchart, the chat output states that the diagram templates could not be read, and no missing-path stop occurs. With the folder readable, the §6.2 diagram uses the notation the README routes that flow to.</div></div>
+    <div class="ac-row"><div class="ac-id">AC24</div><div class="ac-verifies"><span class="verify-chip">R23</span></div><div><strong>Notes offered.</strong> Continuing a D101 that has a matching <code>.review.md</code> sibling, the command offers to use its findings before asking anything else.</div></div>
+    <div class="ac-row"><div class="ac-id">AC25</div><div class="ac-verifies"><span class="verify-chip">R24</span></div><div><strong>Staleness surfaced.</strong> Edit the D101's meta-strip date after the notes were written, then continue the session. The command names the mismatch between the recorded and current fingerprint before offering the notes.</div></div>
+    <div class="ac-row"><div class="ac-id">AC26</div><div class="ac-verifies"><span class="verify-chip">R26</span></div><div><strong>Deleted only on consumption.</strong> Decline the offered notes: the <code>.review.md</code> file still exists after the run. Accept them and let the run write the D101: the file is gone afterward.</div></div>
+    <div class="ac-row"><div class="ac-id">AC27</div><div class="ac-verifies"><span class="verify-chip">R25</span></div><div><strong>Folded, not transcribed.</strong> Accept notes containing a §4.4 rule flagged for a missing counter-example: the resulting document carries the fixed rule with its counter-example, not a pasted copy of the finding's wording anywhere in the text.</div></div>
+    <div class="ac-row"><div class="ac-id">AC28</div><div class="ac-verifies"><span class="verify-chip">R27</span></div><div><strong>§7 is pending, not listed.</strong> In the file from AC14, §7 is a single <code>.callout.warn</code> pointing at the §6 <em>Still to write</em> list. It carries no bullet list of its own, and the side-nav shows one flat §7 entry.</div></div>
+    <div class="ac-row"><div class="ac-id">AC29</div><div class="ac-verifies"><span class="verify-chip">R28</span></div><div><strong>§7 is outside the bar.</strong> In phase C, answer "pure reuse" for the build: the write carries the §7 N/A stub, and the §8b preview reports check 6 against §6 alone without naming §7 as a failure. With new work, each §7.4 block keys to a §6.4 contract by number.</div></div>
+    <div class="ac-row"><div class="ac-id">AC30</div><div class="ac-verifies"><span class="verify-chip">R29</span></div><div><strong>One maturity line, chat only.</strong> With <code>maturity: trial</code> in the definition, the run prints exactly one trial-level line before the greeting and never mentions maturity again; the written D101 contains no maturity level. With <code>adopt</code>, nothing is printed.</div></div>
+    <div class="ac-row"><div class="ac-id">AC31</div><div class="ac-verifies"><span class="verify-chip">R30</span></div><div><strong>Deviation recorded, never proposed.</strong> Keep a compound requirement as one and name who accepts it: the written R-row carries an <code>.accepted</code> block with the rule, the reason, the accepter and the date. Leave the accepter unnamed: the command asks before writing. Decline no rule: the file carries no <code>.accepted</code> block — the command offers none of its own, and none is ever written against a §8 check.</div></div>
+  </div>
+</section>
+
+<!-- ═════════ §8 — Open questions ═════════ -->
+<section class="s" id="s8">
+  <h2 class="section-title"><span class="sec-ref">§8</span>Open questions</h2>
+  <div class="q-grid">
+    <div class="q-card">
+      <div class="q-head"><span class="q-id">Q1</span><span class="q-decider">Context&amp; lead (alb)</span></div>
+      <div class="q-body">When the developer hands the command a Jira link, does the command fetch the ticket (and how — MCP, CLI), or expect the developer to paste content?</div>
+      <div class="q-resolution">Resolution path: spike on Jira MCP availability; decide after the first real runs.</div>
+    </div>
+    <div class="q-card">
+      <div class="q-head"><span class="q-id">Q2</span><span class="q-decider">Architecture (Context&amp;)</span></div>
+      <div class="q-body">Should the command refuse in a repo without a <code>D100-*-architecture.md</code>, or proceed with TBDs (current behaviour)?</div>
+      <div class="q-resolution">Resolution path: try current behaviour on first real run; revisit after the first real runs.</div>
+    </div>
+    <div class="q-card">
+      <div class="q-head"><span class="q-id">Q3</span><span class="q-decider">Architecture (Context&amp;)</span></div>
+      <div class="q-body">Should the interview heuristic be tunable per product system or universal?</div>
+      <div class="q-resolution">Resolution path: wait until there's signal from real runs first.</div>
+    </div>
+    <div class="q-card">
+      <div class="q-head"><span class="q-id">Q4</span><span class="q-decider">Context&amp; lead (alb)</span></div>
+      <div class="q-body">Should phase A get its own write — a requirements-only file — for features where §3 is contested enough to be worth reviewing on its own? Today it writes nothing, on the grounds that requirements are cheap to move while nothing depends on them.</div>
+      <div class="q-resolution">Resolution path: observe whether any real run stalls inside phase A long enough that the chat history becomes the bottleneck.</div>
+    </div>
+    <div class="q-card">
+      <div class="q-head"><span class="q-id">Q5</span><span class="q-decider">Context&amp; lead (alb)</span></div>
+      <div class="q-body">A D101 goes to the business approver together with an <strong>estimate</strong> — that is why sign-off waits for phase C. The document has nowhere to put one. Does the estimate belong in §1, in a section of its own, in the S101, or outside the documents entirely?</div>
+      <div class="q-resolution">Resolution path: tracked as <a href="../D100-Asimov-architecture.md#10-open-architecture-questions" style="color:var(--cyan)">D100 §10 Q7</a>; decide after the first few phase-C run-throughs show where the estimate actually gets written down.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════ §9 — References ═════════ -->
+<section class="s" id="s9">
+  <h2 class="section-title"><span class="sec-ref">§9</span>References</h2>
+  <div class="refs">
+    <div class="refs-block">
+      <h4>Sibling docs</h4>
+      <ul>
+        <li><a href="D101-d101-review.html">D101 — /d101-review</a> — the reviewer-side counterpart, split from the same source; writes the review-notes sibling this command consumes</li>
+        <li><a href="D101-review-handoff.html">D101 — Review handoff</a> — the review-notes file convention: R23–R26 above are its consuming half</li>
+        <li><a href="D101-artifact-maturity.html">D101 — Artifact maturity</a> — the maturity block the step 1b notice reads (R29)</li>
+        <li><a href="D101-accepted-deviations.html">D101 — Accepted deviations</a> — the <code>.accepted</code> record the phase-B authoring branch writes (R30)</li>
+        <li><a href="D101-personas.html">D101 — Personas</a> — the persona reviews the stop message points to</li>
+        <li><a href="../D100-Asimov-architecture.md">D100-Asimov-architecture.md</a> — system architecture + the L3 process this feature lives in</li>
+      </ul>
+    </div>
+    <div class="refs-block">
+      <h4>Files this command depends on</h4>
+      <ul>
+        <li><a href="../../plugins/asimov-plugin/commands/d101-feature-design.md">commands/d101-feature-design.md</a> — the command itself</li>
+        <li><a href="../../plugins/asimov-plugin/artifacts/documentation/d101-feature-design/d101-feature-design-definition.md">artifacts/documentation/d101-feature-design/d101-feature-design-definition.md</a> — both bars: §2 business-complete + gap-free, §4.6 open-§6 rules, §4.8 the §7 build recipe, §4.9 accepted deviations, §8 the checks (read at run-time)</li>
+        <li><a href="../../plugins/asimov-plugin/artifacts/documentation/d101-feature-design/d101-feature-design-template.html">artifacts/documentation/d101-feature-design/d101-feature-design-template.html</a> — output / reference structure (read at run-time)</li>
+        <li><a href="../../plugins/asimov-plugin/resources/diagrams/README.md">resources/diagrams/README.md</a> — routing table for the four standard diagram notations, plus the notation template it routes to (read at run-time when a diagram is drawn; <strong>optional / best-effort</strong> — unreadable means a flowchart fallback, not a stop)</li>
+        <li><a href="../../documentation/model-choice.md">documentation/model-choice.md</a> — canonical model mapping</li>
+      </ul>
+    </div>
+    <div class="refs-block">
+      <h4>Research</h4>
+      <ul>
+        <li><a href="../research/additional-command-ideas.md">research/additional-command-ideas.md</a> — survey of Claude Code ecosystem commands; §3.1 rationale for adding <code>/d101-review</code></li>
+      </ul>
+    </div>
+    <div class="refs-block">
+      <h4>External</h4>
+      <ul>
+        <li><em>AI Transition — Levels &amp; Zones</em> (Context&amp;) — the L3 pipeline the Design stage belongs to; summarised in <a href="../ai-transition-levels-and-zones.md">ai-transition-levels-and-zones.md</a>. The <em>gap-free</em> bar itself is Asimov's, defined in <code>d101-feature-design-definition.md</code> §2.2</li>
+        <li>Claude Code slash command documentation (Anthropic)</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+  </article>
+</div>
+
+<footer class="site-footer">
+  <div>
+    <a href="../index.html">← Documentation home</a>
+    · <span class="mono">features/D101-d101-feature-design.html</span>
+  </div>
+  <div style="margin-top: 0.4rem">
+    D101 · /d101-feature-design · asimov · Full design · Draft v0.6 · 2026-09-15
+  </div>
+</footer>
+
+<script>
+  // Requirements tab switching — purely cosmetic, no state persistence.
+  document.querySelectorAll('.req-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      const target = tab.dataset.target;
+      document.querySelectorAll('.req-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      document.querySelectorAll('.req-list').forEach(l => {
+        l.style.display = (l.dataset.tab === target) ? '' : 'none';
+      });
+    });
+  });
+</script>
+
+</body>
+</html>

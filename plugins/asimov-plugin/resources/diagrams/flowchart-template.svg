@@ -1,0 +1,141 @@
+<!--
+  FLOWCHART — ISO 5807 / ANSI X3.5 flowchart symbols. Asimov skin.
+
+  USE WHEN:      "What happens, in what order?" An ordered run of steps performed
+                 by ONE actor, including branches. This is the replacement for the
+                 undifferentiated row of numbered boxes that every D101 used to
+                 draw regardless of content — it is still the right answer when the
+                 content really is a single-actor procedure, but now it is a choice
+                 rather than a default.
+  DO NOT USE:    when two or more actors exchange messages (sequence-template.svg);
+                 when the reader must see which actor owns each step
+                 (activity-swimlane-template.svg); when the subject rests in named
+                 states rather than moving through steps
+                 (state-machine-template.svg).
+  BUDGET:        max 9 nodes, 12 edges. Serpentine wrap is allowed up to that
+                 ceiling. Over budget: split into an overview diagram (the main
+                 path) plus a detail diagram, rather than growing this one.
+  NOTATION:      stadium / pill (rx = half the height) for the start and end
+                 terminators; plain rectangle for a process step; diamond for a
+                 decision, with every outgoing edge labelled [guard]; rectangle
+                 with doubled vertical side lines for a predefined process, i.e.
+                 work delegated downstream and specified elsewhere; parallelogram
+                 for input / output. Process steps keep the zero-padded mono step
+                 numbers the house style already uses (01, 02, ...) so the numbers
+                 line up with the numbered list under the diagram; terminators are
+                 not numbered.
+  COLOUR:        green = the start terminator and the gating decision; amber =
+                 transform / work in progress; cyan = read or write to a data store
+                 (the input and output parallelograms); coral = the end terminator
+                 and any destructive step; dashed border on #122039 = the
+                 predefined process, delegated downstream / out of scope.
+  GEOMETRY:      viewBox width 980; two rows at y 48..104 and y 192..248; node
+                 height 56, width 136; at least 40px gap between nodes; the wrap
+                 edge drops straight down from the centre of the last node in a row
+                 to the top of the node below it; decision guards sit 10px above a
+                 horizontal segment or 8px to the right of a vertical one; the
+                 predefined process draws its two inner vertical lines 8px inside
+                 its left and right edges. Every coordinate divisible by 4.
+  ANTI-PATTERNS: - a rectangle for every node, so start, end, delegation and I/O
+                   all look the same (that is the old numbered-row habit);
+                 - an unlabelled decision branch;
+                 - a decision with three or more outgoing edges (turn it into a
+                   sequence of two-way decisions, or split the diagram);
+                 - step numbers in the diagram that do not match the numbered list
+                   below it;
+                 - a diagonal wrap edge instead of a straight drop;
+                 - more than one start terminator.
+
+  The first child is a background rect filling the whole viewBox with #14253f (the
+  bg-card token); keep it — it is what makes the white text readable when the file is
+  opened standalone.
+-->
+<svg viewBox="0 0 980 288" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="ISO 5807 flowchart template">
+  <rect x="0" y="0" width="980" height="288" fill="#14253f"/>
+  <defs>
+    <marker id="fc-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#a8b8d0"/>
+    </marker>
+  </defs>
+
+  <!-- N1: start terminator (stadium) -->
+  <g>
+    <rect x="72" y="48" width="136" height="56" rx="28" fill="#66bb6a22" stroke="#66bb6a"/>
+    <text x="140" y="72" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">{{START}}</text>
+    <text x="140" y="88" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">{{trigger}}</text>
+  </g>
+
+  <!-- N2: process step (plain rectangle) -->
+  <g>
+    <rect x="248" y="48" width="136" height="56" rx="8" fill="#ffb74d1a" stroke="#ffb74d"/>
+    <text x="316" y="72" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">01 · {{stepLabel}}</text>
+    <text x="316" y="88" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">process</text>
+  </g>
+
+  <!-- N3: input (parallelogram) -->
+  <g>
+    <polygon points="444,48 560,48 540,104 424,104" fill="#4fc3f71a" stroke="#4fc3f7" stroke-width="1.5"/>
+    <text x="492" y="72" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">02 · {{readInput}}</text>
+    <text x="492" y="88" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">read from store</text>
+  </g>
+
+  <!-- N4: decision (diamond) -->
+  <polygon points="656,48 712,76 656,104 600,76" fill="#66bb6a22" stroke="#66bb6a" stroke-width="1.5"/>
+  <text x="656" y="40" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">{{decisionLabel}}</text>
+
+  <!-- N5: predefined process (rectangle with doubled vertical side lines) -->
+  <g>
+    <rect x="776" y="48" width="136" height="56" rx="8" fill="#122039" stroke="#3b5e8f" stroke-dasharray="4 4"/>
+    <line x1="784" y1="48" x2="784" y2="104" stroke="#3b5e8f" stroke-width="1"/>
+    <line x1="904" y1="48" x2="904" y2="104" stroke="#3b5e8f" stroke-width="1"/>
+    <text x="844" y="72" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">03 · {{delegatedRun}}</text>
+    <text x="844" y="88" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">delegated</text>
+  </g>
+
+  <!-- N6: process step (second row, right to left) -->
+  <g>
+    <rect x="776" y="192" width="136" height="56" rx="8" fill="#ffb74d1a" stroke="#ffb74d"/>
+    <text x="844" y="216" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">04 · {{transformRow}}</text>
+    <text x="844" y="232" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">process</text>
+  </g>
+
+  <!-- N7: output (parallelogram) -->
+  <g>
+    <polygon points="596,192 712,192 692,248 576,248" fill="#4fc3f71a" stroke="#4fc3f7" stroke-width="1.5"/>
+    <text x="644" y="216" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">05 · {{writeResult}}</text>
+    <text x="644" y="232" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">write to store</text>
+  </g>
+
+  <!-- N8: end terminator (stadium) -->
+  <g>
+    <rect x="400" y="192" width="136" height="56" rx="28" fill="#ef535022" stroke="#ef5350"/>
+    <text x="468" y="216" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">{{END}}</text>
+    <text x="468" y="232" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">{{outcome}}</text>
+  </g>
+
+  <!-- e1: start to 01 -->
+  <line x1="208" y1="76" x2="246" y2="76" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#fc-arr)"/>
+
+  <!-- e2: 01 to 02 -->
+  <line x1="384" y1="76" x2="432" y2="76" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#fc-arr)"/>
+
+  <!-- e3: 02 to the decision -->
+  <line x1="552" y1="76" x2="598" y2="76" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#fc-arr)"/>
+
+  <!-- e4: decision, guarded path to the predefined process -->
+  <line x1="712" y1="76" x2="774" y2="76" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#fc-arr)"/>
+  <text x="744" y="66" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">[{{guardYes}}]</text>
+
+  <!-- e5: wrap edge, straight drop from 03 to 04 -->
+  <line x1="844" y1="104" x2="844" y2="190" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#fc-arr)"/>
+
+  <!-- e6: decision, guarded path that skips the delegated run -->
+  <line x1="656" y1="104" x2="656" y2="190" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#fc-arr)"/>
+  <text x="664" y="152" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">[{{guardNo}}]</text>
+
+  <!-- e7: 04 to 05 -->
+  <line x1="776" y1="220" x2="704" y2="220" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#fc-arr)"/>
+
+  <!-- e8: 05 to the end terminator -->
+  <line x1="584" y1="220" x2="538" y2="220" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#fc-arr)"/>
+</svg>

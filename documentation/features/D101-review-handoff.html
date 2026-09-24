@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D101 — Review handoff — asimov docs</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+:root {
+  --bg:        #0a1424;
+  --bg2:       #122039;
+  --bg3:       #1b2e4d;
+  --bg-card:   #14253f;
+  --border:    #2b4a73;
+  --border-2:  #3b5e8f;
+  --text:      #fff;
+  --text-dim:  #a8b8d0;
+  --text-mute: #6b7a93;
+  --cyan:      #4fc3f7;
+  --teal:      #26c6da;
+  --green:     #66bb6a;
+  --amber:     #ffb74d;
+  --coral:     #ef5350;
+  --gold:      #ffd54f;
+  --violet:    #ab47bc;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; font-size: 15px; line-height: 1.6; overflow-x: hidden; padding-top: 56px; }
+a { color: inherit; text-decoration: none; }
+code, .mono { font-family: 'JetBrains Mono', monospace; font-size: 0.88em; }
+code { background: var(--bg3); padding: 1px 6px; border-radius: 4px; color: var(--cyan); }
+
+/* Top nav (site-wide — every D101 links to documentation home + chapter sections of the index) */
+.top-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(10,20,36,0.85); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 0.55rem 2rem; display: flex; gap: 1.4rem; align-items: center; font-size: 0.82rem; }
+.top-nav .brand, .top-nav .brand a { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--cyan); letter-spacing: 0.04em; text-decoration: none; }
+.top-nav .brand .sep { color: var(--border); margin: 0 0.5rem; }
+.top-nav a { color: var(--text-dim); font-weight: 500; }
+.top-nav a:hover { color: #fff; }
+.top-nav .spacer { flex: 1; }
+.top-nav .status-chip { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.25rem 0.7rem; border-radius: 999px; background: #ffd54f15; border: 1px solid #ffd54f44; color: var(--gold); font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 700; }
+.top-nav .status-chip::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--gold); }
+/* Phase chip — the authoring axis, deliberately NOT the status axis (see ground rule 12).
+   Square marker + cyan so the two chips never read as one control. */
+.top-nav .phase-chip { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.25rem 0.7rem; border-radius: 999px; background: #4fc3f715; border: 1px solid #4fc3f744; color: var(--cyan); font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 700; }
+.top-nav .phase-chip::before { content: ''; width: 6px; height: 6px; border-radius: 1px; background: var(--cyan); }
+.top-nav .phase-chip.full { background: #66bb6a15; border-color: #66bb6a44; color: var(--green); }
+.top-nav .phase-chip.full::before { background: var(--green); }
+
+/* Layout with left sidebar (per-page TOC) + content column */
+.layout-doc { display: grid; grid-template-columns: 200px minmax(0, 1fr); max-width: 1300px; margin: 0 auto; gap: 1.8rem; padding: 0.5rem 1.5rem; }
+.side-nav { position: sticky; top: 76px; align-self: start; max-height: calc(100vh - 90px); overflow-y: auto; padding: 0.7rem 0.5rem 1rem 0.2rem; font-size: 0.85rem; }
+.side-nav .side-head { font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-mute); margin-bottom: 0.7rem; padding-left: 0.6rem; }
+.side-nav ul { list-style: none; padding: 0; margin: 0; }
+.side-nav ul ul { padding-left: 0.9rem; margin-top: 0.1rem; }
+.side-nav li { margin: 0.1rem 0; }
+.side-nav a { display: block; padding: 0.32rem 0.7rem; color: var(--text-dim); border-left: 2px solid transparent; font-size: 0.86rem; line-height: 1.4; border-radius: 0 4px 4px 0; }
+.side-nav a:hover { color: #fff; background: #4fc3f708; border-left-color: var(--border-2); }
+.content { min-width: 0; }
+
+/* Hero (compact — top-nav already provides separation from page chrome) */
+.hero { padding: 1.5rem 2rem 1.5rem; position: relative; overflow: hidden; max-width: 1300px; margin: 0 auto; }
+.hero::before { content: ''; position: absolute; inset: 0; z-index: 0; background: radial-gradient(ellipse at 20% 30%, #4fc3f718 0%, transparent 50%), radial-gradient(ellipse at 80% 60%, #26c6da14 0%, transparent 50%); }
+.hero > * { position: relative; z-index: 1; }
+.kicker { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--cyan); padding: 0.3rem 0.8rem; border-radius: 999px; border: 1px solid #4fc3f744; background: #4fc3f711; margin-bottom: 1rem; }
+.hero h1 { font-size: clamp(2rem, 4.5vw, 3.4rem); font-weight: 900; letter-spacing: -0.03em; line-height: 1.05; background: linear-gradient(135deg, #fff 0%, var(--cyan) 50%, var(--teal) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.hero .tagline { font-size: 1.05rem; color: var(--text-dim); margin-top: 1rem; max-width: 760px; line-height: 1.6; }
+
+/* Metadata strip */
+.meta-strip { max-width: 1300px; margin: 1rem auto 0; padding: 0 2rem; display: grid; grid-template-columns: repeat(6, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.meta-cell { background: var(--bg-card); padding: 1rem 1.2rem; }
+.meta-cell .label { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-mute); margin-bottom: 0.35rem; }
+.meta-cell .value { font-size: 0.95rem; font-weight: 600; color: var(--text); }
+.meta-cell .value.mono { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; }
+
+/* Sections + chapter bands */
+section.s { max-width: 1300px; margin: 0 auto; padding: 3rem 2rem 0; }
+.chapter-band + section.s { padding-top: 1.5rem; }
+.section-title { font-size: clamp(1.5rem, 2.6vw, 2rem); font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.7rem; }
+.section-title .sec-ref { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; font-weight: 600; color: var(--text-mute); letter-spacing: 0.04em; margin-right: 0.7rem; vertical-align: middle; padding: 0.2rem 0.5rem; border-radius: 4px; background: var(--bg2); border: 1px solid var(--border); }
+.section-desc { color: var(--text-dim); font-size: 1rem; max-width: 780px; margin-bottom: 1.8rem; line-height: 1.65; }
+.chapter-band { max-width: 1300px; margin: 3.5rem auto 0; padding: 0 2rem; }
+.chapter-band-inner { display: grid; grid-template-columns: auto 1fr; gap: 1.5rem; align-items: center; padding: 1.4rem 1.8rem; border-radius: 12px; background: linear-gradient(135deg, #4fc3f714 0%, #26c6da05 100%); border: 1px solid var(--border); border-left: 4px solid var(--cyan); }
+.chapter-band .ch-num { font-family: 'JetBrains Mono', monospace; font-size: 2.6rem; font-weight: 800; color: var(--cyan); line-height: 1; }
+.chapter-band .ch-name { font-size: 1.35rem; font-weight: 700; color: #fff; letter-spacing: 0.01em; margin-bottom: 0.25rem; }
+.chapter-band .ch-summary { font-size: 0.88rem; color: var(--text-dim); line-height: 1.5; }
+
+/* Doc-scope line below metadata strip */
+.doc-scope { max-width: 1300px; margin: 0.7rem auto 0; padding: 0 2.2rem; font-size: 0.82rem; color: var(--text-mute); line-height: 1.5; }
+.doc-scope strong { color: var(--text-dim); font-weight: 600; }
+
+/* Principles */
+.principles { display: grid; gap: 0.65rem; }
+.principle { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 0.95rem 1.3rem; display: flex; gap: 1rem; align-items: center; }
+.principle .num { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; font-weight: 700; width: 30px; height: 30px; border-radius: 8px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--cyan), var(--teal)); color: #0a1424; }
+.principle .text { font-size: 0.95rem; }
+.principle .text strong { color: var(--cyan); font-weight: 700; }
+
+/* Generic bullet list — used anywhere with → / ⚠ items */
+ul.bullets { list-style: none; padding: 0; margin: 0.7rem 0 0; }
+ul.bullets li { position: relative; padding: 0.3rem 0 0.3rem 1.5rem; font-size: 0.9rem; color: var(--text-dim); line-height: 1.6; }
+ul.bullets li + li { margin-top: 0.15rem; }
+ul.bullets li::before { content: '→'; position: absolute; left: 0; top: 0.3rem; font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--cyan); }
+ul.bullets li.warn::before { content: '!'; color: var(--amber); }
+ul.bullets li code { font-size: 0.78rem; }
+
+/* Requirements — flat lists (Functional / Non-functional / Out of scope), all visible, no tabs */
+.req-list { display: grid; gap: 0.5rem; margin-bottom: 1.6rem; }
+.req-list:last-child { margin-bottom: 0; }
+.req { display: grid; grid-template-columns: 60px 1fr; gap: 1rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 0.7rem 1rem; align-items: start; }
+.req .id { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; font-weight: 700; color: var(--cyan); padding-top: 2px; }
+.req .body { font-size: 0.9rem; color: var(--text); line-height: 1.55; }
+.req.oos .id, .req-list.nf .req .id { color: var(--amber); }
+
+/* Data flow SVG diagram */
+.flow-wrap { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.8rem; overflow-x: auto; }
+.flow-wrap svg { display: block; margin: 0 auto; max-width: 100%; height: auto; }
+.flow-legend { display: flex; flex-wrap: wrap; gap: 1.2rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); font-size: 0.82rem; color: var(--text-dim); }
+.flow-legend .item { display: inline-flex; align-items: center; gap: 0.4rem; }
+.flow-legend .swatch { width: 14px; height: 4px; border-radius: 2px; }
+
+/* Interactive UI mockup (embedded via iframe; the mockup file is separate + self-contained) */
+.mockup-wrap { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 0.5rem; margin: 0.6rem 0 1rem; overflow: hidden; }
+.mockup-frame { display: block; width: 100%; border: none; border-radius: 8px; background: #fff; }
+
+/* Code map */
+.codemap { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.codemap-row { display: grid; grid-template-columns: 1fr 1.5fr; gap: 1rem; padding: 0.7rem 1.2rem; border-bottom: 1px solid var(--border); font-size: 0.85rem; align-items: center; }
+.codemap-row:last-child { border-bottom: none; }
+.codemap-row:nth-child(odd) { background: rgba(255,255,255,0.015); }
+.codemap-row .what { color: var(--text); }
+.codemap-row .where { color: var(--cyan); font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; word-break: break-all; }
+
+/* Decisions matrix */
+.decisions { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.decisions-head, .decision-row { display: grid; grid-template-columns: 1.2fr 1fr 1.4fr; gap: 1rem; padding: 0.9rem 1.2rem; align-items: start; border-bottom: 1px solid var(--border); }
+.decisions-head { background: var(--bg2); font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); }
+.decision-row { font-size: 0.85rem; }
+.decision-row:last-child { border-bottom: none; }
+.decision-row .decided { color: #fff; font-weight: 600; }
+.decision-row .alt { color: var(--amber); font-style: italic; font-size: 0.82rem; line-height: 1.5; }
+.decision-row .why { color: var(--text-dim); font-size: 0.82rem; line-height: 1.55; }
+
+/* Generic data table (Shapes §6.4, Configuration §6.6) */
+.data-table { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.data-table .row { display: grid; gap: 1rem; padding: 0.65rem 1.2rem; border-bottom: 1px solid var(--border); font-size: 0.85rem; align-items: start; }
+.data-table .row.head { background: var(--bg2); font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); font-weight: 700; }
+.data-table .row:last-child { border-bottom: none; }
+.data-table .row.cols-2 { grid-template-columns: 1fr 2fr; }
+.data-table .row.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+.data-table .row code { font-size: 0.78rem; }
+.data-table .row .label-cell { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; color: var(--cyan); }
+
+/* Inline-path list (Shapes §6.4) */
+.gps-paths { list-style: none; padding: 0.7rem 0 0; margin: 0; display: grid; gap: 0.4rem; }
+.gps-paths li { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--cyan); background: var(--bg2); border: 1px solid var(--border); border-radius: 6px; padding: 0.45rem 0.8rem; }
+
+/* Sub-section heading (Shapes has multiple sub-blocks) */
+.subhead { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-dim); font-weight: 700; margin: 1.5rem 0 0.6rem; }
+.subhead:first-child { margin-top: 0; }
+/* Anchored subhead (§7 per-unit blocks key to §6 contracts by number) — scroll-margin clears the fixed nav */
+.subhead[id] { scroll-margin-top: 80px; }
+.subhead .s-ref { color: var(--text-mute); margin-right: 0.45rem; }
+/* Implementation label under a §6 contract (§7 build notes) — lighter sibling of .subhead */
+.impl-head { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); font-weight: 700; margin: 1rem 0 0.3rem; }
+
+/* Build-status chip on §7 implementation rows (reuse / new / note) */
+.tag { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+.tag.reuse { background: #66bb6a22; color: var(--green); border: 1px solid #66bb6a55; }
+.tag.new   { background: #ffb74d22; color: var(--amber); border: 1px solid #ffb74d55; }
+.tag.note  { background: var(--bg2); color: var(--text-mute); border: 1px solid var(--border); }
+/* Per-unit build-notes table (§7.x) — a .data-table variant: Aspect | Build tag | Details-with-bullets */
+.impl-table .row { grid-template-columns: 0.5fr 0.45fr 2.75fr; }
+.impl-table .row ul { list-style: disc; margin: 0; padding-left: 1.05rem; display: grid; gap: 0.35rem; }
+.impl-table .row li { line-height: 1.5; }
+
+/* Failure handling */
+.failures { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.failures-head, .failure-row { display: grid; grid-template-columns: 1fr 1fr 80px 1.2fr; gap: 1rem; padding: 0.85rem 1.2rem; align-items: center; border-bottom: 1px solid var(--border); }
+.failures-head { background: var(--bg2); font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); }
+.failure-row { font-size: 0.85rem; }
+.failure-row:last-child { border-bottom: none; }
+.sev { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; font-weight: 700; padding: 0.2rem 0.55rem; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.06em; }
+.sev.med  { background: #ffb74d22; color: var(--amber); border: 1px solid #ffb74d55; }
+.sev.low  { background: #66bb6a22; color: var(--green); border: 1px solid #66bb6a55; }
+.sev.high { background: #ef535022; color: var(--coral); border: 1px solid #ef535055; }
+
+/* Acceptance criteria */
+.ac-table { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.ac-head, .ac-row { display: grid; grid-template-columns: 60px 150px 1fr; gap: 1rem; padding: 0.8rem 1.2rem; align-items: start; border-bottom: 1px solid var(--border); }
+.ac-head { background: var(--bg2); font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); }
+.ac-row { font-size: 0.86rem; }
+.ac-row:last-child { border-bottom: none; }
+.ac-row .ac-id { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--cyan); }
+.ac-row .ac-verifies { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+.verify-chip { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; padding: 0.15rem 0.5rem; border-radius: 4px; background: #4fc3f714; border: 1px solid #4fc3f744; color: var(--cyan); }
+
+/* Open questions — auto-fit */
+.q-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 0.7rem; }
+.q-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.2rem; border-left: 3px solid var(--gold); }
+.q-card .q-head { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
+.q-card .q-id { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; color: var(--gold); background: #ffd54f15; padding: 0.15rem 0.5rem; border-radius: 4px; }
+.q-card .q-decider { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--text-mute); }
+.q-card .q-body { font-size: 0.88rem; color: var(--text); line-height: 1.55; }
+
+/* Accepted deviation (d101-feature-design-definition §4.9) */
+.accepted { margin-top: 0.5rem; padding: 0.5rem 0.7rem; border-left: 3px solid var(--violet); border-radius: 0 6px 6px 0; background: #ab47bc12; font-size: 0.82rem; color: var(--text-dim); line-height: 1.55; }
+.accepted .accepted-tag { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--violet); background: #ab47bc22; border: 1px solid #ab47bc55; border-radius: 4px; padding: 0.1rem 0.45rem; margin-right: 0.45rem; }
+.accepted .accepted-rule { color: var(--text); font-weight: 600; }
+.accepted .accepted-by { display: block; margin-top: 0.3rem; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--text-mute); }
+
+/* References — auto-fit */
+.refs { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+.refs-block { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 1.1rem 1.3rem; }
+.refs-block h4 { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--cyan); margin-bottom: 0.7rem; }
+.refs-block ul { list-style: none; }
+.refs-block li { font-family: 'JetBrains Mono', monospace; font-size: 0.76rem; color: var(--text-dim); padding: 0.2rem 0; line-height: 1.5; word-break: break-all; }
+
+/* Callouts */
+.callout { background: linear-gradient(135deg, #4fc3f712, #26c6da08); border: 1px solid #4fc3f744; border-radius: 10px; padding: 1rem 1.3rem; margin: 1.2rem 0; font-size: 0.9rem; color: var(--text-dim); line-height: 1.6; }
+.callout strong { color: var(--cyan); }
+.callout.warn { background: linear-gradient(135deg, #ffd54f15, #ff890608); border-color: #ffd54f55; }
+.callout.warn strong { color: var(--gold); }
+
+footer.site-footer { max-width: 1300px; margin: 4rem auto 0; padding: 2rem; border-top: 1px solid var(--border); text-align: center; color: var(--text-mute); font-size: 0.82rem; line-height: 1.7; }
+footer.site-footer .mono { color: var(--text-dim); font-family: 'JetBrains Mono', monospace; }
+footer.site-footer a { color: var(--cyan); }
+
+@media (max-width: 1100px) {
+  .meta-strip { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 900px) {
+  .layout-doc { grid-template-columns: 1fr; gap: 1rem; padding: 1rem 1.2rem; }
+  .side-nav { position: static; max-height: none; overflow: visible; border: 1px solid var(--border); border-radius: 8px; padding: 1rem; background: var(--bg-card); }
+}
+@media (max-width: 720px) {
+  .top-nav { overflow-x: auto; padding: 0.55rem 1rem; gap: 1rem; }
+  .top-nav .spacer { display: none; }
+  .hero { padding: 1.2rem 1.2rem 1rem; }
+  section.s { padding: 2.5rem 1.2rem 0; }
+  .meta-strip { grid-template-columns: repeat(2, 1fr); margin: 1rem 1.2rem 0; }
+  .chapter-band { padding: 0 1.2rem; margin-top: 3rem; }
+  .chapter-band-inner { grid-template-columns: 1fr; gap: 0.5rem; padding: 1.2rem 1.4rem; }
+  .chapter-band .ch-num { font-size: 2rem; }
+  .decisions-head, .decision-row { grid-template-columns: 1fr; gap: 0.4rem; }
+  .failures-head, .failure-row { grid-template-columns: 1fr; }
+  .ac-head, .ac-row { grid-template-columns: 1fr; }
+}
+
+/* Resolved open questions (§9) — doc-local: the template has no resolved-question shape yet. */
+.q-card.resolved { border-left-color: var(--green); }
+.q-card.resolved .q-id { color: var(--green); background: #66bb6a15; }
+.q-card .q-resolution { font-size: 0.82rem; color: var(--text-dim); line-height: 1.5; margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--border); }
+.q-card .q-resolution strong { color: var(--green); }
+.refs-block li a { color: var(--cyan); }
+</style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <span class="brand"><a href="../index.html">ASIMOV<span class="sep">/</span>docs</a></span>
+  <a href="../index.html#s1">Architecture</a>
+  <a href="../index.html#s2">Features</a>
+  <span class="spacer"></span>
+  <span class="phase-chip full">Full design</span>
+  <span class="status-chip">Draft v0.5</span>
+</nav>
+
+<div class="layout-doc">
+  <aside class="side-nav">
+    <div class="side-head">On this page</div>
+    <ul>
+      <li><a href="#s2">§2 Purpose &amp; audience</a></li>
+      <li><a href="#s3">§3 Requirements</a></li>
+      <li><a href="#c4">§4 Business design</a>
+        <ul>
+          <li><a href="#s4-1">§4.1 Design principles</a></li>
+          <li><a href="#s4-2">§4.2 Model / concepts</a></li>
+          <li><a href="#s4-3">§4.3 Flow</a></li>
+          <li><a href="#s4-4">§4.4 Rules / constraints</a></li>
+          <li><a href="#s4-5">§4.5 Decisions</a></li>
+        </ul>
+      </li>
+      <li><a href="#s5">§5 UI Design</a></li>
+      <li><a href="#c6">§6 Technical design</a>
+        <ul>
+          <li><a href="#s6-1">§6.1 Platform</a></li>
+          <li><a href="#s6-2">§6.2 Data flow</a></li>
+          <li><a href="#s6-3">§6.3 Code map</a></li>
+          <li><a href="#s6-4">§6.4 Shapes / data model</a></li>
+          <li><a href="#s6-5">§6.5 APIs &amp; contracts</a></li>
+          <li><a href="#s6-6">§6.6 Configuration</a></li>
+          <li><a href="#s6-7">§6.7 Failure handling</a></li>
+          <li><a href="#s6-8">§6.8 Gotchas</a></li>
+        </ul>
+      </li>
+      <li><a href="#c7">§7 Implementation</a>
+        <ul>
+          <li><a href="#s7-1">§7.1 New vs. reuse</a></li>
+          <li><a href="#s7-2">§7.2 The files</a></li>
+          <li><a href="#s7-3">§7.3 Each touched file</a></li>
+          <li><a href="#s7-4">§7.4 Cross-cutting</a></li>
+        </ul>
+      </li>
+      <li><a href="#s8">§8 Acceptance</a></li>
+      <li><a href="#s9">§9 Open questions</a></li>
+      <li><a href="#s10">§10 References</a></li>
+    </ul>
+  </aside>
+
+  <article class="content">
+
+<header class="hero">
+  <div class="kicker">D101 · Feature design · asimov</div>
+  <h1>Review handoff</h1>
+  <p class="tagline"><code>/d101-review</code> writes its findings to a sibling <code>D101-&lt;slug&gt;.review.md</code>, so they survive past the chat session that produced them. A later <code>/d101-feature-design</code> run reads it, offers it as input, and deletes it once used. The file is a disposable cache, never a record: it carries no state a re-run of the review couldn't reproduce, and it is safe to lose.</p>
+</header>
+
+<div class="meta-strip">
+  <div class="meta-cell"><div class="label">Owner</div><div class="value">Context&amp;; lead <span class="mono">alb</span></div></div>
+  <div class="meta-cell"><div class="label">Business approver</div><div class="value">Allan Borup</div></div>
+  <div class="meta-cell"><div class="label">Kind</div><div class="value mono">cross-cutting</div></div>
+  <div class="meta-cell"><div class="label">Files touched</div><div class="value mono">4</div></div>
+  <div class="meta-cell"><div class="label">Last updated</div><div class="value mono">2026-09-15</div></div>
+  <div class="meta-cell"><div class="label">Status</div><div class="value">Draft</div></div>
+</div>
+
+<div class="doc-scope">
+  <strong>Scope:</strong> The Design stage of the L3 pipeline (D100 §3, stage 1). This D101 covers a convention spanning two existing commands — it adds no new command. It is the writing half of what <a href="D101-d101-review.html" style="color:var(--cyan)">D101 — /d101-review</a> does and the consuming half of what <a href="D101-d101-feature-design.html" style="color:var(--cyan)">D101 — /d101-feature-design</a> does; the contract itself lives in <a href="../../plugins/asimov-plugin/artifacts/documentation/d101-feature-design/d101-feature-design-definition.md" style="color:var(--cyan)">d101-feature-design-definition.md</a> §4.10.
+</div>
+
+<!-- ═════════ §2 — Purpose & audience ═════════ -->
+<section class="s" id="s2">
+  <h2 class="section-title"><span class="sec-ref">§2</span>Purpose &amp; audience</h2>
+  <p class="section-desc">A review's findings are only as useful as the developer's ability to act on them, and today that ability ends with the chat session that produced them.</p>
+
+  <ul class="bullets">
+    <li><strong>Findings don't survive a closed session.</strong> Run <code>/d101-review</code>, close the terminal, come back tomorrow to run <code>/d101-feature-design</code> — the findings are gone, and the developer either remembers them by hand or reviews again from memory.</li>
+    <li><strong>The one working case trained the wrong habit.</strong> Running review then design back-to-back in the same session works today because the chat context still holds the findings — so the fix looks unnecessary until the moment the two commands are used the way most tooling actually gets used: apart.</li>
+    <li><strong>Re-reading a report to extract action items is manual translation.</strong> A finding written as a Fail row with a one-sentence reason has to be turned back into "go fix this" by a human, every time, even though the review already did the turning-into-findings step once.</li>
+    <li><strong>Findings addressed out of order get lost track of.</strong> Without a working list, a developer fixing three of five findings in one sitting has no record of which three, and the next review re-derives all five from scratch anyway — which is fine, but only if nothing capable of tracking partial progress was ever promised.</li>
+  </ul>
+
+  <div class="callout">
+    <strong>Audience.</strong> <strong>Primary:</strong> developers running <code>/d101-review</code> and <code>/d101-feature-design</code> across separate sessions on the same D101. <strong>Secondary:</strong> anyone reading either command's source, who needs to understand why one writes a file it doesn't own the format of and the other deletes a file it didn't create.
+  </div>
+  <div class="callout warn">
+    <strong>Not for.</strong> Recording review history — that stays out of scope (<code>D101-d101-review.html</code> OOS7). This file is a cache of one review's findings, not a log of every review that ever ran. It is also not a substitute for the <code>Accepted</code> mechanism (<code>D101-accepted-deviations.html</code>): a finding the team has decided to live with belongs in the D101 itself, permanently; a finding still awaiting a fix belongs here, temporarily.
+  </div>
+</section>
+
+<!-- ═════════ §3 — Requirements ═════════ -->
+<section class="s" id="s3">
+  <h2 class="section-title"><span class="sec-ref">§3</span>Requirements</h2>
+
+  <div class="subhead">Functional — 14</div>
+  <div class="req-list">
+    <div class="req"><div class="id">R1</div><div class="body"><code>/d101-review</code> MUST write its findings to a <code>.review.md</code> sibling of the target D101 — same directory, same slug — after emitting the same findings to chat. The sibling location is derived from wherever the target actually resolved to, never fixed to <code>documentation/features/</code>.</div></div>
+    <div class="req"><div class="id">R2</div><div class="body">The review-notes file MUST carry a fingerprint of the target D101 at review time: its meta-strip <em>Last updated</em> date, its phase-chip value, and its status-chip's <strong>literal text including its version number</strong> (e.g. <code>Draft v0.3</code>), not a normalised <code>Draft</code> / <code>Approved</code>.</div></div>
+    <div class="req"><div class="id">R3</div><div class="body">The review-notes file MUST carry every finding that was emitted to chat for the reviews the developer picked, kept distinct by review the way the chat output keeps them distinct.</div></div>
+    <div class="req"><div class="id">R4</div><div class="body"><code>/d101-review</code> MUST NOT write to any path other than the review-notes sibling — never the target D101, never any other file.</div></div>
+    <div class="req"><div class="id">R5</div><div class="body">When a review-notes file already exists for the target's slug, <code>/d101-review</code> MUST overwrite it wholesale rather than merge with or append to it.</div></div>
+    <div class="req"><div class="id">R6</div><div class="body">On invocation against an existing D101, <code>/d101-feature-design</code> MUST check for a sibling review-notes file and, if one exists, offer to use it as input once the target file is pinned (after the continue-or-fresh and phase-routing questions) and before the first content question of the phase.</div></div>
+    <div class="req"><div class="id">R7</div><div class="body">Before offering the notes, <code>/d101-feature-design</code> MUST compare the notes' recorded fingerprint against the target's current meta-strip date, phase chip and status chip.</div></div>
+    <div class="req"><div class="id">R8</div><div class="body">When the fingerprint matches, <code>/d101-feature-design</code> MUST offer the notes as current, with no caveat.</div></div>
+    <div class="req"><div class="id">R9</div><div class="body">When the fingerprint does not match, <code>/d101-feature-design</code> MUST name what changed before offering the notes.</div></div>
+    <div class="req"><div class="id">R10</div><div class="body">When the developer accepts the notes, <code>/d101-feature-design</code> MUST fold each finding into the session's agenda as it would a finding raised in chat — never by transcribing the notes file's wording into the D101.</div></div>
+    <div class="req"><div class="id">R11</div><div class="body"><code>/d101-feature-design</code> MUST delete the review-notes file in, and only in, the same run that both consumed it as input and wrote the D101.</div></div>
+    <div class="req"><div class="id">R12</div><div class="body">When the developer declines the offered notes, <code>/d101-feature-design</code> MUST NOT delete the file.</div></div>
+    <div class="req"><div class="id">R13</div><div class="body">A run of <code>/d101-feature-design</code> that writes no file (Phase A) MUST NOT delete an existing review-notes file, whether or not it was offered.</div></div>
+    <div class="req"><div class="id">R14</div><div class="body">The review-notes file MUST be named <code>&lt;target-basename&gt;.review.md</code> and sit in the resolved target's own directory. The <code>documentation/features/</code> literal enters only through the <code>.gitignore</code> pattern and <code>CLAUDE.md</code> hard rule 9 — a fork that relocates the D101 convention moves that literal, not the sibling rule.</div></div>
+  </div>
+
+  <div class="subhead">Non-functional — 4</div>
+  <div class="req-list nf">
+    <div class="req"><div class="id">NF1</div><div class="body"><strong>Disposable, not authoritative.</strong> The file carries no state a re-run of the review couldn't reproduce from the D101 alone. Losing it costs one re-run, never a decision — this is what makes deleting it safe.</div></div>
+    <div class="req"><div class="id">NF2</div><div class="body"><strong>A cache, not a log.</strong> It holds the most recent review's findings, not a history of every review that ran. Overwriting on re-review (R5) is deliberate, not a gap.</div></div>
+    <div class="req"><div class="id">NF3</div><div class="body"><strong>Write scope is prompt discipline, not a sandboxed guarantee.</strong> Claude Code's tool grant controls which tools a command may call, not which paths a given tool may target — so R4's scope is enforced by the command's own hard rule and by an acceptance criterion on <code>git diff</code>, the same category of promise the never-move-either-axis rule already relies on.</div></div>
+    <div class="req"><div class="id">NF4</div><div class="body"><strong>No product-specific assumptions.</strong> The convention names no product entity and works in any repo that follows the <code>documentation/features/</code> convention.</div></div>
+  </div>
+
+  <div class="subhead">Out of scope — 5</div>
+  <div class="req-list">
+    <div class="req oos"><div class="id">OOS1</div><div class="body"><strong>A review-history log.</strong> Reason: already out of scope for <code>/d101-review</code> itself (<code>D101-d101-review.html</code> OOS7) for the same cause — it would be new document state on top of the two existing axes, for an advisory and iterative activity.</div></div>
+    <div class="req oos"><div class="id">OOS2</div><div class="body"><strong>Partial-consumption tracking</strong> (marking some findings addressed, others deferred). Reason: the review is stateless — anything not fixed resurfaces on the next run regardless, so tracking which findings were "done" would duplicate information the D101 and a re-run already carry.</div></div>
+    <div class="req oos"><div class="id">OOS3</div><div class="body"><strong>Committing the review-notes file to version control.</strong> Reason: it is working state between two commands, not a design artifact; committing it would duplicate a PR's own review thread with a second, unlinked copy. It is gitignored at the standard location (<code>documentation/features/*.review.md</code>); a target outside it leaves the notes untracked, and the repo owning that location adds its own ignore entry.</div></div>
+    <div class="req oos"><div class="id">OOS4</div><div class="body"><strong>A merge tool for two review-notes files</strong> (e.g. combining findings from two reviewers). Reason: only one reviewer runs <code>/d101-review</code> at a time in the intended flow, and a merge policy for concurrent reviews is a distinct, harder problem this D101 doesn't need to solve to deliver cross-session handoff.</div></div>
+    <div class="req oos"><div class="id">OOS5</div><div class="body"><strong>Automatic staleness resolution.</strong> Reason: the fingerprint mismatch is surfaced to the developer, who decides whether to use, discard, or re-review — the command never silently picks a side of that judgement call.</div></div>
+  </div>
+</section>
+
+<!-- ═════════ §4 — Chapter band ═════════ -->
+<div class="chapter-band" id="c4">
+  <div class="chapter-band-inner">
+    <div class="ch-num">4</div>
+    <div>
+      <div class="ch-name">Business design</div>
+      <div class="ch-summary">The principles that keep the file a cache rather than a record, the vocabulary of a fingerprint and a match, the handoff sequenced across two commands and two possible sessions, the rules that decide when to offer and when to delete, and the decisions with their rejected alternatives.</div>
+    </div>
+  </div>
+</div>
+
+<!-- §4.1 Principles -->
+<section class="s" id="s4-1">
+  <h2 class="section-title"><span class="sec-ref">§4.1</span>Design principles</h2>
+  <div class="principles">
+    <div class="principle"><div class="num">1</div><div class="text"><strong>A cache, never a record.</strong> The file holds exactly what a re-run of the review would produce again — nothing it carries is authoritative, which is what makes losing it harmless.</div></div>
+    <div class="principle"><div class="num">2</div><div class="text"><strong>Statelessness is the safety net.</strong> The mechanism is only as safe as the gap review is stateless. If a future review ever grew memory of its own prior runs, this cache would stop being disposable and this design would need revisiting.</div></div>
+    <div class="principle"><div class="num">3</div><div class="text"><strong>Deleted on consumption, not on discovery.</strong> Finding the file is not using it — only a run that folds its findings in and writes the D101 has earned the right to remove it.</div></div>
+    <div class="principle"><div class="num">4</div><div class="text"><strong>Staleness is surfaced, not resolved.</strong> A fingerprint mismatch is the developer's call; the command's job stops at naming what changed.</div></div>
+    <div class="principle"><div class="num">5</div><div class="text"><strong>Same convention, same lockstep.</strong> The file sits beside the D101 it annotates, wherever that D101 is — its location is derived from the target, never configured. The <code>documentation/features/</code> literal enters only through the <code>.gitignore</code> pattern and hard rule 9, so a fork that relocates the folder moves that one literal and nothing else.</div></div>
+    <div class="principle"><div class="num">6</div><div class="text"><strong>The tool grant is honest about its limits.</strong> <code>/d101-review</code> gaining <code>Write</code> is a real capability change, stated as what it actually is — a prompt-level scope, backed by a hard rule and an AC, not a sandboxed guarantee.</div></div>
+  </div>
+</section>
+
+<!-- §4.2 Model / concepts -->
+<section class="s" id="s4-2">
+  <h2 class="section-title"><span class="sec-ref">§4.2</span>Model / concepts</h2>
+  <p class="section-desc">Three terms this convention adds. Everything else — the bars, the phases, the reviews themselves — it inherits unchanged from <code>d101-feature-design-definition.md</code> and the two commands' own designs.</p>
+
+  <div class="data-table">
+    <div class="row head cols-2"><div>Concept</div><div>What it means</div></div>
+    <div class="row cols-2"><div class="label-cell">Review notes</div><div>The sibling <code>D101-&lt;slug&gt;.review.md</code> file — every finding from the developer's picked reviews, plus a fingerprint of the D101 they were checked against.</div></div>
+    <div class="row cols-2"><div class="label-cell">Fingerprint</div><div>Three values recorded at review time — the target's <em>Last updated</em> date, phase, and the status chip's literal text including its version number (<code>Draft v0.3</code>, not just <code>Draft</code>) — cheap enough to need no new tooling, and the version number is what catches a same-day edit the date alone would miss.</div></div>
+    <div class="row cols-2"><div class="label-cell">Match / mismatch</div><div>Whether the fingerprint recorded in the notes still equals the target's current values. A mismatch does not discard the notes; it names the risk and lets the developer decide.</div></div>
+  </div>
+</section>
+
+<!-- §4.3 Flow -->
+<section class="s" id="s4-3">
+  <h2 class="section-title"><span class="sec-ref">§4.3</span>Flow</h2>
+  <p class="section-desc"><strong>Trigger.</strong> A developer runs <code>/d101-review</code>, then — in the same session or a much later one — runs <code>/d101-feature-design</code> against the same D101. <strong>Outcome:</strong> the second command finds the first one's findings waiting on disk, offers them as input, and clears them away once used. Nothing is exchanged that a fresh review couldn't reproduce.</p>
+
+  <div class="flow-wrap">
+    <!-- UML sequence diagram, drawn from plugins/asimov-plugin/resources/diagrams/sequence-template.svg.
+         Chosen because the point is WHO TALKS TO WHOM, IN WHAT ORDER, across a session boundary that a
+         swimlane or flowchart can't represent as clearly as a lifeline gap can. Budget: 4 lifelines, 12
+         messages, 1 alt fragment, 2 accented messages (the two writes that matter — the cache's creation
+         and its consumption). Deliberate deviations from the template's exact geometry: the session-gap
+         marker between messages 4 and 5 is not part of the standard notation — added as a dashed divider
+         with a label, the same device UML uses for a "time passes" break, because the two command
+         invocations may be minutes or months apart and that gap is the reason this feature exists. -->
+    <svg viewBox="0 0 980 600" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="UML sequence diagram with four lifelines: Developer, slash d101-review, On disk (the D101 and its review-notes sibling), and slash d101-feature-design. The developer runs d101-review, which reads the D101, writes review notes to disk, and returns findings to the developer. A session gap follows. The developer later runs d101-feature-design, which reads the D101 and the review notes, then in an alt fragment either offers the notes when the fingerprint matches or offers them with a mismatch warning when it does not. The developer accepts, d101-feature-design writes the updated D101, deletes the review notes, and returns the path to the developer.">
+      <rect x="0" y="0" width="980" height="600" fill="#14253f"/>
+      <defs>
+        <marker id="sq-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 Z" fill="#a8b8d0"/>
+        </marker>
+        <marker id="sq-ret" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10" fill="none" stroke="#a8b8d0" stroke-width="1.5"/>
+        </marker>
+        <marker id="sq-gold" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 Z" fill="#ffd54f"/>
+        </marker>
+        <marker id="sq-violet" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 Z" fill="#ab47bc"/>
+        </marker>
+      </defs>
+
+      <!-- Head boxes -->
+      <g>
+        <rect x="56" y="24" width="168" height="48" rx="8" fill="#66bb6a22" stroke="#66bb6a"/>
+        <text x="140" y="53" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="12" font-weight="700">Developer</text>
+      </g>
+      <g>
+        <rect x="300" y="24" width="168" height="48" rx="8" fill="#ffb74d1a" stroke="#ffb74d"/>
+        <text x="384" y="53" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="12" font-weight="700">/d101-review</text>
+      </g>
+      <g>
+        <rect x="544" y="24" width="168" height="48" rx="8" fill="#26c6da1a" stroke="#26c6da"/>
+        <text x="628" y="46" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="12" font-weight="700">On disk</text>
+        <text x="628" y="62" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="9">D101 + .review.md</text>
+      </g>
+      <g>
+        <rect x="788" y="24" width="168" height="48" rx="8" fill="#ffb74d1a" stroke="#ffb74d"/>
+        <text x="872" y="53" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11.5" font-weight="700">/d101-feature-design</text>
+      </g>
+
+      <!-- Lifelines -->
+      <line x1="140" y1="72" x2="140" y2="576" stroke="#3b5e8f" stroke-width="1.5" stroke-dasharray="3 3"/>
+      <line x1="384" y1="72" x2="384" y2="576" stroke="#3b5e8f" stroke-width="1.5" stroke-dasharray="3 3"/>
+      <line x1="628" y1="72" x2="628" y2="576" stroke="#3b5e8f" stroke-width="1.5" stroke-dasharray="3 3"/>
+      <line x1="872" y1="72" x2="872" y2="576" stroke="#3b5e8f" stroke-width="1.5" stroke-dasharray="3 3"/>
+
+      <!-- Activation bars -->
+      <rect x="380" y="106" width="8" height="112" fill="#ffb74d33" stroke="#ffb74d"/>
+      <rect x="868" y="266" width="8" height="284" fill="#ffb74d33" stroke="#ffb74d"/>
+
+      <!-- m1: Dev -> Review: run -->
+      <line x1="140" y1="112" x2="380" y2="112" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#sq-arr)"/>
+      <text x="150" y="106" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="10">run /d101-review</text>
+
+      <!-- m2: Review -> Disk: read D101 -->
+      <line x1="388" y1="144" x2="624" y2="144" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#sq-arr)"/>
+      <text x="396" y="138" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="10">read D101</text>
+
+      <!-- m3 (ACCENT 1): Review -> Disk: write review notes -->
+      <line x1="388" y1="176" x2="624" y2="176" stroke="#ffd54f" stroke-width="2" marker-end="url(#sq-gold)"/>
+      <text x="396" y="170" fill="#ffd54f" font-family="JetBrains Mono, monospace" font-size="10" font-weight="700">write review notes</text>
+
+      <!-- m4: Review --> Dev: findings (return) -->
+      <line x1="380" y1="208" x2="144" y2="208" stroke="#a8b8d0" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#sq-ret)"/>
+      <text x="150" y="202" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="10">findings (chat + file)</text>
+
+      <!-- Session gap marker -->
+      <line x1="60" y1="240" x2="920" y2="240" stroke="#6b7a93" stroke-width="1" stroke-dasharray="6 4"/>
+      <rect x="392" y="228" width="196" height="20" rx="4" fill="#0a1424" stroke="#6b7a93"/>
+      <text x="490" y="242" text-anchor="middle" fill="#6b7a93" font-family="JetBrains Mono, monospace" font-size="9.5">time passes — 0 to N sessions</text>
+
+      <!-- m5: Dev -> Design: run -->
+      <line x1="140" y1="272" x2="868" y2="272" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#sq-arr)"/>
+      <text x="150" y="266" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="10">run /d101-feature-design</text>
+
+      <!-- m6: Design -> Disk: read D101 + notes -->
+      <line x1="868" y1="304" x2="632" y2="304" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#sq-arr)"/>
+      <text x="638" y="298" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="10">read D101 + review notes</text>
+
+      <!-- Alt fragment -->
+      <rect x="120" y="328" width="772" height="96" fill="none" stroke="#3b5e8f" stroke-width="1.5"/>
+      <path d="M120,328 h64 v16 l-10,8 h-54 z" fill="#122039" stroke="#3b5e8f" stroke-width="1.5"/>
+      <text x="128" y="342" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9.5" font-weight="700">alt</text>
+      <text x="200" y="342" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9.5">[fingerprint matches]</text>
+
+      <!-- m7: Design -> Dev: offer notes (matches) -->
+      <line x1="868" y1="360" x2="144" y2="360" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#sq-arr)"/>
+      <text x="150" y="354" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="10">offer review notes</text>
+
+      <line x1="120" y1="384" x2="892" y2="384" stroke="#3b5e8f" stroke-width="1" stroke-dasharray="4 3"/>
+      <text x="200" y="396" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9.5">[fingerprint mismatch]</text>
+
+      <!-- m8: Design -> Dev: offer notes, flag mismatch -->
+      <line x1="868" y1="412" x2="144" y2="412" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#sq-arr)"/>
+      <text x="150" y="406" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9.5">offer + name what changed</text>
+
+      <!-- m9: Dev -> Design: accept -->
+      <line x1="140" y1="444" x2="868" y2="444" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#sq-arr)"/>
+      <text x="150" y="438" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="10">accept</text>
+
+      <!-- m10 (ACCENT 2): Design -> Disk: write updated D101 -->
+      <line x1="868" y1="476" x2="632" y2="476" stroke="#ab47bc" stroke-width="2" marker-end="url(#sq-violet)"/>
+      <text x="638" y="470" fill="#ab47bc" font-family="JetBrains Mono, monospace" font-size="10" font-weight="700">write updated D101</text>
+
+      <!-- m11: Design -> Disk: delete review notes -->
+      <line x1="868" y1="508" x2="632" y2="508" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#sq-arr)"/>
+      <text x="638" y="502" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="10">delete review notes</text>
+
+      <!-- m12: Design --> Dev: report path (return) -->
+      <line x1="868" y1="540" x2="144" y2="540" stroke="#a8b8d0" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#sq-ret)"/>
+      <text x="150" y="534" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="10">report path</text>
+    </svg>
+    <div class="flow-legend">
+      <span class="item"><span class="swatch" style="background:var(--green)"></span>Developer — entry actor</span>
+      <span class="item"><span class="swatch" style="background:var(--amber)"></span>The two commands — processing components</span>
+      <span class="item"><span class="swatch" style="background:var(--cyan)"></span>On disk — the data store (D101 + review notes)</span>
+      <span class="item"><span class="swatch" style="background:var(--gold)"></span>Accent 1 — the cache is created</span>
+      <span class="item"><span class="swatch" style="background:var(--violet)"></span>Accent 2 — the cache is consumed and cleared</span>
+    </div>
+  </div>
+  <p style="color: var(--text-dim); font-size: 0.9rem; line-height: 1.65; margin-top: 0.8rem;">
+    Notation: UML sequence, per <code>plugins/asimov-plugin/resources/diagrams/sequence-template.svg</code>. The two accented messages are the pair this whole design exists to connect — a review notes file is written once, and deleted once, and everything else is either producing it or acting on it. The dashed session-gap divider between messages 4 and 5 is the one deliberate addition beyond the standard notation: it stands for the fact that these two calls may be seconds or months apart, which the fixed-height gap of a normal sequence diagram cannot otherwise convey.
+  </p>
+
+  <div class="subhead">Steps</div>
+  <div class="principles">
+    <div class="principle"><div class="num">1</div><div class="text">Developer runs <code>/d101-review</code>; it reads the target D101 and produces findings the usual way (R1).</div></div>
+    <div class="principle"><div class="num">2</div><div class="text">Before closing, it writes those findings — plus the target's fingerprint — to the sibling review-notes file, overwriting any prior notes for the same slug (R1, R2, R5).</div></div>
+    <div class="principle"><div class="num">3</div><div class="text">Any amount of time later, the developer runs <code>/d101-feature-design</code> against the same D101. It checks for the sibling and, if present, reads it (R6).</div></div>
+    <div class="principle"><div class="num">4</div><div class="text">It compares the notes' recorded fingerprint against the D101's current one. A match is offered as current; a mismatch is offered with the discrepancy named (R7, R8).</div></div>
+    <div class="principle"><div class="num">5</div><div class="text">If the developer accepts, each finding is folded into the session's agenda as ordinary input — never transcribed into the document (R10).</div></div>
+    <div class="principle"><div class="num">6</div><div class="text">Once that session writes the D101, the review-notes file is deleted — its findings have been acted on and the D101 is now the single source of truth again (R11).</div></div>
+    <div class="principle"><div class="num">7</div><div class="text">A decline, or a run that writes nothing, leaves the file exactly where it was — a "not now" costs nothing (R12, R13).</div></div>
+  </div>
+
+  <div class="subhead">Error paths</div>
+  <div class="data-table">
+    <div class="row head cols-2"><div>Error path</div><div>Response</div></div>
+    <div class="row cols-2"><div class="label-cell">Review-notes write fails <em>(unwritable path, disk full)</em></div><div>Reported in one line; the chat report already stands, so only the cross-session copy is lost, not the findings themselves.</div></div>
+    <div class="row cols-2"><div class="label-cell">A sibling notes file already exists</div><div>Overwritten wholesale by the new run's findings — no merge, no append (R5).</div></div>
+    <div class="row cols-2"><div class="label-cell">The D101 changed since the notes were written</div><div>Named as a mismatch before the notes are offered; the developer decides whether to use, discard, or re-review (R9, OOS5).</div></div>
+    <div class="row cols-2"><div class="label-cell">Developer declines the offered notes</div><div>The file is left in place for a future run (R12).</div></div>
+    <div class="row cols-2"><div class="label-cell">Session ends in Phase A (no file written)</div><div>The notes file, if any, is untouched — nothing was consumed (R13).</div></div>
+    <div class="row cols-2"><div class="label-cell">Developer asks either command to write outside its one permitted path</div><div>Declines — the scope is a hard rule in both command files, not a request either honours on demand (R4, NF3).</div></div>
+  </div>
+</section>
+
+<!-- §4.4 Rules / constraints -->
+<section class="s" id="s4-4">
+  <h2 class="section-title"><span class="sec-ref">§4.4</span>Rules / constraints</h2>
+  <p class="section-desc">Four conditional rules decide when the file is written, offered, and cleared. Each is stated with the case where it fires and the adjacent case where it does not, per <code>d101-feature-design-definition.md</code> §6.3.</p>
+
+  <div class="subhead">BR1 — write scope</div>
+  <p class="section-desc" style="margin-bottom:0.4rem"><strong style="color:var(--text)">One path, never the D101.</strong> <code>/d101-review</code>'s new write capability is bounded to exactly one file.</p>
+  <ul class="bullets">
+    <li><strong>Fires when</strong> the write targets a <code>.review.md</code> file beside the target that was just reviewed, wherever that target actually lives (R1, R4).</li>
+    <li><strong>Stays quiet when</strong> anything — the developer, a finding, a habit from other tools — points the write anywhere else, including the target D101 itself. The command declines (R4, NF3).</li>
+  </ul>
+
+  <div class="subhead">BR2 — offer, don't assume</div>
+  <p class="section-desc" style="margin-bottom:0.4rem"><strong style="color:var(--text)">Found is not accepted.</strong> Discovering a sibling file is information for the developer, not a standing instruction.</p>
+  <ul class="bullets">
+    <li><strong>Fires when</strong> a sibling exists — the developer is asked, once, whether to use it (R6).</li>
+    <li><strong>Stays quiet when</strong> no sibling exists, or the developer declines: the session proceeds exactly as it would with no notes at all, and the file (if any) is left untouched (R12).</li>
+  </ul>
+
+  <div class="subhead">BR3 — fingerprint before offer</div>
+  <p class="section-desc" style="margin-bottom:0.4rem"><strong style="color:var(--text)">A stale offer says so.</strong> The offer names what it's built from before the developer decides.</p>
+  <ul class="bullets">
+    <li><strong>Fires when</strong> the recorded date/phase/status match the target's current values — the notes are offered as current, no caveat needed (R8).</li>
+    <li><strong>Stays quiet when</strong> any of the three differ: the offer still happens, but names the mismatch first, because a stale finding presented as current is worse than no finding at all (R9, OOS5).</li>
+  </ul>
+
+  <div class="subhead">BR4 — delete on consumption only</div>
+  <p class="section-desc" style="margin-bottom:0.4rem"><strong style="color:var(--text)">Earned by use, not by discovery.</strong> The file's disposability is conditional on having actually been used.</p>
+  <ul class="bullets">
+    <li><strong>Fires when</strong> a run both accepted the notes as input <em>and</em> wrote the D101 — the file is deleted at that point (R11).</li>
+    <li><strong>Stays quiet when</strong> either half is missing — declined, or accepted but the run ends without writing (Phase A) — the file survives untouched for a later run (R12, R13).</li>
+  </ul>
+</section>
+
+<!-- §4.5 Decisions -->
+<section class="s" id="s4-5">
+  <h2 class="section-title"><span class="sec-ref">§4.5</span>Decisions and alternatives</h2>
+  <p class="section-desc">A decision recorded without its rejected alternative is one that gets re-litigated.</p>
+  <div class="decisions">
+    <div class="decisions-head">
+      <div>Decided</div>
+      <div>Alternative considered</div>
+      <div>Why this won</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided"><strong>Give <code>/d101-review</code> <code>Write</code>,</strong> scoped by prompt discipline to one sibling path (R1, R4, NF3)</div>
+      <div class="alt">Keep the review fully read-only and require the developer to carry findings manually between sessions</div>
+      <div class="why">The manual-carry cost is exactly the friction that prompted this design — the developer already does it today and finds it worth automating. Claude Code has no path-scoped tool permission to lean on instead, so the honest choice is a real capability with a stated, hard-rule-enforced limit, not a fictional read-only guarantee stretched to cover a write.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided"><strong>The file is a disposable cache, not a record</strong> (NF1, NF2)</div>
+      <div class="alt">A persistent review log the D101 or a separate index accumulates over time</div>
+      <div class="why">The gap review is stateless — every run derives its findings from the D101 alone. A cache that can only ever be reproduced by a re-run carries no risk when lost or deleted; a log implies history worth keeping, which nothing here actually needs or was asked for (<code>D101-d101-review.html</code> OOS7).</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided"><strong>Fingerprint from the meta-strip and chips already in every D101</strong> (R2, R7)</div>
+      <div class="alt">A content hash of the whole D101; the file's on-disk modification timestamp</div>
+      <div class="why">A hash needs a hashing step neither command's tool list otherwise requires, and a filesystem mtime isn't reliably read by these commands' existing tools. The meta-strip date plus the two chips are already read on every invocation of both commands. The status chip's version number — bumped on every write — was folded into the fingerprint rather than left out: it costs nothing new to read, and it is what catches two edits made on the same calendar day, which the date field alone cannot distinguish.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided"><strong>Overwrite wholesale on re-review, never merge</strong> (R5)</div>
+      <div class="alt">Append new findings to the existing file; merge by finding identity</div>
+      <div class="why">A merge needs a notion of "the same finding across two runs" that the stateless gap review doesn't produce — it has no ids, only freshly-derived rows. Overwriting is simple, correct, and matches the file's own nature as a snapshot of the most recent review, not an accumulating history.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided"><strong>Delete only on consumption, gated on both accept and write</strong> (R11, R12, R13, BR4)</div>
+      <div class="alt">Delete as soon as it is offered, whether or not the developer uses it; delete as soon as it is read, before the developer answers</div>
+      <div class="why">Either alternative destroys the developer's only cross-session copy on a "not now" — exactly the loss this file exists to prevent. Gating on both halves means the file survives every path except the one where its job is actually done.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided"><strong>Gitignored, never committed</strong> (OOS3)</div>
+      <div class="alt">Commit it alongside the D101, as a record of review history</div>
+      <div class="why">A committed file would duplicate a PR's own review thread with a second, disconnected copy that drifts from the actual conversation the moment either one changes. Working state between two commands isn't a design artifact and doesn't belong in git history.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided"><strong>Sibling location tracks the resolved target, not a fixed convention</strong> (R1)</div>
+      <div class="alt">Always write to <code>documentation/features/D101-&lt;slug&gt;.review.md</code>, matching the repo-wide path convention</div>
+      <div class="why">Both commands already accept a target path outside the standard convention (Step 2 of <code>/d101-review</code> explicitly does). A fixed write location would either miss the sibling entirely for such a target or, worse, write notes beside an unrelated file that happens to share a slug under <code>documentation/features/</code>. Deriving the sibling from wherever the target actually resolved to is the same amount of work and has no failure mode the fixed version doesn't. Found by Copilot's review on PR #16.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════ §5 — UI Design (top-level) ═════════ -->
+<section class="s" id="s5">
+  <h2 class="section-title"><span class="sec-ref">§5</span>UI Design</h2>
+  <p class="section-desc">This convention has no user-facing surface.</p>
+  <div class="callout">N/A — a file-handoff convention between two CLI commands, with no product screen. The review-notes file itself is a plain markdown artifact a developer may open in an editor, not a designed UI.</div>
+</section>
+
+<!-- ═════════ §6 — Chapter band ═════════ -->
+<div class="chapter-band" id="c6">
+  <div class="chapter-band-inner">
+    <div class="ch-num">6</div>
+    <div>
+      <div class="ch-name">Technical design</div>
+      <div class="ch-summary">Where the convention lives across two commands, the write-then-read-then-delete flow already shown in §4.3, the exact shape of the notes file, and the ways the handoff fails. No API, no configuration, no persisted data model beyond the file itself.</div>
+    </div>
+  </div>
+</div>
+
+<!-- §6.1 Platform -->
+<section class="s" id="s6-1">
+  <h2 class="section-title"><span class="sec-ref">§6.1</span>Platform</h2>
+  <p class="section-desc">No new artifact and no runtime beyond the two existing commands. <code>/d101-review</code> gains one new tool grant; <code>/d101-feature-design</code> gains one new check at the point it already resolves its target.</p>
+  <div class="data-table">
+    <div class="row head cols-2"><div>Attribute</div><div>Value</div></div>
+    <div class="row cols-2"><div class="label-cell">Writer</div><div><code>plugins/asimov-plugin/commands/d101-review.md</code> — gains <code>Write</code> in its tool allow-list, scoped by prompt discipline (R1, R4)</div></div>
+    <div class="row cols-2"><div class="label-cell">Reader / deleter</div><div><code>plugins/asimov-plugin/commands/d101-feature-design.md</code> — already had unrestricted tool access; gains a check-and-offer step and a conditional delete (R6, R11)</div></div>
+    <div class="row cols-2"><div class="label-cell">Contract</div><div><code>plugins/asimov-plugin/artifacts/documentation/d101-feature-design/d101-feature-design-definition.md</code> §4.10 — the sole definition of what the file is and isn't</div></div>
+    <div class="row cols-2"><div class="label-cell">Storage</div><div>A plain markdown file beside the resolved D101; gitignored at the standard location only (<code>.gitignore</code>: <code>documentation/features/*.review.md</code>) — elsewhere it is untracked until the owning repo adds its own entry</div></div>
+    <div class="row cols-2"><div class="label-cell">Escalation gate</div><div>None — additive to two commands, one gitignore entry, no schema or infrastructure change</div></div>
+  </div>
+  <div class="callout warn">
+    <strong>⚠ The one hard rule this design leans on.</strong> <code>Write</code> is a tool-level grant; Claude Code has no mechanism to scope it to a single path. R4's promise is enforced by <code>/d101-review</code>'s own hard rule and by an acceptance criterion checking <code>git diff</code>, not by a sandbox. This is stated plainly rather than implied, because it is the one place this design's safety is a matter of discipline instead of construction.
+  </div>
+</section>
+
+<!-- §6.2 Data flow -->
+<section class="s" id="s6-2">
+  <h2 class="section-title"><span class="sec-ref">§6.2</span>Data flow</h2>
+  <p class="section-desc">The lifecycle across a session boundary is already shown in <a href="#s4-3" style="color:var(--cyan)">§4.3</a> as a sequence diagram — this is the data-movement view of the same mechanism: what each command reads, what it writes, and that nothing but the two commands ever touches the file.</p>
+  <div class="flow-wrap">
+    <!-- Data-flow flowchart: the two commands each read the definition and the D101; d101-review additionally
+         writes the review notes; d101-feature-design additionally reads and then deletes them. Deliberately
+         the data-movement view, distinct from §4.3's ownership-and-ordering view. Budget: 2 sources, 2
+         processes, 1 store, 1 sink. -->
+    <svg viewBox="0 0 960 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Data-flow diagram. The definition section 4.10 feeds both commands. The target D101 feeds both commands as a read. d101-review writes the review-notes file to the on-disk store. d101-feature-design reads the review-notes file from the same store and, once consumed, deletes it. Both commands' own outputs — the chat report and the written D101 — are outside this diagram's scope, shown only as a reference to section 4.3.">
+      <rect x="0" y="0" width="960" height="300" fill="#14253f"/>
+      <defs>
+        <marker id="rh-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 Z" fill="#a8b8d0"/>
+        </marker>
+      </defs>
+
+      <g>
+        <rect x="20" y="36" width="196" height="48" rx="8" fill="#4fc3f71a" stroke="#4fc3f7"/>
+        <text x="118" y="56" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="10.5" font-weight="700">definition §4.10</text>
+        <text x="118" y="72" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">the contract</text>
+      </g>
+      <g>
+        <rect x="20" y="120" width="196" height="48" rx="8" fill="#4fc3f71a" stroke="#4fc3f7"/>
+        <text x="118" y="140" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="10.5" font-weight="700">target D101</text>
+        <text x="118" y="156" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">read by both, always</text>
+      </g>
+
+      <g>
+        <rect x="288" y="20" width="164" height="60" rx="10" fill="#ffb74d1a" stroke="#ffb74d"/>
+        <text x="370" y="46" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">/d101-review</text>
+        <text x="370" y="64" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">writes notes</text>
+      </g>
+      <g>
+        <rect x="288" y="220" width="164" height="60" rx="10" fill="#ffb74d1a" stroke="#ffb74d"/>
+        <text x="370" y="242" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="10.5" font-weight="700">/d101-feature-design</text>
+        <text x="370" y="260" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">reads · deletes</text>
+      </g>
+
+      <g>
+        <rect x="588" y="118" width="164" height="64" rx="10" fill="#26c6da1a" stroke="#26c6da"/>
+        <text x="670" y="144" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">D101-&lt;slug&gt;.review.md</text>
+        <text x="670" y="162" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">on disk, gitignored</text>
+      </g>
+
+      <g>
+        <rect x="812" y="118" width="132" height="64" rx="10" fill="#ab47bc1a" stroke="#ab47bc"/>
+        <text x="878" y="144" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="10.5" font-weight="700">deleted</text>
+        <text x="878" y="162" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="9.5">on consumption</text>
+      </g>
+
+      <line x1="216" y1="56" x2="286" y2="48" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#rh-arr)"/>
+      <line x1="216" y1="60" x2="286" y2="248" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#rh-arr)"/>
+      <line x1="216" y1="144" x2="286" y2="60" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#rh-arr)"/>
+      <line x1="216" y1="148" x2="286" y2="252" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#rh-arr)"/>
+
+      <line x1="452" y1="60" x2="586" y2="132" stroke="#ffd54f" stroke-width="2" marker-end="url(#rh-arr)"/>
+      <text x="480" y="88" fill="#ffd54f" font-family="JetBrains Mono, monospace" font-size="9.5" font-weight="700">write</text>
+
+      <path d="M586,168 C520,220 420,236 452,246" fill="none" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#rh-arr)"/>
+      <text x="470" y="230" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9.5">read</text>
+
+      <line x1="752" y1="150" x2="810" y2="150" stroke="#ab47bc" stroke-width="2" marker-end="url(#rh-arr)"/>
+    </svg>
+    <div class="flow-legend">
+      <span class="item"><span class="swatch" style="background:var(--cyan)"></span>The contract — read by both commands</span>
+      <span class="item"><span class="swatch" style="background:var(--amber)"></span>The two commands</span>
+      <span class="item"><span class="swatch" style="background:var(--teal)"></span>The review-notes file — the only new store</span>
+      <span class="item"><span class="swatch" style="background:var(--violet)"></span>Deleted the moment it's consumed</span>
+    </div>
+  </div>
+  <p style="color: var(--text-dim); font-size: 0.9rem; line-height: 1.65; margin-top: 0.8rem;">Notation: a data-flow flowchart — sources on the left, the two commands as processes, the review-notes file as the one new store, deletion as its own terminal box. Each command's own primary output (the chat report; the rewritten D101) is out of this diagram's frame — it belongs to that command's own design, not to the handoff between them.</p>
+
+  <div class="subhead">Inputs</div>
+  <div class="data-table">
+    <div class="row head cols-2"><div>Input</div><div>Source</div></div>
+    <div class="row cols-2"><div class="label-cell">What the file may contain, and its limits</div><div><code>d101-feature-design-definition.md</code> §4.10, read by both commands</div></div>
+    <div class="row cols-2"><div class="label-cell">Findings to write</div><div>Whatever <code>/d101-review</code> already produced for the reviews the developer picked (its own §6.2 output shape)</div></div>
+    <div class="row cols-2"><div class="label-cell">The target's fingerprint</div><div>The same meta-strip date and chip values <code>/d101-review</code> already read to resolve the phase and status</div></div>
+    <div class="row cols-2"><div class="label-cell">An existing review-notes file</div><div>Read by <code>/d101-feature-design</code> at the point it resolves its target, if one exists</div></div>
+  </div>
+
+  <div class="subhead">Outputs</div>
+  <ul class="bullets">
+    <li><strong>The review-notes file</strong> — written by <code>/d101-review</code>, overwriting any prior copy for the same slug (R1, R5).</li>
+    <li><strong>The offer, and its outcome</strong> — folded into <code>/d101-feature-design</code>'s session, never transcribed (R10).</li>
+    <li><strong>The file's deletion</strong> — the one write <code>/d101-feature-design</code> makes to this convention's own state, distinct from writing the D101 itself.</li>
+    <li><strong>Nowhere else</strong> — no index, no log, no second copy (NF1, NF2, OOS1, OOS3).</li>
+  </ul>
+</section>
+
+<!-- §6.3 Code map -->
+<section class="s" id="s6-3">
+  <h2 class="section-title"><span class="sec-ref">§6.3</span>Code map</h2>
+  <div class="codemap">
+    <div class="codemap-row"><div class="what">The write step, the tool-grant change, and the write-only hard rule</div><div class="where">plugins/asimov-plugin/commands/d101-review.md</div></div>
+    <div class="codemap-row"><div class="what">The check-and-offer step, the fold-in rule, and the conditional-delete hard rule</div><div class="where">plugins/asimov-plugin/commands/d101-feature-design.md</div></div>
+    <div class="codemap-row"><div class="what">The single definition of the file's shape and limits</div><div class="where">plugins/asimov-plugin/artifacts/documentation/d101-feature-design/d101-feature-design-definition.md §4.10</div></div>
+    <div class="codemap-row"><div class="what">The gitignore entry keeping the file out of version control</div><div class="where">.gitignore</div></div>
+  </div>
+</section>
+
+<!-- §6.4 Shapes / data model -->
+<section class="s" id="s6-4">
+  <h2 class="section-title"><span class="sec-ref">§6.4</span>Shapes / data model</h2>
+  <p class="section-desc">One shape: the review-notes file itself, plain markdown, no schema beyond a fixed header and a body that mirrors the chat report.</p>
+
+  <div class="subhead">The file</div>
+  <div class="data-table">
+    <div class="row head cols-2"><div>Part</div><div>Content</div></div>
+    <div class="row cols-2"><div class="label-cell">Header</div><div>Four lines: the reviewed path, and the fingerprint's three values at review time (<em>Last updated</em>, phase, and the status chip's literal text with its version number) (R2).</div></div>
+    <div class="row cols-2"><div class="label-cell">Gap review section</div><div>The section-walk table and the bar table, verbatim from the chat output — only when the gap review was picked.</div></div>
+    <div class="row cols-2"><div class="label-cell">Persona section(s)</div><div>One heading per persona whose read was picked, verbatim from the chat output.</div></div>
+  </div>
+
+  <div class="subhead">Naming</div>
+  <ul class="gps-paths">
+    <li>&lt;same directory as the target&gt;/D101-&lt;slug&gt;.review.md — e.g. documentation/features/D101-&lt;slug&gt;.review.md for a standard-location target</li>
+  </ul>
+</section>
+
+<!-- §6.5 APIs & contracts -->
+<section class="s" id="s6-5">
+  <h2 class="section-title"><span class="sec-ref">§6.5</span>APIs &amp; contracts</h2>
+  <div class="callout">N/A — no API. The only contract is the file shape in <a href="#s6-4" style="color:var(--cyan)">§6.4</a>, shared by exactly two commands that both live in this plugin.</div>
+</section>
+
+<!-- §6.6 Configuration & secrets -->
+<section class="s" id="s6-6">
+  <h2 class="section-title"><span class="sec-ref">§6.6</span>Configuration &amp; secrets</h2>
+  <div class="callout">N/A — nothing configurable and no secret. The file's path is derived, not configured: <code>&lt;target-basename&gt;.review.md</code> beside the resolved target (R14). The <code>documentation/features/</code> literal lives only in the <code>.gitignore</code> pattern and <code>CLAUDE.md</code> hard rule 9, so a fork that relocates the D101 convention moves those two — the sibling rule itself never changes.</div>
+</section>
+
+<!-- §6.7 Failure handling -->
+<section class="s" id="s6-7">
+  <h2 class="section-title"><span class="sec-ref">§6.7</span>Failure handling</h2>
+  <p class="section-desc">Command-specific failure rows already live in each command's own D101 (<code>D101-d101-review.html</code> §6.7, <code>D101-d101-feature-design.html</code>'s equivalent). These are the ones specific to the handoff between them.</p>
+  <div class="failures">
+    <div class="failures-head"><div>Failure</div><div>Effect</div><div>Severity</div><div>Recovery</div></div>
+    <div class="failure-row"><div>Review-notes write fails</div><div>Cross-session copy of the findings never exists</div><div><span class="sev low">Low</span></div><div>The chat report already stands; only the sibling copy is missing. Reported in one line.</div></div>
+    <div class="failure-row"><div>A stale sibling from an earlier review is found</div><div>Findings may no longer describe the document</div><div><span class="sev med">Med</span></div><div>The fingerprint mismatch is named before the offer; the developer decides (BR3, OOS5).</div></div>
+    <div class="failure-row"><div>Developer accepts stale notes anyway</div><div>Some findings addressed may no longer apply</div><div><span class="sev low">Low</span></div><div>No mechanical harm — the next <code>/d101-review</code> run re-derives the true current state regardless.</div></div>
+    <div class="failure-row"><div>Delete fails after a successful write <em>(permissions, file locked)</em></div><div>A now-stale notes file lingers on disk</div><div><span class="sev low">Low</span></div><div>Reported in one line; the next review overwrites it wholesale (R5), so nothing is corrupted, only untidy.</div></div>
+    <div class="failure-row"><div>Either command is asked to write outside its one permitted path</div><div>Would break NF3's whole promise</div><div><span class="sev high">High</span></div><div>Declines — the hard rule in each command file is the only thing standing here, and it holds by design.</div></div>
+  </div>
+</section>
+
+<!-- §6.8 Known constraints & gotchas -->
+<section class="s" id="s6-8">
+  <h2 class="section-title"><span class="sec-ref">§6.8</span>Known constraints &amp; gotchas</h2>
+  <ul class="bullets">
+    <li><strong>The write-scope promise is discipline, not sandboxing.</strong> Nothing stops a differently-prompted invocation from writing elsewhere except the hard rule itself — this is stated in §6.1 rather than hidden, because it is the one place this design is honest about being softer than it sounds.</li>
+    <li><strong>The fingerprint is coarse by construction.</strong> It catches every edit that goes through <code>/d101-feature-design</code>, because that command bumps the version and the date together on every write. What it cannot catch is a hand-edit made outside either command — someone editing the HTML directly in a text editor without touching the chips — which is accepted as a known gap (§4.5 decision row) rather than solved with a hash the tools don't otherwise need.</li>
+    <li><strong>Safety depends on the gap review staying stateless.</strong> If a future version of <code>/d101-review</code> ever gained memory of its own prior runs, this file would stop being a harmless cache and this design's core argument (NF1) would need revisiting.</li>
+    <li><strong>Committed by accident is still possible.</strong> The gitignore entry prevents <code>git add -A</code> from picking it up, but an explicit <code>git add</code> of the exact filename still works — the convention relies on the ignore rule being present, not on the file being unaddressable. The rule covers <code>documentation/features/</code> only; notes beside a target elsewhere are plain untracked files until that location gets its own entry.</li>
+  </ul>
+</section>
+
+<!-- ═════════ §7 — Chapter band ═════════ -->
+<div class="chapter-band" id="c7">
+  <div class="chapter-band-inner">
+    <div class="ch-num">7</div>
+    <div>
+      <div class="ch-name">Implementation</div>
+      <div class="ch-summary">What is genuinely new against what already exists, the four files the change lands in, the per-file build notes keyed to the §6 contracts, and the concerns shared across both commands.</div>
+    </div>
+  </div>
+</div>
+
+<!-- §7.1 New vs. reuse -->
+<section class="s" id="s7-1">
+  <h2 class="section-title"><span class="sec-ref">§7.1</span>What is genuinely new to build</h2>
+  <p class="section-desc">Everything not listed here arrives by reuse. The section sits outside both bars (<code>d101-feature-design-definition.md</code> §4.8) — it gates no verdict and moves neither chip.</p>
+  <div class="callout">
+    <strong>These notes are code-grounded design.</strong> Each was checked against the command files as they stand in the plugin.
+  </div>
+  <ul class="bullets">
+    <li><strong>The write step and its scope.</strong> <code>/d101-review</code> gains <code>Write</code> and a step that writes findings to one fixed sibling path — new, and the only capability change either command receives (R1, R4).</li>
+    <li><strong>The fingerprint.</strong> Three values, already read for other purposes, repurposed as a staleness check — new composition, no new reads (R2, R7).</li>
+    <li><strong>The offer-and-fold step.</strong> <code>/d101-feature-design</code> gains a check-for-sibling, compare-fingerprint, offer, and fold-in sequence at the point it already resolves its target — new (R6–R10).</li>
+    <li><strong>The conditional delete.</strong> Gated on both acceptance and a subsequent write — new, and the whole reason BR4 exists (R11–R13).</li>
+    <li><strong>Reused, not built.</strong> <code>/d101-review</code>'s own findings-generation (unchanged — it writes what it would have printed anyway); <code>/d101-feature-design</code>'s existing candidate-resolution step, which the new check attaches to; the meta-strip and chip values both commands already read.</li>
+  </ul>
+</section>
+
+<!-- §7.2 The files -->
+<section class="s" id="s7-2">
+  <h2 class="section-title"><span class="sec-ref">§7.2</span>The files</h2>
+  <p class="section-desc" style="margin-bottom:0.9rem">No new file is created in the plugin — the change is edits to three existing files plus one gitignore entry and this design. Paths are relative to <code>plugins/asimov-plugin/</code> unless stated.</p>
+  <div class="data-table">
+    <div class="row head" style="grid-template-columns: 0.9fr 2fr;"><div>File</div><div>What lands in it</div></div>
+    <div class="row" style="grid-template-columns: 0.9fr 2fr;">
+      <div class="label-cell">commands/</div>
+      <div><ul class="bullets" style="margin:0"><li><code>d101-review.md</code> — <code>Write</code> in the frontmatter tool list, the write step, the write-only hard rule.</li><li><code>d101-feature-design.md</code> — the check-and-offer step, the fold-in and conditional-delete hard rule.</li></ul></div>
+    </div>
+    <div class="row" style="grid-template-columns: 0.9fr 2fr;">
+      <div class="label-cell">artifacts/documentation/d101-feature-design/</div>
+      <div><ul class="bullets" style="margin:0"><li><code>d101-feature-design-definition.md</code> — §4.10, the single definition both commands reference by path.</li></ul></div>
+    </div>
+    <div class="row" style="grid-template-columns: 0.9fr 2fr;">
+      <div class="label-cell">repo root <em>(not plugin)</em></div>
+      <div><ul class="bullets" style="margin:0"><li><code>.gitignore</code> — the <code>*.review.md</code> pattern under <code>documentation/features/</code>.</li></ul></div>
+    </div>
+    <div class="row" style="grid-template-columns: 0.9fr 2fr;">
+      <div class="label-cell">documentation/ <em>(repo, not plugin)</em></div>
+      <div><ul class="bullets" style="margin:0"><li>This D101, plus updates to <code>D101-d101-review.html</code> and <code>D101-d101-feature-design.html</code> (their writing and consuming halves), a row in <code>D100-Asimov-architecture.md</code>, and a card on <code>index.html</code>.</li><li><code>CLAUDE.md</code> hard rule 9 — the new shared literal.</li></ul></div>
+    </div>
+  </div>
+</section>
+
+<!-- §7.3 Per-file build notes -->
+<section class="s" id="s7-3">
+  <h2 class="section-title"><span class="sec-ref">§7.3</span>Each touched file</h2>
+  <p class="section-desc">Build notes per file, keyed to the §6 contracts.</p>
+
+  <div class="subhead" id="s7-3-1"><span class="s-ref">§7.3.1</span><code>d101-review.md</code> · contract <a href="#s6-1">§6.1</a></div>
+  <div class="data-table impl-table">
+    <div class="row head"><div>Aspect</div><div>Build</div><div>Details</div></div>
+    <div class="row">
+      <div class="label-cell">Source</div><div><span class="tag new">new</span></div>
+      <div><ul><li><code>Write</code> added to the frontmatter tool list; <code>Edit</code> stays absent (R1).</li><li>The write step sits after the existing report-emission step, so it has the findings already assembled — nothing is recomputed.</li></ul></div>
+    </div>
+    <div class="row">
+      <div class="label-cell">Bound</div><div><span class="tag new">new</span></div>
+      <div><ul><li>Exactly one output path; the hard rule names it explicitly (R4).</li><li>Overwrite, never append, when a sibling already exists (R5).</li></ul></div>
+    </div>
+    <div class="row">
+      <div class="label-cell">Reuse</div><div><span class="tag reuse">reuse</span></div>
+      <div><ul><li>The fingerprint values come from the same read that already resolves phase and status.</li></ul></div>
+    </div>
+  </div>
+
+  <div class="subhead" id="s7-3-2"><span class="s-ref">§7.3.2</span><code>d101-feature-design.md</code> · contract <a href="#s6-1">§6.1</a></div>
+  <div class="data-table impl-table">
+    <div class="row head"><div>Aspect</div><div>Build</div><div>Details</div></div>
+    <div class="row">
+      <div class="label-cell">Source</div><div><span class="tag new">new</span></div>
+      <div><ul><li>The sibling-check attaches to the existing "target path is now pinned" point in phase resolution (R6).</li><li>Fingerprint comparison and the two offer variants — match, mismatch (R7, R8).</li></ul></div>
+    </div>
+    <div class="row">
+      <div class="label-cell">Judgement</div><div><span class="tag new">new</span></div>
+      <div><ul><li>Fold-in, not transcription — a finding becomes a question the same way a chat comment would (R10).</li></ul></div>
+    </div>
+    <div class="row">
+      <div class="label-cell">Enforce</div><div><span class="tag new">new</span></div>
+      <div><ul><li>Delete only where the existing write steps (end of Phase B, end of Phase C) already commit the D101 to disk — attached at that exact point, not earlier (R11).</li><li>No delete on decline or on a no-write run (R12, R13).</li></ul></div>
+    </div>
+    <div class="row">
+      <div class="label-cell">Reuse</div><div><span class="tag reuse">reuse</span></div>
+      <div><ul><li>Tool access — the command already has unrestricted <code>Write</code>/<code>Edit</code>, so no frontmatter change is needed on this side.</li></ul></div>
+    </div>
+  </div>
+</section>
+
+<!-- §7.4 Cross-cutting -->
+<section class="s" id="s7-4">
+  <h2 class="section-title"><span class="sec-ref">§7.4</span>Cross-cutting — shared by both commands</h2>
+  <ul class="bullets">
+    <li><strong>One definition, referenced by path.</strong> Both commands point at §4.10 rather than restating it (hard rule 3).</li>
+    <li><strong>The path convention travels together.</strong> The review-notes naming is a fork-point literal alongside the existing <code>documentation/features/D101-*</code> convention (<code>CLAUDE.md</code> hard rule 9).</li>
+    <li><strong>Neither command's own contract changes.</strong> <code>/d101-review</code> still emits the same chat report it always did; <code>/d101-feature-design</code>'s phases, bars, and stop-between-B-and-C discipline are untouched. This is a side channel between them, not a redesign of either.</li>
+    <li class="warn"><strong>The write-scope hard rule is the load-bearing part.</strong> Without it, giving <code>/d101-review</code> <code>Write</code> would be a much larger change than intended.</li>
+  </ul>
+</section>
+
+<!-- ═════════ §8 — Acceptance criteria ═════════ -->
+<section class="s" id="s8">
+  <h2 class="section-title"><span class="sec-ref">§8</span>Acceptance criteria</h2>
+  <div class="ac-table">
+    <div class="ac-head"><div>#</div><div>Verifies</div><div>Description</div></div>
+    <div class="ac-row"><div class="ac-id">AC1</div><div class="ac-verifies"><span class="verify-chip">R1</span></div><div><strong>Notes written.</strong> Running <code>/d101-review</code> against a D101 with no existing sibling produces <code>D101-&lt;slug&gt;.review.md</code> containing the same findings as the chat output.</div></div>
+    <div class="ac-row"><div class="ac-id">AC2</div><div class="ac-verifies"><span class="verify-chip">R2</span></div><div><strong>Fingerprint present.</strong> The written file's header carries the target's <em>Last updated</em> date, phase, and status as they stood at review time.</div></div>
+    <div class="ac-row"><div class="ac-id">AC3</div><div class="ac-verifies"><span class="verify-chip">R3</span></div><div><strong>All picked reviews carried.</strong> Picking the gap review and one persona review produces a notes file with both sections, kept under separate headings.</div></div>
+    <div class="ac-row"><div class="ac-id">AC4</div><div class="ac-verifies"><span class="verify-chip">R4</span></div><div><strong>Scope held.</strong> After a run, <code>git diff</code> shows no change to the target D101 or to any file other than its <code>.review.md</code> sibling.</div></div>
+    <div class="ac-row"><div class="ac-id">AC5</div><div class="ac-verifies"><span class="verify-chip">R5</span></div><div><strong>Overwrite, not merge.</strong> Running the review twice against an unchanged D101 leaves the notes file containing only the second run's findings.</div></div>
+    <div class="ac-row"><div class="ac-id">AC6</div><div class="ac-verifies"><span class="verify-chip">R6</span></div><div><strong>Sibling found and offered.</strong> Continuing a D101 with a matching <code>.review.md</code>, the command offers to use it once the target is pinned — after the continue-or-fresh and phase-routing questions, before the first content question of the phase.</div></div>
+    <div class="ac-row"><div class="ac-id">AC7</div><div class="ac-verifies"><span class="verify-chip">R7</span><span class="verify-chip">R8</span></div><div><strong>Match offered plainly.</strong> With a matching fingerprint, the offer carries no caveat.</div></div>
+    <div class="ac-row"><div class="ac-id">AC8</div><div class="ac-verifies"><span class="verify-chip">R9</span></div><div><strong>Mismatch named first.</strong> Edit the D101's meta-strip date, then continue: the offer names the mismatch before asking.</div></div>
+    <div class="ac-row"><div class="ac-id">AC9</div><div class="ac-verifies"><span class="verify-chip">R10</span></div><div><strong>Folded, not transcribed.</strong> Accepting notes with a flagged missing counter-example produces a document carrying the fixed rule with its counter-example — not the finding's wording pasted anywhere.</div></div>
+    <div class="ac-row"><div class="ac-id">AC10</div><div class="ac-verifies"><span class="verify-chip">R11</span></div><div><strong>Deleted on consumption.</strong> Accept the notes and let the run write the D101: the sibling file is gone afterward.</div></div>
+    <div class="ac-row"><div class="ac-id">AC11</div><div class="ac-verifies"><span class="verify-chip">R12</span></div><div><strong>Not deleted on decline.</strong> Decline the offered notes: the sibling file still exists after the run.</div></div>
+    <div class="ac-row"><div class="ac-id">AC12</div><div class="ac-verifies"><span class="verify-chip">R13</span></div><div><strong>Not deleted on no-write.</strong> Accept the notes, then interrupt before the phase-A summary confirmation (no file written): the sibling file still exists.</div></div>
+    <div class="ac-row"><div class="ac-id">AC13</div><div class="ac-verifies"><span class="verify-chip">R14</span></div><div><strong>Convention travels together.</strong> <code>CLAUDE.md</code> hard rule 9 names the review-notes literal alongside the <code>documentation/features/D101-*</code> convention it shares a fork point with.</div></div>
+    <div class="ac-row"><div class="ac-id">AC14</div><div class="ac-verifies"><span class="verify-chip">NF1</span></div><div><strong>Disposable in practice.</strong> Delete a <code>.review.md</code> file by hand and re-run <code>/d101-review</code>: the findings it would have carried reappear in the new file, unchanged in substance.</div></div>
+    <div class="ac-row"><div class="ac-id">AC15</div><div class="ac-verifies"><span class="verify-chip">NF3</span></div><div><strong>Scope is a stated limit, not a claimed guarantee.</strong> <code>d101-review.md</code>'s hard rules section names, in one sentence, that the write scope is prompt discipline rather than a sandboxed permission.</div></div>
+    <div class="ac-row"><div class="ac-id">AC16</div><div class="ac-verifies"><span class="verify-chip">NF4</span></div><div><strong>No product-specific assumptions.</strong> Neither command file, nor <code>d101-feature-design-definition.md</code> §4.10, names a product entity — only the <code>documentation/features/</code> path convention.</div></div>
+    <div class="ac-row"><div class="ac-id">AC17</div><div class="ac-verifies"><span class="verify-chip">OOS3</span></div><div><strong>Never committed by the default flow — standard location.</strong> After a review-then-design cycle on a D101 under <code>documentation/features/</code>, <code>git status</code> with default settings shows no <code>.review.md</code> file as untracked or staged.</div></div>
+    <div class="ac-row"><div class="ac-id">AC18</div><div class="ac-verifies"><span class="verify-chip">R2</span></div><div><strong>Version bump caught, date alone would have missed it.</strong> Write the D101 twice on the same calendar day (bumping the version each time) without touching the review-notes file. Re-run <code>/d101-feature-design</code>: the fingerprint reads as a mismatch, even though the recorded and current <em>Last updated</em> dates are identical.</div></div>
+    <div class="ac-row"><div class="ac-id">AC19</div><div class="ac-verifies"><span class="verify-chip">R1</span></div><div><strong>Sibling follows the target, not the convention.</strong> Review a D101 at a path outside <code>documentation/features/</code>: the notes file is written beside that target, in its own directory — never redirected to the standard location.</div></div>
+    <div class="ac-row"><div class="ac-id">AC20</div><div class="ac-verifies"><span class="verify-chip">OOS3</span><span class="verify-chip">R14</span></div><div><strong>Non-standard location is untracked, not ignored.</strong> Review a D101 at a path outside <code>documentation/features/</code>: <code>git status</code> lists the sibling <code>.review.md</code> as untracked, and the review's closing line does not claim it is gitignored. <code>.gitignore</code> is unchanged.</div></div>
+  </div>
+</section>
+
+<!-- ═════════ §9 — Open questions ═════════ -->
+<section class="s" id="s9">
+  <h2 class="section-title"><span class="sec-ref">§9</span>Open questions</h2>
+  <p class="section-desc">Open: none.</p>
+
+  <p class="section-desc" style="margin-top:1.8rem;">Resolved:</p>
+  <div class="q-grid">
+    <div class="q-card resolved">
+      <div class="q-head"><span class="q-id">Q1</span><span class="q-decider">Resolved 2026-09-15</span></div>
+      <div class="q-body">Should the review-notes file be human-editable — a developer striking out findings they've already handled by hand before the next <code>/d101-feature-design</code> run — or is that scope creep toward the review-log this design deliberately excludes (OOS2)?</div>
+      <div class="q-resolution"><strong>Decision:</strong> Not editable. <code>d101-feature-design-definition.md</code> §4.10 fixes the file as "read-only findings a review would have produced anyway — never something an author edits by hand". Hand-struck findings would be partial-consumption tracking (OOS2); the next <code>/d101-review</code> re-derives the true set regardless.</div>
+    </div>
+    <div class="q-card resolved">
+      <div class="q-head"><span class="q-id">Q2</span><span class="q-decider">Resolved 2026-08-31</span></div>
+      <div class="q-body">If a stronger staleness signal becomes cheap later (e.g. a tool that can read file mtimes reliably), should the fingerprint be upgraded, or does the day-granularity date remain good enough given how rarely a same-day edit-then-review-then-edit sequence actually happens?</div>
+      <div class="q-resolution"><strong>Decision:</strong> Upgraded without waiting for a new tool — the status chip already carries a version number that advances on every write, so recording its literal text (<code>Draft v0.3</code>, not just <code>Draft</code>) closes the same-day gap at zero new cost. Found during the first real test of this mechanism, which exercised exactly the scenario the open question anticipated.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════ §10 — References ═════════ -->
+<section class="s" id="s10">
+  <h2 class="section-title"><span class="sec-ref">§10</span>References</h2>
+  <div class="refs">
+    <div class="refs-block">
+      <h4>Sibling docs</h4>
+      <ul>
+        <li><a href="D101-d101-review.html">D101 — /d101-review</a> — the writer of the review-notes file (R44–R48 there)</li>
+        <li><a href="D101-d101-feature-design.html">D101 — /d101-feature-design</a> — the reader and deleter (R23–R26 there)</li>
+        <li><a href="D101-accepted-deviations.html">D101 — Accepted deviations</a> — the sibling mechanism for a finding the team keeps rather than fixes; this one is for a finding still awaiting a fix</li>
+        <li><a href="../D100-Asimov-architecture.md">D100-Asimov-architecture.md</a> — system architecture and the L3 process this convention lives in</li>
+      </ul>
+    </div>
+    <div class="refs-block">
+      <h4>Files this convention lives in</h4>
+      <ul>
+        <li><a href="../../plugins/asimov-plugin/artifacts/documentation/d101-feature-design/d101-feature-design-definition.md">artifacts/documentation/d101-feature-design/d101-feature-design-definition.md</a> — §4.10, the sole definition</li>
+        <li><code>commands/d101-review.md</code> — the write step and its scope</li>
+        <li><code>commands/d101-feature-design.md</code> — the check, offer, fold-in and conditional delete</li>
+        <li><a href="../../.gitignore">.gitignore</a> — keeps the file out of version control</li>
+      </ul>
+    </div>
+    <div class="refs-block">
+      <h4>Prior art</h4>
+      <ul>
+        <li><code>git status</code> / <code>.orig</code> merge artifacts — a disposable, gitignored side-file the tool itself cleans up once resolved, the closest existing analogue to "cache, not record"</li>
+        <li>CI artifact caching (e.g. build caches keyed to a content hash) — the general pattern of a derived, reproducible file that is safe to lose, adapted here without the hash</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+  </article>
+</div>
+
+<footer class="site-footer">
+  <div>
+    <a href="../index.html">← Documentation home</a>
+    · <span class="mono">features/D101-review-handoff.html</span>
+  </div>
+  <div style="margin-top: 0.4rem">
+    D101 · Review handoff · asimov · Full design · Draft v0.5 · 2026-09-15
+  </div>
+</footer>
+
+</body>
+</html>

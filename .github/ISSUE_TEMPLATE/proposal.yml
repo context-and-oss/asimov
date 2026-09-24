@@ -1,0 +1,45 @@
+name: Proposal
+description: Propose a new command, subagent, standard persona, or a change to a definition or template. Open this before writing a D101.
+labels: [proposal]
+body:
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Kind
+      options:
+        - New slash command
+        - New subagent
+        - New standard persona
+        - Change to a definition (a bar, a rule, a check)
+        - Change to a template
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: What goes wrong today, for whom, at which stage of the pipeline. One paragraph.
+    validations:
+      required: true
+  - type: textarea
+    id: shape
+    attributes:
+      label: The shape of the change
+      description: What the command, subagent or rule would do. Not a design yet; enough to judge whether it belongs in the toolkit.
+    validations:
+      required: true
+  - type: textarea
+    id: generic
+    attributes:
+      label: Why it is generic
+      description: Asimov ships nothing that only makes sense for one product (CLAUDE.md hard rule 7). Say why this is useful across products.
+    validations:
+      required: true
+  - type: checkboxes
+    id: read
+    attributes:
+      label: Before opening
+      options:
+        - label: I have read CONTRIBUTING.md and the relevant sections of D100.
+          required: true

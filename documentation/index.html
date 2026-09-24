@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>asimov — Documentation</title>
+<link rel="stylesheet" href="_chrome.css">
+<style>
+/* ── Hero ─────────────────────────────────────────────────── */
+.hero { padding: 4rem 2rem 1.5rem; position: relative; overflow: hidden; max-width: 1300px; margin: 0 auto; }
+.hero::before { content: ''; position: absolute; inset: 0; z-index: 0; background: radial-gradient(ellipse at 20% 30%, #4fc3f718 0%, transparent 50%), radial-gradient(ellipse at 80% 60%, #26c6da14 0%, transparent 50%); }
+.hero > * { position: relative; z-index: 1; }
+.kicker { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--cyan); padding: 0.3rem 0.8rem; border-radius: 999px; border: 1px solid #4fc3f744; background: #4fc3f711; margin-bottom: 1rem; }
+.hero h1 { font-size: clamp(2.4rem, 5.5vw, 4.2rem); font-weight: 900; letter-spacing: -0.03em; line-height: 1.05; background: linear-gradient(135deg, #fff 0%, var(--cyan) 50%, var(--teal) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.hero .tagline { font-size: 1.08rem; color: var(--text-dim); margin-top: 1rem; max-width: 760px; line-height: 1.65; }
+.hero .tagline strong { color: #fff; font-weight: 700; }
+
+/* ── Sections ─────────────────────────────────────────────── */
+section.s { max-width: 1300px; margin: 0 auto; padding: 3.25rem 2rem 0; }
+.section-title { font-size: clamp(1.4rem, 2.4vw, 1.85rem); font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.5rem; }
+.section-title .sec-ref { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; font-weight: 600; color: var(--text-mute); letter-spacing: 0.04em; margin-right: 0.7rem; vertical-align: middle; padding: 0.2rem 0.5rem; border-radius: 4px; background: var(--bg2); border: 1px solid var(--border); }
+.section-desc { color: var(--text-dim); font-size: 0.98rem; max-width: 820px; margin-bottom: 1.5rem; line-height: 1.6; }
+
+/* ── L3 pipeline band ─────────────────────────────────────── */
+.pipe { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.stage { flex: 1 1 92px; min-width: 92px; background: var(--bg-card); border: 1px solid var(--border); border-top-width: 3px; border-radius: 8px; padding: 0.7rem 0.55rem 0.65rem; text-align: center; }
+.stage .st-name { font-weight: 700; font-size: 0.85rem; color: #fff; }
+.stage .st-by { font-family: 'JetBrains Mono', monospace; font-size: 0.63rem; color: var(--text-mute); margin-top: 0.32rem; line-height: 1.4; word-break: break-word; }
+.stage.own  { border-top-color: var(--cyan); background: linear-gradient(165deg, #4fc3f714 0%, var(--bg-card) 60%); }
+.stage.own  .st-by { color: var(--cyan); }
+.stage.soon { border-top-color: var(--amber); border-top-style: dashed; }
+.stage.soon .st-by { color: var(--amber); }
+.stage.gate { border-top-color: var(--green); }
+.stage.gate .st-by { color: var(--green); }
+.stage.ext  { opacity: 0.55; }
+.pipe-legend { display: flex; flex-wrap: wrap; gap: 1.1rem; margin-top: 1rem; font-size: 0.78rem; color: var(--text-dim); }
+.pipe-legend .item { display: inline-flex; align-items: center; gap: 0.45rem; }
+.pipe-legend .sw { width: 16px; height: 4px; border-radius: 2px; flex-shrink: 0; }
+
+/* ── Agent fleet gallery ──────────────────────────────────── */
+.fleet { display: grid; grid-template-columns: repeat(auto-fit, minmax(156px, 1fr)); gap: 0.8rem; }
+.agent-tile { background: var(--bg-card); border: 1px solid var(--border); border-top: 3px solid var(--border); border-radius: 12px; padding: 1.15rem 1rem 1.2rem; text-align: center; display: block; color: inherit; text-decoration: none; transition: transform 120ms ease, border-color 120ms ease; }
+a.agent-tile:hover { transform: translateY(-2px); border-color: var(--border-2); }
+.agent-tile .at-mark { width: 40px; height: 40px; border-radius: 50%; margin: 0 auto 0.65rem; display: flex; align-items: center; justify-content: center; color: var(--bg); }
+.agent-tile .at-mark svg { width: 22px; height: 22px; display: block; }
+.agent-tile .at-persona { font-size: 1.05rem; font-weight: 800; color: #fff; letter-spacing: -0.01em; }
+.agent-tile .at-role { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; padding: 0.18rem 0.5rem; border-radius: 4px; margin-top: 0.5rem; }
+.agent-tile .at-stack { font-size: 0.78rem; color: var(--text-dim); margin-top: 0.55rem; line-height: 1.4; }
+.agent-tile.builder  { border-top-color: var(--cyan); }
+.agent-tile.builder  .at-mark { background: linear-gradient(135deg, var(--cyan), var(--teal)); }
+.agent-tile.builder  .at-role { color: var(--cyan); background: #4fc3f715; border: 1px solid #4fc3f744; }
+.agent-tile.tester   { border-top-color: var(--green); }
+.agent-tile.tester   .at-mark { background: linear-gradient(135deg, var(--green), var(--teal)); }
+.agent-tile.tester   .at-role { color: var(--green); background: #66bb6a15; border: 1px solid #66bb6a44; }
+.agent-tile.reviewer { border-top-color: var(--violet); }
+.agent-tile.reviewer .at-mark { background: linear-gradient(135deg, var(--violet), var(--cyan)); }
+.agent-tile.reviewer .at-role { color: var(--violet); background: #ab47bc15; border: 1px solid #ab47bc44; }
+.agent-tile.reserved { opacity: 0.5; border-style: dashed; }
+.agent-tile.reserved .at-mark { background: var(--bg3); color: var(--text-mute); }
+.agent-tile.reserved .at-role { color: var(--text-mute); background: var(--bg2); border: 1px solid var(--border); }
+
+/* ── Command gallery (mirrors the agent fleet) ────────────── */
+.cmd-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(192px, 1fr)); gap: 0.8rem; }
+.cmd-tile { background: var(--bg-card); border: 1px solid var(--border); border-top: 3px solid var(--border); border-radius: 12px; padding: 1.15rem 1rem 1.2rem; text-align: center; display: block; color: inherit; text-decoration: none; transition: transform 120ms ease, border-color 120ms ease; }
+a.cmd-tile:hover { transform: translateY(-2px); border-color: var(--border-2); }
+.cmd-tile .cmd-mark { width: 40px; height: 40px; border-radius: 50%; margin: 0 auto 0.65rem; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: 1.05rem; color: var(--bg); }
+.cmd-tile .cmd-name { font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; font-weight: 700; color: #fff; word-break: break-all; line-height: 1.3; }
+.cmd-tile .cmd-stage { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; padding: 0.18rem 0.5rem; border-radius: 4px; margin-top: 0.5rem; }
+.cmd-tile .cmd-desc { font-size: 0.78rem; color: var(--text-dim); margin-top: 0.55rem; line-height: 1.45; }
+.cmd-tile.design { border-top-color: var(--cyan); }
+.cmd-tile.design .cmd-mark { background: linear-gradient(135deg, var(--cyan), var(--teal)); }
+.cmd-tile.design .cmd-stage { color: var(--cyan); background: #4fc3f715; border: 1px solid #4fc3f744; }
+.cmd-tile.adhoc { border-top-color: var(--teal); }
+.cmd-tile.adhoc .cmd-mark { background: linear-gradient(135deg, var(--teal), var(--cyan)); }
+.cmd-tile.adhoc .cmd-stage { color: var(--teal); background: #26c6da15; border: 1px solid #26c6da44; }
+.cmd-tile.planned { opacity: 0.5; border-style: dashed; }
+.cmd-tile.planned .cmd-mark { background: var(--bg3); color: var(--text-mute); }
+.cmd-tile.planned .cmd-stage { color: var(--text-mute); background: var(--bg2); border: 1px solid var(--border); }
+
+/* ── Doc grid + cards ─────────────────────────────────────── */
+.doc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; }
+.doc-grid.two-col { grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); }
+
+.doc-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.1rem 1.25rem; display: flex; flex-direction: column; gap: 0.55rem; transition: border-color 120ms ease, transform 120ms ease; position: relative; overflow: hidden; }
+.doc-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--border); transition: background 120ms ease; }
+.doc-card:hover { border-color: var(--border-2); transform: translateY(-1px); }
+.doc-card:hover::before { background: var(--cyan); }
+
+.doc-card-head { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+.doc-type { font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--cyan); background: #4fc3f715; border: 1px solid #4fc3f744; padding: 0.18rem 0.55rem; border-radius: 4px; }
+
+.format-badges { margin-left: auto; display: flex; gap: 0.3rem; }
+.format-badge { font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 0.2rem 0.55rem; border-radius: 4px; border: 1px solid; cursor: pointer; transition: filter 120ms ease; }
+.format-badge:hover { filter: brightness(1.25); }
+.format-badge.html { color: var(--green); background: #66bb6a18; border-color: #66bb6a55; }
+.format-badge.md   { color: var(--amber); background: #ffb74d12; border-color: #ffb74d44; }
+
+.doc-title { font-size: 1.02rem; font-weight: 700; color: #fff; line-height: 1.3; letter-spacing: -0.01em; }
+.doc-desc { font-size: 0.85rem; color: var(--text-dim); line-height: 1.55; flex: 1; }
+.doc-path { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--text-mute); margin-top: 0.3rem; }
+.doc-path a { color: var(--text-mute); }
+.doc-path a:hover { color: var(--cyan); }
+
+/* ── Responsive ───────────────────────────────────────────── */
+@media (max-width: 720px) {
+  .hero { padding: 4rem 1.2rem 1.5rem; }
+  section.s { padding: 2.5rem 1.2rem 0; }
+}
+</style>
+</head>
+<body>
+
+<!-- ───── Top nav: site-wide, anchors to this index's sections ───── -->
+<nav class="top-nav">
+  <span class="brand"><a href="index.html">ASIMOV<span class="sep">/</span>docs</a></span>
+  <a href="#pipeline">Pipeline</a>
+  <a href="#agents">Agents</a>
+  <a href="#commands">Commands</a>
+  <a href="#s1">Architecture</a>
+  <a href="#s2">Features</a>
+  <span class="spacer"></span>
+  <span class="status-chip">Index</span>
+</nav>
+
+<!-- ───── Hero ───── -->
+<header class="hero">
+  <div class="kicker">asimov · Documentation home</div>
+  <h1>Asimov<br>Documentation</h1>
+  <p class="tagline">The <strong>L3 toolkit for Claude Code</strong> — slash commands, subagents, and skills for the AI-assisted middle of the pipeline: design, build, review, test.</p>
+</header>
+
+<!-- ═══════════════════════════════════════════════════════════
+     The L3 pipeline — what Asimov covers, and who serves each stage
+     ═══════════════════════════════════════════════════════════ -->
+<section class="s" id="pipeline">
+  <h2 class="section-title">The L3 pipeline</h2>
+  <p class="section-desc">Nine stages from intent to production. Asimov tools the AI-assisted middle; the human keeps the approve gate, and deploy/observe stay in existing CI/CD.</p>
+
+  <div class="pipe">
+    <div class="stage ext"><div class="st-name">Intent</div><div class="st-by">Jira</div></div>
+    <div class="stage own"><div class="st-name">Design</div><div class="st-by">/d101-*</div></div>
+    <div class="stage soon"><div class="st-name">Spec</div><div class="st-by">/s101-* · planned</div></div>
+    <div class="stage own"><div class="st-name">Code</div><div class="st-by">Giskard · Daneel · Calvin</div></div>
+    <div class="stage own"><div class="st-name">Review</div><div class="st-by">Baley</div></div>
+    <div class="stage soon"><div class="st-name">Test</div><div class="st-by">validator · planned</div></div>
+    <div class="stage gate"><div class="st-name">Approve</div><div class="st-by">human gate</div></div>
+    <div class="stage ext"><div class="st-name">Deploy</div><div class="st-by">CI/CD</div></div>
+    <div class="stage ext"><div class="st-name">Observe</div><div class="st-by">monitoring</div></div>
+  </div>
+
+  <div class="pipe-legend">
+    <span class="item"><span class="sw" style="background:var(--cyan)"></span>Asimov — built (Design, Code, Review)</span>
+    <span class="item"><span class="sw" style="background:var(--amber)"></span>Planned (Spec, Test / validate)</span>
+    <span class="item"><span class="sw" style="background:var(--green)"></span>Human gate</span>
+    <span class="item"><span class="sw" style="background:var(--text-mute)"></span>External / upstream</span>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     The Asimov agents — the subagent fleet, by Accelerate role
+     ═══════════════════════════════════════════════════════════ -->
+<section class="s" id="agents">
+  <h2 class="section-title">The Asimov agents</h2>
+  <p class="section-desc">A cast named from Isaac Asimov's canon, each mapped to an Accelerate multi-agent role. Four ship today; two names are reserved for roles not yet built. All read the active repo's own conventions at run-time.</p>
+
+  <div class="fleet">
+    <a class="agent-tile builder" href="features/D101-build-subagents.html">
+      <div class="at-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v2.5M12 19v2.5M21.5 12H19M5 12H2.5M18.7 5.3l-1.8 1.8M7.1 16.9l-1.8 1.8M18.7 18.7l-1.8-1.8M7.1 7.1 5.3 5.3"/></svg></div>
+      <div class="at-persona">Giskard</div>
+      <div class="at-role">Builder</div>
+      <div class="at-stack">.NET backend</div>
+    </a>
+    <a class="agent-tile builder" href="features/D101-build-subagents.html">
+      <div class="at-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="15" rx="2"/><path d="M3 9h18"/><circle cx="6" cy="6.75" r="0.7" fill="currentColor" stroke="none"/><circle cx="8.5" cy="6.75" r="0.7" fill="currentColor" stroke="none"/></svg></div>
+      <div class="at-persona">Daneel</div>
+      <div class="at-role">Builder</div>
+      <div class="at-stack">Angular frontend</div>
+    </a>
+    <a class="agent-tile tester" href="features/D101-build-subagents.html">
+      <div class="at-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6M10 3v6l-4.6 8.2A1.8 1.8 0 0 0 7 20h10a1.8 1.8 0 0 0 1.6-2.8L14 9V3"/><path d="M8 14.5h8"/></svg></div>
+      <div class="at-persona">Calvin</div>
+      <div class="at-role">Tester</div>
+      <div class="at-stack">authors .NET unit tests</div>
+    </a>
+    <a class="agent-tile reviewer" href="features/D101-baley-the-code-reviewer.html">
+      <div class="at-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5 5"/></svg></div>
+      <div class="at-persona">Baley</div>
+      <div class="at-role">Reviewer</div>
+      <div class="at-stack">read-only code review</div>
+    </a>
+    <div class="agent-tile reserved">
+      <div class="at-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="2.2"/><circle cx="6" cy="18" r="2.2"/><circle cx="18" cy="12" r="2.2"/><path d="M8 7l8 4M8 17l8-4"/></svg></div>
+      <div class="at-persona">Hari</div>
+      <div class="at-role">Planner</div>
+      <div class="at-stack">architect · reserved</div>
+    </div>
+    <div class="agent-tile reserved">
+      <div class="at-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V8z"/><path d="M14 3v5h4"/><path d="M9 13h6M9 16.5h6"/></svg></div>
+      <div class="at-persona">Dornick</div>
+      <div class="at-role">Spec author</div>
+      <div class="at-stack">S101 · reserved</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     The Asimov commands — developer-driven entrypoints, by stage
+     ═══════════════════════════════════════════════════════════ -->
+<section class="s" id="commands">
+  <h2 class="section-title">The Asimov commands</h2>
+  <p class="section-desc">Slash commands you run — they interview you for an artifact or scaffold one in place. Six ship today; three are planned. Each built command links to its own design (D101).</p>
+
+  <div class="cmd-grid">
+    <a class="cmd-tile design" href="features/D101-d101-feature-design.html">
+      <div class="cmd-mark">/</div>
+      <div class="cmd-name">/d101-feature-design</div>
+      <div class="cmd-stage">Design</div>
+      <div class="cmd-desc">Interviews you, then drafts a gap-free D101 as styled HTML.</div>
+    </a>
+    <a class="cmd-tile design" href="features/D101-d101-review.html">
+      <div class="cmd-mark">/</div>
+      <div class="cmd-name">/d101-review</div>
+      <div class="cmd-stage">Design</div>
+      <div class="cmd-desc">Review hub — offers the gap check (§8a/§8b) and the persona reads, runs what you pick; findings only, no verdict.</div>
+    </a>
+    <a class="cmd-tile design" href="features/D101-d101-convert-to-html.html">
+      <div class="cmd-mark">/</div>
+      <div class="cmd-name">/d101-convert-to-html</div>
+      <div class="cmd-stage">Design</div>
+      <div class="cmd-desc">Converts a legacy markdown D101 into the styled HTML format.</div>
+    </a>
+    <a class="cmd-tile adhoc" href="features/D101-asimov-init.html">
+      <div class="cmd-mark">/</div>
+      <div class="cmd-name">/asimov-init</div>
+      <div class="cmd-stage">Setup</div>
+      <div class="cmd-desc">Bootstraps a repo for Asimov — <code>asimov.md</code> + <code>CLAUDE.md</code> wiring, convention read-lists, and this site.</div>
+    </a>
+    <a class="cmd-tile design" href="features/D101-personas.html">
+      <div class="cmd-mark">/</div>
+      <div class="cmd-name">/persona-new</div>
+      <div class="cmd-stage">Design</div>
+      <div class="cmd-desc">Interviews you for a custom reader, then scaffolds a persona review skill into the repo's <code>.claude/skills/</code>.</div>
+    </a>
+    <a class="cmd-tile design" href="features/D101-personas.html">
+      <div class="cmd-mark">/</div>
+      <div class="cmd-name">/persona-list</div>
+      <div class="cmd-stage">Design</div>
+      <div class="cmd-desc">Lists the persona review skills in the repo — standard set plus custom — labelling which is which.</div>
+    </a>
+    <div class="cmd-tile planned">
+      <div class="cmd-mark">/</div>
+      <div class="cmd-name">/s101-implementation-spec</div>
+      <div class="cmd-stage">Spec · planned</div>
+      <div class="cmd-desc">Drafts an implementation spec (S101) from an approved D101.</div>
+    </div>
+    <div class="cmd-tile planned">
+      <div class="cmd-mark">/</div>
+      <div class="cmd-name">/s101-review</div>
+      <div class="cmd-stage">Spec · planned</div>
+      <div class="cmd-desc">Checks an S101 against the spec bar before code starts.</div>
+    </div>
+    <div class="cmd-tile planned">
+      <div class="cmd-mark">/</div>
+      <div class="cmd-name">/conventions-check</div>
+      <div class="cmd-stage">Ad-hoc · planned</div>
+      <div class="cmd-desc">Checks code against the active repo's own conventions.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     §1 — Architecture (D100)
+     ═══════════════════════════════════════════════════════════ -->
+<section class="s" id="s1">
+  <h2 class="section-title"><span class="sec-ref">§1</span>Architecture &amp; process</h2>
+  <p class="section-desc">
+    Top-level system architecture, plus how we operate the pipeline it tools. Read first when orienting on the codebase.
+  </p>
+
+  <div class="doc-grid two-col">
+    <article class="doc-card">
+      <div class="doc-card-head">
+        <span class="doc-type">D100</span>
+        <div class="format-badges">
+          <a class="format-badge md" href="D100-Asimov-architecture.md">MD</a>
+        </div>
+      </div>
+      <h3 class="doc-title">D100 — Asimov Architecture</h3>
+      <p class="doc-desc">
+        Architecture of the <code>asimov</code> repo — the Claude Code marketplace that ships the L3 workflow's AI-assisted stages as one installable plugin. Subagent fleet + Accelerate roles live in §4.4; the shared convention-overlay mechanism in §7.2.1.
+      </p>
+      <div class="doc-path"><a href="D100-Asimov-architecture.md">D100-Asimov-architecture.md</a></div>
+    </article>
+
+    <article class="doc-card">
+      <div class="doc-card-head">
+        <span class="doc-type">Framework</span>
+        <div class="format-badges">
+          <a class="format-badge md" href="ai-transition-levels-and-zones.md">MD</a>
+        </div>
+      </div>
+      <h3 class="doc-title">AI Transition — Levels &amp; Zones</h3>
+      <p class="doc-desc">
+        The vocabulary Asimov borrows from Context&amp;'s framework: L0–L5 (where a developer operates), Z1–Z3 (how deeply AI is integrated), the spec layer that appears at L3, the nine pipeline stages and the four agent roles. Summary only; Context&amp; maintains the original.
+      </p>
+      <div class="doc-path"><a href="ai-transition-levels-and-zones.md">ai-transition-levels-and-zones.md</a></div>
+    </article>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     §2 — Feature designs (D101)
+     ═══════════════════════════════════════════════════════════ -->
+<section class="s" id="s2">
+  <h2 class="section-title"><span class="sec-ref">§2</span>Feature designs (D101)</h2>
+  <p class="section-desc">
+    Per-feature designs. One D101 per slash command the toolkit ships, plus the build-subagents and review-subagent designs.
+  </p>
+
+  <div class="doc-grid">
+    <article class="doc-card">
+      <div class="doc-card-head">
+        <span class="doc-type">D101</span>
+        <div class="format-badges">
+          <a class="format-badge html" href="features/D101-d101-feature-design.html">HTML</a>
+        </div>
+      </div>
+      <h3 class="doc-title">/d101-feature-design</h3>
+      <p class="doc-desc">Turns a thin feature brief into a D101 that meets the gap-free bar — interviews the developer for missing inputs, then writes a styled HTML file into <code>documentation/features/</code>.</p>
+      <div class="doc-path"><a href="features/D101-d101-feature-design.html">features/D101-d101-feature-design.html</a></div>
+    </article>
+
+    <article class="doc-card">
+      <div class="doc-card-head">
+        <span class="doc-type">D101</span>
+        <div class="format-badges">
+          <a class="format-badge html" href="features/D101-d101-review.html">HTML</a>
+        </div>
+      </div>
+      <h3 class="doc-title">/d101-review</h3>
+      <p class="doc-desc">The review hub for a D101 — resolves the phase, then offers and runs the gap check (§8a/§8b) plus the business- and technical-persona reads (delegated to the persona skills). Never modifies the file, never emits a verdict.</p>
+      <div class="doc-path"><a href="features/D101-d101-review.html">features/D101-d101-review.html</a></div>
+    </article>
+
+    <article class="doc-card">
+      <div class="doc-card-head">
+        <span class="doc-type">D101</span>
+        <div class="format-badges">
+          <a class="format-badge html" href="features/D101-asimov-init.html">HTML</a>
+        </div>
+      </div>
+      <h3 class="doc-title">/asimov-init</h3>
+      <p class="doc-desc">Bootstraps a product repo for Asimov — writes an Asimov-owned <code>asimov.md</code> and wires it into <code>CLAUDE.md</code>, scaffolds <code>conventions/&lt;stack&gt;/README.md</code> read-lists for detected stacks, and generates this <code>documentation/</code> site. Supersedes <code>/docs-init</code>.</p>
+      <div class="doc-path"><a href="features/D101-asimov-init.html">features/D101-asimov-init.html</a></div>
+    </article>
+
+    <article class="doc-card">
+      <div class="doc-card-head">
+        <span class="doc-type">D101</span>
+        <div class="format-badges">
+          <a class="format-badge html" href="features/D101-d101-convert-to-html.html">HTML</a>
+        </div>
+      </div>
+      <h3 class="doc-title">/d101-convert-to-html</h3>
+      <p class="doc-desc">Converts a legacy markdown D101 into the styled HTML format next to the source — for D101s written before HTML-first authoring, or imported as markdown.</p>
+      <div class="doc-path"><a href="features/D101-d101-convert-to-html.html">features/D101-d101-convert-to-html.html</a></div>
+    </article>
+
+    <article class="doc-card">
+      <div class="doc-card-head">
+        <span class="doc-type">D101</span>
+        <div class="format-badges">
+          <a class="format-badge html" href="features/D101-build-subagents.html">HTML</a>
+        </div>
+      </div>
+      <h3 class="doc-title">Build subagents</h3>
+      <p class="doc-desc">The three Accelerate <em>build</em>-role subagents — <strong>Giskard</strong> (.NET) and <strong>Daneel</strong> (Angular) builders, <strong>Calvin</strong> (tests) tester. Each reads the active repo's conventions at run-time and conforms to them rather than a generic default.</p>
+      <div class="doc-path"><a href="features/D101-build-subagents.html">features/D101-build-subagents.html</a></div>
+    </article>
+
+    <article class="doc-card">
+      <div class="doc-card-head">
+        <span class="doc-type">D101</span>
+        <div class="format-badges">
+          <a class="format-badge html" href="features/D101-baley-the-code-reviewer.html">HTML</a>
+        </div>
+      </div>
+      <h3 class="doc-title">Review subagent</h3>
+      <p class="doc-desc"><strong>Baley</strong> — the Accelerate <em>reviewer</em> role, read-only. Reviews a branch-vs-base diff against the active repo's conventions plus correctness &amp; safety, and emits a structured, no-verdict finding report rather than editing the code or approving it.</p>
+      <div class="doc-path"><a href="features/D101-baley-the-code-reviewer.html">features/D101-baley-the-code-reviewer.html</a></div>
+    </article>
+
+    <article class="doc-card">
+      <div class="doc-card-head">
+        <span class="doc-type">D101</span>
+        <div class="format-badges">
+          <a class="format-badge html" href="features/D101-personas.html">HTML</a>
+        </div>
+      </div>
+      <h3 class="doc-title">Persona review layer</h3>
+      <p class="doc-desc">Reading a design document <em>as one of its intended readers</em> — the concrete form of <code>/d101-review</code> check 7. Ships the standard readers <strong>Poseidon</strong> (operational reality), <strong>Athena</strong> (technical feasibility), and <strong>Hermes</strong> (cost/ROI) as skills, plus <code>/persona-new</code> and <code>/persona-list</code> for product-specific readers.</p>
+      <div class="doc-path"><a href="features/D101-personas.html">features/D101-personas.html</a></div>
+    </article>
+    <article class="doc-card">
+      <div class="doc-card-head">
+        <span class="doc-type">D101</span>
+        <div class="format-badges">
+          <a class="format-badge html" href="features/D101-accepted-deviations.html">HTML</a>
+        </div>
+      </div>
+      <h3 class="doc-title">Accepted deviations</h3>
+      <p class="doc-desc">Recording, <em>in the D101 and next to the thing it excuses</em>, that a rule of <code>d101-feature-design-definition.md</code> is deliberately not met — rule, reason, accepter, date. <code>/d101-review</code> then reports it as <strong>Accepted</strong> on every run instead of asking the author to decide again. Never silences a finding, never covers a §8 check, never written by the reviewer.</p>
+      <div class="doc-path"><a href="features/D101-accepted-deviations.html">features/D101-accepted-deviations.html</a></div>
+    </article>
+    <article class="doc-card">
+      <div class="doc-card-head">
+        <span class="doc-type">D101</span>
+        <div class="format-badges">
+          <a class="format-badge html" href="features/D101-review-handoff.html">HTML</a>
+        </div>
+      </div>
+      <h3 class="doc-title">Review handoff</h3>
+      <p class="doc-desc"><code>/d101-review</code> writes its findings to a sibling <code>D101-&lt;slug&gt;.review.md</code>, so they survive past the chat session. A later <code>/d101-feature-design</code> run offers them as input across a fingerprint check and deletes the file once used. A disposable cache, never a record — safe to lose, and never committed.</p>
+      <div class="doc-path"><a href="features/D101-review-handoff.html">features/D101-review-handoff.html</a></div>
+    </article>
+    <article class="doc-card">
+      <div class="doc-card-head">
+        <span class="doc-type">D101</span>
+        <div class="format-badges">
+          <a class="format-badge html" href="features/D101-artifact-maturity.html">HTML</a>
+        </div>
+      </div>
+      <h3 class="doc-title">Artifact maturity</h3>
+      <p class="doc-desc">Every artifact carries one level — <code>assess</code>, <code>trial</code>, <code>adopt</code> or <code>hold</code> — in a YAML block at the top of its definition. The producing command prints it as one chat line; a maintainer moves it on evidence of use, never on time.</p>
+      <div class="doc-path"><a href="features/D101-artifact-maturity.html">features/D101-artifact-maturity.html</a></div>
+    </article>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div style="font-style: italic; color: var(--text-dim); max-width: 640px; margin: 0 auto 0.8rem;">
+    Named for Asimov's robots — every agent has one job and a law it won't break. Baley reviews but never edits; Calvin tests but never ships production code.
+  </div>
+  <div><span class="mono">documentation/</span> · asimov</div>
+  <div style="margin-top: 0.4rem">
+    Start with the pipeline, meet the agents, then the architecture in §1 · see the root <a href="../README.md">README</a>
+  </div>
+</footer>
+
+</body>
+</html>

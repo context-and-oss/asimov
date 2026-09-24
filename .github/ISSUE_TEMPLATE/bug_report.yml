@@ -1,0 +1,35 @@
+name: Bug report
+description: A command, subagent or skill does something other than what its documentation says.
+labels: [bug]
+body:
+  - type: input
+    id: component
+    attributes:
+      label: Component
+      description: The command, subagent, skill or file. For example `/d101-review` or `d101-feature-design-template.html`.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What the documentation says should happen
+      description: Quote or link the definition, D101 or README passage.
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: What happened instead
+      description: Paste the relevant chat output. Remove anything product-specific you cannot share.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: How to reproduce
+      description: The invocation and the state of the repo it ran in. Which phase was the D101 in, which files existed, and so on.
+  - type: input
+    id: version
+    attributes:
+      label: Asimov version
+      description: The release tag, or the commit if you run from a clone.

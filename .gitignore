@@ -1,0 +1,36 @@
+# OS
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Backup / scratch
+*.bak
+*.tmp
+*.orig
+
+# Raw image media (per D101 template ground rule —
+# only promoted+renamed images get committed)
+documentation/**/images/_raw/
+
+# /d101-review notes — a disposable cache /d101-feature-design consumes and
+# deletes (d101-feature-design-definition §4.10, D101-review-handoff.html). Not a design
+# artifact; committing it would duplicate a PR's own review thread.
+documentation/features/*.review.md
+
+# Claude Code local state
+.claude/settings.local.json
+
+# SDD working directory (ledger, task briefs, large diff files)
+.superpowers/
+
+# SDD specs and plans — working documents that drive a change, not toolkit
+# content. They belong to the session that produced them, not to the repo.
+docs/superpowers/

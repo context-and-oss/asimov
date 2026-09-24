@@ -1,0 +1,467 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI transition · Asimov</title>
+<meta name="description" content="The AI Transition framework: Levels L0–L5, Zones Z1–Z3, and the spec layer that appears at L3.">
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<nav class="nav"><div class="in">
+  <a class="brand" href="index.html">ASIMOV</a>
+  <a href="index.html">Home</a>
+  <a href="why.html">Why</a>
+  <a href="how-it-works.html">How it works</a>
+  <a href="inside/index.html">What's inside</a>
+  <span class="sep" aria-hidden="true"></span>
+  <span class="grp">Artifacts:</span>
+  <a href="artifacts/documentation/index.html">Documentation</a>
+  <a href="artifacts/project-management/index.html">Project management</a>
+  <a href="artifacts/general/index.html">General</a>
+  <span class="sep" aria-hidden="true"></span>
+  <a class="on" href="ai-transition.html">AI transition</a>
+  <a class="cta" href="get-started.html">Get started</a>
+</div></nav>
+
+<main class="page at">
+  <h1>AI transition</h1>
+  <p class="at-tagline">How to think about AI in software delivery.</p>
+  <p class="at-desc">AI is changing what it means to build and deliver software. Two concepts make it possible to talk about it precisely, inside a team and with its customer:</p>
+  <ul>
+    <li><strong>Levels (L0–L5)</strong> — where a developer operates on the human-to-agent spectrum.</li>
+    <li><strong>Zones (Z1–Z3)</strong> — how deeply AI is integrated into a given engagement.</li>
+  </ul>
+  <p class="at-desc">Together they scope a project, frame risk and value, and settle what "using AI" actually means in a given context.</p>
+
+  <!-- ══ Part 1 · Levels ══ -->
+  <section id="levels">
+    <div class="kicker">Part 1 · Individual maturity</div>
+    <h2>Levels</h2>
+    <p class="at-desc">Six steps of AI autonomy — L0 to L5 — adapted from SAE autonomous driving levels. Each level changes not just <em>who</em> does the work, but <strong>what the work is</strong>. The shift isn't gradual at L3: a new layer appears between design and code.</p>
+
+    <div class="at-spectrum" aria-label="Level spectrum">
+      <span class="l0">L0<small>No AI</small></span>
+      <span class="l1">L1<small>Autocomplete</small></span>
+      <span class="l2">L2<small>Copilot</small></span>
+      <span class="l3">L3<small>Agent (HIL)</small></span>
+      <span class="l4">L4<small>Autonomous</small></span>
+      <span class="l5">L5<small>Full Auto</small></span>
+    </div>
+
+    <div class="key" aria-label="Pipeline step colour key">
+      <b>Pipeline key</b>
+      <span><span class="at-step human">Human</span> does it</span>
+      <span><span class="at-step mixed">Human + AI</span> together</span>
+      <span><span class="at-step ai">AI</span> does it</span>
+      <span><span class="at-step new">New step</span> (didn't exist before)</span>
+    </div>
+
+    <div class="at-cards">
+
+      <article class="at-card l0">
+        <div class="at-head">
+          <span class="at-chip l0">L0</span>
+          <span class="at-name">No AI</span>
+          <span class="at-aka">Traditional · Software 1.0</span>
+        </div>
+        <div class="at-motto">"We write the code."</div>
+        <div class="at-pipeline">
+          <span class="at-step human">Requirements</span><span class="at-arr">→</span>
+          <span class="at-step human">Design</span><span class="at-arr">→</span>
+          <span class="at-step human">Code</span><span class="at-arr">→</span>
+          <span class="at-step human">Review</span><span class="at-arr">→</span>
+          <span class="at-step human">Test</span><span class="at-arr">→</span>
+          <span class="at-step human">Deploy</span><span class="at-arr">→</span>
+          <span class="at-step human">Observe</span>
+        </div>
+        <p class="at-body">Knowledge lives in people's heads. Design-to-code happens through <strong>implicit understanding</strong> — hallway conversations, tribal knowledge, "you know what I mean."</p>
+        <div class="at-meta">
+          <span><i>Lead time</i> weeks</span>
+          <span><i>Role</i> Maker</span>
+          <span><i>Risk</i> Bus factor, knowledge silos</span>
+        </div>
+      </article>
+
+      <article class="at-card l1">
+        <div class="at-head">
+          <span class="at-chip l1">L1</span>
+          <span class="at-name">Autocomplete</span>
+          <span class="at-aka">"Spicy autocomplete" · Cursor Era 1</span>
+        </div>
+        <div class="at-motto">"AI finishes my sentences."</div>
+        <div class="at-pipeline">
+          <span class="at-step human">Requirements</span><span class="at-arr">→</span>
+          <span class="at-step human">Design</span><span class="at-arr">→</span>
+          <span class="at-step mixed">Code (Dev + Tab)</span><span class="at-arr">→</span>
+          <span class="at-step human">Review</span><span class="at-arr">→</span>
+          <span class="at-step human">Test</span><span class="at-arr">→</span>
+          <span class="at-step human">Deploy</span><span class="at-arr">→</span>
+          <span class="at-step human">Observe</span>
+        </div>
+        <p class="at-body">Same process, faster typing. AI predicts the next line from context clues. <strong>No process change</strong> — just a faster keyboard. Same team, same roles, same decisions.</p>
+        <div class="at-meta">
+          <span><i>Lead time</i> days</span>
+          <span><i>Role</i> Maker (faster)</span>
+          <span><i>Risk</i> Accepting wrong suggestions without reading</span>
+        </div>
+      </article>
+
+      <article class="at-card l2">
+        <div class="at-head">
+          <span class="at-chip l2">L2</span>
+          <span class="at-name">AI Copilot</span>
+          <span class="at-aka">AI-Assisted · Pair programmer · Cursor Era 2</span>
+        </div>
+        <div class="at-motto">"AI is my pair programmer."</div>
+        <div class="at-pipeline">
+          <span class="at-step human">Requirements</span><span class="at-arr">→</span>
+          <span class="at-step human">Design</span><span class="at-arr">→</span>
+          <span class="at-step mixed">Code (Dev + AI)</span><span class="at-arr">→</span>
+          <span class="at-step mixed">Review (+ AI flags)</span><span class="at-arr">→</span>
+          <span class="at-step mixed">Test (+ AI gen)</span><span class="at-arr">→</span>
+          <span class="at-step human">Deploy</span><span class="at-arr">→</span>
+          <span class="at-step human">Observe</span>
+        </div>
+        <p class="at-body">AI becomes interactive — generates whole functions, writes tests, explains code. But the <strong>human drives every decision.</strong> AI infers intent from code patterns. This is where most teams are today. The ceiling: AI guesses, sometimes wrong.</p>
+        <div class="at-meta">
+          <span><i>Lead time</i> hours–days</span>
+          <span><i>Role</i> Maker who reviews AI</span>
+          <span><i>Risk</i> More code than humans can review</span>
+        </div>
+      </article>
+
+      <article class="at-card l3">
+        <div class="at-head">
+          <span class="at-chip l3">L3</span>
+          <span class="at-name">Agentic — Human in the Loop</span>
+          <span class="at-aka">Conditional autonomy · Agent mode · AI-Native</span>
+        </div>
+        <div class="at-motto">"AI builds it. I approve."</div>
+        <div class="at-pipeline">
+          <span class="at-step human">Intent</span><span class="at-arr">→</span>
+          <span class="at-step human">Design</span><span class="at-arr">→</span>
+          <span class="at-step new">Spec</span><span class="at-arr">→</span>
+          <span class="at-step ai">Code</span><span class="at-arr">→</span>
+          <span class="at-step ai">Review vs. Spec</span><span class="at-arr">→</span>
+          <span class="at-step ai">Test vs. Spec</span><span class="at-arr">→</span>
+          <span class="at-step new">Approve</span><span class="at-arr">→</span>
+          <span class="at-step ai">Deploy</span><span class="at-arr">→</span>
+          <span class="at-step ai">Observe</span>
+        </div>
+        <p class="at-note"><strong>Where Asimov sits.</strong> Asimov tools Design, Code and Review today; Spec and Test are planned; Approve is the human gate.</p>
+        <p class="at-body"><strong>The spec layer appears.</strong> What was implicit knowledge in your head must become an explicit written artifact — agents can't read minds. The spec IS the product; code is the output. This is the sensible default for production.</p>
+        <div class="at-meta">
+          <span><i>Lead time</i> minutes–hours</span>
+          <span><i>Role</i> Director / Reviewer</span>
+          <span><i>Risk</i> Rubber-stamping → high change fail rate</span>
+        </div>
+      </article>
+
+      <article class="at-card l4">
+        <div class="at-head">
+          <span class="at-chip l4">L4</span>
+          <span class="at-name">Agentic — Autonomous</span>
+          <span class="at-aka">High autonomy · "Developer as PM" · Cursor Era 3</span>
+        </div>
+        <div class="at-motto">"Write a spec, walk away, check if tests pass."</div>
+        <div class="at-pipeline">
+          <span class="at-step human">Intent</span><span class="at-arr">→</span>
+          <span class="at-step mixed">Spec (AI drafts, human reviews)</span><span class="at-arr">→</span>
+          <span class="at-step ai">Build + Test</span><span class="at-arr">→</span>
+          <span class="at-step ai">Self-Review</span><span class="at-arr">→</span>
+          <span class="at-step new">Audit (spot-check)</span><span class="at-arr">→</span>
+          <span class="at-step ai">Deploy + Observe</span><span class="at-arr">→</span>
+          <span class="at-step new">Report</span>
+        </div>
+        <p class="at-body">AI generates specs from intent, then implements autonomously. Human shifts from reviewing code to <strong>reviewing outcomes.</strong> Multi-agent collaboration: planner, builder, tester, reviewer. Implementation is a black box — you check if tests pass, not how code looks.</p>
+        <div class="at-meta">
+          <span><i>Lead time</i> seconds (internal)</span>
+          <span><i>Role</i> Specifier / Auditor</span>
+          <span><i>Risk</i> Silent failures, strategic drift</span>
+        </div>
+      </article>
+
+      <article class="at-card l5">
+        <div class="at-head">
+          <span class="at-chip l5">L5</span>
+          <span class="at-name">Fully Autonomous</span>
+          <span class="at-aka">"Dark Factory" · Software 3.0</span>
+        </div>
+        <div class="at-motto">"AI runs the show. Humans set the direction."</div>
+        <div class="at-pipeline">
+          <span class="at-step human">Vision</span><span class="at-arr">→</span>
+          <span class="at-step ai">Everything (agent fleet)</span><span class="at-arr">→</span>
+          <span class="at-step ai">Self-Heal</span><span class="at-arr">→</span>
+          <span class="at-step ai">Report</span><span class="at-arr">→</span>
+          <span class="at-step new">Escalate (if stuck)</span>
+        </div>
+        <p class="at-body">End-to-end autonomous pipeline: spec, build, test, ship, operate, heal. Human provides <strong>vision, values, and constraints</strong> — not instructions. Largely theoretical today; IDC estimates &lt;5% of organisations will reach this by 2026.</p>
+        <div class="at-meta">
+          <span><i>Lead time</i> continuous</span>
+          <span><i>Role</i> Strategist</span>
+          <span><i>Risk</i> Nobody understands the system</span>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ══ The big shift at L3 ══ -->
+  <section id="shift">
+    <div class="kicker">The big shift at L3</div>
+    <h2>A specification layer appears</h2>
+    <p class="at-desc">At L0–L2 AI helps a human write code. At L3+, a human writes a spec and the agent writes the code. The total thinking doesn't decrease — it shifts from <em>how to build</em> to <em>how to describe</em>.</p>
+
+    <div class="at-shift">
+      <div>
+        <h3>L0–L2 — Documentation describes</h3>
+        <p>Source code, tests, and pipelines are the output. Design docs, READMEs, and API docs are decorative — they describe the system <em>after</em> it's built and drift out of date.</p>
+      </div>
+      <div>
+        <h3>L3+ — Specification drives</h3>
+        <p>Functional specs (what it does), technical specs with ADRs (how &amp; why), quality specs (acceptance criteria), and constraints (CLAUDE.md) become first-class artifacts — checked into source control, schema-validated, machine-readable. <strong>They drive the agent, verified automatically.</strong></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ The paradox ══ -->
+  <section id="paradox">
+    <div class="kicker">The paradox</div>
+    <h2>To make AI do more work, humans must do more upfront work.</h2>
+    <p class="at-desc">The total thinking doesn't decrease. The typing shifts from code to specification. The skill shifts from <strong>"how to build"</strong> to <strong>"how to describe."</strong></p>
+    <p class="at-desc">Karpathy: Software 1.0 (code) &rarr; 2.0 (weights) &rarr; 3.0 (prompts). The programming medium changes.</p>
+
+    <h3 class="effort-h">Where does the human effort go?</h3>
+    <p class="at-desc">Each bar = 100% of human effort at that level. Watch how <strong>design &rarr; spec &rarr; intent</strong> evolves as <strong>code</strong> shrinks.</p>
+
+    <div class="effort-bars">
+      <span class="effort-label" style="color: var(--l0)">L0</span>
+      <div class="effort-bar">
+        <div class="effort-design" style="width: 15%">Design</div>
+        <div class="effort-code" style="width: 50%">Code</div>
+        <div class="effort-test" style="width: 20%">Test</div>
+        <div class="effort-review" style="width: 15%">Review</div>
+      </div>
+      <span class="effort-label" style="color: var(--l1)">L1</span>
+      <div class="effort-bar">
+        <div class="effort-design" style="width: 15%">Design</div>
+        <div class="effort-code" style="width: 45%">Code</div>
+        <div class="effort-test" style="width: 20%">Test</div>
+        <div class="effort-review" style="width: 20%">Review</div>
+      </div>
+      <span class="effort-label" style="color: var(--l2)">L2</span>
+      <div class="effort-bar">
+        <div class="effort-design" style="width: 18%">Design</div>
+        <div class="effort-code" style="width: 32%">Code</div>
+        <div class="effort-test" style="width: 22%">Test</div>
+        <div class="effort-review" style="width: 28%">Review</div>
+      </div>
+      <span class="effort-label" style="color: var(--l3)">L3</span>
+      <div class="effort-bar">
+        <div class="effort-intent" style="width: 10%">Intent</div>
+        <div class="effort-design" style="width: 12%">Design</div>
+        <div class="effort-spec" style="width: 30%">Spec</div>
+        <div class="effort-review" style="width: 48%">Review</div>
+      </div>
+      <span class="effort-label" style="color: var(--l4)">L4</span>
+      <div class="effort-bar">
+        <div class="effort-intent" style="width: 30%">Intent</div>
+        <div class="effort-spec" style="width: 20%">Spec</div>
+        <div class="effort-review" style="width: 25%">Review</div>
+        <div class="effort-oversight" style="width: 25%">Oversight</div>
+      </div>
+      <span class="effort-label" style="color: var(--l5)">L5</span>
+      <div class="effort-bar">
+        <div class="effort-intent" style="width: 25%">Intent</div>
+        <div class="effort-oversight" style="width: 50%">Oversight</div>
+        <div class="effort-review" style="width: 25%">Audit</div>
+      </div>
+    </div>
+
+    <div class="key" aria-label="Effort segment colour key">
+      <b>Key</b>
+      <span><i style="--sw: var(--teal)"></i>Design</span>
+      <span><i style="--sw: var(--green)"></i>Code</span>
+      <span><i style="--sw: var(--cyan)"></i>Test</span>
+      <span><i style="--sw: var(--gold)"></i>Spec</span>
+      <span><i style="--sw: var(--violet)"></i>Review / Audit</span>
+      <span><i style="--sw: var(--coral)"></i>Intent</span>
+      <span><i style="--sw: var(--text-mute)"></i>Oversight</span>
+    </div>
+  </section>
+
+  <!-- ══ Part 2 · Zones ══ -->
+  <section id="zones">
+    <div class="kicker">Part 2 · Project &amp; customer depth</div>
+    <h2>Zones</h2>
+    <p class="at-desc">Three zones — Z1 to Z3 — describing how deeply AI is integrated into a customer engagement. Each zone carries different implications for agreement, risk, and value.</p>
+
+    <div class="at-cards">
+
+      <article class="at-card z1">
+        <div class="at-head">
+          <span class="at-chip z1">Z1</span>
+          <span class="at-name">Embedded AI</span>
+        </div>
+        <p class="at-body">AI is built into the tools your team uses every day. <strong>This is not a choice — it's the default.</strong> Local and enterprise AI covered by standard licenses and DPAs; opt-out is partial and every update adds more AI.</p>
+        <div class="at-tools">
+          <div class="at-tool"><b>VS Code / Rider / VS 2026</b><span>IntelliSense, AI completions, refactoring</span></div>
+          <div class="at-tool"><b>GitHub</b><span>AI search, PR summaries, vulnerability detection</span></div>
+          <div class="at-tool"><b>Jira / Confluence</b><span>Atlassian Intelligence, summaries, search</span></div>
+          <div class="at-tool"><b>Microsoft 365</b><span>Copilot in Word, Excel, Teams, Outlook</span></div>
+          <div class="at-tool"><b>Slack / Teams</b><span>AI summaries, smart search, replies</span></div>
+          <div class="at-tool"><b>Windows / macOS</b><span>OS-level Copilot / Intelligence</span></div>
+        </div>
+        <div class="at-meta">
+          <span><i>Risk</i> Low</span>
+          <span><i>Data</i> Metadata, content in standard productivity tools</span>
+        </div>
+      </article>
+
+      <article class="at-card z2">
+        <div class="at-head">
+          <span class="at-chip z2">Z2</span>
+          <span class="at-name">Intentional AI</span>
+        </div>
+        <p class="at-body">AI moves from background feature to active tool. Someone deliberately engages AI to produce work. <strong>This is where the value is — and what needs agreement.</strong> Covers the full development process, not just code.</p>
+        <table>
+          <thead><tr><th>Activity</th><th>What AI does</th></tr></thead>
+          <tbody>
+            <tr><td>Research &amp; design</td><td>Evaluates approaches, finds gaps in requirements, suggests architecture</td></tr>
+            <tr><td>Spec writing</td><td>Drafts specs from requirements and design decisions</td></tr>
+            <tr><td>Coding</td><td>Writes code from specs and context (Copilot, Claude Code)</td></tr>
+            <tr><td>Code review</td><td>Reviews PRs, flags issues, suggests improvements</td></tr>
+            <tr><td>Testing</td><td>Generates tests from specs, identifies coverage gaps</td></tr>
+          </tbody>
+        </table>
+        <div class="at-sub">What you need</div>
+        <ul class="at-needs">
+          <li>Agreement that AI can access codebase and project context</li>
+          <li>.copilotignore / .claudeignore for sensitive paths</li>
+          <li>No hardcoded secrets in code</li>
+          <li>Human review on all AI-assisted output</li>
+          <li>Enterprise-grade tools only (DPAs, no-training clauses)</li>
+        </ul>
+        <div class="at-meta">
+          <span><i>Risk</i> Medium</span>
+          <span><i>Data</i> Code + project context shared with provider</span>
+        </div>
+      </article>
+
+      <article class="at-card z3">
+        <div class="at-head">
+          <span class="at-chip z3">Z3</span>
+          <span class="at-name">Data &amp; Environment Access</span>
+        </div>
+        <p class="at-body">AI touches <strong>real data</strong> — not code, but what the code processes. This is where GDPR, data residency, and real security concerns kick in. Most projects don't need this; <strong>90% of AI value comes from Zone 2 without touching real data.</strong></p>
+        <table>
+          <thead><tr><th>What</th><th>Examples</th></tr></thead>
+          <tbody>
+            <tr><td>Business data</td><td>Product catalogs, pricing, configurations</td></tr>
+            <tr><td>Database access</td><td>AI running queries against real data</td></tr>
+            <tr><td>Environments</td><td>AI connecting to staging or production</td></tr>
+            <tr><td>Logs</td><td>Production logs (may contain PII)</td></tr>
+            <tr><td>Personal data</td><td>Customer names, emails, user behavior</td></tr>
+          </tbody>
+        </table>
+        <div class="at-meta">
+          <span><i>Risk</i> High</span>
+          <span><i>Needs</i> GDPR tooling, data residency, dedicated credentials, audit logs</span>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ══ How the axes meet ══ -->
+  <section id="matrix">
+    <div class="kicker">How the axes meet</div>
+    <h2>Levels × Zones</h2>
+    <p class="at-desc">The two dimensions compose. Saying <em>"L3 on Zone 2"</em> is precise: a developer operating at agent level with human oversight, on an engagement with intentional AI integration. Not every combination is meaningful — higher Levels require a Zone deep enough to support them.</p>
+
+    <div class="at-matrix">
+      <table>
+        <thead>
+          <tr>
+            <th></th>
+            <th><span class="at-chip z1">Z1</span><small>Embedded</small></th>
+            <th><span class="at-chip z2">Z2</span><small>Intentional</small></th>
+            <th><span class="at-chip z3">Z3</span><small>Data &amp; Env</small></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th><span class="at-chip l0">L0</span><small>No AI</small></th>
+            <td><span class="at-mark yes">✓</span></td>
+            <td><span class="at-mark no">✗</span></td>
+            <td><span class="at-mark no">✗</span></td>
+          </tr>
+          <tr>
+            <th><span class="at-chip l1">L1</span><small>Autocomplete</small></th>
+            <td><span class="at-mark yes">✓</span></td>
+            <td><span class="at-mark no">✗</span></td>
+            <td><span class="at-mark no">✗</span></td>
+          </tr>
+          <tr>
+            <th><span class="at-chip l2">L2</span><small>Copilot</small></th>
+            <td><span class="at-mark no">✗</span></td>
+            <td><span class="at-mark yes">✓</span></td>
+            <td><span class="at-mark no">✗</span></td>
+          </tr>
+          <tr>
+            <th><span class="at-chip l3">L3</span><small>Agent (HIL)</small></th>
+            <td><span class="at-mark no">✗</span></td>
+            <td><span class="at-mark yes">✓</span></td>
+            <td><span class="at-mark maybe">○</span></td>
+          </tr>
+          <tr>
+            <th><span class="at-chip l4">L4</span><small>Autonomous</small></th>
+            <td><span class="at-mark no">✗</span></td>
+            <td><span class="at-mark maybe">○</span></td>
+            <td><span class="at-mark yes">✓</span></td>
+          </tr>
+          <tr>
+            <th><span class="at-chip l5">L5</span><small>Full Auto</small></th>
+            <td><span class="at-mark no">✗</span></td>
+            <td><span class="at-mark no">✗</span></td>
+            <td><span class="at-mark yes">✓</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="at-legend">
+        <span><span class="at-mark yes">✓</span> typical</span>
+        <span><span class="at-mark maybe">○</span> possible but less common</span>
+        <span><span class="at-mark no">✗</span> not applicable</span>
+      </div>
+    </div>
+
+    <p>Asimov is built for <strong>L3 on Zone 2</strong>: agent level with human oversight, on code and project context, never on real data.</p>
+  </section>
+
+  <!-- ══ At a glance ══ -->
+  <section id="summary">
+    <div class="kicker">At a glance</div>
+    <h2>Summary</h2>
+    <div class="at-summary">
+      <ul>
+        <li><strong>L0–L5</strong> = individual maturity on the AI autonomy spectrum</li>
+        <li><strong>Z1–Z3</strong> = depth of AI integration in an engagement</li>
+        <li><strong>L3</strong> introduces the specification layer — specs drive the agent</li>
+        <li><strong>Z2</strong> is where intentional AI value kicks in — with agreement</li>
+        <li><strong>Z3</strong> adds real data access — separate GDPR/security scope</li>
+        <li><strong>Shared language</strong> = alignment across employees, projects, customers</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+
+<footer class="foot"><div class="in">
+  <span>Asimov · by <a href="https://contextand.com">Context&amp;</a></span>
+  <a href="https://github.com/context-and-oss/asimov">GitHub</a>
+  <a href="https://github.com/context-and-oss/asimov/blob/main/CONTRIBUTING.md">Contributing</a>
+  <a href="https://github.com/context-and-oss/asimov/blob/main/LICENSE">MIT licence</a>
+</div></footer>
+</body>
+</html>

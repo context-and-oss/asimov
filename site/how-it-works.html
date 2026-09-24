@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How it works · Asimov</title>
+<meta name="description" content="One feature through Asimov: you describe it, Asimov writes and builds, people decide three times.">
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<nav class="nav"><div class="in">
+  <a class="brand" href="index.html">ASIMOV</a>
+  <a href="index.html">Home</a>
+  <a href="why.html">Why</a>
+  <a class="on" href="how-it-works.html">How it works</a>
+  <a href="inside/index.html">What's inside</a>
+  <span class="sep" aria-hidden="true"></span>
+  <span class="grp">Artifacts:</span>
+  <a href="artifacts/documentation/index.html">Documentation</a>
+  <a href="artifacts/project-management/index.html">Project management</a>
+  <a href="artifacts/general/index.html">General</a>
+  <span class="sep" aria-hidden="true"></span>
+  <a href="ai-transition.html">AI transition</a>
+  <a class="cta" href="get-started.html">Get started</a>
+</div></nav>
+
+<main class="page">
+  <h1>How it works</h1>
+  <p class="lede">From description to pull request, with three human decisions on the way.</p>
+  <div class="figure"><svg viewBox="0 0 1180 384" style="min-width:760px" role="img" aria-label="Swimlane: you describe the feature; Asimov writes the business design and stops; personas review; your approver signs; Asimov writes the technical design; a reviewer who is not the author checks it; agents build, test and review; a human approves the pull request">
+        <defs>
+          <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 Z" fill="var(--text-dim,#a8b8d0)"/></marker>
+        </defs>
+        <!-- lanes -->
+        <line x1="16" y1="24" x2="1164" y2="24" stroke="var(--border,#2b4a73)"/>
+        <line x1="16" y1="136" x2="1164" y2="136" stroke="var(--border,#2b4a73)"/>
+        <line x1="16" y1="248" x2="1164" y2="248" stroke="var(--border,#2b4a73)"/>
+        <line x1="16" y1="360" x2="1164" y2="360" stroke="var(--border,#2b4a73)"/>
+        <line x1="136" y1="24" x2="136" y2="360" stroke="var(--border,#2b4a73)"/>
+        <g fill="var(--text-dim,#a8b8d0)" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700" text-anchor="middle">
+          <text x="76" y="84">YOU</text>
+          <text x="76" y="196">ASIMOV</text>
+          <text x="76" y="302">YOUR</text><text x="76" y="316">APPROVERS</text>
+        </g>
+        <!-- edges (drawn first so nodes sit on top) -->
+        <g fill="none" stroke="var(--text-dim,#a8b8d0)" stroke-width="1.5" marker-end="url(#arr)">
+          <path d="M272 80 H284 a4 4 0 0 1 4 4 V188 a4 4 0 0 0 4 4 H296"/>
+          <path d="M416 192 H440"/>
+          <path d="M560 192 H568 a4 4 0 0 1 4 4 V300 a4 4 0 0 0 4 4 H580"/>
+          <path d="M604 280 V196 a4 4 0 0 1 4 -4 H652"/>
+          <path d="M772 192 H780 a4 4 0 0 1 4 4 V300 a4 4 0 0 0 4 4 H792"/>
+          <path d="M816 280 V196 a4 4 0 0 1 4 -4 H864"/>
+          <path d="M984 192 H992 a4 4 0 0 1 4 4 V300 a4 4 0 0 0 4 4 H1004"/>
+          <path d="M1052 304 H1088"/>
+        </g>
+        <!-- guards -->
+        <g fill="var(--green,#66bb6a)" font-family="JetBrains Mono, monospace" font-size="10">
+          <text x="612" y="240">[signed]</text>
+          <text x="824" y="240">[gap-free]</text>
+          <text x="1058" y="296">[approved]</text>
+        </g>
+        <!-- activities -->
+        <g font-family="Inter, sans-serif" font-size="12" font-weight="600" fill="#fff" text-anchor="middle">
+          <rect x="152" y="52" width="120" height="56" rx="8" fill="var(--bg2,#122039)" stroke="var(--green,#66bb6a)" stroke-width="1.5"/>
+          <text x="212" y="76">Describe</text><text x="212" y="92">the feature</text>
+
+          <rect x="296" y="164" width="120" height="56" rx="8" fill="var(--bg2,#122039)" stroke="var(--cyan,#4fc3f7)" stroke-width="1.5"/>
+          <text x="356" y="188">Write the</text><text x="356" y="204">business design</text>
+
+          <rect x="440" y="164" width="120" height="56" rx="8" fill="var(--bg2,#122039)" stroke="var(--amber,#ffb74d)" stroke-width="1.5"/>
+          <text x="500" y="188">Personas</text><text x="500" y="204">review it</text>
+
+          <rect x="652" y="164" width="120" height="56" rx="8" fill="var(--bg2,#122039)" stroke="var(--cyan,#4fc3f7)" stroke-width="1.5"/>
+          <text x="712" y="188">Write the</text><text x="712" y="204">technical design</text>
+
+          <rect x="864" y="164" width="120" height="56" rx="8" fill="var(--bg2,#122039)" stroke="var(--amber,#ffb74d)" stroke-width="1.5"/>
+          <text x="924" y="188">Agents build,</text><text x="924" y="204">test, review</text>
+        </g>
+        <!-- the stop: a small marker on the edge out of the business design -->
+        <rect x="420" y="184" width="16" height="16" rx="3" fill="var(--bg,#0a1424)" stroke="var(--cyan,#4fc3f7)" stroke-width="2"/>
+        <rect x="425" y="189" width="6" height="6" fill="var(--cyan,#4fc3f7)"/>
+        <text x="428" y="240" text-anchor="middle" fill="var(--cyan,#4fc3f7)" font-family="JetBrains Mono, monospace" font-size="10" font-weight="700">STOP</text>
+        <!-- gates: decisions in the approvers lane -->
+        <g fill="var(--bg2,#122039)" stroke="var(--green,#66bb6a)" stroke-width="1.5">
+          <polygon points="604,280 628,304 604,328 580,304"/>
+          <polygon points="816,280 840,304 816,328 792,304"/>
+          <polygon points="1028,280 1052,304 1028,328 1004,304"/>
+        </g>
+        <g font-family="Inter, sans-serif" font-size="11.5" font-weight="600" fill="#fff" text-anchor="middle">
+          <text x="604" y="346">Business approver</text>
+          <text x="816" y="346">Reviewer, not the author</text>
+          <text x="1028" y="346">Pull request</text>
+        </g>
+        <!-- final node -->
+        <circle cx="1100" cy="304" r="11" fill="none" stroke="var(--coral,#ef5350)" stroke-width="1.5"/>
+        <circle cx="1100" cy="304" r="6" fill="var(--coral,#ef5350)"/>
+        <text x="1100" y="346" text-anchor="middle" fill="var(--text-dim,#a8b8d0)" font-family="Inter, sans-serif" font-size="11.5" font-weight="600">Ship</text>
+      </svg>
+      <div class="key" aria-label="Swimlane colour key">
+        <b>Key</b>
+        <span><i style="--sw: var(--cyan)"></i>Asimov writes into your repo</span>
+        <span><i style="--sw: var(--amber)"></i>Asimov reviews or builds</span>
+        <span><i class="dia" style="--sw: var(--green)"></i>A person decides</span>
+        <span><i class="solid" style="--sw: var(--cyan)"></i>The stop: no technology before the business signs</span>
+      </div>
+  </div>
+  <h2>Lane by lane</h2>
+  <ul>
+    <li><strong>You</strong> describe the feature.</li>
+    <li><strong>Asimov</strong> interviews you, writes the business design, and stops. The technical section is declared open in the file. The personas read it as your signers.</li>
+    <li><strong>Business approver</strong> signs the what and why. No technology chosen yet.</li>
+    <li><strong>Asimov</strong> writes the technical half on a second run.</li>
+    <li><strong>A reviewer, not the author</strong>, checks it is gap-free: buildable without asking a question.</li>
+    <li><strong>Agents</strong> build, test and review, reading your conventions by path.</li>
+    <li><strong>A person</strong> approves the pull request.</li>
+  </ul>
+  <p>Where a decision says no, the flow goes back one box. Three people decide, and no command can move any of their decisions.</p>
+  <h2>What lands in your repo</h2>
+  <pre class="mono" style="color:var(--text-dim);line-height:1.7;overflow-x:auto">your-product/
+├── documentation/features/   D101-*.html   every design, rendered, next to the code
+├── .claude/skills/           persona-*/    your personas, authored by interview
+├── documentation/conventions/&lt;stack&gt;/      your house style, read by the agents
+├── asimov.md                               the one file Asimov owns
+└── .github/                                your pull-request rules carry the gates</pre>
+
+</main>
+
+<footer class="foot"><div class="in">
+  <span>Asimov · by <a href="https://contextand.com">Context&amp;</a></span>
+  <a href="https://github.com/context-and-oss/asimov">GitHub</a>
+  <a href="https://github.com/context-and-oss/asimov/blob/main/CONTRIBUTING.md">Contributing</a>
+  <a href="https://github.com/context-and-oss/asimov/blob/main/LICENSE">MIT licence</a>
+</div></footer>
+</body>
+</html>

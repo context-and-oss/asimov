@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Documentation artifacts · Asimov</title>
+<meta name="description" content="The document model: from scoping report to feature design to build specification.">
+<link rel="stylesheet" href="../../site.css">
+</head>
+<body class="has-subnav">
+<nav class="nav"><div class="in">
+  <a class="brand" href="../../index.html">ASIMOV</a>
+  <a href="../../index.html">Home</a>
+  <a href="../../why.html">Why</a>
+  <a href="../../how-it-works.html">How it works</a>
+  <a href="../../inside/index.html">What's inside</a>
+  <span class="sep" aria-hidden="true"></span>
+  <span class="grp">Artifacts:</span>
+  <a class="on" href="../../artifacts/documentation/index.html">Documentation</a>
+  <a href="../../artifacts/project-management/index.html">Project management</a>
+  <a href="../../artifacts/general/index.html">General</a>
+  <span class="sep" aria-hidden="true"></span>
+  <a href="../../ai-transition.html">AI transition</a>
+  <a class="cta" href="../../get-started.html">Get started</a>
+</div></nav>
+<nav class="subnav" aria-label="Documentation"><div class="in">
+  <a class="on" href="../../artifacts/documentation/index.html">Overview</a>
+  <a href="../../artifacts/documentation/a100.html">A100</a>
+  <a href="../../artifacts/documentation/d100.html">D100</a>
+  <a href="../../artifacts/documentation/d101.html">D101</a>
+  <a href="../../artifacts/documentation/s100.html">S100</a>
+  <a href="../../artifacts/documentation/s101.html">S101</a>
+</div></nav>
+
+<main class="page">
+  <h1>Documentation</h1>
+  <p class="lede">Scope, design, specification: the documents behind a feature. Click any box to read about it.</p>
+
+  <div class="figure">
+<svg class="docmodel" viewBox="0 0 1200 640" style="min-width:760px" role="img" aria-label="The document model. Work enters from two sources: an A100 scoping and planning report, or the scrumboard. The A100 feeds a D100 solution architecture and one D101 feature design per feature; a scrumboard design task also enters at a D101. Each D101 feeds a stack of one S100 execution plan and its S101 build specifications. A scrumboard bug fix task skips the design and goes straight to a single S101 build specification. Everything is published on the documentation overview landing site. Colour carries one meaning only: each lane has a colour — violet for source, cyan for design, green for specification — and every arrow takes the colour of the lane it enters.">
+  <style>
+    .docmodel { font-family: 'JetBrains Mono', ui-monospace, Consolas, monospace; }
+    .docmodel text { font-size: 13px; text-anchor: middle; fill: var(--text, #fff); }
+    .docmodel a { cursor: pointer; }
+    .docmodel a, .docmodel a:hover { text-decoration: none; }
+
+    /* lane headers and inline notes */
+    .docmodel .lane text { font-size: 11px; letter-spacing: 0.16em; text-anchor: start; fill: var(--text-mute, #6b7a93); }
+    .docmodel .note { font-size: 10px; letter-spacing: 0.14em; fill: var(--text-mute, #6b7a93); }
+
+    /* group cards: A100, Scrumboard */
+    .docmodel .card { fill: var(--bg2, #122039); stroke: var(--border-2, #3b5e8f); stroke-width: 1.5; }
+    .docmodel .cardhead rect { fill: var(--border-2, #3b5e8f); fill-opacity: 0.16; }
+    .docmodel .cardhead text { font-size: 11px; letter-spacing: 0.08em; text-anchor: start; }
+    .docmodel .neutral text { fill: var(--text-mute, #6b7a93); }
+
+    /* one colour per lane */
+    /* source — violet tint */
+    .docmodel .src rect { fill: var(--violet, #ab47bc); fill-opacity: 0.18; stroke: var(--violet, #ab47bc); stroke-width: 1.5; }
+    .docmodel .cardhead.src rect { stroke: none; }
+    /* design — cyan tint (the overview bar is a document, so it is cyan too) */
+    .docmodel .doc rect { fill: var(--cyan, #4fc3f7); fill-opacity: 0.18; stroke: var(--cyan, #4fc3f7); stroke-width: 1.5; }
+    /* specification — green tint */
+    .docmodel .spec rect { fill: var(--green, #66bb6a); fill-opacity: 0.16; stroke: var(--green, #66bb6a); stroke-width: 1.25; }
+    .docmodel .spec.plan rect { fill-opacity: 0.28; }
+    .docmodel .spec text { text-anchor: start; }
+    /* scrumboard tasks — not artifacts, no tint, no link */
+    .docmodel .task rect { fill: var(--bg3, #1b2e4d); stroke: var(--border, #2b4a73); stroke-width: 1.5; }
+    /* the stack container a D101 fans out to */
+    .docmodel .stack { fill: var(--bg2, #122039); stroke: var(--border, #2b4a73); stroke-width: 1.25; }
+
+    /* connectors: an arrow takes the colour of the lane it enters */
+    .docmodel .flow { fill: none; stroke-width: 1.75; }
+    .docmodel .flow.into-design { stroke: var(--cyan, #4fc3f7); }
+    .docmodel .flow.into-spec { stroke: var(--green, #66bb6a); }
+    .docmodel #dmArrowCyan path { fill: var(--cyan, #4fc3f7); }
+    .docmodel #dmArrowGreen path { fill: var(--green, #66bb6a); }
+
+    /* permanent click affordance: a small arrow at the right of every linked box */
+    .docmodel .go { font-size: 13px; }
+    .docmodel .go.r { text-anchor: end; }
+    .docmodel .cardhead .go { font-size: 11px; }
+    .docmodel .src .go { fill: var(--violet, #ab47bc); }
+    .docmodel .doc .go { fill: var(--cyan, #4fc3f7); }
+    .docmodel .spec .go { fill: var(--green, #66bb6a); }
+
+    /* hover affordance on every linked box */
+    .docmodel a rect { transition: fill-opacity 0.15s ease; }
+    .docmodel a:hover rect { fill-opacity: 0.34; }
+  </style>
+  <defs>
+    <marker id="dmArrowCyan" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 Z"/></marker>
+    <marker id="dmArrowGreen" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 Z"/></marker>
+  </defs>
+
+  <!-- the landing site: spans the whole figure -->
+  <a class="doc" href="#landing-site">
+    <title>The documentation landing site, generated by /asimov-init</title>
+    <rect x="0.75" y="0.75" width="1198.5" height="46" rx="10"/>
+    <text x="600" y="30" style="font-size:14px">The documentation landing site — lists everything below<tspan class="go" dx="10">→</tspan></text>
+  </a>
+
+  <!-- lane headers -->
+  <g class="lane">
+    <text x="2" y="76">SOURCE</text>
+    <text x="402" y="76">DESIGN</text>
+    <text x="762" y="76">SPECIFICATION</text>
+  </g>
+
+  <!-- ─── SOURCE: A100 ─── -->
+  <rect class="card" x="0.75" y="88" width="298.5" height="314" rx="12"/>
+  <a class="cardhead src" href="../../artifacts/documentation/a100.html">
+    <title>Open A100 — Scoping and planning report</title>
+    <rect x="0.75" y="88" width="298.5" height="34" rx="12"/>
+    <text x="16" y="110">A100 — SCOPING AND PLANNING REPORT<tspan class="go" dx="10">→</tspan></text>
+  </a>
+  <a class="src" href="../../artifacts/documentation/a100.html">
+    <title>Open A100 — Scoping and planning report</title>
+    <rect x="16" y="124" width="268" height="56" rx="8"/>
+    <text x="150" y="148">Solution Architecture</text>
+    <text x="150" y="166">Overview</text>
+    <text class="go r" x="272" y="166">→</text>
+  </a>
+  <a class="src" href="../../artifacts/documentation/a100.html">
+    <title>Open A100 — Scoping and planning report</title>
+    <rect x="16" y="228" width="268" height="56" rx="8"/>
+    <text x="150" y="252">Feature 1</text>
+    <text x="150" y="270">Scope</text>
+    <text class="go r" x="272" y="270">→</text>
+  </a>
+  <a class="src" href="../../artifacts/documentation/a100.html">
+    <title>Open A100 — Scoping and planning report</title>
+    <rect x="16" y="332" width="268" height="56" rx="8"/>
+    <text x="150" y="356">Feature X</text>
+    <text x="150" y="374">Scope</text>
+    <text class="go r" x="272" y="374">→</text>
+  </a>
+
+  <!-- ─── SOURCE: Scrumboard ─── -->
+  <rect class="card" x="0.75" y="420" width="298.5" height="210" rx="12"/>
+  <g class="cardhead neutral">
+    <rect x="0.75" y="420" width="298.5" height="34" rx="12"/>
+    <text x="16" y="442">SCRUMBOARD</text>
+  </g>
+  <g class="task">
+    <rect x="16" y="456" width="268" height="56" rx="8"/>
+    <text x="150" y="480">Feature Y</text>
+    <text x="150" y="498">design task</text>
+    <rect x="16" y="560" width="268" height="56" rx="8"/>
+    <text x="150" y="584">Bug 1</text>
+    <text x="150" y="602">Fix task</text>
+  </g>
+
+  <!-- ─── DESIGN ─── -->
+  <a class="doc" href="../../artifacts/documentation/d100.html">
+    <title>Open D100 — Solution architecture</title>
+    <rect x="400" y="124" width="260" height="56" rx="8"/>
+    <text x="530" y="148">D100 — Solution</text>
+    <text x="530" y="166">Architecture</text>
+    <text class="go r" x="648" y="166">→</text>
+  </a>
+  <a class="doc" href="../../artifacts/documentation/d101.html">
+    <title>Open D101 — Feature design</title>
+    <rect x="400" y="228" width="260" height="56" rx="8"/>
+    <text x="530" y="252">D101 — Feature 1</text>
+    <text x="530" y="270">Design</text>
+    <text class="go r" x="648" y="270">→</text>
+  </a>
+  <a class="doc" href="../../artifacts/documentation/d101.html">
+    <title>Open D101 — Feature design</title>
+    <rect x="400" y="332" width="260" height="56" rx="8"/>
+    <text x="530" y="356">D101 — Feature X</text>
+    <text x="530" y="374">Design</text>
+    <text class="go r" x="648" y="374">→</text>
+  </a>
+  <a class="doc" href="../../artifacts/documentation/d101.html">
+    <title>Open D101 — Feature design</title>
+    <rect x="400" y="456" width="260" height="56" rx="8"/>
+    <text x="530" y="480">D101 — Feature Y</text>
+    <text x="530" y="498">Design</text>
+    <text class="go r" x="648" y="498">→</text>
+  </a>
+
+  <!-- ─── SPECIFICATION: one stack per feature ─── -->
+  <rect class="stack" x="760" y="211" width="439" height="90" rx="10"/>
+  <a class="spec plan" href="../../artifacts/documentation/s100.html">
+    <title>Open S100 — Execution plan</title>
+    <rect x="769" y="218" width="421" height="24" rx="5"/>
+    <text x="781" y="234">S100 — Feature 1 — Execution plan</text>
+    <text class="go r" x="1178" y="234">→</text>
+  </a>
+  <a class="spec" href="../../artifacts/documentation/s101.html">
+    <title>Open S101 — Build specification</title>
+    <rect x="769" y="244" width="421" height="24" rx="5"/>
+    <text x="781" y="260">S101 — Feature 1 — Build specification 1</text>
+    <text class="go r" x="1178" y="260">→</text>
+  </a>
+  <a class="spec" href="../../artifacts/documentation/s101.html">
+    <title>Open S101 — Build specification</title>
+    <rect x="769" y="270" width="421" height="24" rx="5"/>
+    <text x="781" y="286">S101 — Feature 1 — Build specification X</text>
+    <text class="go r" x="1178" y="286">→</text>
+  </a>
+
+  <rect class="stack" x="760" y="315" width="439" height="90" rx="10"/>
+  <a class="spec plan" href="../../artifacts/documentation/s100.html">
+    <title>Open S100 — Execution plan</title>
+    <rect x="769" y="322" width="421" height="24" rx="5"/>
+    <text x="781" y="338">S100 — Feature X — Execution plan</text>
+    <text class="go r" x="1178" y="338">→</text>
+  </a>
+  <a class="spec" href="../../artifacts/documentation/s101.html">
+    <title>Open S101 — Build specification</title>
+    <rect x="769" y="348" width="421" height="24" rx="5"/>
+    <text x="781" y="364">S101 — Feature X — Build specification 1</text>
+    <text class="go r" x="1178" y="364">→</text>
+  </a>
+  <a class="spec" href="../../artifacts/documentation/s101.html">
+    <title>Open S101 — Build specification</title>
+    <rect x="769" y="374" width="421" height="24" rx="5"/>
+    <text x="781" y="390">S101 — Feature X — Build specification X</text>
+    <text class="go r" x="1178" y="390">→</text>
+  </a>
+
+  <rect class="stack" x="760" y="439" width="439" height="90" rx="10"/>
+  <a class="spec plan" href="../../artifacts/documentation/s100.html">
+    <title>Open S100 — Execution plan</title>
+    <rect x="769" y="446" width="421" height="24" rx="5"/>
+    <text x="781" y="462">S100 — Feature Y — Execution plan</text>
+    <text class="go r" x="1178" y="462">→</text>
+  </a>
+  <a class="spec" href="../../artifacts/documentation/s101.html">
+    <title>Open S101 — Build specification</title>
+    <rect x="769" y="472" width="421" height="24" rx="5"/>
+    <text x="781" y="488">S101 — Feature Y — Build specification 1</text>
+    <text class="go r" x="1178" y="488">→</text>
+  </a>
+  <a class="spec" href="../../artifacts/documentation/s101.html">
+    <title>Open S101 — Build specification</title>
+    <rect x="769" y="498" width="421" height="24" rx="5"/>
+    <text x="781" y="514">S101 — Feature Y — Build specification X</text>
+    <text class="go r" x="1178" y="514">→</text>
+  </a>
+
+  <rect class="stack" x="760" y="569" width="439" height="38" rx="10"/>
+  <a class="spec" href="../../artifacts/documentation/s101.html">
+    <title>Open S101 — Build specification</title>
+    <rect x="769" y="576" width="421" height="24" rx="5"/>
+    <text x="781" y="592">S101 — bugfix 1 — Build specification 1</text>
+    <text class="go r" x="1178" y="592">→</text>
+  </a>
+
+  <!-- ─── connectors ─── -->
+  <g class="flow into-design" marker-end="url(#dmArrowCyan)">
+    <path d="M284 152 H396"/>
+    <path d="M284 256 H396"/>
+    <path d="M284 360 H396"/>
+    <path d="M284 484 H396"/>
+  </g>
+  <g class="flow into-spec" marker-end="url(#dmArrowGreen)">
+    <path d="M660 256 H756"/>
+    <path d="M660 360 H756"/>
+    <path d="M660 484 H756"/>
+    <path d="M284 588 H756"/>
+  </g>
+  <text class="note" x="520" y="578">SKIPS THE DESIGN</text>
+</svg>
+  <div class="key" aria-label="Document model colour key">
+    <b>Key</b>
+    <span><i style="--sw: var(--violet)"></i>Source</span>
+    <span><i style="--sw: var(--cyan)"></i>Design</span>
+    <span><i style="--sw: var(--green)"></i>Specification</span>
+    <span><i style="--sw: var(--border-2)"></i>Not an artifact (a task on the board)</span>
+    <span class="hint">→ opens the page</span>
+  </div>
+  </div>
+
+  <div style="overflow-x:auto">
+  <table style="min-width:560px">
+    <tr><th>Code</th><th>Artifact</th><th>Maturity</th><th>One line</th></tr>
+    <tr><td><a href="#landing-site">Site</a></td><td>Documentation landing site</td><td><span class="chip assess">assess</span></td><td>The page generated into <code>documentation/</code> that lists everything else.</td></tr>
+    <tr><td><a href="../../artifacts/documentation/a100.html">A100</a></td><td>Scoping and planning report</td><td><span class="chip planned">planned</span></td><td>Architecture overview plus a scope per feature. Feeds D100 and D101s.</td></tr>
+    <tr><td><a href="../../artifacts/documentation/d100.html">D100</a></td><td>Solution architecture</td><td><span class="chip planned">planned</span></td><td>The system-level design. The convention exists; the command does not yet.</td></tr>
+    <tr><td><a href="../../artifacts/documentation/d101.html">D101</a></td><td>Feature design</td><td><span class="chip trial">trial</span></td><td>One per feature. Two bars, two axes, a hard stop before technology.</td></tr>
+    <tr><td><a href="../../artifacts/documentation/s100.html">S100</a></td><td>Execution plan</td><td><span class="chip planned">planned</span></td><td>Order and parallelism of a feature's build specifications.</td></tr>
+    <tr><td><a href="../../artifacts/documentation/s101.html">S101</a></td><td>Build specification</td><td><span class="chip planned">planned</span></td><td>One per build unit. What an agent builds from.</td></tr>
+  </table>
+  </div>
+
+  <h2 id="landing-site">The landing site</h2>
+  <p>The one artifact here that is not a document about a feature. <code>/asimov-init</code> generates it into <code>documentation/</code> as the index of everything else in the model above, and regenerates it as documents land. <span class="chip assess">assess</span></p>
+  <p><a href="https://github.com/context-and-oss/asimov/blob/main/plugins/asimov-plugin/artifacts/documentation/site/site-definition.md">Definition</a> · <a href="https://github.com/context-and-oss/asimov/blob/main/plugins/asimov-plugin/artifacts/documentation/site/site-template.html">Template</a></p>
+
+  <h2 id="maturity">Maturity</h2>
+  <p>Every artifact, here and under General, carries one level from the technology radar. It tells you how far to trust the shape before you build on it.</p>
+  <div style="overflow-x:auto">
+  <table>
+    <tr><th>Level</th><th>What it means for you</th></tr>
+    <tr><td><span class="chip assess">assess</span></td><td>A proposal. Nothing outside the Asimov repo has used it yet. Use it, and expect the shape to move.</td></tr>
+    <tr><td><span class="chip trial">trial</span></td><td>One artifact of this kind has been reviewed by someone other than its author. The shape held once.</td></tr>
+    <tr><td><span class="chip adopt">adopt</span></td><td>Used in a second repository and revised at least once because of that use. Build on it.</td></tr>
+    <tr><td><span class="chip hold">hold</span></td><td>Do not start new work on it. It is being replaced or withdrawn.</td></tr>
+    <tr><td><span class="chip planned">planned</span></td><td>Not built. No definition, template or command yet.</td></tr>
+  </table>
+  </div>
+  <ul>
+    <li><strong>Levels move on evidence, never on time.</strong> A maintainer promotes an artifact when the evidence exists, and names it in the commit.</li>
+    <li><strong>Rewriting the bar drops it back to assess.</strong> A new shape has to earn trust again.</li>
+    <li><strong>The command tells you.</strong> When a command produces an artifact below adopt, it prints the level as one line before its first question.</li>
+    <li><strong>Every page here shows it.</strong> The chip next to an artifact's name is the level from its definition, checked at each release.</li>
+  </ul>
+
+</main>
+
+<footer class="foot"><div class="in">
+  <span>Asimov · by <a href="https://contextand.com">Context&amp;</a></span>
+  <a href="https://github.com/context-and-oss/asimov">GitHub</a>
+  <a href="https://github.com/context-and-oss/asimov/blob/main/CONTRIBUTING.md">Contributing</a>
+  <a href="https://github.com/context-and-oss/asimov/blob/main/LICENSE">MIT licence</a>
+</div></footer>
+</body>
+</html>

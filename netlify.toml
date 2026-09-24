@@ -1,0 +1,3 @@
+# netlify.toml — the public site is static files under site/; nothing to build.
+[build]
+  publish = "site"

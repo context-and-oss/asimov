@@ -1,0 +1,59 @@
+name: Asimov PR
+run-name: "PR #${{ github.event.pull_request.number }} — ${{ github.event.pull_request.title }}"
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  # Job id must stay `ci` — the org ruleset requires a status check with that name.
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Manifests parse and agree on the plugin name (hard rule 1)
+        run: |
+          set -euo pipefail
+          mp=.claude-plugin/marketplace.json
+          pj=plugins/asimov-plugin/.claude-plugin/plugin.json
+          jq empty "$mp" "$pj"
+          plugin=$(jq -r '.name' "$pj")
+          entry=$(jq -r '.plugins[0].name' "$mp")
+          [ "$plugin" = "asimov-plugin" ] || { echo "::error::plugin.json name is '$plugin', directory is asimov-plugin"; exit 1; }
+          [ "$entry" = "$plugin" ]        || { echo "::error::marketplace.json entry '$entry' ≠ plugin.json '$plugin'"; exit 1; }
+          echo "ok: $plugin"
+
+      - name: Command and subagent models match model-choice.md (hard rule 2)
+        run: |
+          set -euo pipefail
+          fail=0
+          for f in plugins/asimov-plugin/commands/*.md plugins/asimov-plugin/agents/*.md; do
+            name=$(basename "$f" .md)
+            model=$(awk 'NR==1 && $0!="---"{exit} /^---$/{c++; if(c==2) exit; next} c==1 && /^model:/{sub(/^model:[ \t]*/,""); print; exit}' "$f")
+            if [ -z "$model" ]; then
+              echo "::error file=$f::no model: in frontmatter"; fail=1; continue
+            fi
+            if ! grep -Eq "\`/?${name}\`.*\`${model}\`" documentation/model-choice.md; then
+              echo "::error file=$f::model '$model' has no matching row for '$name' in documentation/model-choice.md"; fail=1; continue
+            fi
+            echo "ok: $name → $model"
+          done
+          exit $fail
+
+      - name: Every artifact definition carries a maturity block (hard rule 10)
+        run: |
+          set -euo pipefail
+          fail=0
+          for f in plugins/asimov-plugin/artifacts/*/*/*-definition.md; do
+            if ! awk 'NR==1 && $0!="---"{exit 1} /^---$/{c++; if(c==2) exit} c==1 && /^maturity:[ \t]*(assess|trial|adopt|hold)[ \t]*$/{found=1} END{exit !found}' "$f"; then
+              echo "::error file=$f::no maturity: assess|trial|adopt|hold in frontmatter"; fail=1; continue
+            fi
+            echo "ok: $f"
+          done
+          exit $fail

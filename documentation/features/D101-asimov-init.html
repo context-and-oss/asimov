@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D101 — /asimov-init — Asimov docs</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+:root {
+  --bg:        #0a1424;
+  --bg2:       #122039;
+  --bg3:       #1b2e4d;
+  --bg-card:   #14253f;
+  --border:    #2b4a73;
+  --border-2:  #3b5e8f;
+  --text:      #fff;
+  --text-dim:  #a8b8d0;
+  --text-mute: #6b7a93;
+  --cyan:      #4fc3f7;
+  --teal:      #26c6da;
+  --green:     #66bb6a;
+  --amber:     #ffb74d;
+  --coral:     #ef5350;
+  --gold:      #ffd54f;
+  --violet:    #ab47bc;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; font-size: 15px; line-height: 1.6; overflow-x: hidden; padding-top: 56px; }
+a { color: inherit; text-decoration: none; }
+code, .mono { font-family: 'JetBrains Mono', monospace; font-size: 0.88em; }
+code { background: var(--bg3); padding: 1px 6px; border-radius: 4px; color: var(--cyan); }
+
+/* Top nav (site-wide — every D101 links to documentation home + chapter sections of the index) */
+.top-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(10,20,36,0.85); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 0.55rem 2rem; display: flex; gap: 1.4rem; align-items: center; font-size: 0.82rem; }
+.top-nav .brand, .top-nav .brand a { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--cyan); letter-spacing: 0.04em; text-decoration: none; }
+.top-nav .brand .sep { color: var(--border); margin: 0 0.5rem; }
+.top-nav a { color: var(--text-dim); font-weight: 500; }
+.top-nav a:hover { color: #fff; }
+.top-nav .spacer { flex: 1; }
+.top-nav .status-chip { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.25rem 0.7rem; border-radius: 999px; background: #ffd54f15; border: 1px solid #ffd54f44; color: var(--gold); font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 700; }
+.top-nav .status-chip::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--gold); }
+.top-nav .phase-chip { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.25rem 0.7rem; border-radius: 999px; background: #4fc3f715; border: 1px solid #4fc3f744; color: var(--cyan); font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 700; }
+.top-nav .phase-chip::before { content: ''; width: 6px; height: 6px; border-radius: 1px; background: var(--cyan); }
+.top-nav .phase-chip.full { background: #66bb6a15; border-color: #66bb6a44; color: var(--green); }
+.top-nav .phase-chip.full::before { background: var(--green); }
+
+/* Layout with left sidebar (per-page TOC) + content column */
+.layout-doc { display: grid; grid-template-columns: 200px minmax(0, 1fr); max-width: 1300px; margin: 0 auto; gap: 1.8rem; padding: 0.5rem 1.5rem; }
+.side-nav { position: sticky; top: 76px; align-self: start; max-height: calc(100vh - 90px); overflow-y: auto; padding: 0.7rem 0.5rem 1rem 0.2rem; font-size: 0.85rem; }
+.side-nav .side-head { font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-mute); margin-bottom: 0.7rem; padding-left: 0.6rem; }
+.side-nav ul { list-style: none; padding: 0; margin: 0; }
+.side-nav ul ul { padding-left: 0.9rem; margin-top: 0.1rem; }
+.side-nav li { margin: 0.1rem 0; }
+.side-nav a { display: block; padding: 0.32rem 0.7rem; color: var(--text-dim); border-left: 2px solid transparent; font-size: 0.86rem; line-height: 1.4; border-radius: 0 4px 4px 0; }
+.side-nav a:hover { color: #fff; background: #4fc3f708; border-left-color: var(--border-2); }
+.content { min-width: 0; }
+
+/* Hero (compact — top-nav already provides separation from page chrome) */
+.hero { padding: 1.5rem 2rem 1.5rem; position: relative; overflow: hidden; max-width: 1300px; margin: 0 auto; }
+.hero::before { content: ''; position: absolute; inset: 0; z-index: 0; background: radial-gradient(ellipse at 20% 30%, #4fc3f718 0%, transparent 50%), radial-gradient(ellipse at 80% 60%, #26c6da14 0%, transparent 50%); }
+.hero > * { position: relative; z-index: 1; }
+.kicker { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--cyan); padding: 0.3rem 0.8rem; border-radius: 999px; border: 1px solid #4fc3f744; background: #4fc3f711; margin-bottom: 1rem; }
+.hero h1 { font-size: clamp(2rem, 4.5vw, 3.4rem); font-weight: 900; letter-spacing: -0.03em; line-height: 1.05; background: linear-gradient(135deg, #fff 0%, var(--cyan) 50%, var(--teal) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.hero .tagline { font-size: 1.05rem; color: var(--text-dim); margin-top: 1rem; max-width: 760px; line-height: 1.6; }
+
+/* Metadata strip */
+.meta-strip { max-width: 1300px; margin: 1rem auto 0; padding: 0 2rem; display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.meta-cell { background: var(--bg-card); padding: 1rem 1.2rem; }
+.meta-cell .label { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-mute); margin-bottom: 0.35rem; }
+.meta-cell .value { font-size: 0.95rem; font-weight: 600; color: var(--text); }
+.meta-cell .value.mono { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; }
+
+/* Sections + chapter bands */
+section.s { max-width: 1300px; margin: 0 auto; padding: 3rem 2rem 0; }
+.chapter-band + section.s { padding-top: 1.5rem; }
+.section-title { font-size: clamp(1.5rem, 2.6vw, 2rem); font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.7rem; }
+.section-title .sec-ref { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; font-weight: 600; color: var(--text-mute); letter-spacing: 0.04em; margin-right: 0.7rem; vertical-align: middle; padding: 0.2rem 0.5rem; border-radius: 4px; background: var(--bg2); border: 1px solid var(--border); }
+.section-desc { color: var(--text-dim); font-size: 1rem; max-width: 780px; margin-bottom: 1.8rem; line-height: 1.65; }
+.chapter-band { max-width: 1300px; margin: 3.5rem auto 0; padding: 0 2rem; }
+.chapter-band-inner { display: grid; grid-template-columns: auto 1fr; gap: 1.5rem; align-items: center; padding: 1.4rem 1.8rem; border-radius: 12px; background: linear-gradient(135deg, #4fc3f714 0%, #26c6da05 100%); border: 1px solid var(--border); border-left: 4px solid var(--cyan); }
+.chapter-band .ch-num { font-family: 'JetBrains Mono', monospace; font-size: 2.6rem; font-weight: 800; color: var(--cyan); line-height: 1; }
+.chapter-band .ch-name { font-size: 1.35rem; font-weight: 700; color: #fff; letter-spacing: 0.01em; margin-bottom: 0.25rem; }
+.chapter-band .ch-summary { font-size: 0.88rem; color: var(--text-dim); line-height: 1.5; }
+
+/* Doc-scope line below metadata strip */
+.doc-scope { max-width: 1300px; margin: 0.7rem auto 0; padding: 0 2.2rem; font-size: 0.82rem; color: var(--text-mute); line-height: 1.5; }
+.doc-scope strong { color: var(--text-dim); font-weight: 600; }
+
+/* Problem cards — auto-fit so they scale with the content column (narrower under sidebar) */
+.problem-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; }
+.problem-card { background: linear-gradient(160deg, #ef535018 0%, var(--bg-card) 60%); border: 1px solid #ef535044; border-radius: 12px; padding: 1.2rem 1.3rem; }
+.problem-card .pc-head { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.5rem; }
+.problem-card .pc-num { font-family: 'JetBrains Mono', monospace; font-size: 1.4rem; font-weight: 800; color: var(--coral); line-height: 1; }
+.problem-card .pc-title { font-size: 0.95rem; font-weight: 700; color: #fff; }
+.problem-card .pc-body { font-size: 0.85rem; color: var(--text-dim); line-height: 1.55; }
+
+/* Concept pills — auto-fit */
+.concept-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin-top: 1.4rem; }
+.concept { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.2rem 1.3rem; position: relative; border-left-width: 4px; }
+.concept.reading  { border-left-color: var(--green); }
+.concept.inferred { border-left-color: var(--amber); }
+.concept.history  { border-left-color: var(--cyan); }
+.concept .c-head { display: flex; align-items: center; gap: 0.7rem; margin-bottom: 0.6rem; }
+.concept .c-name { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+.concept.reading  .c-name { color: var(--green); }
+.concept.inferred .c-name { color: var(--amber); }
+.concept.history  .c-name { color: var(--cyan); }
+.concept .c-accuracy { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--text-mute); margin-left: auto; }
+.concept p { font-size: 0.88rem; color: var(--text-dim); line-height: 1.55; }
+.concept .c-sources { margin-top: 0.7rem; display: flex; flex-wrap: wrap; gap: 0.3rem; }
+.tag-pill { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; padding: 0.18rem 0.55rem; border-radius: 4px; background: var(--bg3); border: 1px solid var(--border); color: var(--text-dim); }
+
+/* Principles */
+.principles { display: grid; gap: 0.65rem; }
+.principle { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 0.95rem 1.3rem; display: flex; gap: 1rem; align-items: center; }
+.principle .num { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; font-weight: 700; width: 30px; height: 30px; border-radius: 8px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--cyan), var(--teal)); color: #0a1424; }
+.principle .text { font-size: 0.95rem; }
+.principle .text strong { color: var(--cyan); font-weight: 700; }
+
+/* Field cards — auto-fit (min 400px per card → 2 cols at typical sidebar-content width) */
+.fields-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 1rem; }
+.field-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
+.field-card .f-thumb { height: 110px; display: flex; align-items: center; justify-content: center; font-size: 2.6rem; position: relative; color: rgba(255,255,255,0.92); text-shadow: 0 1px 3px rgba(10,20,36,0.4); font-family: 'JetBrains Mono', monospace; font-weight: 800; letter-spacing: 0.04em; }
+.field-card .f-thumb.t1 { background: linear-gradient(135deg, #66bb6a, #26c6da); }
+.field-card .f-thumb.t2 { background: linear-gradient(135deg, #26c6da, #4fc3f7); }
+.field-card .f-thumb.t3 { background: linear-gradient(135deg, #4fc3f7, #ab47bc); }
+.field-card .f-thumb.t4 { background: linear-gradient(135deg, #ffb74d, #ef5350); }
+.field-card .f-thumb .badge-tl { position: absolute; top: 0.6rem; left: 0.6rem; font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; background: rgba(10,20,36,0.55); padding: 0.2rem 0.55rem; border-radius: 4px; backdrop-filter: blur(4px); }
+.field-card .f-body { padding: 1.1rem 1.2rem; flex: 1; display: flex; flex-direction: column; }
+.field-card .f-name { font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; font-weight: 700; color: #fff; margin-bottom: 0.3rem; }
+.field-card .f-question { font-style: italic; color: var(--text-dim); font-size: 0.85rem; margin-bottom: 0.7rem; }
+.field-card .f-rule { font-size: 0.83rem; color: var(--text-dim); line-height: 1.55; flex: 1; }
+
+/* Generic bullet list — used in fields, history, anywhere with → / ⚠ items */
+ul.bullets { list-style: none; padding: 0; margin: 0.7rem 0 0; }
+ul.bullets li { position: relative; padding: 0.4rem 0 0.4rem 1.3rem; font-size: 0.82rem; color: var(--text-dim); line-height: 1.55; border-top: 1px solid var(--border); }
+ul.bullets li::before { content: '→'; position: absolute; left: 0; top: 0.4rem; font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--cyan); }
+ul.bullets li.warn::before { content: '!'; color: var(--amber); }
+ul.bullets li code { font-size: 0.78rem; }
+
+/* Requirements with tabs */
+.req-tabs { display: flex; gap: 0.4rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border); }
+.req-tab { padding: 0.6rem 1rem; cursor: pointer; font-size: 0.82rem; font-weight: 600; color: var(--text-dim); border-bottom: 2px solid transparent; margin-bottom: -1px; user-select: none; }
+.req-tab:hover { color: #fff; }
+.req-tab.active { color: var(--cyan); border-bottom-color: var(--cyan); }
+.req-tab .count { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; padding: 0.05rem 0.4rem; border-radius: 4px; background: var(--bg3); margin-left: 0.4rem; color: var(--text-mute); }
+.req-tab.active .count { color: var(--cyan); background: #4fc3f722; }
+.req-list { display: grid; gap: 0.5rem; }
+.req { display: grid; grid-template-columns: 60px 1fr; gap: 1rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 0.7rem 1rem; align-items: start; }
+.req .id { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; font-weight: 700; color: var(--cyan); padding-top: 2px; }
+.req .body { font-size: 0.9rem; color: var(--text); line-height: 1.55; }
+.req.oos .id { color: var(--text-mute); }
+.req-list[data-tab="nf"] .req .id, .req-list[data-tab="oos"] .req .id { color: var(--amber); }
+
+/* History cards (for §4.4-style named rules) — auto-fit */
+.history-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; }
+.hist-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.3rem; border-top: 3px solid var(--cyan); }
+.hist-card.flag { border-top-color: var(--amber); }
+.hist-card .h-label { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--cyan); margin-bottom: 0.4rem; word-break: break-word; }
+.hist-card.flag .h-label { color: var(--amber); }
+.hist-card .h-value { font-family: 'JetBrains Mono', monospace; font-size: 1.6rem; font-weight: 800; color: #fff; margin-bottom: 0.6rem; line-height: 1; }
+.hist-card .h-value .unit { font-size: 0.65em; color: var(--text-mute); font-weight: 600; margin-left: 0.25rem; letter-spacing: 0; }
+.hist-card .h-desc { font-size: 0.88rem; color: var(--text-dim); margin-bottom: 0.8rem; line-height: 1.55; }
+
+/* Data flow SVG diagram */
+.flow-wrap { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.8rem; overflow-x: auto; }
+.flow-wrap svg { display: block; margin: 0 auto; max-width: 100%; height: auto; }
+.flow-legend { display: flex; flex-wrap: wrap; gap: 1.2rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); font-size: 0.82rem; color: var(--text-dim); }
+.flow-legend .item { display: inline-flex; align-items: center; gap: 0.4rem; }
+.flow-legend .swatch { width: 14px; height: 4px; border-radius: 2px; }
+
+/* Structure tree (repo shape after a run) — page-local component */
+.tree { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.4rem 1.6rem; overflow-x: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; line-height: 1.95; }
+.tree .row { white-space: nowrap; }
+.tree .ln { white-space: pre; color: var(--border-2); }
+.tree .path { color: var(--text); }
+.tree .dir { color: var(--cyan); font-weight: 600; }
+.tree .tag { font-size: 0.68rem; padding: 0.05rem 0.45rem; border-radius: 4px; margin-left: 0.6rem; font-weight: 700; letter-spacing: 0.04em; }
+.tree .tag.new  { background: #66bb6a22; color: var(--green); border: 1px solid #66bb6a55; }
+.tree .tag.edit { background: #ffb74d22; color: var(--amber); border: 1px solid #ffb74d55; }
+.tree .tag.copy { background: #4fc3f714; color: var(--cyan);  border: 1px solid #4fc3f744; }
+.tree .tag.src  { background: var(--bg3);  color: var(--text-mute); border: 1px solid var(--border); }
+.tree .cond { color: var(--text-mute); font-style: italic; margin-left: 0.5rem; }
+
+/* Code map */
+.codemap { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.codemap-row { display: grid; grid-template-columns: 1fr 1.5fr; gap: 1rem; padding: 0.7rem 1.2rem; border-bottom: 1px solid var(--border); font-size: 0.85rem; align-items: center; }
+.codemap-row:last-child { border-bottom: none; }
+.codemap-row:nth-child(odd) { background: rgba(255,255,255,0.015); }
+.codemap-row .what { color: var(--text); }
+.codemap-row .where { color: var(--cyan); font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; word-break: break-all; }
+
+/* Decisions matrix */
+.decisions { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.decisions-head, .decision-row { display: grid; grid-template-columns: 1.2fr 1fr 1.4fr; gap: 1rem; padding: 0.9rem 1.2rem; align-items: start; border-bottom: 1px solid var(--border); }
+.decisions-head { background: var(--bg2); font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); }
+.decision-row { font-size: 0.85rem; }
+.decision-row:last-child { border-bottom: none; }
+.decision-row .decided { color: #fff; font-weight: 600; }
+.decision-row .alt { color: var(--amber); font-style: italic; font-size: 0.82rem; line-height: 1.5; }
+.decision-row .why { color: var(--text-dim); font-size: 0.82rem; line-height: 1.55; }
+
+/* Generic data table (Shapes §6.4, Configuration §6.6) */
+.data-table { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.data-table .row { display: grid; gap: 1rem; padding: 0.65rem 1.2rem; border-bottom: 1px solid var(--border); font-size: 0.85rem; align-items: start; }
+.data-table .row.head { background: var(--bg2); font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); font-weight: 700; }
+.data-table .row:last-child { border-bottom: none; }
+.data-table .row.cols-2 { grid-template-columns: 1fr 2fr; }
+.data-table .row.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+.data-table .row code { font-size: 0.78rem; }
+.data-table .row .label-cell { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; color: var(--cyan); }
+
+/* Inline-path list (Shapes §6.4) */
+.gps-paths { list-style: none; padding: 0.7rem 0 0; margin: 0; display: grid; gap: 0.4rem; }
+.gps-paths li { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--cyan); background: var(--bg2); border: 1px solid var(--border); border-radius: 6px; padding: 0.45rem 0.8rem; }
+
+/* Sub-section heading (Shapes has multiple sub-blocks) */
+.subhead { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-dim); font-weight: 700; margin: 1.5rem 0 0.6rem; }
+.subhead:first-child { margin-top: 0; }
+
+/* Failure handling */
+.failures { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.failures-head, .failure-row { display: grid; grid-template-columns: 1fr 1fr 80px 1.2fr; gap: 1rem; padding: 0.85rem 1.2rem; align-items: center; border-bottom: 1px solid var(--border); }
+.failures-head { background: var(--bg2); font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); }
+.failure-row { font-size: 0.85rem; }
+.failure-row:last-child { border-bottom: none; }
+.sev { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; font-weight: 700; padding: 0.2rem 0.55rem; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.06em; }
+.sev.med  { background: #ffb74d22; color: var(--amber); border: 1px solid #ffb74d55; }
+.sev.low  { background: #66bb6a22; color: var(--green); border: 1px solid #66bb6a55; }
+.sev.high { background: #ef535022; color: var(--coral); border: 1px solid #ef535055; }
+
+/* Acceptance criteria */
+.ac-table { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.ac-head, .ac-row { display: grid; grid-template-columns: 60px 150px 1fr; gap: 1rem; padding: 0.8rem 1.2rem; align-items: start; border-bottom: 1px solid var(--border); }
+.ac-head { background: var(--bg2); font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); }
+.ac-row { font-size: 0.86rem; }
+.ac-row:last-child { border-bottom: none; }
+.ac-row .ac-id { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--cyan); }
+.ac-row .ac-verifies { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+.verify-chip { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; padding: 0.15rem 0.5rem; border-radius: 4px; background: #4fc3f714; border: 1px solid #4fc3f744; color: var(--cyan); }
+
+/* Open questions — auto-fit */
+.q-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 0.7rem; }
+.q-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.2rem; border-left: 3px solid var(--gold); }
+.q-card .q-head { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
+.q-card .q-id { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; color: var(--gold); background: #ffd54f15; padding: 0.15rem 0.5rem; border-radius: 4px; }
+.q-card .q-decider { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--text-mute); }
+.q-card .q-body { font-size: 0.88rem; color: var(--text); line-height: 1.55; }
+
+/* References — auto-fit */
+.refs { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+.refs-block { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 1.1rem 1.3rem; }
+.refs-block h4 { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--cyan); margin-bottom: 0.7rem; }
+.refs-block ul { list-style: none; }
+.refs-block li { font-family: 'JetBrains Mono', monospace; font-size: 0.76rem; color: var(--text-dim); padding: 0.2rem 0; line-height: 1.5; word-break: break-all; }
+
+/* Callouts */
+.callout { background: linear-gradient(135deg, #4fc3f712, #26c6da08); border: 1px solid #4fc3f744; border-radius: 10px; padding: 1rem 1.3rem; margin: 1.2rem 0; font-size: 0.9rem; color: var(--text-dim); line-height: 1.6; }
+.callout strong { color: var(--cyan); }
+.callout.warn { background: linear-gradient(135deg, #ffd54f15, #ff890608); border-color: #ffd54f55; }
+.callout.warn strong { color: var(--gold); }
+
+footer.site-footer { max-width: 1300px; margin: 4rem auto 0; padding: 2rem; border-top: 1px solid var(--border); text-align: center; color: var(--text-mute); font-size: 0.82rem; line-height: 1.7; }
+footer.site-footer .mono { color: var(--text-dim); font-family: 'JetBrains Mono', monospace; }
+footer.site-footer a { color: var(--cyan); }
+
+@media (max-width: 1100px) {
+  .meta-strip { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 900px) {
+  .layout-doc { grid-template-columns: 1fr; gap: 1rem; padding: 1rem 1.2rem; }
+  .side-nav { position: static; max-height: none; overflow: visible; border: 1px solid var(--border); border-radius: 8px; padding: 1rem; background: var(--bg-card); }
+}
+@media (max-width: 720px) {
+  .top-nav { overflow-x: auto; padding: 0.55rem 1rem; gap: 1rem; }
+  .top-nav .spacer { display: none; }
+  .hero { padding: 1.2rem 1.2rem 1rem; }
+  section.s { padding: 2.5rem 1.2rem 0; }
+  .meta-strip { grid-template-columns: repeat(2, 1fr); margin: 1rem 1.2rem 0; }
+  .chapter-band { padding: 0 1.2rem; margin-top: 3rem; }
+  .chapter-band-inner { grid-template-columns: 1fr; gap: 0.5rem; padding: 1.2rem 1.4rem; }
+  .chapter-band .ch-num { font-size: 2rem; }
+  .decisions-head, .decision-row { grid-template-columns: 1fr; gap: 0.4rem; }
+  .failures-head, .failure-row { grid-template-columns: 1fr; }
+  .ac-head, .ac-row { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <span class="brand"><a href="../index.html">ASIMOV<span class="sep">/</span>docs</a></span>
+  <a href="../index.html#s1">Architecture</a>
+  <a href="../index.html#s2">Features</a>
+  <a href="../index.html#s3">Environments</a>
+  <a href="../index.html#s4">Conventions</a>
+  <a href="../index.html#s5">Reference</a>
+  <a href="../index.html#s6">Diagrams</a>
+  <span class="spacer"></span>
+  <span class="phase-chip full">Full design</span>
+  <span class="status-chip">Draft v0.2</span>
+</nav>
+
+<div class="layout-doc">
+  <aside class="side-nav">
+    <div class="side-head">On this page</div>
+    <ul>
+      <li><a href="#s2">§2 Why this exists</a></li>
+      <li><a href="#s3">§3 Requirements</a></li>
+      <li><a href="#c4">§4 Business design</a>
+        <ul>
+          <li><a href="#s4-1">§4.1 Principles</a></li>
+          <li><a href="#s4-2">§4.2 Vocabulary</a></li>
+          <li><a href="#s4-3">§4.3 The four write targets</a></li>
+          <li><a href="#s4-4">§4.4 Generation rules</a></li>
+          <li><a href="#s4-5">§4.5 Decisions</a></li>
+        </ul>
+      </li>
+      <li><a href="#s5">§5 UI Design</a></li>
+      <li><a href="#c6">§6 Technical design</a>
+        <ul>
+          <li><a href="#s6-1">§6.1 Platform</a></li>
+          <li><a href="#s6-2">§6.2 Run flow</a></li>
+          <li><a href="#s6-3">§6.3 Code map</a></li>
+          <li><a href="#s6-4">§6.4 Detection &amp; content</a></li>
+          <li><a href="#s6-5">§6.5 APIs</a></li>
+          <li><a href="#s6-6">§6.6 Configuration</a></li>
+          <li><a href="#s6-7">§6.7 Failure handling</a></li>
+          <li><a href="#s6-8">§6.8 Gotchas</a></li>
+        </ul>
+      </li>
+      <li><a href="#s7">§7 Acceptance</a></li>
+      <li><a href="#s8">§8 Open questions</a></li>
+      <li><a href="#s9">§9 References</a></li>
+    </ul>
+  </aside>
+
+  <article class="content">
+
+<header class="hero">
+  <div class="kicker">D101 · Feature design · Asimov plugin</div>
+  <h1>/asimov-init</h1>
+  <p class="tagline">Bootstrap a product repo to use the Asimov toolkit — writes an Asimov-owned <code>asimov.md</code> context file and wires it into <code>CLAUDE.md</code> via an <code>@</code>-import, scaffolds the <code>documentation/conventions/&lt;stack&gt;/README.md</code> read-lists the build subagents depend on, and generates the <code>documentation/</code> landing site. Supersedes <code>/docs-init</code>.</p>
+</header>
+
+<div class="meta-strip">
+  <div class="meta-cell"><div class="label">Owner</div><div class="value">Allan Borup</div></div>
+  <div class="meta-cell"><div class="label">Approver</div><div class="value">Allan Borup</div></div>
+  <div class="meta-cell"><div class="label">Version</div><div class="value mono">0.2</div></div>
+  <div class="meta-cell"><div class="label">Model</div><div class="value mono">claude-opus-4-8</div></div>
+  <div class="meta-cell"><div class="label">Outputs</div><div class="value mono">asimov.md · CLAUDE.md · conventions · index.html</div></div>
+  <div class="meta-cell"><div class="label">Last updated</div><div class="value mono">2026-09-15</div></div>
+  <div class="meta-cell"><div class="label">Archetype</div><div class="value">Greenfield (evolves /docs-init)</div></div>
+</div>
+
+<div class="doc-scope">
+  <strong>Scope:</strong> The <code>/asimov-init</code> slash command shipped by <code>asimov-plugin</code>. Run once in a product repo to make it Asimov-ready: it writes <code>asimov.md</code>, ensures <code>CLAUDE.md</code> imports it, scaffolds detected-stack convention read-lists under <code>documentation/conventions/</code>, and writes <code>documentation/index.html</code> + <code>documentation/_chrome.css</code>. Read-only on every other file in the repo. Renames and absorbs the former <code>/docs-init</code>.
+</div>
+
+
+<!-- ═════════════════════ §2 — Problem / Purpose ═════════════════════ -->
+<section class="s" id="s2">
+  <h2 class="section-title"><span class="sec-ref">§2</span>Why this exists</h2>
+  <p class="section-desc">Installing <code>asimov-plugin</code> makes the commands and subagents <em>available</em>, but a freshly-installed repo is not yet <em>ready</em> for them. The build subagents read convention files that don't exist; Claude has no repo-level memory of the L3 taxonomy; and the documentation landing page has to be hand-built. Before this command, <code>/docs-init</code> solved only the last of these. <code>/asimov-init</code> closes the whole gap in one guided run.</p>
+
+  <div class="problem-grid">
+    <div class="problem-card">
+      <div class="pc-head">
+        <div class="pc-num">01</div>
+        <div class="pc-title">Subagents read files that aren't there</div>
+      </div>
+      <div class="pc-body">Giskard, Daneel, and Calvin load <code>documentation/conventions/&lt;stack&gt;/README.md</code> as a load-bearing read-list (D100 §7.2.1). In a fresh repo that file is absent, so the convention overlay is silently empty.</div>
+    </div>
+    <div class="problem-card">
+      <div class="pc-head">
+        <div class="pc-num">02</div>
+        <div class="pc-title">No repo-level Asimov memory</div>
+      </div>
+      <div class="pc-body">Claude opening the repo has no standing context about the L3 taxonomy, where D101s live, or which Asimov commands exist — so it can't orient or auto-delegate without being told each session.</div>
+    </div>
+    <div class="problem-card">
+      <div class="pc-head">
+        <div class="pc-num">03</div>
+        <div class="pc-title">Setup spread across steps</div>
+      </div>
+      <div class="pc-body">Before this command a developer ran <code>/docs-init</code>, then hand-edited <code>CLAUDE.md</code>, then hand-created convention folders. Three manual steps, each easy to skip, with no single "you are now Asimov-ready" moment.</div>
+    </div>
+    <div class="problem-card">
+      <div class="pc-head">
+        <div class="pc-num">04</div>
+        <div class="pc-title">Hand-edited CLAUDE.md is risky to touch</div>
+      </div>
+      <div class="pc-body">A command that rewrites a developer's existing <code>CLAUDE.md</code> can clobber hand-written context. Asimov context needs a home it can regenerate without owning the whole file.</div>
+    </div>
+  </div>
+
+  <div class="callout">
+    <strong>Audience.</strong> A developer adopting <code>asimov-plugin</code> in a product repo for the first time (or refreshing an existing setup), who wants the repo wired for the L3 commands and subagents in one run — plus the Asimov repo itself, which dogfoods the command.
+  </div>
+</section>
+
+<!-- ═════════════════════ §3 — Requirements ═════════════════════ -->
+<section class="s" id="s3">
+  <h2 class="section-title"><span class="sec-ref">§3</span>Requirements</h2>
+
+  <div class="req-tabs">
+    <div class="req-tab active" data-target="func">Functional <span class="count">20</span></div>
+    <div class="req-tab" data-target="nf">Non-functional <span class="count">7</span></div>
+    <div class="req-tab" data-target="oos">Out of scope <span class="count">6</span></div>
+  </div>
+
+  <div class="req-list" data-tab="func">
+    <div class="req"><div class="id">R1</div><div class="body">The command writes <code>asimov.md</code> at the repo root, populated from the plugin's <code>asimov-md-template.md</code> with the Asimov/L3 context: the <code>documentation/</code> taxonomy, where D101s live, the convention-overlay pointers, and the available Asimov commands and subagents.</div></div>
+    <div class="req"><div class="id">R2</div><div class="body">On re-run, the command regenerates <code>asimov.md</code> wholesale — it is an Asimov-owned file, not a developer-edited one.</div></div>
+    <div class="req"><div class="id">R3</div><div class="body">When a <code>CLAUDE.md</code> exists at the repo root, the command ensures it contains a single <code>@asimov.md</code> import line, appending it (in a clearly labelled position) only if absent.</div></div>
+    <div class="req"><div class="id">R4</div><div class="body">When no <code>CLAUDE.md</code> exists, the command creates a minimal one whose body is the <code>@asimov.md</code> import plus a one-line pointer to run Claude's own <code>/init</code> for full repo context.</div></div>
+    <div class="req"><div class="id">R5</div><div class="body">The command never modifies any line of an existing <code>CLAUDE.md</code> other than adding the import line; it does not rewrite, reorder, or summarise the developer's existing content.</div></div>
+    <div class="req"><div class="id">R6</div><div class="body">The command detects which stacks the repo uses by scanning for stack markers (the §6.4 detection table) and reports the detected set.</div></div>
+    <div class="req"><div class="id">R7</div><div class="body">For each detected stack, the command scaffolds <code>documentation/conventions/&lt;stack&gt;/README.md</code> from the plugin's <code>conventions-readme-template.md</code> when that file is absent.</div></div>
+    <div class="req"><div class="id">R8</div><div class="body">When a stack's <code>README.md</code> already exists, the command offers to merge/update the Asimov-managed region of it rather than skipping silently or overwriting it wholesale.</div></div>
+    <div class="req"><div class="id">R9</div><div class="body">When no stack is detected, the command creates no <code>conventions/&lt;stack&gt;/</code> folders and reports that no stack was detected (it does not guess a stack).</div></div>
+    <div class="req"><div class="id">R10</div><div class="body">The command writes <code>documentation/index.html</code> from the index template, carding the docs found under <code>documentation/</code> by the six-bucket taxonomy (§6.4).</div></div>
+    <div class="req"><div class="id">R11</div><div class="body">The command writes <code>documentation/_chrome.css</code> as a verbatim copy of the plugin's chrome stylesheet, applying the absent/identical/differs special-case (§4.4).</div></div>
+    <div class="req"><div class="id">R12</div><div class="body">The command emits exactly one index doc card per unique doc (base name without extension), drops buckets with zero docs, and excludes the defined non-document files (§6.4).</div></div>
+    <div class="req"><div class="id">R13</div><div class="body">The command reads every template it uses (<code>asimov-md-template.md</code>, <code>conventions-readme-template.md</code>, <code>site-template.html</code>, <code>_chrome.css</code>) from the plugin root at run-time, before writing — and, since <a href="D101-artifact-maturity.html" style="color:var(--cyan)">D101 — artifact maturity</a>, the three artifact definitions beside them (<code>asimov-md-definition.md</code>, <code>conventions-definition.md</code>, <code>site-definition.md</code>) for their maturity level. From each definition's YAML block it prints one chat line per level present, before its first question (Step 1b); nothing is printed for <code>adopt</code>, and no level is ever written into a generated file.</div></div>
+    <div class="req"><div class="id">R14</div><div class="body">The command derives the repo name from <code>$ARGUMENTS</code> when non-empty, otherwise from the <code>git remote origin</code> URL, otherwise from the working-directory folder name.</div></div>
+    <div class="req"><div class="id">R15</div><div class="body">The command presents a single consolidated write plan listing every target (<code>asimov.md</code>, the <code>CLAUDE.md</code> edit, each convention README, <code>index.html</code>, <code>_chrome.css</code>) with its action drawn from one canonical set — <strong>NEW · OVERWRITE · APPEND · MERGE · SKIP · ASK</strong> — and waits for explicit confirmation before writing anything.</div></div>
+    <div class="req"><div class="id">R16</div><div class="body">After writing, the command reports each target written/skipped with the reason, the set of stacks detected, a one-line site stat (<code>&lt;N&gt; docs across &lt;K&gt; sections; &lt;H&gt;/&lt;T&gt; hand-crafted HTML</code>), and any files under <code>documentation/</code> that fit no bucket with a suggested target.</div></div>
+    <div class="req"><div class="id">R17</div><div class="body">When the architecture doc describes a named pipeline or dataflow (per the §6.4 detection rule), the command MAY add a flow band to the index between hero and catalogue, with each node typed by a <em>repo-defined</em> kind and a legend mapping colour → kind.</div></div>
+    <div class="req"><div class="id">R18</div><div class="body">When the repo ships 3+ sibling docs of one category (per the §6.4 detection rule), the command MAY add an entity gallery to the index, one tile per sibling linking to that sibling's doc.</div></div>
+    <div class="req"><div class="id">R19</div><div class="body">When no pipeline and no sibling cast is detected, the command emits no showcase block and never invents one; an omitted flow band is recorded in the report as a suggested manual enhancement (§4.4, §6.4).</div></div>
+    <div class="req"><div class="id">R20</div><div class="body">When the repo has an orientation source — the <code>README.md</code> intro, else a charter/overview doc under <code>documentation/</code>, else the D100 Purpose section — the command MAY add 2–3 short overview paragraphs to the index between hero and catalogue, naming the source used in the write plan and report; with no source it emits none.</div></div>
+  </div>
+
+  <div class="req-list" data-tab="nf" style="display:none">
+    <div class="req"><div class="id">NF1</div><div class="body">The command is read-only on every file in the repo except its declared write targets; it never calls Write on a source doc, and its only edit to an existing file is the additive <code>CLAUDE.md</code> import line and the managed region of an existing convention README.</div></div>
+    <div class="req"><div class="id">NF2</div><div class="body">The <code>CLAUDE.md</code> edit is idempotent: re-running the command when the <code>@asimov.md</code> import is already present adds nothing and reports SKIP.</div></div>
+    <div class="req"><div class="id">NF3</div><div class="body">The generated <code>index.html</code> is pure static HTML + CSS — no JavaScript, no client-side behaviour — and links to <code>_chrome.css</code> rather than inlining it.</div></div>
+    <div class="req"><div class="id">NF4</div><div class="body">All templates are re-read at the start of every invocation; the file in the plugin is the run-time source of truth.</div></div>
+    <div class="req"><div class="id">NF5</div><div class="body">The command's first output is a one-sentence narration of what it will do, emitted before any tool call.</div></div>
+    <div class="req"><div class="id">NF6</div><div class="body">The command runs on <code>claude-opus-4-8</code>, matching its row in <code>model-choice.md §1</code>.</div></div>
+    <div class="req"><div class="id">NF7</div><div class="body">The Asimov-managed region in an existing convention README is delimited by explicit <code>&lt;!-- asimov:start --&gt;</code>/<code>&lt;!-- asimov:end --&gt;</code> markers so a re-run refreshes exactly that region. The <code>CLAUDE.md</code> import needs no markers — it is a single bare <code>@asimov.md</code> line, located on re-run by reference.</div></div>
+  </div>
+
+  <div class="req-list" data-tab="oos" style="display:none">
+    <div class="req oos"><div class="id">OOS1</div><div class="body">Authoring the full repo <code>CLAUDE.md</code> / analysing the codebase to describe the product. Why: that is Claude's own <code>/init</code>; <code>/asimov-init</code> only adds the Asimov layer via <code>@asimov.md</code> and points the developer at <code>/init</code> for the rest.</div></div>
+    <div class="req oos"><div class="id">OOS2</div><div class="body">Authoring the convention <em>content</em> (the actual coding rules). Why: the command scaffolds the read-list skeleton; the team fills in the rules. Guessing rules would bake wrong conventions into the subagents' overlay.</div></div>
+    <div class="req oos"><div class="id">OOS3</div><div class="body">Authoring doc bodies (D100/D101 content). Why: that is the job of <code>/d101-feature-design</code> and siblings; <code>/asimov-init</code> only indexes and scaffolds.</div></div>
+    <div class="req oos"><div class="id">OOS4</div><div class="body">A config mechanism for the <code>documentation/</code> path taxonomy. Why: the layout is intentionally a code fork point shared across the D101 commands, not a one-toggle config (D100 hard rule 9).</div></div>
+    <div class="req oos"><div class="id">OOS5</div><div class="body">Installing or verifying the plugin itself. Why: marketplace install is a developer step done before the command runs; the command assumes the plugin is present.</div></div>
+    <div class="req oos"><div class="id">OOS6</div><div class="body">Writing L3 process-rule docs or configuring PR / Copilot settings. Why: process enforcement lives in product-repo settings, not in the toolkit (D100 §3); deferred out of this command's scope.</div></div>
+  </div>
+</section>
+
+<!-- ═════════════════════ §4 — Chapter band ═════════════════════ -->
+<div class="chapter-band" id="c4">
+  <div class="chapter-band-inner">
+    <div class="ch-num">4</div>
+    <div>
+      <div class="ch-name">Business design</div>
+      <div class="ch-summary">The principles the command holds to, its vocabulary, the four things it writes, the conditional generation rules with counter-examples, and the decisions taken with their rejected alternatives.</div>
+    </div>
+  </div>
+</div>
+
+<!-- §4.1 Principles -->
+<section class="s" id="s4-1">
+  <h2 class="section-title"><span class="sec-ref">§4.1</span>Principles</h2>
+  <div class="principles">
+    <div class="principle">
+      <div class="num">1</div>
+      <div class="text"><strong>One run to Asimov-ready.</strong> A single guided command takes a fresh repo from plugin-installed to fully wired — context, conventions, and docs site — instead of three manual steps.</div>
+    </div>
+    <div class="principle">
+      <div class="num">2</div>
+      <div class="text"><strong>Own a file, not a region of someone else's.</strong> Asimov context lives in <code>asimov.md</code>, which the command owns and regenerates freely; <code>CLAUDE.md</code> only gains a one-line <code>@</code>-import.</div>
+    </div>
+    <div class="principle">
+      <div class="num">3</div>
+      <div class="text"><strong>Scaffold structure, never invent content.</strong> The command creates the convention read-list skeleton and the import wiring; it never guesses coding rules or product context.</div>
+    </div>
+    <div class="principle">
+      <div class="num">4</div>
+      <div class="text"><strong>Detect, don't assume.</strong> Stacks are discovered from real repo markers; an undetected stack yields no folder and an explicit report line, not a guessed default.</div>
+    </div>
+    <div class="principle">
+      <div class="num">5</div>
+      <div class="text"><strong>Read-only on everything else; confirm before writing.</strong> The command shows one consolidated write plan and waits; outside its declared targets it never mutates a file.</div>
+    </div>
+    <div class="principle">
+      <div class="num">6</div>
+      <div class="text"><strong>Plugin templates are the run-time source of truth.</strong> Every template is re-read each invocation so the wiring and visual language can't drift.</div>
+    </div>
+  </div>
+</section>
+
+<!-- §4.2 Concepts -->
+<section class="s" id="s4-2">
+  <h2 class="section-title"><span class="sec-ref">§4.2</span>Vocabulary</h2>
+  <p class="section-desc">The domain terms the command and this design share. Green = an artefact the command produces; amber = a derived value; cyan = an input structure or mechanism it relies on.</p>
+  <div class="concept-row">
+    <div class="concept reading">
+      <div class="c-head"><div class="c-name">asimov.md</div></div>
+      <p>The Asimov-owned context file written at the repo root. Holds the L3 taxonomy, doc locations, convention-overlay pointers, and the command/subagent inventory. Regenerated wholesale on every run.</p>
+    </div>
+    <div class="concept history">
+      <div class="c-head"><div class="c-name">@-import</div></div>
+      <p>A <code>@path</code> line in <code>CLAUDE.md</code> that Claude Code expands into context at session start. <code>@asimov.md</code> is how the Asimov layer reaches Claude without living inside <code>CLAUDE.md</code>.</p>
+    </div>
+    <div class="concept reading">
+      <div class="c-head"><div class="c-name">Convention read-list</div></div>
+      <p>A <code>documentation/conventions/&lt;stack&gt;/README.md</code> that <code>@</code>-references every convention file in its stack. The build subagents read it to load the local overlay (D100 §7.2.1).</p>
+    </div>
+    <div class="concept inferred">
+      <div class="c-head"><div class="c-name">Stack detection</div></div>
+      <p>Inferring which stacks a repo uses from marker files (<code>*.csproj</code> → dotnet, <code>angular.json</code> → angular). Drives which convention read-lists are scaffolded.</p>
+    </div>
+    <div class="concept history">
+      <div class="c-head"><div class="c-name">Managed region</div></div>
+      <p>A marker-delimited block (<code>&lt;!-- asimov:start --&gt; … &lt;!-- asimov:end --&gt;</code>) the command refreshes inside an existing convention README it doesn't own, so a re-run updates exactly that block (NF7). The <code>CLAUDE.md</code> import needs none — it is a single bare line, detected by reference.</p>
+    </div>
+    <div class="concept reading">
+      <div class="c-head"><div class="c-name">Write plan</div></div>
+      <p>The single consolidated list of every target and its action (NEW · OVERWRITE · APPEND · MERGE · SKIP · ASK) shown for confirmation before any write (R15).</p>
+    </div>
+  </div>
+</section>
+
+<!-- §4.3 The four write targets -->
+<section class="s" id="s4-3">
+  <h2 class="section-title"><span class="sec-ref">§4.3</span>The four write targets</h2>
+  <p class="section-desc">The map below is the repo shape after a run — four targets, colour-coded by what the command does to each. The cards beneath detail each one and its "what if it already exists" rule, which is the heart of the design.</p>
+
+  <div class="flow-wrap" style="margin-bottom:1.6rem">
+    <div class="tree">
+      <div class="row"><span class="ln"></span><span class="dir">&lt;repo root&gt;/</span></div>
+      <div class="row"><span class="ln">├─ </span><span class="path">CLAUDE.md</span><span class="tag edit">APPEND</span><span class="cond"># one @asimov.md line · NEW if absent · SKIP if already imported</span></div>
+      <div class="row"><span class="ln">├─ </span><span class="path">asimov.md</span><span class="tag new">NEW</span><span class="cond"># Asimov-owned · OVERWRITE on re-run · ↑ imported by CLAUDE.md</span></div>
+      <div class="row"><span class="ln">└─ </span><span class="dir">documentation/</span></div>
+      <div class="row"><span class="ln">   ├─ </span><span class="path">index.html</span><span class="tag new">NEW</span><span class="cond"># the landing site · OVERWRITE if present, confirm first</span></div>
+      <div class="row"><span class="ln">   ├─ </span><span class="path">_chrome.css</span><span class="tag new">NEW</span><span class="cond"># verbatim · SKIP if byte-identical · ASK if it differs</span></div>
+      <div class="row"><span class="ln">   ├─ </span><span class="path">D100-*  ·  features/D101-*  ·  reference/</span><span class="tag src">READ-ONLY</span><span class="cond"># indexed, never written</span></div>
+      <div class="row"><span class="ln">   └─ </span><span class="dir">conventions/</span></div>
+      <div class="row"><span class="ln">      ├─ </span><span class="path">dotnet/README.md</span><span class="tag new">NEW</span><span class="cond"># if *.csproj / *.sln detected · MERGE region if it exists</span></div>
+      <div class="row"><span class="ln">      ├─ </span><span class="path">angular/README.md</span><span class="tag new">NEW</span><span class="cond"># if angular.json detected · MERGE region if it exists</span></div>
+      <div class="row"><span class="ln">      └─ </span><span class="path">test/README.md</span><span class="tag new">NEW</span><span class="cond"># if a test marker detected · MERGE region if it exists</span></div>
+    </div>
+    <div class="flow-legend">
+      <span class="item"><span class="swatch" style="background:var(--green)"></span>NEW / OVERWRITE — Asimov-owned, created or regenerated</span>
+      <span class="item"><span class="swatch" style="background:var(--amber)"></span>APPEND / MERGE — bounded edit into a file Asimov doesn't own</span>
+      <span class="item"><span class="swatch" style="background:var(--text-mute)"></span>READ-ONLY — sources, never written</span>
+    </div>
+  </div>
+
+  <div class="fields-grid">
+    <div class="field-card">
+      <div class="f-thumb t1"><span class="badge-tl">§4.3.1</span>asimov.md</div>
+      <div class="f-body">
+        <div class="f-name">asimov.md (repo root)</div>
+        <div class="f-question">"What standing context does Claude need about this repo's L3 setup?"</div>
+        <div class="f-rule">Asimov-owned. Written from the plugin template, filled with repo name and detected stacks. Regenerated wholesale on re-run (R1, R2).</div>
+        <ul class="bullets">
+          <li>Holds taxonomy, doc locations, convention pointers, command/subagent inventory</li>
+          <li class="warn">Not for developer edits — they belong in <code>CLAUDE.md</code>, which survives re-runs</li>
+        </ul>
+      </div>
+    </div>
+    <div class="field-card">
+      <div class="f-thumb t2"><span class="badge-tl">§4.3.2</span>CLAUDE</div>
+      <div class="f-body">
+        <div class="f-name">CLAUDE.md import</div>
+        <div class="f-question">"How does asimov.md actually reach Claude?"</div>
+        <div class="f-rule">Ensure a single <code>@asimov.md</code> line exists. Append it if missing; create a minimal CLAUDE.md if none exists; never touch other content (R3–R5).</div>
+        <ul class="bullets">
+          <li>Idempotent: re-run with the import present adds nothing (NF2)</li>
+          <li class="warn">Does not author the rest of CLAUDE.md — that's Claude's <code>/init</code> (OOS1)</li>
+        </ul>
+      </div>
+    </div>
+    <div class="field-card">
+      <div class="f-thumb t3"><span class="badge-tl">§4.3.3</span>CONV</div>
+      <div class="f-body">
+        <div class="f-name">Convention read-lists</div>
+        <div class="f-question">"What do the build subagents load as their local overlay?"</div>
+        <div class="f-rule">For each detected stack, scaffold <code>conventions/&lt;stack&gt;/README.md</code> from the template when absent; offer a managed-region merge when present (R6–R9).</div>
+        <ul class="bullets">
+          <li>Skeleton only — a read-list with placeholders, not real rules (OOS2)</li>
+          <li class="warn">No stack detected → no folder, explicit report line (R9)</li>
+        </ul>
+      </div>
+    </div>
+    <div class="field-card">
+      <div class="f-thumb t4"><span class="badge-tl">§4.3.4</span>SITE</div>
+      <div class="f-body">
+        <div class="f-name">Documentation site</div>
+        <div class="f-question">"Where do the repo's docs live as a browsable landing page?"</div>
+        <div class="f-rule">Write <code>documentation/index.html</code> (six-bucket taxonomy) and <code>_chrome.css</code> — the catalogue behaviour inherited verbatim from <code>/docs-init</code> (R10–R12).</div>
+        <ul class="bullets">
+          <li>One card per unique doc; empty buckets dropped; sources never edited</li>
+          <li>Optionally fronted by an intro zone — overview prose / flow band / entity gallery — when the repo supports it (R17–R20, §6.4)</li>
+          <li class="warn"><code>_chrome.css</code> identical to template → left untouched</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- §4.4 Named rules -->
+<section class="s" id="s4-4">
+  <h2 class="section-title"><span class="sec-ref">§4.4</span>Generation rules</h2>
+  <p class="section-desc">The conditional rules that govern what the command writes. Each carries a positive example and a counter-example — the adjacent case where the rule does <em>not</em> fire.</p>
+  <div class="history-grid">
+    <div class="hist-card">
+      <div class="h-label">asimov.md regeneration</div>
+      <div class="h-value">Overwrite</div>
+      <div class="h-desc">As an Asimov-owned file, <code>asimov.md</code> is regenerated wholesale every run — there is no merge step to preserve.</div>
+      <ul class="bullets">
+        <li>Existing <code>asimov.md</code> → replaced with the freshly rendered version</li>
+        <li class="warn">Developer notes placed in <code>asimov.md</code> are lost — they belong in <code>CLAUDE.md</code></li>
+      </ul>
+    </div>
+    <div class="hist-card flag">
+      <div class="h-label">CLAUDE.md import</div>
+      <div class="h-value">Append-once</div>
+      <div class="h-desc">Add the <code>@asimov.md</code> line only when absent; otherwise leave the file exactly as-is.</div>
+      <ul class="bullets">
+        <li>CLAUDE.md without the import → import appended, rest untouched</li>
+        <li class="warn">Import already present → nothing written, action reported as SKIP (NF2)</li>
+      </ul>
+    </div>
+    <div class="hist-card">
+      <div class="h-label">Stack detection</div>
+      <div class="h-value">Marker-driven</div>
+      <div class="h-desc">Scaffold a convention read-list only for stacks whose marker files are found in the repo.</div>
+      <ul class="bullets">
+        <li>A <code>*.csproj</code> present → <code>conventions/dotnet/README.md</code> scaffolded</li>
+        <li class="warn">No <code>angular.json</code> anywhere → no <code>conventions/angular/</code> folder created (R9)</li>
+      </ul>
+    </div>
+    <div class="hist-card flag">
+      <div class="h-label">Existing convention README</div>
+      <div class="h-value">Merge / Ask</div>
+      <div class="h-desc">When a stack README already exists, offer to refresh only the Asimov-managed region; never overwrite the whole file silently.</div>
+      <ul class="bullets">
+        <li>Existing README with a managed region → region refreshed, hand-written rules kept</li>
+        <li class="warn">Existing README without a managed region → command asks before inserting one</li>
+      </ul>
+    </div>
+    <div class="hist-card flag">
+      <div class="h-label">_chrome.css special-case</div>
+      <div class="h-value">Skip / Ask</div>
+      <div class="h-desc">Write when absent; leave untouched when byte-identical to the template; prompt overwrite/keep/diff when it differs.</div>
+      <ul class="bullets">
+        <li>Existing file identical to template → not rewritten, mtime preserved</li>
+        <li class="warn">Existing file differs → command asks first, never overwrites silently</li>
+      </ul>
+    </div>
+    <div class="hist-card">
+      <div class="h-label">Index de-duplication</div>
+      <div class="h-value">1 card</div>
+      <div class="h-desc">A doc is identified by base name; if both formats exist, emit one card with the HTML badge only (inherited from /docs-init).</div>
+      <ul class="bullets">
+        <li><code>D101-foo.md</code> + <code>D101-foo.html</code> → one card, HTML badge</li>
+        <li class="warn">Only <code>D101-foo.md</code> exists → one card, MD badge (no collapse of a lone file)</li>
+      </ul>
+    </div>
+    <div class="hist-card flag">
+      <div class="h-label">Index intro-zone showcase</div>
+      <div class="h-value">Opt-in</div>
+      <div class="h-desc">Between hero and catalogue, optionally emit overview prose, a typed flow band (each node typed by a repo-defined kind, with a legend) and/or an entity gallery — derived only from a real source, never invented (R17–R20; detection rule in §6.4).</div>
+      <ul class="bullets">
+        <li>README intro / overview doc / D100 Purpose present → 2–3 overview paragraphs; architecture doc describes a named pipeline → flow band; 3+ sibling docs of one category → entity gallery linking each</li>
+        <li class="warn">No documented pipeline / no sibling cast → block omitted (flow band noted as a suggested manual enhancement) — a wrong diagram is worse than none</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- §4.5 Decisions -->
+<section class="s" id="s4-5">
+  <h2 class="section-title"><span class="sec-ref">§4.5</span>Decisions</h2>
+  <p class="section-desc">A decision recorded without its rejected alternative is one that gets re-litigated.</p>
+  <div class="decisions">
+    <div class="decisions-head">
+      <div>Decided</div>
+      <div>Alternative considered</div>
+      <div>Why rejected</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided">Asimov context in a standalone <code>asimov.md</code>, wired via <code>@asimov.md</code> import</div>
+      <div class="alt">A marker-delimited Asimov block written inside <code>CLAUDE.md</code></div>
+      <div class="why">A standalone file is Asimov-owned and regenerated wholesale with no marker parsing and zero risk to the developer's own <code>CLAUDE.md</code> content. It also mirrors the convention-overlay's own <code>@</code>-reference mechanism (D100 §7.2.1), so the repo uses one consistent wiring pattern.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided"><code>asimov.md</code> at the repo root, next to <code>CLAUDE.md</code></div>
+      <div class="alt"><code>.claude/asimov.md</code> (tucked under the Claude config folder)</div>
+      <div class="why">Root keeps the file discoverable beside the <code>CLAUDE.md</code> that imports it and makes the <code>@asimov.md</code> path trivial. The tidier <code>.claude/</code> location is the open alternative tracked in Q1 — easy to switch since only the template path and the import line change.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided">Only wire the Asimov layer into <code>CLAUDE.md</code>; defer full repo context to Claude's <code>/init</code></div>
+      <div class="alt"><code>/asimov-init</code> authors the entire <code>CLAUDE.md</code> by analysing the codebase</div>
+      <div class="why">Repo-context authoring is exactly what Claude's built-in <code>/init</code> already does well; duplicating it would risk clobbering hand-written context and put two tools in charge of one file. Asimov owns only its layer.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided">Detect stacks from marker files; scaffold only what's found</div>
+      <div class="alt">Always scaffold a fixed set (dotnet + angular + test) regardless of repo</div>
+      <div class="why">Empty folders for stacks a repo doesn't use are noise that reads as "forgot to fill in". Detection keeps the scaffold honest and the report meaningful.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided">Offer a managed-region merge for an existing convention README</div>
+      <div class="alt">Skip an existing README entirely (the <code>/docs-init</code> read-only stance)</div>
+      <div class="why">A pure skip leaves a repo that pre-dates the read-list convention permanently un-upgraded. A managed region lets the command add or refresh the Asimov read-list scaffolding while preserving the team's hand-written rules.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided">Rename and absorb <code>/docs-init</code> into <code>/asimov-init</code></div>
+      <div class="alt">Keep <code>/docs-init</code> as a separate command that <code>/asimov-init</code> calls</div>
+      <div class="why">One entry point is the whole point — "make this repo Asimov-ready". The docs-site step is one of four; a separate command splits the mental model and doubles maintenance for no real standalone use case.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided">Run on <code>claude-opus-4-8</code></div>
+      <div class="alt">Keep <code>/docs-init</code>'s <code>claude-sonnet-4-6</code></div>
+      <div class="why">Authoring repo-orienting <code>asimov.md</code> prose, judging stack detection from ambiguous markers, and safely merging into existing files demand more judgment than mechanical docs-indexing. The run is infrequent (once per repo) so cost is secondary.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════════════════ §5 — UI Design (top-level) ═════════════════════ -->
+<section class="s" id="s5">
+  <h2 class="section-title"><span class="sec-ref">§5</span>UI Design</h2>
+  <p class="section-desc">This feature has no user-facing surface.</p>
+  <div class="callout">N/A — backend/tooling feature, no user-facing surface.</div>
+</section>
+
+<!-- ═════════════════════ §6 — Chapter band ═════════════════════ -->
+<div class="chapter-band" id="c6">
+  <div class="chapter-band-inner">
+    <div class="ch-num">6</div>
+    <div>
+      <div class="ch-name">Technical design</div>
+      <div class="ch-summary">Where the command lives, its run flow, the files it reads and writes, the detection lookup and content outlines, configuration, failure handling, and the gotchas an implementer should expect.</div>
+    </div>
+  </div>
+</div>
+
+<!-- §6.1 Platform -->
+<section class="s" id="s6-1">
+  <h2 class="section-title"><span class="sec-ref">§6.1</span>Platform</h2>
+  <p style="color: var(--text-dim); font-size: 0.95rem; line-height: 1.65;">
+    <code>/asimov-init</code> is a Claude Code slash command shipped by <code>asimov-plugin</code>, defined in <code>plugins/asimov-plugin/commands/asimov-init.md</code>. It runs on <code>claude-opus-4-8</code> and is granted <code>Read, Write, Glob, Grep, Bash</code>. It reads its seven plugin files — four templates and three definitions — from <code>${CLAUDE_PLUGIN_ROOT}/artifacts/root/asimov-md/</code> and <code>${CLAUDE_PLUGIN_ROOT}/artifacts/documentation/{conventions,site}/</code> (the per-artifact folders that replaced the retired <code>templates/</code> folder on 2026-09-10) and writes into the active product repo's working tree (<code>asimov.md</code>, <code>CLAUDE.md</code>, <code>documentation/</code>). No services, schema, or infrastructure are involved.
+  </p>
+  <div class="callout">
+    <strong>No escalation gate, but a broad target set.</strong> The command touches more files than <code>/docs-init</code> (up to <code>asimov.md</code>, <code>CLAUDE.md</code>, N convention READMEs, and the two site files), so the single consolidated confirmation (R15) is the gate — every action is listed with its canonical label (NEW · OVERWRITE · APPEND · MERGE · SKIP · ASK) before anything is written.
+  </div>
+</section>
+
+<!-- §6.2 Run flow -->
+<section class="s" id="s6-2">
+  <h2 class="section-title"><span class="sec-ref">§6.2</span>Run flow</h2>
+  <p class="section-desc">Ten stages from invocation to report — stage 2b (the maturity notice) was added 2026-09-15 without renumbering the rest. Green = entry / gating, cyan = read, amber = transform / compute, coral = the single write step. Confirmation (stage 7) gates every write.</p>
+  <div class="flow-wrap">
+    <svg viewBox="0 0 940 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="asimov-init run flow">
+      <defs>
+        <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 Z" fill="#a8b8d0"/>
+        </marker>
+      </defs>
+
+      <!-- Row 1: steps 1, 2, 2b, 3, 4 -->
+      <g>
+        <rect x="20" y="40" width="160" height="58" rx="8" fill="#1b2e4d" stroke="#66bb6a"/>
+        <text x="100" y="64" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="12" font-weight="700">1. Narrate</text>
+        <text x="100" y="82" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="11">one-sentence intent</text>
+      </g>
+      <g>
+        <rect x="205" y="40" width="160" height="58" rx="8" fill="#1b2e4d" stroke="#4fc3f7"/>
+        <text x="285" y="64" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="12" font-weight="700">2. Load files</text>
+        <text x="285" y="82" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="11">4 templates + 3 definitions</text>
+      </g>
+      <g>
+        <rect x="390" y="40" width="160" height="58" rx="8" fill="#1b2e4d" stroke="#ffb74d"/>
+        <text x="470" y="64" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="12" font-weight="700">2b. Maturity notice</text>
+        <text x="470" y="82" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="11">one chat line per level</text>
+      </g>
+      <g>
+        <rect x="575" y="40" width="160" height="58" rx="8" fill="#1b2e4d" stroke="#ffb74d"/>
+        <text x="655" y="64" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="12" font-weight="700">3. Detect repo</text>
+        <text x="655" y="82" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="11">arg / remote / folder</text>
+      </g>
+      <g>
+        <rect x="760" y="40" width="160" height="58" rx="8" fill="#1b2e4d" stroke="#ffb74d"/>
+        <text x="840" y="64" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="12" font-weight="700">4. Detect stacks</text>
+        <text x="840" y="82" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="11">csproj / angular.json</text>
+      </g>
+
+      <!-- Row 2: steps 5-7 (right to left) -->
+      <g>
+        <rect x="740" y="150" width="180" height="58" rx="8" fill="#1b2e4d" stroke="#4fc3f7"/>
+        <text x="830" y="174" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="12" font-weight="700">5. Scan docs</text>
+        <text x="830" y="192" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="11">6 buckets</text>
+      </g>
+      <g>
+        <rect x="500" y="150" width="200" height="58" rx="8" fill="#1b2e4d" stroke="#ffb74d"/>
+        <text x="600" y="174" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="12" font-weight="700">6. Build plan</text>
+        <text x="600" y="192" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="11">all targets + actions</text>
+      </g>
+      <g>
+        <rect x="260" y="150" width="200" height="58" rx="8" fill="#122039" stroke="#66bb6a" stroke-width="2"/>
+        <text x="360" y="174" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="12" font-weight="700">7. Confirm</text>
+        <text x="360" y="192" text-anchor="middle" fill="#66bb6a" font-family="Inter, sans-serif" font-size="11">wait for 'yes'</text>
+      </g>
+
+      <!-- Row 3: steps 8-9 -->
+      <g>
+        <rect x="260" y="250" width="200" height="58" rx="8" fill="#1b2e4d" stroke="#ef5350"/>
+        <text x="360" y="274" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="12" font-weight="700">8. Write targets</text>
+        <text x="360" y="292" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="11">asimov.md · CLAUDE · conv · site</text>
+      </g>
+      <g>
+        <rect x="500" y="250" width="200" height="58" rx="8" fill="#1b2e4d" stroke="#4fc3f7"/>
+        <text x="600" y="274" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="12" font-weight="700">9. Report</text>
+        <text x="600" y="292" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="11">targets + stacks + warnings</text>
+      </g>
+
+      <!-- Arrows row 1 -->
+      <line x1="180" y1="69" x2="203" y2="69" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="365" y1="69" x2="388" y2="69" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="550" y1="69" x2="573" y2="69" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="735" y1="69" x2="758" y2="69" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#arr)"/>
+      <!-- wrap 4 -> 5 -->
+      <line x1="840" y1="98" x2="840" y2="148" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#arr)"/>
+      <!-- Arrows row 2 -->
+      <line x1="740" y1="179" x2="702" y2="179" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="500" y1="179" x2="462" y2="179" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#arr)"/>
+      <!-- wrap 7 -> 8 -->
+      <line x1="360" y1="208" x2="360" y2="248" stroke="#66bb6a" stroke-width="2" marker-end="url(#arr)"/>
+      <!-- Arrows row 3 -->
+      <line x1="460" y1="279" x2="498" y2="279" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#arr)"/>
+    </svg>
+    <div class="flow-legend">
+      <span class="item"><span class="swatch" style="background:var(--green)"></span>Entry / gating</span>
+      <span class="item"><span class="swatch" style="background:var(--cyan)"></span>Read</span>
+      <span class="item"><span class="swatch" style="background:var(--amber)"></span>Transform / compute</span>
+      <span class="item"><span class="swatch" style="background:var(--coral)"></span>Write</span>
+    </div>
+  </div>
+  <div class="principles" style="margin-top:1.4rem">
+    <div class="principle"><div class="num">1</div><div class="text"><strong>Narrate.</strong> Emit a one-sentence statement of intent before any tool call (NF5).</div></div>
+    <div class="principle"><div class="num">2</div><div class="text"><strong>Load files.</strong> Read the seven plugin files — four templates plus the three artifact definitions — from the plugin root; stop and report if any fails (R13).</div></div>
+    <div class="principle"><div class="num">2b</div><div class="text"><strong>Maturity notice.</strong> Resolve each definition's <code>maturity</code> YAML to one chat line per level present, printed before the first question; nothing for <code>adopt</code>, never written into a generated file (R13; <a href="D101-artifact-maturity.html" style="color:var(--cyan)">D101 — artifact maturity</a>).</div></div>
+    <div class="principle"><div class="num">3</div><div class="text"><strong>Detect repo.</strong> Resolve the repo name from argument, then git remote, then folder name (R14).</div></div>
+    <div class="principle"><div class="num">4</div><div class="text"><strong>Detect stacks.</strong> Scan for marker files to determine which convention read-lists to scaffold (R6).</div></div>
+    <div class="principle"><div class="num">5</div><div class="text"><strong>Scan docs.</strong> Glob <code>documentation/</code> into the six buckets, applying exclusions and de-duplication (R10, R12).</div></div>
+    <div class="principle"><div class="num">6</div><div class="text"><strong>Build plan.</strong> Resolve each target's action (NEW · OVERWRITE · APPEND · MERGE · SKIP · ASK), inspecting existing files (R15).</div></div>
+    <div class="principle"><div class="num">7</div><div class="text"><strong>Confirm.</strong> Show the consolidated write plan; wait for explicit confirmation (R15).</div></div>
+    <div class="principle"><div class="num">8</div><div class="text"><strong>Write targets.</strong> Write <code>asimov.md</code>, the <code>CLAUDE.md</code> import, each convention README, and the two site files, applying each special-case (R1–R12).</div></div>
+    <div class="principle"><div class="num">9</div><div class="text"><strong>Report.</strong> List each target written/skipped, the detected stacks, and any uncategorised docs with a suggested bucket (R16).</div></div>
+  </div>
+</section>
+
+<!-- §6.3 Code map -->
+<section class="s" id="s6-3">
+  <h2 class="section-title"><span class="sec-ref">§6.3</span>Code map</h2>
+  <div class="codemap">
+    <div class="codemap-row"><div class="what">Command prompt (behaviour, all rules)</div><div class="where">plugins/asimov-plugin/commands/asimov-init.md</div></div>
+    <div class="codemap-row"><div class="what">asimov.md content contract (read at run-time)</div><div class="where">plugins/asimov-plugin/artifacts/root/asimov-md/asimov-md-template.md</div></div>
+    <div class="codemap-row"><div class="what">Convention read-list skeleton (read at run-time)</div><div class="where">plugins/asimov-plugin/artifacts/documentation/conventions/conventions-readme-template.md</div></div>
+    <div class="codemap-row"><div class="what">Index visual contract (read at run-time)</div><div class="where">plugins/asimov-plugin/artifacts/documentation/site/site-template.html</div></div>
+    <div class="codemap-row"><div class="what">Shared chrome stylesheet (copied verbatim)</div><div class="where">plugins/asimov-plugin/artifacts/documentation/site/_chrome.css</div></div>
+    <div class="codemap-row"><div class="what">asimov.md definition — standard + maturity level (read at run-time)</div><div class="where">plugins/asimov-plugin/artifacts/root/asimov-md/asimov-md-definition.md</div></div>
+    <div class="codemap-row"><div class="what">Convention read-list definition — standard + maturity level (read at run-time)</div><div class="where">plugins/asimov-plugin/artifacts/documentation/conventions/conventions-definition.md</div></div>
+    <div class="codemap-row"><div class="what">Site definition — standard + maturity level (read at run-time)</div><div class="where">plugins/asimov-plugin/artifacts/documentation/site/site-definition.md</div></div>
+    <div class="codemap-row"><div class="what">Output — Asimov context (consumer repo)</div><div class="where">asimov.md</div></div>
+    <div class="codemap-row"><div class="what">Output — import wiring (consumer repo)</div><div class="where">CLAUDE.md</div></div>
+    <div class="codemap-row"><div class="what">Output — convention read-lists (consumer repo)</div><div class="where">documentation/conventions/&lt;stack&gt;/README.md</div></div>
+    <div class="codemap-row"><div class="what">Output — landing page + chrome (consumer repo)</div><div class="where">documentation/index.html · documentation/_chrome.css</div></div>
+    <div class="codemap-row"><div class="what">Model declaration (sync'd index)</div><div class="where">documentation/model-choice.md §1</div></div>
+  </div>
+</section>
+
+<!-- §6.4 Detection & content -->
+<section class="s" id="s6-4">
+  <h2 class="section-title"><span class="sec-ref">§6.4</span>Detection &amp; content</h2>
+  <p class="section-desc">The stack-detection lookup the scan in §6.2 step 4 applies, the outline of what <code>asimov.md</code> contains, the inherited six-bucket index taxonomy, and the rule that decides the optional intro-zone showcase.</p>
+
+  <div class="subhead">Stack detection</div>
+  <div class="data-table">
+    <div class="row head cols-3"><div>Stack</div><div>Detection marker (anywhere in repo)</div><div>Scaffolds</div></div>
+    <div class="row cols-3"><div class="label-cell">dotnet</div><div><code>*.csproj</code> or <code>*.sln</code></div><div><code>conventions/dotnet/README.md</code></div></div>
+    <div class="row cols-3"><div class="label-cell">angular</div><div><code>angular.json</code></div><div><code>conventions/angular/README.md</code></div></div>
+    <div class="row cols-3"><div class="label-cell">test</div><div><code>**/*.Tests.csproj</code> / <code>**/*Tests.csproj</code>, or <code>**/*.spec.ts</code>, alongside a detected stack</div><div><code>conventions/test/README.md</code></div></div>
+  </div>
+  <div class="callout">
+    <strong>Test fires on a marker, not on any stack.</strong> <code>conventions/test/</code> is scaffolded only when a test marker above is found alongside a detected stack — never merely because some stack exists (principle 4). The marker set is intentionally small and extends as new build subagents land (Q2).
+  </div>
+
+  <div class="subhead">asimov.md content outline</div>
+  <ul class="gps-paths">
+    <li>Repo identity — name + one-line "this repo uses the Asimov L3 toolkit"</li>
+    <li>documentation/ taxonomy — where D100 / D101 / conventions / reference live</li>
+    <li>Convention-overlay pointer — subagents read conventions/&lt;stack&gt;/README.md</li>
+    <li>Command inventory — the available /d101-* and /asimov-init commands</li>
+    <li>Subagent inventory — Giskard / Daneel / Calvin / Baley and their roles</li>
+    <li>Delegation flow — Build → Test → Review (sub-heading under the subagent inventory)</li>
+    <li>L3 working agreement — the stage-by-stage rules the repo signs up to</li>
+    <li>Detected stacks for this repo (filled from §6.4 detection)</li>
+  </ul>
+
+  <div class="subhead">Index bucket taxonomy (inherited from /docs-init)</div>
+  <div class="data-table">
+    <div class="row head cols-3"><div>Bucket</div><div>Glob pattern</div><div>Section</div></div>
+    <div class="row cols-3"><div class="label-cell">Architecture</div><div><code>documentation/D100-*</code> (root)</div><div>§1</div></div>
+    <div class="row cols-3"><div class="label-cell">Features</div><div><code>documentation/features/D101-*</code></div><div>§2</div></div>
+    <div class="row cols-3"><div class="label-cell">Environments</div><div><code>documentation/E100-*</code> (root)</div><div>§3</div></div>
+    <div class="row cols-3"><div class="label-cell">Conventions</div><div><code>documentation/conventions/**</code></div><div>§4 — cards grouped per stack under <code>.conv-group</code> labels when more than one stack exists</div></div>
+    <div class="row cols-3"><div class="label-cell">Reference</div><div><code>documentation/reference/**</code></div><div>§5</div></div>
+    <div class="row cols-3"><div class="label-cell">Diagrams</div><div><code>documentation/*.png</code>, <code>*.pdf</code> (root)</div><div>§6</div></div>
+  </div>
+
+  <div class="subhead">Intro-zone detection (R17–R20)</div>
+  <div class="data-table">
+    <div class="row head cols-3"><div>Block</div><div>Emit when (else omit)</div><div>Kinds / tiles</div></div>
+    <div class="row cols-3"><div class="label-cell">Overview prose</div><div>An orientation source exists — in order: the <code>README.md</code> intro, a charter/overview doc under <code>documentation/</code>, the D100 Purpose section. None of the three → omit.</div><div>2–3 short paragraphs in <code>&lt;section class="overview"&gt;</code>; the source used is named in the write plan and the report.</div></div>
+    <div class="row cols-3"><div class="label-cell">Flow band</div><div>The D100 has an explicit pipeline — a numbered flow or an ordered sequence of named stages — that reads directly into ordered nodes. Architecture described only in prose, with no orderable sequence → omit.</div><div>One <em>repo-defined</em> kind per category in the D100's own component vocabulary (e.g. device / compute / messaging / data / external); each gets a colour and a legend entry. Not a fixed Asimov set.</div></div>
+    <div class="row cols-3"><div class="label-cell">Entity gallery</div><div><code>documentation/features/</code> holds 3+ D101s sharing a common name prefix or a stated category (e.g. <code>D101-protocol-*</code>). Fewer than three, or no shared category → omit.</div><div>One tile per sibling, linking to its doc; HTML badge when an <code>.html</code> exists for it, else MD.</div></div>
+  </div>
+  <div class="callout">
+    <strong>Real source only.</strong> All three blocks are derived, never invented (R19, R20): if the pipeline isn't documented or the sibling set is under three, the block is dropped — and an omitted flow band is reported as a suggested manual enhancement. A wrong diagram is worse than none.
+  </div>
+</section>
+
+<!-- §6.5 APIs -->
+<section class="s" id="s6-5">
+  <h2 class="section-title"><span class="sec-ref">§6.5</span>APIs &amp; contracts</h2>
+  <div class="callout">
+    <strong>N/A.</strong> The command exposes no APIs and consumes none. Its external contracts are the seven plugin files it reads (four templates, three definitions — §6.3), the <code>documentation/</code> layout convention shared with the D101 commands, and the <code>@</code>-import / convention-overlay mechanisms defined in D100 §7.2.1.
+  </div>
+</section>
+
+<!-- §6.6 Configuration -->
+<section class="s" id="s6-6">
+  <h2 class="section-title"><span class="sec-ref">§6.6</span>Configuration</h2>
+  <p class="section-desc">The command has one input knob; everything else is convention baked into the prompt or detected from the repo.</p>
+  <div class="history-grid">
+    <div class="hist-card">
+      <div class="h-label">$ARGUMENTS</div>
+      <div class="h-value">auto<span class="unit">detect</span></div>
+      <div class="h-desc">Optional repo-name override. When empty, the repo name is auto-detected from git remote origin, then the folder name (R14).</div>
+      <ul class="bullets">
+        <li>Used in <code>asimov.md</code>, the index brand badge, and footer</li>
+      </ul>
+    </div>
+    <div class="hist-card flag">
+      <div class="h-label">Path taxonomy</div>
+      <div class="h-value">fixed</div>
+      <div class="h-desc">The <code>documentation/</code> layout and the <code>asimov.md</code> root location are not configurable — they are code fork points (OOS4, Q1).</div>
+      <ul class="bullets">
+        <li class="warn">Forking the layout edits the literal in every command that shares it</li>
+      </ul>
+    </div>
+    <div class="hist-card">
+      <div class="h-label">Stack set</div>
+      <div class="h-value">detected</div>
+      <div class="h-desc">Which convention folders are scaffolded is not configured — it is derived from the §6.4 detection markers (R6).</div>
+      <ul class="bullets">
+        <li>Extends as new build subagents (new stacks) land</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- §6.7 Failure handling -->
+<section class="s" id="s6-7">
+  <h2 class="section-title"><span class="sec-ref">§6.7</span>Failure handling</h2>
+  <div class="failures">
+    <div class="failures-head"><div>Failure</div><div>Effect</div><div>Severity</div><div>Recovery</div></div>
+    <div class="failure-row">
+      <div>A template file can't be read</div>
+      <div>No output produced</div>
+      <div><span class="sev high">High</span></div>
+      <div>Stop and report which path failed; do not write without the templates (R13).</div>
+    </div>
+    <div class="failure-row">
+      <div>Existing <code>CLAUDE.md</code> has the import but in odd form</div>
+      <div>Risk of a duplicate import</div>
+      <div><span class="sev med">Med</span></div>
+      <div>Detect any line referencing <code>asimov.md</code>; treat as present and SKIP rather than appending a second (NF2).</div>
+    </div>
+    <div class="failure-row">
+      <div>Existing convention README, no managed region</div>
+      <div>Can't refresh safely</div>
+      <div><span class="sev med">Med</span></div>
+      <div>Ask before inserting a managed region; never overwrite the file wholesale (R8).</div>
+    </div>
+    <div class="failure-row">
+      <div><code>_chrome.css</code> exists but differs from template</div>
+      <div>Potential overwrite of edited chrome</div>
+      <div><span class="sev med">Med</span></div>
+      <div>Prompt overwrite / keep / diff; never overwrite silently (R11).</div>
+    </div>
+    <div class="failure-row">
+      <div>No stack detected</div>
+      <div>No convention scaffold</div>
+      <div><span class="sev low">Low</span></div>
+      <div>Proceed with the other targets; report "no stack detected" so the developer can scaffold manually (R9).</div>
+    </div>
+    <div class="failure-row">
+      <div>A file under <code>documentation/</code> fits no bucket</div>
+      <div>Doc absent from index</div>
+      <div><span class="sev low">Low</span></div>
+      <div>Write anyway; list it as "Uncategorised" with a suggested bucket (R16).</div>
+    </div>
+  </div>
+</section>
+
+<!-- §6.8 Gotchas -->
+<section class="s" id="s6-8">
+  <h2 class="section-title"><span class="sec-ref">§6.8</span>Known constraints &amp; gotchas</h2>
+  <div class="problem-grid">
+    <div class="problem-card">
+      <div class="pc-head"><div class="pc-num">01</div><div class="pc-title">asimov.md is not for hand edits</div></div>
+      <div class="pc-body">Because it is regenerated wholesale (R2), anything a developer types into <code>asimov.md</code> is lost on the next run. Repo-specific context belongs in <code>CLAUDE.md</code>, which the command only appends to.</div>
+    </div>
+    <div class="problem-card">
+      <div class="pc-head"><div class="pc-num">02</div><div class="pc-title">@-imports load at session start, not via Read</div></div>
+      <div class="pc-body">CLAUDE.md <code>@</code>-imports are expanded by Claude Code's context loader; the Read tool does not auto-expand them. The same caveat the subagents face with convention READMEs (D100 §7.2.1) applies — a freshly written <code>asimov.md</code> reaches Claude on the next session, not retroactively this one.</div>
+    </div>
+    <div class="problem-card">
+      <div class="pc-head"><div class="pc-num">03</div><div class="pc-title">Taxonomy is a multi-command fork point</div></div>
+      <div class="pc-body">The <code>documentation/</code> layout is shared with the D101 commands. Changing it here without the others breaks lockstep (D100 hard rule 9).</div>
+    </div>
+    <div class="problem-card">
+      <div class="pc-head"><div class="pc-num">04</div><div class="pc-title">Convention READMEs are skeletons, not rules</div></div>
+      <div class="pc-body">A scaffolded read-list references convention files that may not exist yet. Until the team fills it in, the subagents' overlay is structurally present but empty — that's by design (OOS2), not a bug.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════════════════ §7 — Acceptance criteria ═════════════════════ -->
+<section class="s" id="s7">
+  <h2 class="section-title"><span class="sec-ref">§7</span>Acceptance criteria</h2>
+  <div class="ac-table">
+    <div class="ac-head"><div>#</div><div>Verifies</div><div>Description</div></div>
+    <div class="ac-row"><div class="ac-id">AC1</div><div class="ac-verifies"><span class="verify-chip">R1</span></div><div>After a run, <code>asimov.md</code> exists at the repo root and contains the repo name, the documentation taxonomy, the convention-overlay pointer, and the command/subagent inventory.</div></div>
+    <div class="ac-row"><div class="ac-id">AC2</div><div class="ac-verifies"><span class="verify-chip">R2</span></div><div>Editing <code>asimov.md</code> and re-running replaces it with the freshly rendered version — the edit does not survive.</div></div>
+    <div class="ac-row"><div class="ac-id">AC3</div><div class="ac-verifies"><span class="verify-chip">R3</span><span class="verify-chip">R5</span></div><div>Running against an existing <code>CLAUDE.md</code> without the import adds exactly one <code>@asimov.md</code> line and leaves every other line byte-identical.</div></div>
+    <div class="ac-row"><div class="ac-id">AC4</div><div class="ac-verifies"><span class="verify-chip">R4</span></div><div>Running in a repo with no <code>CLAUDE.md</code> creates one whose body is the <code>@asimov.md</code> import plus a pointer to <code>/init</code>.</div></div>
+    <div class="ac-row"><div class="ac-id">AC5</div><div class="ac-verifies"><span class="verify-chip">NF2</span></div><div>Re-running when the <code>@asimov.md</code> import is already present writes nothing to <code>CLAUDE.md</code> and reports the action as SKIP.</div></div>
+    <div class="ac-row"><div class="ac-id">AC6</div><div class="ac-verifies"><span class="verify-chip">R6</span><span class="verify-chip">R7</span></div><div>In a repo containing a <code>*.csproj</code>, the run scaffolds <code>documentation/conventions/dotnet/README.md</code> and lists <code>dotnet</code> among detected stacks.</div></div>
+    <div class="ac-row"><div class="ac-id">AC7</div><div class="ac-verifies"><span class="verify-chip">R9</span></div><div>In a repo with no recognised stack marker, no <code>conventions/&lt;stack&gt;/</code> folder is created and the report states no stack was detected.</div></div>
+    <div class="ac-row"><div class="ac-id">AC8</div><div class="ac-verifies"><span class="verify-chip">R8</span></div><div>When a stack <code>README.md</code> already exists, the command offers a managed-region merge and does not overwrite the file wholesale without confirmation.</div></div>
+    <div class="ac-row"><div class="ac-id">AC9</div><div class="ac-verifies"><span class="verify-chip">R7</span><span class="verify-chip">NF7</span></div><div>A scaffolded convention <code>README.md</code> contains the read-list skeleton from the template within Asimov start/end markers.</div></div>
+    <div class="ac-row"><div class="ac-id">AC10</div><div class="ac-verifies"><span class="verify-chip">R10</span><span class="verify-chip">R11</span></div><div>After a run in a repo with docs, both <code>documentation/index.html</code> and <code>documentation/_chrome.css</code> exist.</div></div>
+    <div class="ac-row"><div class="ac-id">AC11</div><div class="ac-verifies"><span class="verify-chip">R12</span></div><div>A doc present as both <code>.md</code> and <code>.html</code> produces exactly one card with an HTML badge; a bucket with zero docs produces no section.</div></div>
+    <div class="ac-row"><div class="ac-id">AC12</div><div class="ac-verifies"><span class="verify-chip">NF1</span></div><div>No file outside the declared targets is modified — content and mtime are unchanged after a run; the only edit to a pre-existing file is the <code>CLAUDE.md</code> import line (or a confirmed managed region).</div></div>
+    <div class="ac-row"><div class="ac-id">AC13</div><div class="ac-verifies"><span class="verify-chip">R15</span></div><div>The command prints one consolidated write plan listing every target with an action from the canonical set (NEW · OVERWRITE · APPEND · MERGE · SKIP · ASK) and writes nothing until the developer confirms.</div></div>
+    <div class="ac-row"><div class="ac-id">AC14</div><div class="ac-verifies"><span class="verify-chip">R16</span></div><div>The post-write report lists each target written/skipped with reason, the detected stacks, the one-line site stat (<code>&lt;N&gt; docs across &lt;K&gt; sections; &lt;H&gt;/&lt;T&gt; hand-crafted HTML</code>), and any uncategorised docs with a suggested bucket.</div></div>
+    <div class="ac-row"><div class="ac-id">AC15</div><div class="ac-verifies"><span class="verify-chip">R13</span><span class="verify-chip">NF4</span></div><div>An edit to any template appears in the next run's output, and an unreadable template aborts the run naming the failing path — proving templates are re-read each invocation.</div></div>
+    <div class="ac-row"><div class="ac-id">AC16</div><div class="ac-verifies"><span class="verify-chip">R11</span></div><div>When <code>_chrome.css</code> already exists byte-identical to the template, it is left untouched (not rewritten).</div></div>
+    <div class="ac-row"><div class="ac-id">AC17</div><div class="ac-verifies"><span class="verify-chip">NF3</span></div><div>The generated <code>index.html</code> contains no <code>&lt;script&gt;</code> and links to <code>_chrome.css</code> rather than inlining it.</div></div>
+    <div class="ac-row"><div class="ac-id">AC18</div><div class="ac-verifies"><span class="verify-chip">R14</span></div><div>With no argument, the repo name used in <code>asimov.md</code> and the index equals the last path segment of the git remote origin URL (trailing <code>.git</code> stripped).</div></div>
+    <div class="ac-row"><div class="ac-id">AC19</div><div class="ac-verifies"><span class="verify-chip">NF5</span></div><div>The command's first line of output is a one-sentence statement of intent, emitted before any tool call.</div></div>
+    <div class="ac-row"><div class="ac-id">AC20</div><div class="ac-verifies"><span class="verify-chip">NF6</span></div><div>The command file's <code>model:</code> frontmatter is <code>claude-opus-4-8</code>, matching its row in <code>model-choice.md §1</code>.</div></div>
+    <div class="ac-row"><div class="ac-id">AC21</div><div class="ac-verifies"><span class="verify-chip">R17</span><span class="verify-chip">R19</span></div><div>In a repo whose architecture doc describes a named pipeline, the index carries a flow band with kind-typed nodes and a matching legend; in a repo with no documented pipeline and no sibling cast, the index goes straight from hero to the §1 catalogue with no invented showcase.</div></div>
+    <div class="ac-row"><div class="ac-id">AC22</div><div class="ac-verifies"><span class="verify-chip">R18</span></div><div>In a repo whose <code>features/</code> holds 3+ sibling D101s of one category, the index carries an entity gallery with one tile per sibling linking to its doc; with fewer than three siblings, no gallery is emitted.</div></div>
+    <div class="ac-row"><div class="ac-id">AC23</div><div class="ac-verifies"><span class="verify-chip">R13</span></div><div>With the three definitions at <code>assess</code>, the run prints exactly one maturity chat line before its first question; with a definition at <code>adopt</code>, that artifact appears in no line; and no generated file (<code>asimov.md</code>, README, <code>index.html</code>) contains a maturity level.</div></div>
+    <div class="ac-row"><div class="ac-id">AC24</div><div class="ac-verifies"><span class="verify-chip">R20</span></div><div>In a repo with a <code>README.md</code> intro, the index carries a <code>&lt;section class="overview"&gt;</code> of 2–3 paragraphs and the write plan names the source; in a repo with no README intro, overview doc or D100 Purpose section, no overview block is emitted.</div></div>
+  </div>
+</section>
+
+<!-- ═════════════════════ §8 — Open questions ═════════════════════ -->
+<section class="s" id="s8">
+  <h2 class="section-title"><span class="sec-ref">§8</span>Open questions</h2>
+  <div class="q-grid">
+    <div class="q-card">
+      <div class="q-head"><span class="q-id">Q1</span><span class="q-decider">Allan Borup</span></div>
+      <div class="q-body">Should <code>asimov.md</code> live at the repo root (current decision, §4.5) or under <code>.claude/asimov.md</code>? Resolution: pick before the first non-Asimov consumer repo runs the command; only the template path and the import line change.</div>
+    </div>
+    <div class="q-card">
+      <div class="q-head"><span class="q-id">Q2</span><span class="q-decider">Allan Borup</span></div>
+      <div class="q-body">As new build subagents (new stacks) land, which additional test-framework markers should count toward the <code>test</code> stack — e.g. Vitest, Playwright, or a non-<code>*Tests.csproj</code> naming? The current markers (§6.4) are settled; this tracks only forward extension. Resolution: extend the §6.4 marker set per new build subagent.</div>
+    </div>
+    <div class="q-card">
+      <div class="q-head"><span class="q-id">Q3</span><span class="q-decider">Allan Borup</span></div>
+      <div class="q-body">Should <code>/docs-init</code> survive as a thin alias for muscle memory during the transition, or be removed outright on rename? <strong>Resolved 2026-09-15:</strong> clean rename, no alias — no <code>docs-init.md</code> ships; <code>/asimov-init</code> supersedes it.</div>
+    </div>
+    <div class="q-card">
+      <div class="q-head"><span class="q-id">Q4</span><span class="q-decider">Allan Borup</span></div>
+      <div class="q-body">Does <code>asimov.md</code> need a "do not edit — regenerated by /asimov-init" banner to stop developers treating it like <code>CLAUDE.md</code> (gotcha §6.8.01)? <strong>Resolved 2026-09-15:</strong> yes — <code>asimov-md-template.md</code> opens with a "Generated file — do not edit" banner naming the regenerating command and the generation date.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════════════════ §9 — References ═════════════════════ -->
+<section class="s" id="s9">
+  <h2 class="section-title"><span class="sec-ref">§9</span>References</h2>
+  <div class="refs">
+    <div class="refs-block">
+      <h4>Code</h4>
+      <ul>
+        <li>plugins/asimov-plugin/commands/asimov-init.md</li>
+        <li>plugins/asimov-plugin/artifacts/root/asimov-md/asimov-md-template.md</li>
+        <li>plugins/asimov-plugin/artifacts/documentation/conventions/conventions-readme-template.md</li>
+        <li>plugins/asimov-plugin/artifacts/documentation/site/site-template.html</li>
+        <li>plugins/asimov-plugin/artifacts/documentation/site/_chrome.css</li>
+        <li>plugins/asimov-plugin/artifacts/root/asimov-md/asimov-md-definition.md</li>
+        <li>plugins/asimov-plugin/artifacts/documentation/conventions/conventions-definition.md</li>
+        <li>plugins/asimov-plugin/artifacts/documentation/site/site-definition.md</li>
+      </ul>
+    </div>
+    <div class="refs-block">
+      <h4>Docs</h4>
+      <ul>
+        <li>documentation/D100-Asimov-architecture.md (§3, §7.2.1, §7.4)</li>
+        <li>documentation/model-choice.md</li>
+        <li>plugins/asimov-plugin/artifacts/documentation/d101-feature-design/d101-feature-design-definition.md</li>
+      </ul>
+    </div>
+    <div class="refs-block">
+      <h4>Sibling D101s</h4>
+      <ul>
+        <li>features/D101-d101-feature-design.html</li>
+        <li>features/D101-build-subagents.html</li>
+        <li>features/D101-baley-the-code-reviewer.html</li>
+        <li>features/D101-artifact-maturity.html</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+  </article>
+</div>
+
+<footer class="site-footer">
+  <div>
+    <a href="../index.html">← Documentation home</a>
+    · <span class="mono">features/D101-asimov-init.html</span>
+  </div>
+  <div style="margin-top: 0.4rem">
+    D101 · /asimov-init · Asimov plugin · Full design · Draft v0.2 · 2026-09-15
+  </div>
+</footer>
+
+<script>
+  // Requirements tab switching — purely cosmetic, no state persistence.
+  document.querySelectorAll('.req-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      const target = tab.dataset.target;
+      document.querySelectorAll('.req-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      document.querySelectorAll('.req-list').forEach(l => {
+        l.style.display = (l.dataset.tab === target) ? '' : 'none';
+      });
+    });
+  });
+</script>
+
+</body>
+</html>

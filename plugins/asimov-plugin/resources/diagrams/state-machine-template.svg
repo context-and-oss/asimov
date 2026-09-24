@@ -1,0 +1,132 @@
+<!--
+  STATE MACHINE — UML 2.5 state machine (statechart). Asimov skin.
+
+  USE WHEN:      "What states can this thing be in, and which transitions are
+                 legal?" One subject (a document, an order, a job) moves through
+                 named states, and the reader needs to know what is reachable from
+                 where, and under which trigger and guard.
+  DO NOT USE:    for a run of steps (that is a process, not a lifecycle — use
+                 flowchart-template.svg); for an ordered process whose point is
+                 ownership (activity-swimlane-template.svg); for an exchange
+                 between actors (sequence-template.svg). A state is a condition the
+                 subject rests in, not an action someone performs — if the box
+                 reads like a verb, this is the wrong template.
+  BUDGET:        max 7 states, 12 transitions. Over budget: split into an overview
+                 diagram (the main path) plus a detail diagram, rather than growing
+                 this one.
+  NOTATION:      initial pseudostate as a small filled circle; states as rounded
+                 rects with the state name in mono; transitions as labelled arrows
+                 reading trigger [guard] (the guard is optional, the trigger is
+                 not); at least one self-transition drawn as a loop above its own
+                 state; final state as a bullseye (ring around a filled dot).
+  COLOUR:        by state role — green = the initial / start state, amber = an
+                 in-progress state, coral = a terminal state and the final
+                 bullseye. Transitions stay #a8b8d0; do not colour a transition to
+                 mean anything, colour states.
+  GEOMETRY:      viewBox width 980; states 152 wide, 56 tall, at y 92..148 on the
+                 main row and y 232..288 on the branch row; at least 48px between
+                 state boxes; self-transition loop 32px tall (y 60..92) and 64px
+                 wide; transition labels centred on their segment, 10px above a
+                 horizontal segment (which puts them above the state boxes, clear
+                 of them) or 8px to the right of a vertical segment; long return
+                 edges routed orthogonally with an 8px arc at the corner. Every
+                 coordinate divisible by 4.
+  ANTI-PATTERNS: - a state box that names an activity ("validating the payload")
+                   instead of a condition ("in review");
+                 - an unlabelled transition — the reader cannot tell what causes it;
+                 - a state with no way out and no final marker (a dead end that is
+                   not declared as terminal);
+                 - merging two independent lifecycles into one diagram because they
+                   happen to describe the same object;
+                 - diagonal transitions between rows instead of orthogonal elbows;
+                 - drawing every guard as a separate state.
+  INDEPENDENT AXES: when the subject carries two lifecycles that advance
+                 independently — each moved by a different actor, neither implying the
+                 other — draw TWO diagrams, never one. A single combined chart implies
+                 a legal ordering between the axes that does not exist.
+
+  The first child is a background rect filling the whole viewBox with #14253f (the
+  bg-card token); keep it — it is what makes the white text readable when the file is
+  opened standalone.
+-->
+<svg viewBox="0 0 980 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="UML state machine template">
+  <rect x="0" y="0" width="980" height="320" fill="#14253f"/>
+  <defs>
+    <marker id="sm-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#a8b8d0"/>
+    </marker>
+  </defs>
+
+  <!-- Initial pseudostate -->
+  <circle cx="48" cy="120" r="8" fill="#66bb6a"/>
+
+  <!-- S1: start state -->
+  <g>
+    <rect x="88" y="92" width="152" height="56" rx="8" fill="#66bb6a22" stroke="#66bb6a"/>
+    <text x="164" y="116" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">{{startState}}</text>
+    <text x="164" y="132" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">initial</text>
+  </g>
+
+  <!-- S2: in progress -->
+  <g>
+    <rect x="288" y="92" width="152" height="56" rx="8" fill="#ffb74d1a" stroke="#ffb74d"/>
+    <text x="364" y="116" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">{{stateTwo}}</text>
+    <text x="364" y="132" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">in progress</text>
+  </g>
+
+  <!-- S3: in progress, carries the self-transition -->
+  <g>
+    <rect x="488" y="92" width="152" height="56" rx="8" fill="#ffb74d1a" stroke="#ffb74d"/>
+    <text x="564" y="116" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">{{stateThree}}</text>
+    <text x="564" y="132" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">in progress</text>
+  </g>
+
+  <!-- S4: in progress -->
+  <g>
+    <rect x="688" y="92" width="152" height="56" rx="8" fill="#ffb74d1a" stroke="#ffb74d"/>
+    <text x="764" y="116" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">{{stateFour}}</text>
+    <text x="764" y="132" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">in progress</text>
+  </g>
+
+  <!-- S5: terminal branch state -->
+  <g>
+    <rect x="288" y="232" width="152" height="56" rx="8" fill="#ef535022" stroke="#ef5350"/>
+    <text x="364" y="256" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">{{abortedState}}</text>
+    <text x="364" y="272" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">terminal</text>
+  </g>
+
+  <!-- Final state: bullseye -->
+  <circle cx="900" cy="120" r="12" fill="none" stroke="#ef5350" stroke-width="1.5"/>
+  <circle cx="900" cy="120" r="6" fill="#ef5350"/>
+
+  <!-- t1: initial pseudostate into S1 -->
+  <line x1="56" y1="120" x2="86" y2="120" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#sm-arr)"/>
+
+  <!-- t2: S1 to S2 -->
+  <line x1="240" y1="120" x2="286" y2="120" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#sm-arr)"/>
+  <text x="264" y="82" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">{{triggerOne}} [{{guard}}]</text>
+
+  <!-- t3: S2 to S3 -->
+  <line x1="440" y1="120" x2="486" y2="120" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#sm-arr)"/>
+  <text x="464" y="82" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">{{triggerTwo}}</text>
+
+  <!-- t4: self-transition on S3, loop 32px tall above the state -->
+  <path d="M532,92 V68 A8,8 0 0 1 540,60 H588 A8,8 0 0 1 596,68 V92" fill="none" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#sm-arr)"/>
+  <text x="564" y="52" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">{{selfTrigger}}</text>
+
+  <!-- t5: S3 to S4 -->
+  <line x1="640" y1="120" x2="686" y2="120" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#sm-arr)"/>
+  <text x="664" y="82" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">{{triggerThree}}</text>
+
+  <!-- t6: S4 to the final state -->
+  <line x1="840" y1="120" x2="886" y2="120" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#sm-arr)"/>
+  <text x="864" y="82" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">{{triggerFour}}</text>
+
+  <!-- t7: S2 to the terminal branch state -->
+  <line x1="364" y1="148" x2="364" y2="230" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#sm-arr)"/>
+  <text x="372" y="192" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">{{abortTrigger}}</text>
+
+  <!-- t8: terminal branch state to the final state, routed orthogonally -->
+  <path d="M440,260 H892 A8,8 0 0 0 900,252 V132" fill="none" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#sm-arr)"/>
+  <text x="668" y="250" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">{{closeTrigger}}</text>
+</svg>

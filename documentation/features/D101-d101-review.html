@@ -1,0 +1,1393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D101 — /d101-review — asimov docs</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+:root {
+  --bg:        #0a1424;
+  --bg2:       #122039;
+  --bg3:       #1b2e4d;
+  --bg-card:   #14253f;
+  --border:    #2b4a73;
+  --border-2:  #3b5e8f;
+  --text:      #fff;
+  --text-dim:  #a8b8d0;
+  --text-mute: #6b7a93;
+  --cyan:      #4fc3f7;
+  --teal:      #26c6da;
+  --green:     #66bb6a;
+  --amber:     #ffb74d;
+  --coral:     #ef5350;
+  --gold:      #ffd54f;
+  --violet:    #ab47bc;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; font-size: 15px; line-height: 1.6; overflow-x: hidden; padding-top: 56px; }
+a { color: inherit; text-decoration: none; }
+code, .mono { font-family: 'JetBrains Mono', monospace; font-size: 0.88em; }
+code { background: var(--bg3); padding: 1px 6px; border-radius: 4px; color: var(--cyan); }
+
+/* Top nav (site-wide — every D101 links to documentation home + chapter sections of the index) */
+.top-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(10,20,36,0.85); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 0.55rem 2rem; display: flex; gap: 1.4rem; align-items: center; font-size: 0.82rem; }
+.top-nav .brand, .top-nav .brand a { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--cyan); letter-spacing: 0.04em; text-decoration: none; }
+.top-nav .brand .sep { color: var(--border); margin: 0 0.5rem; }
+.top-nav a { color: var(--text-dim); font-weight: 500; }
+.top-nav a:hover { color: #fff; }
+.top-nav .spacer { flex: 1; }
+.top-nav .status-chip { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.25rem 0.7rem; border-radius: 999px; background: #ffd54f15; border: 1px solid #ffd54f44; color: var(--gold); font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 700; }
+.top-nav .status-chip::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--gold); }
+/* Phase chip — the authoring axis, deliberately NOT the status axis (see ground rule 12).
+   Square marker + cyan so the two chips never read as one control. */
+.top-nav .phase-chip { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.25rem 0.7rem; border-radius: 999px; background: #4fc3f715; border: 1px solid #4fc3f744; color: var(--cyan); font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 700; }
+.top-nav .phase-chip::before { content: ''; width: 6px; height: 6px; border-radius: 1px; background: var(--cyan); }
+.top-nav .phase-chip.full { background: #66bb6a15; border-color: #66bb6a44; color: var(--green); }
+.top-nav .phase-chip.full::before { background: var(--green); }
+
+/* Layout with left sidebar (per-page TOC) + content column */
+.layout-doc { display: grid; grid-template-columns: 200px minmax(0, 1fr); max-width: 1300px; margin: 0 auto; gap: 1.8rem; padding: 0.5rem 1.5rem; }
+.side-nav { position: sticky; top: 76px; align-self: start; max-height: calc(100vh - 90px); overflow-y: auto; padding: 0.7rem 0.5rem 1rem 0.2rem; font-size: 0.85rem; }
+.side-nav .side-head { font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-mute); margin-bottom: 0.7rem; padding-left: 0.6rem; }
+.side-nav ul { list-style: none; padding: 0; margin: 0; }
+.side-nav ul ul { padding-left: 0.9rem; margin-top: 0.1rem; }
+.side-nav li { margin: 0.1rem 0; }
+.side-nav a { display: block; padding: 0.32rem 0.7rem; color: var(--text-dim); border-left: 2px solid transparent; font-size: 0.86rem; line-height: 1.4; border-radius: 0 4px 4px 0; }
+.side-nav a:hover { color: #fff; background: #4fc3f708; border-left-color: var(--border-2); }
+.content { min-width: 0; }
+
+/* Hero (compact — top-nav already provides separation from page chrome) */
+.hero { padding: 1.5rem 2rem 1.5rem; position: relative; overflow: hidden; max-width: 1300px; margin: 0 auto; }
+.hero::before { content: ''; position: absolute; inset: 0; z-index: 0; background: radial-gradient(ellipse at 20% 30%, #4fc3f718 0%, transparent 50%), radial-gradient(ellipse at 80% 60%, #26c6da14 0%, transparent 50%); }
+.hero > * { position: relative; z-index: 1; }
+.kicker { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--cyan); padding: 0.3rem 0.8rem; border-radius: 999px; border: 1px solid #4fc3f744; background: #4fc3f711; margin-bottom: 1rem; }
+.hero h1 { font-size: clamp(2rem, 4.5vw, 3.4rem); font-weight: 900; letter-spacing: -0.03em; line-height: 1.05; background: linear-gradient(135deg, #fff 0%, var(--cyan) 50%, var(--teal) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.hero .tagline { font-size: 1.05rem; color: var(--text-dim); margin-top: 1rem; max-width: 760px; line-height: 1.6; }
+
+/* Metadata strip */
+.meta-strip { max-width: 1300px; margin: 1rem auto 0; padding: 0 2rem; display: grid; grid-template-columns: repeat(6, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.meta-cell { background: var(--bg-card); padding: 1rem 1.2rem; }
+.meta-cell .label { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-mute); margin-bottom: 0.35rem; }
+.meta-cell .value { font-size: 0.95rem; font-weight: 600; color: var(--text); }
+.meta-cell .value.mono { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; }
+
+/* Sections + chapter bands */
+section.s { max-width: 1300px; margin: 0 auto; padding: 3rem 2rem 0; }
+.chapter-band + section.s { padding-top: 1.5rem; }
+.section-title { font-size: clamp(1.5rem, 2.6vw, 2rem); font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.7rem; }
+.section-title .sec-ref { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; font-weight: 600; color: var(--text-mute); letter-spacing: 0.04em; margin-right: 0.7rem; vertical-align: middle; padding: 0.2rem 0.5rem; border-radius: 4px; background: var(--bg2); border: 1px solid var(--border); }
+.section-desc { color: var(--text-dim); font-size: 1rem; max-width: 780px; margin-bottom: 1.8rem; line-height: 1.65; }
+.chapter-band { max-width: 1300px; margin: 3.5rem auto 0; padding: 0 2rem; }
+.chapter-band-inner { display: grid; grid-template-columns: auto 1fr; gap: 1.5rem; align-items: center; padding: 1.4rem 1.8rem; border-radius: 12px; background: linear-gradient(135deg, #4fc3f714 0%, #26c6da05 100%); border: 1px solid var(--border); border-left: 4px solid var(--cyan); }
+.chapter-band .ch-num { font-family: 'JetBrains Mono', monospace; font-size: 2.6rem; font-weight: 800; color: var(--cyan); line-height: 1; }
+.chapter-band .ch-name { font-size: 1.35rem; font-weight: 700; color: #fff; letter-spacing: 0.01em; margin-bottom: 0.25rem; }
+.chapter-band .ch-summary { font-size: 0.88rem; color: var(--text-dim); line-height: 1.5; }
+
+/* Doc-scope line below metadata strip */
+.doc-scope { max-width: 1300px; margin: 0.7rem auto 0; padding: 0 2.2rem; font-size: 0.82rem; color: var(--text-mute); line-height: 1.5; }
+.doc-scope strong { color: var(--text-dim); font-weight: 600; }
+
+/* Principles */
+.principles { display: grid; gap: 0.65rem; }
+.principle { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 0.95rem 1.3rem; display: flex; gap: 1rem; align-items: center; }
+.principle .num { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; font-weight: 700; width: 30px; height: 30px; border-radius: 8px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--cyan), var(--teal)); color: #0a1424; }
+.principle .text { font-size: 0.95rem; }
+.principle .text strong { color: var(--cyan); font-weight: 700; }
+
+/* Generic bullet list — used anywhere with → / ⚠ items */
+ul.bullets { list-style: none; padding: 0; margin: 0.7rem 0 0; }
+ul.bullets li { position: relative; padding: 0.3rem 0 0.3rem 1.5rem; font-size: 0.9rem; color: var(--text-dim); line-height: 1.6; }
+ul.bullets li + li { margin-top: 0.15rem; }
+ul.bullets li::before { content: '→'; position: absolute; left: 0; top: 0.3rem; font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--cyan); }
+ul.bullets li.warn::before { content: '!'; color: var(--amber); }
+ul.bullets li code { font-size: 0.78rem; }
+
+/* Requirements — flat lists (Functional / Non-functional / Out of scope), all visible, no tabs */
+.req-list { display: grid; gap: 0.5rem; margin-bottom: 1.6rem; }
+.req-list:last-child { margin-bottom: 0; }
+.req { display: grid; grid-template-columns: 60px 1fr; gap: 1rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 0.7rem 1rem; align-items: start; }
+.req .id { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; font-weight: 700; color: var(--cyan); padding-top: 2px; }
+.req .body { font-size: 0.9rem; color: var(--text); line-height: 1.55; }
+.req.oos .id, .req-list.nf .req .id { color: var(--amber); }
+
+/* Data flow SVG diagram */
+.flow-wrap { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.8rem; overflow-x: auto; }
+.flow-wrap svg { display: block; margin: 0 auto; max-width: 100%; height: auto; }
+.flow-legend { display: flex; flex-wrap: wrap; gap: 1.2rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); font-size: 0.82rem; color: var(--text-dim); }
+.flow-legend .item { display: inline-flex; align-items: center; gap: 0.4rem; }
+.flow-legend .swatch { width: 14px; height: 4px; border-radius: 2px; }
+
+/* Interactive UI mockup (embedded via iframe; the mockup file is separate + self-contained) */
+.mockup-wrap { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 0.5rem; margin: 0.6rem 0 1rem; overflow: hidden; }
+.mockup-frame { display: block; width: 100%; border: none; border-radius: 8px; background: #fff; }
+
+/* Code map */
+.codemap { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.codemap-row { display: grid; grid-template-columns: 1fr 1.5fr; gap: 1rem; padding: 0.7rem 1.2rem; border-bottom: 1px solid var(--border); font-size: 0.85rem; align-items: center; }
+.codemap-row:last-child { border-bottom: none; }
+.codemap-row:nth-child(odd) { background: rgba(255,255,255,0.015); }
+.codemap-row .what { color: var(--text); }
+.codemap-row .where { color: var(--cyan); font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; word-break: break-all; }
+
+/* Decisions matrix */
+.decisions { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.decisions-head, .decision-row { display: grid; grid-template-columns: 1.2fr 1fr 1.4fr; gap: 1rem; padding: 0.9rem 1.2rem; align-items: start; border-bottom: 1px solid var(--border); }
+.decisions-head { background: var(--bg2); font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); }
+.decision-row { font-size: 0.85rem; }
+.decision-row:last-child { border-bottom: none; }
+.decision-row .decided { color: #fff; font-weight: 600; }
+.decision-row .alt { color: var(--amber); font-style: italic; font-size: 0.82rem; line-height: 1.5; }
+.decision-row .why { color: var(--text-dim); font-size: 0.82rem; line-height: 1.55; }
+
+/* Generic data table (Shapes §6.4, Configuration §6.6) */
+.data-table { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.data-table .row { display: grid; gap: 1rem; padding: 0.65rem 1.2rem; border-bottom: 1px solid var(--border); font-size: 0.85rem; align-items: start; }
+.data-table .row.head { background: var(--bg2); font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); font-weight: 700; }
+.data-table .row:last-child { border-bottom: none; }
+.data-table .row.cols-2 { grid-template-columns: 1fr 2fr; }
+.data-table .row.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+.data-table .row code { font-size: 0.78rem; }
+.data-table .row .label-cell { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; color: var(--cyan); }
+
+/* Inline-path list (Shapes §6.4) */
+.gps-paths { list-style: none; padding: 0.7rem 0 0; margin: 0; display: grid; gap: 0.4rem; }
+.gps-paths li { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--cyan); background: var(--bg2); border: 1px solid var(--border); border-radius: 6px; padding: 0.45rem 0.8rem; }
+
+/* Sub-section heading (Shapes has multiple sub-blocks) */
+.subhead { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-dim); font-weight: 700; margin: 1.5rem 0 0.6rem; }
+.subhead:first-child { margin-top: 0; }
+/* Anchored subhead (§7 per-unit blocks key to §6 contracts by number) — scroll-margin clears the fixed nav */
+.subhead[id] { scroll-margin-top: 80px; }
+.subhead .s-ref { color: var(--text-mute); margin-right: 0.45rem; }
+/* Implementation label under a §6 contract (§7 build notes) — lighter sibling of .subhead */
+.impl-head { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); font-weight: 700; margin: 1rem 0 0.3rem; }
+
+/* Build-status chip on §7 implementation rows (reuse / new / note) */
+.tag { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+.tag.reuse { background: #66bb6a22; color: var(--green); border: 1px solid #66bb6a55; }
+.tag.new   { background: #ffb74d22; color: var(--amber); border: 1px solid #ffb74d55; }
+.tag.note  { background: var(--bg2); color: var(--text-mute); border: 1px solid var(--border); }
+/* Per-unit build-notes table (§7.x) — a .data-table variant: Aspect | Build tag | Details-with-bullets */
+.impl-table .row { grid-template-columns: 0.5fr 0.45fr 2.75fr; }
+.impl-table .row ul { list-style: disc; margin: 0; padding-left: 1.05rem; display: grid; gap: 0.35rem; }
+.impl-table .row li { line-height: 1.5; }
+
+/* Failure handling */
+.failures { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.failures-head, .failure-row { display: grid; grid-template-columns: 1fr 1fr 80px 1.2fr; gap: 1rem; padding: 0.85rem 1.2rem; align-items: center; border-bottom: 1px solid var(--border); }
+.failures-head { background: var(--bg2); font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); }
+.failure-row { font-size: 0.85rem; }
+.failure-row:last-child { border-bottom: none; }
+.sev { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; font-weight: 700; padding: 0.2rem 0.55rem; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.06em; }
+.sev.med  { background: #ffb74d22; color: var(--amber); border: 1px solid #ffb74d55; }
+.sev.low  { background: #66bb6a22; color: var(--green); border: 1px solid #66bb6a55; }
+.sev.high { background: #ef535022; color: var(--coral); border: 1px solid #ef535055; }
+
+/* Acceptance criteria */
+.ac-table { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.ac-head, .ac-row { display: grid; grid-template-columns: 60px 150px 1fr; gap: 1rem; padding: 0.8rem 1.2rem; align-items: start; border-bottom: 1px solid var(--border); }
+.ac-head { background: var(--bg2); font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); }
+.ac-row { font-size: 0.86rem; }
+.ac-row:last-child { border-bottom: none; }
+.ac-row .ac-id { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--cyan); }
+.ac-row .ac-verifies { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+.verify-chip { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; padding: 0.15rem 0.5rem; border-radius: 4px; background: #4fc3f714; border: 1px solid #4fc3f744; color: var(--cyan); }
+
+/* Open questions — auto-fit */
+.q-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 0.7rem; }
+.q-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.2rem; border-left: 3px solid var(--gold); }
+.q-card .q-head { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
+.q-card .q-id { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; color: var(--gold); background: #ffd54f15; padding: 0.15rem 0.5rem; border-radius: 4px; }
+.q-card .q-decider { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--text-mute); }
+.q-card .q-body { font-size: 0.88rem; color: var(--text); line-height: 1.55; }
+
+/* Accepted deviation (d101-feature-design-definition §4.9) */
+.accepted { margin-top: 0.5rem; padding: 0.5rem 0.7rem; border-left: 3px solid var(--violet); border-radius: 0 6px 6px 0; background: #ab47bc12; font-size: 0.82rem; color: var(--text-dim); line-height: 1.55; }
+.accepted .accepted-tag { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--violet); background: #ab47bc22; border: 1px solid #ab47bc55; border-radius: 4px; padding: 0.1rem 0.45rem; margin-right: 0.45rem; }
+.accepted .accepted-rule { color: var(--text); font-weight: 600; }
+.accepted .accepted-by { display: block; margin-top: 0.3rem; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--text-mute); }
+
+/* References — auto-fit */
+.refs { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+.refs-block { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 1.1rem 1.3rem; }
+.refs-block h4 { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--cyan); margin-bottom: 0.7rem; }
+.refs-block ul { list-style: none; }
+.refs-block li { font-family: 'JetBrains Mono', monospace; font-size: 0.76rem; color: var(--text-dim); padding: 0.2rem 0; line-height: 1.5; word-break: break-all; }
+
+/* Callouts */
+.callout { background: linear-gradient(135deg, #4fc3f712, #26c6da08); border: 1px solid #4fc3f744; border-radius: 10px; padding: 1rem 1.3rem; margin: 1.2rem 0; font-size: 0.9rem; color: var(--text-dim); line-height: 1.6; }
+.callout strong { color: var(--cyan); }
+.callout.warn { background: linear-gradient(135deg, #ffd54f15, #ff890608); border-color: #ffd54f55; }
+.callout.warn strong { color: var(--gold); }
+
+footer.site-footer { max-width: 1300px; margin: 4rem auto 0; padding: 2rem; border-top: 1px solid var(--border); text-align: center; color: var(--text-mute); font-size: 0.82rem; line-height: 1.7; }
+footer.site-footer .mono { color: var(--text-dim); font-family: 'JetBrains Mono', monospace; }
+footer.site-footer a { color: var(--cyan); }
+
+@media (max-width: 1100px) {
+  .meta-strip { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 900px) {
+  .layout-doc { grid-template-columns: 1fr; gap: 1rem; padding: 1rem 1.2rem; }
+  .side-nav { position: static; max-height: none; overflow: visible; border: 1px solid var(--border); border-radius: 8px; padding: 1rem; background: var(--bg-card); }
+}
+@media (max-width: 720px) {
+  .top-nav { overflow-x: auto; padding: 0.55rem 1rem; gap: 1rem; }
+  .top-nav .spacer { display: none; }
+  .hero { padding: 1.2rem 1.2rem 1rem; }
+  section.s { padding: 2.5rem 1.2rem 0; }
+  .meta-strip { grid-template-columns: repeat(2, 1fr); margin: 1rem 1.2rem 0; }
+  .chapter-band { padding: 0 1.2rem; margin-top: 3rem; }
+  .chapter-band-inner { grid-template-columns: 1fr; gap: 0.5rem; padding: 1.2rem 1.4rem; }
+  .chapter-band .ch-num { font-size: 2rem; }
+  .decisions-head, .decision-row { grid-template-columns: 1fr; gap: 0.4rem; }
+  .failures-head, .failure-row { grid-template-columns: 1fr; }
+  .ac-head, .ac-row { grid-template-columns: 1fr; }
+}
+
+/* Resolved open questions (§9) — doc-local: the template has no resolved-question shape yet. */
+.q-card.resolved { border-left-color: var(--green); }
+.q-card.resolved .q-id { color: var(--green); background: #66bb6a15; }
+.q-card .q-resolution { font-size: 0.82rem; color: var(--text-dim); line-height: 1.5; margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--border); }
+.q-card .q-resolution strong { color: var(--green); }
+.refs-block li a { color: var(--cyan); }
+</style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <span class="brand"><a href="../index.html">ASIMOV<span class="sep">/</span>docs</a></span>
+  <a href="../index.html#s1">Architecture</a>
+  <a href="../index.html#s2">Features</a>
+  <span class="spacer"></span>
+  <span class="phase-chip full">Full design</span>
+  <span class="status-chip">Draft v0.16</span>
+</nav>
+
+<div class="layout-doc">
+  <aside class="side-nav">
+    <div class="side-head">On this page</div>
+    <ul>
+      <li><a href="#s2">§2 Purpose &amp; audience</a></li>
+      <li><a href="#s3">§3 Requirements</a></li>
+      <li><a href="#c4">§4 Business design</a>
+        <ul>
+          <li><a href="#s4-1">§4.1 Design principles</a></li>
+          <li><a href="#s4-2">§4.2 Model / concepts</a></li>
+          <li><a href="#s4-3">§4.3 Flow</a></li>
+          <li><a href="#s4-4">§4.4 Rules / constraints</a></li>
+          <li><a href="#s4-5">§4.5 Decisions</a></li>
+        </ul>
+      </li>
+      <li><a href="#s5">§5 UI Design</a></li>
+      <li><a href="#c6">§6 Technical design</a>
+        <ul>
+          <li><a href="#s6-1">§6.1 Platform</a></li>
+          <li><a href="#s6-2">§6.2 Data flow</a></li>
+          <li><a href="#s6-3">§6.3 Code map</a></li>
+          <li><a href="#s6-4">§6.4 Shapes / data model</a></li>
+          <li><a href="#s6-5">§6.5 APIs &amp; contracts</a></li>
+          <li><a href="#s6-6">§6.6 Configuration</a></li>
+          <li><a href="#s6-7">§6.7 Failure handling</a></li>
+          <li><a href="#s6-8">§6.8 Gotchas</a></li>
+        </ul>
+      </li>
+      <li><a href="#c7">§7 Implementation</a>
+        <ul>
+          <li><a href="#s7-1">§7.1 New vs. reuse</a></li>
+          <li><a href="#s7-2">§7.2 The project</a></li>
+          <li><a href="#s7-3">§7.3 Wiring &amp; registration</a></li>
+          <li><a href="#s7-4">§7.4 Each review</a></li>
+          <li><a href="#s7-5">§7.5 Cross-cutting</a></li>
+        </ul>
+      </li>
+      <li><a href="#s8">§8 Acceptance</a></li>
+      <li><a href="#s9">§9 Open questions</a></li>
+      <li><a href="#s10">§10 References</a></li>
+    </ul>
+  </aside>
+
+  <article class="content">
+
+<header class="hero">
+  <div class="kicker">D101 · Feature design · asimov</div>
+  <h1>/d101-review</h1>
+  <p class="tagline">The review entry point for a D101: it selects the file, resolves the phase it stands in, and offers the reviews that phase calls for — the <strong>gap review</strong> against the bar (<strong>§8a</strong> business-complete while §6 is open, <strong>§8b</strong> gap-free once it isn't), plus the reader-in-the-loop <strong>persona reviews</strong> of the business design and the technical design. Runs the gap check itself and delegates each persona review to its skill; never modifies the D101, and never moves either axis — the verdicts belong to people.</p>
+</header>
+
+<div class="meta-strip">
+  <div class="meta-cell"><div class="label">Owner</div><div class="value">Context&amp;; lead <span class="mono">alb</span></div></div>
+  <div class="meta-cell"><div class="label">Business approver</div><div class="value">Allan Borup</div></div>
+  <div class="meta-cell"><div class="label">Model</div><div class="value mono">sonnet-4-6</div></div>
+  <div class="meta-cell"><div class="label">Reviews</div><div class="value mono">gap · persona ×2</div></div>
+  <div class="meta-cell"><div class="label">Last updated</div><div class="value mono">2026-09-15</div></div>
+  <div class="meta-cell"><div class="label">Status</div><div class="value">Draft</div></div>
+</div>
+
+<div class="doc-scope">
+  <strong>Scope:</strong> The Design stage of the L3 pipeline (D100 §3, stage 1). System-level architecture lives in <a href="../D100-Asimov-architecture.md" style="color:var(--cyan)">D100-Asimov-architecture.md</a>; this D101 covers the <code>/d101-review</code> command itself. Its authoring-side counterpart is <a href="D101-d101-feature-design.html" style="color:var(--cyan)">D101 — /d101-feature-design</a>. The rationale for adding <code>/d101-review</code> alongside it is in <a href="../research/additional-command-ideas.md" style="color:var(--cyan)">additional-command-ideas.md</a> §3.1.
+</div>
+
+<!-- ═════════ §2 — Purpose & audience ═════════ -->
+<section class="s" id="s2">
+  <h2 class="section-title"><span class="sec-ref">§2</span>Purpose &amp; audience</h2>
+  <p class="section-desc">Reviewing a D101 well means applying the bar its phase calls for <em>and</em> reading the document as the people it was written for — and nothing put those in one place, so authors ran the gap check and skipped the readers.</p>
+
+  <ul class="bullets">
+    <li><strong>The reader reviews went unrun.</strong> The gap review shipped as a command while the persona layer (<a href="D101-personas.html" style="color:var(--cyan)">D101 — Personas</a>) shipped as skills invoked by name, so the two reader-in-the-loop reviews were the ones authors never reached for.</li>
+    <li><strong>The wrong bar gets applied by hand.</strong> Which of §8a and §8b applies is a property of the target document's phase, and a reviewer who does not resolve that first fails a business design for the §6 it deliberately left open.</li>
+    <li><strong>Findings blur into verdicts.</strong> A review that ends in <em>ready</em> or <em>not ready</em> quietly stands in for the human reviewer (≠ author) gate on the specs PR (<code>D100-Asimov-architecture.md</code> §3) instead of making that gate cheaper to pass.</li>
+    <li><strong>Persona coverage is invisible at the moment it matters.</strong> Without a roster in front of the author while they review, a team cannot tell whether the readers who should see this document exist at all.</li>
+  </ul>
+
+  <div class="callout warn">
+    <strong>Not for.</strong> The Spec / Code / Review+Test stages — those have their own commands and subagents. <code>/d101-review</code> reviews <em>one</em> D101 against the bar and its readers; it does not do cross-D101 consistency checking (terminology drift across siblings — <code>additional-command-ideas.md</code> §3.3, <code>/trace</code>), and it does not review code (that is Baley). <strong>Primary audience:</strong> developers in any product repo self-checking a D101 during Design. <strong>Secondary:</strong> its human reviewers, who read the findings and so care that the structure is predictable.
+  </div>
+</section>
+
+<!-- ═════════ §3 — Requirements ═════════ -->
+<section class="s" id="s3">
+  <h2 class="section-title"><span class="sec-ref">§3</span>Requirements</h2>
+
+  <div class="subhead">Functional — 51</div>
+  <div class="req-list">
+    <div class="req"><div class="id">R1</div><div class="body">The command MUST be invokable as <code>/d101-review</code> in any product repo where the Asimov Plugin is installed.</div></div>
+    <div class="req"><div class="id">R2</div><div class="body">The command MUST declare <code>model: claude-sonnet-4-6</code> in YAML frontmatter, matching the (Design, <code>/d101-review</code>) row in <code>documentation/model-choice.md</code>.</div></div>
+    <div class="req"><div class="id">R3</div><div class="body">The command MUST load <code>plugins/asimov-plugin/artifacts/documentation/d101-feature-design/d101-feature-design-definition.md</code> at run-time as the source of both bars to check the target D101 against.</div></div>
+    <div class="req"><div class="id">R4</div><div class="body">The command MUST load <code>plugins/asimov-plugin/artifacts/documentation/d101-feature-design/d101-feature-design-template.html</code> at run-time as the structural reference to check the target D101 against.</div></div>
+    <div class="req"><div class="id">R5</div><div class="body">When invoked with a path argument, the command MUST present that path as the <em>suggested</em> target and wait for the developer to confirm or replace it before any review runs.</div></div>
+    <div class="req"><div class="id">R6</div><div class="body">When invoked without a path argument, the command MUST present a candidate picker listing the <code>documentation/features/D101-*.html</code> files plus legacy <code>D101-*.md</code>, de-duplicated by base name so a feature holding both formats appears once, listed by its <code>.html</code> path and marked as having a legacy <code>.md</code>.</div></div>
+    <div class="req"><div class="id">R7</div><div class="body">The command MUST target the file the developer names in reply to the picker, accepting a number from the list, a filename, a path, or a path that is not among the listed candidates.</div></div>
+    <div class="req"><div class="id">R8</div><div class="body">The command MUST NOT auto-select a target document; a resolved path always follows an explicit developer choice, whether or not a path argument was supplied.</div></div>
+    <div class="req"><div class="id">R9</div><div class="body">Once the target path is resolved, the command MUST report it on the first line of the review output.</div></div>
+
+    <div class="req"><div class="id">R10</div><div class="body">The <strong>gap review</strong> MUST emit one section-walk row per template section (§1–§10, plus §11 when present), each marked <strong>Pass</strong> / <strong>Open</strong> / <strong>Accepted</strong> / <strong>Flag</strong> / <strong>Fail</strong> with a one-sentence reason.</div></div>
+    <div class="req"><div class="id">R11</div><div class="body">The <strong>gap review</strong> MUST emit one row per applicable check from <code>d101-feature-design-definition.md</code> §8, each marked on the same five-step ladder as R10 with a one-sentence reason. <strong>Accepted</strong> marks a check whose only outstanding instance carries a valid deviation the team deliberately lives with; it never becomes Pass.</div></div>
+    <div class="req"><div class="id">R12</div><div class="body">The command MUST NOT emit a top-line <em>ready / not ready</em> verdict — §8a's verdict is the author's call and §8b's the human reviewer's (≠ author), per <code>d101-feature-design-definition.md</code> §2.</div></div>
+
+    <div class="req"><div class="id">R13</div><div class="body">The command MUST NOT modify the target D101 file. The review is read-only; fixes happen by re-running <code>/d101-feature-design</code> with the findings as input.</div></div>
+    <div class="req"><div class="id">R14</div><div class="body">The command MUST report any anti-pattern from <code>d101-feature-design-definition.md</code> §7 it detects in the target D101 (anonymous TBDs, code-paraphrase as design, compound requirements, etc.) as a §3 or §4 row Flag/Fail with the anti-pattern name.</div></div>
+    <div class="req"><div class="id">R15</div><div class="body">When <code>d101-feature-design-definition.md</code> or <code>d101-feature-design-template.html</code> cannot be read, the command MUST stop and report the missing path. It MUST NOT review without the bar.</div></div>
+    <div class="req"><div class="id">R16</div><div class="body">When the target D101 file cannot be found (named path missing, or no <code>D101-*</code> files in <code>documentation/features/</code>), the command MUST stop and report — never invent findings about a file it didn't read.</div></div>
+    <div class="req"><div class="id">R17</div><div class="body">The command MUST resolve the target document's phase before judging any section — from the <code>.phase-chip</code> value, falling back to the presence of a <code>#s6-open</code> section, falling back to <code>Full design</code>.</div></div>
+    <div class="req"><div class="id">R18</div><div class="body">When the gap review is picked, the command MUST open the gap report with a <code>Phase:</code> line naming the resolved phase and the bar it selects. The <code>Reviewing:</code> line is emitted earlier, as soon as the path resolves, preceded only by the one-sentence opening narration.</div></div>
+    <div class="req"><div class="id">R19</div><div class="body">When the resolved phase is <code>Business design</code>, the command MUST run the §8a check set (1, 2, 3, 4, 5, 7, 8 when user-facing, 9) and MUST NOT run check 6.</div></div>
+    <div class="req"><div class="id">R20</div><div class="body">When the resolved phase is <code>Full design</code>, the command MUST run the §8b check set (1, 2, 3, 4, 5, 6, 7, 8 when user-facing, 10) and MUST NOT run check 9.</div></div>
+    <div class="req"><div class="id">R21</div><div class="body">When the resolved phase is <code>Business design</code>, the command MUST collapse §6 into a single report row and MUST NOT emit per-subsection rows for §6.1–§6.8.</div></div>
+    <div class="req"><div class="id">R22</div><div class="body">A §6 that is properly declared open MUST be marked <strong>Open</strong>, not Pass, Flag, or Fail.</div></div>
+    <div class="req"><div class="id">R23</div><div class="body">A §6 whose open block is missing, is an N/A stub, or names no outstanding items MUST be marked <strong>Fail</strong> citing check 9.</div></div>
+    <div class="req"><div class="id">R24</div><div class="body">When the phase chip and the document body disagree, the command MUST report the phase the body shows and MUST mark the §6 row <strong>Fail</strong> naming the contradiction.</div></div>
+    <div class="req"><div class="id">R25</div><div class="body">The command MUST NOT alter either axis — it neither sets the phase chip nor records an approval. It MAY display the target's <em>status</em> value (<code>Draft</code> / <code>Approved</code>) as read-only context, e.g. to note that an already-<code>Approved</code> document is being re-reviewed.</div></div>
+    <div class="req"><div class="id">R26</div><div class="body">After resolving the file and its phase, the command MUST present a menu of the reviews applicable to that phase — the <strong>gap review</strong>, the <strong>business-persona review</strong>, and the <strong>technical-persona review</strong> — and let the developer choose one, several, or all. It MUST NOT run a review the developer did not select, and MUST NOT silently run all three.</div></div>
+    <div class="req"><div class="id">R27</div><div class="body">The menu MUST reflect phase applicability: at <code>Business design</code> it offers the gap review (§8a), the business-persona review of §2/§4, and the technical-persona review of §4 (feasibility of the intent, since §6 is not yet written); at <code>Full design</code> it offers the gap review (§8b), the business-persona review of §2/§4, and the technical-persona review of §4 <em>and</em> §6.</div></div>
+    <div class="req"><div class="id">R28</div><div class="body">The menu MUST mark as <em>recommended</em> the gap review and the business-persona review at <code>Business design</code>, and all three reviews at <code>Full design</code>. An unrecommended review MUST still be offered and MUST still run when picked.</div></div>
+    <div class="req"><div class="id">R29</div><div class="body">The command MUST run each persona review by <strong>invoking that persona's skill</strong>, not by reimplementing the persona method in the command body — the skill is the source of truth for how a persona reads (<code>persona-review-definition.md</code>).</div></div>
+    <div class="req"><div class="id">R30</div><div class="body">The command MUST discover the persona roster the way <code>/persona-list</code> does — standard skills (<code>plugins/asimov-plugin/skills/persona-*</code>) plus custom skills (<code>.claude/skills/persona-*</code>) — and MUST sort each persona into the <strong>business</strong> bucket or the <strong>technical (feasibility)</strong> bucket by whether the persona declares it knows the mechanism / reads §6, per <code>persona-review-definition.md</code> §7.</div></div>
+    <div class="req"><div class="id">R31</div><div class="body">When a selected persona review has no persona skills in its bucket, the command MUST say so and point to <code>/persona-new</code>, rather than silently producing nothing.</div></div>
+    <div class="req"><div class="id">R32</div><div class="body">When a persona skill cannot be read or errors while the roster is being bucketed, the command MUST name that persona, skip it, and run the remaining picked reviews — one malformed reader never aborts the run.</div></div>
+    <div class="req"><div class="id">R33</div><div class="body">Each review MUST keep its own output shape: the gap review emits its section-walk plus one bar table (R10, R11); each persona review emits its skill's own shape (a first-person read-through plus cuts/concerns). The command MUST NOT merge a persona review into the gap tables, and MUST NOT collapse the reviews into a single combined verdict or score.</div></div>
+    <div class="req"><div class="id">R34</div><div class="body">The gap review MUST follow each <code>&lt;iframe class="mockup-frame"&gt;</code> <code>src</code> in the target's §5 and read the referenced mockup file from disk before judging that section.</div></div>
+    <div class="req"><div class="id">R35</div><div class="body">The gap review MUST mark §5 <strong>Fail</strong> citing check 8 when the section is absent, when a user-facing target embeds no mockup, or when an embedded <code>src</code> resolves to no file on disk. This applies at <em>both</em> phases — §5 is business design, so a <code>Business design</code> target is not excused from it.</div></div>
+    <div class="req"><div class="id">R36</div><div class="body">The gap review MUST <strong>Flag</strong> a §5 whose mockup count does not match the surfaces it describes, under the heuristic that screens reached by navigation are separate files while panels and overlays of one screen are a single file.</div></div>
+    <div class="req"><div class="id">R37</div><div class="body">The gap review MUST <strong>Flag</strong> a §5 mockup that renders in the D101's own dark chrome instead of approximating the product UI, that is not self-contained, or that is static where §5 describes primary interactions.</div></div>
+    <div class="req"><div class="id">R38</div><div class="body">The gap review MUST judge §7 for presence and phase-shape only, per BR6, and MUST NOT mark it Fail for being thin.</div></div>
+    <div class="req"><div class="id">R39</div><div class="body">Template-conformance findings — §7 presence and phase-shape, wall-of-text cells or bullets, and §2 framing bloat — MUST be reported in the section walk and MUST NOT appear in, or alter, the §8a / §8b check table (BR5).</div></div>
+    <div class="req"><div class="id">R40</div><div class="body">The gap review MUST <strong>Flag</strong> as a readability finding any <code>.data-table</code> cell, <code>ul.bullets</code> item, or <code>.subhead</code> rule line that runs to a paragraph where the template calls for one sentence.</div></div>
+    <div class="req"><div class="id">R41</div><div class="body">The gap review MUST <strong>Flag</strong> as a readability finding a §2 framing paragraph that front-loads history, numbers, or several compounded goals instead of one why-now sentence with the detail carried by the symptom bullets.</div></div>
+    <div class="req"><div class="id">R42</div><div class="body">The gap review MUST apply the blueprint litmus to each §6 subsection — stripping every <em>because / we chose / rather than</em> clause — and MUST <strong>Flag</strong> a subsection that narrates a decision journey instead of specifying the mechanism, pointing its rationale at a Decisions block (<code>d101-feature-design-definition.md</code> §4.7).</div></div>
+    <div class="req"><div class="id">R43</div><div class="body">When a §6 subsection is written so that an implementer cannot act on it without first extracting the instruction from the argument, the gap review MUST report it as a gap-free (§8b) concern rather than as a readability Flag.</div></div>
+
+    <div class="req"><div class="id">R44</div><div class="body">After emitting the chat report(s) for whichever reviews were picked, the command MUST write those findings to a <code>.review.md</code> sibling of the resolved target — same directory, same slug — by default, without asking first (<code>d101-feature-design-definition.md</code> §4.10). The sibling is gitignored at <code>documentation/features/*.review.md</code> (D100 §4.3) — working state between two commands, never a committed record.</div></div>
+    <div class="req"><div class="id">R45</div><div class="body">The review-notes file MUST carry a fingerprint of the target D101 at review time — its meta-strip <em>Last updated</em> date, its phase-chip value, and the status chip's literal text <em>including its version number</em> (e.g. <code>Draft v0.3</code>) — so a later consumer can detect that the document has since changed, even when two edits land on the same day.</div></div>
+    <div class="req"><div class="id">R46</div><div class="body">The command MUST NOT write to any path other than the review-notes sibling of the target D101 — never the target D101 itself, and never any other file.</div></div>
+    <div class="req"><div class="id">R47</div><div class="body">When a review-notes file already exists for the target's slug, the command MUST overwrite it wholesale with the current run's findings rather than merging with or appending to it.</div></div>
+    <div class="req"><div class="id">R48</div><div class="body">The closing footer MUST name the review-notes path and state that <code>/d101-feature-design</code> consumes and deletes it.</div></div>
+
+    <div class="req"><div class="id">R49</div><div class="body">The gap review MUST treat a <code>.accepted</code> block as valid only when it names the rule it departs from, gives a one-sentence reason, names a person, and carries a date (<code>d101-feature-design-definition.md</code> §4.9). A block with no person or no date leaves the finding at its normal severity and adds a Flag naming the §7 anti-pattern <em>deviation without an accepter</em>; one written against a whole §8 check is a Fail naming <em>a deviation that swallows a check</em>; one whose annotated text has since been rewritten has lapsed and covers nothing.</div></div>
+    <div class="req"><div class="id">R50</div><div class="body">For a valid deviation the gap review MUST mark the element's section-walk row and the §8 check it belongs to <strong>Accepted</strong> — never Pass — carrying the reason and the accepter, on every run; it MUST NOT re-argue the finding, and MUST judge everything else in that element normally, since an acceptance covers one named instance (<a href="D101-accepted-deviations.html" style="color:var(--cyan)">D101 — Accepted deviations</a>).</div></div>
+    <div class="req"><div class="id">R51</div><div class="body">The command MUST NOT author or propose an acceptance — never write a <code>.accepted</code> block, and never suggest a finding be accepted rather than fixed. When the author says a finding is already settled, it points them at <code>/d101-feature-design</code> to record it in the D101.</div></div>
+  </div>
+
+  <div class="subhead">Non-functional — 5</div>
+  <p class="section-desc" style="margin-bottom:0.7rem">NF1, NF4 and NF5 constrain the command's own behaviour and carry acceptance criteria. NF2 and NF3 do not, and each records why on its own row.</p>
+  <div class="req-list nf">
+    <div class="req"><div class="id">NF1</div><div class="body"><strong>Read-only on the D101, write-only to its review notes.</strong> R13 is load-bearing — auto-fixes mix authoring with review and rob the author of the iteration step. Fixes happen via <code>/d101-feature-design</code>, not via the reviewer. Writing R44's review-notes sibling does not relax this: R46 draws the line at exactly one path, and it is not the D101.</div></div>
+    <div class="req"><div class="id">NF2</div><div class="body"><strong>Complementary to human review, not a substitute.</strong> The command catches mechanical and definitional gaps. The human reviewer (≠ author) on the specs PR (<code>D100-Asimov-architecture.md</code> §3) remains the substantive gate.
+      <div class="accepted">
+        <span class="accepted-tag">Accepted</span><span class="accepted-rule">Every requirement produces an acceptance criterion (§6.2).</span>
+        NF2 places this command relative to the human gate rather than constraining it, so any criterion written for it would test the process, not the software.
+        <span class="accepted-by">Context&amp; lead (alb) · 2026-08-28</span>
+      </div>
+    </div></div>
+    <div class="req"><div class="id">NF3</div><div class="body"><strong>Complementary to Copilot's D101 instruction file.</strong> Process doc §3.1 says Copilot reviews first via <code>.github/instructions/d101.instructions.md</code>. <code>/d101-review</code> is the toolkit-local pre-Copilot self-check (see Q4); both reference <code>d101-feature-design-definition.md</code> so they agree on the bar.
+      <div class="accepted">
+        <span class="accepted-tag">Accepted</span><span class="accepted-rule">Every requirement produces an acceptance criterion (§6.2).</span>
+        NF3 records a coexistence that lives in the team's process rather than in this command, which names Copilot nowhere and would behave identically if Copilot were switched off.
+        <span class="accepted-by">Context&amp; lead (alb) · 2026-08-28</span>
+      </div>
+    </div></div>
+    <div class="req"><div class="id">NF4</div><div class="body"><strong>No product-specific assumptions in the command body.</strong> Same as <code>/d101-feature-design</code>; the command works in any repo that follows the <code>documentation/features/</code> convention.</div></div>
+    <div class="req"><div class="id">NF5</div><div class="body"><strong>A review must never punish a document for its phase.</strong> The single worst output this command can produce is a wall of Fail rows against a business design that deliberately hasn't written §6 — it would teach the author to skip the gate. R19 and R21–R24 exist for that one failure mode.</div></div>
+  </div>
+
+  <div class="subhead">Out of scope — 7</div>
+  <div class="req-list">
+    <div class="req oos"><div class="id">OOS1</div><div class="body"><strong>Auto-fixing the D101.</strong> Reason: separating review from authoring keeps findings auditable and gives the author a chance to push back on a finding instead of having it silently applied. Fixes happen via <code>/d101-feature-design</code>.</div></div>
+    <div class="req oos"><div class="id">OOS2</div><div class="body"><strong>Cross-D101 consistency checks.</strong> Reason: drift between sibling D101s (concept-name reuse, terminology) is a separate concern tracked in <code>additional-command-ideas.md</code> §3.3 (<code>/trace</code>). <code>/d101-review</code> reviews one D101 against the bar; not against its siblings.</div></div>
+    <div class="req oos"><div class="id">OOS3</div><div class="body"><strong>Implementation review.</strong> Reason: that's the S101 validator subagent's job (D100 §4.4). <code>/d101-review</code> operates at the Design stage only.</div></div>
+    <div class="req oos"><div class="id">OOS4</div><div class="body"><strong>PR-comment posting.</strong> Reason: GitHub-coupling is a fork point (D100 §8.4). The structured finding report goes to chat. The author transcribes findings into the PR description / commit message if they want them persisted.</div></div>
+    <div class="req oos"><div class="id">OOS5</div><div class="body"><strong>Deciding that a document has reached a bar, or moving either axis.</strong> Reason: §8a's verdict is the author's and §8b's the human reviewer's (<code>d101-feature-design-definition.md</code> §2); the phase chip is <code>/d101-feature-design</code>'s to set and the status chip the business approver's. A read-only reporter that could also promote a document would be both author and reviewer of the same artifact (R25).</div></div>
+    <div class="req oos"><div class="id">OOS6</div><div class="body"><strong>Reimplementing the persona method inside the command.</strong> Reason: a persona review's method lives in its skill (<code>persona-review-definition.md</code>); duplicating it in the command body would drift from the skills and break the runtime-source-of-truth pattern (D100 §7.4). The command routes and invokes; the skill reads (R29).</div></div>
+    <div class="req oos"><div class="id">OOS7</div><div class="body"><strong>Recording which reviews were run in the D101 itself.</strong> Reason: a review-log is new document state on top of the two existing axes; the reviews are advisory and iterative. This is distinct from caching a review's <em>findings</em> to a disposable sibling file (R44) — that file is never the D101, carries no state a re-run couldn't reproduce, and is deleted the moment it's consumed. If a persistent record inside the D101 is ever wanted it belongs to the approval flow, not to a read-only reviewer.</div></div>
+  </div>
+</section>
+
+<!-- ═════════ §4 — Chapter band ═════════ -->
+<div class="chapter-band" id="c4">
+  <div class="chapter-band-inner">
+    <div class="ch-num">4</div>
+    <div>
+      <div class="ch-name">Business design</div>
+      <div class="ch-summary">Design principles, the concept model (the three reviews and the two persona buckets), the review flow with its error paths, the rules that gate which reviews apply, and the recorded decisions with their rejected alternatives.</div>
+    </div>
+  </div>
+</div>
+
+<!-- §4.1 Principles -->
+<section class="s" id="s4-1">
+  <h2 class="section-title"><span class="sec-ref">§4.1</span>Design principles</h2>
+  <div class="principles">
+    <div class="principle">
+      <div class="num">1</div>
+      <div class="text"><strong>Findings, not verdicts.</strong> The command names what's weak, where, and why. It does not emit a "ready for review" verdict — §8a's is the author's call and §8b's the human reviewer's (≠ author), per <code>d101-feature-design-definition.md</code> §2.1 / §2.2 and §8b. Automating the verdict would let the LLM substitute for the reviewer-not-author gate.</div>
+    </div>
+    <div class="principle">
+      <div class="num">2</div>
+      <div class="text"><strong>Read-only.</strong> Fixes happen via <code>/d101-feature-design</code>, not in <code>/d101-review</code>. Separating review from authoring keeps findings auditable and gives the author a chance to push back on a finding instead of having it silently applied.</div>
+    </div>
+    <div class="principle">
+      <div class="num">3</div>
+      <div class="text"><strong>Same bar as the author saw.</strong> <code>/d101-review</code> reads <code>d101-feature-design-definition.md</code> and <code>d101-feature-design-template.html</code> at run-time — the same files <code>/d101-feature-design</code> used. The reviewer and author see the same bar; drift between author and reviewer expectations is impossible by construction.</div>
+    </div>
+    <div class="principle">
+      <div class="num">4</div>
+      <div class="text"><strong>Complementary, not redundant.</strong> Copilot's <code>.github/instructions/d101.instructions.md</code> covers the first mechanical pass on the specs PR. The human reviewer applies §8. <code>/d101-review</code> is a <em>third</em> check the author can run <em>before</em> either — focused on what Copilot is weakest at (counter-examples on conditional rules, named deciders on TBDs, anti-patterns from §7).</div>
+    </div>
+    <div class="principle">
+      <div class="num">5</div>
+      <div class="text"><strong>Orchestrate, don't reimplement.</strong> The gap review is the command's own work — it re-reads the bar. Each persona review is delegated to its persona skill, the source of truth for how that reader reads. The hub selects, routes, and invokes; it never copies a persona's method into itself.</div>
+    </div>
+    <div class="principle">
+      <div class="num">6</div>
+      <div class="text"><strong>The phase decides what applies.</strong> Which reviews the menu offers is a fact about the document's phase, not a preference of whoever is reviewing. A <code>Business design</code> document has no §6 to read for mechanism, so the technical-persona review reads §4 for feasibility of intent; a <code>Full design</code> document offers the full set. The <em>status</em> axis is read only — the reviewer shows it, never moves it (D101 hard rule 4).</div>
+    </div>
+    <div class="principle">
+      <div class="num">7</div>
+      <div class="text"><strong>Reviews stay distinct.</strong> Gap and persona reviews answer different questions and their verdicts belong to different people — the gap bar to the author (§8a) / human reviewer (§8b), a persona read to whoever the persona stands in for. The hub runs them together but never merges their outputs or blends them into one score.</div>
+    </div>
+  </div>
+</section>
+
+<!-- §4.2 Model / concepts -->
+<section class="s" id="s4-2">
+  <h2 class="section-title"><span class="sec-ref">§4.2</span>Model / concepts</h2>
+  <p class="section-desc">Three concepts the command adds on top of the D101 vocabulary it inherits from <code>d101-feature-design-definition.md</code> (D101, phase, status, the bars, gap-free): the <strong>three reviews</strong> it can run, the <strong>two kinds of finding</strong> they produce, and the <strong>two persona buckets</strong> it sorts the roster into. Everything else — how a persona reads, what the bars are — lives in the definitions the reviews read at run time.</p>
+
+  <div class="subhead">The three reviews</div>
+  <div class="data-table">
+    <div class="row head cols-3"><div>Review</div><div>Reads · asks</div><div>Run by · verdict owner</div></div>
+    <div class="row cols-3"><div class="label-cell">Gap review</div><div>The whole D101 against the bar the phase calls for (§8a / §8b). <em>Is the contract complete?</em></div><div>The command itself, re-reading <code>d101-feature-design-definition.md</code>. Verdict: author (§8a) / human reviewer (§8b).</div></div>
+    <div class="row cols-3"><div class="label-cell">Business-persona review</div><div>§2/§4 as the business readers it was written for. <em>Will the reader read and correct it, or rubber-stamp it?</em></div><div>The persona skills in the <strong>business</strong> bucket, invoked by the command. Verdict: advisory (the reader).</div></div>
+    <div class="row cols-3"><div class="label-cell">Technical-persona review</div><div>§4 for feasibility of intent, and §6 once written. <em>Does the design assume something the technology can't cheaply deliver?</em></div><div>The persona skills in the <strong>technical</strong> bucket (e.g. Athena), invoked by the command. Verdict: advisory (the reader).</div></div>
+  </div>
+
+  <div class="subhead">The two kinds of finding</div>
+  <p style="color: var(--text-dim); font-size: 0.9rem; line-height: 1.65;">
+    The gap review produces findings of two kinds, and only one of them can move a bar. Keeping them apart is what lets the command report a scruffy but complete document as complete, and a tidy but incomplete one as incomplete.
+  </p>
+  <div class="data-table">
+    <div class="row head cols-3"><div>Kind</div><div>What it judges</div><div>Effect on the bar</div></div>
+    <div class="row cols-3"><div class="label-cell">Bar finding</div><div>A rule the applicable bar tests — an anonymous TBD, a business rule with no counter-example, §2/§4 written at code altitude.</div><div>Appears in the §8a / §8b table and decides what that check says.</div></div>
+    <div class="row cols-3"><div class="label-cell">Template-conformance finding</div><div>A departure from <code>d101-feature-design-template.html</code> that no check tests — §7's presence and phase-shape, a wall-of-text cell, §2 framing bloat.</div><div>Appears in the section walk only; never reaches the bar table and never changes a check (BR5).</div></div>
+  </div>
+
+  <div class="subhead">The two persona buckets</div>
+  <p style="color: var(--text-dim); font-size: 0.9rem; line-height: 1.65;">
+    The command discovers the whole persona roster (standard + custom, the way <code>/persona-list</code> does) and sorts each reader into one bucket by a single signal already mandated by <code>persona-review-definition.md</code> §7: a <strong>business</strong> persona is defined <em>not</em> to know the mechanism (that blindness is what lets it catch leaked jargon and code-altitude prose); a <strong>technical / feasibility</strong> persona is the one exception that <em>does</em> know the mechanism and reads §6. No new frontmatter field is needed — the persona's own declaration of what it knows is the bucket.
+  </p>
+  <div class="data-table">
+    <div class="row head cols-2"><div>Bucket</div><div>Standard members · what it catches</div></div>
+    <div class="row cols-2"><div class="label-cell">Business</div><div>Poseidon (operational reality), Hermes (cost / ROI), plus any custom reader that does not know the codebase — condescension, leaked jargon, walls of text, a reader who stalls and skips.</div></div>
+    <div class="row cols-2"><div class="label-cell">Technical (feasibility)</div><div>Athena, plus any custom reader defined to know the mechanism — assumptions §4 lays on the tech, mechanism that won't hold, feasibility stated as fact.</div></div>
+  </div>
+  <div class="callout">
+    A custom reader authored by <code>/persona-new</code> joins whichever bucket its <em>Does not know</em> field puts it in — the routing is by the same rule for standard and custom personas, so a team's own readers appear in the menu with no extra wiring.
+  </div>
+</section>
+
+<!-- §4.3 Flow -->
+<section class="s" id="s4-3">
+  <h2 class="section-title"><span class="sec-ref">§4.3</span>Flow</h2>
+  <p class="section-desc"><strong>Trigger.</strong> Two moments, not one: after a business design lands on disk (to check it against §8a and read it as its business readers before deciding §4 is settled), and after the technical design lands (to check §8b and read the mechanism for feasibility before opening the specs PR). The author runs <code>/d101-review</code> either time; the command resolves the phase from the document, offers the reviews that phase calls for, and runs the ones the author picks. <strong>Outcome:</strong> one report per selected review, in chat, cached once to a gitignored <code>D101-&lt;slug&gt;.review.md</code> sibling (R44). The target D101 file is unchanged.</p>
+
+  <div class="flow-wrap">
+    <!-- UML activity diagram with partitions (swimlanes), drawn from
+         plugins/asimov-plugin/resources/diagrams/activity-swimlane-template.svg.
+         Chosen because the point of this feature is WHO owns each step: the author picks and
+         decides, the command routes and runs the gap check, the persona skills run the reader
+         reviews. Two lanes hold one axis — who performs the step. The gap review is a solid
+         activity in the command lane (its own work); the two persona reviews are dashed
+         activities in the command lane, dashed because they are DELEGATED to a persona skill;
+         the verdict is a dashed grey activity in the AUTHOR lane because it is out of scope for
+         the command entirely. Budget: 2 of 4 lanes, 8 activities, ~14 edges.
+         Deliberate deviations from the template geometry, noted in the section text: the command
+         lane is ~236 tall rather than 112, to stack the three reviews as their own rows; and the
+         fan-out bar is a SELECTION fan-out (only the reviews the author picked run), not a strict
+         UML fork of all branches — labelled on the diagram and called out below. -->
+    <svg viewBox="0 0 980 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="UML activity diagram with two swimlanes. Author lane: run the review, pick the reviews from a menu, then read the reports and decide. Command lane: resolve the file and phase, offer the phase-applicable reviews, then a selection fan-out to the gap check (run inline) and the business-persona and feasibility-persona reviews (each delegated to a persona skill), all converging on emit reports, which hands back to the author's decision.">
+      <rect x="0" y="0" width="980" height="400" fill="#14253f"/>
+      <defs>
+        <marker id="act-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 Z" fill="#a8b8d0"/>
+        </marker>
+      </defs>
+
+      <!-- Lane frame -->
+      <line x1="16" y1="24" x2="964" y2="24" stroke="#2b4a73" stroke-width="1"/>
+      <line x1="16" y1="140" x2="964" y2="140" stroke="#2b4a73" stroke-width="1"/>
+      <line x1="16" y1="376" x2="964" y2="376" stroke="#2b4a73" stroke-width="1"/>
+      <line x1="136" y1="24" x2="136" y2="376" stroke="#2b4a73" stroke-width="1"/>
+
+      <!-- Lane labels -->
+      <text x="76" y="86" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">AUTHOR</text>
+      <text x="76" y="262" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">/D101-REVIEW</text>
+
+      <!-- Initial node -->
+      <circle cx="152" cy="68" r="8" fill="#66bb6a"/>
+
+      <!-- A1: entry activity, author lane -->
+      <g>
+        <rect x="176" y="40" width="128" height="56" rx="8" fill="#66bb6a22" stroke="#66bb6a"/>
+        <text x="240" y="64" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">Run /d101-review</text>
+        <text x="240" y="80" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">or pass a path</text>
+      </g>
+
+      <!-- A2: the author picks reviews from the menu -->
+      <g>
+        <rect x="360" y="40" width="128" height="56" rx="8" fill="#66bb6a22" stroke="#66bb6a"/>
+        <text x="424" y="64" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">Pick review(s)</text>
+        <text x="424" y="80" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">one, several, or all</text>
+      </g>
+
+      <!-- A3: the verdict — dashed grey, out of scope for the command -->
+      <g>
+        <rect x="792" y="40" width="128" height="56" rx="8" fill="#122039" stroke="#3b5e8f" stroke-dasharray="4 4"/>
+        <text x="856" y="64" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">Read · decide</text>
+        <text x="856" y="80" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">the human, not the tool</text>
+      </g>
+
+      <!-- B1: resolve file + phase, command lane -->
+      <g>
+        <rect x="176" y="190" width="128" height="56" rx="8" fill="#4fc3f71a" stroke="#4fc3f7"/>
+        <text x="240" y="214" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">Resolve file</text>
+        <text x="240" y="230" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">+ phase</text>
+      </g>
+
+      <!-- B2: offer the phase-applicable reviews -->
+      <g>
+        <rect x="360" y="190" width="128" height="56" rx="8" fill="#4fc3f71a" stroke="#4fc3f7"/>
+        <text x="424" y="214" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">Offer reviews</text>
+        <text x="424" y="230" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">phase-gated menu</text>
+      </g>
+
+      <!-- Selection fan-out bar (only the picked reviews run — not a strict UML fork) -->
+      <rect x="558" y="158" width="4" height="188" fill="#66bb6a"/>
+      <text x="560" y="152" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">picked reviews only</text>
+
+      <!-- R-gap: the gap review, solid — the command's own work -->
+      <g>
+        <rect x="592" y="168" width="156" height="48" rx="8" fill="#ffb74d1a" stroke="#ffb74d"/>
+        <text x="670" y="188" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">Gap check</text>
+        <text x="670" y="204" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">§8a / §8b · inline</text>
+      </g>
+
+      <!-- R-bus: business-persona review, dashed — delegated to a persona skill -->
+      <g>
+        <rect x="592" y="234" width="156" height="48" rx="8" fill="#ffb74d10" stroke="#ffb74d" stroke-dasharray="4 4"/>
+        <text x="670" y="254" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">Business personas</text>
+        <text x="670" y="270" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">§2/§4 · via skill</text>
+      </g>
+
+      <!-- R-tech: feasibility-persona review, dashed — delegated to a persona skill -->
+      <g>
+        <rect x="592" y="300" width="156" height="48" rx="8" fill="#ffb74d10" stroke="#ffb74d" stroke-dasharray="4 4"/>
+        <text x="670" y="320" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">Feasibility persona</text>
+        <text x="670" y="336" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">§4 (+§6 at Full) · skill</text>
+      </g>
+
+      <!-- Join bar -->
+      <rect x="770" y="158" width="4" height="188" fill="#66bb6a"/>
+
+      <!-- B3: emit the reports -->
+      <g>
+        <rect x="800" y="234" width="120" height="56" rx="8" fill="#ffb74d1a" stroke="#ffb74d"/>
+        <text x="860" y="258" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">Emit reports</text>
+        <text x="860" y="274" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">+ .review.md once</text>
+      </g>
+
+      <!-- Final node -->
+      <circle cx="944" cy="68" r="12" fill="none" stroke="#ef5350" stroke-width="1.5"/>
+      <circle cx="944" cy="68" r="6" fill="#ef5350"/>
+
+      <!-- e1: initial to A1 -->
+      <line x1="160" y1="68" x2="174" y2="68" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#act-arr)"/>
+
+      <!-- e2: A1 down into the command lane to B1 -->
+      <line x1="240" y1="96" x2="240" y2="188" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#act-arr)"/>
+
+      <!-- e3: B1 to B2 -->
+      <line x1="304" y1="218" x2="358" y2="218" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#act-arr)"/>
+
+      <!-- e4: B2 presents the menu up to the author -->
+      <line x1="424" y1="188" x2="424" y2="98" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#act-arr)"/>
+      <text x="432" y="150" text-anchor="start" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">menu</text>
+
+      <!-- e5: the author's selection re-enters the command at the fan-out bar -->
+      <path d="M448,96 V158 H554" fill="none" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#act-arr)"/>
+      <text x="470" y="150" text-anchor="start" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">selection</text>
+
+      <!-- e6, e7, e8: fan-out to the three reviews -->
+      <line x1="562" y1="192" x2="590" y2="192" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#act-arr)"/>
+      <line x1="562" y1="258" x2="590" y2="258" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#act-arr)"/>
+      <line x1="562" y1="324" x2="590" y2="324" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#act-arr)"/>
+
+      <!-- e9, e10, e11: the reviews converge on the join bar -->
+      <line x1="748" y1="192" x2="768" y2="192" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#act-arr)"/>
+      <line x1="748" y1="258" x2="768" y2="258" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#act-arr)"/>
+      <line x1="748" y1="324" x2="768" y2="324" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#act-arr)"/>
+
+      <!-- e12: join to emit -->
+      <line x1="774" y1="262" x2="798" y2="262" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#act-arr)"/>
+
+      <!-- e13: the reports cross back up to the author -->
+      <line x1="860" y1="234" x2="860" y2="98" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#act-arr)"/>
+
+      <!-- e14: A3 to the final node -->
+      <line x1="920" y1="68" x2="932" y2="68" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#act-arr)"/>
+    </svg>
+    <div class="flow-legend">
+      <span class="item"><span class="swatch" style="background:var(--green)"></span>Author's steps · fan-out / join bar</span>
+      <span class="item"><span class="swatch" style="background:var(--cyan)"></span>The command's routing (resolve · offer)</span>
+      <span class="item"><span class="swatch" style="background:var(--amber)"></span>Gap review — the command's own work</span>
+      <span class="item"><span class="swatch" style="border:1px dashed var(--amber);background:#ffb74d10;height:12px;width:20px"></span>Persona review — delegated to a persona skill</span>
+      <span class="item"><span class="swatch" style="border:1px dashed var(--border);background:#122039;height:12px;width:20px"></span>The verdict — the human's, out of scope</span>
+      <span class="item"><span class="swatch" style="background:var(--coral)"></span>Final node</span>
+    </div>
+  </div>
+  <p style="color: var(--text-dim); font-size: 0.9rem; line-height: 1.65; margin-top: 0.8rem;">
+    Notation: UML activity with partitions, per <code>plugins/asimov-plugin/resources/diagrams/activity-swimlane-template.svg</code>. Deliberate deviations from that file's geometry: the command lane is ~236 tall rather than 112, to stack the three reviews as their own rows; and the fan-out bar is a <em>selection</em> fan-out — only the reviews the author picked run, not a strict UML fork of all branches — labelled <em>picked reviews only</em> on the diagram. The gap review is solid (the command runs it); the two persona reviews are dashed (delegated to a persona skill); the verdict is dashed grey (the human's, out of scope). The numbered list below is finer-grained than the diagram by design — the diagram carries the hand-offs and the fan-out, the list carries the detail — so the activities are not numbered to match it.
+  </p>
+
+  <div class="subhead">Steps (from the developer's perspective)</div>
+  <div class="principles">
+    <div class="principle"><div class="num">1</div><div class="text">Developer runs <code>/d101-review</code> (no argument → command prompts the developer to pick from a candidate list) or <code>/d101-review documentation/features/D101-&lt;slug&gt;.html</code>.</div></div>
+    <div class="principle"><div class="num">2</div><div class="text">Command loads <code>d101-feature-design-definition.md</code> and <code>d101-feature-design-template.html</code>, resolves the target path, and reports it.</div></div>
+    <div class="principle"><div class="num">3</div><div class="text"><strong>Command resolves the phase (R17).</strong> From the <code>.phase-chip</code>, falling back to whether a <code>#s6-open</code> section is present, falling back to <code>Full design</code> for legacy documents. Where chip and body disagree, the body wins and the disagreement becomes a gap-review finding (R24). It shows the <em>status</em> value too, as read-only context (R25).</div></div>
+    <div class="principle"><div class="num">4</div><div class="text"><strong>Command offers the phase-gated review menu (R26, R27)</strong> — the gap review, the business-persona review, the technical-persona review — marking which the phase recommends, and waits for the developer to pick one, several, or all. It does not run anything unpicked.</div></div>
+    <div class="principle"><div class="num">5</div><div class="text"><strong>If the gap review is picked:</strong> the command walks the template structure (each section <strong>Pass</strong> / <strong>Open</strong> / <strong>Accepted</strong> / <strong>Flag</strong> / <strong>Fail</strong>) and runs the bar the phase called for — §8a for <code>Business design</code> (checks 1–5, 7, 8 when user-facing, 9; check 6 not run — R19), §8b for <code>Full design</code> (the same plus 6 and 10, not 9 — R20). Anti-patterns from <code>d101-feature-design-definition.md</code> §7 are named in the relevant row. Emits the section-walk table + one bar table headed <code>§8a</code> or <code>§8b</code>; no top-line verdict.</div></div>
+    <div class="principle"><div class="num">6</div><div class="text"><strong>If a persona review is picked:</strong> the command discovers the persona roster and buckets it (R30), then invokes the skills in the chosen bucket (R29) — business personas read §2/§4, feasibility personas read §4 and, at <code>Full design</code>, §6. Each skill emits its own read-through + cuts/concerns. An empty bucket is reported with a pointer to <code>/persona-new</code> (R31).</div></div>
+    <div class="principle"><div class="num">7</div><div class="text">Command emits one report per selected review, kept distinct (R33) — the gap tables and each persona's read stand on their own. The same findings are then written once to the <code>.review.md</code> sibling (R44) — the D101 is untouched and neither axis is moved (R25): §8a's verdict is the author's, §8b's the human reviewer's (≠ author), a persona's read the reader's.</div></div>
+  </div>
+
+  <div class="subhead">Error paths</div>
+  <div class="data-table">
+    <div class="row head cols-2"><div>Error path</div><div>Response</div></div>
+    <div class="row cols-2"><div class="label-cell">Target path argument doesn't exist</div><div>Reports the missing path and stops.</div></div>
+    <div class="row cols-2"><div class="label-cell">No argument and no <code>D101-*</code> files</div><div>Reports "no D101 found" with the search path and suggests running <code>/d101-feature-design</code> first.</div></div>
+    <div class="row cols-2"><div class="label-cell"><code>d101-feature-design-definition.md</code> or template unreadable</div><div>Reports the missing path and stops — does not review without the bar.</div></div>
+    <div class="row cols-2"><div class="label-cell">Target D101 doesn't follow the template structure <em>(sections missing or reordered)</em></div><div>Reports the structural mismatch as a §-level Fail rather than guessing what the author intended; suggests re-running <code>/d101-feature-design</code>.</div></div>
+    <div class="row cols-2"><div class="label-cell">Author asks the command to "just fix it"</div><div>Declines; fixing is <code>/d101-feature-design</code>'s job, and offers to hand the findings to that command as input.</div></div>
+    <div class="row cols-2"><div class="label-cell">Author says a finding is already settled and asks for it to be accepted</div><div>Declines to write or propose the acceptance (R51); points to <code>/d101-feature-design</code>, which records the deviation in the D101 (<code>d101-feature-design-definition.md</code> §4.9).</div></div>
+    <div class="row cols-2"><div class="label-cell">Phase chip and body disagree <em>(Full design chip above an open §6)</em></div><div>Reports the phase the <em>body</em> shows and marks the §6 row Fail naming the contradiction (R24) — the body is what a reader acts on, the chip is metadata about it.</div></div>
+    <div class="row cols-2"><div class="label-cell">No phase recorded at all <em>(legacy .md, or pre-change .html)</em></div><div>Treats the document as <code>Full design</code> and reviews against §8b, saying so in the phase line — §8b is the fair bar for a document authored to it.</div></div>
+    <div class="row cols-2"><div class="label-cell">§6 carries an N/A stub <em>("N/A — technical design not needed")</em></div><div>Fail, not Pass (R23) — the honest form for a section that applies but isn't settled is an open block with a list (<code>d101-feature-design-definition.md</code> §4.6).</div></div>
+    <div class="row cols-2"><div class="label-cell">A picked persona review has no personas in its bucket</div><div>Says so and points to <code>/persona-new</code> (R31); runs the other picked reviews normally, never a blank persona report.</div></div>
+  </div>
+</section>
+
+<!-- §4.4 Rules / constraints -->
+<section class="s" id="s4-4">
+  <h2 class="section-title"><span class="sec-ref">§4.4</span>Rules / constraints</h2>
+  <p class="section-desc">Six conditional rules govern what the command offers, runs, and scores. Each is stated with the case where it fires and the adjacent case where it does not, per <code>d101-feature-design-definition.md</code> §6.3. BR1–BR2 govern the gap review; BR3–BR4 govern the menu and the persona routing; BR5–BR6 govern which findings are allowed to move a bar.</p>
+
+  <div class="subhead">BR1 — bar selection</div>
+  <p class="section-desc" style="margin-bottom:0.4rem"><strong style="color:var(--text)">The phase picks the bar.</strong> Which checks run is a property of the target document, never of the invocation or of the author's request.</p>
+  <ul class="bullets">
+    <li><strong>Fires when</strong> the resolved phase is <code>Business design</code> — check 6 is not run, and check 9 is (R19).</li>
+    <li><strong>Stays quiet when</strong> the phase is <code>Full design</code> or unrecorded: check 6 runs and check 9 does not (R20). Asking for "the full review" on a business design does not change this — the bar is not a setting.</li>
+  </ul>
+
+  <div class="subhead">BR2 — Open is not a defect</div>
+  <p class="section-desc" style="margin-bottom:0.4rem"><strong style="color:var(--text)">Open, Fail, or nothing.</strong> A §6 that is deliberately unwritten gets its own severity, so a reader of the report cannot mistake it for a shortfall.</p>
+  <ul class="bullets">
+    <li><strong>Fires when</strong> the open block is present, states the document is not gap-free, and lists real outstanding items — one row, marked <strong>Open</strong> (R22).</li>
+    <li><strong>Stays quiet when</strong> the block is missing, an N/A stub, or a bare TBD: that is a genuine defect and the row is <strong>Fail</strong> citing check 9 (R23). <em>Open</em> rewards declaring the gap, not having one.</li>
+    <li class="warn">Never eight §6.x Fail rows against a business design. That output would teach the author to skip the phase gate entirely (NF5).</li>
+  </ul>
+
+  <div class="subhead">BR3 — menu applicability</div>
+  <p class="section-desc" style="margin-bottom:0.4rem"><strong style="color:var(--text)">The phase gates the offer.</strong> Which reviews the menu presents follows from the phase, so an author is never offered a review that has nothing to read yet.</p>
+  <ul class="bullets">
+    <li><strong>Fires when</strong> the phase is <code>Business design</code> — the technical-persona review is offered against §4 only (feasibility of intent), because §6 is not yet written (R27), and it is the one review the menu does not mark recommended (R28).</li>
+    <li><strong>Stays quiet when</strong> the phase is <code>Full design</code> — the same review reads §4 <em>and</em> §6 and joins the recommended set, which is then all three (R28).</li>
+    <li>The gap and business-persona reviews are offered and recommended at both phases; a review the menu does not recommend is still offered, and no unpicked review ever runs (R26).</li>
+  </ul>
+
+  <div class="subhead">BR4 — persona bucketing</div>
+  <p class="section-desc" style="margin-bottom:0.4rem"><strong style="color:var(--text)">Knows the mechanism → technical.</strong> A persona is sorted into the business or the technical bucket by what it declares it knows, not by a tag the author has to add.</p>
+  <ul class="bullets">
+    <li><strong>Fires when</strong> a persona declares it knows the mechanism / reads §6 (e.g. Athena) — it joins the <strong>technical</strong> bucket and runs in the technical-persona review (R30).</li>
+    <li><strong>Stays quiet when</strong> a persona is defined <em>not</em> to know the codebase (Poseidon, Hermes, most custom readers) — it stays in the <strong>business</strong> bucket. The rule is the same for standard and custom personas, so a team's own readers route themselves (<code>persona-review-definition.md</code> §7).</li>
+  </ul>
+
+  <div class="subhead">BR5 — findings that never move the bar</div>
+  <p class="section-desc" style="margin-bottom:0.4rem"><strong style="color:var(--text)">Template-conformance is reported, not scored.</strong> A finding about how the document is shaped is kept apart from a finding about what the bar requires, so tidiness is never mistaken for completeness.</p>
+  <ul class="bullets">
+    <li><strong>Fires when</strong> the finding is §7's presence or phase-shape, a wall-of-text cell or bullet, or §2 framing bloat — it appears in the section walk and is absent from the bar table (R39).</li>
+    <li><strong>Stays quiet when</strong> the same section also breaks a rule the bar tests — §4 written at code altitude is a bar finding and does reach the check table, even though it surfaced in the same row.</li>
+  </ul>
+
+  <div class="subhead">BR6 — §7 is judged by phase-shape, never by depth</div>
+  <p class="section-desc" style="margin-bottom:0.4rem"><strong style="color:var(--text)">Present and in the right shape is the whole test.</strong> The build recipe is authored after the gap-free bar, so how thorough it is remains the author's call rather than the reviewer's.</p>
+  <ul class="bullets">
+    <li><strong>Fires when</strong> the phase is <code>Business design</code> — the pending stub is <strong>Open</strong>, a populated §7.1+ is a <strong>Flag</strong> naming a recipe written ahead of the contract it realises, and an absent §7 is a <strong>Fail</strong> (R38).</li>
+    <li><strong>Stays quiet when</strong> the phase is <code>Full design</code> — build notes and an <code>N/A — pure reuse</code> stub both <strong>Pass</strong>, and only a leftover pending stub or a missing section <strong>Fail</strong>s.</li>
+    <li class="warn">A thin §7 is never a Fail. Depth sits outside both bars (<code>d101-feature-design-definition.md</code> §4.8), so judging it would invent a third bar nobody agreed to.</li>
+  </ul>
+</section>
+
+<!-- §4.5 Decisions -->
+<section class="s" id="s4-5">
+  <h2 class="section-title"><span class="sec-ref">§4.5</span>Decisions and alternatives</h2>
+  <p class="section-desc">A decision recorded without its rejected alternative is one that gets re-litigated.</p>
+  <div class="decisions">
+    <div class="decisions-head">
+      <div>Decided</div>
+      <div>Alternative considered</div>
+      <div>Why this won</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided"><strong>Output destination:</strong> Chat — structured finding report (the disposable notes-file cache is a separate decision, below)</div>
+      <div class="alt">File artifact on disk as the record; PR comment</div>
+      <div class="why">A review is iterative, so findings should be acted on, not archived; a file kept as a record persists what should be resolved, and PR comments couple to GitHub against the fork-point principle (D100 §8.4).</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided"><strong>Severity levels:</strong> Five: <strong>Pass</strong> / <strong>Open</strong> / <strong>Accepted</strong> / <strong>Flag</strong> / <strong>Fail</strong></div>
+      <div class="alt">Binary pass/fail; the original three (Pass / Flag / Fail) with deliberate states folded into Pass</div>
+      <div class="why">Binary loses the "worth a look but not blocking" middle band. Three forced two deliberate states — an open §6 and a recorded deviation — to read as Pass; <em>Open</em> and <em>Accepted</em> each name a state the team chose, so a reader mistakes it neither for a shortfall nor for a clean bill. <em>Accepted</em> — a section carries a deviation the team deliberately lives with — never becomes Pass (<code>d101-feature-design-definition.md</code> §4.9).</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided"><strong>Authoring vs review separation:</strong> Read-only on the D101; fixes happen via <code>/d101-feature-design</code></div>
+      <div class="alt">Auto-apply suggested fixes inline</div>
+      <div class="why">Mixing review with authoring removes the author's chance to push back on a finding. Separation makes findings auditable and the authoring iteration explicit.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided"><strong>Argument-less behaviour:</strong> Prompts the developer to pick from a listed candidate set in <code>documentation/features/</code>; never auto-selects</div>
+      <div class="alt">Auto-detect most-recently-modified (with resolved-path mitigation); require an explicit path or fail</div>
+      <div class="why">Asking is explicit and removes the wrong-file risk auto-detect carries (e.g. a colleague's D101 edited last, or a sibling D101 the author wasn't intending to review). The cost of one extra prompt is lower than the cost of reviewing the wrong file silently.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided"><strong>A supplied path is confirmed too</strong>, not honoured straight (R5, Q9)</div>
+      <div class="alt">Honour an explicit path directly — the developer already said which file</div>
+      <div class="why">A mistyped or stale path is the same wrong-file risk the picker exists to remove, and the confirmation shows the resolved path <em>before</em> findings rather than after; the argument still does the work by pre-selecting the answer.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided"><strong>Coexistence with Copilot review:</strong> Complementary — focuses on Copilot's structurally-weakest dimensions (counter-examples on conditional rules, named deciders on TBDs)</div>
+      <div class="alt">Replace Copilot review entirely</div>
+      <div class="why">Process doc §3.1 pins Copilot as first pass, so replacing it means a process change, whereas complementing is additive and reversible (tracked as Q4).</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided"><strong>Finding-report format:</strong> Inline markdown sections + tables in chat</div>
+      <div class="alt">JSON; YAML; commented-on the source file</div>
+      <div class="why">Markdown reads as a report in chat without tooling; persists in the conversation; resolves cleanly into the PR description if the author chooses to paste it.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided"><strong>Top-line verdict:</strong> None — findings only (R12)</div>
+      <div class="alt">"Ready for human review" / "Needs work" verdict; aggregated pass/fail score</div>
+      <div class="why">A verdict would let the LLM substitute for the reviewer-not-author gate. <code>d101-feature-design-definition.md</code> §2 assigns §8a's verdict to the author and §8b's to the human reviewer (≠ author); the command surfaces evidence but doesn't decide either.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided"><strong>Bar selection:</strong> Read from the target document's phase (R17)</div>
+      <div class="alt">A command flag (<code>--business</code> / <code>--full</code>); or asking the author which bar they want</div>
+      <div class="why">The bar a document should be judged against is a fact about the document, not a preference of whoever is reviewing it. A flag would let an author get the easier report on a finished document, or the harsher one on an open draft, and neither reading is useful.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided"><strong>A distinct severity, <code>Open</code></strong>, for deliberately unwritten sections (R22)</div>
+      <div class="alt">Reuse <strong>Pass</strong> for a properly declared open §6; or omit the §6 row entirely at the business phase</div>
+      <div class="why"><em>Pass</em> would say the technical design is fine when it doesn't exist, and omitting the row would hide that anything is outstanding. <em>Open</em> is the only value that reports the true state, and it gives check 9 something to fail against.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided"><strong>Where phase and body disagree:</strong> the body wins (R24)</div>
+      <div class="alt">Trust the chip, since a command wrote it; or stop and ask the author</div>
+      <div class="why">The body is what an implementer or reviewer acts on; the chip is metadata about it. Trusting a <code>Full design</code> chip over an open §6 would review a business design against §8b — the exact failure NF5 exists to prevent.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided"><strong>Gap review stays a command; personas stay skills;</strong> <code>/d101-review</code> orchestrates (R29)</div>
+      <div class="alt">Make the gap review a skill too, so the command is a pure router over three skills</div>
+      <div class="why">A persona is authored content with a stable method, so it is a self-contained skill; the gap review checks a <em>living</em> contract (<code>d101-feature-design-definition.md</code>), so a gap skill would either inline the bars (the toolkit's worst drift risk, against hard rule 3) or re-read them at run time — a command in skill's clothing.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided"><strong>The hub orchestrates:</strong> it runs the picked reviews in the same context (R26, R29)</div>
+      <div class="alt">Signpost only — resolve file + phase, then tell the author what to invoke ("review as Athena")</div>
+      <div class="why">Signposting leaves the missed-reviews problem half-solved: the author still has to take the next step, which is exactly the step they were skipping. Running them closes the loop while the reviews stay distinct (R33).</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided"><strong>Persona bucketing</strong> by the reader's declared mechanism-knowledge (R30, BR4)</div>
+      <div class="alt">Add a <code>reads: business|technical</code> field to the persona frontmatter</div>
+      <div class="why">The signal already exists and is <em>mandated</em> by <code>persona-review-definition.md</code> §7 (business personas must not know the mechanism; the feasibility reader is the sole exception). A new field would touch the persona template and every existing persona for information that is already there.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided"><strong>No review-log in the D101:</strong> reviews are flying reports in chat (OOS7)</div>
+      <div class="alt">Record in the top bar / §1 which reviews have been run</div>
+      <div class="why">A review-log is new document state on top of phase and status, for an advisory and iterative activity. If a persistent record is ever wanted it belongs to the approval flow, not to a read-only reviewer — and the reviewer moves neither axis (R25).</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided"><strong>Findings persist to a sibling cache file, not the D101</strong> (R44–R48, <code>d101-feature-design-definition.md</code> §4.10)</div>
+      <div class="alt">Keep findings chat-only, requiring the same session to carry them into <code>/d101-feature-design</code>; or write them into the D101 itself as a new §</div>
+      <div class="why">Chat-only loses every finding the moment the session ends, forcing the developer to manually retype what a stateless review would happily reproduce. Writing into the D101 would be OOS7's review-log by another name. A disposable sibling gets the cross-session handoff without either cost — losing it costs one re-run, never a decision.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided"><strong>Write scope enforced by prompt discipline, not a sandboxed permission</strong> (R46, NF1)</div>
+      <div class="alt">Wait for a path-scoped tool-permission mechanism before adding <code>Write</code> at all</div>
+      <div class="why">Claude Code's tool allow-list grants a tool, not a path — the same category of guarantee the never-move-either-axis rule already relies on. Waiting for a mechanism that doesn't exist blocks a real, requested capability; the hard rule plus an AC on <code>git diff</code> is the honest version of this promise, not a weaker one.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════════════════ §5 — UI Design (top-level) ═════════════════════ -->
+<section class="s" id="s5">
+  <h2 class="section-title"><span class="sec-ref">§5</span>UI Design</h2>
+  <p class="section-desc">This feature has no user-facing surface.</p>
+  <div class="callout">N/A — backend/tooling feature, no user-facing surface.</div>
+</section>
+
+<!-- ═════════ §6 — Chapter band ═════════ -->
+<div class="chapter-band" id="c6">
+  <div class="chapter-band-inner">
+    <div class="ch-num">6</div>
+    <div>
+      <div class="ch-name">Technical design</div>
+      <div class="ch-summary">Where the command lives and its runtime contract (read-only on the D101, one write to the notes sibling), the data it reads and the report it emits, and command-specific failure handling and gotchas. Code map, data model, APIs and configuration are marked N/A — a single prompt file has none.</div>
+    </div>
+  </div>
+</div>
+
+<!-- §6.1 Platform -->
+<section class="s" id="s6-1">
+  <h2 class="section-title"><span class="sec-ref">§6.1</span>Platform</h2>
+  <p class="section-desc">The whole feature is one markdown prompt file in the plugin's <code>commands/</code> folder — no compiled artifact, no runtime beyond the model reading it. Everything it depends on arrives by run-time read, and its contract is read-only on the D101 — the one thing it writes is a review-notes sibling, never the D101 itself.</p>
+  <div class="data-table">
+    <div class="row head cols-2"><div>Attribute</div><div>Value</div></div>
+    <div class="row cols-2"><div class="label-cell">Path</div><div><code>plugins/asimov-plugin/commands/d101-review.md</code></div></div>
+    <div class="row cols-2"><div class="label-cell">Model (frontmatter)</div><div>Sonnet 4.6 — declared in YAML frontmatter</div></div>
+    <div class="row cols-2"><div class="label-cell">Tools</div><div>File-reading tools (<code>Read</code>, <code>Glob</code>, <code>Grep</code>) plus <code>Skill</code> to invoke persona reviews (R29) and <code>Write</code>, scoped by prompt discipline to the review-notes sibling alone (R44, R46); no <code>Edit</code>, ever — the target D101 is never touched (R13)</div></div>
+    <div class="row cols-2"><div class="label-cell">Invokes</div><div>The persona skills in the picked bucket (via <code>Skill</code>); it does not reimplement their method (R29, OOS6)</div></div>
+    <div class="row cols-2"><div class="label-cell">Writes</div><div>One report per selected review to chat, plus the same findings to <code>D101-&lt;slug&gt;.review.md</code> by default (R44) — nothing else on disk</div></div>
+  </div>
+  <div class="callout">
+    The gap-review heuristics — section-walk and the §8 checks — live in the command file itself, because they re-read a living contract. The persona method does <em>not</em>: the command invokes each persona skill, which carries its own method (<code>persona-review-definition.md</code>). The hub is a router with one built-in review, not four inlined ones.
+  </div>
+</section>
+
+<!-- §6.2 Data flow -->
+<section class="s" id="s6-2">
+  <h2 class="section-title"><span class="sec-ref">§6.2</span>Data flow</h2>
+  <p class="section-desc">Everything the command needs it reads at run time; everything it produces goes to chat and, once, to the review-notes sibling. The shape is read-many, invoke-some, emit-once, write-once — the single disk write is <code>D101-&lt;slug&gt;.review.md</code>, overwritten wholesale and gitignored at <code>documentation/features/*.review.md</code>. This is the data-movement view; the ownership view — who picks and who decides — is <a href="#s4-3" style="color:var(--cyan)">§4.3</a>.</p>
+  <div class="flow-wrap">
+    <!-- Data-flow flowchart: the four files read at run time on the left, the command in the
+         middle, the chat reports on the right; the persona skills are a dashed delegated
+         call that returns its read. Deliberately the data-movement view — distinct from the
+         §4.3 activity diagram, which carries step ownership. Budget: 4 sources, 1 process,
+         1 sink, 1 delegate. -->
+    <svg viewBox="0 0 960 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Data-flow diagram. Four files are read at run time — the definition with both bars, the feature template, the target D101 with its section-5 mockups, and the persona SKILL.md files from two roots — all feeding the /d101-review command, which resolves the file and phase, buckets the roster, and runs the picked reviews. The command emits one report per review to chat and writes the same findings once to a sibling review-notes file; the persona skills are a dashed delegated call that returns its read.">
+      <rect x="0" y="0" width="960" height="320" fill="#14253f"/>
+      <defs>
+        <marker id="df-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 Z" fill="#a8b8d0"/>
+        </marker>
+      </defs>
+
+      <!-- read sources -->
+      <g>
+        <rect x="24" y="24" width="260" height="48" rx="8" fill="#4fc3f71a" stroke="#4fc3f7"/>
+        <text x="154" y="44" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="10.5" font-weight="700">d101-feature-design-definition.md</text>
+        <text x="154" y="60" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">both bars</text>
+      </g>
+      <g>
+        <rect x="24" y="96" width="260" height="48" rx="8" fill="#4fc3f71a" stroke="#4fc3f7"/>
+        <text x="154" y="116" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="10.5" font-weight="700">d101-feature-design-template.html</text>
+        <text x="154" y="132" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">structure</text>
+      </g>
+      <g>
+        <rect x="24" y="168" width="260" height="48" rx="8" fill="#4fc3f71a" stroke="#4fc3f7"/>
+        <text x="154" y="188" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="10.5" font-weight="700">target D101 + §5 mockups</text>
+        <text x="154" y="204" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">read in full</text>
+      </g>
+      <g>
+        <rect x="24" y="240" width="260" height="48" rx="8" fill="#4fc3f71a" stroke="#4fc3f7"/>
+        <text x="154" y="260" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="10.5" font-weight="700">persona SKILL.md ×N</text>
+        <text x="154" y="276" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">two skill roots</text>
+      </g>
+
+      <!-- command -->
+      <g>
+        <rect x="420" y="108" width="176" height="104" rx="10" fill="#66bb6a22" stroke="#66bb6a"/>
+        <text x="508" y="140" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="12" font-weight="700">/d101-review</text>
+        <text x="508" y="162" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10.5">resolve · bucket</text>
+        <text x="508" y="180" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10.5">run picked reviews</text>
+      </g>
+
+      <!-- reports sink -->
+      <g>
+        <rect x="760" y="70" width="176" height="56" rx="8" fill="#26c6da1a" stroke="#26c6da"/>
+        <text x="848" y="92" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">Reports → chat</text>
+        <text x="848" y="108" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">one per review · + .review.md</text>
+      </g>
+
+      <!-- persona delegate -->
+      <g>
+        <rect x="760" y="196" width="176" height="56" rx="8" fill="#ffb74d10" stroke="#ffb74d" stroke-dasharray="4 4"/>
+        <text x="848" y="218" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">persona skills</text>
+        <text x="848" y="234" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">invoked · read returns</text>
+      </g>
+
+      <!-- read arrows -->
+      <line x1="284" y1="48" x2="418" y2="130" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#df-arr)"/>
+      <line x1="284" y1="120" x2="418" y2="146" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#df-arr)"/>
+      <line x1="284" y1="192" x2="418" y2="166" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#df-arr)"/>
+      <line x1="284" y1="264" x2="418" y2="184" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#df-arr)"/>
+
+      <!-- command to reports -->
+      <line x1="596" y1="140" x2="758" y2="98" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#df-arr)"/>
+
+      <!-- command to persona (delegated call + return) -->
+      <line x1="596" y1="180" x2="758" y2="222" stroke="#a8b8d0" stroke-width="1.5" stroke-dasharray="5 4" marker-start="url(#df-arr)" marker-end="url(#df-arr)"/>
+    </svg>
+    <div class="flow-legend">
+      <span class="item"><span class="swatch" style="background:var(--cyan)"></span>Files read at run time</span>
+      <span class="item"><span class="swatch" style="background:var(--green)"></span>The command — resolve · bucket · run</span>
+      <span class="item"><span class="swatch" style="background:var(--teal)"></span>Reports to chat — plus one write to the .review.md sibling</span>
+      <span class="item"><span class="swatch" style="border:1px dashed var(--amber);background:#ffb74d10;height:12px;width:20px"></span>Persona skills — delegated call &amp; return</span>
+    </div>
+  </div>
+  <p style="color: var(--text-dim); font-size: 0.9rem; line-height: 1.65; margin-top: 0.8rem;">Notation: a data-flow flowchart — sources read on the left, the command in the middle, the chat reports on the right, and the persona skills as a dashed delegated call that returns its read. Distinct from the §4.3 activity diagram, which carries step ownership rather than data movement.</p>
+
+  <div class="subhead">Flow</div>
+  <div class="principles">
+    <div class="principle"><div class="num">1</div><div class="text">Reads the two contracts up front — <code>d101-feature-design-definition.md</code> (both bars) and <code>d101-feature-design-template.html</code> (structure) — and stops if either is unreadable (R15).</div></div>
+    <div class="principle"><div class="num">2</div><div class="text">Resolves the target path (argument or picker), then reads the target D101 in full plus every mockup its §5 iframes point at (R34).</div></div>
+    <div class="principle"><div class="num">3</div><div class="text">Globs the two skill roots and reads each <code>persona-*/SKILL.md</code> to bucket the roster business vs technical (R30).</div></div>
+    <div class="principle"><div class="num">4</div><div class="text">Runs only the picked reviews: the gap check consumes the bars in-process; each persona review is delegated to its skill through <code>Skill</code> (R29).</div></div>
+    <div class="principle"><div class="num">5</div><div class="text">Emits the <code>Reviewing:</code> line, the menu, and one report per selected review to chat, then writes the same findings once to <code>D101-&lt;slug&gt;.review.md</code> (R44) — the only write, done last, so a half-finished run leaves no state to unwind (R25).</div></div>
+  </div>
+
+  <div class="subhead">Inputs</div>
+  <div class="data-table">
+    <div class="row head cols-2"><div>Input</div><div>Source</div></div>
+    <div class="row cols-2"><div class="label-cell">Target D101 path</div><div>Command argument (path) or — when no argument — the developer's reply to a candidate picker listing <code>documentation/features/D101-*</code> files (R6)</div></div>
+    <div class="row cols-2"><div class="label-cell">Target D101 contents</div><div>Read from disk in full</div></div>
+    <div class="row cols-2"><div class="label-cell">Target document phase</div><div>Derived from the contents: the <code>.phase-chip</code> value, falling back to the presence of a <code>#s6-open</code> section, falling back to <code>Full design</code> (R17). Never supplied by the author — see §4.5.</div></div>
+    <div class="row cols-2"><div class="label-cell">Template structure</div><div><code>d101-feature-design-template.html</code> (read by the command at run-time) — its leading comment carries ground rule 12, the two-chip contract</div></div>
+    <div class="row cols-2"><div class="label-cell">Both bars</div><div><code>d101-feature-design-definition.md</code> (read by the command at run-time) — §2, §4.6, §5, §6, §7 and §8 are all load-bearing</div></div>
+    <div class="row cols-2"><div class="label-cell">Review selection</div><div>The developer's reply to the phase-gated menu — which of the gap / business-persona / technical-persona reviews to run (R26)</div></div>
+    <div class="row cols-2"><div class="label-cell">Persona roster</div><div>The <code>persona-*</code> skills discovered under the plugin (<code>skills/</code>) and the repo (<code>.claude/skills/</code>), each read to bucket it business vs technical (R30). The persona-review method comes from the skill itself, not from here.</div></div>
+    <div class="row cols-2"><div class="label-cell">§5 mockup files</div><div>Every file an <code>&lt;iframe class="mockup-frame"&gt;</code> in the target's §5 points at, resolved relative to the D101 and read from disk (R34). Absent for a backend-only target.</div></div>
+    <div class="row cols-2"><div class="label-cell">Active repo path</div><div>CC working directory (for candidate listing, roster discovery, and relative-path resolution)</div></div>
+  </div>
+
+  <div class="subhead">Outputs (report shape)</div>
+  <p class="section-desc" style="margin-bottom:0.7rem">It emits the <strong>resolved-path line</strong> (with the status shown as context), then the <strong>menu</strong>, then <strong>one report per selected review</strong>, each in its own shape (R33) — the gap report opening with its <code>Phase:</code> line. No top-line combined verdict. Everything printed is also written once, verbatim, to the review-notes sibling.</p>
+  <ul class="bullets">
+    <li><strong>Resolved path line</strong> — <code>Reviewing: documentation/features/D101-&lt;slug&gt;.html</code> (so the author knows which file was checked, especially when the argument was omitted).</li>
+    <li><strong>Phase line</strong> (gap review only) — <code>Phase: Business design — reviewed against §8a (business-complete)</code>, or the <code>Full design</code> / legacy equivalent; it opens the gap report (R18). The status is shown as context and lands in the notes-file fingerprint, never moved (R25).</li>
+    <li><strong>Review menu</strong> — the reviews the phase allows, marked recommended, awaiting the developer's pick (R26, R27).</li>
+    <li><strong>Gap review (if picked)</strong> — a section-walk table (one row per template section §1–§10, and §11 when present; anti-patterns named in the reason field; template-conformance findings live here and never reach the bar table, BR5) plus one bar table headed <code>§8a</code> or <code>§8b</code>, carrying only that bar's checks at their canonical numbers.</li>
+    <li><strong>Persona review (if picked)</strong> — one read per persona in the bucket, in the skill's own shape (first-person read-through, then cuts / concerns); an empty bucket yields a one-line pointer to <code>/persona-new</code> (R31), never a blank report.</li>
+    <li><strong><code>D101-&lt;slug&gt;.review.md</code></strong> — the same findings, plus a three-line fingerprint of the target at review time, written by default so a later <code>/d101-feature-design</code> run can pick them up across sessions (R44, R45, <code>d101-feature-design-definition.md</code> §4.10).</li>
+  </ul>
+  <div class="callout warn">
+    <strong>⚠ One bar per report, never both.</strong> The gap report carries only the checks of the bar the phase selected. Gap and persona reports are concatenated under their own headings, never fused into one verdict or score (§4.1 principle 7). Both choices are recorded in <a href="#s4-5" style="color:var(--cyan)">§4.5</a>.
+  </div>
+</section>
+
+<!-- §6.3 Code map -->
+<section class="s" id="s6-3">
+  <h2 class="section-title"><span class="sec-ref">§6.3</span>Code map</h2>
+  <div class="codemap">
+    <div class="codemap-row"><div class="what">The entire command — YAML frontmatter plus the numbered steps that resolve the file, offer the menu, and run the picked reviews</div><div class="where">plugins/asimov-plugin/commands/d101-review.md</div></div>
+  </div>
+  <div class="callout">One file is the whole implementation; the build-side layout of what it reads and reuses is <a href="#s7-2" style="color:var(--cyan)">§7.2</a>.</div>
+</section>
+
+<!-- §6.4 Shapes / data model -->
+<section class="s" id="s6-4">
+  <h2 class="section-title"><span class="sec-ref">§6.4</span>Shapes / data model</h2>
+  <div class="callout">N/A — the command owns no data model. The shapes it consumes and the shape of the report it emits are the <em>Inputs</em> and <em>Outputs</em> blocks of <a href="#s6-2" style="color:var(--cyan)">§6.2</a>; the one file it writes, <code>D101-&lt;slug&gt;.review.md</code>, takes its shape from <code>d101-feature-design-definition.md</code> §4.10.</div>
+</section>
+
+<!-- §6.5 APIs & contracts -->
+<section class="s" id="s6-5">
+  <h2 class="section-title"><span class="sec-ref">§6.5</span>APIs &amp; contracts</h2>
+  <div class="callout">N/A — the command exposes no API. It is an additive slash command; its only outward contracts are the chat report shape in <a href="#s6-2" style="color:var(--cyan)">§6.2</a> and the tool allow-list in <a href="#s6-1" style="color:var(--cyan)">§6.1</a>.</div>
+</section>
+
+<!-- §6.6 Configuration & secrets -->
+<section class="s" id="s6-6">
+  <h2 class="section-title"><span class="sec-ref">§6.6</span>Configuration &amp; secrets</h2>
+  <div class="callout">N/A — nothing is configured and no secret is read. Which bar and which reviews apply is derived from the target document's phase, never from a flag or a setting (§4.5); the <code>documentation/features/</code> path convention is a shared literal, not configuration (D100 §8.4).</div>
+</section>
+
+<!-- §6.7 Failure handling -->
+<section class="s" id="s6-7">
+  <h2 class="section-title"><span class="sec-ref">§6.7</span>Failure handling (command-specific)</h2>
+  <p class="section-desc">System-wide failure modes (install, manifest, missing model) are in <a href="../D100-Asimov-architecture.md#85-failure-modes-system-wide" style="color:var(--cyan)">D100 §8.5</a>. Command-specific:</p>
+  <div class="failures">
+    <div class="failures-head"><div>Failure</div><div>Effect</div><div>Severity</div><div>Recovery</div></div>
+    <div class="failure-row"><div>Target path argument doesn't exist on disk</div><div>No review runs at all</div><div><span class="sev low">Low</span></div><div>Reports the missing path and stops; emits no findings.</div></div>
+    <div class="failure-row"><div>No argument and no <code>D101-*</code> files in <code>documentation/features/</code></div><div>The picker has nothing to list</div><div><span class="sev low">Low</span></div><div>Reports "no D101 found" with the search path; suggests running <code>/d101-feature-design</code> first.</div></div>
+    <div class="failure-row"><div><code>d101-feature-design-definition.md</code> or template unreadable</div><div>The bar is unavailable, so any review would be against memory</div><div><span class="sev high">High</span></div><div>Reports the missing path and stops — R15 forbids reviewing without the bar.</div></div>
+    <div class="failure-row"><div>Target D101 is structurally damaged <em>(sections missing or radically reordered)</em></div><div>Sections cannot be matched to the template</div><div><span class="sev med">Med</span></div><div>Reports the structural mismatch as a §-level Fail; does not invent findings about sections that don't exist.</div></div>
+    <div class="failure-row"><div>Author asks the command to apply fixes inline</div><div>Review would become authoring and NF1 would be gone</div><div><span class="sev high">High</span></div><div>Declines per R13; offers to hand the findings to <code>/d101-feature-design</code> as input.</div></div>
+    <div class="failure-row"><div>Developer picks the wrong file from the candidate list</div><div>Findings describe a document the author didn't mean to review</div><div><span class="sev med">Med</span></div><div>The resolved-path line surfaces the choice up front before the findings tables, so the author can cancel and re-run with an explicit path or a different pick.</div></div>
+    <div class="failure-row"><div>A picked persona bucket is empty</div><div>One selected review has no reader to run</div><div><span class="sev low">Low</span></div><div>Reports it in one line and points to <code>/persona-new</code> (R31); the other picked reviews still run, never a blank persona report.</div></div>
+    <div class="failure-row"><div>A persona skill errors or is unreadable while bucketing</div><div>One reader drops out of the roster</div><div><span class="sev low">Low</span></div><div>Skips that one persona, names it, and runs the rest — one malformed reader does not sink the roster (R32).</div></div>
+    <div class="failure-row"><div>The review-notes write fails <em>(unwritable path, disk full)</em></div><div>The findings survive only in chat for this session</div><div><span class="sev low">Low</span></div><div>Reports the write failure in one line; the chat report already stands, so nothing found is lost, only its cross-session copy (R44).</div></div>
+    <div class="failure-row"><div>A <code>.review.md</code> sibling already exists from an earlier run</div><div>Two sets of findings for the same document could coexist</div><div><span class="sev low">Low</span></div><div>Overwrites it wholesale with the current findings — the newer review supersedes the older one in full (R47).</div></div>
+  </div>
+</section>
+
+<!-- §6.8 Known constraints & gotchas -->
+<section class="s" id="s6-8">
+  <h2 class="section-title"><span class="sec-ref">§6.8</span>Known constraints &amp; gotchas</h2>
+  <ul class="bullets">
+    <li><strong>Bar drift.</strong> <code>/d101-review</code> is only as strict as <code>d101-feature-design-definition.md</code> — tightening the bar in the definition immediately tightens the review on the next invocation, and vice versa (confirmed in AC9).</li>
+    <li><strong>No verdict by design.</strong> The command emits findings only; the "ready for human review" decision is the human reviewer's (≠ author) call per <code>d101-feature-design-definition.md</code> §2.2 / §8b, and emitting a verdict here would let an LLM substitute for the reviewer-not-author gate (process doc §2 rule 1).</li>
+    <li><strong>Template-structure rigidity.</strong> D101s that diverge from <code>d101-feature-design-template.html</code> produce noisy reports; the command treats divergence as a structural Fail rather than reinterpreting (intentional — see Q6).</li>
+    <li><strong>Candidate-picker ergonomics.</strong> No argument means "show me the list" — the developer always picks, so the wrong-file risk auto-detect carried is removed by construction, at the cost of one extra exchange when the path isn't passed inline.</li>
+    <li><strong>Persona coverage is only as good as the roster.</strong> A repo with no feasibility persona gets a pointer to <code>/persona-new</code>, not a feasibility read; the three standard personas ship on install so the buckets are never empty in a plain Asimov repo, but custom coverage is the team's to author.</li>
+    <li><strong>Bucketing trusts the persona's own words.</strong> Routing reads each persona's declared <em>Does not know</em> to bucket it (BR4), so a malformed persona that "knows the codebase" but is meant as a business reader routes to technical — a persona-authoring defect (<code>persona-review-definition.md</code> §7) surfaced by the routing, not caused by it.</li>
+  </ul>
+</section>
+
+<!-- ═════════ §7 — Chapter band ═════════ -->
+
+<div class="chapter-band" id="c7">
+  <div class="chapter-band-inner">
+    <div class="ch-num">7</div>
+    <div>
+      <div class="ch-name">Implementation</div>
+      <div class="ch-summary">What is genuinely new against what arrives by reuse, where the one new file sits, what has to be declared to register it, the build notes per review, and the concerns shared across all three.</div>
+    </div>
+  </div>
+</div>
+
+<!-- §7.1 New vs. reuse -->
+<section class="s" id="s7-1">
+  <h2 class="section-title"><span class="sec-ref">§7.1</span>What is genuinely new to build</h2>
+  <p class="section-desc">Everything not listed here arrives by reuse; this is the whole of the new work. The section sits outside both bars (<code>d101-feature-design-definition.md</code> §4.8) — it gates no verdict and moves neither chip.</p>
+  <div class="callout">
+    <strong>These notes are code-grounded design.</strong> Each was checked against <code>plugins/asimov-plugin/commands/d101-review.md</code> as built; where the built command already departs from §3, it is marked inline rather than smoothed over.
+  </div>
+  <ul class="bullets">
+    <li><strong>The command file.</strong> One markdown prompt with YAML frontmatter is the entire deliverable — there is no compiled artifact and no runtime beyond the model reading it (R1, R2).</li>
+    <li><strong>Phase resolution.</strong> Read the chip, fall back to the presence of a <code>#s6-open</code> section, fall back to <code>Full design</code> — new logic, and the thing every later branch depends on (R17).</li>
+    <li><strong>The five-severity ladder.</strong> Pass / Open / Accepted / Flag / Fail, with <em>Open</em> reserved for a properly declared §6 and <em>Accepted</em> for a valid recorded deviation — new, and the whole reason BR2 exists (R22, R23).</li>
+    <li><strong>The section walk.</strong> One row per template section, judged against the template's structure and the definition's quality rules — new, and re-derived each run rather than frozen into a list (R10).</li>
+    <li><strong>Persona discovery and bucketing.</strong> Glob two skill roots, read each <code>SKILL.md</code>, sort by what the persona declares it knows — new (R30, BR4).</li>
+    <li><strong>Reused, not built.</strong> Both bars (<code>d101-feature-design-definition.md</code>), the reference structure (<code>d101-feature-design-template.html</code>), each persona's method (its own <code>SKILL.md</code>), and the candidate-picker convention shared with <code>/d101-feature-design</code>.</li>
+    <li><strong>Confirmation on every path.</strong> The picker runs even when a path argument was supplied, so the argument pre-selects rather than decides — R5 was tightened to this after the code-grounding pass found the built command already doing it (Q9).</li>
+    <li><strong>Writing the review-notes file.</strong> The one exception to read-only: a sibling <code>.review.md</code> file, written by default and scoped to that single path by prompt discipline rather than by the tool grant itself — new, and the reason NF1 was reworded (R44–R47, <code>d101-feature-design-definition.md</code> §4.10).</li>
+  </ul>
+</section>
+
+<!-- §7.2 The project -->
+<section class="s" id="s7-2">
+  <h2 class="section-title"><span class="sec-ref">§7.2</span>The project</h2>
+  <p class="section-desc" style="margin-bottom:0.9rem">There is no project to create — the command is one file in the plugin's <code>commands/</code> folder, and everything it depends on arrives by run-time read rather than by build-time reference. Folders below are relative to <code>plugins/asimov-plugin/</code>.</p>
+  <div class="data-table">
+    <div class="row head" style="grid-template-columns: 0.9fr 2fr;"><div>Folder</div><div>What it holds</div></div>
+    <div class="row" style="grid-template-columns: 0.9fr 2fr;">
+      <div class="label-cell">commands/</div>
+      <div><ul class="bullets" style="margin:0"><li><code>d101-review.md</code> — frontmatter plus seven numbered steps; the whole of the new code.</li></ul></div>
+    </div>
+    <div class="row" style="grid-template-columns: 0.9fr 2fr;">
+      <div class="label-cell">artifacts/documentation/d101-feature-design/ <em>(read)</em></div>
+      <div><ul class="bullets" style="margin:0"><li><code>d101-feature-design-definition.md</code> — both bars, loaded on every invocation.</li><li><code>d101-feature-design-template.html</code> — the reference structure the section walk judges against.</li></ul></div>
+    </div>
+    <div class="row" style="grid-template-columns: 0.9fr 2fr;">
+      <div class="label-cell">artifacts/skills/persona-review/ <em>(read)</em></div>
+      <div><ul class="bullets" style="margin:0"><li><code>persona-review-definition.md</code> — its §7 is the rule the roster is bucketed by.</li></ul></div>
+    </div>
+    <div class="row" style="grid-template-columns: 0.9fr 2fr;">
+      <div class="label-cell">skills/ <em>(read, then invoked)</em></div>
+      <div><ul class="bullets" style="margin:0"><li><code>persona-*/SKILL.md</code> shipped in the plugin, plus <code>.claude/skills/persona-*/SKILL.md</code> in the active repo.</li></ul></div>
+    </div>
+  </div>
+</section>
+
+<!-- §7.3 Wiring & registration -->
+<section class="s" id="s7-3">
+  <h2 class="section-title"><span class="sec-ref">§7.3</span>Wiring &amp; registration · contract <a href="#s6-1">§6.1</a></h2>
+  <p class="section-desc" style="margin-bottom:0.9rem">§6.1 states the contract; here is what has to be declared to satisfy it, and what breaks when a declaration drifts.</p>
+  <div class="impl-head">What to declare</div>
+  <div class="data-table">
+    <div class="row head cols-2"><div>Task</div><div>Detail</div></div>
+    <div class="row cols-2"><div class="label-cell">Frontmatter model</div><div>Declare <code>model: claude-sonnet-4-6</code>, matching the (Design, <code>/d101-review</code>) row in <code>model-choice.md</code> in the same commit (R2, AC3).</div></div>
+    <div class="row cols-2"><div class="label-cell">Tool allow-list</div><div>Declare <code>Read, Glob, Grep, Skill, Write</code>. <code>Edit</code> stays absent; <code>Write</code> is confined by the hard rule to the sibling <code>.review.md</code>, so R13 rests on that discipline plus AC45's <code>git diff</code>, not on the grant (R44, R46, <code>d101-feature-design-definition.md</code> §4.10).</div></div>
+    <div class="row cols-2"><div class="label-cell">Argument hint</div><div>Advertise the optional path, and that an empty argument lists candidates (R6).</div></div>
+    <div class="row cols-2"><div class="label-cell">Discovery</div><div>No registration step exists — the file's presence in <code>commands/</code> is the registration (AC1).</div></div>
+  </div>
+  <div class="impl-head">When it goes wrong</div>
+  <div class="failures">
+    <div class="failures-head"><div>Situation</div><div>Response</div><div>Severity</div><div>Why</div></div>
+    <div class="failure-row"><div>Frontmatter model drifts from <code>model-choice.md</code></div><div>Correct both in one commit</div><div><span class="sev med">Med</span></div><div>The map stops being canonical the moment one row lies.</div></div>
+    <div class="failure-row"><div><code>Edit</code> appears in the allow-list, or <code>Write</code> is used on any path other than the sibling notes file</div><div>Remove <code>Edit</code>; treat the stray write as a hard-rule breach and fix the prompt</div><div><span class="sev high">High</span></div><div>A reviewer that can rewrite the D101 is an author, and NF1 is gone.</div></div>
+  </div>
+</section>
+
+<!-- §7.4 Per-review build notes -->
+<section class="s" id="s7-4">
+  <h2 class="section-title"><span class="sec-ref">§7.4</span>Each review</h2>
+  <p class="section-desc">Build notes per review, in the order the menu offers them and keyed to the output contract in §6.2 — where the judgement comes from, what bounds it, and what is enforced rather than left to the model's discretion.</p>
+
+  <div class="subhead" id="s7-4-1"><span class="s-ref">§7.4.1</span><code>Gap review</code> · contract <a href="#s6-2">§6.2</a></div>
+  <div class="data-table impl-table">
+    <div class="row head"><div>Aspect</div><div>Build</div><div>Details</div></div>
+    <div class="row">
+      <div class="label-cell">Source</div><div><span class="tag reuse">reuse</span></div>
+      <div><ul><li>Both bars come from <code>d101-feature-design-definition.md</code>, re-read every invocation (R3).</li><li>The reference structure comes from <code>d101-feature-design-template.html</code> (R4).</li></ul></div>
+    </div>
+    <div class="row">
+      <div class="label-cell">Judgement</div><div><span class="tag new">new</span></div>
+      <div><ul><li>The section walk and the five-severity ladder live in the command body.</li><li>The §6 collapse rule and the §7 presence-and-shape rule are phase-dependent branches (R21, R22).</li></ul></div>
+    </div>
+    <div class="row">
+      <div class="label-cell">Bound</div><div><span class="tag new">new</span></div>
+      <div><ul><li>One bar per report, never both — the phase already made that choice.</li><li>One sentence per reason cell, so a report stays scannable.</li></ul></div>
+    </div>
+    <div class="row">
+      <div class="label-cell">Enforce</div><div><span class="tag new">new</span></div>
+      <div><ul><li>No top-line verdict and no aggregate score (R12, AC11).</li><li>Check numbers are never renumbered — inapplicable rows are omitted instead.</li></ul></div>
+    </div>
+  </div>
+
+  <div class="subhead" id="s7-4-2"><span class="s-ref">§7.4.2</span><code>Business-persona review</code> · contract <a href="#s6-2">§6.2</a></div>
+  <div class="data-table impl-table">
+    <div class="row head"><div>Aspect</div><div>Build</div><div>Details</div></div>
+    <div class="row">
+      <div class="label-cell">Source</div><div><span class="tag reuse">reuse</span></div>
+      <div><ul><li>The method is the persona's own <code>SKILL.md</code>, invoked through the <code>Skill</code> tool (R29).</li><li>The roster is whatever the two glob roots return — nothing is hard-coded.</li></ul></div>
+    </div>
+    <div class="row">
+      <div class="label-cell">Routing</div><div><span class="tag new">new</span></div>
+      <div><ul><li>A persona that declares it does not know the mechanism lands in this bucket (BR4).</li><li>A genuinely ambiguous persona defaults to business and is named as such.</li></ul></div>
+    </div>
+    <div class="row">
+      <div class="label-cell">Enforce</div><div><span class="tag new">new</span></div>
+      <div><ul><li>The persona's output shape is passed through untouched, never folded into the gap tables (R33).</li><li>An empty bucket yields one line pointing at <code>/persona-new</code>, never a blank report (R31).</li></ul></div>
+    </div>
+  </div>
+
+  <div class="subhead" id="s7-4-3"><span class="s-ref">§7.4.3</span><code>Technical-persona review</code> · contract <a href="#s6-2">§6.2</a></div>
+  <div class="data-table impl-table">
+    <div class="row head"><div>Aspect</div><div>Build</div><div>Details</div></div>
+    <div class="row">
+      <div class="label-cell">Source</div><div><span class="tag reuse">reuse</span></div>
+      <div><ul><li>Same invocation path as the business bucket; only the reading brief differs.</li></ul></div>
+    </div>
+    <div class="row">
+      <div class="label-cell">Scope</div><div><span class="tag new">new</span></div>
+      <div><ul><li>At <code>Business design</code> the brief is §4 alone — feasibility of the intent, because §6 does not exist yet (BR3).</li><li>At <code>Full design</code> the brief is §4 and §6 (R27).</li></ul></div>
+    </div>
+    <div class="row">
+      <div class="label-cell">Routing</div><div><span class="tag note">note</span></div>
+      <div><ul><li>Only the feasibility exception in <code>persona-review-definition.md</code> §7 reaches this bucket, so it is commonly a single reader.</li></ul></div>
+    </div>
+  </div>
+</section>
+
+<!-- §7.5 Cross-cutting -->
+<section class="s" id="s7-5">
+  <h2 class="section-title"><span class="sec-ref">§7.5</span>Cross-cutting — shared by the three reviews</h2>
+  <ul class="bullets">
+    <li><strong>Resolve once, judge many times.</strong> Path, phase and status are settled before the menu is offered, so every picked review reads the same resolution rather than re-deriving it (R17, R18).</li>
+    <li><strong>The header lands before any review runs.</strong> The resolved-path line is emitted first, so a wrong pick is visible before the findings rather than after them.</li>
+    <li><strong>Read-only on the D101 is a discipline, not a sandbox.</strong> <code>Edit</code> is absent from the grant; <code>Write</code> is present for the notes file and confined to that one path by the hard rule and AC45 — Claude Code grants a tool, not a path (§4.5, <code>d101-feature-design-definition.md</code> §4.10).</li>
+    <li><strong>Outputs are concatenated, never combined.</strong> Each review appends its own report under its own heading, so there is no merge step to get wrong (R33).</li>
+    <li class="warn"><strong>One write, last, so nothing needs unwinding.</strong> The notes file is written wholesale after every report is out (R44, R47); a run that fails halfway leaves the D101, both axes and any earlier notes file exactly as it found them (R25) — the recovery for every row in <a href="#s6-7" style="color:var(--cyan)">§6.7</a> is simply to re-run.</li>
+  </ul>
+</section>
+
+<!-- ═════════ §8 — Acceptance criteria ═════════ -->
+<section class="s" id="s8">
+  <h2 class="section-title"><span class="sec-ref">§8</span>Acceptance criteria</h2>
+  <div class="ac-table">
+    <div class="ac-head"><div>#</div><div>Verifies</div><div>Description</div></div>
+    <div class="ac-row"><div class="ac-id">AC1</div><div class="ac-verifies"><span class="verify-chip">R1</span></div><div><strong>Command discovery.</strong> After <code>/plugin marketplace add</code> of the toolkit, <code>/d101-review</code> appears in the CC slash-command list inside any product repo.</div></div>
+    <div class="ac-row"><div class="ac-id">AC2</div><div class="ac-verifies"><span class="verify-chip">R2</span></div><div><strong>Model declared.</strong> The command's frontmatter contains <code>model: claude-sonnet-4-6</code>; invoking it uses that model (verified via CC's runtime model indicator).</div></div>
+    <div class="ac-row"><div class="ac-id">AC3</div><div class="ac-verifies"><span class="verify-chip">R2</span></div><div><strong>Model-choice consistency.</strong> The (Design, <code>/d101-review</code>) row in <code>model-choice.md</code> shows <code>claude-sonnet-4-6</code>, exactly matching the command's frontmatter.</div></div>
+    <div class="ac-row"><div class="ac-id">AC4</div><div class="ac-verifies"><span class="verify-chip">R6</span><span class="verify-chip">R7</span><span class="verify-chip">R8</span><span class="verify-chip">R9</span></div><div><strong>Argument-less prompt.</strong> Run with no argument in a repo containing two <code>D101-*</code> files, the command lists both as candidates (most recent first) and asks the developer to pick. After the developer replies, the command targets the chosen file and reports the resolved path on the first line of the review output.</div></div>
+    <div class="ac-row"><div class="ac-id">AC5</div><div class="ac-verifies"><span class="verify-chip">R6</span></div><div><strong>Candidates de-duplicated.</strong> In a repo holding both <code>D101-foo.html</code> and <code>D101-foo.md</code>, the picker lists <em>one</em> entry for that feature, showing the <code>.html</code> path and marking that a legacy <code>.md</code> is also present.</div></div>
+    <div class="ac-row"><div class="ac-id">AC6</div><div class="ac-verifies"><span class="verify-chip">R7</span></div><div><strong>Every reply form targets.</strong> Answering the picker with a list number, with a bare filename, and with a full path each resolve to the same file; answering with a path to a D101 that was <em>not</em> listed targets that file rather than being rejected.</div></div>
+    <div class="ac-row"><div class="ac-id">AC7</div><div class="ac-verifies"><span class="verify-chip">R5</span></div><div><strong>Explicit path is a suggestion.</strong> Run with <code>/d101-review documentation/features/D101-other.md</code>: the command names that file as the suggested target and waits; no findings appear until the developer confirms, and confirming targets that file regardless of modification times.</div></div>
+    <div class="ac-row"><div class="ac-id">AC8</div><div class="ac-verifies"><span class="verify-chip">R9</span><span class="verify-chip">R10</span><span class="verify-chip">R11</span><span class="verify-chip">R18</span></div><div><strong>Report shape.</strong> The chat output contains, in order: the one-sentence narration, the <code>Reviewing:</code> resolved-path line, the review menu, and — once the gap review is picked — a <code>Phase:</code> line naming the phase and the bar it selects, a per-section table covering §1–§10 (and §11 when present), and one bar table headed either <code>§8a — business-complete check</code> or <code>§8b — gap-free check</code>.</div></div>
+    <div class="ac-row"><div class="ac-id">AC9</div><div class="ac-verifies"><span class="verify-chip">R3</span></div><div><strong>Definition reference at run-time.</strong> Editing <code>d101-feature-design-definition.md</code> (e.g. adding a new anti-pattern in §7) changes the command's findings on the next run against the same D101.</div></div>
+    <div class="ac-row"><div class="ac-id">AC10</div><div class="ac-verifies"><span class="verify-chip">R4</span></div><div><strong>Template reference at run-time.</strong> Editing <code>d101-feature-design-template.html</code> to add a section makes the command flag D101s missing that new section on the next run.</div></div>
+    <div class="ac-row"><div class="ac-id">AC11</div><div class="ac-verifies"><span class="verify-chip">R12</span></div><div><strong>No verdict line.</strong> The command's output contains no "ready for human review" / "needs work" verdict line — only the two findings tables. The gap-free verdict stays with the human reviewer (≠ author).</div></div>
+    <div class="ac-row"><div class="ac-id">AC12</div><div class="ac-verifies"><span class="verify-chip">R13</span><span class="verify-chip">NF1</span></div><div><strong>Read-only on D101.</strong> After the command runs against a D101, <code>git status</code> shows no modification to that D101 (or to any other file in <code>documentation/features/</code>).</div></div>
+    <div class="ac-row"><div class="ac-id">AC13</div><div class="ac-verifies"><span class="verify-chip">R14</span></div><div><strong>Anti-pattern detection.</strong> A D101 containing an anonymous TBD in §9 produces a Flag/Fail row naming "anonymous TBD" with reference to <code>d101-feature-design-definition.md</code> §7.</div></div>
+    <div class="ac-row"><div class="ac-id">AC14</div><div class="ac-verifies"><span class="verify-chip">R15</span></div><div><strong>Missing-bar safeguard.</strong> When <code>d101-feature-design-definition.md</code> is unreadable (renamed, removed), the command stops with a clear error and produces no findings — never reviews against an in-memory copy.</div></div>
+    <div class="ac-row"><div class="ac-id">AC15</div><div class="ac-verifies"><span class="verify-chip">R16</span></div><div><strong>Missing-target safeguard.</strong> When the path argument names a non-existent file, or <code>documentation/features/</code> is missing or contains zero <code>D101-*</code> files when the picker tries to list candidates, the command reports the missing path / empty directory and produces no findings.</div></div>
+    <div class="ac-row"><div class="ac-id">AC16</div><div class="ac-verifies"><span class="verify-chip">R17</span><span class="verify-chip">R18</span></div><div><strong>Phase resolution reported.</strong> Run against a D101 whose chip reads <code>Business design</code> and pick the gap review. The gap report's first line reads <code>Phase: Business design — reviewed against §8a (business-complete)</code>. Run against one whose chip reads <code>Full design</code>: the line names §8b (gap-free).</div></div>
+    <div class="ac-row"><div class="ac-id">AC17</div><div class="ac-verifies"><span class="verify-chip">R19</span><span class="verify-chip">R20</span><span class="verify-chip">BR1</span></div><div><strong>Bar selection.</strong> The §8a table contains a check-9 row and no check-6 row. The §8b table contains a check-6 row and a check-10 row, and no check-9 row.</div></div>
+    <div class="ac-row"><div class="ac-id">AC18</div><div class="ac-verifies"><span class="verify-chip">R21</span><span class="verify-chip">R22</span><span class="verify-chip">BR2</span><span class="verify-chip">NF5</span></div><div><strong>Open §6 reads as open.</strong> Against a <code>Business design</code> D101 with a properly declared open §6, the section table contains exactly one §6 row, marked <strong>Open</strong>, and no rows for §6.1–§6.8.</div></div>
+    <div class="ac-row"><div class="ac-id">AC19</div><div class="ac-verifies"><span class="verify-chip">R23</span></div><div><strong>Hidden gap fails.</strong> Replace a valid open block with the single word <code>TBD</code> and re-run. The §6 row is <strong>Fail</strong> and the reason cites check 9.</div></div>
+    <div class="ac-row"><div class="ac-id">AC20</div><div class="ac-verifies"><span class="verify-chip">R24</span></div><div><strong>Contradiction surfaced.</strong> Set the chip to <code>Full design</code> on a document that still has a <code>#s6-open</code> section. The phase line reports <code>Business design</code> (the body), and the §6 row is <strong>Fail</strong> naming the mismatch.</div></div>
+    <div class="ac-row"><div class="ac-id">AC21</div><div class="ac-verifies"><span class="verify-chip">R17</span></div><div><strong>Legacy fallback.</strong> Run against a legacy <code>.md</code> D101 with no chips. The phase line states that no phase was recorded and that the document was treated as <code>Full design</code>; the report completes.</div></div>
+    <div class="ac-row"><div class="ac-id">AC22</div><div class="ac-verifies"><span class="verify-chip">R25</span></div><div><strong>Neither axis moved.</strong> After a run against a <code>Business design</code> document, <code>git diff</code> on that file is empty — the phase chip is unchanged and no approval was recorded.</div></div>
+    <div class="ac-row"><div class="ac-id">AC23</div><div class="ac-verifies"><span class="verify-chip">R26</span></div><div><strong>Menu, then nothing unpicked.</strong> After resolving the file and phase, the command presents the gap / business-persona / technical-persona menu and waits. Pick only the gap review: the output contains the gap tables and <em>no</em> persona read. Pick nothing: it runs nothing and says so.</div></div>
+    <div class="ac-row"><div class="ac-id">AC24</div><div class="ac-verifies"><span class="verify-chip">R27</span><span class="verify-chip">BR3</span></div><div><strong>Phase gates the menu.</strong> On a <code>Business design</code> D101 the menu offers the technical-persona review against §4 only; on a <code>Full design</code> D101 the same review reads §4 and §6.</div></div>
+    <div class="ac-row"><div class="ac-id">AC25</div><div class="ac-verifies"><span class="verify-chip">R28</span></div><div><strong>Recommended set named.</strong> On a <code>Business design</code> D101 the menu marks the gap and business-persona reviews recommended and the technical-persona review not; on a <code>Full design</code> D101 all three are marked recommended. Picking an unrecommended review still runs it.</div></div>
+    <div class="ac-row"><div class="ac-id">AC26</div><div class="ac-verifies"><span class="verify-chip">R29</span></div><div><strong>Personas invoked, not reimplemented.</strong> A picked persona review produces output in the persona skill's own shape (first-person read-through + cuts/concerns); editing that skill's <code>SKILL.md</code> changes the review on the next run, proving the method comes from the skill, not the command body.</div></div>
+    <div class="ac-row"><div class="ac-id">AC27</div><div class="ac-verifies"><span class="verify-chip">R30</span><span class="verify-chip">BR4</span></div><div><strong>Bucketing by declared knowledge.</strong> Athena appears in the technical bucket; Poseidon and Hermes in the business bucket. A custom persona whose <em>Does not know</em> excludes the codebase routes to business; one defined to know the mechanism routes to technical — with no frontmatter tag added.</div></div>
+    <div class="ac-row"><div class="ac-id">AC28</div><div class="ac-verifies"><span class="verify-chip">R31</span></div><div><strong>Empty bucket surfaced.</strong> In a repo whose business bucket is empty, picking the business-persona review yields a one-line note pointing to <code>/persona-new</code>, and any other picked review still runs.</div></div>
+    <div class="ac-row"><div class="ac-id">AC29</div><div class="ac-verifies"><span class="verify-chip">R32</span></div><div><strong>Malformed reader survived.</strong> With one <code>persona-*/SKILL.md</code> made unreadable, the run names that persona as skipped and still emits the reads of every other persona in the picked bucket.</div></div>
+    <div class="ac-row"><div class="ac-id">AC30</div><div class="ac-verifies"><span class="verify-chip">R33</span></div><div><strong>Reviews stay distinct.</strong> With the gap review and a persona review both picked, the output carries the gap section-walk + bar table <em>and</em> a separate persona read; there is no merged table and no single combined verdict or score.</div></div>
+    <div class="ac-row"><div class="ac-id">AC31</div><div class="ac-verifies"><span class="verify-chip">R25</span></div><div><strong>Status shown, not moved.</strong> The header line reports the target's status (e.g. <code>Status: Draft</code>); after the run <code>git diff</code> on the file is still empty.</div></div>
+    <div class="ac-row"><div class="ac-id">AC32</div><div class="ac-verifies"><span class="verify-chip">R34</span><span class="verify-chip">R35</span></div><div><strong>Dangling mockup caught.</strong> Point a user-facing D101's §5 iframe at a filename that does not exist. The §5 row is <strong>Fail</strong> and the reason cites check 8.</div></div>
+    <div class="ac-row"><div class="ac-id">AC33</div><div class="ac-verifies"><span class="verify-chip">R34</span></div><div><strong>Mockup actually read.</strong> Change only the mockup file — not the D101 — and re-run. The §5 finding changes, proving the file was read rather than assumed from the iframe tag.</div></div>
+    <div class="ac-row"><div class="ac-id">AC34</div><div class="ac-verifies"><span class="verify-chip">R35</span></div><div><strong>Backend-only is not punished.</strong> A backend-only D101 whose §5 carries an <code>N/A — backend-only feature</code> stub yields a §5 <strong>Pass</strong>, and no check-8 row appears in the bar table.</div></div>
+    <div class="ac-row"><div class="ac-id">AC35</div><div class="ac-verifies"><span class="verify-chip">R36</span></div><div><strong>One-vs-several.</strong> A §5 describing two screens reached by navigation, embedded as a single mockup file, yields a <strong>Flag</strong> naming the single-vs-multiple heuristic.</div></div>
+    <div class="ac-row"><div class="ac-id">AC36</div><div class="ac-verifies"><span class="verify-chip">R37</span></div><div><strong>Chrome mismatch.</strong> A mockup built from the D101's own dark palette yields a <strong>Flag</strong> naming styling fit; the same mockup restyled as the product UI does not.</div></div>
+    <div class="ac-row"><div class="ac-id">AC37</div><div class="ac-verifies"><span class="verify-chip">R38</span><span class="verify-chip">BR6</span></div><div><strong>§7 at the business phase.</strong> A <code>Business design</code> D101 carrying the pending §7 stub yields a §7 row marked <strong>Open</strong>; the same document with §7.1+ populated yields a <strong>Flag</strong>.</div></div>
+    <div class="ac-row"><div class="ac-id">AC38</div><div class="ac-verifies"><span class="verify-chip">R38</span><span class="verify-chip">BR6</span></div><div><strong>§7 at the full phase.</strong> A <code>Full design</code> D101 with a leftover pending stub yields <strong>Fail</strong>; one carrying an <code>N/A — pure reuse</code> stub yields <strong>Pass</strong>; a two-line §7 yields <strong>Pass</strong>, never Fail for thinness.</div></div>
+    <div class="ac-row"><div class="ac-id">AC39</div><div class="ac-verifies"><span class="verify-chip">R39</span><span class="verify-chip">BR5</span></div><div><strong>Conformance findings stay out of the bar.</strong> On a run producing a §7 Flag and a readability Flag, the §8b table contains neither a §7 row nor any check whose verdict differs from a run of the same document without those defects.</div></div>
+    <div class="ac-row"><div class="ac-id">AC40</div><div class="ac-verifies"><span class="verify-chip">R40</span><span class="verify-chip">R41</span></div><div><strong>Readability flagged.</strong> A D101 with a paragraph-length <code>.data-table</code> cell yields a <strong>Flag</strong> naming readability; one whose §2 framing opens with three sentences of history yields a <strong>Flag</strong> naming §2 framing.</div></div>
+    <div class="ac-row"><div class="ac-id">AC41</div><div class="ac-verifies"><span class="verify-chip">R42</span><span class="verify-chip">R43</span></div><div><strong>Blueprint discipline.</strong> A §6 subsection arguing why an option was chosen yields a <strong>Flag</strong> pointing the rationale at Decisions; one an implementer cannot act on without extracting the instruction from the argument is reported as a gap-free (§8b) concern instead.</div></div>
+    <div class="ac-row"><div class="ac-id">AC42</div><div class="ac-verifies"><span class="verify-chip">NF4</span></div><div><strong>No product-specific assumptions.</strong> The command file names no product entity — only the <code>documentation/features/</code> path convention — and a full run completes in a product repo that shares none of this repo's vocabulary.</div></div>
+    <div class="ac-row"><div class="ac-id">AC43</div><div class="ac-verifies"><span class="verify-chip">R44</span></div><div><strong>Notes written by default.</strong> Picking any review against a D101 with no existing sibling produces a new <code>D101-&lt;slug&gt;.review.md</code> after the chat report, with no prompt asking whether to write it.</div></div>
+    <div class="ac-row"><div class="ac-id">AC44</div><div class="ac-verifies"><span class="verify-chip">R45</span></div><div><strong>Fingerprint present.</strong> The written file's header carries the target's <em>Last updated</em> date, its phase-chip value, and the status chip's literal text with its version (e.g. <code>Status (at review time): Draft v0.3</code>) as they stood at review time; bumping only the version and re-running changes the fingerprint.</div></div>
+    <div class="ac-row"><div class="ac-id">AC45</div><div class="ac-verifies"><span class="verify-chip">R46</span><span class="verify-chip">NF1</span></div><div><strong>Scope held.</strong> After a run, <code>git diff</code> shows no change to the target D101 or to any file other than its <code>.review.md</code> sibling.</div></div>
+    <div class="ac-row"><div class="ac-id">AC46</div><div class="ac-verifies"><span class="verify-chip">R47</span></div><div><strong>Overwrite, not merge.</strong> Running the review twice in a row against an unchanged D101 leaves the notes file containing only the second run's findings, not both concatenated.</div></div>
+    <div class="ac-row"><div class="ac-id">AC47</div><div class="ac-verifies"><span class="verify-chip">R48</span></div><div><strong>Footer names the path.</strong> The closing footer line names <code>D101-&lt;slug&gt;.review.md</code> and states that <code>/d101-feature-design</code> consumes and deletes it.</div></div>
+    <div class="ac-row"><div class="ac-id">AC48</div><div class="ac-verifies"><span class="verify-chip">R49</span><span class="verify-chip">R50</span></div><div><strong>Valid deviation reads Accepted.</strong> Against a D101 whose requirement carries a <code>.accepted</code> block naming the rule, a reason, a person and a date, the section-walk row for that section and the §8 check the rule belongs to are both <strong>Accepted</strong> — not Pass — with the accepter and reason in the reason cell; running twice yields the same row both times, with no request to decide again.</div></div>
+    <div class="ac-row"><div class="ac-id">AC49</div><div class="ac-verifies"><span class="verify-chip">R49</span></div><div><strong>Invalid deviation does not suppress.</strong> Strip the date from that block and re-run: the underlying finding returns at its normal severity and a Flag names <em>deviation without an accepter</em>. Rewrite the block to excuse a whole §8 check instead: the row is <strong>Fail</strong> naming <em>a deviation that swallows a check</em>.</div></div>
+    <div class="ac-row"><div class="ac-id">AC50</div><div class="ac-verifies"><span class="verify-chip">R51</span><span class="verify-chip">R13</span></div><div><strong>Never proposes an acceptance.</strong> Reply to a Flag with "just accept it": the command declines and points to <code>/d101-feature-design</code>; its output contains no suggested <code>.accepted</code> text, and <code>git diff</code> on the D101 is empty.</div></div>
+  </div>
+</section>
+
+<!-- ═════════ §9 — Open questions ═════════ -->
+<section class="s" id="s9">
+  <h2 class="section-title"><span class="sec-ref">§9</span>Open questions</h2>
+  <p class="section-desc">Numbering starts at Q4: this D101 and <a href="D101-d101-feature-design.html" style="color:var(--cyan)">D101 — /d101-feature-design</a> were split from one source document, and Q1–Q3 went with the authoring half. The numbers are per-document handles, so the sibling's Q4 and Q5 are different questions from these.</p>
+  <p class="section-desc">Open:</p>
+  <div class="q-grid">
+    <div class="q-card">
+      <div class="q-head"><span class="q-id">Q5</span><span class="q-decider">Architecture (Context&amp;)</span></div>
+      <div class="q-body">Should the structured finding-report format align with the planned S101 validator subagent's output so reviewers see the same report shape across Design and Review+Test stages?</div>
+      <div class="q-resolution">Resolution path: decide while spec'ing the validator subagent — the constraint flows from validator to <code>/d101-review</code>, not the other way.</div>
+    </div>
+    <div class="q-card">
+      <div class="q-head"><span class="q-id">Q6</span><span class="q-decider">Architecture (Context&amp;)</span></div>
+      <div class="q-body">When the target D101 diverges from <code>d101-feature-design-template.html</code> structure, should <code>/d101-review</code> attempt section-mapping (best-effort) or fail-fast as currently specified?</div>
+      <div class="q-resolution">Resolution path: the next real D101 will tell; the friction either justifies fail-fast or motivates a flag.</div>
+    </div>
+    <div class="q-card">
+      <div class="q-head"><span class="q-id">Q8</span><span class="q-decider">Architecture (Context&amp;)</span></div>
+      <div class="q-body">Should the menu let the author pick an individual persona within a bucket (e.g. "just Hermes"), or only whole buckets (all business personas)? v1 offers the three reviews; per-persona selection is unspecified.</div>
+      <div class="q-resolution">Resolution path: the first repo carrying several custom personas per bucket will show whether whole-bucket runs are too coarse; until then, whole-bucket keeps the menu to three choices.</div>
+    </div>
+  </div>
+
+  <p class="section-desc" style="margin-top:1.8rem;">Resolved during authoring:</p>
+  <div class="q-grid">
+    <div class="q-card resolved">
+      <div class="q-head"><span class="q-id">Q4</span><span class="q-decider">Resolved 2026-05-22</span></div>
+      <div class="q-body">Does <code>/d101-review</code> run before Copilot's <code>.github/instructions/d101.instructions.md</code> first pass (faster local feedback) or after (catch what Copilot missed)?</div>
+      <div class="q-resolution"><strong>Decision:</strong> Agnostic: the command does not reference Copilot in its prompt; the developer chooses when to run. Revisit if Copilot's role in the specs PR shifts.</div>
+    </div>
+    <div class="q-card resolved">
+      <div class="q-head"><span class="q-id">Q9</span><span class="q-decider">Resolved 2026-08-28</span></div>
+      <div class="q-body">The built command listed candidates and waited for confirmation <em>even when a path argument was supplied</em>, which R5 did not require. Tighten R5 to the built behaviour, or honour an explicit path without the extra exchange?</div>
+      <div class="q-resolution"><strong>Decision:</strong> R5 tightened — a supplied path is a <em>suggestion</em> that still gets confirmed, because a mistyped or stale path carries the same wrong-file risk the picker exists to remove (§4.5). Reopen if the extra exchange proves to cost more than the wrong-file risk it prevents.</div>
+    </div>
+    <div class="q-card resolved">
+      <div class="q-head"><span class="q-id">Q7</span><span class="q-decider">Resolved 2026-05-22</span></div>
+      <div class="q-body"><code>TBD — verify</code> versus other valid <code>TBD</code> shapes — does <code>/d101-review</code> flag any TBD without <code>— verify</code>, or only TBDs without a decider?</div>
+      <div class="q-resolution"><strong>Decision:</strong> Only TBDs without a named decider are flagged. The <code>— verify</code> shape is <code>/d101-feature-design</code>'s output convention, not a <code>d101-feature-design-definition.md</code> requirement; enforcing it in <code>/d101-review</code> would drift the bar.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════ §10 — References ═════════ -->
+<section class="s" id="s10">
+  <h2 class="section-title"><span class="sec-ref">§10</span>References</h2>
+  <div class="refs">
+    <div class="refs-block">
+      <h4>Sibling docs</h4>
+      <ul>
+        <li><a href="D101-d101-feature-design.html">D101 — /d101-feature-design</a> — the authoring-side counterpart, split from the same source</li>
+        <li><a href="D101-personas.html">D101 — Personas</a> — the reader-persona review layer this hub invokes (standard + custom, the buckets, the five fields)</li>
+        <li><a href="D101-accepted-deviations.html">D101 — Accepted deviations</a> — the <code>Accepted</code> severity this command reports, and the record it reads; NF2 and NF3 above are its first live use</li>
+        <li><a href="D101-review-handoff.html">D101 — Review handoff</a> — the review-notes file this command writes (R44–R48) and <code>/d101-feature-design</code> reads and deletes</li>
+        <li><a href="../D100-Asimov-architecture.md">D100-Asimov-architecture.md</a> — system architecture + the L3 process this feature lives in</li>
+      </ul>
+    </div>
+    <div class="refs-block">
+      <h4>Files this command depends on</h4>
+      <ul>
+        <li><code>plugins/asimov-plugin/commands/d101-review.md</code> — the command itself</li>
+        <li><a href="../../plugins/asimov-plugin/artifacts/documentation/d101-feature-design/d101-feature-design-definition.md">artifacts/documentation/d101-feature-design/d101-feature-design-definition.md</a> — both bars: §2 business-complete + gap-free, §4.6 open-§6 rules, §8 the checks (read at run-time)</li>
+        <li><a href="../../plugins/asimov-plugin/artifacts/documentation/d101-feature-design/d101-feature-design-template.html">artifacts/documentation/d101-feature-design/d101-feature-design-template.html</a> — reference structure (read at run-time)</li>
+        <li><a href="../../plugins/asimov-plugin/artifacts/skills/persona-review/persona-review-definition.md">artifacts/skills/persona-review/persona-review-definition.md</a> — the persona-review standard; §7 is the business-vs-feasibility split the buckets read (R30)</li>
+        <li><code>skills/persona-*</code> + <code>.claude/skills/persona-*</code> — the persona skills the hub discovers, buckets, and invokes (R29, R30)</li>
+        <li><a href="../../plugins/asimov-plugin/resources/diagrams/README.md">resources/diagrams/</a> — the four standard notations; <code>activity-swimlane-template.svg</code> is what this document's own §4.3 diagram is drawn from. Not read by <code>/d101-review</code> — the command judges content, not notation</li>
+        <li><a href="../../documentation/model-choice.md">documentation/model-choice.md</a> — canonical model mapping</li>
+      </ul>
+    </div>
+    <div class="refs-block">
+      <h4>Research</h4>
+      <ul>
+        <li><a href="../research/additional-command-ideas.md">research/additional-command-ideas.md</a> — §3.1 is the rationale for adding <code>/d101-review</code>; §3.3 (<code>/trace</code>) tracks cross-D101 consistency; §6 records the rejection of <code>/grillme</code></li>
+      </ul>
+    </div>
+    <div class="refs-block">
+      <h4>Inspiration &amp; external</h4>
+      <ul>
+        <li>Anthropic first-party <code>code-review</code> plugin — prior art for the "read artifact, emit structured findings" command shape <code>/d101-review</code> follows</li>
+        <li><em>AI Transition — Levels &amp; Zones</em> (Context&amp;) — the L3 pipeline the Design stage belongs to; summarised in <a href="../ai-transition-levels-and-zones.md">ai-transition-levels-and-zones.md</a>. The <em>gap-free</em> bar itself is Asimov's, defined in <code>d101-feature-design-definition.md</code> §2.2</li>
+        <li>Claude Code slash command documentation (Anthropic)</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+  </article>
+</div>
+
+<footer class="site-footer">
+  <div>
+    <a href="../index.html">← Documentation home</a>
+    · <span class="mono">features/D101-d101-review.html</span>
+  </div>
+  <div style="margin-top: 0.4rem">
+    D101 · /d101-review · asimov · Full design · Draft v0.16 · 2026-09-15
+  </div>
+</footer>
+
+</body>
+</html>

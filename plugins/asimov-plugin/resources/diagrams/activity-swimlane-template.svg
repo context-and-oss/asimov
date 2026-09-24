@@ -1,0 +1,146 @@
+<!--
+  ACTIVITY DIAGRAM WITH PARTITIONS — UML 2.5 activity diagram, swimlanes. Asimov skin.
+
+  USE WHEN:      "Who owns each step?" An ordered process where the hand-offs
+                 between actors are the point, and the reader must be able to see
+                 at a glance which actor is responsible for each step.
+  DO NOT USE:    when ownership is uniform — one actor doing all the steps is a
+                 flowchart (flowchart-template.svg); when the reader needs message
+                 ordering and returns between participants rather than step
+                 ownership (sequence-template.svg); when the subject is one thing
+                 moving between named states (state-machine-template.svg).
+  BUDGET:        max 4 lanes, 9 activities, 12 edges. Over budget: split into an
+                 overview diagram (the main path) plus a detail diagram, rather
+                 than growing this one.
+  NOTATION:      horizontal lanes separated by hairlines (#2b4a73), with a
+                 120px-wide lane-label column on the left (mono, uppercase,
+                 #a8b8d0); activities as rounded rects placed inside the lane of
+                 the actor that owns them; initial node as a filled circle; final
+                 node as a ring around a filled circle; decision as a diamond whose
+                 outgoing edges each carry a [guard]; one fork/join pair drawn as
+                 thick vertical bars, the fork splitting one flow into concurrent
+                 flows in two lanes and the join waiting for both. Crossing a lane
+                 boundary is what a hand-off looks like — it is expected, not a
+                 smell.
+  COLOUR:        green = entry activity and the gating decision; amber = transform
+                 / work in progress; cyan = read or write to a data store; coral =
+                 the final node and any destructive step; dashed border on #122039
+                 = delegated downstream / out of scope. Fork and join bars are
+                 structure, not semantics — they use the border colour #3b5e8f.
+  GEOMETRY:      viewBox width 980; lane label column x 16..136; lanes 112px tall
+                 (>=96 required) at y 24..136, 136..248, 248..360; activity height
+                 56, width 128, vertically centred in its lane (y 52 / 164 / 276);
+                 at least 40px horizontal gap between activities; fork/join bars 8
+                 wide, 168 tall, spanning the activity bands of the lanes they
+                 connect; guard labels 10px above their horizontal segment or 8px
+                 to the right of their vertical segment; elbows are orthogonal with
+                 an 8px arc at the corner. Every coordinate divisible by 4.
+  ANTI-PATTERNS: - a lane whose label is a system name when the process is owned by
+                   a person, or vice versa — pick one axis and hold it;
+                 - an activity floating on a lane boundary, so ownership is
+                   ambiguous;
+                 - decision edges without guards, or with guards that overlap
+                   (the reader cannot tell which one fires);
+                 - a fork with no join, so the reader cannot tell what waits;
+                 - diagonal hand-off edges instead of orthogonal elbows;
+                 - restating a lane label inside every activity in that lane.
+
+  The first child is a background rect filling the whole viewBox with #14253f (the
+  bg-card token); keep it — it is what makes the white text readable when the file is
+  opened standalone.
+-->
+<svg viewBox="0 0 980 384" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="UML activity diagram with swimlanes template">
+  <rect x="0" y="0" width="980" height="384" fill="#14253f"/>
+  <defs>
+    <marker id="act-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#a8b8d0"/>
+    </marker>
+  </defs>
+
+  <!-- Lane frame: hairlines between lanes, plus the label column divider -->
+  <line x1="16" y1="24" x2="964" y2="24" stroke="#2b4a73" stroke-width="1"/>
+  <line x1="16" y1="136" x2="964" y2="136" stroke="#2b4a73" stroke-width="1"/>
+  <line x1="16" y1="248" x2="964" y2="248" stroke="#2b4a73" stroke-width="1"/>
+  <line x1="16" y1="360" x2="964" y2="360" stroke="#2b4a73" stroke-width="1"/>
+  <line x1="136" y1="24" x2="136" y2="360" stroke="#2b4a73" stroke-width="1"/>
+
+  <!-- Lane labels: mono, uppercase -->
+  <text x="76" y="84" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">{{LANE A}}</text>
+  <text x="76" y="196" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">{{LANE B}}</text>
+  <text x="76" y="308" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">{{LANE C}}</text>
+
+  <!-- Initial node -->
+  <circle cx="152" cy="80" r="8" fill="#66bb6a"/>
+
+  <!-- A1: entry activity, lane A -->
+  <g>
+    <rect x="184" y="52" width="128" height="56" rx="8" fill="#66bb6a22" stroke="#66bb6a"/>
+    <text x="248" y="76" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">{{submitRequest}}</text>
+    <text x="248" y="92" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">entry</text>
+  </g>
+
+  <!-- Decision, lane B -->
+  <polygon points="400,164 428,192 400,220 372,192" fill="#66bb6a22" stroke="#66bb6a" stroke-width="1.5"/>
+  <text x="400" y="240" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">{{decisionLabel}}</text>
+
+  <!-- Fork bar: splits into lane B and lane C -->
+  <rect x="496" y="164" width="8" height="168" fill="#3b5e8f"/>
+  <text x="500" y="156" text-anchor="middle" fill="#6b7a93" font-family="JetBrains Mono, monospace" font-size="9">fork</text>
+
+  <!-- B2: transform, lane B -->
+  <g>
+    <rect x="536" y="164" width="128" height="56" rx="8" fill="#ffb74d1a" stroke="#ffb74d"/>
+    <text x="600" y="188" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">{{transformRecord}}</text>
+    <text x="600" y="204" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">transform</text>
+  </g>
+
+  <!-- C2: store access, lane C -->
+  <g>
+    <rect x="536" y="276" width="128" height="56" rx="8" fill="#4fc3f71a" stroke="#4fc3f7"/>
+    <text x="600" y="300" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">{{persistRecord}}</text>
+    <text x="600" y="316" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">write to store</text>
+  </g>
+
+  <!-- Join bar: waits for both concurrent flows -->
+  <rect x="704" y="164" width="8" height="168" fill="#3b5e8f"/>
+  <text x="708" y="156" text-anchor="middle" fill="#6b7a93" font-family="JetBrains Mono, monospace" font-size="9">join</text>
+
+  <!-- B3: delegated downstream, lane B -->
+  <g>
+    <rect x="752" y="164" width="128" height="56" rx="8" fill="#122039" stroke="#3b5e8f" stroke-dasharray="4 4"/>
+    <text x="816" y="188" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">{{handOffStep}}</text>
+    <text x="816" y="204" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">delegated</text>
+  </g>
+
+  <!-- Final node -->
+  <circle cx="928" cy="192" r="12" fill="none" stroke="#ef5350" stroke-width="1.5"/>
+  <circle cx="928" cy="192" r="6" fill="#ef5350"/>
+
+  <!-- e1: initial to A1 -->
+  <line x1="160" y1="80" x2="182" y2="80" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#act-arr)"/>
+
+  <!-- e2: A1 to the decision, hand-off from lane A to lane B -->
+  <path d="M312,80 H392 A8,8 0 0 1 400,88 V164" fill="none" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#act-arr)"/>
+
+  <!-- e3: decision, guarded path to the fork -->
+  <line x1="428" y1="192" x2="494" y2="192" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#act-arr)"/>
+  <text x="460" y="182" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">[{{guardOk}}]</text>
+
+  <!-- e4: decision, rework loop back to A1 -->
+  <path d="M372,192 H256 A8,8 0 0 1 248,184 V108" fill="none" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#act-arr)"/>
+  <text x="316" y="182" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">[{{guardRework}}]</text>
+
+  <!-- e5, e6: fork to the two concurrent activities -->
+  <line x1="504" y1="192" x2="534" y2="192" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#act-arr)"/>
+  <line x1="504" y1="304" x2="534" y2="304" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#act-arr)"/>
+
+  <!-- e7, e8: both concurrent activities into the join -->
+  <line x1="664" y1="192" x2="702" y2="192" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#act-arr)"/>
+  <line x1="664" y1="304" x2="702" y2="304" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#act-arr)"/>
+
+  <!-- e9: join to the delegated step -->
+  <line x1="712" y1="192" x2="750" y2="192" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#act-arr)"/>
+
+  <!-- e10: delegated step to the final node -->
+  <line x1="880" y1="192" x2="914" y2="192" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#act-arr)"/>
+</svg>

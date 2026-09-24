@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{Repo}} — Documentation</title>
+<link rel="stylesheet" href="_chrome.css">
+<!--
+  Index template for an Asimov-rendered documentation site. Used by the
+  `/asimov-init` slash command (its documentation-site target) to scaffold
+  documentation/index.html.
+
+  HOW THE COMMAND USES THIS FILE
+  - Read this template at run-time. Substitute placeholder values like
+    {{REPO-NAME}}, {{Tagline sentence}}, etc.
+  - Replace the EXAMPLE cards / flow nodes / gallery tiles with real ones
+    generated from the consumer repo's discovered files + architecture.
+  - Output goes to `documentation/index.html` (alongside `_chrome.css`).
+
+  PAGE SHAPE (top to bottom)
+    1. top-nav + hero          — always present.
+    2. OPTIONAL intro zone      — any of: overview prose, a flow band, an entity
+                                  gallery. Include whichever fit the repo; drop the
+                                  rest. A repo with none goes straight hero → catalogue.
+    3. doc catalogue §1..§6     — one section per NON-EMPTY bucket.
+
+  COMPONENT CATALOGUE
+    .top-nav        — fixed site-wide nav (from _chrome.css); anchors only the
+                      sections actually rendered.
+    .hero           — landing hero (kicker, gradient h1, ONE-sentence tagline).
+    .overview       — OPTIONAL 2-3 paragraphs orienting a newcomer (the "why").
+                      Drop the whole block if the repo has no source for it.
+    .flow .flow-track .flow-node .k-* .flow-legend
+                    — OPTIONAL typed flow band. Use when the repo has a named
+                      pipeline / dataflow worth showing. Each node is typed by a
+                      REPO-DEFINED kind (.k-*): the colour encodes WHAT a node is
+                      (e.g. device / compute / messaging / data / external — or
+                      client / service / store / job; whatever fits THIS repo).
+                      A legend maps colour → kind. One or more tracks.
+    .ent-grid .ent-tile
+                    — OPTIONAL entity gallery. One tile per sibling in a cast the
+                      repo ships (protocol adapters, microservices, integrations,
+                      jobs). Use when 3+ siblings of one category exist; each tile
+                      links to that entity's doc.
+    section.s       — one catalogue chapter (§1..§6).
+    .section-title  — h2 with a mono §N badge prefix.
+    .doc-grid       — responsive grid of doc cards (auto-fits 3 cols → 1).
+    .doc-grid.two-col — explicit 2-col version for thin sections.
+    .doc-card       — one card per documented concept.
+    .doc-type       — small mono badge (D100, D101, E100, Convention, Reference, Diagram).
+    .conv-group     — full-width subgroup label inside a doc-grid (e.g. .NET / Angular / Test).
+    .format-badge   — clickable HTML/MD/PNG/PDF badge; href opens the file.
+    .site-footer    — footer (from _chrome.css) with a link back home.
+
+  HARD STYLE RULES
+  - One card per documented concept, not per file. If both .md and .html
+    exist for the same doc, show ONE card with the HTML badge only (the .html
+    is the polished source; the .md is dropped from the index).
+  - Chapter taxonomy: §1 Architecture (D100), §2 Features (D101),
+    §3 Environments (E100), §4 Conventions, §5 Reference, §6 Diagrams.
+    Add a chapter only if the repo has docs in that category; drop empty
+    chapters rather than show empty grids.
+  - The intro zone is OPTIONAL and additive. NEVER invent a pipeline or an
+    entity cast the repo doesn't actually have — a wrong flow diagram is worse
+    than none. Derive a flow band only from a documented architecture (e.g. the
+    D100), and an entity gallery only from a real set of sibling docs.
+  - Flow-band kinds are NOT fixed by Asimov. Define them from the repo's own
+    domain, colour each from the token palette, and keep the legend in sync
+    with the kinds actually used. Colour encodes kind, never which track.
+  - Inline CSS for index-specific components only. Shared chrome via _chrome.css;
+    never inline the chrome. Use the .site-footer class, not a bare <footer>.
+  - No JavaScript. Pure static.
+-->
+<style>
+/* Index-specific components only. Design tokens, top-nav, body, and footer come
+   from _chrome.css. The intro-zone components (flow band, entity gallery) are
+   bespoke to this landing page and live here. */
+
+/* ── Hero ─────────────────────────────────────────────────── */
+.hero { padding: 4rem 2rem 1.5rem; position: relative; overflow: hidden; max-width: 1300px; margin: 0 auto; }
+.hero::before { content: ''; position: absolute; inset: 0; z-index: 0; background: radial-gradient(ellipse at 20% 30%, #4fc3f718 0%, transparent 50%), radial-gradient(ellipse at 80% 60%, #26c6da14 0%, transparent 50%); }
+.hero > * { position: relative; z-index: 1; }
+.kicker { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--cyan); padding: 0.3rem 0.8rem; border-radius: 999px; border: 1px solid #4fc3f744; background: #4fc3f711; margin-bottom: 1rem; }
+.hero h1 { font-size: clamp(2.4rem, 5.5vw, 4.2rem); font-weight: 900; letter-spacing: -0.03em; line-height: 1.05; background: linear-gradient(135deg, #fff 0%, var(--cyan) 50%, var(--teal) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.hero .tagline { font-size: 1.05rem; color: var(--text-dim); margin-top: 1rem; max-width: 820px; line-height: 1.65; }
+.hero .tagline strong { color: #fff; font-weight: 700; }
+
+/* ── Overview (orientation prose under the hero) — OPTIONAL ─── */
+.overview { max-width: 1300px; margin: 2.25rem auto 0; padding: 0 2rem; }
+.overview-inner { max-width: 860px; border-left: 3px solid var(--cyan); padding: 0.2rem 0 0.2rem 1.4rem; }
+.overview-label { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-mute); margin-bottom: 0.7rem; }
+.overview-inner p { color: var(--text-dim); font-size: 1.02rem; line-height: 1.75; margin: 0.7rem 0; }
+.overview-inner p:first-of-type { color: var(--text); }
+.overview-inner strong { color: #fff; font-weight: 700; }
+.overview-inner a { color: var(--cyan); }
+
+/* ── Sections ─────────────────────────────────────────────── */
+section.s { max-width: 1300px; margin: 0 auto; padding: 3.25rem 2rem 0; }
+.section-title { font-size: clamp(1.4rem, 2.4vw, 1.85rem); font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.5rem; }
+.section-title .sec-ref { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; font-weight: 600; color: var(--text-mute); letter-spacing: 0.04em; margin-right: 0.7rem; vertical-align: middle; padding: 0.2rem 0.5rem; border-radius: 4px; background: var(--bg2); border: 1px solid var(--border); }
+.section-desc { color: var(--text-dim); font-size: 0.98rem; max-width: 860px; margin-bottom: 1.5rem; line-height: 1.6; }
+
+/* ── Flow band (typed pipeline) — OPTIONAL ────────────────────
+   Colour + chip encode WHAT a node is (its kind), not which track it sits in.
+   The .k-* classes below are an EXAMPLE kind set — rename / recolour / add to
+   suit the repo's own domain, and keep .flow-legend in sync. */
+.flow { display: flex; flex-direction: column; gap: 1.5rem; }
+.flow-head { font-size: 0.92rem; font-weight: 700; color: #fff; margin-bottom: 0.7rem; display: flex; align-items: center; gap: 0.6rem; }
+.flow-tag { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; font-weight: 700; letter-spacing: 0.12em; padding: 0.2rem 0.5rem; border-radius: 4px; color: var(--cyan); background: #4fc3f715; border: 1px solid #4fc3f744; }
+.flow-tag.alt { color: var(--amber); background: #ffb74d15; border-color: #ffb74d44; }
+.flow-row { display: flex; flex-wrap: wrap; align-items: stretch; gap: 0.35rem; }
+.flow-node { flex: 1 1 122px; min-width: 122px; background: var(--bg-card); border: 1px solid var(--border); border-top: 3px solid var(--border); border-radius: 8px; padding: 0.6rem 0.55rem; text-align: center; }
+.flow-node .fn-kind { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.12rem 0.42rem; border-radius: 3px; margin-bottom: 0.42rem; }
+.flow-node .fn-name { font-weight: 700; font-size: 0.82rem; color: #fff; line-height: 1.25; }
+.flow-node .fn-sub { font-family: 'JetBrains Mono', monospace; font-size: 0.61rem; color: var(--text-mute); margin-top: 0.3rem; line-height: 1.4; word-break: break-word; }
+.flow-arrow { align-self: center; color: var(--text-mute); font-size: 1rem; flex: 0 0 auto; }
+.flow-note { font-size: 0.8rem; color: var(--text-dim); margin-top: 0.75rem; line-height: 1.5; }
+
+/* example kinds — one .k-* per category of thing in the repo's domain */
+.flow-node.k-device  { border-top-color: var(--gold); }
+.flow-node.k-device  .fn-kind { color: var(--gold);     background: #ffd54f15; border: 1px solid #ffd54f44; }
+.flow-node.k-compute { border-top-color: var(--cyan); }
+.flow-node.k-compute .fn-kind { color: var(--cyan);     background: #4fc3f715; border: 1px solid #4fc3f744; }
+.flow-node.k-msg     { border-top-color: var(--violet); }
+.flow-node.k-msg     .fn-kind { color: var(--violet);   background: #ab47bc15; border: 1px solid #ab47bc44; }
+.flow-node.k-data    { border-top-color: var(--green); }
+.flow-node.k-data    .fn-kind { color: var(--green);    background: #66bb6a15; border: 1px solid #66bb6a44; }
+.flow-node.k-ext     { border-top-color: var(--text-mute); }
+.flow-node.k-ext     .fn-kind { color: var(--text-mute); background: var(--bg2); border: 1px solid var(--border); }
+
+.flow-legend { display: flex; flex-wrap: wrap; gap: 1.1rem; margin-top: 1.4rem; font-size: 0.78rem; color: var(--text-dim); }
+.flow-legend .item { display: inline-flex; align-items: center; gap: 0.45rem; }
+.flow-legend .sw { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+
+/* ── Entity gallery — OPTIONAL ────────────────────────────────
+   A tile per sibling in a cast the repo ships. Each tile links to its doc. */
+.ent-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(212px, 1fr)); gap: 0.8rem; }
+.ent-tile { background: var(--bg-card); border: 1px solid var(--border); border-top: 3px solid var(--cyan); border-radius: 12px; padding: 1.15rem 1.1rem 1.25rem; display: block; color: inherit; text-decoration: none; transition: transform 120ms ease, border-color 120ms ease; position: relative; }
+a.ent-tile:hover { transform: translateY(-2px); border-color: var(--border-2); }
+.ent-tile .et-name { font-weight: 800; color: #fff; font-size: 1rem; letter-spacing: -0.01em; padding-right: 3rem; }
+.ent-tile .et-tag { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; padding: 0.18rem 0.5rem; border-radius: 4px; margin-top: 0.55rem; color: var(--teal); background: #26c6da15; border: 1px solid #26c6da44; }
+.ent-tile .et-desc { font-size: 0.8rem; color: var(--text-dim); margin-top: 0.6rem; line-height: 1.45; }
+.ent-tile .et-fmt { position: absolute; top: 0.95rem; right: 0.95rem; font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.06em; padding: 0.16rem 0.42rem; border-radius: 4px; }
+.ent-tile .et-fmt.html { color: var(--green); background: #66bb6a18; border: 1px solid #66bb6a55; }
+.ent-tile .et-fmt.md   { color: var(--amber); background: #ffb74d12; border: 1px solid #ffb74d44; }
+
+/* ── Doc grid + cards ─────────────────────────────────────── */
+.doc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; }
+.doc-grid.two-col { grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); }
+
+.doc-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.1rem 1.25rem; display: flex; flex-direction: column; gap: 0.55rem; transition: border-color 120ms ease, transform 120ms ease; position: relative; overflow: hidden; }
+.doc-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--border); transition: background 120ms ease; }
+.doc-card:hover { border-color: var(--border-2); transform: translateY(-1px); }
+.doc-card:hover::before { background: var(--cyan); }
+
+.doc-card-head { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+.doc-type { font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--cyan); background: #4fc3f715; border: 1px solid #4fc3f744; padding: 0.18rem 0.55rem; border-radius: 4px; }
+.doc-type.convention { color: var(--violet); background: #ab47bc15; border-color: #ab47bc44; }
+.doc-type.reference  { color: var(--teal);   background: #26c6da15; border-color: #26c6da44; }
+.doc-type.asset      { color: var(--text-mute); background: var(--bg2); border-color: var(--border); }
+
+.format-badges { margin-left: auto; display: flex; gap: 0.3rem; }
+.format-badge { font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 0.2rem 0.55rem; border-radius: 4px; border: 1px solid; cursor: pointer; transition: filter 120ms ease; }
+.format-badge:hover { filter: brightness(1.25); }
+.format-badge.html { color: var(--green); background: #66bb6a18; border-color: #66bb6a55; }
+.format-badge.md   { color: var(--amber); background: #ffb74d12; border-color: #ffb74d44; }
+.format-badge.pdf  { color: var(--coral); background: #ef535012; border-color: #ef535044; }
+.format-badge.png  { color: var(--pink);  background: #ff7eb912; border-color: #ff7eb944; }
+
+.doc-title { font-size: 1.02rem; font-weight: 700; color: #fff; line-height: 1.3; letter-spacing: -0.01em; }
+.doc-desc { font-size: 0.85rem; color: var(--text-dim); line-height: 1.55; flex: 1; }
+.doc-path { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--text-mute); margin-top: 0.3rem; }
+.doc-path a { color: var(--text-mute); }
+.doc-path a:hover { color: var(--cyan); }
+
+/* full-width subgroup label inside a doc-grid (e.g. .NET / Angular / Test) */
+.conv-group { grid-column: 1 / -1; font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-mute); margin-top: 0.7rem; padding-bottom: 0.3rem; border-bottom: 1px solid var(--border); }
+.conv-group:first-child { margin-top: 0; }
+
+/* ── Responsive ───────────────────────────────────────────── */
+@media (max-width: 720px) {
+  .hero { padding: 4rem 1.2rem 1.5rem; }
+  .overview { padding: 0 1.2rem; }
+  section.s { padding: 2.5rem 1.2rem 0; }
+}
+</style>
+</head>
+<body>
+
+<!-- ───── Top nav: site-wide. Keep only anchors for sections actually rendered.
+     Drop #flow / #entities if those optional sections are dropped. ───── -->
+<nav class="top-nav">
+  <span class="brand"><a href="index.html">{{REPO-NAME}}<span class="sep">/</span>docs</a></span>
+  <a href="#flow">Dataflow</a>          <!-- drop if no flow band -->
+  <a href="#entities">{{Entities}}</a>  <!-- drop if no entity gallery; else label it (e.g. Protocols) -->
+  <a href="#s1">Architecture</a>
+  <a href="#s2">Features</a>
+  <a href="#s4">Conventions</a>
+  <a href="#s5">Reference</a>
+  <a href="#s6">Diagrams</a>
+  <span class="spacer"></span>
+  <span class="status-chip">Index</span>
+</nav>
+
+<!-- ───── Hero: kicker + gradient h1 + ONE-sentence tagline ───── -->
+<header class="hero">
+  <div class="kicker">{{Repo}} · Documentation home</div>
+  <h1>{{Title — 1-2 words}}<br>Documentation</h1>
+  <p class="tagline">{{One-sentence tagline — the sharpest single line on what this repo is. Keep it to one sentence; detail belongs in the overview or the docs themselves. <strong>Highlight</strong> the load-bearing terms.}}</p>
+</header>
+
+<!-- ───── Overview: 2–3 orientation paragraphs (the "why") — OPTIONAL ─────
+     Distinct from the one-line hero tagline. Drawn from the repo's highest-level
+     orientation doc (README intro, a charter/overview doc, or the D100 Purpose
+     section). DROP this whole block if the repo has no such source. -->
+<section class="overview">
+  <div class="overview-inner">
+    <div class="overview-label">Overview</div>
+    <p>{{Opening paragraph — what this repo/system is and the problem it solves.}}</p>
+    <p>{{Second paragraph — how the work is organised or the process it follows; the context a newcomer needs before opening any single doc below.}}</p>
+    <p>{{Optional third paragraph — how to read this site / where to start.}}</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     OPTIONAL — System flow band (typed pipeline)
+     Include ONLY if the repo has a named pipeline / dataflow worth showing,
+     derived from a documented architecture (e.g. the D100). One or more tracks.
+     Each node carries a repo-defined kind (.k-*); the legend maps colour → kind.
+     EXAMPLE below: an ingest pipeline + the example kind set. Replace the nodes,
+     kinds, and legend with the repo's real ones — never invent a flow.
+     ═══════════════════════════════════════════════════════════ -->
+<section class="s" id="flow">
+  <h2 class="section-title">System dataflow</h2>
+  <p class="section-desc">{{One or two sentences naming the pipelines and what they do. Reference the architecture doc, e.g. "See D100 §3."}}</p>
+
+  <div class="flow">
+    <div class="flow-track">
+      <div class="flow-head"><span class="flow-tag">{{TRACK}}</span> {{Track name}}</div>
+      <div class="flow-row">
+        <div class="flow-node k-ext"><span class="fn-kind">{{Kind}}</span><div class="fn-name">{{Node}}</div><div class="fn-sub">{{detail}}</div></div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-node k-compute"><span class="fn-kind">{{Kind}}</span><div class="fn-name">{{Node}}</div><div class="fn-sub">{{detail}}</div></div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-node k-msg"><span class="fn-kind">{{Kind}}</span><div class="fn-name">{{Node}}</div><div class="fn-sub">{{detail}}</div></div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-node k-data"><span class="fn-kind">{{Kind}}</span><div class="fn-name">{{Node}}</div><div class="fn-sub">{{detail}}</div></div>
+      </div>
+      <!-- optional <p class="flow-note">…</p> for a cross-cutting note (e.g. how responses correlate back) -->
+    </div>
+    <!-- add a second <div class="flow-track">…</div> per additional pipeline; use .flow-tag.alt for its tag colour -->
+
+    <!-- legend: one .item per kind actually used above -->
+    <div class="flow-legend">
+      <span class="item"><span class="sw" style="background:var(--gold)"></span>{{Kind A — what it is}}</span>
+      <span class="item"><span class="sw" style="background:var(--cyan)"></span>{{Kind B}}</span>
+      <span class="item"><span class="sw" style="background:var(--violet)"></span>{{Kind C}}</span>
+      <span class="item"><span class="sw" style="background:var(--green)"></span>{{Kind D}}</span>
+      <span class="item"><span class="sw" style="background:var(--text-mute)"></span>{{Kind E}}</span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     OPTIONAL — Entity gallery
+     Include ONLY when the repo ships 3+ siblings of one category (protocol
+     adapters, microservices, integrations, jobs). One tile each, linking to the
+     entity's doc. Label the section + nav anchor for the actual cast. Drop otherwise.
+     ═══════════════════════════════════════════════════════════ -->
+<section class="s" id="entities">
+  <h2 class="section-title">{{Entities — e.g. Protocol adapters}}</h2>
+  <p class="section-desc">{{One or two sentences on what this cast is and what its members share.}}</p>
+
+  <div class="ent-grid">
+    <a class="ent-tile" href="{{path/to/doc.html}}">
+      <span class="et-fmt html">HTML</span>
+      <div class="et-name">{{Entity name}}</div>
+      <div class="et-tag">{{Category / trigger}}</div>
+      <div class="et-desc">{{One-line description.}}</div>
+    </a>
+    <a class="ent-tile" href="{{path/to/doc.md}}">
+      <span class="et-fmt md">MD</span>
+      <div class="et-name">{{Entity name}}</div>
+      <div class="et-tag">{{Category / trigger}}</div>
+      <div class="et-desc">{{One-line description.}}</div>
+    </a>
+    <!-- repeat per sibling entity -->
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     §1 — Architecture (D100)
+     Drop this section entirely if no D100-*.md/.html exists.
+     ═══════════════════════════════════════════════════════════ -->
+<section class="s" id="s1">
+  <h2 class="section-title"><span class="sec-ref">§1</span>Architecture</h2>
+  <p class="section-desc">
+    Top-level system architecture. Read first when orienting on the codebase.
+  </p>
+
+  <div class="doc-grid two-col">
+    <article class="doc-card">
+      <div class="doc-card-head">
+        <span class="doc-type">D100</span>
+        <div class="format-badges">
+          <a class="format-badge md" href="D100-{{slug}}.md">MD</a>
+        </div>
+      </div>
+      <h3 class="doc-title">{{Doc title}}</h3>
+      <p class="doc-desc">
+        {{One-paragraph description from the first non-heading paragraph of the .md file.}}
+      </p>
+      <div class="doc-path"><a href="D100-{{slug}}.md">D100-{{slug}}.md</a></div>
+    </article>
+    <!-- repeat .doc-card per D100 found -->
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     §2 — Feature designs (D101)
+     ═══════════════════════════════════════════════════════════ -->
+<section class="s" id="s2">
+  <h2 class="section-title"><span class="sec-ref">§2</span>Feature designs (D101)</h2>
+  <p class="section-desc">
+    Per-feature designs. One D101 per cross-cutting feature or per protocol adapter.
+  </p>
+
+  <div class="doc-grid">
+    <!--
+      Pattern: one card per documented concept (NOT per file).
+      If features/D101-foo.html exists, show HTML badge only (drop .md).
+      If only features/D101-foo.md exists, show MD badge.
+    -->
+    <article class="doc-card">
+      <div class="doc-card-head">
+        <span class="doc-type">D101</span>
+        <div class="format-badges">
+          <a class="format-badge html" href="features/D101-{{slug}}.html">HTML</a>
+        </div>
+      </div>
+      <h3 class="doc-title">{{Doc title}}</h3>
+      <p class="doc-desc">{{One-paragraph description}}</p>
+      <div class="doc-path"><a href="features/D101-{{slug}}.html">features/D101-{{slug}}.html</a></div>
+    </article>
+
+    <article class="doc-card">
+      <div class="doc-card-head">
+        <span class="doc-type">D101</span>
+        <div class="format-badges">
+          <a class="format-badge md" href="features/D101-{{slug2}}.md">MD</a>
+        </div>
+      </div>
+      <h3 class="doc-title">{{Doc title}}</h3>
+      <p class="doc-desc">{{One-paragraph description}}</p>
+      <div class="doc-path"><a href="features/D101-{{slug2}}.md">features/D101-{{slug2}}.md</a></div>
+    </article>
+    <!-- repeat .doc-card per D101 found -->
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     §3 — Environments (E100)
+     Drop if no E100-*.md exists.
+     ═══════════════════════════════════════════════════════════ -->
+<section class="s" id="s3">
+  <h2 class="section-title"><span class="sec-ref">§3</span>Environments</h2>
+  <p class="section-desc">Per-environment specifics: component names, identity wiring, how tests target each environment.</p>
+
+  <div class="doc-grid two-col">
+    <article class="doc-card">
+      <div class="doc-card-head">
+        <span class="doc-type">E100</span>
+        <div class="format-badges">
+          <a class="format-badge md" href="E100-{{slug}}.md">MD</a>
+        </div>
+      </div>
+      <h3 class="doc-title">{{Doc title}}</h3>
+      <p class="doc-desc">{{One-paragraph description}}</p>
+      <div class="doc-path"><a href="E100-{{slug}}.md">E100-{{slug}}.md</a></div>
+    </article>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     §4 — Coding conventions
+     Drop if no conventions/ folder exists. Use .conv-group full-width labels to
+     group cards by stack (.NET / Angular / Test) when more than one stack exists.
+     ═══════════════════════════════════════════════════════════ -->
+<section class="s" id="s4">
+  <h2 class="section-title"><span class="sec-ref">§4</span>Coding conventions</h2>
+  <p class="section-desc">
+    Rules for writing code within the chosen architectural patterns. Read together with the per-feature designs.
+  </p>
+
+  <div class="doc-grid">
+    <article class="doc-card">
+      <div class="doc-card-head">
+        <span class="doc-type convention">Index</span>
+        <div class="format-badges">
+          <a class="format-badge md" href="conventions/README.md">MD</a>
+        </div>
+      </div>
+      <h3 class="doc-title">Conventions overview</h3>
+      <p class="doc-desc">{{Map of all convention files across stacks.}}</p>
+      <div class="doc-path"><a href="conventions/README.md">conventions/README.md</a></div>
+    </article>
+
+    <div class="conv-group">{{Stack — e.g. .NET}}</div>  <!-- drop the .conv-group labels if only one stack -->
+
+    <article class="doc-card">
+      <div class="doc-card-head">
+        <span class="doc-type convention">Convention</span>
+        <div class="format-badges">
+          <a class="format-badge md" href="conventions/{{path}}.md">MD</a>
+        </div>
+      </div>
+      <h3 class="doc-title">{{Doc title}}</h3>
+      <p class="doc-desc">{{One-paragraph description}}</p>
+      <div class="doc-path"><a href="conventions/{{path}}.md">conventions/{{path}}.md</a></div>
+    </article>
+    <!-- repeat .doc-card per file under conventions/; insert a .conv-group label per stack -->
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     §5 — Reference material
+     Drop if no reference/ folder exists.
+     ═══════════════════════════════════════════════════════════ -->
+<section class="s" id="s5">
+  <h2 class="section-title"><span class="sec-ref">§5</span>Reference material</h2>
+  <p class="section-desc">
+    Dated snapshots and supporting reference material. These rot faster than designs and conventions — check the date before trusting numbers.
+  </p>
+
+  <div class="doc-grid">
+    <article class="doc-card">
+      <div class="doc-card-head">
+        <span class="doc-type reference">Reference</span>
+        <div class="format-badges">
+          <a class="format-badge md" href="reference/{{slug}}.md">MD</a>
+        </div>
+      </div>
+      <h3 class="doc-title">{{Doc title}}</h3>
+      <p class="doc-desc">{{One-paragraph description}}</p>
+      <div class="doc-path"><a href="reference/{{slug}}.md">reference/{{slug}}.md</a></div>
+    </article>
+    <!-- repeat .doc-card per file under reference/ -->
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     §6 — Diagrams & assets
+     Drop if no .png/.pdf files at the documentation/ root.
+     ═══════════════════════════════════════════════════════════ -->
+<section class="s" id="s6">
+  <h2 class="section-title"><span class="sec-ref">§6</span>Diagrams &amp; assets</h2>
+  <p class="section-desc">Architecture diagrams and bundled PDFs referenced by the documents above.</p>
+
+  <div class="doc-grid">
+    <article class="doc-card">
+      <div class="doc-card-head">
+        <span class="doc-type asset">Diagram</span>
+        <div class="format-badges">
+          <a class="format-badge png" href="{{filename}}.png">PNG</a>
+        </div>
+      </div>
+      <h3 class="doc-title">{{Asset title}}</h3>
+      <p class="doc-desc">{{One-sentence purpose}}</p>
+      <div class="doc-path"><a href="{{filename}}.png">{{filename}}.png</a></div>
+    </article>
+    <!-- repeat per .png / .pdf in documentation/ root -->
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div><span class="mono">documentation/</span> · {{Repo}}</div>
+  <div style="margin-top: 0.4rem">
+    {{Optional second line — e.g. authoritative-doc ordering, or a link to root README}}
+  </div>
+</footer>
+
+</body>
+</html>

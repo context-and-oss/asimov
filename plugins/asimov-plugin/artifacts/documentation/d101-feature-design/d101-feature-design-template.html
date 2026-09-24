@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D101 — {{Feature name}} — {{Repo}} docs</title>
+<!--
+  D101 HTML template — the visual + structural contract for D101 feature
+  designs. Used by three slash commands:
+    /d101-feature-design   — interviews the developer and drafts a new D101
+                             directly as HTML using this template
+    /d101-convert-to-html  — converts a legacy markdown D101 into HTML using
+                             this template (legacy / import support)
+    /d101-review           — reads this template's leading comment for the
+                             ground rules + component catalogue when judging
+                             a draft
+
+  HOW TO USE
+  - This file is a working, render-faithful example. The commands above
+    read it at run-time to learn the visual language; they produce or
+    judge HTML files using the same CSS and the same component classes.
+  - When rendering a real D101, replace placeholder values like {{X}} and
+    keep the structural shells (top-nav, layout-doc grid + sidebar, hero,
+    meta-strip, sections, chapter-bands, footer, script). Add or omit
+    sections based on what's in the source MD.
+  - Do not modify this template to "fit" a particular feature. Modify it only
+    to refine the visual language for ALL future D101 renders.
+
+  SITE INTEGRATION
+  - Output is meant to sit inside a documentation/ folder that has a
+    sibling index.html acting as documentation home:
+        documentation/index.html
+        documentation/features/D101-<slug>.html   ← this file goes here
+    Top-nav links and footer "← Documentation home" link both point at
+    `../index.html`. The brand link too. If the consumer repo has no
+    index.html yet, those links 404 — that's a setup task for the repo.
+  - The left sidebar (.side-nav) carries the per-page table of contents
+    (§2..§10). Populate it from which sections actually exist in the doc.
+    Top-nav is site-wide ONLY — no per-page anchors. The per-page anchors
+    used to live in top-nav; they're now in the sidebar.
+
+  AUTHORING GROUND RULES — load-bearing; /d101-feature-design enforces them.
+
+    1. Code is the spec for *how*; the D101 is the spec for *what*.
+       Link to files / lines; don't duplicate enum values, schemas,
+       permission lists, or column lists that live in code. Copies drift.
+    2. Business altitude is load-bearing (d101-feature-design-definition §7).
+       §2 Purpose and §4 = what the feature does and why the rules are what they
+       are, in the vocabulary the business uses (§5 UI Design is business-altitude
+       too — what the user sees). §6 = how it's built; §7 = the code-grounded build
+       recipe. Code identifiers (interface / class / method names, framework calls,
+       file paths) live in §6 and §7; in §2/§4 they appear only as occasional
+       parenthetical anchors.
+       Litmus: strip every code identifier from §2/§4 — the narrative must still
+       stand. If a sentence leans on mechanism, move it to §6 with a forward ref.
+    3. Requirements are atomic, testable, solution-free, unambiguous, complete
+       (d101-feature-design-definition §5). No compound and/but; no implementation
+       recipes; behaviour specified across the input space including failures.
+    4. Business rules carry counter-examples (d101-feature-design-definition §6.3).
+       Conditional "if X then Y" rules get a positive AND a counter-example
+       (an adjacent case where the rule does NOT fire). Plain functional
+       requirements don't need counter-examples.
+    5. Acceptance criteria root back to §3 or §4 (d101-feature-design-definition §6.2).
+       Every AC references the R-number or business rule it verifies.
+    6. Open questions name a decider (d101-feature-design-definition §4.3).
+       Anonymous TBDs are a blocker, not a draft note.
+    7. Non-goals state *why* they're out (d101-feature-design-definition §4.2).
+       "Deferred to v2" / "belongs in <other doc>" / "not measured" all valid.
+    8. Diagrams use a standard notation, picked from
+       plugins/asimov-plugin/resources/diagrams/README.md by what the reader must
+       understand; that template file's leading comment carries the notation, node
+       budget and geometry. §6.2 always carries a diagram; any other section may
+       carry one when the notation fits its content — the section number never
+       picks the notation. A diagram a reviewer cannot name by its standard does
+       not belong in a D101. Draw it as inline SVG in the page — no build step, no
+       external image file for a flow. Word-extracted PNGs are fine for
+       screenshots that won't be re-edited.
+    9. Images: one subfolder per D101 at
+       documentation/features/images/<doc-slug>/. Filenames describe the
+       content without repeating the doc name.
+    10. References: link, don't paraphrase. Link to the relevant
+        D100-*-architecture.md for system context; link to conventions for
+        *how* to write code, not for *what* a feature does.
+    11. UI mockups: when a feature has a user-facing UI, ship interactive HTML
+        mockup(s) at documentation/features/mockups/d101-<doc-slug>/. Each is
+        self-contained (inline CSS + JS, no framework, no build step) and
+        approximates the real product UI, not the D101's dark chrome. The D101
+        embeds them via <iframe class="mockup-frame">; the D101 body itself stays
+        static. One screen with many interactions = one file; separate screens
+        (reached by navigation) = separate files.
+    12. Two chips, two axes (d101-feature-design-definition §2.3). The top bar carries BOTH:
+        .phase-chip  = authoring progress, the author's call.
+                       `Business design` → `Full design` (add .full on the span).
+        .status-chip = business sign-off, the approver's call. `Draft` → `Approved`.
+        Neither implies the other — a Full design document stays Draft until the
+        approver named in §1 signs, and sign-off normally waits for §6 because the
+        estimate that goes with it depends on the technical design existing.
+        A `Business design` document emits the §6 OPEN section (see below) and none
+        of §6.1–§6.8, plus the §7 PENDING stub and none of §7.1+ (§7 is technical, so it
+        waits on §6 exactly as the subsections do). §5 UI Design belongs to the
+        business-design phase (it is `what the user sees`), so it is authored before the
+        phase stops, not left open.
+    13. §6 vs §7 — contract vs recipe (d101-feature-design-definition §4.8). §6 states the design a
+        reviewer signs off: WHAT is built — boundaries, contracts, data shapes, the
+        declarative blueprint. §7 states the code-grounded recipe a builder/build-subagent
+        follows: HOW — project layout, reuse-vs-new, the source classes/methods reused,
+        the wiring and setup. Litmus: a line that names a source file/class/method or a
+        reuse-vs-new call belongs in §7; strip those and §6 must still be a complete build
+        blueprint. New class names in §7 are illustrative (ground rule 1) — the shape is
+        the point. §7 is OUTSIDE the two bars: it neither gates nor is gated by §8a/§8b and
+        moves neither chip; it is the interim home for build notes until S101 (D100 §9).
+    14. A rule deliberately not met is RECORDED, not omitted (d101-feature-design-definition §4.9).
+        Write a `.accepted` block inside the element it excuses, naming the rule, the reason,
+        the accepter and the date. Never a side file — a waiver keyed to "R6" in another file
+        rots the moment requirements renumber, and it hides the deviation from the reviewer who
+        owns the §8b verdict. Never against a whole §8 check: one named rule instance at a time.
+        /d101-review then reports it as **Accepted** — visible on every run, but no longer a
+        decision the author has to take again.
+
+  ARCHETYPE — this template fits both:
+    • Greenfield: describe what WILL be built. §3 has numbered R-requirements.
+    • Reverse-engineered: describe what ALREADY exists. §3 becomes a short
+      "what this feature does" paragraph; the detail lives in §4; §11 (Changes
+      from source) records drift between the source design and the current code.
+    Same template shape — the difference is §3 phrasing and whether §11 exists.
+
+  N/A POLICY — five distinct shapes; don't collapse them.
+  - N/A (does not apply). If a section doesn't apply, keep its heading and write
+    "N/A — <one-line reason>". Silently deleting a section reads as "forgot".
+    The reason makes the deliberate choice visible to a reviewer.
+  - OPEN (applies, not settled yet) — §6 only, while phase = `Business design`.
+    Emit the §6 "Still to write" section instead of §6.1–§6.8: a .callout.warn
+    stating the document is not gap-free, plus a <ul class="bullets"> naming each
+    outstanding item by the consequence of not knowing it. N/A gives a REASON;
+    open gives a LIST. "TBD" or a restatement of the §6.x headings is neither, and
+    fails d101-feature-design-definition check 9. Rules: d101-feature-design-definition §4.6.
+  - PENDING (applies, waits on §6) — §7 only, while phase = `Business design`.
+    Emit the §7 pending stub (one .callout.warn) instead of §7.1+ and the §7 chapter
+    band. Unlike OPEN it carries NO list — naming the outstanding technical work is
+    §6's job; §7 only records that the build recipe waits on §6 being settled.
+  - ACCEPTED (applies, is not met, and that was decided) — any element, either phase.
+    A rule of d101-feature-design-definition.md deliberately not met, recorded with a `.accepted` block INSIDE
+    the element it excuses (a .req row, an .ac-row, or after a .subhead). Carries four things:
+    the rule named, why in one sentence, WHO accepted it, and WHEN. Unsigned or undated it is a
+    suppression, not an acceptance, and §7 treats it as an anonymous TBD. It may never be written
+    against a whole §8 check — only one named rule instance. Rules: d101-feature-design-definition §4.9.
+    N/A gives a REASON, OPEN gives a LIST, ACCEPTED gives a DECISION with a name on it.
+  - CONDITIONAL-OMIT (see the exception below): emitted or absent, never stubbed.
+  - EXCEPTION (three conditional sections, handled differently because of where they sit):
+    • §5 (UI Design) and §7 (Implementation) are TOP-LEVEL sections in the middle of the
+      document, so omitting either would leave a visible gap that reads as a mistake. Keep
+      the heading always. §5: populate with a mockup when user-facing, else an N/A stub
+      ("N/A — backend-only feature, no user-facing surface"). §7 (Full design only):
+      populate with build notes, or an N/A stub ("N/A — built entirely from reuse; no build
+      notes beyond the §6 contracts") when the build is pure reuse; in Business design it is
+      the PENDING stub above.
+    • §11 (Changes from source) is the LAST section, so omitting it leaves no gap.
+      Include it only for reverse-engineered docs; omit it entirely otherwise. Not an
+      N/A-stub section.
+
+  COMPONENT SELECTION PRINCIPLES — apply BEFORE the catalogue:
+    1. Tables, bullets, and prose — NOT content cards. Structured content is a
+       `.data-table` (things you scan across, one row = one entry), a
+       `<ul class="bullets">` (a short list of points), or a `.subhead` + a one-line
+       rule + bullets (a handful of named items). There are no content-card grids:
+       the old .concept / .problem-card / .hist-card / .field-card families turned
+       into walls of text and were removed. The only card-shaped things left are the
+       light `.q-card` (§9 open questions) and `.refs-block` (§10), which stay one-liners.
+    2. One cell, one bullet = one sentence. If an entry needs a paragraph, it becomes
+       prose under a `.subhead`, not a crammed table cell. Keep cells and bullets
+       skimmable — the reader scans them, never reads them.
+    3. Flows are SVG, always. §6.2 renders as inline <svg> in .flow-wrap whether
+       or not the source has ASCII art. §6.2 always carries a diagram; any other
+       section may carry one when the notation fits that section's content. Pick
+       the diagram type from
+       plugins/asimov-plugin/resources/diagrams/README.md by what the reader must
+       understand — the type follows reader intent, not the section number — then
+       follow that template file's leading comment for notation, node budget and
+       geometry; content over the type's node budget splits into overview + detail
+       rather than growing one diagram. The numbered list still renders below in
+       .principles.
+
+  COMPONENT CATALOGUE — which class to reach for, mapped to MD section type:
+
+    §1 Document info → `.meta-strip` (6 cells) + `.doc-scope` line below
+    §2 Purpose/symptoms → ONE crisp *why-now* `.section-desc` sentence + `<ul class="bullets">`
+                          of concrete production symptoms (one <li> each: `<strong>lead</strong>` +
+                          one sentence); `.callout` for Audience. History, numbers, and multiple
+                          goals belong in §4 — front-loaded history/analysis, or three goals
+                          compounded into one run-on, is the failure to avoid.
+    §3 Requirements → three `.subhead` groups (Functional / Non-functional / Out of scope), each a
+                       flat `.req-list` of `.req` rows — ALL visible, no tabs, no script
+    ANY element → `.accepted` block for a deliberately-unmet rule (d101-feature-design-definition §4.9). Nests inside
+                       the .req / .ac-row / section it excuses; `.accepted-tag` + `.accepted-rule` naming the
+                       rule + one-sentence why + `.accepted-by` carrying "Name · YYYY-MM-DD". Never against
+                       a whole §8 check. /d101-review reports it as severity **Accepted**, never Pass.
+    §4 chapter heading → `.chapter-band` with numeral
+    §4.1 Principles → `.principles` numbered list
+    §4.2 Concepts → `.data-table` (Concept | What it means) — one row per term, one sentence each
+    §4.3 Per-field sub-blocks → `.subhead` per item + a one-line rule + `<ul class="bullets">` examples
+    §4.4 Named rules → `.subhead` per rule + one-sentence statement + positive/counter-example bullets
+                       (ground rule 4). Simple one-line rules with no examples → a `.data-table`
+                       (Rule | What it means) instead.
+    §4.5 Decisions → `.decisions` 3-col matrix
+    §5 UI Design (TOP-LEVEL; user-facing → mockup, backend-only → N/A stub) → plain top-level
+                     section (h2 + §5 badge, no chapter band): screen-layout `.subhead`(s) +
+                     `<iframe class="mockup-frame">` embedding interactive mockup(s) under
+                     mockups/d101-<slug>/ + `ul.bullets` for layout notes / states. NOT for data
+                     shapes (that is §4.3). Backend-only → keep heading, write N/A stub.
+    §6 OPEN (phase = Business design) → `.callout.warn` + `<ul class="bullets">` of named
+                     outstanding items, as ONE section #s6-open. Replaces §6.1–§6.8 entirely;
+                     no chapter band. See ground rule 12 + d101-feature-design-definition §4.6.
+    §6 chapter heading (phase = Full design) → `.chapter-band` with numeral
+    §6.1 Platform → short paragraph + `.callout.warn` for escalation gate
+    §6.2 Data flow → inline `<svg>` in `.flow-wrap` (always — even from numbered prose flow) +
+                     `.flow-legend`. §6.2 always carries a diagram; any other section may
+                     carry one when the notation fits its content. Diagram type from
+                     plugins/asimov-plugin/resources/diagrams/README.md; that file's leading
+                     comment governs notation, node budget, geometry. Palette:
+                     green=entry/gating, cyan=data-store read/write, amber=transform/decode,
+                     coral=destructive, dashed+bg2=delegated downstream.
+                     Detailed numbered list renders below in `.principles`.
+    §6.3 Code map → `.codemap` rows (Responsibility | File)
+    §6.4 Shapes → `.subhead` + `.data-table cols-2` + `.gps-paths` ul
+    §6.5 APIs → `.callout` (often "N/A — additive only")
+    §6.6 Configuration → `.data-table cols-3` (Setting | Default | Justification); wrap a unit in
+                          `<code>`, and flag a security-sensitive setting in the Justification cell.
+    §6.7 Failure handling → `.failures` with `.sev` chips (Failure | Effect | Severity | Recovery)
+    §6.8 Gotchas → one `.callout` per item (`.callout.warn` for hard ones); a long list →
+                   `<ul class="bullets">`.
+    §7 PENDING (phase = Business design) → one `.callout.warn` stub, section #s7-pending, no
+                     chapter band, NO list (§6 owns the outstanding-work list). See ground rule 12.
+    §7 chapter heading (phase = Full design) → `.chapter-band` with numeral
+    §7.1 New vs. reuse → opening `.callout` (code-grounded) + `<ul class="bullets">` (or a
+                     `.data-table` with `.tag.reuse`/`.tag.new`/`.tag.note` chips); one line per item
+    §7.2 Code layout → `.data-table` (Folder/namespace | What it holds); reuse arrives by reference
+    §7.3 Setup & wiring (conditional — auth/infra/config only) → `.impl-head` labels +
+                     `.data-table` / `.failures`; key it to its §6 contract
+    §7.4 Per-unit build notes → `.subhead` (with `.s-ref` §7.4.n) + `.data-table.impl-table`
+                     (Aspect | `.tag` | bulleted details), one block per unit, keyed to its §6 contract
+                     by number; Full design only, N/A stub when pure reuse
+    §7.5 Cross-cutting → `<ul class="bullets">`, one line per shared build concern
+    §8 Acceptance criteria → `.ac-table` rows with `.verify-chip` chips
+    §9 Open questions → `.q-grid` of `.q-card` (Q# + decider + body — a one-liner, not a content card),
+                       each closed by a `.q-resolution` line (the resolution path d101-feature-design-definition §4.3
+                       requires alongside the decider). A question settled during authoring keeps its card,
+                       gains `.resolved`, and its `.q-resolution` opens with `<strong>Decision:</strong>` —
+                       the rejected-alternative record lives in §4.5, not here.
+    §10 References → `.refs` blocks per category
+    §11 Changes from source (reverse-engineered only) → `.data-table` / prose recording drift
+
+  NON-CANONICAL SECTION TYPES (per-protocol / reverse-engineered D101s):
+    "Contract at a glance" / "Spec sheet" → `.data-table` (Field | Value) or `<ul class="bullets">`
+    "Special flows" with sub-blocks → `.subhead` per sub-block + bullets/prose
+    "Quirks and gotchas" → `.callout` per item, or a `<ul class="bullets">`
+    "Testing" catalogue → `.codemap` with a `head` row
+    Single-dominant-fact section → a short `.callout`, or a `.subhead` + bullets
+
+  HARD STYLE RULES
+  - No ✓/✗ symbols anywhere. Use neutral `→` bullets (default) and `⚠` (`<li class="warn">`)
+    only for real foot-guns the design deliberately preserves.
+  - §-numbers go as a small mono badge before each h2 (.sec-ref). Never on their own line.
+  - Chapter bands only for chapters with multiple subsections (typically §4, §6, §7). §5 UI Design
+    is a single top-level section (no numbered subsections) → h2 + §5 badge, no chapter band.
+  - Drop any "structural note" italic paragraphs that explain the MD's own organization —
+    the visual structure speaks for itself.
+  - Content fidelity: table cells, bullets, and prose trace to source; short labels (a table's
+    left-cell term, a `.subhead`, a bullet's `<strong>` lead) may paraphrase a lead-in or key
+    phrase. Body text is content — never invent a summary sentence that combines multiple source
+    items into one.
+  - One cell / one bullet = one sentence (selection principle 2). When an entry needs more, it is
+    prose under a `.subhead`, not a paragraph crammed into a table cell or bullet.
+  - No interactive widgets in the D101 body itself (calculators, sliders, animations, fade-ins).
+    The ONE exception: §5 embeds interactive UI mockup(s) via <iframe class="mockup-frame">
+    pointing at separate self-contained files under mockups/d101-<slug>/. Those mockup files may
+    be fully interactive; the D101 page body stays static.
+  - Top-nav is site-wide (cross-page links to ../index.html#sN). Per-page TOC lives in
+    the left sidebar (.side-nav).
+-->
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+:root {
+  --bg:        #0a1424;
+  --bg2:       #122039;
+  --bg3:       #1b2e4d;
+  --bg-card:   #14253f;
+  --border:    #2b4a73;
+  --border-2:  #3b5e8f;
+  --text:      #fff;
+  --text-dim:  #a8b8d0;
+  --text-mute: #6b7a93;
+  --cyan:      #4fc3f7;
+  --teal:      #26c6da;
+  --green:     #66bb6a;
+  --amber:     #ffb74d;
+  --coral:     #ef5350;
+  --gold:      #ffd54f;
+  --violet:    #ab47bc;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; font-size: 15px; line-height: 1.6; overflow-x: hidden; padding-top: 56px; }
+a { color: inherit; text-decoration: none; }
+code, .mono { font-family: 'JetBrains Mono', monospace; font-size: 0.88em; }
+code { background: var(--bg3); padding: 1px 6px; border-radius: 4px; color: var(--cyan); }
+
+/* Top nav (site-wide — every D101 links to documentation home + chapter sections of the index) */
+.top-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(10,20,36,0.85); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 0.55rem 2rem; display: flex; gap: 1.4rem; align-items: center; font-size: 0.82rem; }
+.top-nav .brand, .top-nav .brand a { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--cyan); letter-spacing: 0.04em; text-decoration: none; }
+.top-nav .brand .sep { color: var(--border); margin: 0 0.5rem; }
+.top-nav a { color: var(--text-dim); font-weight: 500; }
+.top-nav a:hover { color: #fff; }
+.top-nav .spacer { flex: 1; }
+.top-nav .status-chip { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.25rem 0.7rem; border-radius: 999px; background: #ffd54f15; border: 1px solid #ffd54f44; color: var(--gold); font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 700; }
+.top-nav .status-chip::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--gold); }
+/* Phase chip — the authoring axis, deliberately NOT the status axis (see ground rule 12).
+   Square marker + cyan so the two chips never read as one control. */
+.top-nav .phase-chip { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.25rem 0.7rem; border-radius: 999px; background: #4fc3f715; border: 1px solid #4fc3f744; color: var(--cyan); font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 700; }
+.top-nav .phase-chip::before { content: ''; width: 6px; height: 6px; border-radius: 1px; background: var(--cyan); }
+.top-nav .phase-chip.full { background: #66bb6a15; border-color: #66bb6a44; color: var(--green); }
+.top-nav .phase-chip.full::before { background: var(--green); }
+
+/* Layout with left sidebar (per-page TOC) + content column */
+.layout-doc { display: grid; grid-template-columns: 200px minmax(0, 1fr); max-width: 1300px; margin: 0 auto; gap: 1.8rem; padding: 0.5rem 1.5rem; }
+.side-nav { position: sticky; top: 76px; align-self: start; max-height: calc(100vh - 90px); overflow-y: auto; padding: 0.7rem 0.5rem 1rem 0.2rem; font-size: 0.85rem; }
+.side-nav .side-head { font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-mute); margin-bottom: 0.7rem; padding-left: 0.6rem; }
+.side-nav ul { list-style: none; padding: 0; margin: 0; }
+.side-nav ul ul { padding-left: 0.9rem; margin-top: 0.1rem; }
+.side-nav li { margin: 0.1rem 0; }
+.side-nav a { display: block; padding: 0.32rem 0.7rem; color: var(--text-dim); border-left: 2px solid transparent; font-size: 0.86rem; line-height: 1.4; border-radius: 0 4px 4px 0; }
+.side-nav a:hover { color: #fff; background: #4fc3f708; border-left-color: var(--border-2); }
+.content { min-width: 0; }
+
+/* Hero (compact — top-nav already provides separation from page chrome) */
+.hero { padding: 1.5rem 2rem 1.5rem; position: relative; overflow: hidden; max-width: 1300px; margin: 0 auto; }
+.hero::before { content: ''; position: absolute; inset: 0; z-index: 0; background: radial-gradient(ellipse at 20% 30%, #4fc3f718 0%, transparent 50%), radial-gradient(ellipse at 80% 60%, #26c6da14 0%, transparent 50%); }
+.hero > * { position: relative; z-index: 1; }
+.kicker { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--cyan); padding: 0.3rem 0.8rem; border-radius: 999px; border: 1px solid #4fc3f744; background: #4fc3f711; margin-bottom: 1rem; }
+.hero h1 { font-size: clamp(2rem, 4.5vw, 3.4rem); font-weight: 900; letter-spacing: -0.03em; line-height: 1.05; background: linear-gradient(135deg, #fff 0%, var(--cyan) 50%, var(--teal) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.hero .tagline { font-size: 1.05rem; color: var(--text-dim); margin-top: 1rem; max-width: 760px; line-height: 1.6; }
+
+/* Metadata strip */
+.meta-strip { max-width: 1300px; margin: 1rem auto 0; padding: 0 2rem; display: grid; grid-template-columns: repeat(6, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.meta-cell { background: var(--bg-card); padding: 1rem 1.2rem; }
+.meta-cell .label { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-mute); margin-bottom: 0.35rem; }
+.meta-cell .value { font-size: 0.95rem; font-weight: 600; color: var(--text); }
+.meta-cell .value.mono { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; }
+
+/* Sections + chapter bands */
+section.s { max-width: 1300px; margin: 0 auto; padding: 3rem 2rem 0; }
+.chapter-band + section.s { padding-top: 1.5rem; }
+.section-title { font-size: clamp(1.5rem, 2.6vw, 2rem); font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.7rem; }
+.section-title .sec-ref { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; font-weight: 600; color: var(--text-mute); letter-spacing: 0.04em; margin-right: 0.7rem; vertical-align: middle; padding: 0.2rem 0.5rem; border-radius: 4px; background: var(--bg2); border: 1px solid var(--border); }
+.section-desc { color: var(--text-dim); font-size: 1rem; max-width: 780px; margin-bottom: 1.8rem; line-height: 1.65; }
+.chapter-band { max-width: 1300px; margin: 3.5rem auto 0; padding: 0 2rem; }
+.chapter-band-inner { display: grid; grid-template-columns: auto 1fr; gap: 1.5rem; align-items: center; padding: 1.4rem 1.8rem; border-radius: 12px; background: linear-gradient(135deg, #4fc3f714 0%, #26c6da05 100%); border: 1px solid var(--border); border-left: 4px solid var(--cyan); }
+.chapter-band .ch-num { font-family: 'JetBrains Mono', monospace; font-size: 2.6rem; font-weight: 800; color: var(--cyan); line-height: 1; }
+.chapter-band .ch-name { font-size: 1.35rem; font-weight: 700; color: #fff; letter-spacing: 0.01em; margin-bottom: 0.25rem; }
+.chapter-band .ch-summary { font-size: 0.88rem; color: var(--text-dim); line-height: 1.5; }
+
+/* Doc-scope line below metadata strip */
+.doc-scope { max-width: 1300px; margin: 0.7rem auto 0; padding: 0 2.2rem; font-size: 0.82rem; color: var(--text-mute); line-height: 1.5; }
+.doc-scope strong { color: var(--text-dim); font-weight: 600; }
+
+/* Principles */
+.principles { display: grid; gap: 0.65rem; }
+.principle { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 0.95rem 1.3rem; display: flex; gap: 1rem; align-items: center; }
+.principle .num { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; font-weight: 700; width: 30px; height: 30px; border-radius: 8px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--cyan), var(--teal)); color: #0a1424; }
+.principle .text { font-size: 0.95rem; }
+.principle .text strong { color: var(--cyan); font-weight: 700; }
+
+/* Generic bullet list — used anywhere with → / ⚠ items */
+ul.bullets { list-style: none; padding: 0; margin: 0.7rem 0 0; }
+ul.bullets li { position: relative; padding: 0.3rem 0 0.3rem 1.5rem; font-size: 0.9rem; color: var(--text-dim); line-height: 1.6; }
+ul.bullets li + li { margin-top: 0.15rem; }
+ul.bullets li::before { content: '→'; position: absolute; left: 0; top: 0.3rem; font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--cyan); }
+ul.bullets li.warn::before { content: '!'; color: var(--amber); }
+ul.bullets li code { font-size: 0.78rem; }
+
+/* Requirements — flat lists (Functional / Non-functional / Out of scope), all visible, no tabs */
+.req-list { display: grid; gap: 0.5rem; margin-bottom: 1.6rem; }
+.req-list:last-child { margin-bottom: 0; }
+.req { display: grid; grid-template-columns: 60px 1fr; gap: 1rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 0.7rem 1rem; align-items: start; }
+.req .id { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; font-weight: 700; color: var(--cyan); padding-top: 2px; }
+.req .body { font-size: 0.9rem; color: var(--text); line-height: 1.55; }
+.req.oos .id, .req-list.nf .req .id { color: var(--amber); }
+
+/* Data flow SVG diagram */
+.flow-wrap { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.8rem; overflow-x: auto; }
+.flow-wrap svg { display: block; margin: 0 auto; max-width: 100%; height: auto; }
+.flow-legend { display: flex; flex-wrap: wrap; gap: 1.2rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); font-size: 0.82rem; color: var(--text-dim); }
+.flow-legend .item { display: inline-flex; align-items: center; gap: 0.4rem; }
+.flow-legend .swatch { width: 14px; height: 4px; border-radius: 2px; }
+
+/* Interactive UI mockup (embedded via iframe; the mockup file is separate + self-contained) */
+.mockup-wrap { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 0.5rem; margin: 0.6rem 0 1rem; overflow: hidden; }
+.mockup-frame { display: block; width: 100%; border: none; border-radius: 8px; background: #fff; }
+
+/* Code map */
+.codemap { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.codemap-row { display: grid; grid-template-columns: 1fr 1.5fr; gap: 1rem; padding: 0.7rem 1.2rem; border-bottom: 1px solid var(--border); font-size: 0.85rem; align-items: center; }
+.codemap-row:last-child { border-bottom: none; }
+.codemap-row:nth-child(odd) { background: rgba(255,255,255,0.015); }
+.codemap-row .what { color: var(--text); }
+.codemap-row .where { color: var(--cyan); font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; word-break: break-all; }
+
+/* Decisions matrix */
+.decisions { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.decisions-head, .decision-row { display: grid; grid-template-columns: 1.2fr 1fr 1.4fr; gap: 1rem; padding: 0.9rem 1.2rem; align-items: start; border-bottom: 1px solid var(--border); }
+.decisions-head { background: var(--bg2); font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); }
+.decision-row { font-size: 0.85rem; }
+.decision-row:last-child { border-bottom: none; }
+.decision-row .decided { color: #fff; font-weight: 600; }
+.decision-row .alt { color: var(--amber); font-style: italic; font-size: 0.82rem; line-height: 1.5; }
+.decision-row .why { color: var(--text-dim); font-size: 0.82rem; line-height: 1.55; }
+
+/* Generic data table (Shapes §6.4, Configuration §6.6) */
+.data-table { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.data-table .row { display: grid; gap: 1rem; padding: 0.65rem 1.2rem; border-bottom: 1px solid var(--border); font-size: 0.85rem; align-items: start; }
+.data-table .row.head { background: var(--bg2); font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); font-weight: 700; }
+.data-table .row:last-child { border-bottom: none; }
+.data-table .row.cols-2 { grid-template-columns: 1fr 2fr; }
+.data-table .row.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+.data-table .row code { font-size: 0.78rem; }
+.data-table .row .label-cell { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; color: var(--cyan); }
+
+/* Inline-path list (Shapes §6.4) */
+.gps-paths { list-style: none; padding: 0.7rem 0 0; margin: 0; display: grid; gap: 0.4rem; }
+.gps-paths li { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--cyan); background: var(--bg2); border: 1px solid var(--border); border-radius: 6px; padding: 0.45rem 0.8rem; }
+
+/* Sub-section heading (Shapes has multiple sub-blocks) */
+.subhead { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-dim); font-weight: 700; margin: 1.5rem 0 0.6rem; }
+.subhead:first-child { margin-top: 0; }
+/* Anchored subhead (§7 per-unit blocks key to §6 contracts by number) — scroll-margin clears the fixed nav */
+.subhead[id] { scroll-margin-top: 80px; }
+.subhead .s-ref { color: var(--text-mute); margin-right: 0.45rem; }
+/* Implementation label under a §6 contract (§7 build notes) — lighter sibling of .subhead */
+.impl-head { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); font-weight: 700; margin: 1rem 0 0.3rem; }
+
+/* Build-status chip on §7 implementation rows (reuse / new / note) */
+.tag { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+.tag.reuse { background: #66bb6a22; color: var(--green); border: 1px solid #66bb6a55; }
+.tag.new   { background: #ffb74d22; color: var(--amber); border: 1px solid #ffb74d55; }
+.tag.note  { background: var(--bg2); color: var(--text-mute); border: 1px solid var(--border); }
+/* Per-unit build-notes table (§7.x) — a .data-table variant: Aspect | Build tag | Details-with-bullets */
+.impl-table .row { grid-template-columns: 0.5fr 0.45fr 2.75fr; }
+.impl-table .row ul { list-style: disc; margin: 0; padding-left: 1.05rem; display: grid; gap: 0.35rem; }
+.impl-table .row li { line-height: 1.5; }
+
+/* Failure handling */
+.failures { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.failures-head, .failure-row { display: grid; grid-template-columns: 1fr 1fr 80px 1.2fr; gap: 1rem; padding: 0.85rem 1.2rem; align-items: center; border-bottom: 1px solid var(--border); }
+.failures-head { background: var(--bg2); font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); }
+.failure-row { font-size: 0.85rem; }
+.failure-row:last-child { border-bottom: none; }
+.sev { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; font-weight: 700; padding: 0.2rem 0.55rem; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.06em; }
+.sev.med  { background: #ffb74d22; color: var(--amber); border: 1px solid #ffb74d55; }
+.sev.low  { background: #66bb6a22; color: var(--green); border: 1px solid #66bb6a55; }
+.sev.high { background: #ef535022; color: var(--coral); border: 1px solid #ef535055; }
+
+/* Acceptance criteria */
+.ac-table { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.ac-head, .ac-row { display: grid; grid-template-columns: 60px 150px 1fr; gap: 1rem; padding: 0.8rem 1.2rem; align-items: start; border-bottom: 1px solid var(--border); }
+.ac-head { background: var(--bg2); font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); }
+.ac-row { font-size: 0.86rem; }
+.ac-row:last-child { border-bottom: none; }
+.ac-row .ac-id { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--cyan); }
+.ac-row .ac-verifies { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+.verify-chip { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; padding: 0.15rem 0.5rem; border-radius: 4px; background: #4fc3f714; border: 1px solid #4fc3f744; color: var(--cyan); }
+
+/* Open questions — auto-fit */
+.q-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 0.7rem; }
+.q-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.2rem; border-left: 3px solid var(--gold); }
+.q-card .q-head { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
+.q-card .q-id { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; color: var(--gold); background: #ffd54f15; padding: 0.15rem 0.5rem; border-radius: 4px; }
+.q-card .q-decider { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--text-mute); }
+.q-card .q-body { font-size: 0.88rem; color: var(--text); line-height: 1.55; }
+
+/* Accepted deviation (d101-feature-design-definition §4.9) — a rule deliberately not met, recorded next to the
+   thing it excuses. Sits INSIDE the element it annotates (.req, .ac-row, after a .subhead).
+   Violet, so it reads as neither a warning (amber) nor a pass (green): a deliberate third state. */
+.accepted { margin-top: 0.5rem; padding: 0.5rem 0.7rem; border-left: 3px solid var(--violet); border-radius: 0 6px 6px 0; background: #ab47bc12; font-size: 0.82rem; color: var(--text-dim); line-height: 1.55; }
+.accepted .accepted-tag { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--violet); background: #ab47bc22; border: 1px solid #ab47bc55; border-radius: 4px; padding: 0.1rem 0.45rem; margin-right: 0.45rem; }
+.accepted .accepted-rule { color: var(--text); font-weight: 600; }
+.accepted .accepted-by { display: block; margin-top: 0.3rem; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--text-mute); }
+/* Resolution path (required by d101-feature-design-definition §4.3 — every open question names a decider AND a
+   resolution path) and the resolved variant, for questions closed during authoring. */
+.q-card .q-resolution { font-size: 0.82rem; color: var(--text-dim); line-height: 1.5; margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--border); }
+.q-card .q-resolution strong { color: var(--green); }
+.q-card.resolved { border-left-color: var(--green); }
+.q-card.resolved .q-id { color: var(--green); background: #66bb6a15; }
+
+/* References — auto-fit */
+.refs { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+.refs-block { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 1.1rem 1.3rem; }
+.refs-block h4 { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--cyan); margin-bottom: 0.7rem; }
+.refs-block ul { list-style: none; }
+.refs-block li { font-family: 'JetBrains Mono', monospace; font-size: 0.76rem; color: var(--text-dim); padding: 0.2rem 0; line-height: 1.5; word-break: break-all; }
+
+/* Callouts */
+.callout { background: linear-gradient(135deg, #4fc3f712, #26c6da08); border: 1px solid #4fc3f744; border-radius: 10px; padding: 1rem 1.3rem; margin: 1.2rem 0; font-size: 0.9rem; color: var(--text-dim); line-height: 1.6; }
+.callout strong { color: var(--cyan); }
+.callout.warn { background: linear-gradient(135deg, #ffd54f15, #ff890608); border-color: #ffd54f55; }
+.callout.warn strong { color: var(--gold); }
+
+footer.site-footer { max-width: 1300px; margin: 4rem auto 0; padding: 2rem; border-top: 1px solid var(--border); text-align: center; color: var(--text-mute); font-size: 0.82rem; line-height: 1.7; }
+footer.site-footer .mono { color: var(--text-dim); font-family: 'JetBrains Mono', monospace; }
+footer.site-footer a { color: var(--cyan); }
+
+@media (max-width: 1100px) {
+  .meta-strip { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 900px) {
+  .layout-doc { grid-template-columns: 1fr; gap: 1rem; padding: 1rem 1.2rem; }
+  .side-nav { position: static; max-height: none; overflow: visible; border: 1px solid var(--border); border-radius: 8px; padding: 1rem; background: var(--bg-card); }
+}
+@media (max-width: 720px) {
+  .top-nav { overflow-x: auto; padding: 0.55rem 1rem; gap: 1rem; }
+  .top-nav .spacer { display: none; }
+  .hero { padding: 1.2rem 1.2rem 1rem; }
+  section.s { padding: 2.5rem 1.2rem 0; }
+  .meta-strip { grid-template-columns: repeat(2, 1fr); margin: 1rem 1.2rem 0; }
+  .chapter-band { padding: 0 1.2rem; margin-top: 3rem; }
+  .chapter-band-inner { grid-template-columns: 1fr; gap: 0.5rem; padding: 1.2rem 1.4rem; }
+  .chapter-band .ch-num { font-size: 2rem; }
+  .decisions-head, .decision-row { grid-template-columns: 1fr; gap: 0.4rem; }
+  .failures-head, .failure-row { grid-template-columns: 1fr; }
+  .ac-head, .ac-row { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ───── Top nav: SITE-WIDE only (no per-page anchors here) ─────
+     Assumes the consumer repo has documentation/index.html with section
+     anchors #s1..#s6 (Architecture / Features / Environments / Conventions
+     / Reference / Diagrams). For repos using a different index taxonomy,
+     adapt the link text and href anchors per repo when first generating. -->
+<nav class="top-nav">
+  <span class="brand"><a href="../index.html">{{REPO-NAME}}<span class="sep">/</span>docs</a></span>
+  <a href="../index.html#s1">Architecture</a>
+  <a href="../index.html#s2">Features</a>
+  <a href="../index.html#s3">Environments</a>
+  <a href="../index.html#s4">Conventions</a>
+  <a href="../index.html#s5">Reference</a>
+  <a href="../index.html#s6">Diagrams</a>
+  <span class="spacer"></span>
+  <!-- Two independent axes (ground rule 12). Phase = authoring progress, author's call.
+       Status = business sign-off, approver's call. Neither implies the other. -->
+  <span class="phase-chip">{{Business design}}</span>   <!-- add .full and read "Full design" once §6 is written -->
+  <span class="status-chip">{{Status v0.1}}</span>
+</nav>
+
+<!-- ───── Layout: left sidebar (per-page TOC) + content column ─────
+     Sidebar lists only sections that exist in the source MD. Use nested
+     <ul> for §4.x, §6.x and §7.x subsections. Anchor IDs match the section IDs
+     used on the <section class="s"> blocks below.
+     PHASE: while phase = `Business design`, §6 and §7 have no chapter band and no
+     subsections — §6 is a single flat entry linking to #s6-open (the §6 OPEN section)
+     and §7 a flat entry linking to #s7-pending (the §7 PENDING stub). §5 UI Design is
+     authored in the business-design phase, so it is present in both phases. N/A sections
+     are omitted from the sidebar entirely; the open §6 and pending §7 are NOT — they are
+     real content a reader must find. -->
+
+<div class="layout-doc">
+  <aside class="side-nav">
+    <div class="side-head">On this page</div>
+    <ul>
+      <li><a href="#s2">§2 {{Problem topic}}</a></li>
+      <li><a href="#s3">§3 Requirements</a></li>
+      <li><a href="#c4">§4 {{Business design or chapter name}}</a>
+        <ul>
+          <li><a href="#s4-1">§4.1 {{Subsection}}</a></li>
+          <li><a href="#s4-2">§4.2 {{Subsection}}</a></li>
+          <!-- repeat for §4.3..§4.5 as present in source MD -->
+        </ul>
+      </li>
+      <!-- §5 UI Design: top-level, no subsections. Present in both phases
+           (authored in business design). Backend-only features still list it —
+           it carries an N/A stub, which is real content, not an omitted section. -->
+      <li><a href="#s5">§5 UI Design</a></li>
+      <!-- Full design phase: chapter band + nested subsections, as below.
+           Business design phase: replace this whole <li> with
+           <li><a href="#s6-open">§6 Still to write</a></li> -->
+      <li><a href="#c6">§6 {{Technical design or chapter name}}</a>
+        <ul>
+          <li><a href="#s6-1">§6.1 Platform</a></li>
+          <!-- repeat for §6.2..§6.8 as present in source MD -->
+        </ul>
+      </li>
+      <!-- §7 Implementation: TOP-LEVEL, technical (Full design phase only, like §6.1–§6.8).
+           The code-grounded build recipe an implementer / build subagent follows — keyed to the
+           §6 contracts. Always present in Full design; N/A stub when the build is pure reuse.
+           Business design phase: replace this whole <li> with a one-line pending entry:
+           <li><a href="#s7-pending">§7 Implementation</a></li> (see the §7 pending stub below). -->
+      <li><a href="#c7">§7 Implementation</a>
+        <ul>
+          <li><a href="#s7-1">§7.1 New vs. reuse</a></li>
+          <li><a href="#s7-2">§7.2 Code layout</a></li>
+          <!-- repeat for §7.3+ per-unit / setup-and-wiring / cross-cutting blocks as present -->
+        </ul>
+      </li>
+      <li><a href="#s8">§8 Acceptance</a></li>
+      <li><a href="#s9">§9 Open questions</a></li>
+      <li><a href="#s10">§10 References</a></li>
+    </ul>
+  </aside>
+
+  <article class="content">
+
+<!-- ───── Hero: kicker chip + gradient h1 + tagline ───── -->
+<header class="hero">
+  <div class="kicker">D101 · Feature design · {{repo or scope}}</div>
+  <h1>{{Feature name}}</h1>
+  <p class="tagline">{{One-paragraph summary derived from §2 Purpose}}</p>
+</header>
+
+<!-- ───── Metadata strip: 6 cells from §1 ───── -->
+<div class="meta-strip">
+  <div class="meta-cell"><div class="label">Owner</div><div class="value">{{Owner}}</div></div>
+  <div class="meta-cell"><div class="label">{{Approver label}}</div><div class="value">{{Approver}}</div></div>
+  <div class="meta-cell"><div class="label">{{Derived field 1}}</div><div class="value mono">{{value}}</div></div>
+  <div class="meta-cell"><div class="label">{{Derived field 2}}</div><div class="value mono">{{value}}</div></div>
+  <div class="meta-cell"><div class="label">Last updated</div><div class="value mono">{{YYYY-MM-DD}}</div></div>
+  <div class="meta-cell"><div class="label">{{Derived field 3}}</div><div class="value">{{value}}</div></div>
+</div>
+
+<div class="doc-scope">
+  <strong>Scope:</strong> {{from §1 Scope row}}
+</div>
+
+<!-- ═════════════════════ §2 — Problem / Purpose ═════════════════════ -->
+<section class="s" id="s2">
+  <!-- ALTITUDE (ground rule #2): business vocabulary — what/why, not code. Strip every code identifier and this must still read; push mechanism to §6. -->
+  <h2 class="section-title"><span class="sec-ref">§2</span>{{What's broken today / Why this exists}}</h2>
+  <p class="section-desc">{{ONE crisp sentence on why now. The symptoms below carry the detail; history, numbers, and multiple goals belong in §4, never front-loaded here.}}</p>
+
+  <ul class="bullets">
+    <li><strong>{{Symptom}}.</strong> {{One-sentence description of the concrete production symptom}}</li>
+    <!-- repeat one <li> per concrete production symptom in §2 -->
+  </ul>
+
+  <div class="callout">
+    <strong>Audience.</strong> {{Primary audience from §2 — single sentence}}
+  </div>
+</section>
+
+<!-- ═════════════════════ §3 — Requirements ═════════════════════ -->
+<section class="s" id="s3">
+  <h2 class="section-title"><span class="sec-ref">§3</span>Requirements</h2>
+  <!-- Flat: all three groups visible at once under their own .subhead — no tabs, no click. -->
+
+  <div class="subhead">Functional — {{count}}</div>
+  <div class="req-list">
+    <div class="req"><div class="id">R1</div><div class="body">{{R1 text}}</div></div>
+    <!-- repeat .req per functional requirement -->
+  </div>
+
+  <!-- ACCEPTED DEVIATION (d101-feature-design-definition §4.9) — only when a rule is deliberately not met and
+       someone has put their name on that. Nests inside the row it excuses; delete when not needed. -->
+  <div class="req">
+    <div class="id">R{{n}}</div>
+    <div class="body">{{Requirement text}}
+      <div class="accepted">
+        <span class="accepted-tag">Accepted</span><span class="accepted-rule">{{Rule named, e.g. Atomic requirement (§5)}}.</span>
+        {{One sentence: why this instance is lived with rather than fixed.}}
+        <span class="accepted-by">{{Accepter's name}} · {{YYYY-MM-DD}}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="subhead">Non-functional — {{count}}</div>
+  <div class="req-list nf">
+    <div class="req"><div class="id">NF1</div><div class="body">{{NF1 text}}</div></div>
+    <!-- repeat -->
+  </div>
+
+  <div class="subhead">Out of scope — {{count}}</div>
+  <div class="req-list">
+    <div class="req oos"><div class="id">OOS1</div><div class="body">{{Out-of-scope item — name the reason it's out after an em-dash}}</div></div>
+    <!-- repeat; every out-of-scope item states WHY it is out -->
+  </div>
+</section>
+
+<!-- ═════════════════════ §4 — Chapter band ═════════════════════ -->
+<div class="chapter-band" id="c4">
+  <!-- ALTITUDE (ground rule #2): §4 is business design — domain vocabulary, not class/method names. Code identifiers only as parenthetical anchors; mechanism → §6. -->
+  <div class="chapter-band-inner">
+    <div class="ch-num">4</div>
+    <div>
+      <div class="ch-name">Business design</div>
+      <div class="ch-summary">{{One-sentence summary listing the subsections that follow}}</div>
+    </div>
+  </div>
+</div>
+
+<!-- §4.1 Principles -->
+<section class="s" id="s4-1">
+  <h2 class="section-title"><span class="sec-ref">§4.1</span>{{Principles or topic name}}</h2>
+  <div class="principles">
+    <div class="principle">
+      <div class="num">1</div>
+      <div class="text"><strong>{{Principle headline}}.</strong> {{One-sentence justification}}</div>
+    </div>
+    <!-- repeat .principle per numbered item -->
+  </div>
+</section>
+
+<!-- §4.2 Concepts — a definition table (Term | Meaning), not cards -->
+<section class="s" id="s4-2">
+  <h2 class="section-title"><span class="sec-ref">§4.2</span>{{Concepts / Vocabulary}}</h2>
+  <p class="section-desc">{{Why the model matters — one sentence}}</p>
+  <div class="data-table">
+    <div class="row head cols-2"><div>Concept</div><div>What it means</div></div>
+    <div class="row cols-2"><div class="label-cell">{{Concept}}</div><div>{{One-sentence definition; scope or trust level}}</div></div>
+    <!-- repeat one .row.cols-2 per concept -->
+  </div>
+</section>
+
+<!-- §4.3 Per-field sub-blocks — a subhead + rule line + bullets per item, not cards -->
+<section class="s" id="s4-3">
+  <h2 class="section-title"><span class="sec-ref">§4.3</span>{{Wire shape / The N items}}</h2>
+  <p class="section-desc">{{Why these items — one sentence}}</p>
+
+  <div class="subhead">{{Field / item name}}</div>
+  <p class="section-desc" style="margin-bottom:0.4rem"><em>"{{The question this field answers}}"</em> — {{population / behaviour rule, one sentence}}</p>
+  <ul class="bullets">
+    <li>{{Concrete example — neutral arrow bullet}}</li>
+    <li class="warn">{{Real foot-gun — ⚠ marker, if any}}</li>
+  </ul>
+  <!-- repeat .subhead + rule line + bullets per field / item -->
+</section>
+
+<!-- §4.4 Named rules — a subhead + statement + example bullets per rule, not cards.
+     Simple one-line rules (no examples) may instead go in a .data-table (Rule | What it means). -->
+<section class="s" id="s4-4">
+  <h2 class="section-title"><span class="sec-ref">§4.4</span>{{Rules / Constraints topic}}</h2>
+  <p class="section-desc">{{What governs this area — one sentence}}</p>
+
+  <div class="subhead">{{Rule name}}</div>
+  <p class="section-desc" style="margin-bottom:0.4rem">{{One-sentence statement of the rule}}</p>
+  <ul class="bullets">
+    <li>{{Positive example — the rule firing as intended}}</li>
+    <li>{{Counter-example — an adjacent case where the rule does NOT fire (ground rule 4 / definition §6.3)}}</li>
+  </ul>
+  <!-- repeat .subhead + statement + example bullets per named rule -->
+</section>
+
+<!-- §4.5 Decisions -->
+<section class="s" id="s4-5">
+  <h2 class="section-title"><span class="sec-ref">§4.5</span>Decisions</h2>
+  <p class="section-desc">A decision recorded without its rejected alternative is one that gets re-litigated.</p>
+  <div class="decisions">
+    <div class="decisions-head">
+      <div>Decided</div>
+      <div>Alternative considered</div>
+      <div>Why rejected</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided">{{What was decided}}</div>
+      <div class="alt">{{Alternative(s) considered}}</div>
+      <div class="why">{{Why the alternative was rejected}}</div>
+    </div>
+    <!-- repeat .decision-row per decision -->
+  </div>
+</section>
+
+<!-- ═════════════════════ §5 — UI Design (TOP-LEVEL) ═════════════════════
+     A top-level section (business-altitude — what the user sees), authored in the
+     business-design phase. Plain h2 + §5 badge, NO chapter band (single section).
+     User-facing: populate with mockup(s). Backend-only: keep the heading, write the
+     N/A stub shown below — do NOT omit (that would leave a §4 → §6 gap). -->
+<section class="s" id="s5">
+  <h2 class="section-title"><span class="sec-ref">§5</span>UI Design</h2>
+  <p class="section-desc">{{What screens / surfaces this feature introduces or changes, and what the mockup below demonstrates. When the developer named a style basis, record it here in one phrase, e.g. "styled after the existing reefer-list grid".}}</p>
+
+  <div class="subhead">{{Surface name, e.g. Main grid}}</div>
+  <div class="mockup-wrap">
+    <iframe class="mockup-frame" src="mockups/d101-{{slug}}/{{surface}}.html" style="height: 560px" title="{{surface}} interactive mockup" loading="lazy"></iframe>
+  </div>
+  <ul class="bullets">
+    <li>{{Layout note, control, or state the reviewer should try}}</li>
+    <li class="warn">{{Edge / empty / error state worth calling out}}</li>
+  </ul>
+  <!-- Repeat .subhead + .mockup-wrap + bullets per distinct surface when multiple mockups are warranted.
+       One screen with many interactions = ONE file; separate screens (reached by navigation) = separate files.
+       BACKEND-ONLY variant — replace the mockup + bullets above with just:
+       <div class="callout">N/A — backend-only feature, no user-facing surface.</div> -->
+</section>
+
+<!-- ═════════════════════ §6 — Chapter band ═════════════════════ -->
+<div class="chapter-band" id="c6">
+  <div class="chapter-band-inner">
+    <div class="ch-num">6</div>
+    <div>
+      <div class="ch-name">Technical design</div>
+      <div class="ch-summary">{{One-sentence summary listing subsections present in the source MD}}</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ §6 — OPEN form (phase = Business design) ═══════
+     MUTUALLY EXCLUSIVE with §6.1–§6.8 below. A document in the `Business design`
+     phase emits THIS section and none of §6.1–§6.8; a `Full design` document
+     deletes this one and emits §6.1–§6.8. The template shows both shapes so an
+     author can see either; a real D101 carries exactly one of them.
+     Rules for the outstanding list: d101-feature-design-definition §4.6. -->
+<section class="s" id="s6-open">
+  <h2 class="section-title"><span class="sec-ref">§6</span>Still to write</h2>
+  <div class="callout warn">
+    <strong>⚠ This document is not gap-free.</strong> {{One or two sentences: what §2–§4 have settled, and that no S101 can be written until the items below exist.}}
+  </div>
+  <ul class="bullets">
+    <li>{{Outstanding item, named by the consequence of not knowing it — e.g. "how each answer is composed; judging a cause is where the real work is"}}</li>
+    <li>{{Outstanding item — e.g. "the cost ceiling satisfying N6, concentrated in the timeline and alarm-history reads"}}</li>
+    <li>{{Outstanding item — e.g. "which tenant and which cluster per environment, not addressed anywhere yet"}}</li>
+  </ul>
+  <!-- NOT a placeholder. "TBD", "technical design to follow", or a restatement of the
+       §6.1–§6.8 headings fails check 9. Each bullet names a real, specific unknown. -->
+</section>
+
+<!-- §6.1 Platform -->
+<section class="s" id="s6-1">
+  <h2 class="section-title"><span class="sec-ref">§6.1</span>Platform</h2>
+  <p style="color: var(--text-dim); font-size: 0.95rem; line-height: 1.65;">
+    {{Where the feature lives — services, projects, infrastructure deltas}}
+  </p>
+  <div class="callout warn">
+    <strong>⚠ Escalation gate.</strong> {{Reason — e.g. SQL schema change; CLAUDE.md requires confirmation}}
+  </div>
+</section>
+
+<!-- §6.2 Data flow -->
+<section class="s" id="s6-2">
+  <h2 class="section-title"><span class="sec-ref">§6.2</span>Data flow</h2>
+  <p class="section-desc">{{Where the data goes and why}}</p>
+  <div class="flow-wrap">
+    <svg viewBox="0 0 940 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Data flow diagram">
+      <!--
+        Render the MD §6.2 flow in the notation picked from
+        plugins/asimov-plugin/resources/diagrams/README.md; that template file's leading
+        comment governs notation, node budget and geometry.
+        Palette: cyan stroke = compute / persist; green fill = Reading-equivalent path;
+        amber fill = Inferred-equivalent path; bg2 fill = normal box; bg3 stroke dashed = loop.
+        Inter for body labels, JetBrains Mono for stage titles.
+      -->
+      <defs>
+        <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 Z" fill="#a8b8d0"/>
+        </marker>
+      </defs>
+      <!-- example stage -->
+      <g>
+        <rect x="20" y="150" width="120" height="60" rx="8" fill="#1b2e4d" stroke="#2b4a73"/>
+        <text x="80" y="178" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="12" font-weight="700">1. {{Stage}}</text>
+        <text x="80" y="195" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="11">{{detail}}</text>
+      </g>
+      <!-- more stages + arrows as needed -->
+    </svg>
+    <div class="flow-legend">
+      <span class="item"><span class="swatch" style="background:var(--green)"></span>{{path label}}</span>
+      <span class="item"><span class="swatch" style="background:var(--amber)"></span>{{path label}}</span>
+      <span class="item"><span class="swatch" style="background:var(--cyan)"></span>Compute / persist</span>
+    </div>
+  </div>
+</section>
+
+<!-- §6.3 Code map -->
+<section class="s" id="s6-3">
+  <h2 class="section-title"><span class="sec-ref">§6.3</span>Code map</h2>
+  <div class="codemap">
+    <div class="codemap-row">
+      <div class="what">{{Responsibility}}</div>
+      <div class="where">{{path/to/file.cs}}</div>
+    </div>
+    <!-- repeat .codemap-row -->
+  </div>
+</section>
+
+<!-- §6.4 Shapes (only if MD has §6.4) -->
+<section class="s" id="s6-4">
+  <h2 class="section-title"><span class="sec-ref">§6.4</span>{{Shapes / Data model}}</h2>
+
+  <div class="subhead">{{First sub-block — e.g. Entity table}}</div>
+  <div class="data-table">
+    <div class="row head cols-2"><div>Field</div><div>Notes</div></div>
+    <div class="row cols-2"><div class="label-cell">{{FieldName}}</div><div>{{Notes}}</div></div>
+  </div>
+
+  <div class="subhead">{{Second sub-block — e.g. nesting paths}}</div>
+  <ul class="gps-paths">
+    <li>{{a.b.c.Path}}</li>
+  </ul>
+</section>
+
+<!-- §6.5 APIs / contracts (only if MD has §6.5) -->
+<section class="s" id="s6-5">
+  <h2 class="section-title"><span class="sec-ref">§6.5</span>APIs &amp; contracts</h2>
+  <div class="callout">
+    {{N/A reason, or summary of new contracts. Keep terse.}}
+  </div>
+</section>
+
+<!-- §6.6 Configuration (only if MD has §6.6) -->
+<section class="s" id="s6-6">
+  <h2 class="section-title"><span class="sec-ref">§6.6</span>Configuration &amp; secrets</h2>
+  <p class="section-desc">{{What's configurable and where it lives}}</p>
+  <div class="data-table">
+    <div class="row head cols-3"><div>Setting</div><div>Default</div><div>Justification</div></div>
+    <div class="row cols-3"><div class="label-cell">{{key}}</div><div><code>{{default}}</code></div><div>{{Why this default}}</div></div>
+  </div>
+</section>
+
+<!-- §6.7 Failure handling -->
+<section class="s" id="s6-7">
+  <h2 class="section-title"><span class="sec-ref">§6.7</span>Failure handling</h2>
+  <div class="failures">
+    <div class="failures-head">
+      <div>Failure</div><div>Effect</div><div>Severity</div><div>Recovery</div>
+    </div>
+    <div class="failure-row">
+      <div>{{Failure mode}}</div>
+      <div>{{What happens}}</div>
+      <div><span class="sev low">Low</span></div>
+      <div>{{Recovery action}}</div>
+    </div>
+    <!-- repeat .failure-row; sev classes: .low .med .high -->
+  </div>
+</section>
+
+<!-- §6.8 Gotchas (only if MD has §6.8) -->
+<section class="s" id="s6-8">
+  <h2 class="section-title"><span class="sec-ref">§6.8</span>Known constraints &amp; gotchas</h2>
+  <div class="callout warn">
+    <strong>{{Gotcha name}}.</strong> {{What surprises an implementer}}
+  </div>
+  <!-- one .callout per gotcha; use .callout.warn for hard ones, plain .callout for soft ones -->
+</section>
+
+<!-- ═════════════════════ §7 — Chapter band (Implementation) ═════════════════════
+     TECHNICAL, Full-design-only (like §6.1–§6.8). §7 is the code-grounded build recipe
+     that realises the §6 contracts — for an implementer or a build subagent. It sits
+     OUTSIDE the two bars (d101-feature-design-definition §8a/§8b): it neither gates nor is gated by
+     business-complete or gap-free, and it does not move the phase or status chips. It is
+     an interim home for build-readiness notes until the S101 spec stage exists (D100 §9).
+     LITMUS (ground rule 13): §6 = the decisions/contracts a reviewer signs off (WHAT is
+     built); §7 = the code-grounded recipe a builder follows (HOW — files, classes, methods,
+     reuse-vs-new, wiring). If a line names a source file/class/method or a reuse-vs-new call,
+     it belongs here, not in §6. -->
+<div class="chapter-band" id="c7">
+  <div class="chapter-band-inner">
+    <div class="ch-num">7</div>
+    <div>
+      <div class="ch-name">Implementation</div>
+      <div class="ch-summary">{{One-sentence summary listing the §7 sub-blocks present. Code-grounded throughout — the build recipe for the §6 contracts.}}</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ §7 — PENDING form (phase = Business design) ═══════
+     MUTUALLY EXCLUSIVE with §7.1+ below, and with the §7 chapter band above — a
+     Business-design document emits THIS one-line stub (no chapter band, no subsections)
+     because the technical design it keys to is itself still open (§6 shows "Still to write").
+     A Full-design document deletes this and emits the chapter band + §7.1+.
+     NOT the §6-style open-LIST — naming the outstanding technical work is §6's job here;
+     §7 only records that the build recipe waits on §6 being settled. -->
+<section class="s" id="s7-pending">
+  <h2 class="section-title"><span class="sec-ref">§7</span>Implementation</h2>
+  <div class="callout warn">
+    <strong>⚠ Pending the technical design.</strong> The build recipe is written once §6 is settled; while this document is in the <em>Business design</em> phase the outstanding technical work is listed under §6 <a href="#s6-open">Still to write</a>.
+  </div>
+</section>
+
+<!-- §7.1 New vs. reuse — the whole of the genuinely new work; everything else is reuse.
+     `ul.bullets` (or a .data-table with reuse/new/note tags) — one line per item, each
+     tied back to the requirement/rule it satisfies. Open with a .callout stating the notes
+     are code-grounded (checked against source) and how a source-check that overturned an
+     assumption is marked inline. -->
+<section class="s" id="s7-1">
+  <h2 class="section-title"><span class="sec-ref">§7.1</span>What is genuinely new to build</h2>
+  <p class="section-desc">{{One sentence: everything not listed here is reuse; this is the whole of the new work.}}</p>
+  <div class="callout">
+    <strong>These notes are code-grounded design.</strong> {{Each was checked against the source; where a check overturned an earlier assumption or a decision was taken, it is marked inline. What is still unsettled is tracked in §9 Open questions.}}
+  </div>
+  <ul class="bullets">
+    <li><span class="em">{{New capability}}.</span> {{One sentence — what it is and the requirement/rule it satisfies}}</li>
+    <li class="warn"><span class="em">{{New capability that a source-check proved does not exist today}}.</span> {{One sentence — why it is new work, not reuse}}</li>
+    <!-- repeat; reuse-not-new items may be listed too, marked as such -->
+  </ul>
+</section>
+
+<!-- §7.2 Code layout — where the new code lives. `.data-table` (Folder/namespace | What it holds).
+     Everything reused arrives by project reference, so the new project stays small. New class
+     names are ILLUSTRATIVE — the shape is the point, not the exact name (ground rule 1). -->
+<section class="s" id="s7-2">
+  <h2 class="section-title"><span class="sec-ref">§7.2</span>The project</h2>
+  <p class="section-desc" style="margin-bottom:0.9rem">{{Where the new code sits; everything from the reused layers arrives by reference. New class names below are illustrative — the shape is the point.}}</p>
+  <div class="data-table">
+    <div class="row head" style="grid-template-columns: 0.5fr 2fr;"><div>Folder / namespace</div><div>What it holds</div></div>
+    <div class="row" style="grid-template-columns: 0.5fr 2fr;">
+      <div class="label-cell">{{Folder}}</div>
+      <div><ul class="bullets" style="margin:0"><li>{{What it holds — one line}}</li></ul></div>
+    </div>
+    <!-- repeat one .row per folder/namespace; a "(referenced)" row lists the reused projects -->
+  </div>
+</section>
+
+<!-- §7.3 Setup & wiring (CONDITIONAL — only when the feature needs external setup: auth,
+     infra, config registration). Key it to the §6 contract it realises. `.impl-head` labels
+     ("what to build" / "what to set up" / "when it goes wrong") + `.data-table` / `.failures`.
+     Omit the whole section when there is no external setup. -->
+<section class="s" id="s7-3">
+  <h2 class="section-title"><span class="sec-ref">§7.3</span>{{Setup &amp; wiring — e.g. Authentication}} · contract <a href="#s6-3">§6.x</a></h2>
+  <p class="section-desc" style="margin-bottom:0.9rem">{{The model is in §6.x; here is what to build in the app, set up externally, and wire in — and how it fails.}}</p>
+  <div class="impl-head">{{What to build}}</div>
+  <div class="data-table">
+    <div class="row head cols-2"><div>Task</div><div>Detail</div></div>
+    <div class="row cols-2"><div class="label-cell">{{Task}}</div><div>{{One sentence — what to build/set up}}</div></div>
+  </div>
+  <div class="impl-head">When it goes wrong</div>
+  <div class="failures">
+    <div class="failures-head"><div>Situation</div><div>Response</div><div>Severity</div><div>Why</div></div>
+    <div class="failure-row"><div>{{Situation}}</div><div>{{Response}}</div><div><span class="sev med">Med</span></div><div>{{Why}}</div></div>
+  </div>
+</section>
+
+<!-- §7.4 Per-unit build notes — one .subhead + .impl-table per buildable unit (tool / endpoint /
+     component), keyed to its §6 contract BY NUMBER (e.g. §7.4.2 ·  contract §6.4.2). The
+     .impl-table rows are Aspect | Build-tag | Details: Source (where the data/behaviour comes
+     from), Bound (limits/paging), Enforce (what is guarded, not reviewed), plus unit-specific
+     aspects. Tag each row .reuse / .new / .note. Cells hold bulleted one-liners, not paragraphs. -->
+<section class="s" id="s7-4">
+  <h2 class="section-title"><span class="sec-ref">§7.4</span>Each {{unit — e.g. tool}}</h2>
+  <p class="section-desc">{{Build notes per unit, in the order of §6.x and keyed to the same numbers — where the data comes from, how the answer is composed, what it may cost, and what is enforced rather than reviewed.}}</p>
+  <div class="subhead" id="s7-4-1"><span class="s-ref">§7.4.1</span><code>{{unit_name}}</code> · contract <a href="#s6-4">§6.x.1</a></div>
+  <div class="data-table impl-table">
+    <div class="row head"><div>Aspect</div><div>Build</div><div>Details</div></div>
+    <div class="row">
+      <div class="label-cell">Source</div>
+      <div><span class="tag reuse">reuse</span></div>
+      <div><ul><li>{{Where the data/behaviour comes from — reused service/gateway/method}}</li></ul></div>
+    </div>
+    <div class="row">
+      <div class="label-cell">{{Bound / Enforce / …}}</div>
+      <div><span class="tag new">new</span></div>
+      <div><ul><li>{{What is genuinely new for this unit — one line each}}</li></ul></div>
+    </div>
+  </div>
+  <!-- repeat .subhead + .impl-table per unit -->
+</section>
+
+<!-- §7.5 Cross-cutting — build concerns shared by several units (staleness rule, scope
+     enforcement, attribution, …). `ul.bullets`, one line each, tied to the requirement/rule. -->
+<section class="s" id="s7-5">
+  <h2 class="section-title"><span class="sec-ref">§7.5</span>Cross-cutting — shared by {{the units}}</h2>
+  <ul class="bullets">
+    <li><span class="em">{{Shared concern}}.</span> {{One sentence — how it is built once and reused, and the rule it satisfies}}</li>
+    <li class="warn"><span class="em">{{Shared foot-gun}}.</span> {{One sentence — the hazard and the rule that keeps the build off it}}</li>
+  </ul>
+  <!-- BACKEND-ONLY / PURE-REUSE variant — when the build is entirely reuse with no new work,
+       replace §7.1–§7.5 with a single N/A stub (keep the §7 heading, drop the chapter band):
+       <section class="s" id="s7"><h2 class="section-title"><span class="sec-ref">§7</span>Implementation</h2>
+         <div class="callout">N/A — built entirely from reuse; no build notes beyond the §6 contracts.</div>
+       </section> -->
+</section>
+
+<!-- ═════════════════════ §8 — Acceptance criteria ═════════════════════ -->
+<section class="s" id="s8">
+  <h2 class="section-title"><span class="sec-ref">§8</span>Acceptance criteria</h2>
+  <div class="ac-table">
+    <div class="ac-head"><div>#</div><div>Verifies</div><div>Description</div></div>
+    <div class="ac-row">
+      <div class="ac-id">AC1</div>
+      <div class="ac-verifies">
+        <span class="verify-chip">{{R1}}</span>
+        <span class="verify-chip">{{§4.3}}</span>
+      </div>
+      <div>{{Checkable description tied to a requirement or rule}}</div>
+    </div>
+    <!-- repeat .ac-row per criterion -->
+  </div>
+</section>
+
+<!-- ═════════════════════ §9 — Open questions ═════════════════════ -->
+<section class="s" id="s9">
+  <h2 class="section-title"><span class="sec-ref">§9</span>Open questions</h2>
+  <div class="q-grid">
+    <div class="q-card">
+      <div class="q-head">
+        <span class="q-id">Q1</span>
+        <span class="q-decider">{{Decider}}</span>
+      </div>
+      <div class="q-body">{{The open question}}</div>
+      <div class="q-resolution">Resolution path: {{how and when this closes — the condition or the moment it gets decided}}</div>
+    </div>
+    <!-- repeat .q-card per question.
+         A question closed during authoring keeps its card under a second "Resolved during authoring:"
+         .q-grid, carries .resolved, and states the outcome:
+         <div class="q-card resolved">
+           <div class="q-head"><span class="q-id">Q{{n}}</span><span class="q-decider">Resolved {{YYYY-MM-DD}}</span></div>
+           <div class="q-body">{{The question that was open}}</div>
+           <div class="q-resolution"><strong>Decision:</strong> {{what was settled, and what would reopen it}}</div>
+         </div> -->
+  </div>
+</section>
+
+<!-- ═════════════════════ §10 — References ═════════════════════ -->
+<section class="s" id="s10">
+  <h2 class="section-title"><span class="sec-ref">§10</span>References</h2>
+  <div class="refs">
+    <div class="refs-block">
+      <h4>{{Category — e.g. Code}}</h4>
+      <ul>
+        <li>{{path/to/file}}</li>
+      </ul>
+    </div>
+    <!-- repeat .refs-block per category (Code / Docs / Diagrams / Historical) -->
+  </div>
+</section>
+
+  </article>
+</div>
+
+<footer class="site-footer">
+  <div>
+    <a href="../index.html">← Documentation home</a>
+    · <span class="mono">features/D101-{{slug}}.html</span>
+  </div>
+  <div style="margin-top: 0.4rem">
+    D101 · {{Feature name}} · {{Repo / scope}} · {{Status v0.1}} · {{YYYY-MM-DD}}
+  </div>
+</footer>
+
+</body>
+</html>

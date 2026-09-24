@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D101 — Website — asimov docs</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+:root {
+  --bg:        #0a1424;
+  --bg2:       #122039;
+  --bg3:       #1b2e4d;
+  --bg-card:   #14253f;
+  --border:    #2b4a73;
+  --border-2:  #3b5e8f;
+  --text:      #fff;
+  --text-dim:  #a8b8d0;
+  --text-mute: #6b7a93;
+  --cyan:      #4fc3f7;
+  --teal:      #26c6da;
+  --green:     #66bb6a;
+  --amber:     #ffb74d;
+  --coral:     #ef5350;
+  --gold:      #ffd54f;
+  --violet:    #ab47bc;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; font-size: 15px; line-height: 1.6; overflow-x: hidden; padding-top: 56px; }
+a { color: inherit; text-decoration: none; }
+code, .mono { font-family: 'JetBrains Mono', monospace; font-size: 0.88em; }
+code { background: var(--bg3); padding: 1px 6px; border-radius: 4px; color: var(--cyan); }
+
+.top-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(10,20,36,0.85); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 0.55rem 2rem; display: flex; gap: 1.4rem; align-items: center; font-size: 0.82rem; }
+.top-nav .brand, .top-nav .brand a { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--cyan); letter-spacing: 0.04em; text-decoration: none; }
+.top-nav .brand .sep { color: var(--border); margin: 0 0.5rem; }
+.top-nav a { color: var(--text-dim); font-weight: 500; }
+.top-nav a:hover { color: #fff; }
+.top-nav .spacer { flex: 1; }
+.top-nav .status-chip { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.25rem 0.7rem; border-radius: 999px; background: #ffd54f15; border: 1px solid #ffd54f44; color: var(--gold); font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 700; }
+.top-nav .status-chip::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--gold); }
+.top-nav .phase-chip { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.25rem 0.7rem; border-radius: 999px; background: #4fc3f715; border: 1px solid #4fc3f744; color: var(--cyan); font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 700; }
+.top-nav .phase-chip::before { content: ''; width: 6px; height: 6px; border-radius: 1px; background: var(--cyan); }
+.top-nav .phase-chip.full { background: #66bb6a15; border-color: #66bb6a44; color: var(--green); }
+.top-nav .phase-chip.full::before { background: var(--green); }
+
+.layout-doc { display: grid; grid-template-columns: 200px minmax(0, 1fr); max-width: 1300px; margin: 0 auto; gap: 1.8rem; padding: 0.5rem 1.5rem; }
+.side-nav { position: sticky; top: 76px; align-self: start; max-height: calc(100vh - 90px); overflow-y: auto; padding: 0.7rem 0.5rem 1rem 0.2rem; font-size: 0.85rem; }
+.side-nav .side-head { font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-mute); margin-bottom: 0.7rem; padding-left: 0.6rem; }
+.side-nav ul { list-style: none; padding: 0; margin: 0; }
+.side-nav ul ul { padding-left: 0.9rem; margin-top: 0.1rem; }
+.side-nav li { margin: 0.1rem 0; }
+.side-nav a { display: block; padding: 0.32rem 0.7rem; color: var(--text-dim); border-left: 2px solid transparent; font-size: 0.86rem; line-height: 1.4; border-radius: 0 4px 4px 0; }
+.side-nav a:hover { color: #fff; background: #4fc3f708; border-left-color: var(--border-2); }
+.content { min-width: 0; }
+
+.hero { padding: 1.5rem 2rem 1.5rem; position: relative; overflow: hidden; max-width: 1300px; margin: 0 auto; }
+.hero::before { content: ''; position: absolute; inset: 0; z-index: 0; background: radial-gradient(ellipse at 20% 30%, #4fc3f718 0%, transparent 50%), radial-gradient(ellipse at 80% 60%, #26c6da14 0%, transparent 50%); }
+.hero > * { position: relative; z-index: 1; }
+.kicker { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--cyan); padding: 0.3rem 0.8rem; border-radius: 999px; border: 1px solid #4fc3f744; background: #4fc3f711; margin-bottom: 1rem; }
+.hero h1 { font-size: clamp(2rem, 4.5vw, 3.4rem); font-weight: 900; letter-spacing: -0.03em; line-height: 1.05; background: linear-gradient(135deg, #fff 0%, var(--cyan) 50%, var(--teal) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.hero .tagline { font-size: 1.05rem; color: var(--text-dim); margin-top: 1rem; max-width: 760px; line-height: 1.6; }
+
+.meta-strip { max-width: 1300px; margin: 1rem auto 0; padding: 0 2rem; display: grid; grid-template-columns: repeat(6, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.meta-cell { background: var(--bg-card); padding: 1rem 1.2rem; }
+.meta-cell .label { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-mute); margin-bottom: 0.35rem; }
+.meta-cell .value { font-size: 0.95rem; font-weight: 600; color: var(--text); }
+.meta-cell .value.mono { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; }
+
+section.s { max-width: 1300px; margin: 0 auto; padding: 3rem 2rem 0; }
+.chapter-band + section.s { padding-top: 1.5rem; }
+.section-title { font-size: clamp(1.5rem, 2.6vw, 2rem); font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.7rem; }
+.section-title .sec-ref { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; font-weight: 600; color: var(--text-mute); letter-spacing: 0.04em; margin-right: 0.7rem; vertical-align: middle; padding: 0.2rem 0.5rem; border-radius: 4px; background: var(--bg2); border: 1px solid var(--border); }
+.section-desc { color: var(--text-dim); font-size: 1rem; max-width: 780px; margin-bottom: 1.8rem; line-height: 1.65; }
+.chapter-band { max-width: 1300px; margin: 3.5rem auto 0; padding: 0 2rem; }
+.chapter-band-inner { display: grid; grid-template-columns: auto 1fr; gap: 1.5rem; align-items: center; padding: 1.4rem 1.8rem; border-radius: 12px; background: linear-gradient(135deg, #4fc3f714 0%, #26c6da05 100%); border: 1px solid var(--border); border-left: 4px solid var(--cyan); }
+.chapter-band .ch-num { font-family: 'JetBrains Mono', monospace; font-size: 2.6rem; font-weight: 800; color: var(--cyan); line-height: 1; }
+.chapter-band .ch-name { font-size: 1.35rem; font-weight: 700; color: #fff; letter-spacing: 0.01em; margin-bottom: 0.25rem; }
+.chapter-band .ch-summary { font-size: 0.88rem; color: var(--text-dim); line-height: 1.5; }
+
+.doc-scope { max-width: 1300px; margin: 0.7rem auto 0; padding: 0 2.2rem; font-size: 0.82rem; color: var(--text-mute); line-height: 1.5; }
+.doc-scope strong { color: var(--text-dim); font-weight: 600; }
+
+.principles { display: grid; gap: 0.65rem; }
+.principle { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 0.95rem 1.3rem; display: flex; gap: 1rem; align-items: center; }
+.principle .num { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; font-weight: 700; width: 30px; height: 30px; border-radius: 8px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--cyan), var(--teal)); color: #0a1424; }
+.principle .text { font-size: 0.95rem; }
+.principle .text strong { color: var(--cyan); font-weight: 700; }
+
+ul.bullets { list-style: none; padding: 0; margin: 0.7rem 0 0; }
+ul.bullets li { position: relative; padding: 0.3rem 0 0.3rem 1.5rem; font-size: 0.9rem; color: var(--text-dim); line-height: 1.6; }
+ul.bullets li + li { margin-top: 0.15rem; }
+ul.bullets li::before { content: '→'; position: absolute; left: 0; top: 0.3rem; font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--cyan); }
+ul.bullets li.warn::before { content: '!'; color: var(--amber); }
+ul.bullets li code { font-size: 0.78rem; }
+
+.req-list { display: grid; gap: 0.5rem; margin-bottom: 1.6rem; }
+.req-list:last-child { margin-bottom: 0; }
+.req { display: grid; grid-template-columns: 60px 1fr; gap: 1rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 0.7rem 1rem; align-items: start; }
+.req .id { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; font-weight: 700; color: var(--cyan); padding-top: 2px; }
+.req .body { font-size: 0.9rem; color: var(--text); line-height: 1.55; }
+.req.oos .id, .req-list.nf .req .id { color: var(--amber); }
+
+.flow-wrap { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.8rem; overflow-x: auto; }
+.flow-wrap svg { display: block; margin: 0 auto; max-width: 100%; height: auto; }
+.flow-legend { display: flex; flex-wrap: wrap; gap: 1.2rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); font-size: 0.82rem; color: var(--text-dim); }
+.flow-legend .item { display: inline-flex; align-items: center; gap: 0.4rem; }
+.flow-legend .swatch { width: 14px; height: 4px; border-radius: 2px; }
+
+.mockup-wrap { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 0.5rem; margin: 0.6rem 0 1rem; overflow: hidden; }
+.mockup-frame { display: block; width: 100%; border: none; border-radius: 8px; background: #fff; }
+
+.codemap { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.codemap-row { display: grid; grid-template-columns: 1fr 1.5fr; gap: 1rem; padding: 0.7rem 1.2rem; border-bottom: 1px solid var(--border); font-size: 0.85rem; align-items: center; }
+.codemap-row:last-child { border-bottom: none; }
+.codemap-row:nth-child(odd) { background: rgba(255,255,255,0.015); }
+.codemap-row .what { color: var(--text); }
+.codemap-row .where { color: var(--cyan); font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; word-break: break-all; }
+
+.decisions { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.decisions-head, .decision-row { display: grid; grid-template-columns: 1.2fr 1fr 1.4fr; gap: 1rem; padding: 0.9rem 1.2rem; align-items: start; border-bottom: 1px solid var(--border); }
+.decisions-head { background: var(--bg2); font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); }
+.decision-row { font-size: 0.85rem; }
+.decision-row:last-child { border-bottom: none; }
+.decision-row .decided { color: #fff; font-weight: 600; }
+.decision-row .alt { color: var(--amber); font-style: italic; font-size: 0.82rem; line-height: 1.5; }
+.decision-row .why { color: var(--text-dim); font-size: 0.82rem; line-height: 1.55; }
+
+.data-table { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.data-table .row { display: grid; gap: 1rem; padding: 0.65rem 1.2rem; border-bottom: 1px solid var(--border); font-size: 0.85rem; align-items: start; }
+.data-table .row.head { background: var(--bg2); font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); font-weight: 700; }
+.data-table .row:last-child { border-bottom: none; }
+.data-table .row.cols-2 { grid-template-columns: 1fr 2fr; }
+.data-table .row.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+.data-table .row code { font-size: 0.78rem; }
+.data-table .row .label-cell { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; color: var(--cyan); }
+
+.gps-paths { list-style: none; padding: 0.7rem 0 0; margin: 0; display: grid; gap: 0.4rem; }
+.gps-paths li { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--cyan); background: var(--bg2); border: 1px solid var(--border); border-radius: 6px; padding: 0.45rem 0.8rem; }
+
+.subhead { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-dim); font-weight: 700; margin: 1.5rem 0 0.6rem; }
+.subhead:first-child { margin-top: 0; }
+.subhead[id] { scroll-margin-top: 80px; }
+.subhead .s-ref { color: var(--text-mute); margin-right: 0.45rem; }
+.impl-head { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); font-weight: 700; margin: 1rem 0 0.3rem; }
+
+.tag { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+.tag.reuse { background: #66bb6a22; color: var(--green); border: 1px solid #66bb6a55; }
+.tag.new   { background: #ffb74d22; color: var(--amber); border: 1px solid #ffb74d55; }
+.tag.note  { background: var(--bg2); color: var(--text-mute); border: 1px solid var(--border); }
+.impl-table .row { grid-template-columns: 0.5fr 0.45fr 2.75fr; }
+.impl-table .row ul { list-style: disc; margin: 0; padding-left: 1.05rem; display: grid; gap: 0.35rem; }
+.impl-table .row li { line-height: 1.5; }
+
+.failures { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.failures-head, .failure-row { display: grid; grid-template-columns: 1fr 1fr 80px 1.2fr; gap: 1rem; padding: 0.85rem 1.2rem; align-items: center; border-bottom: 1px solid var(--border); }
+.failures-head { background: var(--bg2); font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); }
+.failure-row { font-size: 0.85rem; }
+.failure-row:last-child { border-bottom: none; }
+.sev { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; font-weight: 700; padding: 0.2rem 0.55rem; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.06em; }
+.sev.med  { background: #ffb74d22; color: var(--amber); border: 1px solid #ffb74d55; }
+.sev.low  { background: #66bb6a22; color: var(--green); border: 1px solid #66bb6a55; }
+.sev.high { background: #ef535022; color: var(--coral); border: 1px solid #ef535055; }
+
+.ac-table { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.ac-head, .ac-row { display: grid; grid-template-columns: 60px 150px 1fr; gap: 1rem; padding: 0.8rem 1.2rem; align-items: start; border-bottom: 1px solid var(--border); }
+.ac-head { background: var(--bg2); font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); }
+.ac-row { font-size: 0.86rem; }
+.ac-row:last-child { border-bottom: none; }
+.ac-row .ac-id { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--cyan); }
+.ac-row .ac-verifies { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+.verify-chip { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; padding: 0.15rem 0.5rem; border-radius: 4px; background: #4fc3f714; border: 1px solid #4fc3f744; color: var(--cyan); }
+
+.q-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 0.7rem; }
+.q-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.2rem; border-left: 3px solid var(--gold); }
+.q-card .q-head { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
+.q-card .q-id { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; color: var(--gold); background: #ffd54f15; padding: 0.15rem 0.5rem; border-radius: 4px; }
+.q-card .q-decider { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--text-mute); }
+.q-card .q-body { font-size: 0.88rem; color: var(--text); line-height: 1.55; }
+
+.accepted { margin-top: 0.5rem; padding: 0.5rem 0.7rem; border-left: 3px solid var(--violet); border-radius: 0 6px 6px 0; background: #ab47bc12; font-size: 0.82rem; color: var(--text-dim); line-height: 1.55; }
+.accepted .accepted-tag { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--violet); background: #ab47bc22; border: 1px solid #ab47bc55; border-radius: 4px; padding: 0.1rem 0.45rem; margin-right: 0.45rem; }
+.accepted .accepted-rule { color: var(--text); font-weight: 600; }
+.accepted .accepted-by { display: block; margin-top: 0.3rem; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--text-mute); }
+.q-card .q-resolution { font-size: 0.82rem; color: var(--text-dim); line-height: 1.5; margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--border); }
+.q-card .q-resolution strong { color: var(--green); }
+.q-card.resolved { border-left-color: var(--green); }
+.q-card.resolved .q-id { color: var(--green); background: #66bb6a15; }
+
+.refs { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+.refs-block { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 1.1rem 1.3rem; }
+.refs-block h4 { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--cyan); margin-bottom: 0.7rem; }
+.refs-block ul { list-style: none; }
+.refs-block li { font-family: 'JetBrains Mono', monospace; font-size: 0.76rem; color: var(--text-dim); padding: 0.2rem 0; line-height: 1.5; word-break: break-all; }
+
+.callout { background: linear-gradient(135deg, #4fc3f712, #26c6da08); border: 1px solid #4fc3f744; border-radius: 10px; padding: 1rem 1.3rem; margin: 1.2rem 0; font-size: 0.9rem; color: var(--text-dim); line-height: 1.6; }
+.callout strong { color: var(--cyan); }
+.callout.warn { background: linear-gradient(135deg, #ffd54f15, #ff890608); border-color: #ffd54f55; }
+.callout.warn strong { color: var(--gold); }
+
+footer.site-footer { max-width: 1300px; margin: 4rem auto 0; padding: 2rem; border-top: 1px solid var(--border); text-align: center; color: var(--text-mute); font-size: 0.82rem; line-height: 1.7; }
+footer.site-footer .mono { color: var(--text-dim); font-family: 'JetBrains Mono', monospace; }
+footer.site-footer a { color: var(--cyan); }
+
+@media (max-width: 1100px) {
+  .meta-strip { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 900px) {
+  .layout-doc { grid-template-columns: 1fr; gap: 1rem; padding: 1rem 1.2rem; }
+  .side-nav { position: static; max-height: none; overflow: visible; border: 1px solid var(--border); border-radius: 8px; padding: 1rem; background: var(--bg-card); }
+}
+@media (max-width: 720px) {
+  .top-nav { overflow-x: auto; padding: 0.55rem 1rem; gap: 1rem; }
+  .top-nav .spacer { display: none; }
+  .hero { padding: 1.2rem 1.2rem 1rem; }
+  section.s { padding: 2.5rem 1.2rem 0; }
+  .meta-strip { grid-template-columns: repeat(2, 1fr); margin: 1rem 1.2rem 0; }
+  .chapter-band { padding: 0 1.2rem; margin-top: 3rem; }
+  .chapter-band-inner { grid-template-columns: 1fr; gap: 0.5rem; padding: 1.2rem 1.4rem; }
+  .chapter-band .ch-num { font-size: 2rem; }
+  .decisions-head, .decision-row { grid-template-columns: 1fr; gap: 0.4rem; }
+  .failures-head, .failure-row { grid-template-columns: 1fr; }
+  .ac-head, .ac-row { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <span class="brand"><a href="../index.html">ASIMOV<span class="sep">/</span>docs</a></span>
+  <a href="../index.html#s1">Architecture</a>
+  <a href="../index.html#s2">Features</a>
+  <a href="../index.html#s3">Environments</a>
+  <a href="../index.html#s4">Conventions</a>
+  <a href="../index.html#s5">Reference</a>
+  <a href="../index.html#s6">Diagrams</a>
+  <span class="spacer"></span>
+  <span class="phase-chip full">Full design</span>
+  <span class="status-chip">Draft v0.3</span>
+</nav>
+
+<div class="layout-doc">
+  <aside class="side-nav">
+    <div class="side-head">On this page</div>
+    <ul>
+      <li><a href="#s2">§2 Why this exists</a></li>
+      <li><a href="#s3">§3 Requirements</a></li>
+      <li><a href="#c4">§4 Business design</a>
+        <ul>
+          <li><a href="#s4-3">§4.3 Page shapes</a></li>
+          <li><a href="#s4-4">§4.4 Rules</a></li>
+          <li><a href="#s4-5">§4.5 Decisions</a></li>
+        </ul>
+      </li>
+      <li><a href="#s5">§5 UI Design</a></li>
+      <li><a href="#c6">§6 Technical design</a>
+        <ul>
+          <li><a href="#s6-1">§6.1 Platform</a></li>
+          <li><a href="#s6-2">§6.2 Publishing flow</a></li>
+          <li><a href="#s6-3">§6.3 Code map</a></li>
+          <li><a href="#s6-4">§6.4 Shapes</a></li>
+          <li><a href="#s6-6">§6.6 Configuration</a></li>
+          <li><a href="#s6-7">§6.7 Failure handling</a></li>
+        </ul>
+      </li>
+      <li><a href="#s7">§7 Implementation</a></li>
+      <li><a href="#s8">§8 Acceptance</a></li>
+      <li><a href="#s9">§9 Open questions</a></li>
+      <li><a href="#s10">§10 References</a></li>
+    </ul>
+  </aside>
+
+  <article class="content">
+
+<header class="hero">
+  <div class="kicker">D101 · Feature design · Asimov</div>
+  <h1>Website</h1>
+  <p class="tagline">The public site that explains Asimov to someone who has not installed it. It says what each thing is and links to the repo for the rules.</p>
+</header>
+
+<div class="meta-strip">
+  <div class="meta-cell"><div class="label">Owner</div><div class="value">Allan Borup</div></div>
+  <div class="meta-cell"><div class="label">Business approver</div><div class="value">Allan Borup</div></div>
+  <div class="meta-cell"><div class="label">Lands in</div><div class="value mono">site/</div></div>
+  <div class="meta-cell"><div class="label">Published by</div><div class="value mono">Netlify, manual</div></div>
+  <div class="meta-cell"><div class="label">Last updated</div><div class="value mono">2026-09-24</div></div>
+  <div class="meta-cell"><div class="label">Supersedes</div><div class="value mono">website-design.md</div></div>
+</div>
+
+<div class="doc-scope">
+  <strong>Scope:</strong> the pages under <code>site/</code>: shapes, rules, navigation, publishing. Not the plugin, not the maintainer site under <code>documentation/</code>.
+</div>
+
+<!-- ═════════════════════ §2 ═════════════════════ -->
+<section class="s" id="s2">
+  <h2 class="section-title"><span class="sec-ref">§2</span>Why this exists</h2>
+  <p class="section-desc">The site exists, but its design record is a stale markdown file, three General pages are stubs, and nothing on the site says that the plugin ships a delivery model and its first <code>pm-*</code> skill. The site is for a developer, lead or sponsor who has not installed Asimov; this document is for whoever edits <code>site/</code>.</p>
+</section>
+
+<!-- ═════════════════════ §3 ═════════════════════ -->
+<section class="s" id="s3">
+  <h2 class="section-title"><span class="sec-ref">§3</span>Requirements</h2>
+
+  <div class="subhead">Functional — 8</div>
+  <div class="req-list">
+    <div class="req"><div class="id">R1</div><div class="body">Every page can be read without access to the repository.</div></div>
+    <div class="req"><div class="id">R2</div><div class="body">The site restates no rule from a definition; it links to the definition, template and D101 on GitHub.</div></div>
+    <div class="req"><div class="id">R3</div><div class="body">Every artifact page shows the artifact's maturity level from its definition, or <em>planned</em> when no definition exists.</div></div>
+    <div class="req"><div class="id">R4</div><div class="body">Every page carries the same navigation: Home · Why · How it works · What's inside · Artifacts (Documentation, Project management, General) · AI transition · Get started.</div></div>
+    <div class="req"><div class="id">R5</div><div class="body">"What's inside" is an overview that describes each kind of thing in the plugin in one sentence, without counts, and links to one page per kind under the same sub-nav.</div></div>
+    <div class="req"><div class="id">R6</div><div class="body">Project management is told under "What's inside": the delivery model, the advisor that reads it, and that a <code>pm-*</code> family is planned. The area page under Artifacts stays <em>planned</em>, names no skill, and points to the story until the first artifact lands.</div></div>
+    <div class="req"><div class="id">R7</div><div class="body">The three stub pages (personas, conventions, asimov.md) carry content in the artifact-page shape (§4.3).</div></div>
+    <div class="req"><div class="id">R8</div><div class="body">Every internal link resolves to a file.</div></div>
+  </div>
+
+  <div class="subhead">Non-functional — 4</div>
+  <div class="req-list nf">
+    <div class="req"><div class="id">NF1</div><div class="body">No build step: plain HTML, one stylesheet, Netlify publishes <code>site/</code> as it is.</div></div>
+    <div class="req"><div class="id">NF2</div><div class="body">Links are relative, so the site works from <code>file://</code> and at any folder depth.</div></div>
+    <div class="req"><div class="id">NF3</div><div class="body">English; every h1 under eight words, every lede one sentence, bullets and one-liners over paragraphs.</div></div>
+    <div class="req"><div class="id">NF4</div><div class="body">No customer product names anywhere on the site.</div></div>
+  </div>
+
+  <div class="subhead">Out of scope — 4</div>
+  <div class="req-list">
+    <div class="req oos"><div class="id">OOS1</div><div class="body">A custom domain — Netlify's default URL until one is procured (Q1).</div></div>
+    <div class="req oos"><div class="id">OOS2</div><div class="body">A page per <code>pm-*</code> skill — one member, no settled shape; the family shares the project-management page (Q3).</div></div>
+    <div class="req oos"><div class="id">OOS3</div><div class="body">A100 and S100 in CLAUDE.md or D100 — the codes are added together when more artifacts land.</div></div>
+    <div class="req oos"><div class="id">OOS4</div><div class="body">A build step, templating or a JS nav include — a pasted nav is the price of no tooling.</div></div>
+  </div>
+</section>
+
+<!-- ═════════════════════ §4 ═════════════════════ -->
+<div class="chapter-band" id="c4">
+  <div class="chapter-band-inner">
+    <div class="ch-num">4</div>
+    <div>
+      <div class="ch-name">Business design</div>
+      <div class="ch-summary">Page shapes, rules, decisions.</div>
+    </div>
+  </div>
+</div>
+
+<section class="s" id="s4-3">
+  <h2 class="section-title"><span class="sec-ref">§4.3</span>Page shapes</h2>
+
+  <div class="subhead">Narrative page</div>
+  <p class="section-desc" style="margin-bottom:0.4rem">One h1, one lede, one figure, short prose.</p>
+  <ul class="bullets">
+    <li>Home shows L2 to L3, the nine stages, and three worked examples of the tooling in use.</li>
+    <li>What's inside is an overview: one sentence and a link per kind. Each kind has its own narrative page under the same sub-nav: commands, personas, agents, project management.</li>
+    <li>Project management tells the delivery model (phases, approaches, disciplines, one figure), the advisor that reads it, and what will land under Artifacts.</li>
+  </ul>
+
+  <div class="subhead">Area page</div>
+  <p class="section-desc" style="margin-bottom:0.4rem">What the area is, then a table of its artifacts: code · name · maturity · one line.</p>
+  <ul class="bullets">
+    <li>Documentation carries the document-model figure and the maturity legend.</li>
+    <li>Project management has no table yet: one lede with the <em>planned</em> chip, and a pointer to the story under What's inside.</li>
+  </ul>
+
+  <div class="subhead">Artifact page</div>
+  <p class="section-desc" style="margin-bottom:0.4rem">h1 with code and name, lede with maturity chip, meta rows (produced by · lands in · read by), two to five points, links to definition, template and D101.</p>
+  <ul class="bullets">
+    <li>D101 is the worked example; every other artifact page copies its shape.</li>
+    <li>A planned artifact fills h1, chip and one paragraph, and has no links block.</li>
+  </ul>
+</section>
+
+<section class="s" id="s4-4">
+  <h2 class="section-title"><span class="sec-ref">§4.4</span>Rules</h2>
+  <div class="data-table">
+    <div class="row head cols-2"><div>Rule</div><div>Description</div></div>
+    <div class="row cols-2"><div class="label-cell">Explain, don't define</div><div>A page says what an artifact is and links to its definition for the rules. A plugin thing with no definition links to its file instead.</div></div>
+    <div class="row cols-2"><div class="label-cell">Chip mirrors definition</div><div>An artifact page's chip equals <code>maturity</code> in the definition it links to; no definition means <em>planned</em>. A skill or agent gets no chip.</div></div>
+    <div class="row cols-2"><div class="label-cell">Link only what exists</div><div>The links block lists the definition, template and D101 that exist. A planned artifact has no links block.</div></div>
+    <div class="row cols-2"><div class="label-cell">No counts</div><div>No page says how many commands, personas, agents or templates there are. A code such as D101 is a name, not a count.</div></div>
+    <div class="row cols-2"><div class="label-cell">Codes as drawn</div><div>Document codes appear as in the document-model drawing, S100 and S101 included. The Delivery Model's own codes are not shown until an Asimov artifact carries one.</div></div>
+    <div class="row cols-2"><div class="label-cell">Story and file, on purpose</div><div>What's inside tells the story; Artifacts describes the file. Personas: the readers who sign under What's inside, the skill file under General. Project management: the delivery model under What's inside, the artifact table under Artifacts. Each side links to the other.</div></div>
+  </div>
+</section>
+
+<section class="s" id="s4-5">
+  <h2 class="section-title"><span class="sec-ref">§4.5</span>Decisions</h2>
+  <div class="decisions">
+    <div class="decisions-head">
+      <div>Decided</div>
+      <div>Alternative considered</div>
+      <div>Why rejected</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided"><code>site/</code> at the repo root</div>
+      <div class="alt">Under <code>documentation/</code></div>
+      <div class="why"><code>documentation/</code> is the maintainer site <code>/asimov-init</code> generates; different readers.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided">Plain HTML, one stylesheet, no build</div>
+      <div class="alt">A static-site generator</div>
+      <div class="why">Nothing to install or break; a pasted nav is cheaper than a toolchain.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided">Relative links</div>
+      <div class="alt">Root-relative links (<code>/why.html</code>)</div>
+      <div class="why">The maintainer reviews the site from disk via <code>file://</code>, where root-relative links break.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided">One flat nav, artifacts grouped inline</div>
+      <div class="alt">An artifacts index page with a sub-nav on area and artifact pages</div>
+      <div class="why">Artifacts sat three levels deep, Why sat one; the sub-nav was built and reverted.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided">What's inside as an overview plus one page per kind, under a sub-nav</div>
+      <div class="alt">One page (decided 2026-09-21, reversed 2026-09-24)</div>
+      <div class="why">One page held while the kinds were short lists. Personas and agents grew figures, project management arrived, and the page ran to four screens. The sub-nav is the area-page form already in use.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided">No counts anywhere</div>
+      <div class="alt">Counts on Home and What's inside (6 commands, 3 personas, 4 agents)</div>
+      <div class="why">Counts read as inventory; what needs explaining is what a thing is.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided">Figures reused from the pitch deck, redrawn in the site palette</div>
+      <div class="alt">New figures per page</div>
+      <div class="why">The deck's scenes already tell the story; redrawing would fork it.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided">Project management told under What's inside; the Artifacts area page stays planned</div>
+      <div class="alt">Describe the delivery model and the advisor on the Artifacts area page</div>
+      <div class="why">No project-management artifact exists yet; the area page would describe a skill as if it were one. The story belongs with the other kinds.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided">One project-management page for the whole <code>pm-*</code> family</div>
+      <div class="alt">A page per <code>pm-*</code> skill, starting with the first</div>
+      <div class="why">One member so far; skills land without a page each until the shape settles (Q3).</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided">No nav item for project management beyond the Artifacts one</div>
+      <div class="alt">A top-level "Delivery model" item</div>
+      <div class="why">Personas and agents have no nav item either; the nav is flat and already long. Revisit when the first artifact lands (Q3).</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided">All GitHub links point at <code>context-and-oss/asimov</code></div>
+      <div class="alt">Point at <code>context-and/asimov</code>, where the repository lives today</div>
+      <div class="why">The repo moves there once the site is ready; no link changes on the day.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided">This D101 supersedes <code>documentation/website/*.md</code></div>
+      <div class="alt">Keep the design and plan markdown beside the D101</div>
+      <div class="why">Two design records drift; the markdown already had.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════════════════ §5 ═════════════════════ -->
+<section class="s" id="s5">
+  <h2 class="section-title"><span class="sec-ref">§5</span>UI Design</h2>
+  <p class="section-desc">The three shapes, from the live pages. The frames resolve from the repo working tree.</p>
+
+  <div class="subhead">Narrative page — Home</div>
+  <div class="mockup-wrap">
+    <iframe class="mockup-frame" src="../../site/index.html" style="height: 600px" title="Home page, live from site/" loading="lazy"></iframe>
+  </div>
+
+  <div class="subhead">Artifact page — D101</div>
+  <div class="mockup-wrap">
+    <iframe class="mockup-frame" src="../../site/artifacts/documentation/d101.html" style="height: 600px" title="D101 artifact page, live from site/" loading="lazy"></iframe>
+  </div>
+
+  <div class="subhead">Narrative page — Project management, under What's inside</div>
+  <div class="mockup-wrap">
+    <iframe class="mockup-frame" src="../../site/inside/project-management.html" style="height: 600px" title="Project management page, live from site/inside/" loading="lazy"></iframe>
+  </div>
+</section>
+
+<!-- ═════════════════════ §6 — Chapter band ═════════════════════ -->
+<div class="chapter-band" id="c6">
+  <div class="chapter-band-inner">
+    <div class="ch-num">6</div>
+    <div>
+      <div class="ch-name">Technical design</div>
+      <div class="ch-summary">Where it lives, how a change gets live, what the check enforces.</div>
+    </div>
+  </div>
+</div>
+
+<section class="s" id="s6-1">
+  <h2 class="section-title"><span class="sec-ref">§6.1</span>Platform</h2>
+  <p style="color: var(--text-dim); font-size: 0.95rem; line-height: 1.65;">
+    Static files under <code>site/</code>, served by Netlify from a manual upload. No build, no server, no git connection. One script, <code>documentation/website/check-site.mjs</code>, enforces the §6.4 shapes before merge, locally and in the PR workflow. The manual deploy is temporary (Q6); until then live and <code>main</code> can differ, so whoever deploys opens the live URL.
+  </p>
+</section>
+
+<section class="s" id="s6-2">
+  <h2 class="section-title"><span class="sec-ref">§6.2</span>Publishing flow</h2>
+  <div class="flow-wrap">
+    <svg viewBox="0 0 980 384" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="UML activity diagram with swimlanes: maintainer edits a page and runs check-site, opens a PR, the PR workflow runs check-site and either merges to main or sends the change back, the maintainer deploys site/ to Netlify by hand, Netlify serves it">
+      <rect x="0" y="0" width="980" height="384" fill="#14253f"/>
+      <defs>
+        <marker id="act-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 Z" fill="#a8b8d0"/>
+        </marker>
+      </defs>
+      <line x1="16" y1="24" x2="964" y2="24" stroke="#2b4a73" stroke-width="1"/>
+      <line x1="16" y1="136" x2="964" y2="136" stroke="#2b4a73" stroke-width="1"/>
+      <line x1="16" y1="248" x2="964" y2="248" stroke="#2b4a73" stroke-width="1"/>
+      <line x1="16" y1="360" x2="964" y2="360" stroke="#2b4a73" stroke-width="1"/>
+      <line x1="136" y1="24" x2="136" y2="360" stroke="#2b4a73" stroke-width="1"/>
+      <text x="76" y="84" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">MAINTAINER</text>
+      <text x="76" y="196" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">PR WORKFLOW</text>
+      <text x="76" y="308" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">NETLIFY</text>
+      <circle cx="152" cy="80" r="8" fill="#66bb6a"/>
+      <g>
+        <rect x="184" y="52" width="128" height="56" rx="8" fill="#66bb6a22" stroke="#66bb6a"/>
+        <text x="248" y="76" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">edit page</text>
+        <text x="248" y="92" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">entry</text>
+      </g>
+      <g>
+        <rect x="352" y="52" width="128" height="56" rx="8" fill="#ffb74d1a" stroke="#ffb74d"/>
+        <text x="416" y="76" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">check-site</text>
+        <text x="416" y="92" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">local run</text>
+      </g>
+      <g>
+        <rect x="520" y="52" width="128" height="56" rx="8" fill="#1b2e4d" stroke="#2b4a73"/>
+        <text x="584" y="76" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">open PR</text>
+        <text x="584" y="92" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">hand-off</text>
+      </g>
+      <g>
+        <rect x="760" y="52" width="128" height="56" rx="8" fill="#4fc3f71a" stroke="#4fc3f7"/>
+        <text x="824" y="76" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">deploy site/</text>
+        <text x="824" y="92" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">manual, for now</text>
+      </g>
+      <polygon points="584,164 612,192 584,220 556,192" fill="#66bb6a22" stroke="#66bb6a" stroke-width="1.5"/>
+      <text x="584" y="240" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">check-site</text>
+      <g>
+        <rect x="656" y="164" width="128" height="56" rx="8" fill="#4fc3f71a" stroke="#4fc3f7"/>
+        <text x="720" y="188" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">merge to main</text>
+        <text x="720" y="204" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">write</text>
+      </g>
+      <g>
+        <rect x="760" y="276" width="128" height="56" rx="8" fill="#122039" stroke="#3b5e8f" stroke-dasharray="4 4"/>
+        <text x="824" y="300" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">serve site/</text>
+        <text x="824" y="316" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">delegated</text>
+      </g>
+      <circle cx="928" cy="304" r="12" fill="none" stroke="#ef5350" stroke-width="1.5"/>
+      <circle cx="928" cy="304" r="6" fill="#ef5350"/>
+      <line x1="160" y1="80" x2="182" y2="80" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#act-arr)"/>
+      <line x1="312" y1="80" x2="350" y2="80" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#act-arr)"/>
+      <line x1="480" y1="80" x2="518" y2="80" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#act-arr)"/>
+      <line x1="584" y1="108" x2="584" y2="162" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#act-arr)"/>
+      <line x1="612" y1="192" x2="654" y2="192" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#act-arr)"/>
+      <text x="632" y="182" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">[ok]</text>
+      <path d="M556,192 H256 A8,8 0 0 1 248,184 V110" fill="none" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#act-arr)"/>
+      <text x="400" y="182" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">[fail]</text>
+      <path d="M784,192 H792 A8,8 0 0 0 800,184 V110" fill="none" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#act-arr)"/>
+      <line x1="848" y1="108" x2="848" y2="274" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#act-arr)"/>
+      <line x1="888" y1="304" x2="914" y2="304" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#act-arr)"/>
+    </svg>
+    <div class="flow-legend">
+      <span class="item"><span class="swatch" style="background:var(--green)"></span>Entry / gating</span>
+      <span class="item"><span class="swatch" style="background:var(--amber)"></span>Check</span>
+      <span class="item"><span class="swatch" style="background:var(--cyan)"></span>Write: merge, deploy</span>
+      <span class="item"><span class="swatch" style="background:var(--border-2)"></span>Delegated to Netlify</span>
+    </div>
+  </div>
+  <div class="principles" style="margin-top:1rem">
+    <div class="principle"><div class="num">1</div><div class="text"><strong>Edit.</strong> Change a page; a new page gets the canonical nav block.</div></div>
+    <div class="principle"><div class="num">2</div><div class="text"><strong>Check.</strong> <code>node documentation/website/check-site.mjs</code> exits 0 before the PR.</div></div>
+    <div class="principle"><div class="num">3</div><div class="text"><strong>Gate.</strong> The PR workflow runs the same script; a failure blocks the merge.</div></div>
+    <div class="principle"><div class="num">4</div><div class="text"><strong>Deploy.</strong> After the merge, upload <code>site/</code> to Netlify and open the live URL.</div></div>
+  </div>
+</section>
+
+<section class="s" id="s6-3">
+  <h2 class="section-title"><span class="sec-ref">§6.3</span>Code map</h2>
+  <div class="codemap">
+    <div class="codemap-row"><div class="what">Pages, one file each; nav block repeated verbatim</div><div class="where">site/**/*.html</div></div>
+    <div class="codemap-row"><div class="what">All styling: tokens, chrome, page shapes, chips</div><div class="where">site/site.css</div></div>
+    <div class="codemap-row"><div class="what">Source of every figure the site inlines</div><div class="where">site/figures/*.svg</div></div>
+    <div class="codemap-row"><div class="what">Screenshots</div><div class="where">site/img/</div></div>
+    <div class="codemap-row"><div class="what">Netlify: publish folder, no build</div><div class="where">netlify.toml</div></div>
+    <div class="codemap-row"><div class="what">The site check: links, chips, nav, paths, figures (replaces check-links.mjs)</div><div class="where">documentation/website/check-site.mjs</div></div>
+    <div class="codemap-row"><div class="what">PR gate; the site check is its fourth step</div><div class="where">.github/workflows/Asimov-PR.yml</div></div>
+    <div class="codemap-row"><div class="what">The maturity each chip is checked against</div><div class="where">plugins/asimov-plugin/artifacts/*/*/*-definition.md</div></div>
+  </div>
+</section>
+
+<section class="s" id="s6-4">
+  <h2 class="section-title"><span class="sec-ref">§6.4</span>Shapes</h2>
+
+  <div class="subhead">The nav block</div>
+  <div class="data-table">
+    <div class="row head cols-2"><div>Part</div><div>Contract</div></div>
+    <div class="row cols-2"><div class="label-cell">Canonical copy</div><div>The <code>&lt;nav class="nav"&gt;</code> element in <code>site/index.html</code>.</div></div>
+    <div class="row cols-2"><div class="label-cell">Per-page variation</div><div>Only two: the relative prefix on every href (<code>../</code> per folder level) and which link carries <code>class="on"</code>.</div></div>
+    <div class="row cols-2"><div class="label-cell">Check</div><div>Strip both variations; every page's nav must equal the canonical copy.</div></div>
+    <div class="row cols-2"><div class="label-cell">Sub-nav</div><div>An area's <code>&lt;nav class="subnav"&gt;</code> is repeated on every page of that area with the same two variations; the canonical copy is the area's <code>index.html</code>. Three areas today: <code>inside/</code>, <code>artifacts/documentation/</code>, <code>artifacts/general/</code>.</div></div>
+  </div>
+
+  <div class="subhead">Chip ↔ definition</div>
+  <p class="section-desc" style="margin-bottom:0.6rem">A chip is a <code>span.chip</code> with one level class. An area table's chip is a copy, checked against the same definition.</p>
+  <div class="data-table">
+    <div class="row head cols-3"><div>Page</div><div>Definition</div><div>Level today</div></div>
+    <div class="row cols-3"><div class="label-cell">artifacts/documentation/d101.html</div><div><code>d101-feature-design-definition.md</code></div><div>trial</div></div>
+    <div class="row cols-3"><div class="label-cell">artifacts/documentation/index.html (landing site row)</div><div><code>site-definition.md</code></div><div>assess</div></div>
+    <div class="row cols-3"><div class="label-cell">artifacts/general/personas.html</div><div><code>persona-review-definition.md</code></div><div>assess</div></div>
+    <div class="row cols-3"><div class="label-cell">artifacts/general/conventions.html</div><div><code>conventions-definition.md</code></div><div>assess</div></div>
+    <div class="row cols-3"><div class="label-cell">artifacts/general/asimov-md.html</div><div><code>asimov-md-definition.md</code></div><div>assess</div></div>
+    <div class="row cols-3"><div class="label-cell">a100, d100, s100, s101, project-management</div><div>none</div><div>planned</div></div>
+  </div>
+  <ul class="bullets">
+    <li>The map is one table in <code>check-site.mjs</code>; a new artifact page adds one row.</li>
+    <li class="warn">A chip on an unmapped page fails; a mapped definition that does not exist fails.</li>
+  </ul>
+
+  <div class="subhead">Figures</div>
+  <ul class="bullets">
+    <li>Every inlined figure has a source under <code>site/figures/</code>; the inline copy equals it, minus sizing attributes on the outer <code>&lt;svg&gt;</code>.</li>
+    <li>The pitch deck is history, not a source.</li>
+  </ul>
+</section>
+
+<section class="s" id="s6-6">
+  <h2 class="section-title"><span class="sec-ref">§6.6</span>Configuration &amp; secrets</h2>
+  <div class="data-table">
+    <div class="row head cols-3"><div>Setting</div><div>Default</div><div>Justification</div></div>
+    <div class="row cols-3"><div class="label-cell">netlify.toml publish</div><div><code>site</code></div><div>No build command; nothing else to configure.</div></div>
+    <div class="row cols-3"><div class="label-cell">GitHub base URL</div><div><code>https://github.com/context-and-oss/asimov/blob/main/</code></div><div>In every page (§4.5); the check rejects any other GitHub org.</div></div>
+  </div>
+</section>
+
+<section class="s" id="s6-7">
+  <h2 class="section-title"><span class="sec-ref">§6.7</span>Failure handling</h2>
+  <div class="failures">
+    <div class="failures-head"><div>Failure</div><div>Effect</div><div>Severity</div><div>Recovery</div></div>
+    <div class="failure-row"><div>A link, chip, nav block or figure drifts</div><div>A 404, a wrong maturity, or two versions of one thing</div><div><span class="sev med">Med</span></div><div>check-site fails the PR before it merges.</div></div>
+    <div class="failure-row"><div>Merge to main, no deploy</div><div>Live site lags main</div><div><span class="sev med">Med</span></div><div>No check; the merger deploys (§6.1). Closes with Q6.</div></div>
+  </div>
+</section>
+
+<!-- ═════════════════════ §7 — Implementation ═════════════════════ -->
+<section class="s" id="s7">
+  <h2 class="section-title"><span class="sec-ref">§7</span>Implementation</h2>
+  <p class="section-desc">Checked against <code>site/</code>, <code>check-links.mjs</code> and <code>Asimov-PR.yml</code> on 2026-09-24. Everything not listed exists today.</p>
+  <ul class="bullets">
+    <li><strong>check-site.mjs</strong> replaces <code>check-links.mjs</code>: the same link walk plus the §6.4 checks (nav, sub-nav, chips, figures, no <code>/</code>-prefixed paths, no GitHub URL outside the §6.6 base). <code>node:fs</code> and <code>node:path</code> only; one line per failure, exit 1.</li>
+    <li><strong>PR workflow:</strong> <code>actions/setup-node@v4</code> with Node 22, then the script, as a step after the maturity check in the <code>ci</code> job.</li>
+    <li><strong>personas, conventions, asimov.md:</strong> the <code>d101.html</code> skeleton, filled from each artifact's definition and D101. Links, nothing restated.</li>
+    <li><strong>Figures:</strong> the two <code>svg.scene</code> blocks in <code>index.html</code> get files under <code>site/figures/</code>; same <code>aria-label</code> on file and inline copy. <code>delivery-model.svg</code> already has its file.</li>
+    <li><strong>Deploy:</strong> drag <code>site/</code> onto Netlify, or <code>npx netlify-cli deploy --prod --dir site</code>; open the live URL.</li>
+  </ul>
+</section>
+<!-- ═════════════════════ §8 ═════════════════════ -->
+<section class="s" id="s8">
+  <h2 class="section-title"><span class="sec-ref">§8</span>Acceptance criteria</h2>
+  <div class="ac-table">
+    <div class="ac-head"><div>#</div><div>Verifies</div><div>Description</div></div>
+    <div class="ac-row"><div class="ac-id">AC1</div><div class="ac-verifies"><span class="verify-chip">R8</span></div><div><code>node documentation/website/check-links.mjs</code> exits 0.</div></div>
+    <div class="ac-row"><div class="ac-id">AC2</div><div class="ac-verifies"><span class="verify-chip">R4</span></div><div>Every nav block equals index.html's once <code>class="on"</code> and path prefixes are stripped.</div></div>
+    <div class="ac-row"><div class="ac-id">AC3</div><div class="ac-verifies"><span class="verify-chip">R3</span><span class="verify-chip">§4.4</span></div><div>Every chip equals <code>maturity</code> in the definition its page links to; <em>planned</em> pages link none.</div></div>
+    <div class="ac-row"><div class="ac-id">AC4</div><div class="ac-verifies"><span class="verify-chip">R5</span><span class="verify-chip">§4.4</span></div><div>No numeral directly precedes the words commands, personas, agents or template anywhere under <code>site/</code>.</div></div>
+    <div class="ac-row"><div class="ac-id">AC5</div><div class="ac-verifies"><span class="verify-chip">R7</span></div><div>The phrase "This page is being written" occurs zero times under <code>site/</code>.</div></div>
+    <div class="ac-row"><div class="ac-id">AC6</div><div class="ac-verifies"><span class="verify-chip">R6</span></div><div><code>inside/project-management.html</code> contains <code>pm-</code> and "planned" in the same sentence; <code>artifacts/project-management/index.html</code> contains no skill name and links to it.</div></div>
+    <div class="ac-row"><div class="ac-id">AC7</div><div class="ac-verifies"><span class="verify-chip">R2</span><span class="verify-chip">§4.4</span></div><div>Manual, reviewer ≠ author: each artifact page read against its definition, no rule restated.</div></div>
+    <div class="ac-row"><div class="ac-id">AC8</div><div class="ac-verifies"><span class="verify-chip">NF3</span></div><div>Every h1 is at most eight words; every element with class <code>lede</code> contains one sentence.</div></div>
+    <div class="ac-row"><div class="ac-id">AC9</div><div class="ac-verifies"><span class="verify-chip">NF2</span></div><div>No <code>href</code> or <code>src</code> under <code>site/</code> begins with <code>/</code>.</div></div>
+    <div class="ac-row"><div class="ac-id">AC10</div><div class="ac-verifies"><span class="verify-chip">NF1</span></div><div><code>netlify.toml</code> sets <code>publish = "site"</code> and has no build command.</div></div>
+    <div class="ac-row"><div class="ac-id">AC11</div><div class="ac-verifies"><span class="verify-chip">R1</span><span class="verify-chip">NF4</span></div><div>Manual, reviewer ≠ author: the site read with the repo closed; nothing presumes it, no customer product name.</div></div>
+  </div>
+</section>
+
+<!-- ═════════════════════ §9 ═════════════════════ -->
+<section class="s" id="s9">
+  <h2 class="section-title"><span class="sec-ref">§9</span>Open questions</h2>
+  <div class="q-grid">
+    <div class="q-card">
+      <div class="q-head"><span class="q-id">Q1</span><span class="q-decider">Allan Borup</span></div>
+      <div class="q-body">Which domain the site lives on.</div>
+      <div class="q-resolution">Resolution path: closes when a domain is procured; until then Netlify's default URL.</div>
+    </div>
+    <div class="q-card">
+      <div class="q-head"><span class="q-id">Q2</span><span class="q-decider">Allan Borup</span></div>
+      <div class="q-body">Who the maintainer group is; today Allan Borup alone.</div>
+      <div class="q-resolution">Resolution path: closes when the group is named; footer and Contributing follow.</div>
+    </div>
+    <div class="q-card">
+      <div class="q-head"><span class="q-id">Q3</span><span class="q-decider">Allan Borup</span></div>
+      <div class="q-body">When the project-management area gets artifact pages, whether <code>pm-*</code> skills get their own, and whether the delivery model then earns a nav item.</div>
+      <div class="q-resolution">Resolution path: closes when the first project-management artifact lands. The area page gets its table then; the story stays under What's inside.</div>
+    </div>
+    <div class="q-card">
+      <div class="q-head"><span class="q-id">Q6</span><span class="q-decider">Allan Borup</span></div>
+      <div class="q-body">Permanent hosting and a connected deploy, so a merge to main publishes itself.</div>
+      <div class="q-resolution">Resolution path: decided with the domain (Q1); until then §6.1's manual deploy.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════════════════ §10 ═════════════════════ -->
+<section class="s" id="s10">
+  <h2 class="section-title"><span class="sec-ref">§10</span>References</h2>
+  <div class="refs">
+    <div class="refs-block">
+      <h4>Site</h4>
+      <ul>
+        <li>site/ (pages, site.css, figures/, img/)</li>
+        <li>netlify.toml</li>
+        <li>documentation/website/check-site.mjs (to build; replaces check-links.mjs)</li>
+        <li>.github/workflows/Asimov-PR.yml</li>
+      </ul>
+    </div>
+    <div class="refs-block">
+      <h4>Docs</h4>
+      <ul>
+        <li>documentation/D100-Asimov-architecture.md §4.5, §4.6</li>
+        <li>CLAUDE.md — artifact maturity, hard rule 10</li>
+        <li>plugins/asimov-plugin/processes/README.md</li>
+        <li>documentation/features/D101-artifact-maturity.html</li>
+        <li>documentation/features/D101-personas.html</li>
+      </ul>
+    </div>
+    <div class="refs-block">
+      <h4>Historical</h4>
+      <ul>
+        <li>documentation/website/2026-09-17-website-design.md (superseded)</li>
+        <li>documentation/website/2026-09-17-website-plan.md (superseded)</li>
+        <li>documentation/presentation/asimov-pitch-deck-v4.html (figure source)</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+  </article>
+</div>
+
+<footer class="site-footer">
+  <div>
+    <a href="../index.html">← Documentation home</a>
+    · <span class="mono">features/D101-website.html</span>
+  </div>
+  <div style="margin-top: 0.4rem">
+    D101 · Website · Asimov · Draft v0.3 · 2026-09-24
+  </div>
+</footer>
+
+</body>
+</html>

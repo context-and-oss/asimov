@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Asimov — a Claude Code plugin for designing and building features</title>
+<meta name="description" content="A Claude Code plugin for the AI-assisted part of software delivery: design, build, review, test.">
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<nav class="nav"><div class="in">
+  <a class="brand" href="index.html">ASIMOV</a>
+  <a class="on" href="index.html">Home</a>
+  <a href="why.html">Why</a>
+  <a href="how-it-works.html">How it works</a>
+  <a href="inside/index.html">What's inside</a>
+  <span class="sep" aria-hidden="true"></span>
+  <span class="grp">Artifacts:</span>
+  <a href="artifacts/documentation/index.html">Documentation</a>
+  <a href="artifacts/project-management/index.html">Project management</a>
+  <a href="artifacts/general/index.html">General</a>
+  <span class="sep" aria-hidden="true"></span>
+  <a href="ai-transition.html">AI transition</a>
+  <a class="cta" href="get-started.html">Get started</a>
+</div></nav>
+
+<main class="page">
+  <h1>A Claude Code plugin for designing and building features</h1>
+  <p class="lede">The design is written and signed by people before agents build from it.</p>
+
+  <h2>From L2 to L3</h2>
+  <div class="levels">
+    <div class="lvl"><div class="lh"><b>L2</b><span>where most teams are</span></div>
+      <svg class="scene" viewBox="0 0 320 150" role="img" aria-label="L2: a developer at the keyboard with an AI assistant, producing a stream of small changes">
+        <!-- developer -->
+        <circle cx="56" cy="46" r="16" fill="none" stroke="var(--text-dim,#a8b8d0)" stroke-width="2.5"/>
+        <path d="M24 108a32 32 0 0 1 64 0" fill="none" stroke="var(--text-dim,#a8b8d0)" stroke-width="2.5"/>
+        <rect x="24" y="112" width="64" height="12" rx="3" fill="var(--bg3,#1b2e4d)" stroke="var(--border-2,#3b5e8f)" stroke-width="1.5"/>
+        <text x="56" y="142" text-anchor="middle">human writes</text>
+        <!-- AI helper -->
+        <rect x="104" y="60" width="44" height="26" rx="8" fill="var(--cyan,#4fc3f7)" fill-opacity="0.13" stroke="var(--cyan,#4fc3f7)" stroke-width="1.5"/>
+        <text x="126" y="77" text-anchor="middle" style="fill:var(--cyan,#4fc3f7);font-weight:700">AI</text>
+        <text x="126" y="102" text-anchor="middle">suggests</text>
+        <!-- stream of diffs -->
+        <g fill="var(--bg3,#1b2e4d)" stroke="var(--border-2,#3b5e8f)" stroke-width="1">
+          <rect x="172" y="30" width="34" height="14" rx="3"/><rect x="214" y="30" width="34" height="14" rx="3"/><rect x="256" y="30" width="34" height="14" rx="3"/>
+          <rect x="172" y="52" width="34" height="14" rx="3"/><rect x="214" y="52" width="34" height="14" rx="3"/><rect x="256" y="52" width="34" height="14" rx="3"/>
+          <rect x="172" y="74" width="34" height="14" rx="3"/><rect x="214" y="74" width="34" height="14" rx="3"/><rect x="256" y="74" width="34" height="14" rx="3"/>
+          <rect x="172" y="96" width="34" height="14" rx="3"/><rect x="214" y="96" width="34" height="14" rx="3"/><rect x="256" y="96" width="34" height="14" rx="3"/>
+        </g>
+        <g stroke-width="2" stroke-linecap="round">
+          <path d="M178 37h10M182 33v8" stroke="var(--green,#66bb6a)"/><path d="M220 59h10" stroke="var(--coral,#ef5350)"/><path d="M262 37h10M266 33v8" stroke="var(--green,#66bb6a)"/>
+          <path d="M178 81h10" stroke="var(--coral,#ef5350)"/><path d="M220 103h10M224 99v8" stroke="var(--green,#66bb6a)"/><path d="M262 81h10M266 77v8" stroke="var(--green,#66bb6a)"/>
+        </g>
+        <text x="231" y="130" text-anchor="middle">one line at a time</text>
+      </svg>
+      <div class="cap">Faster typing.<small>The decisions live in a chat nobody can find afterwards.</small></div></div>
+    <div class="mid"><svg viewBox="0 0 44 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h38M30 3l10 9-10 9"/></svg></div>
+    <div class="lvl goal"><div class="lh"><b>L3</b><span>where Asimov takes you</span></div>
+      <svg class="scene" viewBox="0 0 320 150" role="img" aria-label="L3: a human approves a design, agents build from it, one result comes back for review">
+        <!-- human on top -->
+        <circle cx="60" cy="30" r="14" fill="none" stroke="var(--green,#66bb6a)" stroke-width="2.5"/>
+        <path d="M32 84a28 28 0 0 1 56 0" fill="none" stroke="var(--green,#66bb6a)" stroke-width="2.5"/>
+        <text x="60" y="104" text-anchor="middle" style="fill:var(--green,#66bb6a)">directs, approves</text>
+        <!-- design doc -->
+        <path d="M100 68h28" stroke="var(--border-2,#3b5e8f)" stroke-width="2" marker-end="url(#l3a)"/>
+        <rect x="136" y="36" width="64" height="76" rx="6" fill="var(--bg,#0a1424)" stroke="var(--cyan,#4fc3f7)" stroke-width="1.5"/>
+        <rect x="146" y="48" width="44" height="5" rx="2" fill="var(--cyan,#4fc3f7)"/>
+        <rect x="146" y="60" width="36" height="4" rx="2" fill="var(--border,#2b4a73)"/><rect x="146" y="70" width="44" height="4" rx="2" fill="var(--border,#2b4a73)"/><rect x="146" y="80" width="28" height="4" rx="2" fill="var(--border,#2b4a73)"/>
+        <rect x="146" y="92" width="30" height="10" rx="3" fill="var(--green,#66bb6a)" fill-opacity="0.13" stroke="var(--green,#66bb6a)" stroke-width="1"/>
+        <path d="M149,97 L156,99 L173,95" fill="none" stroke="var(--green,#66bb6a)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        <text x="168" y="130" text-anchor="middle" style="fill:var(--cyan,#4fc3f7)">reviewed design</text>
+        <!-- agents -->
+        <path d="M204 74h28" stroke="var(--border-2,#3b5e8f)" stroke-width="2" marker-end="url(#l3a)"/>
+        <g fill="var(--cyan,#4fc3f7)" fill-opacity="0.13" stroke="var(--cyan,#4fc3f7)" stroke-width="1.5">
+          <circle cx="252" cy="50" r="11"/><circle cx="252" cy="80" r="11"/><circle cx="252" cy="110" r="11"/>
+        </g>
+        <text x="252" y="54" text-anchor="middle" style="fill:var(--cyan,#4fc3f7);font-weight:700;font-size:9px">AI</text>
+        <text x="252" y="84" text-anchor="middle" style="fill:var(--cyan,#4fc3f7);font-weight:700;font-size:9px">AI</text>
+        <text x="252" y="114" text-anchor="middle" style="fill:var(--cyan,#4fc3f7);font-weight:700;font-size:9px">AI</text>
+        <!-- result -->
+        <path d="M268 80h16" stroke="var(--border-2,#3b5e8f)" stroke-width="2" marker-end="url(#l3a)"/>
+        <rect x="290" y="62" width="22" height="36" rx="4" fill="var(--green,#66bb6a)" fill-opacity="0.13" stroke="var(--green,#66bb6a)" stroke-width="1.5"/>
+        <text x="282" y="130" text-anchor="middle">agents build</text>
+        <defs><marker id="l3a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="var(--border-2,#3b5e8f)"/></marker></defs>
+      </svg>
+      <div class="cap">Faster delivery.<small>Every decision is written down before it is built, and a person signed it.</small></div></div>
+  </div>
+  <div class="band">
+    <span>Intent</span><span class="own">Design</span><span class="soon">Spec</span><span class="own">Code</span><span class="own">Review</span><span class="soon">Test</span><span class="gate">Approve</span><span>Deploy</span><span>Observe</span>
+  </div>
+  <p>Nine stages in the L3 pipeline. Asimov tools the middle: cyan today, amber planned, green is the human gate no command can touch. <a href="ai-transition.html">What L2 and L3 mean →</a></p>
+
+  <h2>What it looks like</h2>
+  <div class="examples">
+    <div class="ex">
+      <div class="cap"><p>You answer questions in Claude Code. The answers become a design document, the D101.</p></div>
+      <div class="draw">
+        <div class="term" aria-label="The interview in Claude Code that produces the design">
+          <div class="bar"><i></i><i></i><i></i><span>claude</span></div>
+          <div class="ln you">&gt; /d101-feature-design</div>
+          <div class="ln tool">⏺ Read(asimov.md)</div>
+          <div class="ln res">⎿ Read 41 lines</div>
+          <div class="ln ai">⏺ What should the feature do?</div>
+          <div class="ln you">&gt; Customers should export their own invoices.</div>
+          <div class="ln ai">⏺ Who exports them today, and how often?</div>
+          <div class="ln you">&gt; Support, on request. A few a day.</div>
+          <div class="ln ai">⏺ Which of those requests are urgent?</div>
+          <div class="input">&gt; <span class="cur"></span></div>
+          <div class="hint">? for shortcuts</div>
+        </div>
+        <div class="arrow"><svg viewBox="0 0 44 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h38M30 4l10 8-10 8"/></svg></div>
+        <div class="doc" aria-label="A design document stopped after the business design, with the technical section open">
+          <div class="h">Your design document</div>
+          <div class="dt">D101 · Self-service invoice export</div>
+          <div class="chips"><span class="chip phase">Business design</span><span class="chip status">Draft</span></div>
+          <div class="row"><span class="n">§2</span><span class="lines"><i></i><i class="w2"></i></span></div>
+          <div class="row"><span class="n">§3</span><span class="lines"><i></i><i></i></span></div>
+          <div class="row"><span class="n">§4</span><span class="lines"><i></i><i class="w2"></i><i></i></span></div>
+          <div class="row open"><span class="n">§6</span><span class="lines">Technical design: open. Not written until the business approver signs.</span></div>
+        </div>
+      </div>
+      <p class="note">It stops before any technology is chosen. §6 stays open until the business approver signs.</p>
+    </div>
+    <div class="ex">
+      <div class="cap"><p>The review command hands the document to a written reader, here the person who runs the work.</p></div>
+      <div class="draw">
+        <div class="doc" aria-label="The same design document, with the sentence a persona will object to">
+          <div class="h">Your design document</div>
+          <div class="dt">D101 · Self-service invoice export</div>
+          <div class="chips"><span class="chip phase">Business design</span><span class="chip status">Draft</span></div>
+          <div class="row"><span class="n">§2</span><span class="lines"><i></i><i class="w2"></i></span></div>
+          <div class="row"><span class="n">§3</span><span class="lines"><i></i><i></i></span></div>
+          <div class="row hot"><span class="n">§4</span><span class="lines">The customer picks a date range and exports the invoices in it.</span></div>
+          <div class="row"><span class="n">§5</span><span class="lines"><i></i><i class="w2"></i></span></div>
+        </div>
+        <div class="arrow"><svg viewBox="0 0 44 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h38M30 4l10 8-10 8"/></svg></div>
+        <div class="term" aria-label="The persona review in Claude Code, read as Poseidon">
+          <div class="bar"><i></i><i></i><i></i><span>claude</span></div>
+          <div class="ln you">&gt; /d101-review D101-self-service-invoice-export.html</div>
+          <div class="ln tool">⏺ Skill(persona-poseidon)</div>
+          <div class="ln res">⎿ Reading as the person who runs it every day</div>
+          <div class="ln ai wrap">⏺ Nobody picks a date range. Bookkeeping exports yesterday, every morning, and month-end in one go. I stop at §4.</div>
+          <div class="ln ai wrap sub"><b>Cut</b> the date picker. <b>Replace</b> with “yesterday” and “this month” as one click, a range behind them.</div>
+          <div class="input">&gt; <span class="cur"></span></div>
+          <div class="hint">? for shortcuts</div>
+        </div>
+      </div>
+      <p class="note">It reports where it stopped reading, and what to cut.</p>
+    </div>
+    <div class="ex">
+      <div class="cap"><p>Once the design is signed, an agent builds from it. It reads the design and your conventions from your repo.</p></div>
+      <div class="draw">
+        <div class="doc" aria-label="The same design document, now complete and approved">
+          <div class="h">Your design document</div>
+          <div class="dt">D101 · Self-service invoice export</div>
+          <div class="chips"><span class="chip phase">Full design</span><span class="chip status">Approved</span></div>
+          <div class="row"><span class="n">§2</span><span class="lines"><i></i><i class="w2"></i></span></div>
+          <div class="row"><span class="n">§4</span><span class="lines"><i></i><i class="w2"></i><i></i></span></div>
+          <div class="row"><span class="n">§5</span><span class="lines"><i></i><i></i></span></div>
+          <div class="row hot"><span class="n">§6</span><span class="lines">Technical design: a stateless export service, one endpoint, yesterday and this month as presets.</span></div>
+        </div>
+        <div class="arrow"><svg viewBox="0 0 44 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h38M30 4l10 8-10 8"/></svg></div>
+        <div class="term" aria-label="Giskard building the feature in Claude Code">
+          <div class="bar"><i></i><i></i><i></i><span>claude</span></div>
+          <div class="ln you">&gt; Build the invoice export from its D101 as Giskard</div>
+          <div class="ln tool">⏺ Read(documentation/features/D101-self-service-invoice-export.html)</div>
+          <div class="ln res">⎿ Read 212 lines</div>
+          <div class="ln tool">⏺ Read(documentation/conventions/dotnet/services.md)</div>
+          <div class="ln res">⎿ Read 62 lines</div>
+          <div class="ln tool">⏺ Write(src/Invoicing/InvoiceExportService.cs)</div>
+          <div class="ln res">⎿ Wrote 84 lines</div>
+          <div class="ln tool">⏺ Write(src/Invoicing/InvoiceExportController.cs)</div>
+          <div class="ln res">⎿ Wrote 31 lines</div>
+          <div class="ln ai wrap">⏺ Done. Stateless service per services.md §2, presets from §6. Nothing in the design needed a question.</div>
+          <div class="input">&gt; <span class="cur"></span></div>
+          <div class="hint">? for shortcuts</div>
+        </div>
+      </div>
+      <p class="note">Calvin writes the tests, Baley reviews, and a person approves the pull request.</p>
+    </div>
+  </div>
+
+  <p>Every design, persona and rule is a file in your repository. Walk away and you keep them.</p>
+
+  <p class="cta-row"><a class="btn" href="get-started.html">Get started</a></p>
+
+</main>
+
+<footer class="foot"><div class="in">
+  <span>Asimov · by <a href="https://contextand.com">Context&amp;</a></span>
+  <a href="https://github.com/context-and-oss/asimov">GitHub</a>
+  <a href="https://github.com/context-and-oss/asimov/blob/main/CONTRIBUTING.md">Contributing</a>
+  <a href="https://github.com/context-and-oss/asimov/blob/main/LICENSE">MIT licence</a>
+</div></footer>
+</body>
+</html>
