@@ -1,0 +1,1221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D101 — Tool-agnostic toolkit &amp; Codex support — asimov docs</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+:root {
+  --bg:        #0a1424;
+  --bg2:       #122039;
+  --bg3:       #1b2e4d;
+  --bg-card:   #14253f;
+  --border:    #2b4a73;
+  --border-2:  #3b5e8f;
+  --text:      #fff;
+  --text-dim:  #a8b8d0;
+  --text-mute: #6b7a93;
+  --cyan:      #4fc3f7;
+  --teal:      #26c6da;
+  --green:     #66bb6a;
+  --amber:     #ffb74d;
+  --coral:     #ef5350;
+  --gold:      #ffd54f;
+  --violet:    #ab47bc;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; font-size: 15px; line-height: 1.6; overflow-x: hidden; padding-top: 56px; }
+a { color: inherit; text-decoration: none; }
+code, .mono { font-family: 'JetBrains Mono', monospace; font-size: 0.88em; }
+code { background: var(--bg3); padding: 1px 6px; border-radius: 4px; color: var(--cyan); }
+
+/* Top nav (site-wide — every D101 links to documentation home + chapter sections of the index) */
+.top-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(10,20,36,0.85); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 0.55rem 2rem; display: flex; gap: 1.4rem; align-items: center; font-size: 0.82rem; }
+.top-nav .brand, .top-nav .brand a { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--cyan); letter-spacing: 0.04em; text-decoration: none; }
+.top-nav .brand .sep { color: var(--border); margin: 0 0.5rem; }
+.top-nav a { color: var(--text-dim); font-weight: 500; }
+.top-nav a:hover { color: #fff; }
+.top-nav .spacer { flex: 1; }
+.top-nav .status-chip { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.25rem 0.7rem; border-radius: 999px; background: #ffd54f15; border: 1px solid #ffd54f44; color: var(--gold); font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 700; }
+.top-nav .status-chip::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--gold); }
+/* Phase chip — the authoring axis, deliberately NOT the status axis (see ground rule 12).
+   Square marker + cyan so the two chips never read as one control. */
+.top-nav .phase-chip { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.25rem 0.7rem; border-radius: 999px; background: #4fc3f715; border: 1px solid #4fc3f744; color: var(--cyan); font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 700; }
+.top-nav .phase-chip::before { content: ''; width: 6px; height: 6px; border-radius: 1px; background: var(--cyan); }
+.top-nav .phase-chip.full { background: #66bb6a15; border-color: #66bb6a44; color: var(--green); }
+.top-nav .phase-chip.full::before { background: var(--green); }
+
+/* Layout with left sidebar (per-page TOC) + content column */
+.layout-doc { display: grid; grid-template-columns: 200px minmax(0, 1fr); max-width: 1300px; margin: 0 auto; gap: 1.8rem; padding: 0.5rem 1.5rem; }
+.side-nav { position: sticky; top: 76px; align-self: start; max-height: calc(100vh - 90px); overflow-y: auto; padding: 0.7rem 0.5rem 1rem 0.2rem; font-size: 0.85rem; }
+.side-nav .side-head { font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-mute); margin-bottom: 0.7rem; padding-left: 0.6rem; }
+.side-nav ul { list-style: none; padding: 0; margin: 0; }
+.side-nav ul ul { padding-left: 0.9rem; margin-top: 0.1rem; }
+.side-nav li { margin: 0.1rem 0; }
+.side-nav a { display: block; padding: 0.32rem 0.7rem; color: var(--text-dim); border-left: 2px solid transparent; font-size: 0.86rem; line-height: 1.4; border-radius: 0 4px 4px 0; }
+.side-nav a:hover { color: #fff; background: #4fc3f708; border-left-color: var(--border-2); }
+.content { min-width: 0; }
+
+/* Hero (compact — top-nav already provides separation from page chrome) */
+.hero { padding: 1.5rem 2rem 1.5rem; position: relative; overflow: hidden; max-width: 1300px; margin: 0 auto; }
+.hero::before { content: ''; position: absolute; inset: 0; z-index: 0; background: radial-gradient(ellipse at 20% 30%, #4fc3f718 0%, transparent 50%), radial-gradient(ellipse at 80% 60%, #26c6da14 0%, transparent 50%); }
+.hero > * { position: relative; z-index: 1; }
+.kicker { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--cyan); padding: 0.3rem 0.8rem; border-radius: 999px; border: 1px solid #4fc3f744; background: #4fc3f711; margin-bottom: 1rem; }
+.hero h1 { font-size: clamp(2rem, 4.5vw, 3.4rem); font-weight: 900; letter-spacing: -0.03em; line-height: 1.05; background: linear-gradient(135deg, #fff 0%, var(--cyan) 50%, var(--teal) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.hero .tagline { font-size: 1.05rem; color: var(--text-dim); margin-top: 1rem; max-width: 760px; line-height: 1.6; }
+
+/* Metadata strip */
+.meta-strip { max-width: 1300px; margin: 1rem auto 0; padding: 0 2rem; display: grid; grid-template-columns: repeat(6, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.meta-cell { background: var(--bg-card); padding: 1rem 1.2rem; }
+.meta-cell .label { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-mute); margin-bottom: 0.35rem; }
+.meta-cell .value { font-size: 0.95rem; font-weight: 600; color: var(--text); }
+.meta-cell .value.mono { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; }
+
+/* Sections + chapter bands */
+section.s { max-width: 1300px; margin: 0 auto; padding: 3rem 2rem 0; }
+.chapter-band + section.s { padding-top: 1.5rem; }
+.section-title { font-size: clamp(1.5rem, 2.6vw, 2rem); font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.7rem; }
+.section-title .sec-ref { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; font-weight: 600; color: var(--text-mute); letter-spacing: 0.04em; margin-right: 0.7rem; vertical-align: middle; padding: 0.2rem 0.5rem; border-radius: 4px; background: var(--bg2); border: 1px solid var(--border); }
+.section-desc { color: var(--text-dim); font-size: 1rem; max-width: 780px; margin-bottom: 1.8rem; line-height: 1.65; }
+.chapter-band { max-width: 1300px; margin: 3.5rem auto 0; padding: 0 2rem; }
+.chapter-band-inner { display: grid; grid-template-columns: auto 1fr; gap: 1.5rem; align-items: center; padding: 1.4rem 1.8rem; border-radius: 12px; background: linear-gradient(135deg, #4fc3f714 0%, #26c6da05 100%); border: 1px solid var(--border); border-left: 4px solid var(--cyan); }
+.chapter-band .ch-num { font-family: 'JetBrains Mono', monospace; font-size: 2.6rem; font-weight: 800; color: var(--cyan); line-height: 1; }
+.chapter-band .ch-name { font-size: 1.35rem; font-weight: 700; color: #fff; letter-spacing: 0.01em; margin-bottom: 0.25rem; }
+.chapter-band .ch-summary { font-size: 0.88rem; color: var(--text-dim); line-height: 1.5; }
+
+/* Doc-scope line below metadata strip */
+.doc-scope { max-width: 1300px; margin: 0.7rem auto 0; padding: 0 2.2rem; font-size: 0.82rem; color: var(--text-mute); line-height: 1.5; }
+.doc-scope strong { color: var(--text-dim); font-weight: 600; }
+
+/* Principles */
+.principles { display: grid; gap: 0.65rem; }
+.principle { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 0.95rem 1.3rem; display: flex; gap: 1rem; align-items: center; }
+.principle .num { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; font-weight: 700; width: 30px; height: 30px; border-radius: 8px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--cyan), var(--teal)); color: #0a1424; }
+.principle .text { font-size: 0.95rem; }
+.principle .text strong { color: var(--cyan); font-weight: 700; }
+
+/* Generic bullet list — used anywhere with → / ⚠ items */
+ul.bullets { list-style: none; padding: 0; margin: 0.7rem 0 0; }
+ul.bullets li { position: relative; padding: 0.3rem 0 0.3rem 1.5rem; font-size: 0.9rem; color: var(--text-dim); line-height: 1.6; }
+ul.bullets li + li { margin-top: 0.15rem; }
+ul.bullets li::before { content: '→'; position: absolute; left: 0; top: 0.3rem; font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--cyan); }
+ul.bullets li.warn::before { content: '!'; color: var(--amber); }
+ul.bullets li code { font-size: 0.78rem; }
+
+/* Requirements — flat lists (Functional / Non-functional / Out of scope), all visible, no tabs */
+.req-list { display: grid; gap: 0.5rem; margin-bottom: 1.6rem; }
+.req-list:last-child { margin-bottom: 0; }
+.req { display: grid; grid-template-columns: 60px 1fr; gap: 1rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 0.7rem 1rem; align-items: start; }
+.req .id { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; font-weight: 700; color: var(--cyan); padding-top: 2px; }
+.req .body { font-size: 0.9rem; color: var(--text); line-height: 1.55; }
+.req.oos .id, .req-list.nf .req .id { color: var(--amber); }
+
+/* Data flow SVG diagram */
+.flow-wrap { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.8rem; overflow-x: auto; }
+.flow-wrap svg { display: block; margin: 0 auto; max-width: 100%; height: auto; }
+.flow-legend { display: flex; flex-wrap: wrap; gap: 1.2rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); font-size: 0.82rem; color: var(--text-dim); }
+.flow-legend .item { display: inline-flex; align-items: center; gap: 0.4rem; }
+.flow-legend .swatch { width: 14px; height: 4px; border-radius: 2px; }
+
+/* Interactive UI mockup (embedded via iframe; the mockup file is separate + self-contained) */
+.mockup-wrap { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 0.5rem; margin: 0.6rem 0 1rem; overflow: hidden; }
+.mockup-frame { display: block; width: 100%; border: none; border-radius: 8px; background: #fff; }
+
+/* Code map */
+.codemap { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.codemap-row { display: grid; grid-template-columns: 1fr 1.5fr; gap: 1rem; padding: 0.7rem 1.2rem; border-bottom: 1px solid var(--border); font-size: 0.85rem; align-items: center; }
+.codemap-row:last-child { border-bottom: none; }
+.codemap-row:nth-child(odd) { background: rgba(255,255,255,0.015); }
+.codemap-row .what { color: var(--text); }
+.codemap-row .where { color: var(--cyan); font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; word-break: break-all; }
+
+/* Decisions matrix */
+.decisions { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.decisions-head, .decision-row { display: grid; grid-template-columns: 1.2fr 1fr 1.4fr; gap: 1rem; padding: 0.9rem 1.2rem; align-items: start; border-bottom: 1px solid var(--border); }
+.decisions-head { background: var(--bg2); font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); }
+.decision-row { font-size: 0.85rem; }
+.decision-row:last-child { border-bottom: none; }
+.decision-row .decided { color: #fff; font-weight: 600; }
+.decision-row .alt { color: var(--amber); font-style: italic; font-size: 0.82rem; line-height: 1.5; }
+.decision-row .why { color: var(--text-dim); font-size: 0.82rem; line-height: 1.55; }
+
+/* Generic data table (Shapes §6.4, Configuration §6.6) */
+.data-table { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.data-table .row { display: grid; gap: 1rem; padding: 0.65rem 1.2rem; border-bottom: 1px solid var(--border); font-size: 0.85rem; align-items: start; }
+.data-table .row.head { background: var(--bg2); font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); font-weight: 700; }
+.data-table .row:last-child { border-bottom: none; }
+.data-table .row.cols-2 { grid-template-columns: 1fr 2fr; }
+.data-table .row.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+.data-table .row code { font-size: 0.78rem; }
+.data-table .row .label-cell { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; color: var(--cyan); }
+
+/* Inline-path list (Shapes §6.4) */
+.gps-paths { list-style: none; padding: 0.7rem 0 0; margin: 0; display: grid; gap: 0.4rem; }
+.gps-paths li { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--cyan); background: var(--bg2); border: 1px solid var(--border); border-radius: 6px; padding: 0.45rem 0.8rem; }
+
+/* Sub-section heading (Shapes has multiple sub-blocks) */
+.subhead { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-dim); font-weight: 700; margin: 1.5rem 0 0.6rem; }
+.subhead:first-child { margin-top: 0; }
+/* Anchored subhead (§7 per-unit blocks key to §6 contracts by number) — scroll-margin clears the fixed nav */
+.subhead[id] { scroll-margin-top: 80px; }
+.subhead .s-ref { color: var(--text-mute); margin-right: 0.45rem; }
+/* Implementation label under a §6 contract (§7 build notes) — lighter sibling of .subhead */
+.impl-head { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); font-weight: 700; margin: 1rem 0 0.3rem; }
+
+/* Build-status chip on §7 implementation rows (reuse / new / note) */
+.tag { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+.tag.reuse { background: #66bb6a22; color: var(--green); border: 1px solid #66bb6a55; }
+.tag.new   { background: #ffb74d22; color: var(--amber); border: 1px solid #ffb74d55; }
+.tag.note  { background: var(--bg2); color: var(--text-mute); border: 1px solid var(--border); }
+/* Per-unit build-notes table (§7.x) — a .data-table variant: Aspect | Build tag | Details-with-bullets */
+.impl-table .row { grid-template-columns: 0.5fr 0.45fr 2.75fr; }
+.impl-table .row ul { list-style: disc; margin: 0; padding-left: 1.05rem; display: grid; gap: 0.35rem; }
+.impl-table .row li { line-height: 1.5; }
+
+/* Failure handling */
+.failures { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.failures-head, .failure-row { display: grid; grid-template-columns: 1fr 1fr 80px 1.2fr; gap: 1rem; padding: 0.85rem 1.2rem; align-items: center; border-bottom: 1px solid var(--border); }
+.failures-head { background: var(--bg2); font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); }
+.failure-row { font-size: 0.85rem; }
+.failure-row:last-child { border-bottom: none; }
+.sev { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; font-weight: 700; padding: 0.2rem 0.55rem; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.06em; }
+.sev.med  { background: #ffb74d22; color: var(--amber); border: 1px solid #ffb74d55; }
+.sev.low  { background: #66bb6a22; color: var(--green); border: 1px solid #66bb6a55; }
+.sev.high { background: #ef535022; color: var(--coral); border: 1px solid #ef535055; }
+
+/* Acceptance criteria */
+.ac-table { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.ac-head, .ac-row { display: grid; grid-template-columns: 60px 150px 1fr; gap: 1rem; padding: 0.8rem 1.2rem; align-items: start; border-bottom: 1px solid var(--border); }
+.ac-head { background: var(--bg2); font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); }
+.ac-row { font-size: 0.86rem; }
+.ac-row:last-child { border-bottom: none; }
+.ac-row .ac-id { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--cyan); }
+.ac-row .ac-verifies { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+.verify-chip { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; padding: 0.15rem 0.5rem; border-radius: 4px; background: #4fc3f714; border: 1px solid #4fc3f744; color: var(--cyan); }
+
+/* Open questions — auto-fit */
+.q-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 0.7rem; }
+.q-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.2rem; border-left: 3px solid var(--gold); }
+.q-card .q-head { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
+.q-card .q-id { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; color: var(--gold); background: #ffd54f15; padding: 0.15rem 0.5rem; border-radius: 4px; }
+.q-card .q-decider { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--text-mute); }
+.q-card .q-body { font-size: 0.88rem; color: var(--text); line-height: 1.55; }
+
+/* Accepted deviation (definition-of-d101 §4.9) — a rule deliberately not met, recorded next to the
+   thing it excuses. Sits INSIDE the element it annotates (.req, .ac-row, after a .subhead).
+   Violet, so it reads as neither a warning (amber) nor a pass (green): a deliberate third state. */
+.accepted { margin-top: 0.5rem; padding: 0.5rem 0.7rem; border-left: 3px solid var(--violet); border-radius: 0 6px 6px 0; background: #ab47bc12; font-size: 0.82rem; color: var(--text-dim); line-height: 1.55; }
+.accepted .accepted-tag { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--violet); background: #ab47bc22; border: 1px solid #ab47bc55; border-radius: 4px; padding: 0.1rem 0.45rem; margin-right: 0.45rem; }
+.accepted .accepted-rule { color: var(--text); font-weight: 600; }
+.accepted .accepted-by { display: block; margin-top: 0.3rem; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--text-mute); }
+/* Resolution path (required by definition-of-d101 §4.3 — every open question names a decider AND a
+   resolution path) and the resolved variant, for questions closed during authoring. */
+.q-card .q-resolution { font-size: 0.82rem; color: var(--text-dim); line-height: 1.5; margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--border); }
+.q-card .q-resolution strong { color: var(--green); }
+.q-card.resolved { border-left-color: var(--green); }
+.q-card.resolved .q-id { color: var(--green); background: #66bb6a15; }
+
+/* References — auto-fit */
+.refs { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+.refs-block { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 1.1rem 1.3rem; }
+.refs-block h4 { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--cyan); margin-bottom: 0.7rem; }
+.refs-block ul { list-style: none; }
+.refs-block li { font-family: 'JetBrains Mono', monospace; font-size: 0.76rem; color: var(--text-dim); padding: 0.2rem 0; line-height: 1.5; word-break: break-all; }
+
+/* Callouts */
+.callout { background: linear-gradient(135deg, #4fc3f712, #26c6da08); border: 1px solid #4fc3f744; border-radius: 10px; padding: 1rem 1.3rem; margin: 1.2rem 0; font-size: 0.9rem; color: var(--text-dim); line-height: 1.6; }
+.callout strong { color: var(--cyan); }
+.callout.warn { background: linear-gradient(135deg, #ffd54f15, #ff890608); border-color: #ffd54f55; }
+.callout.warn strong { color: var(--gold); }
+
+footer.site-footer { max-width: 1300px; margin: 4rem auto 0; padding: 2rem; border-top: 1px solid var(--border); text-align: center; color: var(--text-mute); font-size: 0.82rem; line-height: 1.7; }
+footer.site-footer .mono { color: var(--text-dim); font-family: 'JetBrains Mono', monospace; }
+footer.site-footer a { color: var(--cyan); }
+
+@media (max-width: 1100px) {
+  .meta-strip { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 900px) {
+  .layout-doc { grid-template-columns: 1fr; gap: 1rem; padding: 1rem 1.2rem; }
+  .side-nav { position: static; max-height: none; overflow: visible; border: 1px solid var(--border); border-radius: 8px; padding: 1rem; background: var(--bg-card); }
+}
+@media (max-width: 720px) {
+  .top-nav { overflow-x: auto; padding: 0.55rem 1rem; gap: 1rem; }
+  .top-nav .spacer { display: none; }
+  .hero { padding: 1.2rem 1.2rem 1rem; }
+  section.s { padding: 2.5rem 1.2rem 0; }
+  .meta-strip { grid-template-columns: repeat(2, 1fr); margin: 1rem 1.2rem 0; }
+  .chapter-band { padding: 0 1.2rem; margin-top: 3rem; }
+  .chapter-band-inner { grid-template-columns: 1fr; gap: 0.5rem; padding: 1.2rem 1.4rem; }
+  .chapter-band .ch-num { font-size: 2rem; }
+  .decisions-head, .decision-row { grid-template-columns: 1fr; gap: 0.4rem; }
+  .failures-head, .failure-row { grid-template-columns: 1fr; }
+  .ac-head, .ac-row { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <span class="brand"><a href="../index.html">asimov<span class="sep">/</span>docs</a></span>
+  <a href="../index.html#s1">Architecture</a>
+  <a href="../index.html#s2">Features</a>
+  <a href="../index.html#s3">Environments</a>
+  <a href="../index.html#s4">Conventions</a>
+  <a href="../index.html#s5">Reference</a>
+  <a href="../index.html#s6">Diagrams</a>
+  <span class="spacer"></span>
+  <span class="phase-chip full">Full design</span>
+  <span class="status-chip">Approved v1.2</span>
+</nav>
+
+<div class="layout-doc">
+  <aside class="side-nav">
+    <div class="side-head">On this page</div>
+    <ul>
+      <li><a href="#s2">§2 One toolkit, two tools</a></li>
+      <li><a href="#s3">§3 Requirements</a></li>
+      <li><a href="#c4">§4 Business design</a>
+        <ul>
+          <li><a href="#s4-1">§4.1 Principles</a></li>
+          <li><a href="#s4-2">§4.2 Concepts</a></li>
+          <li><a href="#s4-3">§4.3 What the source covers</a></li>
+          <li><a href="#s4-4">§4.4 Rules</a></li>
+          <li><a href="#s4-5">§4.5 Decisions</a></li>
+        </ul>
+      </li>
+      <li><a href="#s5">§5 UI Design</a></li>
+      <li><a href="#c6">§6 Technical design</a>
+        <ul>
+          <li><a href="#s6-1">§6.1 Platform</a></li>
+          <li><a href="#s6-2">§6.2 Data flow</a></li>
+          <li><a href="#s6-3">§6.3 Code map</a></li>
+          <li><a href="#s6-4">§6.4 Shapes</a></li>
+          <li><a href="#s6-5">§6.5 APIs</a></li>
+          <li><a href="#s6-6">§6.6 Configuration</a></li>
+          <li><a href="#s6-7">§6.7 Failure handling</a></li>
+          <li><a href="#s6-8">§6.8 Gotchas</a></li>
+        </ul>
+      </li>
+      <li><a href="#c7">§7 Implementation</a>
+        <ul>
+          <li><a href="#s7-1">§7.1 New vs. reuse</a></li>
+          <li><a href="#s7-2">§7.2 Code layout</a></li>
+          <li><a href="#s7-3">§7.3 Pipeline wiring</a></li>
+          <li><a href="#s7-4">§7.4 Per-unit notes</a></li>
+          <li><a href="#s7-5">§7.5 Cross-cutting</a></li>
+        </ul>
+      </li>
+      <li><a href="#s8">§8 Acceptance</a></li>
+      <li><a href="#s9">§9 Open questions</a></li>
+      <li><a href="#s10">§10 References</a></li>
+    </ul>
+  </aside>
+
+  <article class="content">
+
+<header class="hero">
+  <div class="kicker">D101 · Feature design · asimov</div>
+  <h1>Tool-agnostic toolkit<br>&amp; Codex support</h1>
+  <p class="tagline">Asimov stops being a Claude Code plugin that happens to hold a method, and becomes a method that publishes to whichever tool a colleague chooses. One tool-neutral source, generated into a Claude Code plugin and a Codex plugin by CI, with identical capability on both sides.</p>
+</header>
+
+<div class="meta-strip">
+  <div class="meta-cell"><div class="label">Owner</div><div class="value">cka</div></div>
+  <div class="meta-cell"><div class="label">Approver</div><div class="value">cka</div></div>
+  <div class="meta-cell"><div class="label">Targets</div><div class="value mono">Claude Code · Codex</div></div>
+  <div class="meta-cell"><div class="label">Publishing</div><div class="value mono">CI-generated</div></div>
+  <div class="meta-cell"><div class="label">Last updated</div><div class="value mono">2026-09-21</div></div>
+  <div class="meta-cell"><div class="label">Known limitations</div><div class="value">1 (Codex interview model)</div></div>
+</div>
+
+<div class="callout">
+  <strong>Amendments.</strong>
+  <em>v1.1 (2026-09-03, approved)</em> — generated trees live on release tags; main carries source only (§4.5, §6.1, §6.2).
+  <em>v1.2 (2026-09-21, approved by cka)</em> — editorial, no requirement, rule or decision changes: the source tree adopts the per-artifact layout main introduced on 2026-09-10 (<code>source/artifacts/&lt;landing-place&gt;/&lt;artifact-slug&gt;/</code> holding each artifact's definition + template, <code>source/resources/</code> for shared building blocks; the former <code>definitions/</code> and <code>templates/</code> folders are retired), the D100 §4 vocabulary (<em>component</em> = a part of the toolkit, <em>artifact</em> = what a command writes into a product repo), and the retirement of <code>model-choice.md</code> in favour of the mapping tables. Touches §1, §2, §3, §4.2–§4.5, §6.2–§6.4, §6.7, §7, §8, §10.
+</div>
+
+<div class="doc-scope">
+  <strong>Scope:</strong> How the Asimov toolkit is authored, generated and published so that Claude Code and Codex users get the same commands, subagents, personas and quality bars. §2–§5 are the business agreement; §6 carries the technical design and §7 the build recipe.
+</div>
+
+<!-- ═════════════════════ §2 — Problem / Purpose ═════════════════════ -->
+<section class="s" id="s2">
+  <h2 class="section-title"><span class="sec-ref">§2</span>One toolkit, two tools</h2>
+  <p class="section-desc">Context&amp; is moving toward Microsoft Foundry for model hosting — including OpenAI's GPT models, where Codex is the natural tool — while Asimov today only exists inside Claude Code, so the method would not follow the move.</p>
+
+  <ul class="bullets">
+    <li><strong>Distribution is Claude-only.</strong> The marketplace install and update path is the single way in, with no second route and no degraded mode.</li>
+    <li><strong>Every shipped component carries Claude-specific binding.</strong> Command metadata, model names, plugin-root paths, skill locations and the context wiring are all written in one tool's vocabulary.</li>
+    <li><strong>The method itself is already tool-neutral but unreachable.</strong> The definitions, templates and persona method need nothing Claude-specific, yet a colleague can only get at them through Claude Code.</li>
+    <li><strong>A second tool would today mean a second hand-maintained copy.</strong> Two copies of the same method drift apart, and the drift is invisible until two colleagues get contradictory answers.</li>
+  </ul>
+
+  <div class="callout">
+    <strong>Audience.</strong> The colleagues on Context&amp; projects, who must be free to pick Claude Code or Codex without losing any capability — and, secondarily, the toolkit maintainers, who get one source to maintain and two targets to publish.
+  </div>
+</section>
+
+<!-- ═════════════════════ §3 — Requirements ═════════════════════ -->
+<section class="s" id="s3">
+  <h2 class="section-title"><span class="sec-ref">§3</span>Requirements</h2>
+
+  <div class="subhead">Functional — 10</div>
+  <div class="req-list">
+    <div class="req"><div class="id">R1</div><div class="body">Asimov shall be installable in the Codex CLI from this repository.</div></div>
+    <div class="req"><div class="id">R2</div><div class="body">Asimov shall remain installable and updatable in Claude Code with no regression to the existing flow.</div></div>
+    <div class="req"><div class="id">R3</div><div class="body">Every slash command the toolkit ships shall have an equivalent invocation in Codex.</div></div>
+    <div class="req"><div class="id">R4</div><div class="body">Every subagent role the toolkit ships shall have an equivalent in Codex.</div></div>
+    <div class="req"><div class="id">R5</div><div class="body">Every standard persona review shall be invokable in Codex.</div></div>
+    <div class="req"><div class="id">R6</div><div class="body">A custom persona authored into a product repo shall be invokable in both tools.</div></div>
+    <div class="req"><div class="id">R7</div><div class="body">Every tool-specific component shall be generated from a single tool-neutral source; none is maintained by hand per tool.</div></div>
+    <div class="req"><div class="id">R8</div><div class="body">Each command and subagent shall run on the model designated for it, resolved per tool by that tool's own mechanism.</div></div>
+    <div class="req"><div class="id">R9</div><div class="body">The repo-bootstrap command shall wire a product repo for all supported tools, so each participant's tool choice stays free and individual.</div></div>
+    <div class="req"><div class="id">R10</div><div class="body">Every command shall alert the user when a step is about to run on a model below the designated tier for that step, identically in both tools.</div></div>
+  </div>
+
+  <div class="subhead">Non-functional — 7</div>
+  <div class="req-list nf">
+    <div class="req"><div class="id">NF1</div><div class="body">Generation shall be deterministic: the same source produces byte-identical output on every run.</div></div>
+    <div class="req"><div class="id">NF2</div><div class="body">The generator shall be runnable locally for development and testing.</div></div>
+    <div class="req"><div class="id">NF3</div><div class="body">Adding a future tool shall require only a new generator target and per-tool metadata, never a rewrite of the neutral source.</div></div>
+    <div class="req"><div class="id">NF4</div><div class="body">Every capability shall ship identically in both tools.</div></div>
+    <div class="req"><div class="id">NF5</div><div class="body">Publishing shall never require locally generated output.</div></div>
+    <div class="req"><div class="id">NF6</div><div class="body">A capability shall be absent in one tool only where that tool offers no mechanism for it at all.</div></div>
+    <div class="req"><div class="id">NF7</div><div class="body">Every accepted asymmetry shall be recorded as a known limitation in the documentation.</div></div>
+  </div>
+
+  <div class="subhead">Out of scope — 4</div>
+  <div class="req-list">
+    <div class="req oos"><div class="id">OOS1</div><div class="body">Support for tools beyond Claude Code and Codex — deferred until a concrete need exists, and each future tool gets its own follow-up design.</div></div>
+    <div class="req oos"><div class="id">OOS2</div><div class="body">Model-hosting configuration inside product repos — that is each product repo's own setup, not the toolkit's.</div></div>
+    <div class="req oos"><div class="id">OOS3</div><div class="body">Codex inside the IDE extension and the hosted web product — the vendor's plugin support does not reach there today; revisit when it does.</div></div>
+    <div class="req oos"><div class="id">OOS4</div><div class="body">Retrofitting the unbuilt pipeline stages — they do not exist yet, and they will be authored against the neutral source from their first day.</div></div>
+  </div>
+</section>
+
+<!-- ═════════════════════ §4 — Chapter band ═════════════════════ -->
+<div class="chapter-band" id="c4">
+  <div class="chapter-band-inner">
+    <div class="ch-num">4</div>
+    <div>
+      <div class="ch-name">Business design</div>
+      <div class="ch-summary">The principles that make parity the contract, the shared vocabulary, what the neutral source covers, the named rules, and the decisions taken with their rejected alternatives.</div>
+    </div>
+  </div>
+</div>
+
+<!-- §4.1 Principles -->
+<section class="s" id="s4-1">
+  <h2 class="section-title"><span class="sec-ref">§4.1</span>Principles</h2>
+  <div class="principles">
+    <div class="principle">
+      <div class="num">1</div>
+      <div class="text"><strong>Identical capability is the contract; the machine room may vary.</strong> Same commands, skills, outputs and quality bars in both tools — how each tool gets there is Asimov's problem, never the user's.</div>
+    </div>
+    <div class="principle">
+      <div class="num">2</div>
+      <div class="text"><strong>Tool independence is the default, not the exception.</strong> The neutral source is the product and each tool is a target, so no tool is privileged and a future one is another target rather than a rewrite.</div>
+    </div>
+    <div class="principle">
+      <div class="num">3</div>
+      <div class="text"><strong>The method lives in exactly one place.</strong> Definitions, bars, templates and the persona method exist once in the source, and everything generated is derived and never hand-edited.</div>
+    </div>
+    <div class="principle">
+      <div class="num">4</div>
+      <div class="text"><strong>The source carries intent, the generator carries precision.</strong> The source states a model tier and effort; one mapping table per tool resolves it to a concrete model, so a model upgrade is a deliberate decision with a single point of change.</div>
+    </div>
+    <div class="principle">
+      <div class="num">5</div>
+      <div class="text"><strong>The pipeline is the producer.</strong> People commit source only; CI generates, versions and publishes — and output that has not changed publishes nothing.</div>
+    </div>
+    <div class="principle">
+      <div class="num">6</div>
+      <div class="text"><strong>Ride the open standards where they exist.</strong> Where the ecosystem already shares a format, the toolkit adopts it directly instead of inventing a competing one.</div>
+    </div>
+  </div>
+</section>
+
+<!-- §4.2 Concepts -->
+<section class="s" id="s4-2">
+  <h2 class="section-title"><span class="sec-ref">§4.2</span>Concepts</h2>
+  <p class="section-desc">The vocabulary the rest of this document — and every later conversation about porting — stands on.</p>
+  <div class="data-table">
+    <div class="row head cols-2"><div>Concept</div><div>What it means</div></div>
+    <div class="row cols-2"><div class="label-cell">Neutral source</div><div>The tool-independent form every command, subagent and persona is authored in — prose body plus neutral metadata — and the only thing people edit.</div></div>
+    <div class="row cols-2"><div class="label-cell">Target</div><div>A supported tool the generator emits components for; today Claude Code and Codex.</div></div>
+    <div class="row cols-2"><div class="label-cell">Generator</div><div>The deterministic build step that translates the neutral source into each target's native file formats.</div></div>
+    <div class="row cols-2"><div class="label-cell">Component</div><div>A part of the toolkit itself — a command, subagent, persona, definition, template, the generator — in its neutral source form or its generated form (D100 §4).</div></div>
+    <div class="row cols-2"><div class="label-cell">Generated component</div><div>A component in its tool-specific installed form, committed by CI onto release tags and never hand-edited.</div></div>
+    <div class="row cols-2"><div class="label-cell">Artifact</div><div>Something a command writes into a product repo — a D101, a persona review skill, <code>asimov.md</code>. Its definition and template live together under <code>source/artifacts/</code> and ship verbatim into both plugins (D100 §4.5). Vocabulary aligned 2026-09-21 (v1.2).</div></div>
+    <div class="row cols-2"><div class="label-cell">Tier</div><div>An abstract model size — small, medium or large — declared in the source per command and subagent.</div></div>
+    <div class="row cols-2"><div class="label-cell">Effort</div><div>The reasoning-effort level declared alongside the tier.</div></div>
+    <div class="row cols-2"><div class="label-cell">Mapping table</div><div>The one per-tool table resolving tier and effort to concrete model names — the repo's only home for model names.</div></div>
+    <div class="row cols-2"><div class="label-cell">Release</div><div>A versioned publication CI produces when the generated output has actually changed.</div></div>
+    <div class="row cols-2"><div class="label-cell">Known limitation</div><div>A documented asymmetry that passed the parity test because the tool offers no mechanism at all.</div></div>
+  </div>
+</section>
+
+<!-- §4.3 What the neutral source covers -->
+<section class="s" id="s4-3">
+  <h2 class="section-title"><span class="sec-ref">§4.3</span>What the neutral source covers</h2>
+  <p class="section-desc">Five component families plus distribution — each stated as what it must deliver in both tools, with the file formats and paths left to §6.</p>
+
+  <div class="subhead">Commands</div>
+  <p class="section-desc" style="margin-bottom:0.4rem"><em>"What happens when a colleague invokes an Asimov command?"</em> — one source per command, invoked by name in either tool, running the same phases and writing the same output.</p>
+  <ul class="bullets">
+    <li>The interview runs in the main session; the pinned work that follows is handled by the tool's own delegation mechanism.</li>
+    <li>The six commands built today are covered; a command added later is authored once and reaches both tools.</li>
+  </ul>
+
+  <div class="subhead">Subagents</div>
+  <p class="section-desc" style="margin-bottom:0.4rem"><em>"Who does the code work?"</em> — one source per role, carrying the same responsibilities, competence and boundaries in both tools.</p>
+  <ul class="bullets">
+    <li>Each role declares its own tier and effort, so the builder, tester and reviewer roles keep their intended weight.</li>
+  </ul>
+
+  <div class="subhead">Personas</div>
+  <p class="section-desc" style="margin-bottom:0.4rem"><em>"Who reads the document?"</em> — the standard readers and any product-specific reader must be invokable in both tools.</p>
+  <ul class="bullets">
+    <li>Persona skills follow the shared ecosystem standard, so they pass through to both targets close to unchanged.</li>
+    <li>A custom reader authored in a product repo is subject to the same parity requirement as a shipped one.</li>
+  </ul>
+
+  <div class="subhead">Artifact definitions and templates</div>
+  <p class="section-desc" style="margin-bottom:0.4rem"><em>"Where does the method live?"</em> — one folder per artifact (<code>source/artifacts/&lt;landing-place&gt;/&lt;artifact-slug&gt;/</code>, definition + template side by side) plus the shared <code>source/resources/</code>; already tool-neutral, shipped as they are, and read at run-time by the commands in both tools.</p>
+  <ul class="bullets">
+    <li>The existing discipline of reading the definition at run-time rather than inlining it survives the port unchanged.</li>
+    <li>Each definition opens with the artifact's maturity level (<code>D101-artifact-maturity.html</code>); the producing command reads it from the installed plugin in either tool, so the notice needs no per-tool mechanism. Amended 2026-09-21 (v1.2).</li>
+  </ul>
+
+  <div class="subhead">Context wiring</div>
+  <p class="section-desc" style="margin-bottom:0.4rem"><em>"How does a tool know about Asimov inside a product repo?"</em> — the bootstrap command establishes the standing context each tool's own way, with the same content behind it.</p>
+  <ul class="bullets">
+    <li>Both tools are wired at bootstrap, so a colleague joining later inherits a repo that already speaks their tool.</li>
+  </ul>
+
+  <div class="subhead">Distribution</div>
+  <p class="section-desc" style="margin-bottom:0.4rem"><em>"How does a colleague install and update?"</em> — each tool has its own marketplace mechanism, and both are fed from this repo and the same release.</p>
+  <ul class="bullets">
+    <li class="warn">Not every component family can travel by the same route in both tools; where a route is missing, the bootstrap command carries the payload instead.</li>
+  </ul>
+</section>
+
+<!-- §4.4 Named rules -->
+<section class="s" id="s4-4">
+  <h2 class="section-title"><span class="sec-ref">§4.4</span>Rules</h2>
+  <p class="section-desc">Five rules govern how the source, the generated components and the models relate. Each carries the adjacent case where it does not apply.</p>
+
+  <div class="subhead">Rule 1 — generated files are never hand-edited</div>
+  <p class="section-desc" style="margin-bottom:0.4rem">A change to a generated component is made in the neutral source and regenerated, never typed into the generated file.</p>
+  <ul class="bullets">
+    <li>A wording fix in a command's prompt is made in the source, and the pipeline rolls it out to both tools.</li>
+    <li>Artifact definitions, templates and resources are <em>not</em> generated — they are source themselves (<code>source/artifacts/</code>, <code>source/resources/</code>, copied verbatim into both plugins), so editing them directly is correct practice, not a breach of this rule.</li>
+  </ul>
+
+  <div class="subhead">Rule 2 — unchanged output publishes nothing</div>
+  <p class="section-desc" style="margin-bottom:0.4rem">When regeneration produces byte-identical output, there is no commit and no release.</p>
+  <ul class="bullets">
+    <li>A documentation-only change leaves the generated trees identical, so no new version appears.</li>
+    <li>A single changed word in a command source does produce a difference, and that difference is published as a new version.</li>
+  </ul>
+
+  <div class="subhead">Rule 3 — the parity gate</div>
+  <p class="section-desc" style="margin-bottom:0.4rem">A capability ships only when it works in both tools; an asymmetry is allowed solely where the tool offers no mechanism at all, and then only as a documented known limitation.</p>
+  <ul class="bullets">
+    <li>The model-mismatch alert ships in both tools even though it will rarely fire in one of them, because the structure must be the same.</li>
+    <li>Pinning the interview model in Codex is not a parity breach to fix but a known limitation, because the vendor has declined to provide the mechanism.</li>
+  </ul>
+
+  <div class="subhead">Rule 4 — model names live only in the mapping table</div>
+  <p class="section-desc" style="margin-bottom:0.4rem">Concrete model names appear in one place; everything else speaks tier and effort.</p>
+  <ul class="bullets">
+    <li>A model upgrade is one row in the table plus a regeneration, rather than a hunt through every command.</li>
+    <li>A tier and effort written in a command source is not a model name and is exactly the intended source vocabulary; a concrete name in that same place would be the breach.</li>
+  </ul>
+
+  <div class="subhead">Rule 5 — a model mismatch is reported, never enforced</div>
+  <p class="section-desc" style="margin-bottom:0.4rem">When a step is about to run on a model below its designated tier, the command says so and leaves the choice with the user.</p>
+  <ul class="bullets">
+    <li>Starting the design interview on an under-powered session model produces an alert before the interview begins.</li>
+    <li>A session running a better model than designated passes silently — the alert only ever fires downward.</li>
+    <li>The alert never swaps the model itself and never blocks the run — a colleague who deliberately continues is allowed to.</li>
+  </ul>
+</section>
+
+<!-- §4.5 Decisions -->
+<section class="s" id="s4-5">
+  <h2 class="section-title"><span class="sec-ref">§4.5</span>Decisions</h2>
+  <p class="section-desc">A decision recorded without its rejected alternative is one that gets re-litigated.</p>
+  <div class="decisions">
+    <div class="decisions-head">
+      <div>Decided</div>
+      <div>Alternative considered</div>
+      <div>Why rejected</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided">A tool-neutral source with a generator per target</div>
+      <div class="alt">One tool's format as the source, translated to the other; or two hand-maintained trees</div>
+      <div class="why">A source in one tool's format privileges it and lets its idioms seep in, and parallel trees drift apart invisibly.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided">CI generates and publishes; people commit source only</div>
+      <div class="alt">Generate locally and commit the output, with CI as a drift guard</div>
+      <div class="why">It duplicates work, fills reviews with generated noise, and the point of a pipeline is producing the same way every time.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided">Release automatically on every merge to the main branch</div>
+      <div class="alt">Manual triggering, as the current release workflow does</div>
+      <div class="why">Manual steps get forgotten, and publishing nothing when the output is unchanged makes automation safe.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided">Tier and effort in the source; one mapping table per tool owns model names</div>
+      <div class="alt">Concrete model names in the source, or vendor family aliases</div>
+      <div class="why">Names in the source rot per tool, and an alias hands the upgrade moment to the vendor, untested.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided">Adopt the shared skills standard directly for personas</div>
+      <div class="alt">A house format covering every component family uniformly</div>
+      <div class="why">The standard already exists and both tools read it natively, so a house format would compete with the ecosystem for nothing.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided">Sequential integer versions, as the existing release workflow already produces</div>
+      <div class="alt">Semantic versioning</div>
+      <div class="why">The toolkit ships as one bundle with no API contract, so semver granularity would signal a precision that does not exist.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided">Where the tools differ, take the common denominator</div>
+      <div class="alt">Best-possible behaviour per tool</div>
+      <div class="why">Two colleagues on one project must never get contradictory results because of their tool choice.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided">Bootstrap wires every supported tool</div>
+      <div class="alt">Choosing a tool at bootstrap time</div>
+      <div class="why">Bootstrap writes committed project files, so a choice there would impose one developer's tool preference on the whole project.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided">The generator is written in Node.js/TypeScript</div>
+      <div class="alt">PowerShell, Python, or plain shell</div>
+      <div class="why">The team is mixed Windows and Mac: PowerShell's one advantage is being pre-installed, which does not hold on Mac, and Node behaves identically across platforms and runners with fewer cross-platform traps against byte-identical output.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════════════════ §5 — UI Design ═════════════════════ -->
+<section class="s" id="s5">
+  <h2 class="section-title"><span class="sec-ref">§5</span>UI Design</h2>
+  <div class="callout">N/A — the toolkit ships commands, agent definitions and documents rather than a graphical surface; what a user sees is their own tool's interface.</div>
+</section>
+
+<!-- ═════════════════════ §6 — Chapter band ═════════════════════ -->
+<div class="chapter-band" id="c6">
+  <div class="chapter-band-inner">
+    <div class="ch-num">6</div>
+    <div>
+      <div class="ch-name">Technical design</div>
+      <div class="ch-summary">Where the pieces live, the source-to-publish flow, the file shapes each tool consumes, the configuration that keeps the pipeline honest, and how it fails.</div>
+    </div>
+  </div>
+</div>
+
+<!-- §6.1 Platform -->
+<section class="s" id="s6-1">
+  <h2 class="section-title"><span class="sec-ref">§6.1</span>Platform</h2>
+  <p style="color: var(--text-dim); font-size: 0.95rem; line-height: 1.65;">
+    Everything lives in this repo: a hand-edited neutral-source tree, a Node.js/TypeScript generator, two generated plugin trees (one per tool), and the two GitHub Actions workflows that gate and publish. Product repos are touched only by the bootstrap command's outputs. Codex-to-Foundry wiring is each developer's machine configuration (<code>~/.codex/config.toml</code>) and stays outside the toolkit, per OOS2.
+  </p>
+  <div class="callout warn">
+    <strong>⚠ Escalation gate.</strong> The restructure moves the hand-edited tree and rewrites both workflows — land it together with the D100 rewrite (§10, hard rule 6), or the marketplace serves from a tree the pipeline no longer maintains.
+  </div>
+
+  <div class="subhead">Mechanism decisions</div>
+  <div class="decisions">
+    <div class="decisions-head">
+      <div>Decided</div>
+      <div>Alternative considered</div>
+      <div>Why rejected</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided">Commands and personas generate to SKILL.md in both tools</div>
+      <div class="alt">Keep Claude Code on commands/*.md, skills only for Codex</div>
+      <div class="why">Both vendors converged on the skills standard — Codex has deprecated its prompts format and Claude Code recommends skills — so one generated form serves both.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided">Codex skills reference plugin files by paths relative to the skill's own directory</div>
+      <div class="alt">Hardcode the Codex install root</div>
+      <div class="why">The install root is the vendor's to move, and Codex hands each skill its own absolute directory in context (probe-verified 2026-09-03).</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided">Subagent TOMLs reach product repos via the bootstrap command</div>
+      <div class="alt">Ship them inside the Codex plugin</div>
+      <div class="why">Agents are not a documented Codex plugin component; the bootstrap-carries-the-payload route is the one §4.3 already reserves.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided">The model alert fires only downward, against a ranked tier</div>
+      <div class="alt">Alert on any name mismatch with the mapping table</div>
+      <div class="why">An alarm that fires on a better-than-designated model gets ignored within a week, and the harm the alert exists for only ever runs downward.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided">AGENTS.md carries a marker-fenced managed region</div>
+      <div class="alt">A one-line prose pointer at asimov.md</div>
+      <div class="why">Codex does not expand @-references (probe-verified), and NF6 forbids the weaker carrier when a working mechanism exists.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided">The CI loop is broken by a path filter on the trigger</div>
+      <div class="alt">A sender-check step inside the job</div>
+      <div class="why">The trigger itself then documents what runs the pipeline, and it forces the source/generated tree separation rule 1 needs anyway.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided">Generated trees live on release tags (off-main commit); main carries source only</div>
+      <div class="alt">CI commits the generated trees back to main after each merge</div>
+      <div class="why">Main is protected (PR-only ruleset with a required check), so the pipeline cannot push to it — and the off-main release commit removes the retrigger risk entirely instead of filtering around it. Amended 2026-09-03 (v1.1).</div>
+    </div>
+  </div>
+</section>
+
+<!-- §6.2 Data flow -->
+<section class="s" id="s6-2">
+  <h2 class="section-title"><span class="sec-ref">§6.2</span>Data flow — source to publish</h2>
+  <p class="section-desc">Who owns each step from a source edit to both tools serving the new version — the hand-offs between the developer, the pipeline and the marketplaces are the point.</p>
+  <div class="flow-wrap">
+    <svg viewBox="0 0 980 384" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Activity diagram: source commit to published release, with developer, CI pipeline and marketplace lanes">
+      <rect x="0" y="0" width="980" height="384" fill="#14253f"/>
+      <defs>
+        <marker id="act-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 Z" fill="#a8b8d0"/>
+        </marker>
+      </defs>
+
+      <line x1="16" y1="24" x2="964" y2="24" stroke="#2b4a73" stroke-width="1"/>
+      <line x1="16" y1="136" x2="964" y2="136" stroke="#2b4a73" stroke-width="1"/>
+      <line x1="16" y1="248" x2="964" y2="248" stroke="#2b4a73" stroke-width="1"/>
+      <line x1="16" y1="360" x2="964" y2="360" stroke="#2b4a73" stroke-width="1"/>
+      <line x1="136" y1="24" x2="136" y2="360" stroke="#2b4a73" stroke-width="1"/>
+
+      <text x="76" y="84" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">DEVELOPER</text>
+      <text x="76" y="196" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">CI PIPELINE</text>
+      <text x="76" y="308" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">MARKETPLACES</text>
+
+      <circle cx="152" cy="80" r="8" fill="#66bb6a"/>
+
+      <g>
+        <rect x="184" y="52" width="128" height="56" rx="8" fill="#66bb6a22" stroke="#66bb6a"/>
+        <text x="248" y="76" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">commit source</text>
+        <text x="248" y="92" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">PR, source only</text>
+      </g>
+
+      <g>
+        <rect x="352" y="164" width="128" height="56" rx="8" fill="#ffb74d1a" stroke="#ffb74d"/>
+        <text x="416" y="188" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">generate ×2</text>
+        <text x="416" y="204" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">byte-compare runs</text>
+      </g>
+
+      <polygon points="528,164 556,192 528,220 500,192" fill="#66bb6a22" stroke="#66bb6a" stroke-width="1.5"/>
+      <text x="528" y="240" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">reproducible?</text>
+
+      <g>
+        <rect x="596" y="164" width="128" height="56" rx="8" fill="#ffb74d1a" stroke="#ffb74d"/>
+        <text x="660" y="188" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">regenerate</text>
+        <text x="660" y="204" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">on merge to main</text>
+      </g>
+
+      <polygon points="772,164 800,192 772,220 744,192" fill="#66bb6a22" stroke="#66bb6a" stroke-width="1.5"/>
+      <text x="772" y="240" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">changed?</text>
+
+      <g>
+        <rect x="832" y="164" width="128" height="56" rx="8" fill="#4fc3f71a" stroke="#4fc3f7"/>
+        <text x="896" y="188" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">commit · tag</text>
+        <text x="896" y="204" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">publish release</text>
+      </g>
+
+      <g>
+        <rect x="832" y="276" width="128" height="56" rx="8" fill="#122039" stroke="#3b5e8f" stroke-dasharray="4 4"/>
+        <text x="896" y="300" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">tools serve</text>
+        <text x="896" y="316" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">install · update</text>
+      </g>
+
+      <circle cx="744" cy="304" r="12" fill="none" stroke="#ef5350" stroke-width="1.5"/>
+      <circle cx="744" cy="304" r="6" fill="#ef5350"/>
+
+      <line x1="160" y1="80" x2="182" y2="80" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#act-arr)"/>
+      <path d="M312,80 H408 A8,8 0 0 1 416,88 V162" fill="none" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#act-arr)"/>
+      <line x1="480" y1="192" x2="498" y2="192" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#act-arr)"/>
+      <line x1="556" y1="192" x2="594" y2="192" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#act-arr)"/>
+      <text x="575" y="182" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">[yes]</text>
+      <path d="M500,192 H256 A8,8 0 0 1 248,184 V110" fill="none" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#act-arr)"/>
+      <text x="320" y="182" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">[no]</text>
+      <line x1="724" y1="192" x2="742" y2="192" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#act-arr)"/>
+      <line x1="800" y1="192" x2="830" y2="192" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#act-arr)"/>
+      <text x="800" y="156" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">[changed]</text>
+      <path d="M772,220 V296 A8,8 0 0 1 764,304 H760" fill="none" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#act-arr)"/>
+      <text x="784" y="252" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">[identical]</text>
+      <line x1="896" y1="220" x2="896" y2="274" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#act-arr)"/>
+      <line x1="832" y1="304" x2="760" y2="304" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#act-arr)"/>
+    </svg>
+    <div class="flow-legend">
+      <span class="item"><span class="swatch" style="background:var(--green)"></span>Source entry / gate</span>
+      <span class="item"><span class="swatch" style="background:var(--amber)"></span>Generation</span>
+      <span class="item"><span class="swatch" style="background:var(--cyan)"></span>Version &amp; publish</span>
+      <span class="item"><span class="swatch" style="background:var(--border-2)"></span>Dashed — served by the tools</span>
+    </div>
+  </div>
+
+  <div style="margin-top:1.2rem"></div>
+  <ol class="principles" style="list-style:none">
+    <li class="principle"><div class="num">1</div><div class="text"><strong>The developer commits neutral source only</strong> and opens a PR — generated trees are never in the change (R7, rule 1).</div></li>
+    <li class="principle"><div class="num">2</div><div class="text"><strong>The PR gate generates twice and byte-compares the two runs</strong> — a difference between them is a determinism defect and blocks the merge (NF1, AC6).</div></li>
+    <li class="principle"><div class="num">3</div><div class="text"><strong>A gate failure is fixed in the source or the generator</strong>, never by editing generated files — nothing has been published yet.</div></li>
+    <li class="principle"><div class="num">4</div><div class="text"><strong>On merge, the release workflow regenerates and compares against the previous release</strong> (the <code>latest</code> tag) — main never carries generated trees, so the pipeline cannot retrigger itself, and the path filter documents what a release is made of.</div></li>
+    <li class="principle"><div class="num">5</div><div class="text"><strong>Byte-identical output stops the run</strong>: no commit, no version, no release (rule 2, AC7).</div></li>
+    <li class="principle"><div class="num">6</div><div class="text"><strong>Changed output is stamped, committed off-main and published in one run</strong> — sequential version tag (<code>N.0.0</code>) plus the rolling <code>latest</code> pointer; the release commit lands only on the tags, never on the protected main (Q1; §6.1 decisions).</div></li>
+    <li class="principle"><div class="num">7</div><div class="text"><strong>Both marketplaces serve installs from the <code>latest</code> release tag</strong> — Claude Code with its existing flow (R2), Codex via its plugin marketplace (R1).</div></li>
+  </ol>
+</section>
+
+<!-- §6.3 Code map -->
+<section class="s" id="s6-3">
+  <h2 class="section-title"><span class="sec-ref">§6.3</span>Code map</h2>
+  <p class="section-desc">One hand-edited tree, one generator, two generated targets, two workflows. Folder names are illustrative — the split between hand-edited and generated is the contract. The generated trees are gitignored on main and exist there only as local generator output; the release workflow commits them onto each release tag.</p>
+  <div class="codemap">
+    <div class="codemap-row"><div class="what">Tool-neutral source — the only tree people edit: commands, subagents, personas, the per-artifact definitions + templates (<code>artifacts/</code>), shared resources (<code>resources/</code>), mapping tables</div><div class="where">source/</div></div>
+    <div class="codemap-row"><div class="what">The generator and its tests (Node.js/TypeScript)</div><div class="where">generator/</div></div>
+    <div class="codemap-row"><div class="what">Generated Claude Code plugin — stays at today's path so existing installs survive (R2); tag-carried, untracked on main</div><div class="where">plugins/asimov-plugin/</div></div>
+    <div class="codemap-row"><div class="what">Generated Codex plugin — skills plus its own manifest; tag-carried, untracked on main</div><div class="where">plugins/asimov-plugin-codex/ (.codex-plugin/plugin.json)</div></div>
+    <div class="codemap-row"><div class="what">Claude Code marketplace manifest (unchanged)</div><div class="where">.claude-plugin/marketplace.json</div></div>
+    <div class="codemap-row"><div class="what">Codex marketplace manifest</div><div class="where">.agents/plugins/marketplace.json</div></div>
+    <div class="codemap-row"><div class="what">PR gate — generate twice, byte-compare</div><div class="where">.github/workflows/Asimov-PR.yml</div></div>
+    <div class="codemap-row"><div class="what">Release — regenerate, compare, commit, tag, publish; path-filtered to source</div><div class="where">.github/workflows/Asimov-Release.yml</div></div>
+  </div>
+</section>
+
+<!-- §6.4 Shapes -->
+<section class="s" id="s6-4">
+  <h2 class="section-title"><span class="sec-ref">§6.4</span>Shapes</h2>
+  <p class="section-desc">The file shapes the generator consumes and emits. The prose bodies pass through unchanged; the shapes below are what varies per tool.</p>
+
+  <div class="subhead" id="s6-4-1"><span class="s-ref">§6.4.1</span>Command / persona source — one markdown file per component</div>
+  <div class="data-table">
+    <div class="row head cols-2"><div>Field</div><div>Notes</div></div>
+    <div class="row cols-2"><div class="label-cell">name</div><div>The invocation name, identical in both tools; the plugin namespace prefixes it per tool convention.</div></div>
+    <div class="row cols-2"><div class="label-cell">description</div><div>Passed through to both targets — it is what each tool's skill listing shows.</div></div>
+    <div class="row cols-2"><div class="label-cell">argument-hint</div><div>Optional; passed through where the target supports it.</div></div>
+    <div class="row cols-2"><div class="label-cell">tier</div><div>small | medium | large — required, resolved per tool by the mapping table; never a concrete model name (rule 4).</div></div>
+    <div class="row cols-2"><div class="label-cell">effort</div><div>Required alongside tier; translated per tool by the mapping table's effort rows.</div></div>
+  </div>
+  <p class="section-desc" style="margin:0.8rem 0 0">The body is the unchanged prose. Tool-specific references are written as tokens; the generator substitutes them per target. Both targets emit SKILL.md.</p>
+
+  <div class="subhead" id="s6-4-2"><span class="s-ref">§6.4.2</span>Token substitution</div>
+  <div class="data-table">
+    <div class="row head cols-3"><div>Token</div><div>Claude Code target</div><div>Codex target</div></div>
+    <div class="row cols-3"><div class="label-cell">{{plugin-root}}</div><div><code>${CLAUDE_PLUGIN_ROOT}</code> — substituted mechanically by the tool</div><div>A path relative to the skill's own directory, computed by the generator</div></div>
+    <div class="row cols-3"><div class="label-cell">{{designation}}</div><div><code>&lt;agent&gt; (claude-code, &lt;model&gt;, effort &lt;effort|inherit&gt;)</code></div><div><code>&lt;agent&gt; (codex, &lt;model&gt;, effort &lt;effort&gt;)</code> — agent bodies only; the provenance trailer's payload, each emission naming its own tool's model (added 2026-09-22 by D101-build-subagents v0.2)</div></div>
+    <div class="row cols-3"><div class="label-cell">{{&lt;fragment&gt;}}</div><div>The text of <code>source/commands/_&lt;fragment&gt;.md</code></div><div>Same — a command fragment is prose several commands share, injected identically into both targets. First fragment: <code>{{file-io}}</code>, the UTF-8 rule every command carries as its first hard rule (added 2026-09-22 after the Codex/PowerShell encoding finding, §6.8)</div></div>
+    <div class="row cols-3"><div class="label-cell">{{scope-guard}}</div><div>The twin's scope rule from <code>source/agents/_scope-guard.md</code> for a small twin; empty for a default agent</div><div>Same — the token varies by variant, not by target (D101-build-subagents §6.4)</div></div>
+  </div>
+  <p class="section-desc" style="margin:0.8rem 0 0">Further tokens join this table as porting surfaces them; a token without a value for every target fails generation.</p>
+
+  <div class="subhead" id="s6-4-3"><span class="s-ref">§6.4.3</span>Subagent source — one file per role</div>
+  <ul class="bullets">
+    <li>Same fields as §6.4.1 minus argument-hint; the body is the role's prompt.</li>
+    <li>Claude Code target: <code>agents/&lt;name&gt;.md</code> with frontmatter, inside the plugin — as today.</li>
+    <li>Codex target: <code>.codex/agents/&lt;name&gt;.toml</code> with <code>name</code>, <code>description</code>, <code>developer_instructions</code>, <code>model</code>, <code>model_reasoning_effort</code> — delivered to product repos by the bootstrap command (§6.6), because Codex plugins do not carry agents.</li>
+  </ul>
+
+  <div class="subhead" id="s6-4-4"><span class="s-ref">§6.4.4</span>Mapping table — one per tool, the successor to model-choice.md</div>
+  <div class="data-table">
+    <div class="row head cols-3"><div>Column</div><div>Holds</div><div>Used by</div></div>
+    <div class="row cols-3"><div class="label-cell">tier → model</div><div>The concrete model name each tier resolves to in this tool</div><div>The generator, when emitting skills and agents</div></div>
+    <div class="row cols-3"><div class="label-cell">rank</div><div>An ordering that places any known model in or between tiers</div><div>The downward-only mismatch alert (§6.4.5)</div></div>
+    <div class="row cols-3"><div class="label-cell">effort map</div><div>The explicit translation of each source effort level into this tool's vocabulary (Claude low–max; Codex low–ultra)</div><div>The generator; never a pass-through</div></div>
+  </div>
+  <p class="section-desc" style="margin:0.8rem 0 0">The table's header carries the upgrade ritual: a new model generation is one row changed, a regeneration, and a test of the affected commands in both tools — never an automatic alias bump (issue #20).</p>
+
+  <div class="subhead" id="s6-4-5"><span class="s-ref">§6.4.5</span>The model-mismatch alert</div>
+  <ul class="bullets">
+    <li>Each generated command opens by comparing the running model — which the model reads from its own session context, in both tools — against its designated tier via the mapping table's rank column.</li>
+    <li>Running below the designated tier produces the alert, phrased against the tier, before the work starts; the run is never blocked (rule 5).</li>
+    <li>Running at or above the tier passes silently.</li>
+    <li>A model the table cannot rank produces a neutral note naming the designated tier — never an alert, never silence.</li>
+  </ul>
+</section>
+
+<!-- §6.5 APIs -->
+<section class="s" id="s6-5">
+  <h2 class="section-title"><span class="sec-ref">§6.5</span>APIs &amp; contracts</h2>
+  <div class="callout">
+    N/A — no service API. The contracts are file formats consumed by each tool's own loader: SKILL.md (both tools), agent markdown with frontmatter (Claude Code), agent TOML (Codex), and the two plugin manifests.
+  </div>
+</section>
+
+<!-- §6.6 Configuration -->
+<section class="s" id="s6-6">
+  <h2 class="section-title"><span class="sec-ref">§6.6</span>Configuration</h2>
+  <p class="section-desc">What is configurable, and what each default protects.</p>
+  <div class="data-table">
+    <div class="row head cols-3"><div>Setting</div><div>Default</div><div>Justification</div></div>
+    <div class="row cols-3"><div class="label-cell">tier + effort per source file</div><div><code>none — required</code></div><div>A missing designation fails generation; silently defaulting a model choice is the drift rule 4 exists to stop.</div></div>
+    <div class="row cols-3"><div class="label-cell">release trigger paths</div><div><code>source tree only</code></div><div>Documents what a release is made of; the loop itself is broken structurally — the release never pushes to main at all (§6.1 decisions).</div></div>
+    <div class="row cols-3"><div class="label-cell">AGENTS.md region markers</div><div><code>asimov:start / asimov:end</code></div><div>The marker line itself warns that the region is regenerated; broken or duplicated markers stop the write entirely rather than guessing.</div></div>
+    <div class="row cols-3"><div class="label-cell">CLAUDE.md wiring</div><div><code>@asimov.md import</code></div><div>Unchanged from today — one additive line, idempotent, never rewrites the developer's file.</div></div>
+    <div class="row cols-3"><div class="label-cell">release concurrency</div><div><code>group: release</code></div><div>Reused from the existing workflow; serialises concurrent merges so version bumps cannot race.</div></div>
+  </div>
+</section>
+
+<!-- §6.7 Failure handling -->
+<section class="s" id="s6-7">
+  <h2 class="section-title"><span class="sec-ref">§6.7</span>Failure handling</h2>
+  <div class="failures">
+    <div class="failures-head">
+      <div>Failure</div><div>Effect</div><div>Severity</div><div>Recovery</div>
+    </div>
+    <div class="failure-row">
+      <div>The PR gate's two runs differ</div>
+      <div>Merge blocked; the determinism defect is visible before anything publishes</div>
+      <div><span class="sev high">High</span></div>
+      <div>Fix the generator's nondeterminism; the gate is the detection (NF1)</div>
+    </div>
+    <div class="failure-row">
+      <div>Generation fails on main</div>
+      <div>No commit, no release; the last published version keeps serving</div>
+      <div><span class="sev med">Med</span></div>
+      <div>Fix and re-run the workflow; nothing partial was published</div>
+    </div>
+    <div class="failure-row">
+      <div>AGENTS.md markers broken or duplicated</div>
+      <div>Bootstrap writes nothing to that file and names the problem</div>
+      <div><span class="sev med">Med</span></div>
+      <div>Restore or delete the region by hand, re-run /asimov-init</div>
+    </div>
+    <div class="failure-row">
+      <div>A mapped Codex model is absent from the configured provider</div>
+      <div>Delegation fails at spawn with the tool's own lookup error</div>
+      <div><span class="sev med">Med</span></div>
+      <div>Fix the mapping row or the Foundry deployment name via the upgrade ritual</div>
+    </div>
+    <div class="failure-row">
+      <div>Release commit races a concurrent merge</div>
+      <div>The release run aborts; no tag is created</div>
+      <div><span class="sev low">Low</span></div>
+      <div>The concurrency group serialises; the next merge regenerates and publishes</div>
+    </div>
+    <div class="failure-row">
+      <div>The running model is unknown to the mapping table</div>
+      <div>A neutral note names the designated tier; no alert, no silence</div>
+      <div><span class="sev low">Low</span></div>
+      <div>Add the model's rank row at the next upgrade-ritual pass</div>
+    </div>
+  </div>
+</section>
+
+<!-- §6.8 Gotchas -->
+<section class="s" id="s6-8">
+  <h2 class="section-title"><span class="sec-ref">§6.8</span>Known constraints &amp; gotchas</h2>
+  <div class="callout warn">
+    <strong>⚠ Codex path resolution is a convention, not a substitution.</strong> Claude Code replaces <code>${CLAUDE_PLUGIN_ROOT}</code> mechanically before the model reads anything; in Codex the skill-relative path works because the tool hands each skill its own absolute directory in context and the model combines the two (probe-verified 2026-09-03). It held cleanly under test, but it is the weaker guarantee of the two.
+  </div>
+  <div class="callout warn">
+    <strong>⚠ Codex silently ignores model fields in SKILL.md frontmatter.</strong> A nonexistent model declared there loads without a warning (probe-verified) — a model designation only takes effect at subagent delegation via the agent TOML. Never "fix" a Codex skill by adding a model field.
+  </div>
+  <div class="callout warn">
+    <strong>⚠ Agent TOMLs update on bootstrap, not on plugin update.</strong> A toolkit release updates plugins immediately, but a product repo's <code>.codex/agents/</code> files only change the next time someone runs /asimov-init there — a drift vector between the two tools until then.
+  </div>
+  <div class="callout warn">
+    <strong>⚠ Codex has no file tools; on Windows its shell defaults to ANSI.</strong> The command prompts say "use the Read tool", which exists only in Claude Code. Codex reads and writes through PowerShell, and <code>Get-Content</code> / <code>Set-Content</code> without <code>-Encoding utf8</code> turned every em-dash in <code>asimov.md</code>, <code>AGENTS.md</code> and the site into <code>â€”</code> (observed 2026-09-22, first live /asimov-init in Codex on Windows). Mitigation: every command carries the shared <code>{{file-io}}</code> rule as its first hard rule — UTF-8 on both ends, byte copies for files that must stay identical, a mojibake spot-check before reporting done. A prompt rule is the only lever a skill has here; it is not a mechanism.
+  </div>
+  <div class="callout">
+    <strong>Codex does not expand @-references in AGENTS.md</strong> (probe-verified) — the managed region is the only carrier that reaches the model at session start.
+  </div>
+  <div class="callout">
+    <strong>Claude Code's availableModels allowlist fails silently.</strong> A skill's model override outside the organisation's allowlist is ignored and the session keeps its current model — that silence is the case R10's downward alert exists to catch.
+  </div>
+  <div class="callout">
+    <strong>The effort vocabularies are close but not equal.</strong> Claude Code runs low–max; Codex on the Context&amp; Foundry provider reports none, minimal, low, medium, high, xhigh, max (verified 2026-09-21 — the v1.0 seed's <code>ultra</code> was rejected, and <code>minimal</code> conflicts with Codex's web_search tool). The mapping table translates explicitly, never passes through.
+  </div>
+  <div class="callout">
+    <strong>Main never carries the generated trees.</strong> Installs serve from the <code>latest</code> release tag; a local-clone install requires a generator run first (<code>cd generator &amp;&amp; npm install &amp;&amp; npm run generate</code>) because the trees are gitignored on main.
+  </div>
+</section>
+
+<!-- ═════════════════════ §7 — Chapter band (Implementation) ═════════════════════ -->
+<div class="chapter-band" id="c7">
+  <div class="chapter-band-inner">
+    <div class="ch-num">7</div>
+    <div>
+      <div class="ch-name">Implementation</div>
+      <div class="ch-summary">The build recipe for the §6 contracts — what is genuinely new, where it lives, the workflow wiring, and per-unit notes. Code-grounded throughout; outside both bars.</div>
+    </div>
+  </div>
+</div>
+
+<!-- §7.1 New vs. reuse -->
+<section class="s" id="s7-1">
+  <h2 class="section-title"><span class="sec-ref">§7.1</span>What is genuinely new to build</h2>
+  <p class="section-desc">Everything not listed here is reuse; this is the whole of the new work.</p>
+  <div class="callout">
+    <strong>These notes are code-grounded design.</strong> Each was checked against the current repo, the vendors' documentation, or a live probe run in Codex (marked); what is still unsettled is tracked in §9.
+  </div>
+  <ul class="bullets">
+    <li><strong>The generator.</strong> Node.js/TypeScript; parses source frontmatter, substitutes tokens, emits both targets deterministically (R7, NF1, NF2).</li>
+    <li><strong>The neutral-source tree.</strong> Today's command/subagent/persona files migrate into it — prose near-verbatim, frontmatter rewritten to tier + effort, tool references tokenised.</li>
+    <li><strong>The Codex target emitters.</strong> Skills with skill-relative paths, agent TOMLs, <code>.codex-plugin/plugin.json</code> and <code>.agents/plugins/marketplace.json</code> (R1, R4).</li>
+    <li><strong>The mapping tables.</strong> One per tool with tier, rank and effort columns; succeeds <code>model-choice.md</code>, retired 2026-09-21 (R8, rule 4).</li>
+    <li><strong>The mismatch preamble.</strong> A short block in every command source realising §6.4.5; generated into both targets (R10).</li>
+    <li><strong>Pipeline content.</strong> The PR gate's generate-twice-and-compare and the release workflow's regenerate/compare/commit steps with the path filter (NF1, NF5, rule 2).</li>
+    <li><strong>Bootstrap additions.</strong> The AGENTS.md managed region and the <code>.codex/agents/</code> TOML delivery in /asimov-init (R9).</li>
+  </ul>
+</section>
+
+<!-- §7.2 Code layout -->
+<section class="s" id="s7-2">
+  <h2 class="section-title"><span class="sec-ref">§7.2</span>Code layout</h2>
+  <p class="section-desc" style="margin-bottom:0.9rem">The §6.3 map, read as build instructions. Names are illustrative — the hand-edited/generated split is the point.</p>
+  <div class="data-table">
+    <div class="row head" style="grid-template-columns: 0.6fr 2fr;"><div>Tree</div><div>Build note</div></div>
+    <div class="row" style="grid-template-columns: 0.6fr 2fr;"><div class="label-cell">source/</div><div><ul class="bullets" style="margin:0"><li>Migrated from <code>plugins/asimov-plugin/</code>; one file per command, subagent and persona, plus <code>artifacts/&lt;landing-place&gt;/&lt;artifact-slug&gt;/</code> (each artifact's definition + template, the layout main adopted on 2026-09-10), <code>resources/</code> (the diagram notations) and the two mapping tables under <code>mappings/</code>. The generator copies <code>artifacts/</code> and <code>resources/</code> verbatim into both plugin trees at the same relative paths, which is what <code>{{plugin-root}}</code> reads resolve against in either tool.</li><li>Amended 2026-09-21 (v1.2): the first build (v1.0) used <code>definitions/</code> + <code>templates/</code>; folded into the per-artifact layout when main was merged.</li></ul></div></div>
+    <div class="row" style="grid-template-columns: 0.6fr 2fr;"><div class="label-cell">generator/</div><div><ul class="bullets" style="margin:0"><li>Runs locally with no pipeline (NF2: <code>npm install &amp;&amp; npm run generate</code> on a fresh clone) and identically in CI.</li></ul></div></div>
+    <div class="row" style="grid-template-columns: 0.6fr 2fr;"><div class="label-cell">plugins/…</div><div><ul class="bullets" style="margin:0"><li>Both generated trees; committed by CI only, never hand-edited (rule 1), gitignored in working branches only if the team chooses — the PR gate catches hand-edits either way.</li></ul></div></div>
+    <div class="row" style="grid-template-columns: 0.6fr 2fr;"><div class="label-cell">.github/workflows/</div><div><ul class="bullets" style="margin:0"><li>Both existing files are rewritten in place — names and the release job's tag/publish steps are kept.</li></ul></div></div>
+  </div>
+</section>
+
+<!-- §7.3 Pipeline wiring -->
+<section class="s" id="s7-3">
+  <h2 class="section-title"><span class="sec-ref">§7.3</span>Pipeline wiring · contract <a href="#s6-2">§6.2</a></h2>
+  <p class="section-desc" style="margin-bottom:0.9rem">The flow is §6.2; this is what to change in the two workflow files. Failure behaviour is §6.7.</p>
+  <div class="impl-head">What to set up</div>
+  <div class="data-table">
+    <div class="row head cols-2"><div>Task</div><div>Detail</div></div>
+    <div class="row cols-2"><div class="label-cell">PR gate</div><div>Replace the hello-world step in <code>Asimov-PR.yml</code> with checkout, Node setup, generate ×2 into two directories, and a recursive byte-compare that fails on any difference.</div></div>
+    <div class="row cols-2"><div class="label-cell">Release trigger</div><div>Change <code>Asimov-Release.yml</code> to <code>push</code> on main with a <code>paths:</code> filter on the source tree, keeping <code>workflow_dispatch</code> for manual re-runs (Q1).</div></div>
+    <div class="row cols-2"><div class="label-cell">Release body</div><div>Prepend regenerate + compare-with-previous-release (the <code>latest</code> tag, excluding the version-stamped manifests); on difference, stamp the version into the source metadata, regenerate, and commit the generated trees <em>off-main</em> before the existing tag/publish steps run (§6.1 decisions — main is protected).</div></div>
+    <div class="row cols-2"><div class="label-cell">Permissions</div><div><code>contents: write</code> already granted; the off-main commit and tags use the workflow's own token.</div></div>
+  </div>
+</section>
+
+<!-- §7.4 Per-unit build notes -->
+<section class="s" id="s7-4">
+  <h2 class="section-title"><span class="sec-ref">§7.4</span>Each unit</h2>
+  <p class="section-desc">Build notes per unit, keyed to the §6 contract each realises.</p>
+
+  <div class="subhead" id="s7-4-1"><span class="s-ref">§7.4.1</span><code>generator core</code> · contract <a href="#s6-4">§6.4</a></div>
+  <div class="data-table impl-table">
+    <div class="row head"><div>Aspect</div><div>Build</div><div>Details</div></div>
+    <div class="row"><div class="label-cell">Source</div><div><span class="tag reuse">reuse</span></div><div><ul><li>Prose bodies of the six commands, four subagents and three personas migrate unchanged; only frontmatter and tokens are new.</li></ul></div></div>
+    <div class="row"><div class="label-cell">New</div><div><span class="tag new">new</span></div><div><ul><li>Frontmatter parse, token substitution, per-target emission, and the determinism rules of §7.5.</li></ul></div></div>
+    <div class="row"><div class="label-cell">Enforce</div><div><span class="tag note">note</span></div><div><ul><li>Missing tier/effort, an unknown token, or a token with no value for a target fails the run — never a warning.</li></ul></div></div>
+  </div>
+
+  <div class="subhead" id="s7-4-2"><span class="s-ref">§7.4.2</span><code>Claude Code target</code> · contract <a href="#s6-3">§6.3</a></div>
+  <div class="data-table impl-table">
+    <div class="row head"><div>Aspect</div><div>Build</div><div>Details</div></div>
+    <div class="row"><div class="label-cell">Emission</div><div><span class="tag new">new</span></div><div><ul><li>Commands and personas emit as <code>skills/&lt;name&gt;/SKILL.md</code>; subagents as <code>agents/&lt;name&gt;.md</code>; <code>{{plugin-root}}</code> becomes <code>${CLAUDE_PLUGIN_ROOT}</code>.</li></ul></div></div>
+    <div class="row"><div class="label-cell">Compat</div><div><span class="tag note">note</span></div><div><ul><li>Invocation names are preserved by the plugin namespace (<code>/asimov-plugin:&lt;name&gt;</code>), so R2's no-regression bar holds without a compatibility layer.</li></ul></div></div>
+  </div>
+
+  <div class="subhead" id="s7-4-3"><span class="s-ref">§7.4.3</span><code>Codex target</code> · contracts <a href="#s6-3">§6.3</a> + <a href="#s6-4">§6.4</a></div>
+  <div class="data-table impl-table">
+    <div class="row head"><div>Aspect</div><div>Build</div><div>Details</div></div>
+    <div class="row"><div class="label-cell">Skills</div><div><span class="tag new">new</span></div><div><ul><li>Same SKILL.md bodies; <code>{{plugin-root}}</code> becomes the generator-computed path relative to each skill's directory (§6.8 gotcha 1).</li></ul></div></div>
+    <div class="row"><div class="label-cell">Agents</div><div><span class="tag new">new</span></div><div><ul><li>One TOML per role with <code>developer_instructions</code> carrying the prompt and <code>model</code>/<code>model_reasoning_effort</code> resolved from the Codex mapping table.</li></ul></div></div>
+    <div class="row"><div class="label-cell">Manifests</div><div><span class="tag new">new</span></div><div><ul><li><code>.codex-plugin/plugin.json</code> in the plugin tree and <code>.agents/plugins/marketplace.json</code> at the repo root, mirroring the Claude pair (hard rule 1 extends to them).</li></ul></div></div>
+  </div>
+
+  <div class="subhead" id="s7-4-4"><span class="s-ref">§7.4.4</span><code>bootstrap wiring</code> · contract <a href="#s6-6">§6.6</a></div>
+  <div class="data-table impl-table">
+    <div class="row head"><div>Aspect</div><div>Build</div><div>Details</div></div>
+    <div class="row"><div class="label-cell">Mechanics</div><div><span class="tag reuse">reuse</span></div><div><ul><li>/asimov-init's marker-region machinery (convention READMEs) and its write-plan/confirm flow carry the new targets.</li></ul></div></div>
+    <div class="row"><div class="label-cell">New</div><div><span class="tag new">new</span></div><div><ul><li>The AGENTS.md managed region (create file, append region, or replace region; stop on broken markers) and the <code>.codex/agents/*.toml</code> copy.</li></ul></div></div>
+  </div>
+
+  <div class="subhead" id="s7-4-5"><span class="s-ref">§7.4.5</span><code>mismatch preamble</code> · contract <a href="#s6-4">§6.4.5</a></div>
+  <div class="data-table impl-table">
+    <div class="row head"><div>Aspect</div><div>Build</div><div>Details</div></div>
+    <div class="row"><div class="label-cell">Source</div><div><span class="tag new">new</span></div><div><ul><li>One neutral block in each command source; the generator injects the tier and the tool's rank list at emission, so the generated skill is self-contained.</li></ul></div></div>
+    <div class="row"><div class="label-cell">Enforce</div><div><span class="tag note">note</span></div><div><ul><li>Alert text names the tier, never a model name — the mapping table stays the only home of names (rule 4).</li></ul></div></div>
+  </div>
+</section>
+
+<!-- §7.5 Cross-cutting -->
+<section class="s" id="s7-5">
+  <h2 class="section-title"><span class="sec-ref">§7.5</span>Cross-cutting — shared by every unit</h2>
+  <ul class="bullets">
+    <li><strong>Determinism is built once.</strong> Sorted directory walks, LF line endings, no timestamps or run-dependent values in output — the generator's core owns it, both emitters inherit it (NF1).</li>
+    <li><strong>One token-substitution implementation.</strong> Both emitters call the same substitution, so a token can never behave differently per target by accident.</li>
+    <li><strong>One mapping-table parser.</strong> The generator and the mismatch-preamble injection read ranks through the same code — one truth about model ordering.</li>
+    <li class="warn"><strong>Hand-edits to generated trees are self-defeating.</strong> The next regeneration erases them and the PR gate surfaces them as unexplained diffs — rule 1 is enforced by the pipeline, not by discipline alone.</li>
+  </ul>
+</section>
+
+<!-- ═════════════════════ §8 — Acceptance criteria ═════════════════════ -->
+<section class="s" id="s8">
+  <h2 class="section-title"><span class="sec-ref">§8</span>Acceptance criteria</h2>
+  <div class="ac-table">
+    <div class="ac-head"><div>#</div><div>Verifies</div><div>Description</div></div>
+    <div class="ac-row">
+      <div class="ac-id">AC1</div>
+      <div class="ac-verifies"><span class="verify-chip">R1</span></div>
+      <div>In a clean product repo, Asimov installs in Codex through that tool's marketplace mechanism, and all six commands can be invoked.</div>
+    </div>
+    <div class="ac-row">
+      <div class="ac-id">AC2</div>
+      <div class="ac-verifies"><span class="verify-chip">R2</span></div>
+      <div>The existing Claude Code path — add the marketplace, install, update — works against the repository unchanged.</div>
+    </div>
+    <div class="ac-row">
+      <div class="ac-id">AC3</div>
+      <div class="ac-verifies"><span class="verify-chip">R3</span><span class="verify-chip">NF4</span><span class="verify-chip">§4.1</span></div>
+      <div>The same command run in each tool passes through the same phases and writes its output to the same path with the same structure, tested with at least one interview command and one read-only command.</div>
+    </div>
+    <div class="ac-row">
+      <div class="ac-id">AC4</div>
+      <div class="ac-verifies"><span class="verify-chip">R4</span><span class="verify-chip">R8</span><span class="verify-chip">NF4</span></div>
+      <div>Each of the four subagent roles can be delegated to in Codex and runs on the model and effort the mapping table designates, read back from the tool's own run indicator or configuration.</div>
+    </div>
+    <div class="ac-row">
+      <div class="ac-id">AC5</div>
+      <div class="ac-verifies"><span class="verify-chip">R5</span><span class="verify-chip">R6</span><span class="verify-chip">NF4</span></div>
+      <div>Each standard persona can be invoked in Codex, and a custom persona authored into a product repo can be invoked in both tools.</div>
+    </div>
+    <div class="ac-row">
+      <div class="ac-id">AC6</div>
+      <div class="ac-verifies"><span class="verify-chip">R7</span><span class="verify-chip">§4.4</span></div>
+      <div>Every generated component is reproducible by running the generator over the neutral source, proven by the pull-request gate on every change.</div>
+    </div>
+    <div class="ac-row">
+      <div class="ac-id">AC7</div>
+      <div class="ac-verifies"><span class="verify-chip">NF1</span><span class="verify-chip">§4.4</span></div>
+      <div>Two generator runs on the same commit produce byte-identical output, and a merge that leaves the generated trees unchanged produces no release.</div>
+    </div>
+    <div class="ac-row">
+      <div class="ac-id">AC8</div>
+      <div class="ac-verifies"><span class="verify-chip">R8</span><span class="verify-chip">§4.4</span></div>
+      <div>A search across the repository finds concrete model names only in the mapping tables and in the generated trees.</div>
+    </div>
+    <div class="ac-row">
+      <div class="ac-id">AC9</div>
+      <div class="ac-verifies"><span class="verify-chip">R9</span><span class="verify-chip">NF4</span></div>
+      <div>Bootstrapping a fresh repo produces working context wiring for both Claude Code and Codex, and neither tool's files interfere with the other's.</div>
+    </div>
+    <div class="ac-row">
+      <div class="ac-id">AC10</div>
+      <div class="ac-verifies"><span class="verify-chip">R10</span><span class="verify-chip">§4.4</span></div>
+      <div>A command started on a model below its designated tier reports the mismatch before doing the work, demonstrated in both tools; a model the mapping table cannot rank produces a neutral note instead of an alert.</div>
+    </div>
+    <div class="ac-row">
+      <div class="ac-id">AC11</div>
+      <div class="ac-verifies"><span class="verify-chip">NF3</span></div>
+      <div>A review confirms that no file in the neutral source carries tool-specific content, and that everything tool-specific lives in the generator's targets and the mapping table.</div>
+    </div>
+    <div class="ac-row">
+      <div class="ac-id">AC12</div>
+      <div class="ac-verifies"><span class="verify-chip">NF6</span><span class="verify-chip">NF7</span><span class="verify-chip">§4.4</span></div>
+      <div>The documentation carries the list of known limitations, and every entry meets the no-mechanism-exists test — today exactly one, the Codex interview model.</div>
+    </div>
+    <div class="ac-row">
+      <div class="ac-id">AC13</div>
+      <div class="ac-verifies"><span class="verify-chip">NF2</span></div>
+      <div>On a fresh clone of the repository, a developer runs the generator locally and gets both plugin trees, with no pipeline involved.</div>
+    </div>
+    <div class="ac-row">
+      <div class="ac-id">AC14</div>
+      <div class="ac-verifies"><span class="verify-chip">NF5</span></div>
+      <div>A change containing only neutral source is published end to end, with nothing locally generated taking part in the flow.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════════════════ §9 — Open questions ═════════════════════ -->
+<section class="s" id="s9">
+  <h2 class="section-title"><span class="sec-ref">§9</span>Open questions</h2>
+  <p class="section-desc">No question is left open — all four were settled during authoring, the last of them the release trigger.</p>
+
+  <div class="subhead">Resolved during authoring</div>
+  <div class="q-grid">
+    <div class="q-card resolved">
+      <div class="q-head"><span class="q-id">Q1</span><span class="q-decider">Resolved 2026-09-02</span></div>
+      <div class="q-body">Should the existing release workflow move from manual triggering to running automatically on every merge to the main branch, and who owns that change?</div>
+      <div class="q-resolution"><strong>Decision:</strong> it moves to automatic on every merge to the main branch, owned and decided by cka; it would reopen if the pipeline ever published somewhere the team does not control.</div>
+    </div>
+    <div class="q-card resolved">
+      <div class="q-head"><span class="q-id">Q2</span><span class="q-decider">Resolved 2026-09-02</span></div>
+      <div class="q-body">Which language and runtime is the generator written in, given the repo has a pipeline but no build environment?</div>
+      <div class="q-resolution"><strong>Decision:</strong> Node.js/TypeScript, because the team is mixed Windows and Mac; it would reopen if the team became single-platform, and the parsing and test-coverage caveats are carried into §6.</div>
+    </div>
+    <div class="q-card resolved">
+      <div class="q-head"><span class="q-id">Q3</span><span class="q-decider">Resolved 2026-09-02</span></div>
+      <div class="q-body">How are models designated across two tools whose model vocabularies differ?</div>
+      <div class="q-resolution"><strong>Decision:</strong> tier and effort in the source with one mapping table per tool as the only home for concrete names; it would reopen if a tool introduced real version-locked tier aliases.</div>
+    </div>
+    <div class="q-card resolved">
+      <div class="q-head"><span class="q-id">Q4</span><span class="q-decider">Resolved 2026-09-02</span></div>
+      <div class="q-body">Does the bootstrap command cover one chosen tool or all supported tools?</div>
+      <div class="q-resolution"><strong>Decision:</strong> all supported tools, because bootstrap writes committed project files; it would reopen if two tools' wiring ever conflicted in one repo.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════════════════ §10 — References ═════════════════════ -->
+<section class="s" id="s10">
+  <h2 class="section-title"><span class="sec-ref">§10</span>References</h2>
+  <div class="refs">
+    <div class="refs-block">
+      <h4>Docs</h4>
+      <ul>
+        <li>documentation/D100-Asimov-architecture.md — its opening, §4, §4.1, §4.2, §6, §8.2, §8.3 and §8.5 describe Claude Code as the only distribution path, and are rewritten alongside this work (cka)</li>
+        <li>documentation/how-we-work-l2-l3.md — the authoring-versus-execution philosophy the tier assignments express</li>
+      </ul>
+    </div>
+    <div class="refs-block">
+      <h4>Sibling designs</h4>
+      <ul>
+        <li>documentation/features/D101-personas.html</li>
+        <li>documentation/features/D101-build-subagents.html</li>
+        <li>documentation/features/D101-asimov-init.html</li>
+        <li>documentation/features/D101-artifact-maturity.html — the maturity block every artifact definition opens with; read by the producing commands in both tools</li>
+      </ul>
+    </div>
+    <div class="refs-block">
+      <h4>Definitions</h4>
+      <ul>
+        <li>documentation/model-choice.md — retired 2026-09-21; its role is carried by source/mappings/ (R8, rule 4)</li>
+        <li>source/artifacts/skills/persona-review/persona-review-definition.md — formerly plugins/asimov-plugin/definitions/definition-of-persona-review.md</li>
+      </ul>
+    </div>
+    <div class="refs-block">
+      <h4>Pipeline</h4>
+      <ul>
+        <li>.github/workflows/Asimov-PR.yml</li>
+        <li>.github/workflows/Asimov-Release.yml</li>
+        <li>github.com/context-and-oss/asimov/issues/2 — verify model mapping and revisit per-task model choices</li>
+      </ul>
+    </div>
+    <div class="refs-block">
+      <h4>Vendor docs</h4>
+      <ul>
+        <li>developers.openai.com/codex — skills, subagents, plugins; custom prompts deprecated in favour of skills</li>
+        <li>code.claude.com/docs/en/skills — skills, frontmatter (model/effort per skill), commands merged into skills</li>
+        <li>agentskills.io — the shared SKILL.md standard both tools read</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+  </article>
+</div>
+
+<footer class="site-footer">
+  <div>
+    <a href="../index.html">← Documentation home</a>
+    · <span class="mono">features/D101-agnostic-toolkit-codex-support.html</span>
+  </div>
+  <div style="margin-top: 0.4rem">
+    D101 · Tool-agnostic toolkit &amp; Codex support · asimov · Approved v1.2 · 2026-09-21
+  </div>
+</footer>
+
+</body>
+</html>

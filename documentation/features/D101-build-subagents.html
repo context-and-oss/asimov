@@ -288,7 +288,7 @@ footer.site-footer a { color: var(--cyan); }
   <a href="../index.html#s6">Diagrams</a>
   <span class="spacer"></span>
   <span class="phase-chip full">Full design</span>
-  <span class="status-chip">Draft v0.2</span>
+  <span class="status-chip">Approved v0.3</span>
 </nav>
 
 <div class="layout-doc">
@@ -312,6 +312,7 @@ footer.site-footer a { color: var(--cyan); }
           <li><a href="#s6-1">§6.1 Platform</a></li>
           <li><a href="#s6-2">§6.2 Data flow</a></li>
           <li><a href="#s6-3">§6.3 Code map</a></li>
+          <li><a href="#s6-4">§6.4 Shapes</a></li>
           <li><a href="#s6-6">§6.6 Configuration</a></li>
           <li><a href="#s6-7">§6.7 Failure handling</a></li>
           <li><a href="#s6-8">§6.8 Gotchas</a></li>
@@ -328,20 +329,28 @@ footer.site-footer a { color: var(--cyan); }
 <header class="hero">
   <div class="kicker">D101 · Feature design · asimov-plugin</div>
   <h1>Build subagents</h1>
-  <p class="tagline">The three Accelerate <em>build</em>-role subagents — two builders (.NET, Angular) and a tester — that carry a reusable core but load the active product repo's own conventions at run-time, and flag gaps or conflicts instead of guessing a default the team never approved. The shared subagent mechanism lives in D100 §7.2.1; this D101 covers what's specific to the three.</p>
+  <p class="tagline">The three Accelerate <em>build</em>-role subagents — two builders (.NET, Angular) and a tester — that carry a reusable core but load the active product repo's own conventions at run-time, and flag gaps or conflicts instead of guessing a default the team never approved. The shared subagent mechanism lives in D100 §7.2.1; this D101 covers what's specific to the three — and, since v0.3, the small-tier twin of the .NET builder that the orchestrator picks under written scope criteria, plus the provenance trailer every build leaves in git.</p>
 </header>
 
 <div class="meta-strip">
   <div class="meta-cell"><div class="label">Owner</div><div class="value">Allan Borup</div></div>
-  <div class="meta-cell"><div class="label">Business approver</div><div class="value">Allan Borup</div></div>
-  <div class="meta-cell"><div class="label">Subagents</div><div class="value mono">3</div></div>
+  <div class="meta-cell"><div class="label">Business approver</div><div class="value">cka (v0.3) · Allan Borup (v0.1 owner)</div></div>
+  <div class="meta-cell"><div class="label">Subagents</div><div class="value mono">3 + 1 twin</div></div>
   <div class="meta-cell"><div class="label">Accelerate role</div><div class="value">Builder · Tester</div></div>
-  <div class="meta-cell"><div class="label">Last updated</div><div class="value mono">2026-09-15</div></div>
-  <div class="meta-cell"><div class="label">Model</div><div class="value">Sonnet 4.6</div></div>
+  <div class="meta-cell"><div class="label">Last updated</div><div class="value mono">2026-09-25</div></div>
+  <div class="meta-cell"><div class="label">Designation</div><div class="value">tier medium · twin small</div></div>
+</div>
+
+  <div class="callout">
+    <strong>Amendments.</strong>
+    <em>v0.1 (2026-06-11, draft, Allan Borup)</em> — the three build-role agents and the convention-overlay mechanism.
+    <em>v0.2 (2026-09-15, draft, Allan Borup)</em> — scopes the tester to the current branch: the <strong>Target</strong> field, base and changeset resolution, the coverage rule (R10–R13, §4.4, AC12–AC15).
+    <em>v0.3 (2026-09-25, approved by cka; authored 2026-09-22 as a parallel v0.2 and renumbered when the two lines merged)</em> — adds the <strong>small twin</strong> of the .NET builder as a pilot for two-level builders (R14–R16, §4.4 scope rule, §6.4 shapes), the <strong>provenance trailer</strong> every build carries into git (R17), and aligns the designation with the tool-agnostic restructure: agents are neutral sources under <code>source/agents/</code> declaring <code>tier</code> + <code>effort</code>, the mapping tables resolve the model per tool, <code>model-choice.md</code> is retired (NF2, §6.1, §6.3, §6.6, AC1, AC8). Requirements R1–R13 stand.
+  </div>
 </div>
 
 <div class="doc-scope">
-  <strong>Scope:</strong> asimov-plugin — the three build-role subagents (two builders + a tester) that load a product repo's per-stack conventions at run-time via a canonical entry README, and flag uncovered or conflicting cases rather than inventing a default. The reviewer (Baley) is a separate role with its own D101.
+  <strong>Scope:</strong> asimov-plugin — the three build-role subagents (two builders + a tester) that load a product repo's per-stack conventions at run-time via a canonical entry README, and flag uncovered or conflicting cases rather than inventing a default. The reviewer (Baley) is a separate role with its own D101. Since v0.3: a small-tier twin of the .NET builder as a pilot, the scope rule that bounds it, and the provenance trailer every build carries.
 </div>
 
 <!-- ═════════════════════ §2 — Problem / Purpose ═════════════════════ -->
@@ -371,6 +380,13 @@ footer.site-footer a { color: var(--cyan); }
       </div>
       <div class="pc-body">Where a convention is missing, or the task contradicts one, a generic agent quietly picks something — a default the team never reviewed and may not want.</div>
     </div>
+    <div class="problem-card">
+      <div class="pc-head">
+        <div class="pc-num">04</div>
+        <div class="pc-title">One model for every task, no record</div>
+      </div>
+      <div class="pc-body">A one-line change and a cross-cutting feature run on the same model at the same cost, and nothing in the repo says which agent or model produced a change — so the team cannot tell afterwards whether the designations hold, or where a smaller model would have done. <em>(v0.3)</em></div>
+    </div>
   </div>
 
   <div class="callout">
@@ -383,9 +399,9 @@ footer.site-footer a { color: var(--cyan); }
   <h2 class="section-title"><span class="sec-ref">§3</span>Requirements</h2>
 
   <div class="req-tabs">
-    <div class="req-tab active" data-target="func">Functional <span class="count">13</span></div>
-    <div class="req-tab" data-target="nf">Non-functional <span class="count">2</span></div>
-    <div class="req-tab" data-target="oos">Out of scope <span class="count">5</span></div>
+    <div class="req-tab active" data-target="func">Functional <span class="count">17</span></div>
+    <div class="req-tab" data-target="nf">Non-functional <span class="count">3</span></div>
+    <div class="req-tab" data-target="oos">Out of scope <span class="count">7</span></div>
   </div>
 
   <div class="req-list" data-tab="func">
@@ -398,15 +414,20 @@ footer.site-footer a { color: var(--cyan); }
     <div class="req"><div class="id">R7</div><div class="body">When the task contradicts a convention, the agent flags the conflict rather than silently following either the task or the convention.</div></div>
     <div class="req"><div class="id">R8</div><div class="body">For each non-trivial decision, the agent cites the convention file that backed it, so a reviewer can verify the choice against the source.</div></div>
     <div class="req"><div class="id">R9</div><div class="body">The test author may flag production code as hard-to-test (a design smell) back to its author, in addition to the gap and conflict flags.</div></div>
-    <div class="req"><div class="id">R10</div><div class="body">The two builders share Workflow and Output verbatim. The tester extends both — Workflow with a resolve-the-target step and an author-with-restraint step, Output with a resolved-target line and a suite-size note — and is otherwise the same.</div></div>
+    <div class="req"><div class="id">R10</div><div class="body">The two builders share Workflow and Output verbatim. The tester extends both — Workflow with a resolve-the-target step and an author-with-restraint step, Output with a resolved-target line and a suite-size note — and is otherwise the same. A twin differs from its default only by the generator-injected parts (NF3).</div></div>
     <div class="req"><div class="id">R11</div><div class="body">The tester authors tests for production code touched by the current branch, not the whole repo: base from <code>git remote show origin</code> (fallback <code>main</code>, then <code>master</code>), changeset via <code>git diff --merge-base &lt;base&gt;...HEAD --name-only</code>. It does not extend into pre-existing untouched code. An explicit invoker target (file, class, symbol) or a named base overrides the default; the resolved target is narrated before conventions are read.</div></div>
     <div class="req"><div class="id">R12</div><div class="body">When there is no diff (branch even with base, or base unresolvable) and no explicit invoker target, the tester says so and stops — nothing is authored.</div></div>
     <div class="req"><div class="id">R13</div><div class="body">When pre-existing untouched code in or near the target has thin coverage, the tester surfaces a coverage flag naming the location; it does not expand scope to add those tests unprompted.</div></div>
+    <div class="req"><div class="id">R14</div><div class="body">A builder role may ship a <strong>small twin</strong> — the same base info at the small tier, named <code>&lt;agent&gt;-small</code> — generated from the same source file. In this version only the .NET builder ships one (pilot).</div></div>
+    <div class="req"><div class="id">R15</div><div class="body">The twin takes a task only when every scope criterion in §4.4 holds; on any miss it <strong>hands the task back</strong> with the criterion named, having written nothing.</div></div>
+    <div class="req"><div class="id">R16</div><div class="body">The orchestrator chooses between an agent and its twin by the written criteria — stated in both agents' descriptions and in the repo's <code>asimov.md</code> delegation flow — and never overrides an Asimov agent's model at delegation time.</div></div>
+    <div class="req"><div class="id">R17</div><div class="body">Every build agent ends its report with a <strong>provenance trailer</strong> — agent, tool, model, effort — and the commit that lands the change carries it as a git trailer (<code>Asimov-Built-By</code>).</div></div>
   </div>
 
   <div class="req-list" data-tab="nf" style="display:none">
     <div class="req"><div class="id">NF1</div><div class="body">No product-specific identifiers appear in the agent prompts shipped by the plugin — stack names are generic, examples are illustrative (reusability, repo hard rule 7).</div></div>
-    <div class="req"><div class="id">NF2</div><div class="body">Each agent declares its model in YAML frontmatter (<code>claude-sonnet-4-6</code>) matching a row in <code>documentation/model-choice.md</code>, updated in the same commit (repo hard rule 2).</div></div>
+    <div class="req"><div class="id">NF2</div><div class="body">Each agent declares <code>tier</code> + <code>effort</code> in neutral frontmatter, mirrored by its D100 §4.4 row in the same commit; the concrete model per tool comes from the mapping tables (<code>source/mappings/</code>), never from the agent file (repo hard rule 4). <em>Rewritten in v0.3; v0.1 named <code>claude-sonnet-4-6</code> and <code>model-choice.md</code>.</em></div></div>
+    <div class="req"><div class="id">NF3</div><div class="body">A twin's prompt is the default's prompt plus generator-injected parts only — designation, scope guard, description suffix. There is no second prompt to drift.</div></div>
   </div>
 
   <div class="req-list" data-tab="oos" style="display:none">
@@ -415,6 +436,8 @@ footer.site-footer a { color: var(--cyan); }
     <div class="req oos"><div class="id">OOS3</div><div class="body">Agents calling one another / orchestration — deferred; cross-agent coordination is its own design and not needed for this version.</div></div>
     <div class="req oos"><div class="id">OOS4</div><div class="body">Additional stack agents (e.g. Vue, Python) — no current plans; revisit if a new primary stack appears.</div></div>
     <div class="req oos"><div class="id">OOS5</div><div class="body">Additional test types or stacks in <code>documentation/conventions/test/</code> (integration, load, Angular specs) — no current plans; .NET unit tests only for now.</div></div>
+    <div class="req oos"><div class="id">OOS6</div><div class="body">Automatic escalation from a twin to its default — the twin hands back to the orchestrator, which re-delegates (no agent-to-agent hand-off, consistent with OOS3).</div></div>
+    <div class="req oos"><div class="id">OOS7</div><div class="body">Twins for the Angular builder and the test author — after the .NET pilot has produced evidence (§8 Q2).</div></div>
   </div>
 </section>
 
@@ -449,13 +472,17 @@ footer.site-footer a { color: var(--cyan); }
       <div class="num">4</div>
       <div class="text"><strong>Shared mechanism, role per agent.</strong> All three read a per-stack entry README, apply it, and flag; only the role and stack knowledge differ between them — plus the tester's Target, which scopes <em>what</em> it works on (§4.3.3).</div>
     </div>
+    <div class="principle">
+      <div class="num">5</div>
+      <div class="text"><strong>Designation is a decision, not a guess.</strong> Which agent runs is decided by written criteria and recorded in the commit; a model is never picked ad hoc at delegation time. <em>(v0.3)</em></div>
+    </div>
   </div>
 </section>
 
 <!-- §4.2 Concepts -->
 <section class="s" id="s4-2">
   <h2 class="section-title"><span class="sec-ref">§4.2</span>Concepts</h2>
-  <p class="section-desc">Four terms the rest of the document leans on. The split between what ships with the plugin and what the repo owns is the load-bearing distinction.</p>
+  <p class="section-desc">Six terms the rest of the document leans on. The split between what ships with the plugin and what the repo owns is the load-bearing distinction; the last two arrived with v0.3.</p>
   <div class="concept-row">
     <div class="concept reading">
       <div class="c-head">
@@ -485,6 +512,20 @@ footer.site-footer a { color: var(--cyan); }
       </div>
       <p>How the two combine: conventions refine and constrain base info. On conflict the agent flags rather than silently choosing; on a gap it proceeds on base info and flags.</p>
     </div>
+    <div class="concept reading">
+      <div class="c-head">
+        <div class="c-name">Small twin</div>
+        <div class="c-accuracy">ships in plugin</div>
+      </div>
+      <p>The same agent at the small tier, named <code>&lt;agent&gt;-small</code>. One source file, two emitted agents; the twin carries a scope guard the default does not (§4.4). The orchestrator chooses it — it never overrides a model.</p>
+    </div>
+    <div class="concept inferred">
+      <div class="c-head">
+        <div class="c-name">Provenance trailer</div>
+        <div class="c-accuracy">recorded in git</div>
+      </div>
+      <p><code>Asimov-Built-By: &lt;agent&gt; (&lt;tool&gt;, &lt;model&gt;, effort &lt;effort&gt;)</code> — the last line of every build report and a trailer on the commit that lands the change. Queryable with <code>git log --format='%(trailers:key=Asimov-Built-By)'</code>.</p>
+    </div>
   </div>
 </section>
 
@@ -494,7 +535,7 @@ footer.site-footer a { color: var(--cyan); }
   <p class="section-desc">Same mechanism, three personas — Giskard, Daneel, and Calvin. Each agent's base info follows a shared skeleton; the cards carry the per-agent fields.</p>
 
   <div class="callout">
-    <strong>Base-info skeleton.</strong> Every agent's base info carries the same six fields so the three stay consistent; the tester adds a seventh, <strong>Target</strong> (R11). Two are shared by the builders verbatim and stated once here: <strong>Workflow</strong> — read the entry README, apply conventions over base info, cite the source file, and flag any gap or conflict (§4.1, §4.4); <strong>Output</strong> — code or tests a reviewer accepts without style fixes, plus a short summary citing the conventions applied and listing any flags raised (§2, R8). The tester extends Workflow with a resolve-the-target step first and an author-with-restraint step, and Output with a resolved-target line (<code>Authoring tests for: …</code>) and a suite-size note (R10). The per-agent fields — <strong>Role</strong>, <strong>Stack competence</strong>, and <strong>Boundaries</strong> — are on the cards below; <strong>Reads</strong> is each card's entry path.
+    <strong>Base-info skeleton.</strong> Every agent's base info carries the same six fields so the three stay consistent; the tester adds a seventh, <strong>Target</strong> (R11). Two are shared by the builders verbatim and stated once here: <strong>Workflow</strong> — read the entry README, apply conventions over base info, cite the source file, and flag any gap or conflict (§4.1, §4.4); <strong>Output</strong> — code or tests a reviewer accepts without style fixes, plus a short summary citing the conventions applied and listing any flags raised (§2, R8), ending with the provenance trailer (R17, v0.3). The tester extends Workflow with a resolve-the-target step first and an author-with-restraint step, and Output with a resolved-target line (<code>Authoring tests for: …</code>) and a suite-size note (R10). The per-agent fields — <strong>Role</strong>, <strong>Stack competence</strong>, and <strong>Boundaries</strong> — are on the cards below; <strong>Reads</strong> is each card's entry path.
   </div>
 
   <div class="fields-grid">
@@ -510,6 +551,7 @@ footer.site-footer a { color: var(--cyan); }
         <ul class="bullets">
           <li><strong>Competence:</strong> idiomatic C#, async, dependency injection, common backend patterns — repo-independent</li>
           <li><strong>Boundary:</strong> backend only — tests are Calvin's, frontend is Daneel's (no auto hand-off, OOS3)</li>
+          <li><strong>Small twin:</strong> <code>giskard-the-dotnet-developer-small</code> — the same prompt at the small tier, bounded by the scope rule (§4.4); the pilot for two-level builders (R14, v0.3)</li>
           <li class="warn">A repo's .NET set is usually the largest, so this agent typically loads the most convention context of the three</li>
         </ul>
       </div>
@@ -550,6 +592,10 @@ footer.site-footer a { color: var(--cyan); }
   </div>
 
   <div class="callout">
+    <strong>Two designations, one prompt (v0.3).</strong> A builder source may declare <code>twin: small</code>. The generator then emits the agent twice into each plugin tree — the default at its declared tier and <code>&lt;agent&gt;-small</code> at the small tier — from the one prompt, injecting only the designation line, the scope guard (§4.4) and a fixed description suffix that states the criteria. The orchestrator reads both descriptions and picks by those criteria; when in doubt it picks the default. Nothing else about the agent changes, and a wording fix reaches both.
+  </div>
+
+  <div class="callout">
     <strong>Naming &amp; Accelerate roles.</strong> Agents are named from Isaac Asimov's canon — fitting for a toolkit called Asimov — and each maps to an Accelerate multi-agent role (D100 §4.4). In this D101: <strong>Giskard</strong> (.NET) and <strong>Daneel</strong> (Angular) are <em>builders</em>; <strong>Calvin</strong> is the <em>tester</em>. The <em>reviewer</em> role — <strong>Baley</strong>, the detective who verifies — now ships in its own D101 (<code>D101-baley-the-code-reviewer.html</code>). Still reserved: <strong>Hari</strong> and <strong>Dornick</strong> for the <em>planner</em>/architect and spec-author roles, not yet built.
   </div>
 </section>
@@ -557,7 +603,7 @@ footer.site-footer a { color: var(--cyan); }
 <!-- §4.4 Named rules -->
 <section class="s" id="s4-4">
   <h2 class="section-title"><span class="sec-ref">§4.4</span>Rules</h2>
-  <p class="section-desc">Three conditional rules govern what an agent does at the edges — the third is the tester's alone — plus the traceability expectation. Each conditional rule carries the case where it fires and the adjacent case where it does not.</p>
+  <p class="section-desc">Four conditional rules govern what an agent does at the edges — conflict, gap, the tester's coverage and, for a twin, scope — plus two traceability expectations: cite the convention, and sign the build. Each conditional rule carries the case where it fires and the adjacent case where it does not.</p>
   <div class="history-grid">
     <div class="hist-card flag">
       <div class="h-label">Conflict rule</div>
@@ -595,6 +641,24 @@ footer.site-footer a { color: var(--cyan); }
         <li>Pure base-info decisions (language syntax, framework idioms) need no citation</li>
       </ul>
     </div>
+    <div class="hist-card flag">
+      <div class="h-label">Scope rule (twin only, v0.3)</div>
+      <div class="h-value">Hand back</div>
+      <div class="h-desc">A small twin takes a task only when <em>all</em> of these hold: (1) the change is confined to one production file; (2) the task states the exact behaviour or signature — nothing is left to design; (3) no new type, abstraction or pattern is introduced; (4) the conventions cover the area — a gap is handed back, not filled on base competence; (5) no other stack is touched. On any miss the twin writes nothing and reports <code>Handed back: &lt;criterion&gt;</code>, and the orchestrator re-delegates to the default agent (R15).</div>
+      <ul class="bullets">
+        <li>Fires: the task needs a new repository interface, or <code>dotnet/</code> says nothing about the area → the twin hands back, naming the criterion</li>
+        <li>Does not fire: rename a private field across one class per <code>dotnet/naming.md</code>, behaviour unchanged → the twin does it</li>
+      </ul>
+    </div>
+    <div class="hist-card">
+      <div class="h-label">Provenance (v0.3)</div>
+      <div class="h-value">Sign the build</div>
+      <div class="h-desc">Every build report ends with <code>Asimov-Built-By: &lt;agent&gt; (&lt;tool&gt;, &lt;model&gt;, effort &lt;effort&gt;)</code>, and the orchestrator carries one such line into the commit for <em>everyone</em> who changed files — each Asimov agent's own line, a line the orchestrator writes for any ad-hoc agent it spawned (<code>ad-hoc/&lt;purpose&gt;</code>), and one for itself when it edited inline (<code>orchestrator</code>) (R17; the rule lives in <code>asimov.md</code>). It is how the team later judges whether the designations hold: pair Baley's findings on a change with the trailer that built it — an <code>ad-hoc</code> line is itself the finding that a designation was bypassed.</div>
+      <ul class="bullets">
+        <li><code>Asimov-Built-By: giskard-the-dotnet-developer-small (claude-code, claude-haiku-4-5, effort inherit)</code></li>
+        <li>A commit without the trailer is a gap in the evidence, not a broken build — Baley notes it, nothing blocks</li>
+      </ul>
+    </div>
   </div>
 </section>
 
@@ -624,9 +688,34 @@ footer.site-footer a { color: var(--cyan); }
       <div class="why">Conventions are repo-specific; baking them in breaks reusability (hard rule 7) and would force a plugin release for every repo's house style.</div>
     </div>
     <div class="decision-row">
-      <div class="decided">All three agents run on Sonnet 4.6.</div>
-      <div class="alt">Opus for code/test generation.</div>
-      <div class="why">Code and test generation is contract-bounded work that runs often; Sonnet's reasoning suffices and throughput matters (model-choice.md §2).</div>
+      <div class="decided">All three agents declare tier medium; the mapping tables resolve it per tool (Sonnet 5 in Claude Code, GPT-5.6 Terra in Codex as of 2026-09-21).</div>
+      <div class="alt">The large tier for code/test generation.</div>
+      <div class="why">Code and test generation is contract-bounded work that runs often; the medium tier's reasoning suffices and throughput matters (mapping-table rationale, issue #20). Amended 2026-09-22 (v0.3): tier + effort replace the concrete model name (hard rule 4).</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided">A small twin as a separate, generated agent, chosen by the orchestrator. <em>(v0.3)</em></div>
+      <div class="alt">Let the orchestrator override the model when delegating.</div>
+      <div class="why">An override bypasses the mapping table (Claude Code's Agent tool takes aliases only) and in Codex is possible only by leaving the TOML's <code>model</code> unset, which silently falls back to the parent's model. Choosing an agent works identically in both tools and keeps every designation in a reviewed file.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided">The twin is emitted from the default's source file (<code>twin: small</code>). <em>(v0.3)</em></div>
+      <div class="alt">A second source file per twin.</div>
+      <div class="why">Six near-identical prompts drift the moment one is edited; one source with generator-injected differences cannot (NF3).</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided">The twin hands back on a convention gap instead of proceeding on base competence. <em>(v0.3)</em></div>
+      <div class="alt">The default's gap rule — proceed and flag.</div>
+      <div class="why">Filling a convention gap is a judgment call — exactly the work the small tier is not trusted with. The default agent keeps proceed-and-flag.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided">Pilot on the .NET builder only. <em>(v0.3)</em></div>
+      <div class="alt">Twins for all three agents at once.</div>
+      <div class="why">Evidence before widening: .NET is the primary stack, so it yields the most data fastest. Daneel and Calvin follow on the pilot's evidence (OOS7, Q2).</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided">Provenance as a git trailer on the commit. <em>(v0.3)</em></div>
+      <div class="alt">A header comment in the generated code, or a note in the PR description.</div>
+      <div class="why">A trailer is machine-queryable, touches no source line and sits in the history reviewers already read. A code comment pollutes the product; PR text is not in the history.</div>
     </div>
     <div class="decision-row">
       <div class="decided">Agents are named from Isaac Asimov's canon (Giskard, Daneel, Calvin; Baley since built as the reviewer; Hari / Dornick reserved for later roles).</div>
@@ -658,10 +747,10 @@ footer.site-footer a { color: var(--cyan); }
 <section class="s" id="s6-1">
   <h2 class="section-title"><span class="sec-ref">§6.1</span>Platform</h2>
   <p style="color: var(--text-dim); font-size: 0.95rem; line-height: 1.65;">
-    The three agents are Claude Code subagents living in the <code>agents/</code> directory in asimov-plugin. Each is a markdown file with YAML frontmatter declaring <code>model: claude-sonnet-4-6</code>. None declares <code>tools:</code>, so each inherits the full tool set — the tester relies on that for <code>git</code> via Bash (R11); contrast Baley, whose frontmatter lists <code>tools: Read, Grep, Glob, Bash</code> to enforce read-only. The conventions they read live in the consuming product repo under <code>documentation/conventions/</code> — nothing about them ships in the plugin. No SQL, schema, or infrastructure change.
+    The three agents are neutral sources under <code>source/agents/</code>, each a markdown file whose frontmatter declares <code>tier</code> + <code>effort</code>. The generator emits them into both plugin trees — as Claude Code subagents (<code>agents/&lt;name&gt;.md</code>) and as Codex agent TOMLs (<code>codex/agents/&lt;name&gt;.toml</code>, delivered to product repos by <code>/asimov-init</code>) — resolving the model per tool from <code>source/mappings/</code> (D101-agnostic-toolkit-codex-support §6.4.3). A source with <code>twin: small</code> is emitted twice: the default, and <code>&lt;name&gt;-small</code>. None of the three declares <code>tools:</code>, so each inherits the full tool set — the tester relies on that for <code>git</code> via Bash (R11); contrast Baley, whose frontmatter lists <code>tools: Read, Grep, Glob, Bash</code> to enforce read-only. The conventions the agents read live in the consuming product repo under <code>documentation/conventions/</code> — nothing about them ships in the plugin. No SQL, schema, or infrastructure change. <em>(Rewritten in v0.3 for the tool-agnostic restructure.)</em>
   </p>
   <div class="callout">
-    <strong>Model-choice sync.</strong> Each agent's <code>model:</code> frontmatter must be paired with a row in <code>documentation/model-choice.md</code> in the same commit (hard rule 2). The rows are added when the agent files are authored — not from this design doc — to avoid an index that names agents that don't exist yet.
+    <strong>Designation, not model.</strong> An agent file never names a model (hard rule 4); the mapping tables do, and the generator writes the resolved name into the emitted file. Changing a designation is a tier/effort edit in the source plus the D100 §4.4 row in the same commit. A twin adds one row there, at the small tier.
   </div>
 </section>
 
@@ -745,29 +834,47 @@ footer.site-footer a { color: var(--cyan); }
     <div class="principle"><div class="num">3</div><div class="text">The agent <strong>reads each <code>@</code>-referenced file</strong> the README lists, loading every convention file in the stack (R5).</div></div>
     <div class="principle"><div class="num">4</div><div class="text">Agent <strong>applies</strong> conventions over base info; precedence and edge handling per §4.2 / §4.4.</div></div>
     <div class="principle"><div class="num">5</div><div class="text">Agent <strong>produces</strong> code or tests, citing the convention file behind each non-trivial choice (R8). Any gap or conflict is flagged instead of guessed (R6, R7); the tester also flags thin coverage outside its target (R13) and opens with its resolved-target line (R10).</div></div>
+    <div class="principle"><div class="num">6</div><div class="text"><strong>Twin only — scope check between steps 3 and 4 (v0.3).</strong> With the conventions read, the twin tests the five criteria (§4.4); on any miss it <strong>hands back</strong> with the criterion named and writes nothing. The orchestrator re-delegates to the default agent. The diagram shows the shared flow; this branch leaves it before step 4.</div></div>
+    <div class="principle"><div class="num">7</div><div class="text"><strong>Sign (v0.3).</strong> The report ends with the <code>Asimov-Built-By</code> trailer (R17); the orchestrator carries it into the commit that lands the change.</div></div>
   </div>
 </section>
 
 <!-- §6.3 Code map -->
 <section class="s" id="s6-3">
   <h2 class="section-title"><span class="sec-ref">§6.3</span>Code map</h2>
-  <p class="section-desc">File names are proposed; exact shapes are S101. The product-repo READMEs are listed for orientation — they are not part of the plugin.</p>
+  <p class="section-desc">Paths are the neutral sources; the generated files live in both plugin trees. Exact shapes are S101. The product-repo READMEs are listed for orientation — they are not part of the plugin. <em>(Paths updated in v0.3.)</em></p>
   <div class="codemap">
     <div class="codemap-row">
-      <div class="what">.NET developer agent (Giskard)</div>
-      <div class="where">plugins/asimov-plugin/agents/giskard-the-dotnet-developer.md</div>
+      <div class="what">.NET developer agent (Giskard) — declares <code>twin: small</code>; emitted as default + twin</div>
+      <div class="where">source/agents/giskard-the-dotnet-developer.md</div>
     </div>
     <div class="codemap-row">
       <div class="what">Angular developer agent (Daneel)</div>
-      <div class="where">plugins/asimov-plugin/agents/daneel-the-angular-developer.md</div>
+      <div class="where">source/agents/daneel-the-angular-developer.md</div>
     </div>
     <div class="codemap-row">
       <div class="what">Test author agent (Calvin)</div>
-      <div class="where">plugins/asimov-plugin/agents/calvin-the-test-author.md</div>
+      <div class="where">source/agents/calvin-the-test-author.md</div>
     </div>
     <div class="codemap-row">
-      <div class="what">Model declarations (one row per agent)</div>
-      <div class="where">documentation/model-choice.md</div>
+      <div class="what">Scope guard the generator injects into every twin (proposed; skipped by the component loader)</div>
+      <div class="where">source/agents/_scope-guard.md</div>
+    </div>
+    <div class="codemap-row">
+      <div class="what">Twin emission and the <code>{{designation}}</code> / <code>{{scope-guard}}</code> tokens</div>
+      <div class="where">generator/src/generate.ts · generator/src/targets/{claude-code,codex}.ts</div>
+    </div>
+    <div class="codemap-row">
+      <div class="what">Tier → model, per tool</div>
+      <div class="where">source/mappings/claude-code.md · source/mappings/codex.md</div>
+    </div>
+    <div class="codemap-row">
+      <div class="what">Delegation flow: twin criteria, no model override, carry the trailer into the commit</div>
+      <div class="where">source/artifacts/root/asimov-md/asimov-md-template.md</div>
+    </div>
+    <div class="codemap-row">
+      <div class="what">Subagent inventory (twin row) and the designation rule</div>
+      <div class="where">documentation/D100-Asimov-architecture.md §4.4 · §7.3</div>
     </div>
     <div class="codemap-row">
       <div class="what">Per-stack entry READMEs (product repo, not plugin)</div>
@@ -779,8 +886,16 @@ footer.site-footer a { color: var(--cyan); }
 <!-- §6.4 Shapes — N/A -->
 <section class="s" id="s6-4">
   <h2 class="section-title"><span class="sec-ref">§6.4</span>Shapes / Data model</h2>
+  <p class="section-desc">No persisted data model — the agents read markdown and produce source files. v0.3 adds three small shapes the generator and the orchestrator agree on.</p>
+  <div class="data-table">
+    <div class="row head cols-3"><div>Shape</div><div>Form</div><div>Notes</div></div>
+    <div class="row cols-3"><div class="label-cell">twin: small</div><div>Optional frontmatter field on an agent source; the value is the twin's tier</div><div>Emit a second agent <code>&lt;name&gt;-small</code> at that tier with <code>effort: medium</code>, description = the source's + a fixed suffix stating the scope criteria. Absent → no twin.</div></div>
+    <div class="row cols-3"><div class="label-cell">{{designation}}</div><div>Body token, resolved per target and per variant</div><div><code>&lt;agent&gt; (&lt;tool&gt;, &lt;model&gt;, effort &lt;effort&gt;)</code> — e.g. <code>giskard-the-dotnet-developer (claude-code, claude-sonnet-5, effort inherit)</code>; the Codex emission names the Codex model. Used in the Output section for the trailer.</div></div>
+    <div class="row cols-3"><div class="label-cell">{{scope-guard}}</div><div>Body token, resolved per variant</div><div>Empty for the default agent; for a twin, the contents of <code>source/agents/_scope-guard.md</code> — the five criteria and the hand-back wording of §4.4, authored once. A token with a value for every variant, so generation never fails on it (D101-agnostic §6.4.2).</div></div>
+    <div class="row cols-3"><div class="label-cell">Asimov-Built-By</div><div>Git trailer, one line</div><div><code>Asimov-Built-By: &lt;agent&gt; (&lt;tool&gt;, &lt;model&gt;, effort &lt;effort&gt;)</code>. Written by the agent as the last line of its report; copied by the orchestrator into the commit message's trailer block.</div></div>
+  </div>
   <div class="callout">
-    N/A — this feature introduces no new data model or persisted shapes. The agents read markdown and produce source files.
+    The two tokens join the substitution table of the tool-agnostic design (D101-agnostic-toolkit-codex-support §6.4.2): one implementation, both targets, a missing value fails generation.
   </div>
 </section>
 
@@ -795,10 +910,12 @@ footer.site-footer a { color: var(--cyan); }
 <!-- §6.6 Configuration -->
 <section class="s" id="s6-6">
   <h2 class="section-title"><span class="sec-ref">§6.6</span>Configuration</h2>
-  <p class="section-desc">There is little to tune: the entry-file paths are fixed by R4, and the model is fixed per agent. Listed here so the fixed values are explicit. Shown as a table rather than the default value-cards because the values are file paths, which read more clearly inline than as headline values.</p>
+  <p class="section-desc">There is little to tune: the entry-file paths are fixed by R4, and the designation is fixed per agent. Listed here so the fixed values are explicit. Shown as a table rather than the default value-cards because the values are file paths, which read more clearly inline than as headline values.</p>
   <div class="data-table">
     <div class="row head cols-3"><div>Setting</div><div>Value</div><div>Justification</div></div>
-    <div class="row cols-3"><div class="label-cell">agent model</div><div><code>claude-sonnet-4-6</code></div><div>Contract-bounded, frequently-run work (model-choice.md §2)</div></div>
+    <div class="row cols-3"><div class="label-cell">builder / tester designation</div><div><code>tier: medium</code> · <code>effort: medium</code></div><div>Contract-bounded, frequently-run work; the mapping tables resolve it per tool (v0.3 — replaces the fixed <code>claude-sonnet-4-6</code>)</div></div>
+    <div class="row cols-3"><div class="label-cell">twin designation</div><div><code>twin: small</code> → <code>tier: small</code> · <code>effort: medium</code></div><div>Pilot: the .NET builder only. Haiku 4.5 ignores effort, so the twin declares medium — emitted as inherit in Claude Code, <code>medium</code> for Luna in Codex</div></div>
+    <div class="row cols-3"><div class="label-cell">trailer key</div><div><code>Asimov-Built-By</code></div><div>Fixed so <code>git log --format='%(trailers:key=Asimov-Built-By)'</code> works in every repo</div></div>
     <div class="row cols-3"><div class="label-cell">.NET entry path</div><div><code>documentation/conventions/dotnet/README.md</code></div><div>Fixed by R4; the .NET agent's only entry point</div></div>
     <div class="row cols-3"><div class="label-cell">Angular entry path</div><div><code>documentation/conventions/angular/README.md</code></div><div>Fixed by R4; the Angular agent's only entry point</div></div>
     <div class="row cols-3"><div class="label-cell">test entry path</div><div><code>documentation/conventions/test/README.md</code></div><div>Fixed by R4; new folder, .NET unit tests for now</div></div>
@@ -843,6 +960,24 @@ footer.site-footer a { color: var(--cyan); }
       <div><span class="sev med">Med</span></div>
       <div>The Workflow's read step mandates reading <em>every</em> <code>@</code>-referenced file; the list is short and reviewable, and output cites its sources (R8) so a reviewer can spot a convention that should have applied but didn't</div>
     </div>
+    <div class="failure-row">
+      <div>Orchestrator sends the twin a task outside its scope <em>(v0.3)</em></div>
+      <div>One wasted delegation; nothing written</div>
+      <div><span class="sev low">Low</span></div>
+      <div>The twin hands back naming the criterion (R15); the orchestrator re-delegates to the default agent</div>
+    </div>
+    <div class="failure-row">
+      <div>Twin proceeds despite a scope miss <em>(v0.3)</em></div>
+      <div>Small-tier code on a task it should not have had</div>
+      <div><span class="sev high">High</span></div>
+      <div>Baley reviews as usual and the trailer attributes the change; the scope rule is a hard rule in the twin's prompt, and repeated misses are evidence to tighten the criteria (Q2)</div>
+    </div>
+    <div class="failure-row">
+      <div>Trailer dropped from the commit <em>(v0.3)</em></div>
+      <div>Provenance lost for that change</div>
+      <div><span class="sev med">Med</span></div>
+      <div>Carrying the trailer is a step of the <code>asimov.md</code> delegation flow; Baley notes a missing trailer in its report</div>
+    </div>
   </div>
 </section>
 
@@ -871,6 +1006,20 @@ footer.site-footer a { color: var(--cyan); }
       </div>
       <div class="pc-body">The angular/ set is deliberately thin and in flux, so the Angular agent will hit the gap rule frequently until the repo fills it in. That is expected behaviour, not a defect.</div>
     </div>
+    <div class="problem-card">
+      <div class="pc-head">
+        <div class="pc-num">04</div>
+        <div class="pc-title">A model override exists — don't use it <em>(v0.3)</em></div>
+      </div>
+      <div class="pc-body">Claude Code's Agent tool can override a subagent's model with an alias. That bypasses the mapping table and leaves no designation trail, so <code>asimov.md</code> forbids it for Asimov agents (R16). In Codex the TOML's <code>model</code> wins over the spawn value, so the override is not possible there — parity by rule in one tool, by mechanism in the other.</div>
+    </div>
+    <div class="problem-card">
+      <div class="pc-head">
+        <div class="pc-num">05</div>
+        <div class="pc-title">The small tier has no effort control <em>(v0.3)</em></div>
+      </div>
+      <div class="pc-body">Haiku 4.5 ignores <code>effort</code>. The twin declares <code>effort: medium</code>, which Claude Code emits as inherit and Codex as <code>medium</code> for Luna — never <code>xhigh</code>, which the mapping table would otherwise write into the Codex TOML.</div>
+    </div>
   </div>
 </section>
 
@@ -882,7 +1031,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="ac-row">
       <div class="ac-id">AC1</div>
       <div class="ac-verifies"><span class="verify-chip">R1</span></div>
-      <div>Three agent files exist under <code>plugins/asimov-plugin/agents/</code> — one each for .NET developer, Angular developer, and test author.</div>
+      <div>Three agent sources exist under <code>source/agents/</code>, and the generator emits four agents into each plugin tree — the three defaults plus <code>giskard-the-dotnet-developer-small</code>. <em>(v0.3)</em></div>
     </div>
     <div class="ac-row">
       <div class="ac-id">AC2</div>
@@ -917,7 +1066,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="ac-row">
       <div class="ac-id">AC8</div>
       <div class="ac-verifies"><span class="verify-chip">NF2</span></div>
-      <div>Each agent's <code>model:</code> frontmatter is <code>claude-sonnet-4-6</code> and matches its row in <code>model-choice.md</code> (grep both, same commit).</div>
+      <div>No agent source names a model; each declares <code>tier</code> + <code>effort</code> matching its D100 §4.4 row, and the emitted files carry the mapping table's model for their tool (grep the sources → no model names; grep the emitted files → the table's values). <em>(v0.3)</em></div>
     </div>
     <div class="ac-row">
       <div class="ac-id">AC9</div>
@@ -954,6 +1103,26 @@ footer.site-footer a { color: var(--cyan); }
       <div class="ac-verifies"><span class="verify-chip">R13</span><span class="verify-chip">§4.4</span></div>
       <div>Give the tester a diff that adds one method to a class whose untouched methods lack tests → it emits a coverage flag naming the class and adds no tests for the untouched methods.</div>
     </div>
+    <div class="ac-row">
+      <div class="ac-id">AC16</div>
+      <div class="ac-verifies"><span class="verify-chip">R14</span><span class="verify-chip">NF3</span></div>
+      <div>Diff the twin's emitted prompt against the default's → identical except the designation line, the scope-guard section and the description suffix. In both plugin trees.</div>
+    </div>
+    <div class="ac-row">
+      <div class="ac-id">AC17</div>
+      <div class="ac-verifies"><span class="verify-chip">R15</span><span class="verify-chip">§4.4</span></div>
+      <div>Give the twin one task per scope criterion that misses it → each time it writes nothing and reports <code>Handed back: &lt;criterion&gt;</code>; give it a task meeting all five → it delivers.</div>
+    </div>
+    <div class="ac-row">
+      <div class="ac-id">AC18</div>
+      <div class="ac-verifies"><span class="verify-chip">R17</span></div>
+      <div>Every build report ends with the <code>Asimov-Built-By</code> trailer, and after the orchestrator commits, <code>git log -1 --format='%(trailers:key=Asimov-Built-By)'</code> prints it — demonstrated in both tools.</div>
+    </div>
+    <div class="ac-row">
+      <div class="ac-id">AC19</div>
+      <div class="ac-verifies"><span class="verify-chip">R16</span></div>
+      <div><code>asimov.md</code>'s delegation flow states the twin criteria and the no-override rule; one observed delegation per tool picks the twin for a qualifying task and the default for a non-qualifying one, with no model override passed.</div>
+    </div>
   </div>
 </section>
 
@@ -966,7 +1135,21 @@ footer.site-footer a { color: var(--cyan); }
         <span class="q-id">Q1</span>
         <span class="q-decider">Allan Borup</span>
       </div>
-      <div class="q-body"><strong>Resolved (2026-06-02; wording updated 2026-09-15):</strong> Giskard + Daneel <strong>supersede</strong> the generic "S101 implementer subagent" row (replaced in <code>model-choice.md</code>); Calvin is added as a <strong>Code</strong>-stage test-author row — authoring a test is a build activity (D100 §4.4). The "S101 validator subagent" row <strong>stays</strong> — none of the three validates code against a spec. The reviewer role (Baley) shipped 2026-06-11 in its own D101.</div>
+      <div class="q-body"><strong>Resolved (2026-06-02; wording updated 2026-09-15):</strong> Giskard + Daneel <strong>supersede</strong> the generic "S101 implementer subagent" row (replaced in <code>model-choice.md</code>, since retired in favour of D100 §4.4 + the mapping tables); Calvin is added as a <strong>Code</strong>-stage test-author row — authoring a test is a build activity (D100 §4.4). The "S101 validator subagent" row <strong>stays</strong> — none of the three validates code against a spec. The reviewer role (Baley) shipped 2026-06-11 in its own D101.</div>
+    </div>
+    <div class="q-card">
+      <div class="q-head">
+        <span class="q-id">Q2</span>
+        <span class="q-decider">cka</span>
+      </div>
+      <div class="q-body">When does the pilot end, and what promotes twins to Daneel and Calvin? <strong>Resolution path:</strong> after a first batch of real tasks, pair each <code>Asimov-Built-By</code> trailer with Baley's findings on that change; widen if the twin's changes draw no more findings than the default's on comparable tasks, tighten the criteria if they do. <em>(v0.3)</em></div>
+    </div>
+    <div class="q-card">
+      <div class="q-head">
+        <span class="q-id">Q3</span>
+        <span class="q-decider">cka</span>
+      </div>
+      <div class="q-body">Should the S101 step carry the simple/complex classification, so the orchestrator stops judging and only reads? <strong>Resolution path:</strong> decide while designing the Spec stage; until then the orchestrator judges from the task and the D101's §7 build notes, by the §4.4 criteria. <em>(v0.3)</em></div>
     </div>
   </div>
 </section>
@@ -978,18 +1161,21 @@ footer.site-footer a { color: var(--cyan); }
     <div class="refs-block">
       <h4>Code</h4>
       <ul>
-        <li>plugins/asimov-plugin/agents/giskard-the-dotnet-developer.md</li>
-        <li>plugins/asimov-plugin/agents/daneel-the-angular-developer.md</li>
-        <li>plugins/asimov-plugin/agents/calvin-the-test-author.md</li>
-        <li>plugins/asimov-plugin/commands/asimov-init.md (scaffolds the per-stack read-lists the agents consume)</li>
-        <li>documentation/model-choice.md</li>
+        <li>source/agents/giskard-the-dotnet-developer.md · daneel-the-angular-developer.md · calvin-the-test-author.md (neutral sources; emitted into both plugin trees)</li>
+        <li>source/agents/_scope-guard.md — proposed, v0.3</li>
+        <li>source/mappings/claude-code.md · source/mappings/codex.md — tier → model, per tool (succeeds model-choice.md)</li>
+        <li>source/artifacts/root/asimov-md/asimov-md-template.md — the delegation flow</li>
+        <li>source/commands/asimov-init.md — scaffolds the per-stack read-lists the agents consume; delivers the Codex agent TOMLs</li>
+        <li>generator/src/generate.ts · generator/src/targets/ — twin emission, tokens</li>
       </ul>
     </div>
     <div class="refs-block">
       <h4>Docs</h4>
       <ul>
         <li>documentation/D100-Asimov-architecture.md §4.4 (subagent inventory + Accelerate roles)</li>
-        <li>documentation/D100-Asimov-architecture.md §7.2.1 (shared convention-overlay mechanism)</li>
+        <li>documentation/D100-Asimov-architecture.md §7.2.1 (shared convention-overlay mechanism) · §7.3 (tier-declared models)</li>
+        <li>documentation/features/D101-agnostic-toolkit-codex-support.html §6.4.2–§6.4.3 (tokens, subagent shape) · §6.8 (Codex TOML model precedence)</li>
+        <li>github.com/context-and-oss/asimov/issues/2 — model mapping verified 2026-09-21; the experience the twin tests</li>
         <li>CLAUDE.md — "How to add a new subagent"</li>
         <li>artifacts/documentation/d101-feature-design/d101-feature-design-definition.md</li>
         <li>plugins/asimov-plugin/artifacts/documentation/conventions/conventions-definition.md (what a per-stack read-list must contain)</li>
@@ -1021,7 +1207,7 @@ footer.site-footer a { color: var(--cyan); }
     · <span class="mono">features/D101-build-subagents.html</span>
   </div>
   <div style="margin-top: 0.4rem">
-    D101 · Build subagents · asimov-plugin · Full design · Draft v0.2 · 2026-09-15
+    D101 · Build subagents · asimov-plugin · Full design · Approved v0.3 · 2026-09-25
   </div>
 </footer>
 
