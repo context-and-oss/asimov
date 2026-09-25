@@ -1,6 +1,15 @@
 name: Asimov PR
 run-name: "PR #${{ github.event.pull_request.number }} — ${{ github.event.pull_request.title }}"
 
+# The PR gate (D101-agnostic-toolkit-codex-support §6.2, §7.3): generated trees are produced by
+# CI only and live on release tags, never on main — so a PR must (a) not introduce them into the
+# tracked tree, (b) leave the generator deterministic — proven by generating twice and
+# byte-comparing the two runs (NF1, AC6) — and (c) keep the one hand-maintained manifest
+# (.claude-plugin/marketplace.json) in step with the generated plugin manifest (hard rule 2,
+# D100 §10 Q2). The generator's own tests run here too; they carry the artifact-maturity check
+# (D101-artifact-maturity) and the plugin-root path check. The job id `ci` is the required status
+# check in the main ruleset — keep them in sync.
+
 on:
   pull_request:
     branches:
@@ -15,45 +24,55 @@ jobs:
   ci:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Check out PR
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Manifests parse and agree on the plugin name (hard rule 1)
+      - name: Refuse generated trees in the tracked diff
+        run: |
+          git fetch origin "${{ github.base_ref }}" --depth=1
+          # --diff-filter=d: deletions are fine (removing generated files from tracking is
+          # legitimate cleanup); adding or modifying tracked files there is the violation.
+          touched=$(git diff --name-only --diff-filter=d "origin/${{ github.base_ref }}"...HEAD -- 'plugins/' '.agents/' || true)
+          if [ -n "$touched" ]; then
+            echo "::error::This PR commits files under the generated trees — change source/ instead; the release workflow produces the generated trees on the release tag (rule 1):"
+            echo "$touched"
+            exit 1
+          fi
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install generator
+        working-directory: generator
+        run: npm ci
+
+      - name: Type-check and unit tests
+        working-directory: generator
+        run: |
+          npx tsc --noEmit
+          npm test
+
+      - name: Generate twice, byte-compare (determinism gate)
+        working-directory: generator
+        run: |
+          node src/generate.ts --out /tmp/gen-a
+          node src/generate.ts --out /tmp/gen-b
+          diff -r /tmp/gen-a /tmp/gen-b
+          echo "Two runs byte-identical."
+
+      - name: Marketplace manifest agrees with the generated plugin manifest (hard rule 2)
         run: |
           set -euo pipefail
           mp=.claude-plugin/marketplace.json
-          pj=plugins/asimov-plugin/.claude-plugin/plugin.json
-          jq empty "$mp" "$pj"
+          pj=/tmp/gen-a/plugins/asimov-plugin/.claude-plugin/plugin.json
+          jq empty "$mp" "$pj" /tmp/gen-a/.agents/plugins/marketplace.json /tmp/gen-a/plugins/asimov-plugin-codex/.codex-plugin/plugin.json
           plugin=$(jq -r '.name' "$pj")
           entry=$(jq -r '.plugins[0].name' "$mp")
-          [ "$plugin" = "asimov-plugin" ] || { echo "::error::plugin.json name is '$plugin', directory is asimov-plugin"; exit 1; }
-          [ "$entry" = "$plugin" ]        || { echo "::error::marketplace.json entry '$entry' ≠ plugin.json '$plugin'"; exit 1; }
+          path=$(jq -r '.plugins[0].source.path' "$mp")
+          [ "$entry" = "$plugin" ]        || { echo "::error::marketplace.json entry '$entry' ≠ generated plugin.json name '$plugin'"; exit 1; }
+          [ "$path" = "plugins/$plugin" ] || { echo "::error::marketplace.json source.path '$path' ≠ plugins/$plugin"; exit 1; }
           echo "ok: $plugin"
-
-      - name: Command and subagent models match model-choice.md (hard rule 2)
-        run: |
-          set -euo pipefail
-          fail=0
-          for f in plugins/asimov-plugin/commands/*.md plugins/asimov-plugin/agents/*.md; do
-            name=$(basename "$f" .md)
-            model=$(awk 'NR==1 && $0!="---"{exit} /^---$/{c++; if(c==2) exit; next} c==1 && /^model:/{sub(/^model:[ \t]*/,""); print; exit}' "$f")
-            if [ -z "$model" ]; then
-              echo "::error file=$f::no model: in frontmatter"; fail=1; continue
-            fi
-            if ! grep -Eq "\`/?${name}\`.*\`${model}\`" documentation/model-choice.md; then
-              echo "::error file=$f::model '$model' has no matching row for '$name' in documentation/model-choice.md"; fail=1; continue
-            fi
-            echo "ok: $name → $model"
-          done
-          exit $fail
-
-      - name: Every artifact definition carries a maturity block (hard rule 10)
-        run: |
-          set -euo pipefail
-          fail=0
-          for f in plugins/asimov-plugin/artifacts/*/*/*-definition.md; do
-            if ! awk 'NR==1 && $0!="---"{exit 1} /^---$/{c++; if(c==2) exit} c==1 && /^maturity:[ \t]*(assess|trial|adopt|hold)[ \t]*$/{found=1} END{exit !found}' "$f"; then
-              echo "::error file=$f::no maturity: assess|trial|adopt|hold in frontmatter"; fail=1; continue
-            fi
-            echo "ok: $f"
-          done
-          exit $fail

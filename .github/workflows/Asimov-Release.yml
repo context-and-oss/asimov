@@ -2,7 +2,21 @@ name: Asimov Release
 
 run-name: "Asimov Release"
 
+# The release workflow (D101-agnostic-toolkit-codex-support §6.2/§7.3, amended for the protected
+# main branch): main carries source only; the generated trees live on release tags. On every merge
+# to main touching source/ or generator/, this regenerates, compares against the previous release
+# (the `latest` tag), and — only on change — stamps the version, commits the generated trees OFF-MAIN,
+# tags N.0.0, moves `latest` (the pointer both marketplaces track), and publishes. Byte-identical
+# output publishes nothing (rule 2, AC7). Nothing is ever pushed to main itself, so the workflow
+# can never retrigger itself; the paths filter documents what a release is made of.
+
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'source/**'
+      - 'generator/**'
   workflow_dispatch:
 
 permissions:
@@ -14,7 +28,7 @@ concurrency:
 
 jobs:
   release:
-    name: Tag and publish
+    name: Regenerate, tag and publish
     runs-on: ubuntu-latest
 
     steps:
@@ -24,7 +38,43 @@ jobs:
           ref: main
           fetch-depth: 0 # full history + tags, needed to find the last version
 
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install generator
+        working-directory: generator
+        run: npm ci
+
+      - name: Regenerate the plugin trees
+        working-directory: generator
+        run: node src/generate.ts
+
+      - name: Compare with the previous release
+        id: compare
+        run: |
+          if ! git rev-parse -q --verify refs/tags/latest >/dev/null; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "No previous release (no 'latest' tag) — publishing."
+            exit 0
+          fi
+          prev="$(mktemp -d)"
+          git archive latest | tar -x -C "$prev"
+          # plugin.json is version-stamped at release time, so it always differs — exclude it
+          # from the change test; every real change also shows in the files around it.
+          if diff -r --exclude=plugin.json "$prev/plugins" plugins >/dev/null 2>&1 \
+             && diff -r "$prev/.agents" .agents >/dev/null 2>&1; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "Generated trees byte-identical to the previous release — nothing to publish (rule 2)."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            diff -rq --exclude=plugin.json "$prev/plugins" plugins || true
+            diff -rq "$prev/.agents" .agents || true
+          fi
+
       - name: Determine next version
+        if: steps.compare.outputs.changed == 'true'
         run: |
           # Release tags are semver majors: 1.0.0, 2.0.0, ... (no "v" prefix),
           # so the tag equals the plugin version exactly.
@@ -45,34 +95,40 @@ jobs:
           } >> "$GITHUB_ENV"
 
       - name: Refuse if the tag already exists
+        if: steps.compare.outputs.changed == 'true'
         run: |
           if git rev-parse -q --verify "refs/tags/$TAG" >/dev/null; then
             echo "::error::Tag $TAG already exists."
             exit 1
           fi
 
-      - name: Bump plugin version and create release tags
+      - name: Stamp version, commit the generated trees off-main, create release tags
+        if: steps.compare.outputs.changed == 'true'
         run: |
-          # Stamp the plugin version to equal the release tag (e.g. 3.0.0).
-          manifest="plugins/asimov-plugin/.claude-plugin/plugin.json"
+          # Stamp the release version into the source metadata and regenerate, so BOTH plugin
+          # manifests carry it (the value committed on main is a placeholder — the release is
+          # where versions are minted).
           tmp="$(mktemp)"
-          jq --arg v "$TAG" '.version = $v' "$manifest" > "$tmp" \
-            && mv "$tmp" "$manifest"
+          jq --arg v "$TAG" '.version = $v' source/toolkit.json > "$tmp" && mv "$tmp" source/toolkit.json
+          (cd generator && node src/generate.ts)
 
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add plugins/asimov-plugin/.claude-plugin/plugin.json
-          
-          # Off-main commit: it lands only on tags, never on the protected main branch.
-          git commit -m "chore(release): asimov-plugin $TAG"
+          # The generated trees are gitignored on main — force-add them into the release commit.
+          git add -f plugins .agents
+          git add source/toolkit.json
 
-          # Immutable per-release tag + the rolling "latest" pointer the marketplace tracks.
+          # Off-main commit: it lands only on tags, never on the protected main branch.
+          git commit -m "chore(release): asimov $TAG — generated plugin trees"
+
+          # Immutable per-release tag + the rolling "latest" pointer both marketplaces track.
           git tag "$TAG"
           git tag -f latest
           git push origin "refs/tags/$TAG"
           git push -f origin refs/tags/latest
 
       - name: Create source archive
+        if: steps.compare.outputs.changed == 'true'
         run: |
           name="${GITHUB_REPOSITORY##*/}"
           zip="${name}-${TAG}.zip"
@@ -81,6 +137,7 @@ jobs:
           unzip -l "$zip" | tail -5
 
       - name: Publish release
+        if: steps.compare.outputs.changed == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -91,7 +148,11 @@ jobs:
 
       - name: Summary
         run: |
-          sha="$(git rev-parse HEAD)"
-          echo "Published **$TAG** from \`${sha:0:7}\`" >> "$GITHUB_STEP_SUMMARY"
-          echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "https://github.com/$GITHUB_REPOSITORY/releases/tag/$TAG" >> "$GITHUB_STEP_SUMMARY"
+          if [ "${{ steps.compare.outputs.changed }}" = "true" ]; then
+            sha="$(git rev-parse HEAD)"
+            echo "Published **$TAG** from \`${sha:0:7}\`" >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "https://github.com/$GITHUB_REPOSITORY/releases/tag/$TAG" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Generated trees unchanged since the previous release — nothing published (rule 2)." >> "$GITHUB_STEP_SUMMARY"
+          fi
