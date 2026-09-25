@@ -233,13 +233,13 @@ It is **invalid**, and the underlying finding stands at its normal severity, whe
 | 3 | For every business rule, do I know what it does *not* cover? | both |
 | 4 | For every open question, do I know who decides? | both |
 | 5 | For every "out of scope", do I know why it's out? | both |
-| 6 | Could one or more S101s be written from this without going back to the business? | §8b only |
+| 6 | Could one or more S102s be written from this without going back to the business? | §8b only |
 | 7 | Could a product / business reviewer who doesn't know the codebase understand §2 and §4 — or does the narrative depend on named types, methods, framework calls, or any code-level mechanism? | both |
 | 8 | *(User-facing features only)* Is the UI specified concretely enough to build, with an interactive mockup demonstrating the primary surface(s)? | both |
 | 9 | Is §6 declared open with a named list of what is outstanding? | §8a only |
 | 10 | Is the phase `Full design` — §6 populated, no *still to write* block left? | §8b only |
 
-- **Phase `Business design` → run §8a:** checks 1, 2, 3, 4, 5, 7, (8), **9**. Do **not** run check 6 — a business-complete document deliberately cannot be turned into an S101 yet, and failing it for that inverts the bar.
+- **Phase `Business design` → run §8a:** checks 1, 2, 3, 4, 5, 7, (8), **9**. Do **not** run check 6 — a business-complete document deliberately cannot be turned into an S102 yet, and failing it for that inverts the bar.
 - **Phase `Full design` → run §8b:** checks 1, 2, 3, 4, 5, **6**, 7, (8), **10**. Check 9 no longer applies.
 
 Check 8 is conditional on the feature being user-facing. Backend-only features **omit the row** rather than failing it.

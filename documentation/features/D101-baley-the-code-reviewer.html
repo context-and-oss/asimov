@@ -407,8 +407,8 @@ footer.site-footer a { color: var(--cyan); }
 
   <div class="req-list" data-tab="oos" style="display:none">
     <div class="req oos"><div class="id">OOS1</div><div class="body">Fixing the code — Baley reports only; production fixes route to Giskard/Daneel, test fixes to Calvin. Keeps the reviewer ≠ author boundary intact.</div></div>
-    <div class="req oos"><div class="id">OOS2</div><div class="body">Reviewing design docs (D101/S101) — that is <code>/d101-review</code>'s job; Baley reviews code only.</div></div>
-    <div class="req oos"><div class="id">OOS3</div><div class="body">Validating code against an implementation spec (S101) — that is the planned S101 validator's job; the Spec stage is not in use yet (see §8 Q1).</div></div>
+    <div class="req oos"><div class="id">OOS2</div><div class="body">Reviewing design docs (D101/S101/S102) — that is <code>/d101-review</code>'s job; Baley reviews code only.</div></div>
+    <div class="req oos"><div class="id">OOS3</div><div class="body">Validating code against a task spec (S102) — that is the planned S102 validator's job; the Spec stage is not in use yet (see §8 Q1).</div></div>
     <div class="req oos"><div class="id">OOS4</div><div class="body">Posting findings onto a PR or external system — deferred; the report lands in chat only. The PR-poster contract is an open architecture question (D100 §10 Q5, §8 Q2).</div></div>
     <div class="req oos"><div class="id">OOS5</div><div class="body">Auto-routing fixes to the other subagents / orchestration — deferred; cross-agent coordination is its own design, and the developer routes for now.</div></div>
     <div class="req oos"><div class="id">OOS6</div><div class="body">A dedicated convention overlay for stacks beyond .NET, Angular, and test — no current plans; other stacks are reviewed on the correctness axis (base craft) only until an overlay exists.</div></div>
@@ -512,7 +512,7 @@ footer.site-footer a { color: var(--cyan); }
   </div>
 
   <div class="callout">
-    <strong>Where Baley sits among the agents.</strong> In Accelerate terms the build subagents are <em>builders</em> and a <em>tester</em>: <strong>Giskard</strong> (.NET), <strong>Daneel</strong> (Angular), <strong>Calvin</strong> (tests) — see <code>D101-build-subagents.html</code>. Baley is the <em>reviewer</em>: it reviews their output for conventions and correctness. <code>/d101-review</code> reviews <em>design docs</em>, not code. The planned S101 validator (also a reviewer role) will check code against an implementation <em>spec</em> — a different bar from Baley's conventions-plus-correctness review (§8 Q1). The human reviewer approves; no agent does.
+    <strong>Where Baley sits among the agents.</strong> In Accelerate terms the build subagents are <em>builders</em> and a <em>tester</em>: <strong>Giskard</strong> (.NET), <strong>Daneel</strong> (Angular), <strong>Calvin</strong> (tests) — see <code>D101-build-subagents.html</code>. Baley is the <em>reviewer</em>: it reviews their output for conventions and correctness. <code>/d101-review</code> reviews <em>design docs</em>, not code. The planned S102 validator (also a reviewer role) will check code against an implementation <em>spec</em> — a different bar from Baley's conventions-plus-correctness review (§8 Q1). The human reviewer approves; no agent does.
   </div>
 
   <div class="callout">
@@ -922,7 +922,7 @@ footer.site-footer a { color: var(--cyan); }
         <span class="q-id">Q1</span>
         <span class="q-decider">Allan Borup</span>
       </div>
-      <div class="q-body">Once the Spec stage lands, does the planned S101 validator <strong>subsume</strong> Baley, or do they <strong>coexist</strong> — Baley reviewing the changeset for conventions + correctness, the validator checking code against the S101's acceptance criteria? <em>Resolution path:</em> decide while spec'ing the validator subagent.</div>
+      <div class="q-body">Once the Spec stage lands, does the planned S102 validator <strong>subsume</strong> Baley, or do they <strong>coexist</strong> — Baley reviewing the changeset for conventions + correctness, the validator checking code against the S102's acceptance criteria? <em>Resolution path:</em> decide while spec'ing the validator subagent.</div>
     </div>
     <div class="q-card">
       <div class="q-head">

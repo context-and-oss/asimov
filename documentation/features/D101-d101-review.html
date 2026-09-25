@@ -438,7 +438,7 @@ footer.site-footer a { color: var(--cyan); }
   <div class="req-list">
     <div class="req oos"><div class="id">OOS1</div><div class="body"><strong>Auto-fixing the D101.</strong> Reason: separating review from authoring keeps findings auditable and gives the author a chance to push back on a finding instead of having it silently applied. Fixes happen via <code>/d101-feature-design</code>.</div></div>
     <div class="req oos"><div class="id">OOS2</div><div class="body"><strong>Cross-D101 consistency checks.</strong> Reason: drift between sibling D101s (concept-name reuse, terminology) is a separate concern tracked in <code>additional-command-ideas.md</code> §3.3 (<code>/trace</code>). <code>/d101-review</code> reviews one D101 against the bar; not against its siblings.</div></div>
-    <div class="req oos"><div class="id">OOS3</div><div class="body"><strong>Implementation review.</strong> Reason: that's the S101 validator subagent's job (D100 §4.4). <code>/d101-review</code> operates at the Design stage only.</div></div>
+    <div class="req oos"><div class="id">OOS3</div><div class="body"><strong>Implementation review.</strong> Reason: that's the S102 validator subagent's job (D100 §4.4). <code>/d101-review</code> operates at the Design stage only.</div></div>
     <div class="req oos"><div class="id">OOS4</div><div class="body"><strong>PR-comment posting.</strong> Reason: GitHub-coupling is a fork point (D100 §8.4). The structured finding report goes to chat. The author transcribes findings into the PR description / commit message if they want them persisted.</div></div>
     <div class="req oos"><div class="id">OOS5</div><div class="body"><strong>Deciding that a document has reached a bar, or moving either axis.</strong> Reason: §8a's verdict is the author's and §8b's the human reviewer's (<code>d101-feature-design-definition.md</code> §2); the phase chip is <code>/d101-feature-design</code>'s to set and the status chip the business approver's. A read-only reporter that could also promote a document would be both author and reviewer of the same artifact (R25).</div></div>
     <div class="req oos"><div class="id">OOS6</div><div class="body"><strong>Reimplementing the persona method inside the command.</strong> Reason: a persona review's method lives in its skill (<code>persona-review-definition.md</code>); duplicating it in the command body would drift from the skills and break the runtime-source-of-truth pattern (D100 §7.4). The command routes and invokes; the skill reads (R29).</div></div>
@@ -1298,7 +1298,7 @@ footer.site-footer a { color: var(--cyan); }
   <div class="q-grid">
     <div class="q-card">
       <div class="q-head"><span class="q-id">Q5</span><span class="q-decider">Architecture (Context&amp;)</span></div>
-      <div class="q-body">Should the structured finding-report format align with the planned S101 validator subagent's output so reviewers see the same report shape across Design and Review+Test stages?</div>
+      <div class="q-body">Should the structured finding-report format align with the planned S102 validator subagent's output so reviewers see the same report shape across Design and Review+Test stages?</div>
       <div class="q-resolution">Resolution path: decide while spec'ing the validator subagent — the constraint flows from validator to <code>/d101-review</code>, not the other way.</div>
     </div>
     <div class="q-card">

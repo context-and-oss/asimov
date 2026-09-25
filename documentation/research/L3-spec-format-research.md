@@ -2,6 +2,8 @@
 
 **Status:** in design. Three decisions locked, several open. Next step: draft `specs/README.md`.
 
+> **Revised 2026-09-25** by [`S101-S102-spec-stage-research.md`](S101-S102-spec-stage-research.md), which researched the plan layer above the single spec and took the decisions. Two locked decisions below changed: the `S101-*` family naming is **adopted** (S101 implementation plan, S102 task spec; lifecycle is carried by a `superseded` status, not by the name), and placement is **`documentation/specs/<feature-slug>/`**, not a repo-root `specs/`. The format research (Markdown body + YAML frontmatter, no JSON body, validator hard on shape and soft on content) stands and is inherited by both definitions.
+
 Companion to [`ai-transition-levels-and-zones.md`](../ai-transition-levels-and-zones.md), which defines the levels. This doc captures the research and design decisions for the spec layer that turns the planned L3 workflow into a concrete, validatable format.
 
 ## Goal

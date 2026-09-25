@@ -32,6 +32,10 @@ plugins/asimov-plugin/                         ← the plugin (install scope)
 │   │   ├── d101-feature-design/               ← the D101 artifact: definition + template side by side
 │   │   │   ├── d101-feature-design-definition.md  ← the two bars for D101s (§8a business-complete, §8b gap-free)
 │   │   │   └── d101-feature-design-template.html  ← visual + structural contract every D101 follows
+│   │   ├── s101-implementation-plan/          ← the S101 artifact (Spec stage): the task graph for one D101
+│   │   │   └── s101-implementation-plan-definition.md  ← the dispatch-ready bar; template not built yet
+│   │   ├── s102-task-spec/                    ← the S102 artifact (Spec stage): one task for one builder
+│   │   │   └── s102-task-spec-definition.md   ← the buildable-blind bar; template not built yet
 │   │   ├── site/                              ← the documentation/ landing site (asimov-init)
 │   │   │   ├── site-definition.md             ← what the rendered site must contain
 │   │   │   ├── site-template.html            ← landing-page template
@@ -90,7 +94,8 @@ documentation/                                 ← repo-level docs (NOT inside i
 ### Document codes
 - `D100` — architecture doc (system-level)
 - `D101` — feature design doc
-- `S101` — implementation spec (not built yet)
+- `S101` — implementation plan: one per D101, the task graph (definition written; template + command not built yet)
+- `S102` — task spec: one per task, the brief a build subagent receives (definition written; template + command not built yet)
 - `T100` — test strategy (none yet)
 
 ### L3 pipeline stages
@@ -129,7 +134,7 @@ Always `YYYY-MM-DD` (e.g. `2026-05-21`). Never American month/day. Never relativ
 
 ## How to add a new subagent
 
-Same shape as a command, but the file lives under `plugins/asimov-plugin/agents/<name>.md`. Subagent kinds follow the Accelerate roles — *planner / builder / tester / reviewer*, planner reserved (see D100 §4.4). The three build subagents (Giskard/.NET + Daneel/Angular builders, Calvin/tests tester) and the reviewer (Baley) exist; the S101 validator is planned but not built yet. The shared convention-overlay mechanism all subagents use lives in D100 §7.2.1.
+Same shape as a command, but the file lives under `plugins/asimov-plugin/agents/<name>.md`. Subagent kinds follow the Accelerate roles — *planner / builder / tester / reviewer*, planner reserved (see D100 §4.4). The three build subagents (Giskard/.NET + Daneel/Angular builders, Calvin/tests tester) and the reviewer (Baley) exist; the S102 validator is planned but not built yet. The shared convention-overlay mechanism all subagents use lives in D100 §7.2.1.
 
 1. Add a row to `documentation/model-choice.md` (stage → subagent → model).
 2. Cover it in a D101 — the build subagents share `documentation/features/D101-build-subagents.html` (near-identical roles); a distinct role (like the reviewer, `D101-baley-the-code-reviewer.html`) gets its own.
@@ -201,7 +206,8 @@ These are enforcement rules, not style preferences. Violations break the toolkit
 Design decisions in this repo were informed by research captured in `documentation/research/`. When you reopen a decision, check whether the research still applies before re-deciding.
 
 - [`industry-design-doc-standards.md`](documentation/research/industry-design-doc-standards.md) — DoR, INVEST, Rust RFC, MADR, EARS, Kiro, Augment, etc.
-- [`L3-spec-format-research.md`](documentation/research/L3-spec-format-research.md) — research + design decisions for the planned S101 spec layer
+- [`L3-spec-format-research.md`](documentation/research/L3-spec-format-research.md) — format research for a single spec (Markdown + frontmatter, validator authority); two of its decisions revised by the next note
+- [`S101-S102-spec-stage-research.md`](documentation/research/S101-S102-spec-stage-research.md) — the plan layer: how the field orders and parallelises tasks (Spec Kit, Kiro, OpenSpec, Conductor, superpowers, Beads, agent teams), and the S101/S102 decisions taken 2026-09-25
 - [`additional-command-ideas.md`](documentation/research/additional-command-ideas.md) — which community/vendor slash commands fit the toolkit's L3 scope and reusability bar, and which don't
 
 ## Contributing
@@ -222,6 +228,8 @@ The **review-handoff** mechanism is built (`d101-feature-design-definition.md` �
 
 The **artifact-maturity** convention is built: every artifact under `artifacts/` opens with its maturity block, the three producing commands print the level as one chat line (Step 1b), D100 §4.5 mirrors it, and hard rule 10 keeps the two in step. Design: `features/D101-artifact-maturity.html` (`Full design`). Today: D101 `trial`, everything else `assess`.
 
-Not built yet: the Spec stage (`/s101-*`, `s101-implementation-spec-definition.md`, the S101 template), `/conventions-check`, and the S101 validator subagent (D100 §9).
+The **Spec stage** is defined but not tooled: `artifacts/documentation/s101-implementation-plan/s101-implementation-plan-definition.md` (the plan: task graph, phases, interfaces, constraints, escalation routing; bar *dispatch-ready*) and `artifacts/documentation/s102-task-spec/s102-task-spec-definition.md` (one task: files, interfaces, behaviour, steps, acceptance criteria; bar *buildable blind*), both `assess`. They land in a product repo at `documentation/specs/<feature-slug>/`. Research: `documentation/research/S101-S102-spec-stage-research.md`.
+
+Not built yet: the S101/S102 templates, the `/s101-*` commands, the Spec-stage D101, `/conventions-check`, and the S102 validator subagent (D100 §9).
 
 **Plugin layout is per artifact, not per file kind** (restructured 2026-09-10; the former `definitions/` and `templates/` folders are gone). `artifacts/<landing-place>/<artifact-slug>/` holds an artifact's definition and template together, grouped by where the artifact lands in a product repo; `resources/` holds the building blocks shared across artifacts. `model-choice.md` is a maintainer contract no command reads at run-time, so it lives outside install scope next to D100.

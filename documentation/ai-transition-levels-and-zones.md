@@ -25,7 +25,7 @@ The L3 pipeline has nine stages:
 
 > Intent → Design → Spec → Code → Review vs. spec → Test vs. spec → Approve → Deploy → Observe
 
-Asimov covers the five AI-assisted stages in the middle: **Design** (the D101 commands), **Spec** (S101, planned), **Code** (the build subagents), **Review** (Baley), **Test** (the validator, planned). Intent is captured upstream, Approve is the human gate, and Deploy and Observe live in existing CI/CD and monitoring. See [D100 §3](D100-Asimov-architecture.md).
+Asimov covers the five AI-assisted stages in the middle: **Design** (the D101 commands), **Spec** (S101 implementation plan + S102 task specs; definitions written, commands planned), **Code** (the build subagents), **Review** (Baley), **Test** (the validator, planned). Intent is captured upstream, Approve is the human gate, and Deploy and Observe live in existing CI/CD and monitoring. See [D100 §3](D100-Asimov-architecture.md).
 
 ## Agent roles
 

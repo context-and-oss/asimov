@@ -38,7 +38,7 @@ Why: agents write decent code when the design is actually written down. Most des
 
 - Releases: [releases page](../../releases). Major-only versions (`1.0.0`, `2.0.0`, …), any release may change a bar or a template. The marketplace follows the `latest` tag.
 - Built: Design-stage commands, the four subagents, persona reviews, the `pm-advisor` skill (delivery-model advice).
-- Planned: Spec stage (`/s101-*`), `/conventions-check`, S101 validator subagent. See [D100 §9](documentation/D100-Asimov-architecture.md#9-not-yet-built).
+- Planned: Spec stage (`/s101-*`; the S101 and S102 definitions exist), `/conventions-check`, S102 validator subagent. See [D100 §9](documentation/D100-Asimov-architecture.md#9-not-yet-built).
 - Every artifact carries a maturity level (`assess` / `trial` / `adopt` / `hold`). The producing command tells you if it's not at `adopt`.
 - Requires Claude Code with plugin support and access to the models the commands pin. Map in [model-choice.md](documentation/model-choice.md).
 

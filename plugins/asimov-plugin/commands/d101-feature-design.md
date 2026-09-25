@@ -150,7 +150,7 @@ Work §2 *Purpose & audience*, then §3 *Requirements*. For each:
     - Compound requirements (split *"shall A and B"* into two R-rows)
     - Non-goals stated without a reason (d101-feature-design-definition §4.2)
     - **Code-altitude purpose.** When the developer describes §2 *Purpose* in code terms (interface / class / method names, framework calls, DI wiring), don't transcribe it — capture the *what* and *why* in the vocabulary the business uses, and note the mechanism for §6 in the next run. Litmus: if stripping the code identifiers leaves the section meaningless, it's at the wrong altitude (d101-feature-design-definition §7 *Business design at code altitude*).
-    - Requirements that are implementation recipes (*"use the Repository pattern"*) — those are S101's, or conventions'.
+    - Requirements that are implementation recipes (*"use the Repository pattern"*) — those are S102's, or conventions'..
     - **§2 framing that buries the point.** The §2 lead is ONE crisp *why-now* sentence; the symptoms carry the detail as a `<ul class="bullets">` list. When the developer front-loads history, numbers, or several goals at once, split them out — history and numbers into the symptom list or §4, not the framing paragraph (template §2 catalogue rule).
 
 Stay in conversation. Don't dump a flat list of questions; ask 2–4 things at a time.
@@ -236,14 +236,14 @@ Work the open-§6 list from the existing file as your agenda: each item is a que
 Push back on:
 
 - **Mechanism that contradicts §4.** The business design won; §6 conforms to it or §4 gets reopened explicitly.
-- **Failure modes that materially affect the business outcome** (data loss, orphaned records, silent inconsistency) being left to S101 (d101-feature-design-definition §6.4).
-- **Signatures, file-by-file plans, and library choices** in §6 beyond what it invites — those are the *recipe*, and belong in §7 (or, deeper, in S101). Keep §6 the contract; keep §7 the build recipe (d101-feature-design-definition §4.8).
+- **Failure modes that materially affect the business outcome** (data loss, orphaned records, silent inconsistency) being left to the S102 (d101-feature-design-definition §6.4).
+- **Signatures, file-by-file plans, and library choices** in §6 beyond what it invites — those are the *recipe*, and belong in §7 (or, deeper, in an S102). Keep §6 the contract; keep §7 the build recipe (d101-feature-design-definition §4.8).
 - **§7 turning into a copy of the code.** §7 names the reused classes/methods, but links to source rather than duplicating enum values, schemas, or column lists (ground rule 1). Illustrative class names are fine; a pasted method body is not.
 
 # Step 8 — Preview the gap-free bar, then write
 
 - Summarise §6 in 5–10 bullets.
-- Run the **§8b checks** (`d101-feature-design-definition §8` — checks 1, 2, 3, 4, 5, 6, 7, 8 if user-facing, and 10) as a **preview**, flagging pass / needs-work. Check 6 (*could an S101 be written without going back to the business?*) is the one this phase exists to satisfy. **§7 Implementation is not part of §8b** — the gap-free verdict is asked of §6 and the business design alone; §7 is build-readiness outside the bars (d101-feature-design-definition §4.8), so a thin or N/A §7 never fails the check.
+- Run the **§8b checks** (`d101-feature-design-definition §8` — checks 1, 2, 3, 4, 5, 6, 7, 8 if user-facing, and 10) as a **preview**, flagging pass / needs-work. Check 6 (*could an S102 be written without going back to the business?*) is the one this phase exists to satisfy. **§7 Implementation is not part of §8b** — the gap-free verdict is asked of §6 and the business design alone; §7 is build-readiness outside the bars (d101-feature-design-definition §4.8), so a thin or N/A §7 never fails the check.
 - Ask the developer to confirm, then write, with:
     - `.phase-chip` reading `Full design` **and carrying the `.full` class**
     - `.status-chip` bumped a minor version; `Draft` stays `Draft` — approval is the business approver's move, not yours, and never something you record on their behalf
@@ -319,7 +319,7 @@ Used by Step 6 and Step 8 both. Use the visual template loaded in Step 1. Copy t
 
 **Non-canonical section types** (per-protocol / reverse-engineered D101s): "Contract at a glance" / "Spec sheet" → a `.data-table` (Field | Value) or `<ul class="bullets">`. "Special flows" with sub-blocks → `.subhead` per block. "Quirks and gotchas" → a `.callout` per item, or `<ul class="bullets">`. "Testing" catalogue → `.codemap` with a `head` row. Single-dominant-fact section → a short `.callout` or a `.subhead` + bullets.
 
-**The open-§6 block** (Step 6 only — `Business design` phase). Emit the `#s6-open` shell from the template: a `.callout.warn` stating in one or two sentences what §2–§5 have settled and that no S101 can be written yet, then `<ul class="bullets">` with one item per outstanding unknown. Per d101-feature-design-definition §4.6:
+**The open-§6 block** (Step 6 only — `Business design` phase). Emit the `#s6-open` shell from the template: a `.callout.warn` stating in one or two sentences what §2–§5 have settled and that no S102 can be written yet, then `<ul class="bullets">` with one item per outstanding unknown. Per d101-feature-design-definition §4.6:
 
 - Name each item by **the consequence of not knowing it**, not by the §6 subsection it will live in. *"How a total is counted independently of the rows returned, so a search cannot report three when the truth is three hundred"* — not *"§6.4 data shapes"*.
 - Never emit a bare `TBD`, a `technical design to follow`, or a restatement of the §6.1–§6.8 headings. That fails check 9.
@@ -382,6 +382,6 @@ If the developer wants to abort because the repo isn't ready, that's their call 
 - **Don't drift the template.** Use the section structure and CSS classes as written; don't reorder, rename, or insert non-template sections. Don't invent new component classes on the fly — the template owns the visual vocabulary.
 - **Don't drift the definition.** When you find yourself wanting to skip a quality rule from `d101-feature-design-definition.md`, ask the developer instead.
 - **Never move the status axis.** `Draft` → `Approved` is the business approver's move. You set the phase; you never record an approval (d101-feature-design-definition §2.3).
-- **Stop at Design.** Don't propose file paths, signatures, libraries, or implementation approaches beyond what §6 explicitly invites — that's S101 territory.
+- **Stop at Design.** Don't propose file paths, signatures, libraries, or implementation approaches beyond what §6 explicitly invites — that's S102 territory.
 - **No verdict.** Preview the applicable bar; never declare the document business-complete or gap-free. §8a is the author's call, §8b the human reviewer's.
 - **Re-read at run-time.** Always re-load the definition and the HTML template at the start of each invocation via the **Read** tool — they may have changed since the last run, and the file-in-the-plugin is the source of truth.

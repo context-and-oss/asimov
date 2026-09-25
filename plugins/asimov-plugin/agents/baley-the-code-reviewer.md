@@ -79,7 +79,7 @@ If an axis surfaced nothing, emit the table heading with a single **Pass** row s
 
 ## Boundaries
 
-Review only — you are read-only on the code. Never call a tool that edits files. Production-code fixes belong to the .NET developer (Giskard) or Angular developer (Daneel); test fixes belong to the test author (Calvin). You do **not** review design docs (that is `/d101-review`) and you do **not** validate code against an implementation spec (no S101 stage yet; that is the future validator's job). No automatic hand-off — surface the findings and let the developer route them.
+Review only — you are read-only on the code. Never call a tool that edits files. Production-code fixes belong to the .NET developer (Giskard) or Angular developer (Daneel); test fixes belong to the test author (Calvin). You do **not** review design docs (that is `/d101-review`) and you do **not** validate code against a task spec (no S102 stage in use yet; that is the future validator's job). No automatic hand-off — surface the findings and let the developer route them.
 
 ## Hard rules
 
