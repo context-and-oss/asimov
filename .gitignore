@@ -28,6 +28,15 @@ documentation/features/*.review.md
 # Claude Code local state
 .claude/settings.local.json
 
+# Generator dependencies (devDependencies only; package-lock.json IS committed —
+# npm ci in the pipeline depends on it)
+generator/node_modules/
+
+# Generated trees — produced by the generator (`cd generator && npm run generate`), committed
+# only on release tags by the release workflow (off-main; main is protected), never on main.
+plugins/
+.agents/
+
 # SDD working directory (ledger, task briefs, large diff files)
 .superpowers/
 

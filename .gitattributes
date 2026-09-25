@@ -1,1 +1,3 @@
+# LF everywhere: the generator emits LF-only output and the PR gate byte-compares two generated
+# trees (NF1), so a Windows checkout and a CI runner must see the same bytes.
 * text=auto eol=lf

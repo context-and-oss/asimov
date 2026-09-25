@@ -1,0 +1,18 @@
+{
+  "name": "asimov-plugin",
+  "codexName": "asimov-plugin-codex",
+  "description": "L3 workflow tooling — slash commands, subagents, and skills for the Design, Spec, Code, and Review+Test stages.",
+  "version": "0.1.0",
+  "license": "MIT",
+  "author": {
+    "name": "Context&",
+    "url": "https://github.com/context-and-oss"
+  },
+  "marketplace": {
+    "name": "asimov-marketplace",
+    "owner": {
+      "name": "Context&",
+      "url": "https://github.com/context-and-oss"
+    }
+  }
+}
