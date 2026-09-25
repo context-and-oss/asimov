@@ -374,7 +374,7 @@ a.cmd-tile:hover { transform: translateY(-2px); border-color: var(--border-2); }
         </div>
       </div>
       <h3 class="doc-title">Build subagents</h3>
-      <p class="doc-desc">The three Accelerate <em>build</em>-role subagents — <strong>Giskard</strong> (.NET) and <strong>Daneel</strong> (Angular) builders, <strong>Calvin</strong> (tests) tester. Each reads the active repo's conventions at run-time and conforms to them rather than a generic default.</p>
+      <p class="doc-desc">The three Accelerate <em>build</em>-role subagents — <strong>Giskard</strong> (.NET) and <strong>Daneel</strong> (Angular) builders, <strong>Calvin</strong> (tests) tester. Each reads the active repo's conventions at run-time and conforms to them rather than a generic default. Since v0.2: a small-tier twin of the .NET builder that the orchestrator picks by written scope criteria, and an <code>Asimov-Built-By</code> trailer on every build.</p>
       <div class="doc-path"><a href="features/D101-build-subagents.html">features/D101-build-subagents.html</a></div>
     </article>
 
@@ -433,6 +433,17 @@ a.cmd-tile:hover { transform: translateY(-2px); border-color: var(--border-2); }
       <h3 class="doc-title">Artifact maturity</h3>
       <p class="doc-desc">Every artifact carries one level — <code>assess</code>, <code>trial</code>, <code>adopt</code> or <code>hold</code> — in a YAML block at the top of its definition. The producing command prints it as one chat line; a maintainer moves it on evidence of use, never on time.</p>
       <div class="doc-path"><a href="features/D101-artifact-maturity.html">features/D101-artifact-maturity.html</a></div>
+    </article>
+    <article class="doc-card">
+      <div class="doc-card-head">
+        <span class="doc-type">D101</span>
+        <div class="format-badges">
+          <a class="format-badge html" href="features/D101-agnostic-toolkit-codex-support.html">HTML</a>
+        </div>
+      </div>
+      <h3 class="doc-title">Tool-agnostic toolkit &amp; Codex support</h3>
+      <p class="doc-desc">One tool-neutral <code>source/</code> tree, a deterministic generator, and a plugin per tool — Claude Code and Codex — with the same commands, subagents, personas and quality bars on both sides. Tier + effort in the source; concrete model names only in the per-tool mapping tables; generated trees live on release tags, never on main.</p>
+      <div class="doc-path"><a href="features/D101-agnostic-toolkit-codex-support.html">features/D101-agnostic-toolkit-codex-support.html</a></div>
     </article>
   </div>
 </section>
