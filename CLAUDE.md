@@ -133,7 +133,7 @@ Always `YYYY-MM-DD` (e.g. `2026-05-21`). Never American month/day. Never relativ
 
 1. Decide which L3 stage the command belongs to (Design / Spec / Code / Review + Test, or ad-hoc like `/conventions-check`).
 2. Add a row to `documentation/model-choice.md` (stage → command → model).
-3. Write a per-command D101 at `documentation/features/D101-<command-slug>.html` using `plugins/asimov-plugin/artifacts/documentation/d101-feature-design/d101-feature-design-template.html`. Run `/d101-feature-design` — twice: once for requirements + business design (which lands the file at phase `Business design` with §6 open), then again for the technical design. Must clear both bars in `plugins/asimov-plugin/artifacts/documentation/d101-feature-design/d101-feature-design-definition.md` — §8a before you move to §6, §8b before you request review.
+3. Cover it in the D101 of its artifact family — the D101 commands share `documentation/features/D101-d101-feature-design.html`; a command for a new artifact gets that artifact's D101, written with `plugins/asimov-plugin/artifacts/documentation/d101-feature-design/d101-feature-design-template.html`. Run `/d101-feature-design` — twice: once for requirements + business design (which lands the file at phase `Business design` with §6 open), then again for the technical design. Must clear both bars in `plugins/asimov-plugin/artifacts/documentation/d101-feature-design/d101-feature-design-definition.md` — §8a before you move to §6, §8b before you request review.
 4. Add a row to `documentation/D100-Asimov-architecture.md` §4.3 *Slash commands*.
 5. Author the command file at `plugins/asimov-plugin/commands/<command-name>.md` with YAML frontmatter (`description`, `argument-hint`, `model`).
 6. Test locally — see "How to test" below.

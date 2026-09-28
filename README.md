@@ -37,7 +37,7 @@ Why: agents write decent code when the design is actually written down. Most des
 ## Status
 
 - Releases: [releases page](../../releases). Major-only versions (`1.0.0`, `2.0.0`, …), any release may change a bar or a template. The marketplace follows the `latest` tag.
-- Built: Design-stage commands, the four subagents, persona reviews, the `pm-advisor` skill (delivery-model advice).
+- Built: Design-stage commands, the four subagents (each a `role-*` skill plus a thin shell per harness), the two D101 artifact skills, persona reviews, the `pm-advisor` skill (delivery-model advice).
 - Planned: Spec stage (`/s101-*`; the S101 and S102 definitions exist), `/conventions-check`, S102 validator subagent. See [D100 §9](documentation/D100-Asimov-architecture.md#9-not-yet-built).
 - Every artifact carries a maturity level (`assess` / `trial` / `adopt` / `hold`). The producing command tells you if it's not at `adopt`.
 - Requires Claude Code with plugin support and access to the models the commands pin. Map in [model-choice.md](documentation/model-choice.md).
@@ -62,6 +62,8 @@ Why: agents write decent code when the design is actually written down. Most des
 | `calvin-the-test-author` | Code | Tests (.NET for now) in the repo's test conventions. Flags untestable code back to its author. |
 | `baley-the-code-reviewer` | Review | Diff vs base against conventions + correctness. Read-only, findings only. |
 
+Each subagent's method lives in a `role-*` skill; the agent file is a thin shell (`.md` for Claude Code, `.toml` for Codex, the latter a prototype).
+
 ## Personas
 
 A persona review reads a D101 as one of its intended readers and reports where the document talks to its author instead. Ships as skills named `persona-<slug>`.
@@ -77,8 +79,8 @@ A persona review reads a D101 as one of its intended readers and reports where t
 plugins/asimov-plugin/                    the plugin (install scope)
 ├── .claude-plugin/plugin.json
 ├── commands/                             slash commands
-├── agents/                               subagents (Giskard, Daneel, Calvin, Baley)
-├── skills/                               standard persona review skills (Poseidon, Athena, Hermes) + pm-advisor
+├── agents/                               subagent shells (Giskard, Daneel, Calvin, Baley) — .md for Claude Code, .toml for Codex
+├── skills/                               role-* (the subagents' methods), artifact-d101-* (D101 authoring + gap review), persona-* (Poseidon, Athena, Hermes), pm-advisor
 ├── artifacts/                            one folder per artifact the toolkit writes into a product repo, grouped by where it lands
 │   ├── documentation/                    lands in the product repo's documentation/
 │   │   ├── d101-feature-design/          the D101 artifact: definition + template side by side
@@ -112,7 +114,7 @@ documentation/                            repo docs (not inside install scope)
 ├── model-choice.md                        which model runs which command/subagent (maintainer contract)
 ├── ai-transition-levels-and-zones.md      the Levels & Zones vocabulary Asimov uses (L0–L5, Z1–Z3, the L3 stages)
 ├── index.html + _chrome.css               the rendered documentation site
-├── features/                              per-command D101s
+├── features/                              one D101 per artifact or role family
 └── research/                              decision provenance
 ```
 

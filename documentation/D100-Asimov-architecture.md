@@ -169,13 +169,19 @@ asimov/
 │       │   ├── persona-new.md
 │       │   ├── persona-list.md
 │       │   └── conventions-check.md       ← not built yet
-│       ├── agents/                       ← subagents (§4.4)
-│       │   ├── giskard-the-dotnet-developer.md
-│       │   ├── daneel-the-angular-developer.md
-│       │   ├── calvin-the-test-author.md
-│       │   ├── baley-the-code-reviewer.md
+│       ├── agents/                       ← subagent shells (§4.4): identity + harness fields, method in a role skill
+│       │   ├── giskard-the-dotnet-developer.{md,toml}   ← .md = Claude Code, .toml = Codex (prototype)
+│       │   ├── daneel-the-angular-developer.{md,toml}
+│       │   ├── calvin-the-test-author.{md,toml}
+│       │   ├── baley-the-code-reviewer.{md,toml}
 │       │   └── s102-validator.md          ← not built yet
-│       ├── skills/                       ← model-invoked skills (§4.6)
+│       ├── skills/                       ← model-invoked skills (§4.6); the harness-portable layer
+│       │   ├── role-dotnet-builder/SKILL.md      ← role method (Giskard)
+│       │   ├── role-angular-builder/SKILL.md     ← role method (Daneel)
+│       │   ├── role-dotnet-tester/SKILL.md       ← role method (Calvin)
+│       │   ├── role-code-reviewer/SKILL.md       ← role method (Baley)
+│       │   ├── artifact-d101-authoring/SKILL.md  ← how to write/change a D101
+│       │   ├── artifact-d101-gap-review/SKILL.md ← the D101 gap review
 │       │   ├── persona-poseidon/SKILL.md
 │       │   ├── persona-athena/SKILL.md
 │       │   ├── persona-hermes/SKILL.md
@@ -228,11 +234,11 @@ asimov/
     ├── index.html                        ← rendered landing page (this repo eats its own /asimov-init output)
     ├── _chrome.css                       ← rendered site chrome (copy of artifacts/documentation/site/_chrome.css)
     ├── features/
-    │   └── D101-*.html                   ← per-feature D101s (one per command + build-subagents + baley + personas + the three mechanisms: accepted deviations, review handoff, artifact maturity)
+    │   └── D101-*.html                   ← one D101 per artifact or role family: d101-feature-design (commands, skills, mechanisms), subagents, personas, asimov-init, website, artifact-maturity
     └── research/                         ← research notes behind the decisions in this doc
 ```
 
-The diagram shows the full intended shape. What exists today: the three Design-stage command files plus the setup command `/asimov-init`, the three build subagents (Giskard, Daneel, Calvin), the reviewer (Baley), the persona review layer (the `/persona-new` and `/persona-list` commands, the three standard persona skills, and the persona definition + template), the HTML D101 template, the four diagram templates, the site templates, and the `pm-advisor` skill over the Delivery Model corpus in `processes/`. Also there: the two Spec-stage definitions, `plugins/asimov-plugin/artifacts/documentation/s101-implementation-plan/s101-implementation-plan-definition.md` and `plugins/asimov-plugin/artifacts/documentation/s102-task-spec/s102-task-spec-definition.md`. Not built yet: the `/s101-*` and `/conventions-check` command files, the S102 validator subagent, and the S101 and S102 templates — they slot into the same directory structure when added; only the inventory grows.
+The diagram shows the full intended shape. What exists today: the three Design-stage command files plus the setup command `/asimov-init`, the four subagents as role skills plus shells (Giskard, Daneel, Calvin, Baley), the two D101 artifact skills, the persona review layer (the `/persona-new` and `/persona-list` commands, the three standard persona skills, and the persona definition + template), the HTML D101 template, the four diagram templates, the site templates, and the `pm-advisor` skill over the Delivery Model corpus in `processes/`. Also there: the two Spec-stage definitions, `plugins/asimov-plugin/artifacts/documentation/s101-implementation-plan/s101-implementation-plan-definition.md` and `plugins/asimov-plugin/artifacts/documentation/s102-task-spec/s102-task-spec-definition.md`. Not built yet: the `/s101-*` and `/conventions-check` command files, the S102 validator subagent, and the S101 and S102 templates — they slot into the same directory structure when added; only the inventory grows.
 
 ## 6. Distribution & install
 
