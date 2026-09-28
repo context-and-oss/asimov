@@ -21,7 +21,7 @@ Desktop.ini
 documentation/**/images/_raw/
 
 # /d101-review notes — a disposable cache /d101-feature-design consumes and
-# deletes (d101-feature-design-definition §4.10, D101-review-handoff.html). Not a design
+# deletes (d101-feature-design-definition §4.10, D101-d101-feature-design.html R10–R11). Not a design
 # artifact; committing it would duplicate a PR's own review thread.
 documentation/features/*.review.md
 

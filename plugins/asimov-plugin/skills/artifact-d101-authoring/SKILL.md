@@ -104,3 +104,4 @@ These hold on every change to a D101, by any route.
 - **Bump on write.** Every write advances the version in the status chip and sets *Last updated* to today. This is also what lets a stale `.review.md` be detected (definition §4.10).
 - **Never write a maturity level into the D101.** The artifact's maturity is a chat notice from the producing command, not document content.
 - **Re-read at run-time.** Load the definition and the template at the start of every session that changes a D101 — they may have moved since last time.
+- **Renumbering or superseding leaves no stale pointer.** When a write renames a D101, supersedes another, or changes an R/NF/AC number, grep the repo for the old file name and the old numbers, fix the references you own, and list every remaining hit in the summary. Other documents, the definitions and the repo's own guidance point into a D101 by number.

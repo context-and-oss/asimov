@@ -183,7 +183,7 @@ This is only safe because the gap review is **stateless**: every run derives its
 - It carries a **fingerprint of the D101 it was written against** (§1's *Last updated* date, the phase-chip value, and the status chip's **literal text including its version number**, e.g. `Draft v0.3`, at review time), so a consumer can tell whether the D101 changed underneath it before the notes were used. The version number matters: it advances on every write, so two edits made on the same calendar day still produce different fingerprints even though the date alone would read as unchanged. A mismatch is reported, not silently trusted — the fingerprint is still a coarse proxy, not a hash, and says so.
 - It is **git-ignorable.** It is working state between two commands, not a design artifact — committing it turns review commentary into something that looks like a permanent record, which duplicates a PR's own review thread (out of scope — see the design).
 
-Its design, including the exact file shape and the hard-rule caveat this needs (`/d101-review` gains `Write`, but the *scope* of what it writes is a prompt discipline, not a sandboxed guarantee — the same category of promise the never-move-either-axis rule already relies on), is `documentation/features/D101-d101-feature-design.html` (R21–R22, §6.4).
+Its design, including the exact file shape and the hard-rule caveat this needs (`/d101-review` gains `Write`, but the *scope* of what it writes is a prompt discipline, not a sandboxed guarantee — the same category of promise the never-move-either-axis rule already relies on), is `documentation/features/D101-d101-feature-design.html` (R10–R11, §6.4).
 
 ## 5. Requirement quality rules
 
