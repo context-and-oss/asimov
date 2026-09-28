@@ -6,14 +6,17 @@
 <title>D101 — {{Feature name}} — {{Repo}} docs</title>
 <!--
   D101 HTML template — the visual + structural contract for D101 feature
-  designs. Used by three slash commands:
-    /d101-feature-design   — interviews the developer and drafts a new D101
-                             directly as HTML using this template
-    /d101-convert-to-html  — converts a legacy markdown D101 into HTML using
-                             this template (legacy / import support)
-    /d101-review           — reads this template's leading comment for the
-                             ground rules + component catalogue when judging
-                             a draft
+  designs. Read at run-time by two skills and, through them, three slash commands:
+    artifact-d101-authoring  — the rendering procedure + authoring invariants; drafts
+                               by it: /d101-feature-design (interview → new D101),
+                               /d101-convert-to-html (legacy markdown → HTML), and any
+                               hand edit of a D101
+    artifact-d101-gap-review — judges a draft against this comment's ground rules +
+                               component catalogue and the definition's bars;
+                               /d101-review delegates its gap review to it
+  This comment is the single home of the component catalogue, the N/A policy, the
+  selection principles and the style rules — the skills and commands reference it,
+  never restate it.
 
   HOW TO USE
   - This file is a working, render-faithful example. The commands above
@@ -108,7 +111,7 @@
         reuse-vs-new call belongs in §7; strip those and §6 must still be a complete build
         blueprint. New class names in §7 are illustrative (ground rule 1) — the shape is
         the point. §7 is OUTSIDE the two bars: it neither gates nor is gated by §8a/§8b and
-        moves neither chip; it is the interim home for build notes until S101 (D100 §9).
+        moves neither chip; it is the interim home for build notes until the S102 is in use (D100 §9).
     14. A rule deliberately not met is RECORDED, not omitted (d101-feature-design-definition §4.9).
         Write a `.accepted` block inside the element it excuses, naming the rule, the reason,
         the accepter and the date. Never a side file — a waiver keyed to "R6" in another file
@@ -810,7 +813,7 @@ footer.site-footer a { color: var(--cyan); }
 <section class="s" id="s6-open">
   <h2 class="section-title"><span class="sec-ref">§6</span>Still to write</h2>
   <div class="callout warn">
-    <strong>⚠ This document is not gap-free.</strong> {{One or two sentences: what §2–§4 have settled, and that no S101 can be written until the items below exist.}}
+    <strong>⚠ This document is not gap-free.</strong> {{One or two sentences: what §2–§4 have settled, and that no S102 can be written until the items below exist.}}
   </div>
   <ul class="bullets">
     <li>{{Outstanding item, named by the consequence of not knowing it — e.g. "how each answer is composed; judging a cause is where the real work is"}}</li>
@@ -944,7 +947,7 @@ footer.site-footer a { color: var(--cyan); }
      that realises the §6 contracts — for an implementer or a build subagent. It sits
      OUTSIDE the two bars (d101-feature-design-definition §8a/§8b): it neither gates nor is gated by
      business-complete or gap-free, and it does not move the phase or status chips. It is
-     an interim home for build-readiness notes until the S101 spec stage exists (D100 §9).
+     an interim home for build-readiness notes until the Spec stage (S101/S102) is in use (D100 §9).
      LITMUS (ground rule 13): §6 = the decisions/contracts a reviewer signs off (WHAT is
      built); §7 = the code-grounded recipe a builder follows (HOW — files, classes, methods,
      reuse-vs-new, wiring). If a line names a source file/class/method or a reuse-vs-new call,

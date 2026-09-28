@@ -188,6 +188,117 @@
     </div>
   </div>
 
+
+  <h2>Built on skills</h2>
+  <p>Every method lives in a skill, one family per column. Agents and commands sit on top and add only the identity or the conversation, so the same skill works whichever tool runs it, and when you do the step by hand.</p>
+
+  <div class="figure">
+<svg class="insidemap layers" viewBox="0 0 1200 340" style="min-width:900px" role="img" aria-label="Layer diagram. Four columns, one per skill family. Bottom layer, the skills: role skills for the four agents, artifact skills for writing and reviewing a D101, the standard persona skills, the pm-advisor. Top layer, what you use: the agents, the artifact commands, a review as a persona, and plain questions. Every box opens its page.">
+  <style>
+    .layers .skill rect { fill: var(--violet, #ab47bc); fill-opacity: 0.14; stroke: var(--violet, #ab47bc); stroke-width: 1.5; }
+    .layers .skill .go, .layers .skill .head { fill: var(--violet, #ab47bc); }
+    .layers .flow.into-skill, .layers #lfArrowViolet path { stroke: var(--violet, #ab47bc); fill: var(--violet, #ab47bc); }
+    .layers .band { stroke: var(--border, #2b4a73); stroke-width: 1; stroke-dasharray: 3 5; }
+  </style>
+  <defs>
+    <marker id="lfArrowViolet" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 Z"/></marker>
+  </defs>
+
+  <!-- ─── band labels ─── -->
+  <text class="lbl mono" x="24" y="28">WHAT YOU USE</text>
+  <line class="band" x1="24" y1="164" x2="1176" y2="164"/>
+  <text class="lbl mono" x="24" y="184">SKILLS · THE FOUNDATION</text>
+
+  <!-- ─── column 1: role-* ─── -->
+  <a class="reads" href="../inside/agents.html">
+    <title>Open Agents</title>
+    <rect x="24" y="44" width="270" height="100" rx="10"/>
+    <text class="head mono" x="40" y="70">AGENTS<tspan class="go" dx="8">→</tspan></text>
+    <text class="mono" x="40" y="94" style="font-size:12px">Giskard · Daneel · Calvin · Baley</text>
+    <text class="sub" x="40" y="118">a thin shell per tool: name, model, tools</text>
+  </a>
+  <a class="skill" href="../inside/agents.html">
+    <title>Open Agents — the role skills</title>
+    <rect x="24" y="196" width="270" height="128" rx="10"/>
+    <text class="head mono" x="40" y="222">ROLE-*</text>
+    <text class="sub" x="40" y="242">how each role works, reading your conventions</text>
+    <text class="mono" x="40" y="264" style="font-size:12px">role-dotnet-builder</text>
+    <text class="mono" x="40" y="282" style="font-size:12px">role-angular-builder</text>
+    <text class="mono" x="40" y="300" style="font-size:12px">role-dotnet-tester</text>
+    <text class="mono" x="40" y="318" style="font-size:12px">role-code-reviewer</text>
+  </a>
+
+  <!-- ─── column 2: artifact-* ─── -->
+  <a class="writes" href="../inside/commands.html">
+    <title>Open Commands</title>
+    <rect x="316" y="44" width="270" height="100" rx="10"/>
+    <text class="head mono" x="332" y="70">ARTIFACT COMMANDS<tspan class="go" dx="8">→</tspan></text>
+    <text class="mono" x="332" y="92" style="font-size:12px">/d101-feature-design</text>
+    <text class="mono" x="332" y="110" style="font-size:12px">/d101-review</text>
+    <text class="sub" x="332" y="130">the conversation: interview, menu, the stop</text>
+  </a>
+  <a class="skill" href="../artifacts/documentation/d101.html">
+    <title>Open D101 — the artifact the skills author and review</title>
+    <rect x="316" y="196" width="270" height="128" rx="10"/>
+    <text class="head mono" x="332" y="222">ARTIFACT-*</text>
+    <text class="sub" x="332" y="242">how to write and how to review one</text>
+    <text class="mono" x="332" y="264" style="font-size:12px">artifact-d101-authoring</text>
+    <text class="mono" x="332" y="282" style="font-size:12px">artifact-d101-gap-review</text>
+    <text class="sub" x="332" y="310">also when you edit the file by hand</text>
+  </a>
+
+  <!-- ─── column 3: persona-* ─── -->
+  <a class="you" href="../inside/personas.html">
+    <title>Open Personas</title>
+    <rect x="608" y="44" width="270" height="100" rx="10"/>
+    <text class="head mono" x="624" y="70">YOU ASK<tspan class="go" dx="8">→</tspan></text>
+    <text class="mono" x="624" y="94" style="font-size:12px">"review this as Athena"</text>
+    <text class="sub" x="624" y="118">or pick the readers in /d101-review</text>
+  </a>
+  <a class="skill" href="../inside/personas.html">
+    <title>Open Personas — the reader skills</title>
+    <rect x="608" y="196" width="270" height="128" rx="10"/>
+    <text class="head mono" x="624" y="222">PERSONA-*</text>
+    <text class="sub" x="624" y="242">read a design as the people who sign</text>
+    <text class="mono" x="624" y="264" style="font-size:12px">persona-poseidon · persona-athena</text>
+    <text class="mono" x="624" y="282" style="font-size:12px">persona-hermes</text>
+    <text class="sub" x="624" y="310">yours: /persona-new writes them into your repo</text>
+  </a>
+
+  <!-- ─── column 4: pm-* ─── -->
+  <a class="you" href="../inside/project-management.html">
+    <title>Open Project management</title>
+    <rect x="900" y="44" width="270" height="100" rx="10"/>
+    <text class="head mono" x="916" y="70">YOU ASK<tspan class="go" dx="8">→</tspan></text>
+    <text class="mono" x="916" y="94" style="font-size:12px">"what does the delivery model say?"</text>
+    <text class="sub" x="916" y="118">plain words, no command</text>
+  </a>
+  <a class="skill" href="../inside/project-management.html">
+    <title>Open Project management — the advisor</title>
+    <rect x="900" y="196" width="270" height="128" rx="10"/>
+    <text class="head mono" x="916" y="222">PM-*</text>
+    <text class="sub" x="916" y="242">advises from the delivery model</text>
+    <text class="mono" x="916" y="264" style="font-size:12px">pm-advisor</text>
+    <text class="sub" x="916" y="310">first of a planned family</text>
+  </a>
+
+  <!-- ─── connectors: what you use stands on a skill ─── -->
+  <g class="flow into-skill" marker-end="url(#lfArrowViolet)">
+    <path d="M224 144 V192"/>
+    <path d="M516 144 V192"/>
+    <path d="M808 144 V192"/>
+    <path d="M1100 144 V192"/>
+  </g>
+</svg>
+    <div class="key" aria-label="Layer diagram colour key">
+      <b>Key</b>
+      <span><i style="--sw: var(--violet)"></i>Skills: the method, shared by every tool</span>
+      <span><i style="--sw: var(--cyan)"></i>Commands: the conversation</span>
+      <span><i style="--sw: var(--amber)"></i>Agents: the identity</span>
+      <span><i style="--sw: var(--green)"></i>You</span>
+      <span class="hint">→ opens the page</span>
+    </div>
+  </div>
   <ul>
     <li><strong>Everything lives in your repository.</strong> Commands write into it; personas and agents read from it. There is no copy inside the plugin to drift.</li>
     <li><strong>Only the commands write.</strong> Personas hand back where they stopped reading; agents hand back code, tests and findings. The decisions stay yours.</li>

@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>S102 — Task spec · Asimov</title>
+<meta name="description" content="S102: one per task; the exact brief a build agent receives. Definition written; template and command not yet.">
+<link rel="stylesheet" href="../../site.css">
+</head>
+<body class="has-subnav">
+<nav class="nav"><div class="in">
+  <a class="brand" href="../../index.html">ASIMOV</a>
+  <a href="../../index.html">Home</a>
+  <a href="../../why.html">Why</a>
+  <a href="../../how-it-works.html">How it works</a>
+  <a href="../../inside/index.html">What's inside</a>
+  <span class="sep" aria-hidden="true"></span>
+  <span class="grp">Artifacts:</span>
+  <a class="on" href="../../artifacts/documentation/index.html">Documentation</a>
+  <a href="../../artifacts/project-management/index.html">Project management</a>
+  <a href="../../artifacts/general/index.html">General</a>
+  <span class="sep" aria-hidden="true"></span>
+  <a href="../../ai-transition.html">AI transition</a>
+  <a class="cta" href="../../get-started.html">Get started</a>
+</div></nav>
+<nav class="subnav" aria-label="Documentation"><div class="in">
+  <a href="../../artifacts/documentation/index.html">Overview</a>
+  <a href="../../artifacts/documentation/a100.html">A100</a>
+  <a href="../../artifacts/documentation/d100.html">D100</a>
+  <a href="../../artifacts/documentation/d101.html">D101</a>
+  <a href="../../artifacts/documentation/s101.html">S101</a>
+  <a class="on" href="../../artifacts/documentation/s102.html">S102</a>
+</div></nav>
+
+<main class="page">
+  <h1>S102 — Task spec</h1>
+  <p class="lede">One per task. The exact brief a fresh build agent receives: sized for one sitting, checkable afterwards by a validator that never saw the conversation. <span class="chip assess">assess</span></p>
+
+  <h2>What it holds</h2>
+  <ul>
+    <li><strong>Intent</strong>, traced to the D101 requirement it serves.</li>
+    <li><strong>Files</strong> it creates, modifies and tests. Exact paths; also the set it owns. Nothing else is touched.</li>
+    <li><strong>Interfaces</strong> it consumes and produces, by exact name, so neighbouring tasks agree before either exists.</li>
+    <li><strong>Behaviour</strong> as scenarios a test is written from; <strong>constraints</strong> as musts, must nots, preferences and escalation triggers.</li>
+    <li><strong>Steps</strong>, test first, with the code inline where the task is transcription. <strong>Acceptance criteria</strong> a validator can run.</li>
+  </ul>
+
+  <h2>The bar</h2>
+  <p><strong>Buildable blind.</strong> A competent builder with no conversation history, only the repo, the D101 and this file, builds it and knows when it is done. No placeholders. The builder never edits what it does not own; a conflict is a stop and a report, not a fix.</p>
+
+  <h2>Where it comes from, where it goes</h2>
+  <p>Normally one of several under an S101. A bug fix from the board skips the design and the plan and gets a single S102. Giskard, Daneel and Calvin build from it; the planned validator checks the code against its acceptance criteria. <a href="../../artifacts/documentation/index.html">The document model →</a></p>
+
+  <p><a href="https://github.com/context-and-oss/asimov/blob/main/plugins/asimov-plugin/artifacts/documentation/s102-task-spec/s102-task-spec-definition.md">Definition</a> · template and command not built yet</p>
+
+</main>
+<footer class="foot"><div class="in">
+  <span>Asimov · by <a href="https://contextand.com">Context&amp;</a></span>
+  <a href="https://github.com/context-and-oss/asimov">GitHub</a>
+  <a href="https://github.com/context-and-oss/asimov/blob/main/CONTRIBUTING.md">Contributing</a>
+  <a href="https://github.com/context-and-oss/asimov/blob/main/LICENSE">MIT licence</a>
+</div></footer>
+</body>
+</html>

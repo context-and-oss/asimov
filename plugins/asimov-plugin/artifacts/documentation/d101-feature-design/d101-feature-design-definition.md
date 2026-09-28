@@ -6,7 +6,7 @@ since: 2026-09-10
 
 # Definition of D101
 
-The written standard a D101 (feature design document) must meet before downstream work — Spec (S101), Code, Review+Test — can act on it. This document defines the Design stage's **two bars**: the **business-complete bar**, which a D101 clears before any technical design exists, and the **gap-free bar**, which it clears before an implementer can act on it (§2).
+The written standard a D101 (feature design document) must meet before downstream work — Spec (S101/S102), Code, Review+Test — can act on it. This document defines the Design stage's **two bars**: the **business-complete bar**, which a D101 clears before any technical design exists, and the **gap-free bar**, which it clears before an implementer can act on it (§2).
 
 Read both by humans (authors, reviewers) and by the `/d101-feature-design` and `/d101-review` slash commands at run-time.
 
@@ -51,7 +51,7 @@ Its check is §8a. Reaching it is the **author's** call — the bar's whole func
 
 > **A D101 is gap-free when an implementer who never saw the conversation can act on it without design-level questions.**
 
-*Design-level* means questions about *what* or *why*. Questions about *how* (file paths, signatures, libraries, data structures) belong to the S101 stage and are expected.
+*Design-level* means questions about *what* or *why*. Questions about *how* (file paths, signatures, libraries, data structures) belong to the Spec stage (the S102) and are expected.
 
 A gap-free D101 has cleared the business-complete bar first and has a populated §6. Its check is §8b, and that verdict is a **reviewer's** (≠ author) call.
 
@@ -74,13 +74,14 @@ They do not track each other, and neither implies the other. A `Full design` doc
 |---|---|---|
 | Charter (programme- or repo-level) | Before D101 | Why does this product / repo exist at all? |
 | **D101** | Design | What feature, with what scope, what business rules, what verifiable outcomes? |
-| S101 | Spec | Exactly how — file paths, signatures, edge cases, code-level acceptance criteria |
+| S101 | Spec | In what order, by whom, and in parallel with what — the task graph, phases, interfaces and constraints for one D101 (`s101-implementation-plan-definition.md`) |
+| S102 | Spec | Exactly how one task is built — file paths, signatures, edge cases, code-level acceptance criteria (`s102-task-spec-definition.md`) |
 | ADR / MADR | Cross-cutting | Why was this architectural option chosen over alternatives? |
 | Conventions | Cross-cutting | How do we write code generally? |
 
-**One D101 produces one or more S101s.** A D101 is sized to a *feature*; an S101 is sized to a *coherent implementation unit*. A complex feature (e.g. a status dashboard covering instrumentation + UI + alerting) may produce 3–5 S101s. Each S101 traces back to a subset of the D101's requirements. D101 length is therefore variable and follows the feature; S101 length is fixed by convention to keep implementation units predictable.
+**One D101 at `Full design` produces one S101 and one or more S102s.** A D101 is sized to a *feature*; an S102 is sized to *one task a fresh builder finishes in one sitting*; the S101 is as long as its graph. A complex feature (e.g. a status dashboard covering instrumentation + UI + alerting) may produce 3–8 S102s. Each S102 traces back to a subset of the D101's requirements, and the S101's coverage map shows every requirement has a task. D101 length is therefore variable and follows the feature; S102 size is fixed by convention to keep tasks predictable.
 
-Until the S101 stage is built, the template's Implementation section (§7) is an **interim home** for some of this how-level detail — file layout, reuse-vs-new, method-level wiring — carried in the D101 without being dressed as design. It sits outside the two bars; see §4.8.
+Until the Spec stage is in use for a feature, the template's Implementation section (§7) is an **interim home** for some of this how-level detail — file layout, reuse-vs-new, method-level wiring — carried in the D101 without being dressed as design. It sits outside the two bars; see §4.8.
 
 ## 4. Required content
 
@@ -115,7 +116,7 @@ All of the above is stated in the vocabulary the business uses — the *what* an
 
 ### 4.5 Failure handling at design level
 
-- For each named error path in a flow, the system's response at the design level (which may be *"fails the operation; surfaces in admin tooling"* — the *how* is S101's job).
+- For each named error path in a flow, the system's response at the design level (which may be *"fails the operation; surfaces in admin tooling"* — the *how* is the S102's job).
 - Failure modes the *design* depends on belong in the D101. Routine error handling belongs in code conventions.
 
 ### 4.6 Declaring the technical design open
@@ -123,7 +124,7 @@ All of the above is stated in the vocabulary the business uses — the *what* an
 While a D101 stands in the `Business design` phase (§2.3), §6 carries a single *still to write* block instead of its subsections. That block is required content, not a placeholder:
 
 - **It names what is outstanding, item by item**, in terms of the consequence of not knowing — *"how each answer is composed"*, *"the cost ceiling and where it concentrates"*, *"which tenant and which cluster per environment"*. A bare *"TBD"*, a *"technical design to follow"*, or a restatement of the §6 subsection headings does not satisfy this.
-- **It states plainly that the document is not gap-free** and that no S101 can be written from it yet. A reader who opens the file must not have to infer that from a thin section.
+- **It states plainly that the document is not gap-free** and that no S102 can be written from it yet. A reader who opens the file must not have to infer that from a thin section.
 - **It is not an N/A.** N/A means *this section does not apply to this feature*; open means *it applies and is not settled yet*. Written as one-line stubs the two read identically, so they are kept distinct in shape: **N/A gives a reason, open gives a list.**
 
 The outstanding list is what makes the phase honest. A §6 that is open but whose list is vague has hidden the gap rather than declared it — and hiding it is worse than an over-eager §6, because a reader cannot tell the difference between *unsettled* and *unwritten*.
@@ -142,9 +143,9 @@ This is the technical-side counterpart of the business-altitude rule (§7 *Busin
 
 The template carries an **Implementation** section (its §7) below the technical design. Where the technical design states *what to build* — the contracts and shapes a reviewer signs off — the implementation section states *how a builder builds it*: the project layout, what is genuinely new versus reused, the source classes and methods each unit reuses, and the setup and wiring. It is code-grounded throughout, and its per-unit blocks key back to the technical-design contracts by number. Class names in it are illustrative — the shape is the instruction, not the exact identifier; it links to the source rather than copying it (the template's *link, don't duplicate* ground rule — no pasted enum values, schemas, or column lists that live in code).
 
-**It sits outside both bars.** Neither §8a nor §8b gates it, and it moves neither the phase nor the status chip. Check 6 — *could one or more S101s be written from this* — is asked of the technical design and the business design alone; a D101 is gap-free with its implementation section empty. The implementation section is authored *after* the gap-free bar, as build-readiness for the implementer or a build subagent, and its absence is never a reason to send a D101 back.
+**It sits outside both bars.** Neither §8a nor §8b gates it, and it moves neither the phase nor the status chip. Check 6 — *could one or more S102s be written from this* — is asked of the technical design and the business design alone; a D101 is gap-free with its implementation section empty. The implementation section is authored *after* the gap-free bar, as build-readiness for the implementer or a build subagent, and its absence is never a reason to send a D101 back.
 
-**It is the interim home for build notes until the Spec stage exists.** Much of what it records — file-level layout, reuse-vs-new, method-level wiring — is S101 territory (§3). Until the S101 stage is built, this section lets a D101 carry that detail without dressing it as business or contract design. When S101 lands, where this content belongs is revisited.
+**It is the interim home for build notes until the Spec stage is in use.** Much of what it records — file-level layout, reuse-vs-new, method-level wiring — is S102 territory (§3; `s102-task-spec-definition.md` §3). Until a feature has an S101 and its S102s, this section lets a D101 carry that detail without dressing it as business or contract design. A feature that has an S101 marks §7 N/A and points at its `documentation/specs/<feature-slug>/` folder.
 
 Its shape — Full-design phase only, a *pending* stub while the technical design is open, an N/A stub when the build is pure reuse — is defined in the template's authoring ground rules (rule 13) and N/A policy.
 
@@ -169,7 +170,7 @@ Three limits are what make it safe rather than corrosive:
 
 **Accepted is not Pass.** A section or check whose only outstanding item is an accepted deviation reads **Accepted**, never Pass. This is the same move as *open* in §4.6: a deliberate state gets its own name, so a reader can mistake it neither for a shortfall nor for a clean bill.
 
-An accepted deviation is a worse outcome than a fix, and the mechanism is deliberately narrow so that stays true — the ceiling on what it can excuse is one named rule instance at a time. Its design is `documentation/features/D101-accepted-deviations.html`.
+An accepted deviation is a worse outcome than a fix, and the mechanism is deliberately narrow so that stays true — the ceiling on what it can excuse is one named rule instance at a time. Its design is `documentation/features/D101-d101-feature-design.html` (§4.4, §6.4).
 
 ### 4.10 Review notes — a cache, not a record
 
@@ -182,7 +183,7 @@ This is only safe because the gap review is **stateless**: every run derives its
 - It carries a **fingerprint of the D101 it was written against** (§1's *Last updated* date, the phase-chip value, and the status chip's **literal text including its version number**, e.g. `Draft v0.3`, at review time), so a consumer can tell whether the D101 changed underneath it before the notes were used. The version number matters: it advances on every write, so two edits made on the same calendar day still produce different fingerprints even though the date alone would read as unchanged. A mismatch is reported, not silently trusted — the fingerprint is still a coarse proxy, not a hash, and says so.
 - It is **git-ignorable.** It is working state between two commands, not a design artifact — committing it turns review commentary into something that looks like a permanent record, which duplicates a PR's own review thread (out of scope — see the design).
 
-Its design, including the exact file shape and the hard-rule caveat this needs (`/d101-review` gains `Write`, but the *scope* of what it writes is a prompt discipline, not a sandboxed guarantee — the same category of promise the never-move-either-axis rule already relies on), is `documentation/features/D101-review-handoff.html`.
+Its design, including the exact file shape and the hard-rule caveat this needs (`/d101-review` gains `Write`, but the *scope* of what it writes is a prompt discipline, not a sandboxed guarantee — the same category of promise the never-move-either-axis rule already relies on), is `documentation/features/D101-d101-feature-design.html` (R10–R11, §6.4).
 
 ## 5. Requirement quality rules
 
@@ -191,7 +192,7 @@ Each requirement must satisfy all five:
 - **Testable.** Observable against the system, code, logs, or a defined human-review step. If you can't say how the requirement would be verified, it is not a requirement.
 - **Unambiguous.** Two independent readers would formalise the requirement the same way. If two readers reasonably disagree on what the requirement means, it is a defect.
 - **Atomic.** No compound *and* / *but*. If a sentence describes two behaviours, split it into two requirements. If a behaviour is conditional, split into a positive ("when C, then A") and an unwanted-behaviour ("when not C, then not A").
-- **Solution-free.** Describes *what* observable, not *how* mechanism. *"Use Repository pattern with dependency injection"* is implementation; it belongs in S101 or in conventions, not in a D101 requirement.
+- **Solution-free.** Describes *what* observable, not *how* mechanism. *"Use Repository pattern with dependency injection"* is implementation; it belongs in an S102 or in conventions, not in a D101 requirement.
 - **Complete.** The requirement set covers the relevant input space, including failure modes. Behaviour unspecified for whole regions of the input space is a defect, not a "smart default".
 
 A requirement that fails any of these is a draft note, not a requirement.
@@ -225,7 +226,7 @@ Plain functional requirements (R-rows) do **not** require counter-examples; only
 
 ### 6.4 Failure modes are part of the design
 
-If a flow has a "what if this step fails" answer that materially affects the business outcome (data loss, orphaned records, silent inconsistency), the D101 captures it. Failure modes left to the S101 stage leak design decisions into specification.
+If a flow has a "what if this step fails" answer that materially affects the business outcome (data loss, orphaned records, silent inconsistency), the D101 captures it. Failure modes left to the S102 leak design decisions into specification.
 
 ## 7. Anti-patterns
 
@@ -236,7 +237,7 @@ A D101 in any of these states clears neither bar — except where an entry says 
 - **Business design at code altitude.** §2 *Purpose* and §4 *Business Design* are written in the vocabulary the business uses, not the code's. A narrative built out of interface / class / method names, framework calls (`SaveChangesAsync`), DI registrations, or file paths is implementation dressed as design — even when no single sentence mixes the two layers (the sharper, per-section form of *Mixed business / technical without a boundary* below). **Litmus:** strip every code identifier from §2 and §4 — if the section still conveys the *what* and *why*, it's at the right altitude; if it collapses into blanks, rewrite it at business altitude and push the mechanism to §6. A code identifier in parentheses as an anchor is fine (*"the shared messenger abstraction (`ICommunicator`)"*); a narrative that *depends* on the reader knowing that identifier is not. *Bad:* *"The Web API stops registering `ICommunicator`, `ICommandDispatcher`, and the dead `ICommandService` family; endpoints inject `IMessageRepository` and call `AddCommandAsync<TCommand>` directly."* *Good:* *"The Web API no longer depends on the shared messenger or dispatcher abstractions, and an unused command-tracking family is removed; outbound commands are written straight to the messaging store through one interface."*
 - **Implicit code coupling.** Naming a code-level convention as a load-bearing design fact without flagging the coupling. *"`GetIntegrationPermissions()` filters by name containing 'Integration'"* is a fragile coupling, not a design truth — flag it explicitly or refactor.
 - **Compound requirements.** *"The system shall do A and B"* splits into two requirements. *"Shall A but only when C"* splits into a positive (*A when C*) and an unwanted-behaviour (*not-A when not C*).
-- **Implementation recipes as requirements.** *"Use the Service pattern"*, *"Use NSwag-generated clients"* are *how*. They belong in S101 or in conventions.
+- **Implementation recipes as requirements.** *"Use the Service pattern"*, *"Use NSwag-generated clients"* are *how*. They belong in an S102 or in conventions.
 - **Missing non-goals.** A scope with no out-of-scope list is silently overstuffed. Every D101 names what it deliberately does *not* cover.
 - **Missing alternatives.** A decision recorded without the alternatives it ruled out is a decision that will be re-opened the moment an implementer prefers the rejected option.
 - **Acceptance criteria with no backward link.** An AC that does not reference a requirement or rule is testing something the D101 didn't promise — either remove the AC or add the missing requirement.
@@ -261,7 +262,7 @@ Every check is asked of the **document alone**, never of the conversation that p
 | 3 | For every business rule, do I know what it does *not* cover? | Counter-examples (§6.3) | both |
 | 4 | For every open question, do I know who decides? | Ownership (§4.3) | both |
 | 5 | For every "out of scope", do I know why it's out? | Non-goals with rationale (§4.2) | both |
-| 6 | Could one or more S101s be written from this without going back to the business? | Downstream actionability | §8b only |
+| 6 | Could one or more S102s be written from this without going back to the business? | Downstream actionability | §8b only |
 | 7 | Could a product or business reviewer who doesn't know the codebase understand §2 and §4 — or does the narrative depend on named types, methods, framework calls, file paths, or any other code-level mechanism? | Business altitude (§7) | both |
 | 8 | *(User-facing features only.)* Is the UI specified concretely enough to build, with an interactive artifact demonstrating the primary surface(s)? | UI completeness (§4.1) | both |
 | 9 | Is §6 declared open with a named list of what is outstanding? | Honest phase (§4.6) | §8a only |
@@ -275,7 +276,7 @@ Check 7's abstract question — *would the reader understand it?* — has a conc
 
 ### 8a. The business-complete check
 
-Checks **1, 2, 3, 4, 5, 7, (8), 9**. Check 6 does not apply — a document at this bar deliberately cannot be turned into an S101 yet, and marking that a failure would defeat the bar.
+Checks **1, 2, 3, 4, 5, 7, (8), 9**. Check 6 does not apply — a document at this bar deliberately cannot be turned into an S102 yet, and marking that a failure would defeat the bar.
 
 If any applicable answer is *no*, the document has not reached the business-complete bar. It is the **author's** call, and the response is to keep working on §2–§5 rather than to move on to §6.
 

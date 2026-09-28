@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>S101 — Build specification · Asimov</title>
-<meta name="description" content="S101: one per build unit; what an agent builds from. Not built yet.">
+<title>S101 — Implementation plan · Asimov</title>
+<meta name="description" content="S101: order, dependencies and parallelism of a feature's task specs. Definition written; template and command not yet.">
 <link rel="stylesheet" href="../../site.css">
 </head>
 <body class="has-subnav">
@@ -28,13 +28,35 @@
   <a href="../../artifacts/documentation/a100.html">A100</a>
   <a href="../../artifacts/documentation/d100.html">D100</a>
   <a href="../../artifacts/documentation/d101.html">D101</a>
-  <a href="../../artifacts/documentation/s100.html">S100</a>
   <a class="on" href="../../artifacts/documentation/s101.html">S101</a>
+  <a href="../../artifacts/documentation/s102.html">S102</a>
 </div></nav>
 
 <main class="page">
-  <h1>S101 — Build specification</h1>
-  <p class="lede">Not built yet. One per build unit; what an agent builds from. <span class="chip planned">planned</span></p>
+  <h1>S101 — Implementation plan</h1>
+  <p class="lede">One per feature. Turns a gap-free D101 into an ordered, dependency-aware set of task specs, and states what every task must respect once. <span class="chip assess">assess</span></p>
+
+  <h2>What it holds</h2>
+  <ul>
+    <li><strong>The task graph</strong>: every S102, its dependencies, its phase, the files it owns. Parallel means disjoint files and no open blockers.</li>
+    <li><strong>Phases with checkpoints</strong>: a state a reviewer can verify without reading code. The unit a run stops at and a revert targets.</li>
+    <li><strong>Interfaces, constraints, review focus</strong>: stated once here, inherited by every task.</li>
+    <li><strong>Escalation routing</strong>: what stops a builder, and who rules.</li>
+  </ul>
+
+  <h2>The bar</h2>
+  <p><strong>Dispatch-ready.</strong> The person or orchestrator running it can hand every task to a fresh builder, in graph order, without going back to the author. A reviewer who is not the author gives the verdict; coding does not start before it.</p>
+
+  <h2>What it is not</h2>
+  <ul>
+    <li>Not the recipe. File paths, signatures, steps and test code live in the S102s.</li>
+    <li>Not the ledger. Which task is claimed or in a fix round lives in a gitignored run log, never in the plan.</li>
+  </ul>
+
+  <h2>Where it comes from, where it goes</h2>
+  <p>A D101 at full design produces exactly one. It produces one or more S102 task specs. Lives at <code>documentation/specs/&lt;feature&gt;/</code> beside them. <a href="../../artifacts/documentation/index.html">The document model →</a></p>
+
+  <p><a href="https://github.com/context-and-oss/asimov/blob/main/plugins/asimov-plugin/artifacts/documentation/s101-implementation-plan/s101-implementation-plan-definition.md">Definition</a> · template and <code>/s101-implementation-plan</code> not built yet</p>
 
 </main>
 <footer class="foot"><div class="in">

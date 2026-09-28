@@ -369,7 +369,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="req"><div class="id">R10</div><div class="body"><code>/persona-new</code> reads the persona-review standard and the persona template at run time rather than from memory. <code>/persona-list</code> reads neither — see R12.</div></div>
     <div class="req"><div class="id">R11</div><div class="body"><code>/persona-list</code> lists <strong>both</strong> the standard personas (shipped with the toolkit) and the custom personas (in the repo), labelling which is which, and writes nothing.</div></div>
     <div class="req"><div class="id">R12</div><div class="body"><code>/persona-list</code> globs <code>persona-*/SKILL.md</code> in both sources and reads each skill's <strong>frontmatter only</strong> (<code>name</code> + <code>description</code>) — never the body, never the standard or the template.</div></div>
-    <div class="req"><div class="id">R13</div><div class="body"><code>/d101-review</code> discovers the same roster, sorts each persona into a <strong>business</strong> or <strong>technical</strong> bucket by what it declares it does not know (definition §7), and runs a picked persona review by invoking the skill through the Skill tool — never by re-implementing the method (<code>D101-d101-review.html</code>).</div></div>
+    <div class="req"><div class="id">R13</div><div class="body"><code>/d101-review</code> discovers the same roster, sorts each persona into a <strong>business</strong> or <strong>technical</strong> bucket by what it declares it does not know (definition §7), and runs a picked persona review by invoking the skill through the Skill tool — never by re-implementing the method (<code>D101-d101-feature-design.html</code>).</div></div>
     <div class="req"><div class="id">R14</div><div class="body"><code>/persona-new</code> prints the persona-review artifact's maturity level as at most one chat line before its first question, read from the definition's <code>maturity:</code> block — nothing for <code>adopt</code> (<code>D101-artifact-maturity.html</code>).</div></div>
   </div>
 
@@ -931,7 +931,7 @@ footer.site-footer a { color: var(--cyan); }
       <h4>Sibling D101s</h4>
       <ul>
         <li>features/D101-asimov-init.html (interviews + writes into a product repo)</li>
-        <li>features/D101-d101-review.html (check 7 — the abstract this makes concrete; the hub that delegates to the skills)</li>
+        <li>features/D101-d101-feature-design.html (check 7 — the abstract this makes concrete; the hub that delegates to the skills)</li>
         <li>features/D101-artifact-maturity.html (the maturity notice /persona-new prints)</li>
       </ul>
     </div>

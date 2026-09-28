@@ -1,4 +1,4 @@
-<svg class="docmodel" viewBox="0 0 1200 640" style="min-width:760px" role="img" aria-label="The document model. Work enters from two sources: an A100 scoping and planning report, or the scrumboard. The A100 feeds a D100 solution architecture and one D101 feature design per feature; a scrumboard design task also enters at a D101. Each D101 feeds a stack of one S100 execution plan and its S101 build specifications. A scrumboard bug fix task skips the design and goes straight to a single S101 build specification. Everything is published on the documentation overview landing site. Colour carries one meaning only: each lane has a colour — violet for source, cyan for design, green for specification — and every arrow takes the colour of the lane it enters.">
+<svg class="docmodel" viewBox="0 0 1200 640" style="min-width:760px" role="img" aria-label="The document model. Work enters from two sources: an A100 scoping and planning report, or the scrumboard. The A100 feeds a D100 solution architecture and one D101 feature design per feature; a scrumboard design task also enters at a D101. Each D101 feeds a stack of one S101 implementation plan and its S102 task specs. A scrumboard bug fix task skips the design and goes straight to a single S102 task spec. Everything is published on the documentation overview landing site. Colour carries one meaning only: each lane has a colour — violet for source, cyan for design, green for specification — and every arrow takes the colour of the lane it enters.">
   <style>
     .docmodel { font-family: 'JetBrains Mono', ui-monospace, Consolas, monospace; }
     .docmodel text { font-size: 13px; text-anchor: middle; fill: var(--text, #fff); }
@@ -144,70 +144,70 @@
 
   <!-- ─── SPECIFICATION: one stack per feature ─── -->
   <rect class="stack" x="760" y="211" width="439" height="90" rx="10"/>
-  <a class="spec plan" href="/artifacts/documentation/s100.html">
-    <title>Open S100 — Execution plan</title>
+  <a class="spec plan" href="/artifacts/documentation/s101.html">
+    <title>Open S101 — Implementation plan</title>
     <rect x="769" y="218" width="421" height="24" rx="5"/>
-    <text x="781" y="234">S100 — Feature 1 — Execution plan</text>
+    <text x="781" y="234">S101 — Feature 1 — Implementation plan</text>
     <text class="go r" x="1178" y="234">→</text>
   </a>
-  <a class="spec" href="/artifacts/documentation/s101.html">
-    <title>Open S101 — Build specification</title>
+  <a class="spec" href="/artifacts/documentation/s102.html">
+    <title>Open S102 — Task spec</title>
     <rect x="769" y="244" width="421" height="24" rx="5"/>
-    <text x="781" y="260">S101 — Feature 1 — Build specification 1</text>
+    <text x="781" y="260">S102 — Feature 1 — Task spec 1</text>
     <text class="go r" x="1178" y="260">→</text>
   </a>
-  <a class="spec" href="/artifacts/documentation/s101.html">
-    <title>Open S101 — Build specification</title>
+  <a class="spec" href="/artifacts/documentation/s102.html">
+    <title>Open S102 — Task spec</title>
     <rect x="769" y="270" width="421" height="24" rx="5"/>
-    <text x="781" y="286">S101 — Feature 1 — Build specification X</text>
+    <text x="781" y="286">S102 — Feature 1 — Task spec X</text>
     <text class="go r" x="1178" y="286">→</text>
   </a>
 
   <rect class="stack" x="760" y="315" width="439" height="90" rx="10"/>
-  <a class="spec plan" href="/artifacts/documentation/s100.html">
-    <title>Open S100 — Execution plan</title>
+  <a class="spec plan" href="/artifacts/documentation/s101.html">
+    <title>Open S101 — Implementation plan</title>
     <rect x="769" y="322" width="421" height="24" rx="5"/>
-    <text x="781" y="338">S100 — Feature X — Execution plan</text>
+    <text x="781" y="338">S101 — Feature X — Implementation plan</text>
     <text class="go r" x="1178" y="338">→</text>
   </a>
-  <a class="spec" href="/artifacts/documentation/s101.html">
-    <title>Open S101 — Build specification</title>
+  <a class="spec" href="/artifacts/documentation/s102.html">
+    <title>Open S102 — Task spec</title>
     <rect x="769" y="348" width="421" height="24" rx="5"/>
-    <text x="781" y="364">S101 — Feature X — Build specification 1</text>
+    <text x="781" y="364">S102 — Feature X — Task spec 1</text>
     <text class="go r" x="1178" y="364">→</text>
   </a>
-  <a class="spec" href="/artifacts/documentation/s101.html">
-    <title>Open S101 — Build specification</title>
+  <a class="spec" href="/artifacts/documentation/s102.html">
+    <title>Open S102 — Task spec</title>
     <rect x="769" y="374" width="421" height="24" rx="5"/>
-    <text x="781" y="390">S101 — Feature X — Build specification X</text>
+    <text x="781" y="390">S102 — Feature X — Task spec X</text>
     <text class="go r" x="1178" y="390">→</text>
   </a>
 
   <rect class="stack" x="760" y="439" width="439" height="90" rx="10"/>
-  <a class="spec plan" href="/artifacts/documentation/s100.html">
-    <title>Open S100 — Execution plan</title>
+  <a class="spec plan" href="/artifacts/documentation/s101.html">
+    <title>Open S101 — Implementation plan</title>
     <rect x="769" y="446" width="421" height="24" rx="5"/>
-    <text x="781" y="462">S100 — Feature Y — Execution plan</text>
+    <text x="781" y="462">S101 — Feature Y — Implementation plan</text>
     <text class="go r" x="1178" y="462">→</text>
   </a>
-  <a class="spec" href="/artifacts/documentation/s101.html">
-    <title>Open S101 — Build specification</title>
+  <a class="spec" href="/artifacts/documentation/s102.html">
+    <title>Open S102 — Task spec</title>
     <rect x="769" y="472" width="421" height="24" rx="5"/>
-    <text x="781" y="488">S101 — Feature Y — Build specification 1</text>
+    <text x="781" y="488">S102 — Feature Y — Task spec 1</text>
     <text class="go r" x="1178" y="488">→</text>
   </a>
-  <a class="spec" href="/artifacts/documentation/s101.html">
-    <title>Open S101 — Build specification</title>
+  <a class="spec" href="/artifacts/documentation/s102.html">
+    <title>Open S102 — Task spec</title>
     <rect x="769" y="498" width="421" height="24" rx="5"/>
-    <text x="781" y="514">S101 — Feature Y — Build specification X</text>
+    <text x="781" y="514">S102 — Feature Y — Task spec X</text>
     <text class="go r" x="1178" y="514">→</text>
   </a>
 
   <rect class="stack" x="760" y="569" width="439" height="38" rx="10"/>
-  <a class="spec" href="/artifacts/documentation/s101.html">
-    <title>Open S101 — Build specification</title>
+  <a class="spec" href="/artifacts/documentation/s102.html">
+    <title>Open S102 — Task spec</title>
     <rect x="769" y="576" width="421" height="24" rx="5"/>
-    <text x="781" y="592">S101 — bugfix 1 — Build specification 1</text>
+    <text x="781" y="592">S102 — bugfix 1 — Task spec 1</text>
     <text class="go r" x="1178" y="592">→</text>
   </a>
 

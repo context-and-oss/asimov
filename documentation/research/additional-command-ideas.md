@@ -158,7 +158,7 @@ The original `/grill-me` is a three-line skill ([mcpmarket.com/tools/skills/gril
 
 **The pre-Design challenge variant** — grill me on whether the feature should exist — is the only flavour of `/grillme` that doesn't overlap. Captured as `/challenge` in §4.3 above. Rejected for now on scope grounds (Intent is upstream of the toolkit per charter §1.1).
 
-**Recommendation.** Don't ship `/grillme`. The interview discipline it represents is already inside `/d101-feature-design` and `/s101-implementation-spec`. If we ever feel the interview is too easy on the developer, the fix is to tighten the prompt and the definition — not to add a second command with overlapping behaviour.
+**Recommendation.** Don't ship `/grillme`. The interview discipline it represents is already inside `/d101-feature-design` and `/s101-implementation-plan`. If we ever feel the interview is too easy on the developer, the fix is to tighten the prompt and the definition — not to add a second command with overlapping behaviour.
 
 ## 7. Recommended next steps
 

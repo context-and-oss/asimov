@@ -20,9 +20,9 @@ Canonical mapping from L3 pipeline stage → toolkit component (command or subag
 | Code | `daneel-the-angular-developer` subagent | `claude-sonnet-4-6` | *(default)* |
 | Code | `calvin-the-test-author` subagent | `claude-sonnet-4-6` | *(default)* |
 | Review | `baley-the-code-reviewer` subagent | `claude-sonnet-4-6` | *(default)* |
-| Spec | `/s101-implementation-spec` *(planned)* | `claude-opus-4-8` | `xhigh` |
+| Spec | `/s101-implementation-plan` *(planned)* | `claude-opus-4-8` | `xhigh` |
 | Spec | `/s101-review` *(planned)* | `claude-sonnet-4-6` | *(default)* |
-| Test | S101 validator subagent *(planned)* | `claude-sonnet-4-6` | *(default)* |
+| Test | S102 validator subagent *(planned)* | `claude-sonnet-4-6` | *(default)* |
 | Review + Test | `/conventions-check` *(planned)* | `claude-sonnet-4-6` *or* `claude-haiku-4-5` | *(default)* |
 
 `Model` is the literal value of the `model:` field in YAML frontmatter. `Effort` is the literal value of the `effort:` field — the Claude Code adaptive-reasoning control; `xhigh` was introduced on Opus 4.7 and is also supported on Opus 4.8 (it sits between `high` and `max`). *(default)* means the field is omitted from frontmatter.
