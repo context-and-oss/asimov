@@ -1,6 +1,6 @@
 # S101 / S102 spec-stage research
 
-**Date:** 2026-09-25. **Status:** decisions taken; definitions written at `assess`; templates, commands and the Spec-stage D101 pending.
+**Date:** 2026-09-25, brainstorm continued 2026-09-28. **Status:** definitions written at `assess`; the Spec-stage D101 is being brainstormed (§7); templates and commands pending.
 
 Companion to [`L3-spec-format-research.md`](L3-spec-format-research.md), which researched the *format* of a single spec (MinimumCD's five artifacts, Markdown over JSON, the validator's authority). This note researched the *layer above it*: how the field orders, parallelises and hands out the tasks a design produces, and what that means for Asimov's Spec stage. It revises two of the earlier note's locked decisions (§5).
 
@@ -65,7 +65,26 @@ Drawn from the corpus; each item maps to a section of `s101-implementation-plan-
 5. **D101 reference precision.** Path plus section number, or stable anchors in the D101? Inherited from the earlier note; the coverage map (S101 §4.8) needs it.
 6. **The estimate** (D100 Q7). The S101 carries the graph and the tiers; it is the natural neighbour of an estimate. Observe first.
 
-## 7. Evidence to keep expectations sober
+## 7. Brainstorm towards the Spec-stage D101 (2026-09-28, in progress)
+
+The questions the D101 has to answer: how a D101 becomes one S101 and N S102s; how big an S102 may be; the format; how we verify everything is clarified; how a design is best broken down; and how *what to build*, *how to build*, *what to verify* and *how to verify* are kept apart. Settled so far:
+
+| Point | Decision | Why |
+|---|---|---|
+| **Primary cut** | Vertical slice per verifiable outcome (D101 AC), split per stack only where the slice crosses .NET and Angular | Checkpoints mean "the outcome works", not "the code exists"; the coverage map becomes trivial. Cutting per §6 contract or per layer was rejected: a contract is rarely verifiable alone, and layers leave nothing working until the last one |
+| **No third level (no S103)** | The slice is a **phase in the S101**, not a document. A single-stack slice is one S102; a multi-stack slice is 2–3 S102s in the same phase with the interface named in S101 §4.5 and the checkpoint equal to the slice's AC | Spec Kit groups tasks under a user story that is a heading, not a file; Conductor's phases › tasks › sub-tasks live in one plan. A slice file would be empty (single-stack) or two briefs in one (multi-stack), and then no longer one builder's whole context |
+| **S101 §4.4 to tighten** | A phase *is* a slice and names its AC | Follows from the above |
+| **Traceability ids** | The D101's `R`/`NF` (requirements), `§6.x.y` (contracts) and `AC` (acceptance criteria); §7 already keys its blocks to §6 by number | The S101 coverage map hangs on ids that exist |
+
+Open, next in the brainstorm: **who writes the tests of an S102?**
+
+1. The builder, test-first, inside its S102 (as `s102-task-spec-definition.md` §4.7 reads today; superpowers' model). Calvin then only extends coverage or takes test-only tasks.
+2. Calvin gets its own S102 per slice, writing the tests from the slice's AC and scenarios; the builder's S102 has to make them green. D100's tester role taken literally, and reviewer ≠ author at test level.
+3. Both: the builder writes unit tests inline; Calvin writes the slice's acceptance test against the AC as a separate S102 that *is* the phase's checkpoint. Leaning here: it separates *how it is built* (the builder's tests) from *what is verified* (Calvin's AC test) into two files with two authors, at the cost of one extra S102 per slice.
+
+Not yet discussed: the S102 size rule in practice (one sitting; what the command measures), the exact format of both files (frontmatter fields, required sections), the "everything clarified" check (the S101 review as the gate; what a command can pre-check), and the decomposition procedure the `/s101-implementation-plan` command follows (AC → slice → stack split → interfaces → phases).
+
+## 8. Evidence to keep expectations sober
 
 The June 2026 taxonomy paper (arXiv 2606.04967, six frameworks) finds that "persistent artifacts, work contracts, traceability and human review become mechanisms that reduce ambiguity and coordinate agents", that no framework covers all six of its dimensions, and that specification drift and over-reliance on generated output are the recurring risks. The Spec Kit Agents study (arXiv 2604.05278, 128 runs over 32 tasks) measured a judged-quality gain of +0.15 on a 1–5 scale with test pass rates already at 99.7–100%. The value of the layer is review and traceability, not speed.
 
