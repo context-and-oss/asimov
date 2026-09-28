@@ -6,14 +6,17 @@
 <title>D101 — {{Feature name}} — {{Repo}} docs</title>
 <!--
   D101 HTML template — the visual + structural contract for D101 feature
-  designs. Used by three slash commands:
-    /d101-feature-design   — interviews the developer and drafts a new D101
-                             directly as HTML using this template
-    /d101-convert-to-html  — converts a legacy markdown D101 into HTML using
-                             this template (legacy / import support)
-    /d101-review           — reads this template's leading comment for the
-                             ground rules + component catalogue when judging
-                             a draft
+  designs. Read at run-time by two skills and, through them, three slash commands:
+    artifact-d101-authoring  — the rendering procedure + authoring invariants; drafts
+                               by it: /d101-feature-design (interview → new D101),
+                               /d101-convert-to-html (legacy markdown → HTML), and any
+                               hand edit of a D101
+    artifact-d101-gap-review — judges a draft against this comment's ground rules +
+                               component catalogue and the definition's bars;
+                               /d101-review delegates its gap review to it
+  This comment is the single home of the component catalogue, the N/A policy, the
+  selection principles and the style rules — the skills and commands reference it,
+  never restate it.
 
   HOW TO USE
   - This file is a working, render-faithful example. The commands above

@@ -45,6 +45,8 @@ Before doing anything else, use the **Read** tool to load these files. `${CLAUDE
 
 3. **The active repo's `CLAUDE.md` (in the current working directory), if it exists.** May set repo-specific conventions (path layout, naming, sibling D101 references) you should respect. Absent `CLAUDE.md` is not an error — proceed without it.
 
+4. **The authoring method** — invoke the **`artifact-d101-authoring`** skill via the **Skill** tool. It carries the rendering procedure (verbatim shells, chips, side-nav, the two phase shapes, UI mockups) and the authoring invariants; Steps 6 and 8 draft by it. This command owns only the conversation — phases, stops, the interview. If the skill is unavailable, stop and report it.
+
 If file 1 or 2 cannot be read, stop and report which path failed. Do not draft without them — drafting from memory lets the bars and the visual language drift silently.
 
 **Best-effort input — the diagram templates.** `${CLAUDE_PLUGIN_ROOT}/resources/diagrams/README.md` (the routing table) and the template file it points you at are read later, when you draw a diagram (Step 6, principle 3). They are a **best-effort** input, not a hard dependency like files 1 and 2: if the README or the chosen template cannot be read, draw a plain flowchart instead, say so in chat (*"the diagram templates weren't readable — §6.2 is a plain flowchart"*), and carry on. Never stop the run over a diagram template.
@@ -173,7 +175,7 @@ Work §4 (with its subsections), then §5 *UI Design*, then §8 *Acceptance crit
 
 - **Surfaces.** Which screens/views does this feature introduce or change?
 - For each surface: the **layout**, the key **states** (empty, loading, error, populated), and the **primary interactions** (the things a static screenshot can't convey).
-- **Visual style.** This is the developer's call; do not guess the product's look. Ask: *"Should the mockup follow a particular style? You can (a) describe it (colours, density, control style); (b) point me to an existing project / component / file in this or another repo to draw from; or (c) point me to a screenshot. If you have no preference, I'll approximate a neutral version of the product UI."* Capture the answer and carry it into the mockup-generation block in the **Drafting reference**.
+- **Visual style.** This is the developer's call; do not guess the product's look. Ask: *"Should the mockup follow a particular style? You can (a) describe it (colours, density, control style); (b) point me to an existing project / component / file in this or another repo to draw from; or (c) point me to a screenshot. If you have no preference, I'll approximate a neutral version of the product UI."* Capture the answer and carry it into the mockup rules of the `artifact-d101-authoring` skill (*Style source*).
 
 For a purely backend feature, don't ask UI questions — but still emit §5 with an N/A stub (`N/A — backend-only feature, no user-facing surface`), because §5 is a top-level section and omitting it would leave a §4 → §6 gap.
 
@@ -200,7 +202,7 @@ If the developer asks you to "just draft it" while major gaps remain, say what's
     - **Continuing a legacy `.md`** → write the new `.html` alongside the `.md`. Don't touch the `.md`.
     - **New file** → proceed.
 
-3. **Draft the HTML** per the **Drafting reference** below, with:
+3. **Draft the HTML** per the `artifact-d101-authoring` skill's rendering procedure (Step 1, item 4), with:
     - `.phase-chip` reading `Business design` (no `.full` class)
     - `.status-chip` reading `Draft v0.1` — or the next minor version if you're rewriting an existing draft
     - **§5 UI Design** as a populated top-level section (user-facing) or an N/A stub (backend-only) — never omitted.
@@ -226,7 +228,7 @@ Entered only per Step 2b, against a file already at `Business design`.
 Re-read the target file first — it is the record of what §2–§4 settled, and you may not have written it. Then work:
 
 - **§6.1 Platform** — where the feature lives; escalation gates
-- **§6.2 Data flow** — the flow, as SVG (see the Drafting reference)
+- **§6.2 Data flow** — the flow, as SVG (the authoring skill's *Diagrams* rule)
 - **§6.3 Code map**, **§6.4 Shapes / data model**, **§6.5 APIs**, **§6.6 Configuration**, **§6.7 Failure handling**, **§6.8 Gotchas**
 - **§7 Implementation** — the code-grounded build recipe realising the §6 contracts: §7.1 new-vs-reuse, §7.2 code layout, optional §7.3 setup & wiring, §7.4 per-unit build notes (keyed to the §6.4 contracts by number), §7.5 cross-cutting. Author it *after* §6 is settled — it is the *how a builder builds it* to §6's *what*. It sits **outside both bars** (d101-feature-design-definition §4.8): it moves neither chip and does not gate the gap-free verdict. When the build is pure reuse with no new work, emit the §7 N/A stub instead of §7.1+.
 - **§10 References** — complete what Phase B left thin
@@ -257,105 +259,7 @@ The §8b verdict is the human reviewer's (≠ author, ≠ this command). Never d
 
 # Drafting reference
 
-Used by Step 6 and Step 8 both. Use the visual template loaded in Step 1. Copy the structural shells verbatim and populate each section with interview content per the catalogue in the template's leading comment.
-
-**Verbatim shells** (copy from template, only substitute placeholder text):
-
-- `<!DOCTYPE html>` + `<head>` (including the full `<style>` block)
-- `<nav class="top-nav">` (site-wide links to `../index.html#sN`) — including **both** chips
-- `<div class="layout-doc">` + `<aside class="side-nav">` + `<article class="content">`
-- `<header class="hero">` (kicker, h1, tagline)
-- `<div class="meta-strip">` (6 cells from §1)
-- `<div class="doc-scope">` (Scope from §1)
-- `<footer class="site-footer">`
-
-**Top-level substitutions:**
-
-- `<title>` — `D101 — {feature name} — {repo} docs`
-- `.brand a` href — `../index.html` (keep as-is)
-- `.phase-chip` — `Business design` or `Full design` (`.full` class on the latter). Ground rule 12.
-- `.status-chip` — class matches §1 Status (`.draft` for Draft; default cyan if Approved). Chip text is the Status value plus the version (e.g. `Draft v0.1`).
-- Hero `.kicker` — `D101 · Feature design · {scope}`
-- Hero `<h1>` — the feature name (may use `<br>` for a two-line break if natural)
-- Hero `.tagline` — one-paragraph paraphrase of §2 Purpose
-- `.meta-strip` cells — Owner, business approver, two derived fields from §1 (e.g. surfaces touched, schema change), Last updated, wire-compat or status indicator
-- `.doc-scope` — the §1 Scope row. At the `Business design` phase, end it with one sentence naming what is settled and what is not (e.g. *"§2–§5 are the business agreement; §6 is open — see §6."*)
-- Footer — `D101 · {feature} · {scope} · {status} · {YYYY-MM-DD}` plus the `← Documentation home` link
-
-**Side-nav** — one `<li>` per section the interview produced. Skip N/A sections (but §5 UI Design and §7 Implementation are listed even when they carry an N/A stub — top-level sections a reader must find, not omitted ones). Nest §4.x under §4, §6.x under §6, and §7.x under §7; §5 UI Design is a flat top-level entry (`<li><a href="#s5">§5 UI Design</a></li>`). Anchor IDs match the `<section class="s">` IDs (`#s2`, `#s3`, `#c4`, `#s4-1`, …, `#s5`, `#c6`, …, `#c7`, `#s7-1`, …). At the `Business design` phase, §6 is a single flat `<li><a href="#s6-open">§6 Still to write</a></li>` and §7 a single flat `<li><a href="#s7-pending">§7 Implementation</a></li>`.
-
-**Component selection principles** — apply BEFORE consulting the quick map; these override row-by-row defaults when a section's content shape fits a richer pattern:
-
-1. **Tables, bullets, and prose — not content cards.** The four content-card families (`.problem-grid`/`.problem-card`, `.concept-row`/`.concept` pills, `.fields-grid`/`.field-card`, `.history-grid`/`.hist-card`) were removed from the template. Structured content renders as `.data-table`, `<ul class="bullets">`, and prose under `.subhead`s. The only card-shaped components still allowed are the light `.q-card` (§9 Open questions) and `.refs-block` (§10 References), and both are one-liners — do not press them into service elsewhere.
-2. **One cell / one bullet = one sentence.** A table cell or a bullet carries a single sentence. When an entry needs a paragraph, it becomes prose under a `.subhead`, not a crammed cell.
-3. **Flows are SVG, always.** §6.2 renders as inline `<svg>` in `.flow-wrap` whether the interview produced ASCII art or a numbered prose flow. **Placement:** §6.2 always carries a diagram; any other section may carry one when the notation fits that section's content. Pick the diagram type from `plugins/asimov-plugin/resources/diagrams/README.md` by what the reader must understand — the type follows reader intent, not the section number — then follow that template file's leading comment for notation, node budget and geometry. Content over the type's node budget splits into an overview diagram plus a detail diagram; it never grows one diagram. The numbered list still appears below in `.principles` as detailed step-by-step references.
-
-**Section rendering** — for each interview-answered section, emit `<section class="s" id="sN">` with the matching component per the template's catalogue. Quick map:
-
-- §2 Purpose & audience → ONE crisp *why-now* `.section-desc` sentence + `<ul class="bullets">` of concrete production symptoms (one `<li>` each: `<strong>lead</strong>` + one sentence) + a `.callout` summarising Audience. History, numbers, and multiple goals belong in §4, never front-loaded here.
-- §3 Requirements → three `.subhead` groups (Functional / Non-functional / Out of scope), each a flat `.req-list` of `.req` rows, ALL visible at once — no tabs, no script. Non-functional list gets `.req-list.nf`; out-of-scope rows are `.req.oos`.
-- §4 chapter → `.chapter-band` with numeral `4` and a one-sentence summary of the subsections that follow.
-- §4.1 Principles → `.principles` numbered list.
-- §4.2 Concepts → `.data-table` with columns Concept | What it means, one row per term, one sentence each.
-- §4.3 per-field/per-item → `.subhead` per item + a one-line rule (`<p class="section-desc" style="margin-bottom:0.4rem">`) + `<ul class="bullets">` with concrete examples.
-- §4.4 named rules → `.subhead` per rule + a one-sentence statement + positive/counter-example bullets. **Every conditional rule has a positive + counter-example bullet** (ground rule 4). Simple one-line rules with no examples → a `.data-table` with columns Rule | What it means.
-- §4.5 Decisions → `.decisions` 3-column matrix (Decided / Alternative considered / Why rejected).
-- §5 UI Design (TOP-LEVEL section) → plain `<section class="s" id="s5">` (h2 + §5 badge, no chapter band). User-facing: `.subhead` per surface + `<iframe class="mockup-frame" src="mockups/d101-<slug>/<surface>.html">` + `ul.bullets` for layout notes/states. Backend-only: keep the heading, emit `.callout` reading `N/A — backend-only feature, no user-facing surface`. See **UI mockups** below.
-- §6 at the `Business design` phase → the `#s6-open` *Still to write* section only. See **The open-§6 block** below.
-- §6 chapter (Full design) → `.chapter-band` with numeral `6`.
-- §6.1 Platform → prose + `.callout.warn` for any escalation gate.
-- §6.2 Data flow → inline `<svg>` in `.flow-wrap` (always — see principle 3); any other section may carry a diagram too when the notation fits its content, but §6.2 is the only one that always does. Diagram type comes from `plugins/asimov-plugin/resources/diagrams/README.md`; that template file's leading comment governs notation, node budget and geometry. Palette: green = entry/gating, cyan = read or write to data store, amber = transform/decode, coral = destructive cleanup, dashed border + bg2 fill for stages delegated downstream. `.flow-legend` below. Detailed numbered list renders below in `.principles`.
-- §6.3 Code map → `.codemap` rows.
-- §6.4 Shapes / Data model → `.subhead` per sub-block + `.data-table cols-2` or `.gps-paths` list.
-- §6.5 APIs → `.callout` (often "N/A — additive only").
-- §6.6 Configuration → `.data-table cols-3` with columns Setting | Default | Justification. Wrap a unit in `<code>`; flag a security-sensitive setting in its Justification cell.
-- §6.7 Failure handling → `.failures` with `.sev` chips (Failure / Effect / Severity / Recovery).
-- §6.8 Gotchas → one `.callout` per item (`.callout.warn` for hard ones); a long list → `<ul class="bullets">`.
-- §7 Implementation (Full design only; outside both bars, d101-feature-design-definition §4.8) → `#c7` chapter band + §7.1 new-vs-reuse (opening `.callout` + `<ul class="bullets">`, or a `.data-table` with `.tag.reuse`/`.tag.new`/`.tag.note` chips) + §7.2 code layout (`.data-table`) + optional §7.3 setup & wiring (`.impl-head` + `.data-table`/`.failures`) + §7.4 per-unit notes (`.subhead` with `.s-ref` + `.data-table.impl-table`, one block per unit keyed to its §6 contract by number) + §7.5 cross-cutting (`<ul class="bullets">`). Pure-reuse build → a single `.callout` N/A stub. At the `Business design` phase it is the `#s7-pending` stub instead (see below).
-- §8 Acceptance criteria → `.ac-table` rows with `.verify-chip` chips pointing back at the R-numbers or §-refs from §3 / §4 (ground rule 5).
-- §9 Open questions → `.q-grid` of `.q-card` with `.q-id`, `.q-decider`, `.q-body`. **Every card names a decider** (ground rule 6).
-- §10 References → `.refs` blocks per category (Code / Docs / Diagrams / Historical).
-- §11 Changes from source → only emit if reverse-engineered. Use a `.data-table` (Area | Source said | Code does) or prose.
-
-**Non-canonical section types** (per-protocol / reverse-engineered D101s): "Contract at a glance" / "Spec sheet" → a `.data-table` (Field | Value) or `<ul class="bullets">`. "Special flows" with sub-blocks → `.subhead` per block. "Quirks and gotchas" → a `.callout` per item, or `<ul class="bullets">`. "Testing" catalogue → `.codemap` with a `head` row. Single-dominant-fact section → a short `.callout` or a `.subhead` + bullets.
-
-**The open-§6 block** (Step 6 only — `Business design` phase). Emit the `#s6-open` shell from the template: a `.callout.warn` stating in one or two sentences what §2–§5 have settled and that no S102 can be written yet, then `<ul class="bullets">` with one item per outstanding unknown. Per d101-feature-design-definition §4.6:
-
-- Name each item by **the consequence of not knowing it**, not by the §6 subsection it will live in. *"How a total is counted independently of the rows returned, so a search cannot report three when the truth is three hundred"* — not *"§6.4 data shapes"*.
-- Never emit a bare `TBD`, a `technical design to follow`, or a restatement of the §6.1–§6.8 headings. That fails check 9.
-- This is **not** an N/A stub. N/A gives a reason; open gives a list.
-
-**The pending-§7 stub** (Step 6 only — `Business design` phase). Emit the `#s7-pending` shell: a single `.callout.warn` saying the build recipe is written once §6 is settled, and pointing at the §6 *Still to write* list. It carries **no list of its own** — naming the outstanding technical work is §6-open's job; §7 only records that the recipe waits on §6. No `#c7` chapter band and no §7.1+ at this phase.
-
-**UI mockups (§5, user-facing features only).** When the feature has a user-facing surface, generate interactive HTML mockup(s) alongside the D101 and embed them in §5. These belong to Phase B — the UI is business design, not mechanism. For a backend-only feature, generate no mockup and emit §5 as an N/A stub (do not omit the section).
-
-- **Where.** Write each mockup as a self-contained file under `documentation/features/mockups/d101-<slug>/`. Filenames describe the surface (`main-grid.html`, `settings-panel.html`), not repeating the slug. Create the folder if absent.
-- **Self-contained.** Inline all CSS and JS. No framework, no build step, no `<script src>` to a CDN (a single Google-Fonts `@import` is the only allowed external ref). The file must open by double-click.
-- **Style source (anchor to the developer's answer from Step 4; do not invent the product's look):**
-    - *Described style* → apply the colours / density / control style they gave.
-    - *Pointed-to project / component / file* → **read those real files first** (existing components, CSS, design tokens, theme variables) and mirror their look; reuse actual colour values and control shapes where visible.
-    - *Screenshot* → match its layout and palette.
-    - *No preference* → approximate a neutral light/app UI.
-    - In all cases the mockup approximates the **real product UI, NOT the D101's dark chrome**: it's a design artifact of the feature, not a page of the doc site.
-- **Interactivity bar.** Make the PRIMARY interactions the feature introduces actually work (toggling, filtering, sorting, opening panels, switching tabs: the things a screenshot can't convey). Secondary/peripheral controls may be visually present but stubbed. Use a handful of representative sample rows/items, not lorem ipsum.
-- **One mockup or several?**
-    - **One combined mockup** when the surfaces share one live screen and the interactions flow into each other: panels, dropdowns, overlays reached *without leaving* the screen (e.g. a data grid with a filter dropdown and a slide-in column panel).
-    - **Separate mockups** when surfaces are distinct screens a user reaches by navigating away (a wizard step vs a settings dialog vs a different view mode), or when cramming them into one file would obscure the design.
-    - **Heuristic:** if the user reaches surface B by *leaving* surface A (route/navigation change), they're separate files; if B is a panel/overlay/state of A reached *without leaving*, it's one file.
-- **Embed.** In §5, precede each mockup with a `.subhead` naming the surface, then `<iframe class="mockup-frame" src="mockups/d101-<slug>/<surface>.html" style="height:560px" title="<surface> interactive mockup" loading="lazy"></iframe>`, then `ul.bullets` for layout notes and states. Pick a height that fits the surface (520–640px typical).
-- **Record the style basis.** When the developer specified a style, note it in one phrase in §5's intro `section-desc` (e.g. *"styled after the existing `reefer-list` grid"*) so `/d101-review` can check the mockup against it.
-- **Portability note.** The iframe uses a relative path; it renders when the D101 is opened from the repo working tree but breaks if the HTML is moved/emailed without the `mockups/` folder. This matches the existing relative-`<img>` behaviour for screenshots.
-
-**N/A handling** — if a section was answered "N/A" in the interview, emit the section anyway with a short `.callout` reading `N/A — <one-line reason>`. The empty heading + reason makes the deliberate choice visible to a reviewer (template N/A policy). Do not silently omit N/A sections from the body — but DO omit them from the side-nav. **Exceptions:** §5 (UI Design) and §7 (Implementation) are top-level sections — kept with an N/A stub AND kept in the side-nav when they'd otherwise be omitted (a gap reads as a mistake): §5 for a backend-only feature, §7 (Full design) for a pure-reuse build. §11 (Changes from source) is conditional-omit, not N/A-stub. §6 at the `Business design` phase is **open, not N/A** (it gets the outstanding list); §7 at that phase is **pending, not N/A** (the one-line stub).
-
-**Hard style rules** (from the template's leading comment):
-
-- Use neutral `→` bullets by default. Use `<li class="warn">` (renders as `⚠`) only for real foot-guns the interview surfaced.
-- Never emit `✓` / `✗` symbols.
-- Each `<h2 class="section-title">` starts with `<span class="sec-ref">§N.M</span>` inline before the topic name.
-- **Content fidelity: bodies trace to the interview, labels may derive.** Table cells, bullets, and prose trace to source; short labels (a table's left-cell term, a `.subhead`, a bullet's `<strong>` lead) may paraphrase a lead-in or key phrase. Body text is content — never invent a summary sentence combining multiple source items into one.
-- No interactive widgets, and no JavaScript at all, in the D101 body — the page is fully static. The one exception is the §5 UI mockup, which is a *separate* self-contained file embedded via `<iframe>`; never inline mockup interactivity into the D101 page itself.
-- All CSS inline (from the template). No `<link>` to a separate stylesheet, no `<script>` of any kind in the D101 page. (The §5 mockup files are separate documents and carry their own inline CSS/JS.)
+There is none in this file any more. How a D101 is assembled — shells, chips, side-nav, the `Business design` / `Full design` shapes, diagrams, UI mockups — is the `artifact-d101-authoring` skill; which component renders which section is the template's leading comment. Both are read at run-time (Step 1), so this command never restates them.
 
 # Repo handling
 
@@ -377,11 +281,5 @@ If the developer wants to abort because the repo isn't ready, that's their call 
 - **Delete review notes only after consuming them.** A `.review.md` sibling is deleted only in the same run that used it as input and wrote the D101 (Step 6 / Step 8). Never delete it on a declined offer, and never delete it in a run that writes nothing (Phase A).
 - **Never run Phase B and Phase C in the same invocation.** The stop is the mechanism this command exists for. Hold it even when asked directly; offer to keep working on §2–§4 instead, or to park the mechanism as an open question.
 - **Never write the maturity level into the D101.** The Step 1b notice is chat only (D101-artifact-maturity R8).
-- **Don't fabricate.** No guesses dressed as decisions. When the developer doesn't know, write `TBD — verify` with a decider — or, for mechanism, add it to the open-§6 list.
-- **Don't invent mechanism to fill §6.** A §6 subsection you can only write by guessing belongs in the open-§6 list instead (d101-feature-design-definition §7 *Mechanism invented ahead of the business shape*).
-- **Don't drift the template.** Use the section structure and CSS classes as written; don't reorder, rename, or insert non-template sections. Don't invent new component classes on the fly — the template owns the visual vocabulary.
-- **Don't drift the definition.** When you find yourself wanting to skip a quality rule from `d101-feature-design-definition.md`, ask the developer instead.
-- **Never move the status axis.** `Draft` → `Approved` is the business approver's move. You set the phase; you never record an approval (d101-feature-design-definition §2.3).
-- **Stop at Design.** Don't propose file paths, signatures, libraries, or implementation approaches beyond what §6 explicitly invites — that's S102 territory.
-- **No verdict.** Preview the applicable bar; never declare the document business-complete or gap-free. §8a is the author's call, §8b the human reviewer's.
+- **The authoring invariants bind here.** Don't fabricate, don't invent mechanism to fill §6, don't drift the template or the definition, never move the status axis, stop at Design, no verdict — defined once in the `artifact-d101-authoring` skill (*Invariants*), never restated here. This file adds only the sequence rules above.
 - **Re-read at run-time.** Always re-load the definition and the HTML template at the start of each invocation via the **Read** tool — they may have changed since the last run, and the file-in-the-plugin is the source of truth.

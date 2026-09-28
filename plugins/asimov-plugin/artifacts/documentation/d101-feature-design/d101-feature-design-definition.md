@@ -170,7 +170,7 @@ Three limits are what make it safe rather than corrosive:
 
 **Accepted is not Pass.** A section or check whose only outstanding item is an accepted deviation reads **Accepted**, never Pass. This is the same move as *open* in §4.6: a deliberate state gets its own name, so a reader can mistake it neither for a shortfall nor for a clean bill.
 
-An accepted deviation is a worse outcome than a fix, and the mechanism is deliberately narrow so that stays true — the ceiling on what it can excuse is one named rule instance at a time. Its design is `documentation/features/D101-accepted-deviations.html`.
+An accepted deviation is a worse outcome than a fix, and the mechanism is deliberately narrow so that stays true — the ceiling on what it can excuse is one named rule instance at a time. Its design is `documentation/features/D101-d101-feature-design.html` (§4.4, §6.4).
 
 ### 4.10 Review notes — a cache, not a record
 
@@ -183,7 +183,7 @@ This is only safe because the gap review is **stateless**: every run derives its
 - It carries a **fingerprint of the D101 it was written against** (§1's *Last updated* date, the phase-chip value, and the status chip's **literal text including its version number**, e.g. `Draft v0.3`, at review time), so a consumer can tell whether the D101 changed underneath it before the notes were used. The version number matters: it advances on every write, so two edits made on the same calendar day still produce different fingerprints even though the date alone would read as unchanged. A mismatch is reported, not silently trusted — the fingerprint is still a coarse proxy, not a hash, and says so.
 - It is **git-ignorable.** It is working state between two commands, not a design artifact — committing it turns review commentary into something that looks like a permanent record, which duplicates a PR's own review thread (out of scope — see the design).
 
-Its design, including the exact file shape and the hard-rule caveat this needs (`/d101-review` gains `Write`, but the *scope* of what it writes is a prompt discipline, not a sandboxed guarantee — the same category of promise the never-move-either-axis rule already relies on), is `documentation/features/D101-review-handoff.html`.
+Its design, including the exact file shape and the hard-rule caveat this needs (`/d101-review` gains `Write`, but the *scope* of what it writes is a prompt discipline, not a sandboxed guarantee — the same category of promise the never-move-either-axis rule already relies on), is `documentation/features/D101-d101-feature-design.html` (R21–R22, §6.4).
 
 ## 5. Requirement quality rules
 

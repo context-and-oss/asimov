@@ -11,11 +11,11 @@ There are **three reviews**:
 
 | Review | Reads · asks | You run it by |
 |---|---|---|
-| **Gap review** | the whole D101 against the bar the phase calls for (§8a / §8b) — *is the contract complete?* | doing it yourself, re-reading `d101-feature-design-definition.md` |
+| **Gap review** | the whole D101 against the bar the phase calls for (§8a / §8b) — *is the contract complete?* | invoking the `artifact-d101-gap-review` skill |
 | **Business-persona review** | §2/§4 as the document's business readers — *will the reader read and correct it?* | invoking the persona skills in the **business** bucket |
 | **Technical-persona review** | §4 for feasibility of intent, and §6 once written — *does the design assume something the tech can't cheaply deliver?* | invoking the persona skills in the **technical** bucket |
 
-The gap review is your own work; each persona review is **delegated to its persona skill** (`persona-review-definition.md`) — you invoke it, you never reimplement its method here.
+Every review is **delegated to a skill** — the gap review to `artifact-d101-gap-review`, each persona review to its `persona-*` skill (`persona-review-definition.md`). You invoke them; you never reimplement a method here. This command owns the conversation: which file, which phase, which reviews, and the notes file.
 
 A D101 matures through two bars (`d101-feature-design-definition.md` §2), and which one the **gap review** applies is a property of the *document*, not of the reviewer's mood:
 
@@ -84,32 +84,15 @@ Use the actual extension (`.html` or `.md`). Emit this even when the developer s
 
 # Step 3 — Read the target D101, resolve the phase and status
 
-Use **Read** to load the full file contents. Read the whole file — a review covers every template section, so a snippet isn't enough.
+Use **Read** to load the full file contents — the whole file, so the phase and the fingerprint come from the same read.
 
-**Section recognition (format-aware):**
-
-- **HTML target** — sections are `<section class="s" id="sN">` (or `id="sN-M"` for subsections, and `<div class="chapter-band" id="cN">` for chapter bands). The §-label is in `<span class="sec-ref">§N</span>` inside the section title. The content of each component (e.g. `.data-table`, `.req-list`, `.ac-table`) carries the substantive material to judge.
-- **Markdown target (legacy)** — sections are `## N.` / `## N.M` headings. Read inline lists, tables, and prose blocks the same way.
-
-Note the archetype while reading: a D101 with a non-empty §11 *Changes from source* is **reverse-engineered**; one without §11 is **greenfield**. The gap review's section walk includes a §11 row only when the target has §11.
-
-**Resolve the phase.** This decides which reviews the menu offers and which bar the gap review runs, so settle it before anything else:
-
-| Signal in the target | Phase |
-|---|---|
-| `.phase-chip` in the top-nav reads `Business design`, or a `#s6-open` "Still to write" section is present | **Business design** |
-| `.phase-chip` reads `Full design`, or §6.1+ are populated with no open block | **Full design** |
-| Legacy `.md`, or `.html` with neither marker | **Full design** — note it in one sentence; the document predates the phase axis, so §8b is the fair bar |
-
-If the two signals disagree — a `Full design` chip above a `#s6-open` section, or a `Business design` chip above populated §6.1–§6.8 — that is itself a finding. Report the phase as whatever the *body* shows; if the gap review is run, mark its §6 row **Fail** with a one-sentence reason naming the contradiction.
+**Resolve the phase.** This decides which reviews the menu offers and which bar the gap review runs, so settle it before anything else. The signals are template ground rule 12's — the `.phase-chip` text (`Business design` / `Full design`) and whether a `#s6-open` *Still to write* section is present; a legacy `.md` or a chip-less `.html` counts as `Full design`, said once in one sentence. They are spelled out in the `artifact-d101-gap-review` skill (*Resolve the phase*), which applies the same table; do not keep a second copy here. If chip and body disagree, report the phase the **body** shows and leave the contradiction to the gap review, which records it as a §6 **Fail**.
 
 **Read the status too.** Note the `.status-chip` value (`Draft` / `Approved`) — you **show** it as context in the header (Step 4) but **never** change it (this is the status half of the never-move-an-axis rule).
 
 **Capture the fingerprint while you are here.** Step 7 needs three values from this same read: the meta-strip *Last updated* date, the phase-chip text, and the status chip's **literal text including its version** (e.g. `Draft v0.3`). Note all three now so Step 7 does not re-read the file.
 
-**N/A handling.** A section that contains only a `N/A — <reason>` callout (HTML) or a `N/A — <reason>` line (MD) is a deliberate omission with a reason. In the gap review, **Pass** it unless the reason is suspicious (e.g. an N/A on §3 Requirements is almost always wrong). §5 UI Design carrying an `N/A — backend-only feature` stub is the expected shape for a backend-only feature — **Pass**.
-
-**Open ≠ N/A.** An open §6 gives a *list* of what's outstanding; an N/A gives a *reason* why a section doesn't apply (`d101-feature-design-definition.md` §4.6). A §6 carrying an N/A stub instead of an outstanding list is **Fail**, not Pass.
+How sections, N/A stubs, the open §6 and the archetype are *judged* is the gap-review skill's business (Step 5), not this step's.
 
 # Step 4 — Offer the review menu
 
@@ -143,157 +126,11 @@ Then run each picked review — the gap review in Step 5, the persona reviews in
 
 # Step 5 — Gap review (only if picked)
 
-## 5a — Section walk
+Invoke the **`artifact-d101-gap-review`** skill via the **Skill** tool and run it against the resolved target, handing it what Step 3 established: the path, the resolved phase, and the status chip's text. The skill owns the section walk, the five severities, the phase-dependent §6/§7 rules, the accepted-deviation validity check, the bar (§8a or §8b) and the two report tables. Follow it exactly — never paraphrase its severities or restate its rules here.
 
-Walk the target D101 from §1 through §10 (plus §11 when present). Judge each section against:
+Its output goes to chat under its own headings — the `Phase:` line, `## Gap review — section walk`, and `## §8a — business-complete check` or `## §8b — gap-free check` — and is what Step 7 copies verbatim into the notes file.
 
-- The **template's** section requirements (`d101-feature-design-template.html` — the canonical structure + the authoring ground rules in its leading comment)
-- The **definition's** quality rules (§5 requirement quality, §6 verification mandate, §7 anti-patterns)
-
-Each row gets one of five severities:
-
-| Severity | Meaning |
-|---|---|
-| **Pass** | The section satisfies the template and the definition's rules. No follow-up needed. |
-| **Open** | The section is *deliberately* unwritten at this phase, and says so properly. Only ever applies to §6 in a `Business design` document (see the §6 rule below). Not a defect — do not count it against the document. |
-| **Accepted** | The section carries a finding the team has deliberately decided to live with, recorded as a valid `.accepted` block (see the accepted-deviation rule below). Report it, name its accepter, and move on — never re-argue it. |
-| **Flag** | The section is structurally present but has a quality issue — a thin justification, one missing counter-example on a single rule, a single decider-less TBD in a non-load-bearing row. Reviewable, not blocking. |
-| **Fail** | The section is missing, structurally broken, or violates a load-bearing rule — anonymous TBD on a load-bearing decision, compound requirement, code-paraphrase as design, **business design at code altitude (§2/§4 narrative depends on code identifiers)**, AC with no backward link to §3/§4, missing non-goal rationale. Should be addressed before human review. |
-
-**§6 rule (phase-dependent).** In a `Business design` document, §6.1–§6.8 are *supposed* to be absent. Collapse them into **one** row — `§6 Technical design` — and judge only the open block against `d101-feature-design-definition.md` §4.6:
-
-- Open block present, states the document isn't gap-free, and lists outstanding items named by the consequence of not knowing them ⇒ **Open**.
-- Open block present but the list is a bare `TBD`, a *"technical design to follow"*, or a restatement of the §6.1–§6.8 headings ⇒ **Fail** (cite check 9). The gap is hidden, not declared.
-- No open block at all — §6 simply missing, or an N/A stub ⇒ **Fail** (cite check 9).
-- §6 subsections partially populated *and* an open block present ⇒ **Fail**, naming the contradiction.
-
-Never emit eight §6.x rows of **Fail** against a `Business design` document. That is the failure mode this rule exists to prevent.
-
-In a `Full design` document, judge §6.1–§6.8 individually as normal, and a leftover `#s6-open` block is **Fail** (cite check 10).
-
-**§7 Implementation rule (outside the bars).** §7 is the code-grounded build recipe, and it sits **outside both §8a and §8b** (`d101-feature-design-definition.md` §4.8) — so its findings are **template-conformance only** and never change the bar verdict, like the readability flags below. Judge it for presence and phase-shape, the way §5 is judged, never for depth:
-
-- **`Business design` document.** §7 should carry the one-line `#s7-pending` stub (the recipe waits on §6). Present with that stub ⇒ **Open**. A full §7.1+ populated at this phase — build recipe written ahead of the settled contract — ⇒ **Flag**, naming the contradiction. §7 entirely absent (a §6 → §8 gap in the numbering) ⇒ **Fail**.
-- **`Full design` document.** §7 carries either the build notes (`#c7` chapter band + §7.1+) or an `N/A — pure reuse` stub — both **Pass**. A leftover `#s7-pending` stub ⇒ **Fail** (the phase moved but §7 didn't). §7 entirely absent ⇒ **Fail** (a top-level section dropped, not marked N/A).
-
-Never **Fail** §7 for being *thin* — its depth is the author's call, not a bar requirement (it is authored after the gap-free bar). Only its presence and phase-shape are checked here.
-
-When you spot any anti-pattern from `d101-feature-design-definition.md §7`, **name it in the reason cell** — e.g. *"compound requirement (§7)"*, *"code-paraphrase as design (§7)"*, *"business design at code altitude (§7)"*, *"anonymous TBD (§7)"*. Anti-patterns are not confined to §3/§4: an anonymous TBD belongs to the §9 *Open questions* row of your report; a missing-non-goal-reason belongs to the §3 row; a code-paraphrase belongs to the §4 row.
-
-**Business altitude applies to §2 and §4.** Read §2 *Purpose* and §4 *Business design* as a product / business reviewer who doesn't know the codebase would. Apply the litmus from `d101-feature-design-definition.md §7` (*Business design at code altitude*): mentally strip every code identifier (interface / class / method names, framework calls, file paths) from the section — if the narrative collapses into blanks or stops making sense, the section is at code altitude and the row is a **Fail**. Occasional parenthetical anchors (*"the shared messenger abstraction (`ICommunicator`)"*) are fine; a narrative that *depends* on the reader knowing those identifiers is not. This is the systematic, per-section form of gap-free check 7. Its reader-in-the-loop counterpart is the **persona review** (Step 6 / `persona-review-definition.md`), which answers the same check by putting a named target reader in front of §2/§4 (and §6, for a feasibility reader) and narrating where they stall; the two are complementary — a document can clear the altitude litmus here and still lose its reader. Surface the altitude findings here in the gap review; if the developer also picked a persona review, Step 6 adds the reader-in-the-loop read.
-
-**Readability & §2 framing (template-conformance, not a bar check).** The template renders structured content as tables, bullets, and prose — one cell / one bullet = one sentence (selection principle 2). **Flag** (readability — reviewable, not blocking) each of:
-
-- **Wall-of-text cell or bullet.** A `.data-table` cell, a `<ul class="bullets">` item, or a `.subhead` rule line that runs to a paragraph instead of one sentence — the fix is to move the overflow to prose under a `.subhead`, not to keep it crammed in the cell.
-- **§2 framing bloat.** The §2 `.section-desc` front-loads history, analysis, or numbers, or compounds several goals into one run-on, instead of one crisp *why-now* sentence with the detail carried by the symptom bullets.
-
-These are template-conformance findings, not bar checks — they never change the §8a/§8b verdict; they just tell the author where the document stops being skimmable. A persona review (Step 6) is the reader-in-the-loop counterpart: it catches the same walls of text by stalling on them.
-
-**Blueprint discipline in §6 (technical design).** §6 is a build instruction: it states *what* to build, declaratively — rationale lives in a decisions block, not the spec prose (`d101-feature-design-definition.md` §4.7 + the §7 anti-pattern *Rationale woven into the build spec*). Apply the **blueprint litmus** to each §6 subsection: mentally strip every *because / we chose / rather than / the reason is* clause — if the build instruction is still complete and unambiguous, those clauses were rationale and belong in a Decisions row (Decided | Alternative | Why); if it collapses, the section was hiding spec inside prose and must be restated declaratively. **Flag** a §6 subsection that narrates a decision-journey or a trade-off essay instead of specifying the mechanism, naming the anti-pattern and pointing the rationale at Decisions. When §6 reads as an essay rather than a spec — an implementer cannot act on it without first extracting the instruction from the argument — that is a **gap-free (§8b) concern**, not just a tidy-up. This is the §6 counterpart of the §2/§4 business-altitude litmus above; a feasibility persona (who reads §6) surfaces the same problem by stalling on the argument.
-
-**Accepted-deviation rule (`d101-feature-design-definition.md` §4.9).** The target may carry `.accepted` blocks — a rule the team has deliberately chosen not to meet, recorded next to the element it excuses. This mechanism exists so a settled finding stops costing the author a decision on every run; honour it, and do not re-litigate what it covers.
-
-A `.accepted` block is **valid** when it names the rule it departs from, gives a one-sentence reason, names a person, and carries a date. For a valid block:
-
-- The section-walk row for that element is **Accepted**, not Pass and not Flag/Fail — with the accepter and the reason in the reason cell.
-- The §8 check that named rule instance belongs to also reads **Accepted** rather than Pass, carrying the same reason. `Accepted` never becomes `Pass` — the reviewer who owns the §8b verdict has to see what they are signing.
-- Judge everything *else* in that element normally. An acceptance covers the one named instance, nothing more.
-
-It is **invalid**, and the underlying finding stands at its normal severity, when it:
-
-- names no person or no date ⇒ also **Flag** the suppression itself, naming the §7 anti-pattern *deviation without an accepter*;
-- is written against a whole check from the §8 table rather than one named rule instance ⇒ **Fail**, naming the §7 anti-pattern *a deviation that swallows a check*;
-- names several rules in one block ⇒ it covers none of them — report every underlying finding at its normal severity, and say in the reason cell that the record was not honoured because it spans more than one rule instance (§4.9 limit 1);
-- names a rule but sits on no element — placed outside any `.req`, `.ac-row` or section it could excuse — ⇒ it is a general claim, not an instance; report the underlying finding at its normal severity, and say the record was not honoured because it is attached to nothing (§4.9 limit 1); or
-- annotates text that has since been rewritten so the reason no longer describes it — an acceptance is bound to the text it sits on (§4.9 limit 3).
-
-**TBD rule.** Flag any TBD or open-question entry that lacks a named decider — that's the `d101-feature-design-definition.md §4.3` + §7 anti-pattern. Do **not** flag bare `TBD` for failing to match the `TBD — verify` shape; the `— verify` suffix is `/d101-feature-design`'s output style, not a `d101-feature-design-definition.md` requirement, and enforcing it here would drift the bar.
-
-**§5 UI Design rule (top-level, always present).** Infer from §2/§3 whether the feature is **user-facing** (does it change something a user sees or interacts with?). §5 is a top-level section, so it is present in every D101 — the two cases differ only in what it carries:
-
-- **Backend-only feature.** §5 should carry an `N/A — backend-only feature` stub. Present with that stub ⇒ **Pass**. §5 **entirely absent** (a §4 → §6 gap in the numbering) ⇒ **Fail** — the top-level section was dropped, not marked N/A.
-- **User-facing feature.** §5 is required with an embedded mockup. **Follow each `<iframe class="mockup-frame">` `src` and Read the referenced mockup file(s)** under `mockups/d101-<slug>/` (use Glob/Read), then judge:
-  - **Presence / linkage.** §5 absent, present but with no embedded mockup, or an `<iframe src>` that resolves to no file on disk ⇒ **Fail** (cite check 8). §5 is business design, so this applies at **both** phases — a `Business design` document is not excused from it.
-  - **One-vs-several.** Does the mockup count match the surfaces §5 describes? Distinct screens reached by navigation each warrant their own file; a single screen with overlays/panels/dropdowns is one file. Several navigable screens crammed into one file, or one screen needlessly split, ⇒ **Flag** (cite the single-vs-multiple heuristic).
-  - **Styling fit.** The mockup must read as the product UI, **not the D101 dark chrome** (reusing the doc's dark `--bg`/theme tokens for the app surface ⇒ **Flag**), and must be self-contained (an external `<script src>` CDN ⇒ **Flag**). If §5's intro records a style basis, check the mockup is consistent with it.
-  - **Interactivity.** The primary interactions the §5 bullets describe should appear actually wired (JS handlers present), not a static screenshot-in-HTML. A purely static mockup for an interaction-heavy surface ⇒ **Flag**.
-
-**Structural divergence is a Fail, not a guess.** If the target D101 doesn't follow `d101-feature-design-template.html`'s section order, has sections renamed, uses an invented CSS component class that isn't in the template's catalogue, or omits whole sections without an N/A reason, mark the affected sections **Fail** with a one-sentence structural reason. **Exception:** an absent `#c6` chapter band and absent §6.1–§6.8 in a `Business design` document are the template's own phase shape (ground rule 12), not divergence. Don't reinterpret what the author meant — that's the author's call on the next iteration.
-
-**One sentence per reason.** Each row's reason cell is a single sentence. Long reasons rot into mini-essays; the author opens the source file if they want more context.
-
-## 5b — Run the bar the phase calls for
-
-`d101-feature-design-definition.md §8` carries **one canonical numbered list** of ten checks; the numbers never shift, and each check belongs to one bar or both. Run only the checks in the bar the phase resolved to in Step 3. Same severity ladder, same one-sentence-reason discipline — including **Accepted** for a check whose only outstanding instance carries a valid `.accepted` block (§4.9).
-
-| # | Check | Bar |
-|---|---|---|
-| 1 | Could two engineers implement this differently and both claim to follow the design? | both |
-| 2 | For every observable behaviour named, is there a check that proves it works? | both |
-| 3 | For every business rule, do I know what it does *not* cover? | both |
-| 4 | For every open question, do I know who decides? | both |
-| 5 | For every "out of scope", do I know why it's out? | both |
-| 6 | Could one or more S102s be written from this without going back to the business? | §8b only |
-| 7 | Could a product / business reviewer who doesn't know the codebase understand §2 and §4 — or does the narrative depend on named types, methods, framework calls, or any code-level mechanism? | both |
-| 8 | *(User-facing features only)* Is the UI specified concretely enough to build, with an interactive mockup demonstrating the primary surface(s)? | both |
-| 9 | Is §6 declared open with a named list of what is outstanding? | §8a only |
-| 10 | Is the phase `Full design` — §6 populated, no *still to write* block left? | §8b only |
-
-- **Phase `Business design` → run §8a:** checks 1, 2, 3, 4, 5, 7, (8), **9**. Do **not** run check 6 — a business-complete document deliberately cannot be turned into an S102 yet, and failing it for that inverts the bar.
-- **Phase `Full design` → run §8b:** checks 1, 2, 3, 4, 5, **6**, 7, (8), **10**. Check 9 no longer applies.
-
-Check 8 is conditional on the feature being user-facing. Backend-only features **omit the row** rather than failing it.
-
-## 5c — Emit the gap report
-
-Output in this exact order:
-
-1. A `Phase:` line naming the resolved phase and the bar it selects (the `Reviewing:` line was already emitted in Step 2):
-
-   ```
-   Phase: Business design — reviewed against §8a (business-complete)
-   ```
-
-   For a legacy `.md` or a chip-less `.html`, say so: `Phase: none recorded — treated as Full design, reviewed against §8b (gap-free)`.
-
-2. A **Section walk** heading and table:
-
-   ```markdown
-   ## Gap review — section walk
-
-   | Section | Severity | Reason |
-   |---|---|---|
-   | §1 Document information | Pass | … |
-   | §2 Purpose & audience   | Flag | … |
-   | §5 UI Design            | Pass | … |
-   | §6 Technical design     | Open | … (ONE row at the Business design phase; §6.1–§6.8 rows only at Full design) |
-   | §7 Implementation       | Open | … (pending stub at Business design; build notes or N/A at Full design — outside the bars, conformance only) |
-   | §8 Acceptance criteria  | Pass | … |
-   | §9 Open questions       | Pass | … |
-   | §10 References          | Pass | … |
-   | §11 Changes from source | Pass | … (only when present in the target) |
-   ```
-
-3. A bar heading and table — **`## §8a — business-complete check`** or **`## §8b — gap-free check`**, matching the phase. Keep the canonical check numbers; omit the rows that don't belong to the bar rather than renumbering:
-
-   ```markdown
-   ## §8a — business-complete check
-
-   | # | Check | Severity | Reason |
-   |---|---|---|---|
-   | 1 | Two engineers, same design?   | Pass | … |
-   | 2 | Observable → checkable?       | Flag | … |
-   | 3 | Rules carry counter-examples? | Pass | … |
-   | 4 | Every open question has a decider? | Fail | … |
-   | 5 | Every non-goal has a reason?  | Pass | … |
-   | 7 | §2/§4 at business altitude?   | Fail | … |
-   | 8 | UI buildable + mockup?        | Pass | … (user-facing features only) |
-   | 9 | §6 declared open with a real list? | Pass | … |
-   ```
-
-   At the `Full design` phase the same table carries rows 1, 2, 3, 4, 5, **6**, 7, (8), **10** under the `## §8b — gap-free check` heading.
-
-**Do not emit a top-line "ready for human review" / "needs work" verdict, and do not emit an aggregated pass/fail score.** Neither bar's verdict is yours: §8a is the author's call (`d101-feature-design-definition.md` §2.1) and §8b the human reviewer's (§2.2). Your job is to surface evidence.
+If the skill is unavailable, say so and run only the persona reviews that were picked — never improvise a gap review from memory of the bar.
 
 # Step 6 — Persona review(s) (only if picked)
 
@@ -315,7 +152,7 @@ For each persona:
 
 # Step 7 — Write the review-notes file, then close
 
-You have emitted one report per selected review — the gap report (Step 5c) and/or each persona's read (Step 6), kept distinct. The D101 itself is unchanged; neither axis was moved.
+You have emitted one report per selected review — the gap report (Step 5) and/or each persona's read (Step 6), kept distinct. The D101 itself is unchanged; neither axis was moved.
 
 **Write `<slug>.review.md` in the same directory as the resolved target** — its base name with the `.html`/`.md` extension swapped for `.review.md` (a target reviewed at a non-standard path gets its notes written beside it, never redirected to `documentation/features/`) — carrying everything just emitted to chat, so it survives past this session as input to a later `/d101-feature-design` run (`d101-feature-design-definition.md` §4.10). This is the **one and only path** this command ever writes to; never the target D101 itself, never any other file. Do this by default — don't ask first — but say what you did.
 
@@ -330,7 +167,7 @@ Phase (at review time): <Business design | Full design>
 Status (at review time): <the status chip's literal text, e.g. Draft v0.3 — keep the version number, it's part of the fingerprint>
 
 ## Gap review — section walk
-… (the same table emitted in Step 5c, verbatim)
+… (the same table the gap-review skill emitted in Step 5, verbatim)
 
 ## §8a / §8b — … check
 … (the same table, verbatim)
@@ -361,14 +198,9 @@ If the active repo has no `documentation/features/` directory and the author inv
 
 - **Read-only on the D101, write-only to its review notes.** Never call Edit, anywhere. The only path Write may ever target is the resolved target's `.review.md` sibling — same directory, same slug — never the D101 itself, never a fixed `documentation/features/` location regardless of where the target actually lives, and never any other file. If the author asks you to "just fix it", decline and offer to hand the findings to `/d101-feature-design` as input. This scope is enforced by this rule and by AC checking `git diff` on the target D101, not by a sandboxed permission — Write is a tool-level grant, not a path-level one, so honouring the scope is your discipline to keep (`d101-feature-design-definition.md` §4.10).
 - **Run only what was picked.** Present the menu, wait for the pick, and run only the selected reviews. Never silently run all three.
-- **Orchestrate, don't reimplement.** The gap review is yours; each persona review is delegated to its skill via the **Skill** tool. Never copy a persona's method into this command (`persona-review-definition.md` is the source of truth for how a persona reads).
+- **Orchestrate, don't reimplement.** Every review is delegated to its skill via the **Skill** tool — the gap review to `artifact-d101-gap-review`, each persona review to its `persona-*` skill. Never copy a method into this command; the skills are the source of truth for how a review reads.
 - **Reviews stay distinct.** Never merge a persona read into the gap tables, and never emit a single combined verdict or score across reviews.
-- **No gap verdict.** No top-line "ready / not ready", no aggregated score, no "X of N checks passed" line. Findings tables only.
-- **Resolve the phase before judging.** Never review a `Business design` document against §8b. A deliberately open §6 is **Open**, never Fail, and never eight rows of Fail — that misreading is the main thing this command must not do.
+- **Resolve the phase before offering anything.** The menu and the bar both depend on it. Never let a `Business design` document be reviewed against §8b.
 - **Never move either axis.** You don't set the phase and you don't record an approval; you may show the status, never change it (`d101-feature-design-definition.md` §2.3).
-- **Never author or propose an acceptance.** Honour a `.accepted` block that is already in the document (§4.9); never write one, and never suggest that a finding be accepted rather than fixed. Accepting is the author's and the accepter's move — a reviewer that offers the waiver is excusing itself. If the author says a finding is already settled, point them at `/d101-feature-design` to record it in the D101.
-- **No invented findings.** Never report on a section or check you couldn't read from disk. If the file is structurally damaged, mark the affected sections **Fail** with a one-sentence structural reason rather than guessing what the author intended.
-- **Don't drift the bars.** Re-load `d101-feature-design-definition.md` and `d101-feature-design-template.html` at the start of *every* invocation via the **Read** tool — the file-in-the-plugin is the runtime source of truth.
-- **Name anti-patterns explicitly.** When a Flag/Fail row trips a §7 anti-pattern, name the anti-pattern in the reason cell so the author can navigate straight to the rule.
-- **One sentence per reason.** Don't expand findings into paragraphs.
+- **The review invariants bind here too.** No gap verdict or aggregated score, no invented findings, never author or propose an acceptance, anti-patterns named, one sentence per reason, the bar re-read on every run — defined once in `artifact-d101-gap-review` (*Invariants*), never restated here.
 - **Always emit the resolved-path line first**, even when the argument was explicit.

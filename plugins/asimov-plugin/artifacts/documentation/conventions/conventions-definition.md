@@ -31,4 +31,4 @@ A subagent writing code for a stack needs the repo's own rules — naming, layer
 |---|---|
 | `conventions-readme-template.md` | The skeleton, with the managed-region markers |
 | `documentation/features/D101-asimov-init.html` | The command that scaffolds it (R6–R9, NF7, OOS2) |
-| `documentation/features/D101-build-subagents.html`, D100 §7.2.1 | The subagents that read it |
+| `documentation/features/D101-subagents.html`, D100 §7.2.1 | The subagents that read it |
