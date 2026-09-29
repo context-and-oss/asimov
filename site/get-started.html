@@ -30,7 +30,7 @@
 
   <h2>Supported</h2>
   <ul>
-    <li><strong>Coding agents</strong>: Claude Code. Codex is planned.</li>
+    <li><strong>Coding agents</strong>: Claude Code and Codex — one plugin, installed by both.</li>
     <li><strong>Software stacks</strong>: C#/.NET and TypeScript/Angular. Tests in .NET.</li>
   </ul>
 
@@ -41,10 +41,16 @@
   <ul>
     <li>Update later with <code>/plugin marketplace update asimov-marketplace</code>. No auto-update.</li>
     <li>Versions are major-only. Any release may change a bar or a template, so read the release notes before updating a repo with designs in flight.</li>
-    <li>Needs access to the models the commands pin, mapped in <a href="https://github.com/context-and-oss/asimov/blob/main/documentation/model-choice.md">model-choice.md</a>.</li>
+    <li>Asimov names no model: the skills and subagents run on the model your session uses.</li>
   </ul>
   <h3>Codex</h3>
-  <p>Planned.</p>
+  <pre class="mono" style="color:#fff;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:1rem;overflow-x:auto">codex plugin marketplace add context-and-oss/asimov
+codex plugin add asimov-plugin@asimov-marketplace</pre>
+  <ul>
+    <li>Start a new session; the entries are skills: <code>$asimov-plugin:d101-review</code> and so on. <code>asimov-init</code> wires your repo for both tools and puts the subagents in <code>.codex/agents/</code>.</li>
+    <li>Codex loads those subagents only in a repo you have marked trusted, and from the next session.</li>
+    <li>Update later with <code>codex plugin marketplace upgrade asimov-marketplace</code>, then a new session. Not available in the Codex IDE extension.</li>
+  </ul>
 
   <h2>Your first feature</h2>
   <div class="figure">

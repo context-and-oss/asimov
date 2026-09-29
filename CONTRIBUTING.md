@@ -1,6 +1,6 @@
 # Contributing to Asimov
 
-Asimov is a Claude Code plugin: slash commands, subagents, skills, definitions and templates. There is no compiled code. A contribution is a change to a prompt, a definition, a template or a document, and it is reviewed like code.
+Asimov is a plugin for Claude Code and Codex — one folder both tools install, no build step: skills, subagents, definitions and templates. There is no compiled code. A contribution is a change to a prompt, a definition, a template or a document, and it is reviewed like code.
 
 ## What belongs here
 
@@ -23,24 +23,28 @@ Every command and subagent in Asimov has a design document (a D101) before it ha
 1. Read [`CLAUDE.md`](CLAUDE.md): the conventions, the "How to add" recipes and the hard rules. They are enforcement rules, not style preferences.
 2. Read [`documentation/D100-Asimov-architecture.md`](documentation/D100-Asimov-architecture.md) for where your change sits.
 3. For a new command or subagent, author the D101 with `/d101-feature-design` and clear the business-complete bar (§8a) before writing the technical design. The definition is [`d101-feature-design-definition.md`](plugins/asimov-plugin/artifacts/documentation/d101-feature-design/d101-feature-design-definition.md).
-4. Author the change. Keep the D100 rows, the `model-choice.md` row and the frontmatter in sync in the same commit (hard rules 2, 6 and 10).
+4. Author the change. Keep the D100 rows in sync, name no model anywhere, keep every skill as `SKILL.md` + `method.md`, and bump the plugin version in both manifests in the same commit (hard rules 2, 6, 11 and 14).
 5. Test it locally in a product repo (below).
 6. Open a pull request against `main`.
 
 ## Testing locally
 
-```
-/plugin marketplace add <path-to-your-clone>
-/plugin install asimov-plugin
-```
-
-Then run the command or subagent in any product repo. After editing:
+Claude Code:
 
 ```
-/plugin marketplace update asimov-marketplace
+claude --plugin-dir <path-to-your-clone>/plugins/asimov-plugin
 ```
 
-There is no auto-reload.
+or add the clone as a marketplace (`/plugin marketplace add <path-to-your-clone>`, then `/plugin install asimov-plugin`; edits show after `/reload-plugins`).
+
+Codex:
+
+```
+codex plugin marketplace add <path-to-your-clone>
+codex plugin add asimov-plugin@asimov-marketplace
+```
+
+Then run the skill or subagent in any product repo (`/<name>` in Claude Code, `$asimov-plugin:<name>` in Codex). After editing, Codex needs the plugin removed and added again and a new session. A change must work in both tools before it is merged.
 
 ## Pull requests
 

@@ -240,7 +240,7 @@ footer.site-footer a { color: var(--cyan); }
   <a href="../index.html#s6">Diagrams</a>
   <span class="spacer"></span>
   <span class="phase-chip full">Full design</span>
-  <span class="status-chip">Draft v0.11</span>
+  <span class="status-chip">Draft v0.12</span>
 </nav>
 
 <div class="layout-doc">
@@ -290,12 +290,16 @@ footer.site-footer a { color: var(--cyan); }
   <div class="meta-cell"><div class="label">Approver (target)</div><div class="value">alb (Context&amp; lead)</div></div>
   <div class="meta-cell"><div class="label">Commands</div><div class="value mono">/persona-new · /persona-list</div></div>
   <div class="meta-cell"><div class="label">Standard set</div><div class="value mono">skills/persona-*</div></div>
-  <div class="meta-cell"><div class="label">Last updated</div><div class="value mono">2026-09-15</div></div>
+  <div class="meta-cell"><div class="label">Last updated</div><div class="value mono">2026-09-29</div></div>
   <div class="meta-cell"><div class="label">Stage</div><div class="value">Design</div></div>
 </div>
 
 <div class="doc-scope">
   <strong>Scope:</strong> Design-stage tooling — a shipped standard set of reader personas plus custom authoring, listed together. §2–§4 are the business agreement; §6 is the technical design.
+</div>
+
+<div class="callout">
+  <strong>Amended 2026-09-29 by <a href="D101-codex-support.html">D101-codex-support</a>.</strong> <code>persona-new</code> writes each custom persona twice — <code>.claude/skills/persona-&lt;slug&gt;/</code> (the source, read by Claude Code) and a byte-identical <code>.agents/skills/persona-&lt;slug&gt;/</code> (the mirror, read by Codex) — and <code>persona-list</code> and <code>d101-review</code> read both. The two commands are entry-point skills, and the standard personas are <code>SKILL.md</code> + <code>method.md</code>. No skill declares a model; the "/persona-list model" decision below is superseded.
 </div>
 
 <!-- ═════════════════════ §2 — Why this exists ═════════════════════ -->
@@ -956,7 +960,7 @@ footer.site-footer a { color: var(--cyan); }
     · <span class="mono">features/D101-personas.html</span>
   </div>
   <div style="margin-top: 0.4rem">
-    D101 · Personas · Design-stage tooling · Draft v0.11 · 2026-09-15
+    D101 · Personas · Design-stage tooling · Draft v0.12 · 2026-09-29
   </div>
 </footer>
 

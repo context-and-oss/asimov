@@ -301,7 +301,7 @@ footer.site-footer a { color: var(--cyan); }
   <a href="../index.html#s6">Diagrams</a>
   <span class="spacer"></span>
   <span class="phase-chip full">Full design</span>
-  <span class="status-chip">Draft v0.2</span>
+  <span class="status-chip">Draft v0.3</span>
 </nav>
 
 <div class="layout-doc">
@@ -352,12 +352,16 @@ footer.site-footer a { color: var(--cyan); }
   <div class="meta-cell"><div class="label">Version</div><div class="value mono">0.2</div></div>
   <div class="meta-cell"><div class="label">Model</div><div class="value mono">claude-opus-4-8</div></div>
   <div class="meta-cell"><div class="label">Outputs</div><div class="value mono">asimov.md · CLAUDE.md · conventions · index.html</div></div>
-  <div class="meta-cell"><div class="label">Last updated</div><div class="value mono">2026-09-15</div></div>
+  <div class="meta-cell"><div class="label">Last updated</div><div class="value mono">2026-09-29</div></div>
   <div class="meta-cell"><div class="label">Archetype</div><div class="value">Greenfield (evolves /docs-init)</div></div>
 </div>
 
 <div class="doc-scope">
   <strong>Scope:</strong> The <code>/asimov-init</code> slash command shipped by <code>asimov-plugin</code>. Run once in a product repo to make it Asimov-ready: it writes <code>asimov.md</code>, ensures <code>CLAUDE.md</code> imports it, scaffolds detected-stack convention read-lists under <code>documentation/conventions/</code>, and writes <code>documentation/index.html</code> + <code>documentation/_chrome.css</code>. Read-only on every other file in the repo. Renames and absorbs the former <code>/docs-init</code>.
+</div>
+
+<div class="callout">
+  <strong>Amended 2026-09-29 by <a href="D101-codex-support.html">D101-codex-support</a>.</strong> The command is now an entry-point skill, invoked as <code>/asimov-init</code> in Claude Code and <code>$asimov-plugin:asimov-init</code> in Codex, user-only in both. It wires both tools in one run: two targets join the write plan — the <code>AGENTS.md</code> managed region (the same rendered context, for Codex) and the Codex subagent shells copied into <code>.codex/agents/</code> — and the report says that Codex loads them in a trusted repo from the next session.
 </div>
 
 
@@ -1138,7 +1142,7 @@ footer.site-footer a { color: var(--cyan); }
     · <span class="mono">features/D101-asimov-init.html</span>
   </div>
   <div style="margin-top: 0.4rem">
-    D101 · /asimov-init · Asimov plugin · Full design · Draft v0.2 · 2026-09-15
+    D101 · /asimov-init · Asimov plugin · Full design · Draft v0.3 · 2026-09-29
   </div>
 </footer>
 

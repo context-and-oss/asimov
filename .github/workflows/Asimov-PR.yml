@@ -22,29 +22,16 @@ jobs:
           set -euo pipefail
           mp=.claude-plugin/marketplace.json
           pj=plugins/asimov-plugin/.claude-plugin/plugin.json
-          jq empty "$mp" "$pj"
+          cm=.agents/plugins/marketplace.json
+          cj=plugins/asimov-plugin/.codex-plugin/plugin.json
+          jq empty "$mp" "$pj" "$cm" "$cj"
           plugin=$(jq -r '.name' "$pj")
           entry=$(jq -r '.plugins[0].name' "$mp")
           [ "$plugin" = "asimov-plugin" ] || { echo "::error::plugin.json name is '$plugin', directory is asimov-plugin"; exit 1; }
           [ "$entry" = "$plugin" ]        || { echo "::error::marketplace.json entry '$entry' ≠ plugin.json '$plugin'"; exit 1; }
+          [ "$(jq -r '.name' "$cj")" = "$plugin" ] || { echo "::error::.codex-plugin/plugin.json name ≠ '$plugin'"; exit 1; }
+          [ "$(jq -r '.plugins[0].name' "$cm")" = "$plugin" ] || { echo "::error::.agents/plugins/marketplace.json entry ≠ '$plugin'"; exit 1; }
           echo "ok: $plugin"
-
-      - name: Command and subagent models match model-choice.md (hard rule 2)
-        run: |
-          set -euo pipefail
-          fail=0
-          for f in plugins/asimov-plugin/commands/*.md plugins/asimov-plugin/agents/*.md; do
-            name=$(basename "$f" .md)
-            model=$(awk 'NR==1 && $0!="---"{exit} /^---$/{c++; if(c==2) exit; next} c==1 && /^model:/{sub(/^model:[ \t]*/,""); print; exit}' "$f")
-            if [ -z "$model" ]; then
-              echo "::error file=$f::no model: in frontmatter"; fail=1; continue
-            fi
-            if ! grep -Eq "\`/?${name}\`.*\`${model}\`" documentation/model-choice.md; then
-              echo "::error file=$f::model '$model' has no matching row for '$name' in documentation/model-choice.md"; fail=1; continue
-            fi
-            echo "ok: $name → $model"
-          done
-          exit $fail
 
       - name: Every artifact definition carries a maturity block (hard rule 10)
         run: |
