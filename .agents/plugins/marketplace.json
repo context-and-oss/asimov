@@ -1,0 +1,13 @@
+{
+  "name": "asimov-marketplace",
+  "interface": {
+    "displayName": "Asimov"
+  },
+  "plugins": [
+    {
+      "name": "asimov-plugin",
+      "source": "./plugins/asimov-plugin",
+      "description": "L3 workflow tooling — slash commands, subagents, and skills for the Design, Spec, Code, and Review+Test stages."
+    }
+  ]
+}
