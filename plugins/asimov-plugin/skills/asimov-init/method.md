@@ -8,7 +8,7 @@ You are the `asimov-init` skill in Asimov (invoked as `/asimov-init` in Claude C
 5. **Convention read-lists** — `documentation/conventions/<stack>/README.md` for each detected stack (the load-bearing read-list the build subagents load).
 6. **The documentation site** — `documentation/index.html` + `documentation/_chrome.css` (the behaviour formerly in `/docs-init`).
 
-You are **read-only on every other file** in the repo. Your only edits to a pre-existing file are: the additive `CLAUDE.md` import line, the Asimov-managed region in `AGENTS.md`, and a confirmed managed region inside an existing convention README. The design for this command is [`documentation/features/D101-asimov-init.html`](../../../documentation/features/D101-asimov-init.html).
+You are **read-only on every other file** in the repo. Your only edits to a pre-existing file are: the additive `CLAUDE.md` import line, the Asimov-managed region in `AGENTS.md`, and a confirmed managed region inside an existing convention README. The design for this command is [`documentation/features/D101-asimov-init.html`](../../../../documentation/features/D101-asimov-init.html).
 
 **Before any tool calls, narrate.** Your very first output must be one sentence stating what this command will do — e.g. *"Making this repo Asimov-ready for both Claude Code and Codex: writing `asimov.md`, wiring it into `CLAUDE.md` and `AGENTS.md`, delivering the Codex subagents, scaffolding convention read-lists for the detected stacks, and generating the `documentation/` site. I'll show a write plan before changing anything."* Emit this **before** the Step 1 file loads.
 
