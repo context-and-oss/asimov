@@ -20,8 +20,9 @@
 > Last generated: {{YYYY-MM-DD}}.
 
 This repo uses the **Asimov** L3 toolkit (`asimov-plugin`) for the AI-assisted middle of
-the delivery pipeline — _Design → Spec → Code → Review → Test_. This file gives Claude the
-standing context to orient and auto-delegate. It is imported into `CLAUDE.md` via `@asimov.md`.
+the delivery pipeline — _Design → Spec → Code → Review → Test_. This file gives the coding agent —
+Claude Code or Codex — the standing context to orient and auto-delegate. Claude Code reads it through the
+`@asimov.md` import in `CLAUDE.md`; Codex reads the same text inline in the managed region of `AGENTS.md`.
 
 ## Documentation taxonomy
 
@@ -54,7 +55,9 @@ reference is invisible to the subagent. See D100 §7.2.1.
 | `/d101-convert-to-html` | Design | Convert a legacy markdown D101 to HTML                                  |
 | `/persona-new`          | Design | Author a custom persona — a product-specific reader — as a review skill |
 | `/persona-list`         | Design | List the persona review skills available (standard + custom)            |
-| `/asimov-init`          | Setup  | Re-run to refresh this file, conventions, and the docs site             |
+| `/asimov-init`          | Setup  | Re-run to refresh this file, conventions, the docs site and the Codex agents |
+
+In Codex the same entries are skills of the plugin: `$asimov-plugin:d101-feature-design`, `$asimov-plugin:d101-review`, and so on; `asimov-init` is always the user's call, in both tools.
 
 **Two runs, not one.** `/d101-feature-design` works to two bars. The first run settles requirements and the business design, writes the file with §6 _Technical design_ marked open and a list of what is outstanding, and then stops. Open the file, read it, iterate on §2–§5 — then run the command again against that file to add §6. `/d101-review` reads the phase from the document, then offers and runs the reviews it calls for — the gap check against the matching bar (§8a while §6 is open, §8b once written) plus the persona reads (below).
 
@@ -65,6 +68,8 @@ The rendered D101 carries two chips in its top bar: **phase** (`Business design`
 ## Available subagents
 
 Always delegate to the appropriate subagent when writing or modifying code — do not edit source or test files directly.
+
+**Role-skill rule.** Each subagent's method is a `role-*` skill of the plugin. That skill is run only by its agent: delegate to the agent and never run a role skill yourself. In Claude Code delegate with the agent tool by name; in Codex spawn the agent by its name (`agent_type`) — the agents live in this repo's `.codex/agents/`, loaded in a trusted repo at session start. Pass no model in either tool; the agent runs on the session's.
 
 | Subagent                       | Role                 | Use for                                        |
 | ------------------------------ | -------------------- | ---------------------------------------------- |
