@@ -1,6 +1,6 @@
 # S101 / S102 spec-stage research
 
-**Date:** 2026-09-25, brainstorm continued 2026-09-28. **Status:** definitions written at `assess`; the Spec-stage D101 is being brainstormed (§7); templates and commands pending.
+**Date:** 2026-09-25, brainstorm continued 2026-09-28 and 2026-09-29. **Status:** definitions written at `assess`; the Spec-stage D101 is at `Business design` (`documentation/features/D101-spec-stage.html`, 2026-09-29); the component list for the first build round is settled (§7.1); templates and commands pending.
 
 Companion to [`L3-spec-format-research.md`](L3-spec-format-research.md), which researched the *format* of a single spec (MinimumCD's five artifacts, Markdown over JSON, the validator's authority). This note researched the *layer above it*: how the field orders, parallelises and hands out the tasks a design produces, and what that means for Asimov's Spec stage. It revises two of the earlier note's locked decisions (§5).
 
@@ -58,14 +58,14 @@ Drawn from the corpus; each item maps to a section of `s101-implementation-plan-
 
 ## 6. Still open
 
-1. **Command shape.** One command that writes the S101 and its S102s together (`/s101-implementation-plan`), or a second command per task? Decide in the Spec-stage D101.
+1. **Command shape.** ~~One command that writes the S101 and its S102s together (`/s101-implementation-plan`), or a second command per task?~~ **Resolved 2026-09-29:** one command, with the validation loop built in (§7). A separate `/s102-task-spec` for a lone S102 waits until one is needed.
 2. **Ledger format.** Markdown (superpowers) or JSON (Anthropic, Ralph)? Anthropic's argument is that the model corrupts JSON less. The ledger is not a reviewed artifact, so JSON costs nothing in readability.
 3. **Who rules below the human.** The S101 may name an orchestrator agent as the router for defects under a threshold. Which threshold, and is it per repo?
 4. **Runtime binding.** How an S101's graph becomes Claude Code tasks (`TaskCreate` with `blockedBy`), and whether `TaskCreated` / `TaskCompleted` hooks enforce "no task without an S102" and "no completion before the validator is green". Agent teams are experimental; the S101 must stand without them.
 5. **D101 reference precision.** Path plus section number, or stable anchors in the D101? Inherited from the earlier note; the coverage map (S101 §4.8) needs it.
 6. **The estimate** (D100 Q7). The S101 carries the graph and the tiers; it is the natural neighbour of an estimate. Observe first.
 
-## 7. Brainstorm towards the Spec-stage D101 (2026-09-28, in progress)
+## 7. Brainstorm towards the Spec-stage D101 (2026-09-28 → 2026-09-29, in progress)
 
 The questions the D101 has to answer: how a D101 becomes one S101 and N S102s; how big an S102 may be; the format; how we verify everything is clarified; how a design is best broken down; and how *what to build*, *how to build*, *what to verify* and *how to verify* are kept apart. Settled so far:
 
@@ -75,16 +75,85 @@ The questions the D101 has to answer: how a D101 becomes one S101 and N S102s; h
 | **No third level (no S103)** | The slice is a **phase in the S101**, not a document. A single-stack slice is one S102; a multi-stack slice is 2–3 S102s in the same phase with the interface named in S101 §4.5 and the checkpoint equal to the slice's AC | Spec Kit groups tasks under a user story that is a heading, not a file; Conductor's phases › tasks › sub-tasks live in one plan. A slice file would be empty (single-stack) or two briefs in one (multi-stack), and then no longer one builder's whole context |
 | **S101 §4.4 to tighten** | A phase *is* a slice and names its AC | Follows from the above |
 | **Traceability ids** | The D101's `R`/`NF` (requirements), `§6.x.y` (contracts) and `AC` (acceptance criteria); §7 already keys its blocks to §6 by number | The S101 coverage map hangs on ids that exist |
+| **Validation ≠ verification** (2026-09-29) | **Validation** is the spec check *before* code: do the S101 and every S102 clear their bars, and do they agree with each other (S101 §8, S102 §8). **Verification** is the code check *after* build: run the acceptance criteria an S102 names against what was built. Both definitions today say "validator" for both; the wording is to be split, and the D100 §9 "S102 validator" agent becomes the *verification* agent | Two checks, two moments, two inputs (text vs. running code). One word for both made the brainstorm talk past itself |
+| **The authoring loop** (2026-09-29) | `/s101-implementation-plan` writes the S101 skeleton (graph, interfaces, constraints, escalation), then per task: write the S102 → validate it → fix → repeat until green; then, with every S102 in place, validate the plan as a whole (coverage both ways, interface closure across S102s, disjoint file sets, no cycle, no contradicted global constraint); a finding may add a task, split one, or add a name to S101 §4.5, and a changed S102 re-enters its own loop. Then the author runs `/s101-review` as a self-preview and the reviewer ≠ author approves | The two bars are checked where they are cheapest to fix: one task at a time while it is being written, the whole once everything exists |
+| **S102 validation runs blind** (2026-09-29) | The per-S102 validation in the loop is dispatched to a fresh read-only subagent that sees only the S102, its S101, the D101 and the repo, and loads the validation skill. The plan-level validation runs inline | *Buildable blind* is a fresh-context property; the model that just wrote the S102 has the conversation in context and fills the gaps from memory. No new agent file: a generic read-only subagent with the skill |
+| **Skeleton first: phase 0** (2026-09-29) | The first phase of every S101 is **Foundation**: one S102 per stack that writes the skeleton (classes, interfaces, public methods with summaries, no bodies, compiling). It is a transcription of S101 §4.5, so it takes the cheapest tier. Every slice task depends on it. Checkpoint: the solution builds and a reviewer can read the shape before any logic exists. Slices then own their own files, so no two parallel slices modify the same skeleton file (the plan validation checks it) | The interfaces in the plan become code before anyone builds against them, and test-first still holds: tests compile against the skeleton, fail red, then the body is written. Rejected: skeleton inside each S102 (parallel builders then agree names only on paper) and skeleton written during planning (the Spec stage would write code) |
+| **Phase = slice, X tasks per phase** (2026-09-29) | Phase 0 Foundation; phases 1..n one per slice (one S102 single-stack, 2–3 multi-stack); optionally a final polish phase for cross-cutting D101 requirements. Each phase names its checkpoint | Confirms and extends the "no S103" row |
+| **Two workflows** (2026-09-29) | **Spec workflow**: D101 → S101 + S102s → validation → reviewer approval; writes only under `documentation/specs/`. **Build workflow**: `ready` S101 → phase by phase → S102 to a builder → verification per S102 → Baley on the diff → checkpoint → next phase; writes only source and the ledger, never the specs. The boundary is the reviewer's approval | Keeps the reviewed text what the builder read (plan ≠ ledger), and lets the first round build the Spec workflow alone. What the Spec workflow owes the Build workflow now: the graph machine-readable in S101 frontmatter, and every acceptance criterion runnable. Both are already in the definitions |
+| **Tests: builder inline + Calvin per slice** (2026-09-29) | Option 3 below. The builder writes unit tests inside its own S102, test-first. Calvin gets one S102 per slice that writes the slice's acceptance test from the AC and scenarios; that test *is* the phase's checkpoint, and with phase 0 in place it compiles against the skeleton before any slice is built | The L3 effort profile (`site/ai-transition.html`) has no human Test bar: tests are agent-written and the human *reviews* them. A separate AC-test S102 is the artifact a human can read and approve before the code exists, which is "Test vs. Spec" made reviewable. Option 1 hides the tests inside the builder's work |
+| **Shape by script, content by model** (2026-09-29) | The validation skills run a script for the shape checks (frontmatter fields, cycle, orphan task, path resolves, placeholder tokens, consumed name with a producer) and leave the content checks to the model | The site's L3 bar is "schema-validated, machine-readable". A model is soft even when told to be hard; a script gives the same answer every run |
+| **Review vs. Spec** (2026-09-29, Build workflow) | Baley reads the S102 as an input and reviews the diff against it, not only against conventions and correctness | The L3 stage is *Review vs. Spec*. Nothing the Spec workflow must add: the S102 filename is the stable id |
+| **Two human gates** (2026-09-29) | Spec approval (reviewer ≠ author says the S101 is dispatch-ready) and outcome approval (the site's *Approve*, after Review and Test). Named differently, never merged | Without the first there is nothing to review "vs."; two gates with the same name invite rubber-stamping twice |
+| **ADRs** (2026-09-29) | Open. The site's technical spec carries ADRs; Asimov has D101 §6 and accepted deviations. Not built now | Observe whether §6 decisions need their own record |
+| **Interaction: plan from the D101, ask ≤5** (2026-09-29) | `/s101-implementation-plan` reads the D101 and the repo first, asks at most five questions, one at a time, each with a recommended default, only about the task cut, the phase boundaries and open D101 items that change the breakdown; everything else it decides and records as an assumption in the S101; it stops once, when everything is written and validated | The field converges on it (§10): explore before asking, ask only what cannot be discovered, front-load, stop once. A per-step interview repeats the D101's intent work (Kiro's heavy mode); no questions guesses the cut |
+| **Re-plan: update in place, supersede on changed intent** (2026-09-29) | Run against a D101 that already has an S101, the command updates it in place (same file, version bumped). If the D101's requirements or acceptance criteria changed, it writes a new S101 and marks the old one `superseded` | OpenSpec's rule ("update when it's the same work refined; start new when the intent fundamentally changed"); Codex's always-replace discards the reviewer's reading |
+| **Size: soft warnings, thresholds in the definition** (2026-09-29) | The plan validation warns, never refuses, when an S102 exceeds the size thresholds; the numbers live in the S101 definition, not in code. Candidates from the evidence (§9): more than 3 owned non-test files (harder at 7), more than ~100 lines or ~60 minutes expected, more than one behaviour scenario or no single runnable check | Evidence is strong on direction and weak on the exact number, and the number moves about every four months (METR doubling time). A gate on a moving number would be wrong within a year |
 
-Open, next in the brainstorm: **who writes the tests of an S102?**
+### 7.1 First build round: the Spec workflow (settled 2026-09-29)
+
+Follows the skill split (method in skills, conversation in commands, identity in agent shells). Everything below the Build workflow waits.
+
+| Kind | Item | Role |
+|---|---|---|
+| Template | `artifacts/documentation/s101-implementation-plan/s101-implementation-plan-template.md` | Graph in frontmatter; body refers to tasks by id |
+| Template | `artifacts/documentation/s102-task-spec/s102-task-spec-template.md` | One task, one builder |
+| Skill | `artifact-s101-authoring` | The decomposition procedure (AC → slices → phases → stack split → interfaces → phase-0 skeleton task) and writing the S101 |
+| Skill | `artifact-s102-authoring` | Writing one S102 from the template. Called per task by `artifact-s101-authoring`; stands alone for a lone S102 from the board |
+| Skill | `artifact-s101-validation` | S101 §8, including the cross-S102 checks; shape by script, content by model |
+| Skill | `artifact-s102-validation` | S102 §8 for one file; shape by script, content by model; the skill the blind subagent loads |
+| Command | `/s101-implementation-plan` | The conversation and the loop (§7, *The authoring loop*) |
+| Command | `/s101-review` | Runs both validations, reports, never moves status |
+| Agents | none new | The blind validator is a generic read-only subagent with the skill; Giskard, Daneel and Calvin read an S102 as their brief |
+| Docs | `documentation/features/D101-spec-stage.html` | Written before the commands (CLAUDE.md recipe) |
+| Docs | Both definitions | Validation/verification wording; skeleton as the canonical foundation task; phase = slice with its AC (S101 §4.4) |
+| Docs | D100 §4.3, §4.4, §9, Q5; `model-choice.md` (two rows); hard rule 9 (`documentation/specs/` joins the lockstep set) | Sync |
+
+**Waits for the Build workflow:** the verification agent (D100 §9's "S102 validator", renamed), a dispatch command that reads the S101 graph and finds claimable tasks, the ledger (format open, §6.2), Baley reading the S102 (*Review vs. Spec*), the outcome-approval gate, a standalone `/s102-task-spec` command. The site's "Spec and Test are planned" line is updated when the Spec workflow ships.
+
+**Who writes the tests of an S102?** Resolved 2026-09-29 to option 3 (row *Tests: builder inline + Calvin per slice* above). The options as discussed:
 
 1. The builder, test-first, inside its S102 (as `s102-task-spec-definition.md` §4.7 reads today; superpowers' model). Calvin then only extends coverage or takes test-only tasks.
 2. Calvin gets its own S102 per slice, writing the tests from the slice's AC and scenarios; the builder's S102 has to make them green. D100's tester role taken literally, and reviewer ≠ author at test level.
-3. Both: the builder writes unit tests inline; Calvin writes the slice's acceptance test against the AC as a separate S102 that *is* the phase's checkpoint. Leaning here: it separates *how it is built* (the builder's tests) from *what is verified* (Calvin's AC test) into two files with two authors, at the cost of one extra S102 per slice.
+3. Both: the builder writes unit tests inline; Calvin writes the slice's acceptance test against the AC as a separate S102 that *is* the phase's checkpoint. **Chosen.** It separates *how it is built* (the builder's tests) from *what is verified* (Calvin's AC test) into two files with two authors, at the cost of one extra S102 per slice.
 
-Not yet discussed: the S102 size rule in practice (one sitting; what the command measures), the exact format of both files (frontmatter fields, required sections), the "everything clarified" check (the S101 review as the gate; what a command can pre-check), and the decomposition procedure the `/s101-implementation-plan` command follows (AC → slice → stack split → interfaces → phases).
+Not yet discussed: the S102 size rule in practice (one sitting; what the command measures) and the exact format of both files (frontmatter fields, required sections). The "everything clarified" check and the decomposition procedure are settled above (*The authoring loop*, *Skeleton first*); their detail belongs to the D101 and the two authoring skills.
 
-## 8. Evidence to keep expectations sober
+## 8. Evidence on task size (2026-09-29)
+
+No framework states a numeric size for a *task*; superpowers has one for a *step* (2–5 minutes). What holds up empirically is files touched, lines changed and estimated human time.
+
+| Source | Finding |
+|---|---|
+| SWE-bench-Live (arXiv 2505.23419, 2025-06) | Single-file patches under five lines are solved about one time in two (48 %). Three or more files, or over 100 lines: under 10 %. Seven or more files: never solved |
+| SWE-bench Verified by difficulty (Ganhotra, 2025-04) | Under 15 min: 81 % resolved, 1.03 files avg. 15 min–1 h: 62 %, 1.28 files. Over 1 h: 27 %, 2.0 files, 56 % multi-file |
+| METR time horizons (v1.1, 2026-05) | 80 %-success horizon for mainstream frontier models about 50–90 minutes of expert work; 50 % horizon 5–12 hours; doubling time about 129 days |
+| Chroma context rot (2025-07) | Performance degrades with input length well below the window limit |
+| IFScale (arXiv 2507.11538) | Compliance falls roughly linearly with instruction count; the nearest proxy for "too many acceptance criteria", and indirect |
+| "Beyond Resolution Rates" (2026) | Twelve never-solved tasks need only simple patches: size is necessary, not sufficient |
+| Acceptance-criteria count vs success | Not found |
+
+Rules in the field, all conventions: MinimumCD (one scenario, one session, one commit; over 15 minutes to specify is too large; sub-two-hour chunks), Anthropic's harness post (one user-visible feature, about five checks), Ralph (one context window), Spec Kit (one story, "completable without additional context"), superpowers ("split only where a reviewer could reject one task while approving its neighbour"), Claude Code agent teams (5–6 tasks per teammate, each teammate owns different files).
+
+**Measurable proxies the S102 already carries:** the owned file set (§4.3) and the Gherkin scenarios (§4.5). Lines and minutes need an estimate field the planner guesses and the plan carries as a recommendation.
+
+## 9. Plan-mode interaction in the field (2026-09-29)
+
+Checked against the docs or the installed skill files: Claude Code plan mode, superpowers (brainstorming, writing-plans, executing-plans, subagent-driven-development), GitHub Spec Kit (clarify, plan, tasks, analyze), Kiro specs and Quick Spec, OpenSpec, Google Conductor, Cursor plan mode, Codex plan mode and ExecPlans, Aider architect mode, Cline plan/act.
+
+| Point | Where they converge | Where they differ |
+|---|---|---|
+| Inputs | Explore the repo read-only before asking (all) | Spec Kit and Conductor halt without their constitution / product files |
+| Questions | Ask only what cannot be discovered (Codex, OpenSpec); one at a time, multiple choice, recommended default (Spec Kit ≤5, Conductor 3–4, superpowers, Codex); if unanswered take the default and record an assumption (Codex) | Kiro standard mode iterates per phase; writing-plans and speckit.plan ask nothing |
+| Approval stops | Stop hard only when a whole artifact is ready | None (OpenSpec, Aider), one (Claude Code, Codex, Cursor), one per artifact (Kiro, Conductor) |
+| Presentation | A plan file the user can edit (Claude Code Ctrl+G, Cursor, superpowers, Spec Kit, Kiro, OpenSpec) | Codex presents in chat as a complete replacement each time |
+| Analysis | Coverage and consistency checks with severities (speckit.analyze CRITICAL–LOW, capped at 50; OpenSpec verify) | Spec Kit plan gates ERROR; OpenSpec and analyze only advise |
+| Revising | Update in place plus sync (Kiro Sync Files, Spec Kit, OpenSpec); new plan only when the intent changed (OpenSpec) | Codex: any new plan is a complete replacement |
+| Sizing | Reviewer-rejectable unit (superpowers); one session with a verify step (OpenSpec); "completable without additional context" (Spec Kit) | No tool states a number for a task |
+
+Two prompts worth keeping in view when the command is written: Codex plan mode ("eliminate unknowns by discovering facts, not by asking the user"; a plan is "decision complete"; "do not ask 'should I proceed?'") and Spec Kit `/speckit.clarify` (questions ranked by impact × uncertainty, each with a recommended option and a "why it matters" line, written back to disk after each accepted answer).
+
+## 10. Evidence to keep expectations sober
 
 The June 2026 taxonomy paper (arXiv 2606.04967, six frameworks) finds that "persistent artifacts, work contracts, traceability and human review become mechanisms that reduce ambiguity and coordinate agents", that no framework covers all six of its dimensions, and that specification drift and over-reliance on generated output are the recurring risks. The Spec Kit Agents study (arXiv 2604.05278, 128 runs over 32 tasks) measured a judged-quality gain of +0.15 on a 1–5 scale with test pass rates already at 99.7–100%. The value of the layer is review and traceability, not speed.
 
@@ -102,3 +171,5 @@ The June 2026 taxonomy paper (arXiv 2606.04967, six frameworks) finds that "pers
 - [From Prompt to Process (arXiv 2606.04967)](https://arxiv.org/abs/2606.04967), [Spec Kit Agents (arXiv 2604.05278)](https://arxiv.org/abs/2604.05278)
 - [SDD tool comparison](https://github.com/RSMuthu/SDD-comparison)
 - MinimumCD agentic-CD sources: see `L3-spec-format-research.md`
+- Task size (§8): [SWE-bench-Live](https://arxiv.org/html/2505.23419v2), [SWE-bench Verified by difficulty](https://jatinganhotra.dev/blog/swe-agents/2025/04/15/swe-bench-verified-easy-medium-hard.html), [METR time horizons](https://metr.org/time-horizons/), [Chroma context rot](https://www.trychroma.com/research/context-rot), [IFScale](https://arxiv.org/abs/2507.11538), [MinimumCD small-batch sessions](https://beyond.minimumcd.org/docs/agentic-cd/architecture/small-batch-sessions/)
+- Plan-mode interaction (§9): [Claude Code permission modes](https://code.claude.com/docs/en/permission-modes), [Spec Kit command templates](https://github.com/github/spec-kit/tree/main/templates/commands), [Kiro specs](https://kiro.dev/docs/specs/), [OpenSpec reviewing changes](https://github.com/Fission-AI/OpenSpec/blob/main/docs/reviewing-changes.md), [Conductor new-track skill](https://github.com/gemini-cli-extensions/conductor), [Cursor planning](https://cursor.com/docs/agent/planning), [Codex plan-mode template](https://github.com/openai/codex/blob/main/codex-rs/collaboration-mode-templates/templates/plan.md), [Codex ExecPlans](https://github.com/openai/openai-cookbook/blob/main/articles/codex_exec_plans.md)

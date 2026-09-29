@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D101 — Spec stage — asimov docs</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+:root {
+  --bg:        #0a1424;
+  --bg2:       #122039;
+  --bg3:       #1b2e4d;
+  --bg-card:   #14253f;
+  --border:    #2b4a73;
+  --border-2:  #3b5e8f;
+  --text:      #fff;
+  --text-dim:  #a8b8d0;
+  --text-mute: #6b7a93;
+  --cyan:      #4fc3f7;
+  --teal:      #26c6da;
+  --green:     #66bb6a;
+  --amber:     #ffb74d;
+  --coral:     #ef5350;
+  --gold:      #ffd54f;
+  --violet:    #ab47bc;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; font-size: 15px; line-height: 1.6; overflow-x: hidden; padding-top: 56px; }
+a { color: inherit; text-decoration: none; }
+code, .mono { font-family: 'JetBrains Mono', monospace; font-size: 0.88em; }
+code { background: var(--bg3); padding: 1px 6px; border-radius: 4px; color: var(--cyan); }
+
+.top-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(10,20,36,0.85); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 0.55rem 2rem; display: flex; gap: 1.4rem; align-items: center; font-size: 0.82rem; }
+.top-nav .brand, .top-nav .brand a { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--cyan); letter-spacing: 0.04em; text-decoration: none; }
+.top-nav .brand .sep { color: var(--border); margin: 0 0.5rem; }
+.top-nav a { color: var(--text-dim); font-weight: 500; }
+.top-nav a:hover { color: #fff; }
+.top-nav .spacer { flex: 1; }
+.top-nav .status-chip { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.25rem 0.7rem; border-radius: 999px; background: #ffd54f15; border: 1px solid #ffd54f44; color: var(--gold); font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 700; }
+.top-nav .status-chip::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--gold); }
+.top-nav .phase-chip { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.25rem 0.7rem; border-radius: 999px; background: #4fc3f715; border: 1px solid #4fc3f744; color: var(--cyan); font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 700; }
+.top-nav .phase-chip::before { content: ''; width: 6px; height: 6px; border-radius: 1px; background: var(--cyan); }
+.top-nav .phase-chip.full { background: #66bb6a15; border-color: #66bb6a44; color: var(--green); }
+.top-nav .phase-chip.full::before { background: var(--green); }
+
+.layout-doc { display: grid; grid-template-columns: 200px minmax(0, 1fr); max-width: 1300px; margin: 0 auto; gap: 1.8rem; padding: 0.5rem 1.5rem; }
+.side-nav { position: sticky; top: 76px; align-self: start; max-height: calc(100vh - 90px); overflow-y: auto; padding: 0.7rem 0.5rem 1rem 0.2rem; font-size: 0.85rem; }
+.side-nav .side-head { font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-mute); margin-bottom: 0.7rem; padding-left: 0.6rem; }
+.side-nav ul { list-style: none; padding: 0; margin: 0; }
+.side-nav ul ul { padding-left: 0.9rem; margin-top: 0.1rem; }
+.side-nav li { margin: 0.1rem 0; }
+.side-nav a { display: block; padding: 0.32rem 0.7rem; color: var(--text-dim); border-left: 2px solid transparent; font-size: 0.86rem; line-height: 1.4; border-radius: 0 4px 4px 0; }
+.side-nav a:hover { color: #fff; background: #4fc3f708; border-left-color: var(--border-2); }
+.content { min-width: 0; }
+
+.hero { padding: 1.5rem 2rem 1.5rem; position: relative; overflow: hidden; max-width: 1300px; margin: 0 auto; }
+.hero::before { content: ''; position: absolute; inset: 0; z-index: 0; background: radial-gradient(ellipse at 20% 30%, #4fc3f718 0%, transparent 50%), radial-gradient(ellipse at 80% 60%, #26c6da14 0%, transparent 50%); }
+.hero > * { position: relative; z-index: 1; }
+.kicker { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--cyan); padding: 0.3rem 0.8rem; border-radius: 999px; border: 1px solid #4fc3f744; background: #4fc3f711; margin-bottom: 1rem; }
+.hero h1 { font-size: clamp(2rem, 4.5vw, 3.4rem); font-weight: 900; letter-spacing: -0.03em; line-height: 1.05; background: linear-gradient(135deg, #fff 0%, var(--cyan) 50%, var(--teal) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.hero .tagline { font-size: 1.05rem; color: var(--text-dim); margin-top: 1rem; max-width: 760px; line-height: 1.6; }
+
+.meta-strip { max-width: 1300px; margin: 1rem auto 0; padding: 0 2rem; display: grid; grid-template-columns: repeat(6, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.meta-cell { background: var(--bg-card); padding: 1rem 1.2rem; }
+.meta-cell .label { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-mute); margin-bottom: 0.35rem; }
+.meta-cell .value { font-size: 0.95rem; font-weight: 600; color: var(--text); }
+.meta-cell .value.mono { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; }
+
+section.s { max-width: 1300px; margin: 0 auto; padding: 3rem 2rem 0; }
+.chapter-band + section.s { padding-top: 1.5rem; }
+.section-title { font-size: clamp(1.5rem, 2.6vw, 2rem); font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.7rem; }
+.section-title .sec-ref { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; font-weight: 600; color: var(--text-mute); letter-spacing: 0.04em; margin-right: 0.7rem; vertical-align: middle; padding: 0.2rem 0.5rem; border-radius: 4px; background: var(--bg2); border: 1px solid var(--border); }
+.section-desc { color: var(--text-dim); font-size: 1rem; max-width: 780px; margin-bottom: 1.8rem; line-height: 1.65; }
+.chapter-band { max-width: 1300px; margin: 3.5rem auto 0; padding: 0 2rem; }
+.chapter-band-inner { display: grid; grid-template-columns: auto 1fr; gap: 1.5rem; align-items: center; padding: 1.4rem 1.8rem; border-radius: 12px; background: linear-gradient(135deg, #4fc3f714 0%, #26c6da05 100%); border: 1px solid var(--border); border-left: 4px solid var(--cyan); }
+.chapter-band .ch-num { font-family: 'JetBrains Mono', monospace; font-size: 2.6rem; font-weight: 800; color: var(--cyan); line-height: 1; }
+.chapter-band .ch-name { font-size: 1.35rem; font-weight: 700; color: #fff; letter-spacing: 0.01em; margin-bottom: 0.25rem; }
+.chapter-band .ch-summary { font-size: 0.88rem; color: var(--text-dim); line-height: 1.5; }
+
+.doc-scope { max-width: 1300px; margin: 0.7rem auto 0; padding: 0 2.2rem; font-size: 0.82rem; color: var(--text-mute); line-height: 1.5; }
+.doc-scope strong { color: var(--text-dim); font-weight: 600; }
+
+.principles { display: grid; gap: 0.65rem; }
+.principle { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 0.95rem 1.3rem; display: flex; gap: 1rem; align-items: center; }
+.principle .num { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; font-weight: 700; width: 30px; height: 30px; border-radius: 8px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--cyan), var(--teal)); color: #0a1424; }
+.principle .text { font-size: 0.95rem; }
+.principle .text strong { color: var(--cyan); font-weight: 700; }
+
+ul.bullets { list-style: none; padding: 0; margin: 0.7rem 0 0; }
+ul.bullets li { position: relative; padding: 0.3rem 0 0.3rem 1.5rem; font-size: 0.9rem; color: var(--text-dim); line-height: 1.6; }
+ul.bullets li + li { margin-top: 0.15rem; }
+ul.bullets li::before { content: '→'; position: absolute; left: 0; top: 0.3rem; font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--cyan); }
+ul.bullets li.warn::before { content: '!'; color: var(--amber); }
+ul.bullets li code { font-size: 0.78rem; }
+
+.req-list { display: grid; gap: 0.5rem; margin-bottom: 1.6rem; }
+.req-list:last-child { margin-bottom: 0; }
+.req { display: grid; grid-template-columns: 60px 1fr; gap: 1rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 0.7rem 1rem; align-items: start; }
+.req .id { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; font-weight: 700; color: var(--cyan); padding-top: 2px; }
+.req .body { font-size: 0.9rem; color: var(--text); line-height: 1.55; }
+.req.oos .id, .req-list.nf .req .id { color: var(--amber); }
+
+.flow-wrap { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.8rem; overflow-x: auto; }
+.flow-wrap svg { display: block; margin: 0 auto; max-width: 100%; height: auto; }
+.flow-legend { display: flex; flex-wrap: wrap; gap: 1.2rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); font-size: 0.82rem; color: var(--text-dim); }
+.flow-legend .item { display: inline-flex; align-items: center; gap: 0.4rem; }
+.flow-legend .swatch { width: 14px; height: 4px; border-radius: 2px; }
+
+.mockup-wrap { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 0.5rem; margin: 0.6rem 0 1rem; overflow: hidden; }
+.mockup-frame { display: block; width: 100%; border: none; border-radius: 8px; background: #fff; }
+
+.codemap { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.codemap-row { display: grid; grid-template-columns: 1fr 1.5fr; gap: 1rem; padding: 0.7rem 1.2rem; border-bottom: 1px solid var(--border); font-size: 0.85rem; align-items: center; }
+.codemap-row:last-child { border-bottom: none; }
+.codemap-row:nth-child(odd) { background: rgba(255,255,255,0.015); }
+.codemap-row .what { color: var(--text); }
+.codemap-row .where { color: var(--cyan); font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; word-break: break-all; }
+
+.decisions { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.decisions-head, .decision-row { display: grid; grid-template-columns: 1.2fr 1fr 1.4fr; gap: 1rem; padding: 0.9rem 1.2rem; align-items: start; border-bottom: 1px solid var(--border); }
+.decisions-head { background: var(--bg2); font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); }
+.decision-row { font-size: 0.85rem; }
+.decision-row:last-child { border-bottom: none; }
+.decision-row .decided { color: #fff; font-weight: 600; }
+.decision-row .alt { color: var(--amber); font-style: italic; font-size: 0.82rem; line-height: 1.5; }
+.decision-row .why { color: var(--text-dim); font-size: 0.82rem; line-height: 1.55; }
+
+.data-table { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.data-table .row { display: grid; gap: 1rem; padding: 0.65rem 1.2rem; border-bottom: 1px solid var(--border); font-size: 0.85rem; align-items: start; }
+.data-table .row.head { background: var(--bg2); font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); font-weight: 700; }
+.data-table .row:last-child { border-bottom: none; }
+.data-table .row.cols-2 { grid-template-columns: 1fr 2fr; }
+.data-table .row.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+.data-table .row code { font-size: 0.78rem; }
+.data-table .row .label-cell { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; color: var(--cyan); }
+
+.gps-paths { list-style: none; padding: 0.7rem 0 0; margin: 0; display: grid; gap: 0.4rem; }
+.gps-paths li { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--cyan); background: var(--bg2); border: 1px solid var(--border); border-radius: 6px; padding: 0.45rem 0.8rem; }
+
+.subhead { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-dim); font-weight: 700; margin: 1.5rem 0 0.6rem; }
+.subhead:first-child { margin-top: 0; }
+.subhead[id] { scroll-margin-top: 80px; }
+.subhead .s-ref { color: var(--text-mute); margin-right: 0.45rem; }
+.impl-head { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); font-weight: 700; margin: 1rem 0 0.3rem; }
+
+.tag { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+.tag.reuse { background: #66bb6a22; color: var(--green); border: 1px solid #66bb6a55; }
+.tag.new   { background: #ffb74d22; color: var(--amber); border: 1px solid #ffb74d55; }
+.tag.note  { background: var(--bg2); color: var(--text-mute); border: 1px solid var(--border); }
+.impl-table .row { grid-template-columns: 0.5fr 0.45fr 2.75fr; }
+.impl-table .row ul { list-style: disc; margin: 0; padding-left: 1.05rem; display: grid; gap: 0.35rem; }
+.impl-table .row li { line-height: 1.5; }
+
+.failures { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.failures-head, .failure-row { display: grid; grid-template-columns: 1fr 1fr 80px 1.2fr; gap: 1rem; padding: 0.85rem 1.2rem; align-items: center; border-bottom: 1px solid var(--border); }
+.failures-head { background: var(--bg2); font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); }
+.failure-row { font-size: 0.85rem; }
+.failure-row:last-child { border-bottom: none; }
+.sev { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; font-weight: 700; padding: 0.2rem 0.55rem; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.06em; }
+.sev.med  { background: #ffb74d22; color: var(--amber); border: 1px solid #ffb74d55; }
+.sev.low  { background: #66bb6a22; color: var(--green); border: 1px solid #66bb6a55; }
+.sev.high { background: #ef535022; color: var(--coral); border: 1px solid #ef535055; }
+
+.ac-table { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.ac-head, .ac-row { display: grid; grid-template-columns: 60px 150px 1fr; gap: 1rem; padding: 0.8rem 1.2rem; align-items: start; border-bottom: 1px solid var(--border); }
+.ac-head { background: var(--bg2); font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); }
+.ac-row { font-size: 0.86rem; }
+.ac-row:last-child { border-bottom: none; }
+.ac-row .ac-id { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--cyan); }
+.ac-row .ac-verifies { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+.verify-chip { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; padding: 0.15rem 0.5rem; border-radius: 4px; background: #4fc3f714; border: 1px solid #4fc3f744; color: var(--cyan); }
+
+.q-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 0.7rem; }
+.q-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.2rem; border-left: 3px solid var(--gold); }
+.q-card .q-head { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
+.q-card .q-id { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; color: var(--gold); background: #ffd54f15; padding: 0.15rem 0.5rem; border-radius: 4px; }
+.q-card .q-decider { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--text-mute); }
+.q-card .q-body { font-size: 0.88rem; color: var(--text); line-height: 1.55; }
+
+.accepted { margin-top: 0.5rem; padding: 0.5rem 0.7rem; border-left: 3px solid var(--violet); border-radius: 0 6px 6px 0; background: #ab47bc12; font-size: 0.82rem; color: var(--text-dim); line-height: 1.55; }
+.accepted .accepted-tag { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--violet); background: #ab47bc22; border: 1px solid #ab47bc55; border-radius: 4px; padding: 0.1rem 0.45rem; margin-right: 0.45rem; }
+.accepted .accepted-rule { color: var(--text); font-weight: 600; }
+.accepted .accepted-by { display: block; margin-top: 0.3rem; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--text-mute); }
+.q-card .q-resolution { font-size: 0.82rem; color: var(--text-dim); line-height: 1.5; margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--border); }
+.q-card .q-resolution strong { color: var(--green); }
+.q-card.resolved { border-left-color: var(--green); }
+.q-card.resolved .q-id { color: var(--green); background: #66bb6a15; }
+
+.refs { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+.refs-block { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 1.1rem 1.3rem; }
+.refs-block h4 { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--cyan); margin-bottom: 0.7rem; }
+.refs-block ul { list-style: none; }
+.refs-block li { font-family: 'JetBrains Mono', monospace; font-size: 0.76rem; color: var(--text-dim); padding: 0.2rem 0; line-height: 1.5; word-break: break-all; }
+
+.callout { background: linear-gradient(135deg, #4fc3f712, #26c6da08); border: 1px solid #4fc3f744; border-radius: 10px; padding: 1rem 1.3rem; margin: 1.2rem 0; font-size: 0.9rem; color: var(--text-dim); line-height: 1.6; }
+.callout strong { color: var(--cyan); }
+.callout.warn { background: linear-gradient(135deg, #ffd54f15, #ff890608); border-color: #ffd54f55; }
+.callout.warn strong { color: var(--gold); }
+
+footer.site-footer { max-width: 1300px; margin: 4rem auto 0; padding: 2rem; border-top: 1px solid var(--border); text-align: center; color: var(--text-mute); font-size: 0.82rem; line-height: 1.7; }
+footer.site-footer .mono { color: var(--text-dim); font-family: 'JetBrains Mono', monospace; }
+footer.site-footer a { color: var(--cyan); }
+
+@media (max-width: 1100px) {
+  .meta-strip { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 900px) {
+  .layout-doc { grid-template-columns: 1fr; gap: 1rem; padding: 1rem 1.2rem; }
+  .side-nav { position: static; max-height: none; overflow: visible; border: 1px solid var(--border); border-radius: 8px; padding: 1rem; background: var(--bg-card); }
+}
+@media (max-width: 720px) {
+  .top-nav { overflow-x: auto; padding: 0.55rem 1rem; gap: 1rem; }
+  .top-nav .spacer { display: none; }
+  .hero { padding: 1.2rem 1.2rem 1rem; }
+  section.s { padding: 2.5rem 1.2rem 0; }
+  .meta-strip { grid-template-columns: repeat(2, 1fr); margin: 1rem 1.2rem 0; }
+  .chapter-band { padding: 0 1.2rem; margin-top: 3rem; }
+  .chapter-band-inner { grid-template-columns: 1fr; gap: 0.5rem; padding: 1.2rem 1.4rem; }
+  .chapter-band .ch-num { font-size: 2rem; }
+  .decisions-head, .decision-row { grid-template-columns: 1fr; gap: 0.4rem; }
+  .failures-head, .failure-row { grid-template-columns: 1fr; }
+  .ac-head, .ac-row { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <span class="brand"><a href="../index.html">asimov<span class="sep">/</span>docs</a></span>
+  <a href="../index.html#s1">Architecture</a>
+  <a href="../index.html#s2">Features</a>
+  <a href="../index.html#s3">Environments</a>
+  <a href="../index.html#s4">Conventions</a>
+  <a href="../index.html#s5">Reference</a>
+  <a href="../index.html#s6">Diagrams</a>
+  <span class="spacer"></span>
+  <span class="phase-chip">Business design</span>
+  <span class="status-chip">Draft v0.2</span>
+</nav>
+
+<div class="layout-doc">
+  <aside class="side-nav">
+    <div class="side-head">On this page</div>
+    <ul>
+      <li><a href="#s2">§2 Why the Spec stage</a></li>
+      <li><a href="#s3">§3 Requirements</a></li>
+      <li><a href="#c4">§4 Business design</a>
+        <ul>
+          <li><a href="#s4-1">§4.1 Principles</a></li>
+          <li><a href="#s4-2">§4.2 Concepts</a></li>
+          <li><a href="#s4-3">§4.3 The Spec workflow</a></li>
+          <li><a href="#s4-4">§4.4 Architecture</a></li>
+          <li><a href="#s4-5">§4.5 Rules</a></li>
+          <li><a href="#s4-6">§4.6 Plan lifecycle</a></li>
+          <li><a href="#s4-7">§4.7 Decisions</a></li>
+        </ul>
+      </li>
+      <li><a href="#s5">§5 UI Design</a></li>
+      <li><a href="#s6-open">§6 Still to write</a></li>
+      <li><a href="#s7-pending">§7 Implementation</a></li>
+      <li><a href="#s8">§8 Acceptance</a></li>
+      <li><a href="#s9">§9 Open questions</a></li>
+      <li><a href="#s10">§10 References</a></li>
+    </ul>
+  </aside>
+
+  <article class="content">
+
+<header class="hero">
+  <div class="kicker">D101 · Feature design · Asimov plugin</div>
+  <h1>Spec stage</h1>
+  <p class="tagline">One approved D101 becomes one implementation plan (S101) and one task spec per task (S102), written by a command with a built-in validation loop, so a reviewer who is not the author can approve a plan that fresh builders can build from without asking.</p>
+</header>
+
+<div class="meta-strip">
+  <div class="meta-cell"><div class="label">Owner</div><div class="value">Allan Borup</div></div>
+  <div class="meta-cell"><div class="label">Business approver</div><div class="value">Allan Borup</div></div>
+  <div class="meta-cell"><div class="label">L3 stage</div><div class="value mono">Spec</div></div>
+  <div class="meta-cell"><div class="label">Writes to</div><div class="value mono">documentation/specs/&lt;slug&gt;/</div></div>
+  <div class="meta-cell"><div class="label">Last updated</div><div class="value mono">2026-09-29</div></div>
+  <div class="meta-cell"><div class="label">Status</div><div class="value">Draft v0.2</div></div>
+</div>
+
+<div class="doc-scope">
+  <strong>Scope:</strong> the Spec workflow: <code>/s101-implementation-plan</code>, <code>/s101-review</code>, four artifact skills and the S101/S102 templates. The Build workflow (dispatch, ledger, verification, Baley against the spec) is out. §2–§5 are the business agreement; §6 is open — see §6.
+</div>
+
+<!-- ═════════ §2 ═════════ -->
+<section class="s" id="s2">
+  <h2 class="section-title"><span class="sec-ref">§2</span>Why the Spec stage</h2>
+  <p class="section-desc">A D101 at <em>Full design</em> reaches a builder through chat today: the task cut, the order and the interfaces are decided invisibly, per run.</p>
+  <ul class="bullets">
+    <li><strong>The graph lives in chat.</strong> Order and parallelism are re-decided every run.</li>
+    <li><strong>One long task.</strong> The builder gets the whole feature: L2 with a file attached.</li>
+    <li><strong>Names by guess.</strong> Two builders invent two names for the same thing.</li>
+    <li><strong>§7 as a stopgap.</strong> Build notes live in the D101, where they do not belong.</li>
+    <li><strong>Nothing to review between design and code.</strong> The reviewer sees the diff, never what the agent was told.</li>
+  </ul>
+  <div class="callout">
+    <strong>Audience.</strong> The developer planning a feature, the reviewer who is not the author, the person directing a run, and the build subagents that read an S102 as their brief. In one line: the command asks at most five questions, decides the rest, writes the plan and stops once; §3 is the contract behind that line.
+  </div>
+</section>
+
+<!-- ═════════ §3 ═════════ -->
+<section class="s" id="s3">
+  <h2 class="section-title"><span class="sec-ref">§3</span>Requirements</h2>
+
+  <div class="subhead">Functional — 23</div>
+  <div class="req-list">
+    <div class="req"><div class="id">R1</div><div class="body">From one D101 at <em>Full design</em>, the command writes one S101 and its S102s to <code>documentation/specs/&lt;slug&gt;/</code>.</div></div>
+    <div class="req"><div class="id">R2</div><div class="body">A D101 not at <em>Full design</em> is refused, with the reason stated.</div></div>
+    <div class="req"><div class="id">R3</div><div class="body">Tasks are cut as vertical slices, one per D101 acceptance criterion; each slice is one phase in the S101.</div></div>
+    <div class="req"><div class="id">R4</div><div class="body">A slice that crosses stacks becomes one S102 per stack in the same phase.</div></div>
+    <div class="req"><div class="id">R5</div><div class="body">Every S101 opens with a Foundation phase: one skeleton S102 per stack.</div></div>
+    <div class="req"><div class="id">R6</div><div class="body">The skeleton is cut per slice: no two slice tasks that may run in parallel modify the same skeleton file.</div></div>
+    <div class="req"><div class="id">R7</div><div class="body">Every slice phase carries a Calvin S102 that writes the slice's acceptance test; that test is the phase's checkpoint.</div></div>
+    <div class="req"><div class="id">R8</div><div class="body">Every S102 is written for exactly one builder role.</div></div>
+    <div class="req"><div class="id">R9</div><div class="body">Every S102 is validated blind right after it is written.</div></div>
+    <div class="req"><div class="id">R10</div><div class="body">An S102 that fails validation is rewritten and validated again until it clears the <em>buildable blind</em> bar.</div></div>
+    <div class="req"><div class="id">R11</div><div class="body">An S102 that fails validation three times, or whose finding names a gap in the D101 rather than in the S102, stops the run; the command reports instead of rewriting.</div></div>
+    <div class="req"><div class="id">R12</div><div class="body">Once every S102 exists, the plan is validated as a whole against the <em>dispatch-ready</em> bar.</div></div>
+    <div class="req"><div class="id">R13</div><div class="body">A plan-level finding sends the affected S102s back into their own loop.</div></div>
+    <div class="req"><div class="id">R14</div><div class="body"><code>/s101-review</code> runs both validations on an existing plan and reports without changing any file.</div></div>
+    <div class="req"><div class="id">R15</div><div class="body">No command records an approval or moves a status.</div></div>
+    <div class="req"><div class="id">R16</div><div class="body">Run against a D101 that already has an S101 and whose requirements and acceptance criteria are unchanged in content, the command updates the plan in place and leaves every S102 that already clears its bar untouched.</div></div>
+    <div class="req"><div class="id">R17</div><div class="body">Run against a D101 whose requirements or acceptance criteria have changed in content since the S101 was written, the command writes a new S101 and marks the old one <code>superseded</code>.</div></div>
+    <div class="req"><div class="id">R18</div><div class="body">The plan validation warns, never refuses, when an S102 exceeds the size thresholds; the thresholds live in the S101 definition.</div></div>
+    <div class="req"><div class="id">R19</div><div class="body">The command explores the D101 and the repo before it asks anything.</div></div>
+    <div class="req"><div class="id">R20</div><div class="body">The command asks at most 5 questions, one at a time, each with a recommended default.</div></div>
+    <div class="req"><div class="id">R21</div><div class="body">Questions are asked only about the task cut, the phase boundaries and open D101 items that change the breakdown.</div></div>
+    <div class="req"><div class="id">R22</div><div class="body">Everything else the command decides itself and records as an assumption in the S101.</div></div>
+    <div class="req"><div class="id">R23</div><div class="body">The command stops once, when the S101 and every S102 are written and validated, with a findings list in chat.</div></div>
+  </div>
+
+  <div class="subhead">Non-functional — 4</div>
+  <div class="req-list nf">
+    <div class="req"><div class="id">NF1</div><div class="body">No product entity in templates, skills or commands (hard rule 7).</div></div>
+    <div class="req"><div class="id">NF2</div><div class="body">Specs are Markdown with YAML frontmatter; the task graph is machine-readable in the S101 frontmatter.</div></div>
+    <div class="req"><div class="id">NF3</div><div class="body">Commands read the definitions and templates by path at run-time (hard rule 3).</div></div>
+    <div class="req"><div class="id">NF4</div><div class="body">The Spec workflow writes only under <code>documentation/specs/&lt;slug&gt;/</code>.</div></div>
+  </div>
+
+  <div class="subhead">Out of scope — 6</div>
+  <div class="req-list">
+    <div class="req oos"><div class="id">OOS1</div><div class="body">Dispatch and the ledger — the Build workflow; designed once a real S101 has been run.</div></div>
+    <div class="req oos"><div class="id">OOS2</div><div class="body">The verification agent (code against S102 acceptance criteria) — the Test stage, Build workflow.</div></div>
+    <div class="req oos"><div class="id">OOS3</div><div class="body">Baley reading the S102 (<em>Review vs. Spec</em>) — the Build workflow; needs only the S102 filename, which exists.</div></div>
+    <div class="req oos"><div class="id">OOS4</div><div class="body">A standalone <code>/s102-task-spec</code> for a lone task — waits until one is needed.</div></div>
+    <div class="req oos"><div class="id">OOS5</div><div class="body">An ADR form — D101 §4.5 and accepted deviations carry decisions today; observe first.</div></div>
+    <div class="req oos"><div class="id">OOS6</div><div class="body">The estimate in the S101 — D100 Q7; observe where it gets written first.</div></div>
+  </div>
+</section>
+
+<!-- ═════════ §4 ═════════ -->
+<div class="chapter-band" id="c4">
+  <div class="chapter-band-inner">
+    <div class="ch-num">4</div>
+    <div>
+      <div class="ch-name">Business design</div>
+      <div class="ch-summary">Principles, concepts, the Spec workflow and its authoring loop, the architecture (commands, skills, artifacts), the rules, the plan lifecycle, and the decisions.</div>
+    </div>
+  </div>
+</div>
+
+<section class="s" id="s4-1">
+  <h2 class="section-title"><span class="sec-ref">§4.1</span>Principles</h2>
+  <div class="principles">
+    <div class="principle"><div class="num">1</div><div class="text"><strong>The spec is the product.</strong> What gets reviewed is the S101 and the S102s; code is the output.</div></div>
+    <div class="principle"><div class="num">2</div><div class="text"><strong>Plan ≠ ledger.</strong> Run state never lives in a spec.</div></div>
+    <div class="principle"><div class="num">3</div><div class="text"><strong>Cut vertically.</strong> One slice per acceptance criterion; the checkpoint is the criterion met.</div></div>
+    <div class="principle"><div class="num">4</div><div class="text"><strong>Skeleton before bodies.</strong> Phase 0 turns the interfaces into code before anyone builds against them.</div></div>
+    <div class="principle"><div class="num">5</div><div class="text"><strong>Validate blind.</strong> Whoever wrote the S102 does not test it.</div></div>
+    <div class="principle"><div class="num">6</div><div class="text"><strong>Shape by script, content by model.</strong> Mechanical checks give the same answer every run.</div></div>
+    <div class="principle"><div class="num">7</div><div class="text"><strong>Ask only what cannot be discovered.</strong> The D101 and the repo answer first.</div></div>
+    <div class="principle"><div class="num">8</div><div class="text"><strong>Method in skills, conversation in commands.</strong> The same method serves every harness.</div></div>
+  </div>
+</section>
+
+<section class="s" id="s4-2">
+  <h2 class="section-title"><span class="sec-ref">§4.2</span>Concepts</h2>
+  <p class="section-desc">The vocabulary the rest of this document and both spec definitions use.</p>
+  <div class="data-table">
+    <div class="row head cols-2"><div>Concept</div><div>What it means</div></div>
+    <div class="row cols-2"><div class="label-cell">S101</div><div>The implementation plan for one D101: task graph, phases, interfaces, constraints, escalation.</div></div>
+    <div class="row cols-2"><div class="label-cell">S102</div><div>One task for one builder: the whole brief a fresh agent receives.</div></div>
+    <div class="row cols-2"><div class="label-cell">Slice</div><div>The work that makes one D101 acceptance criterion pass, end to end.</div></div>
+    <div class="row cols-2"><div class="label-cell">Phase</div><div>A slice as a unit of the plan: its S102s plus a checkpoint.</div></div>
+    <div class="row cols-2"><div class="label-cell">Checkpoint</div><div>A state a reviewer can verify without reading code; for a slice, its acceptance test green, written at API level against the skeleton's public methods, end-to-end only where the repo's conventions name a runner.</div></div>
+    <div class="row cols-2"><div class="label-cell">Foundation phase</div><div>Phase 0: the skeleton, one S102 per stack, compiling with no bodies.</div></div>
+    <div class="row cols-2"><div class="label-cell">Skeleton</div><div>Classes, interfaces and public methods with summaries, cut per slice; the S101 interfaces as code, and in Angular with minimal templates so a build proves it.</div></div>
+    <div class="row cols-2"><div class="label-cell">Owned set</div><div>The files an S102 creates, modifies and tests; nothing else is touched.</div></div>
+    <div class="row cols-2"><div class="label-cell">Validation</div><div>The spec check before code: does the plan clear its bars and agree with itself.</div></div>
+    <div class="row cols-2"><div class="label-cell">Verification</div><div>The code check after build: run an S102's acceptance criteria against what was built (Build workflow).</div></div>
+    <div class="row cols-2"><div class="label-cell">Dispatch-ready</div><div>The S101 bar: every task can be handed to a fresh builder in graph order without asking the author.</div></div>
+    <div class="row cols-2"><div class="label-cell">Buildable blind</div><div>The S102 bar: a builder with no conversation history builds it and knows when it is done.</div></div>
+    <div class="row cols-2"><div class="label-cell">Spec workflow</div><div>D101 → S101 + S102s → validation → reviewer approval; this document.</div></div>
+    <div class="row cols-2"><div class="label-cell">Build workflow</div><div>Ready S101 → phase by phase → builders → verification → review → checkpoint; out of scope.</div></div>
+  </div>
+</section>
+
+<section class="s" id="s4-3">
+  <h2 class="section-title"><span class="sec-ref">§4.3</span>The Spec workflow</h2>
+  <p class="section-desc">One D101 goes in on the left; one S101 and N S102s come out on the right. Commands carry the conversation, skills carry the method, and the same skills serve both commands.</p>
+  <div class="flow-wrap">
+    <svg viewBox="0 0 1200 500" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Overview map. Left: your repository with the D101 at Full design. Middle: the Asimov plugin: the two artifact contracts (S101 and S102 definition plus template) the skills read at run-time, two commands (the plan command writes, the review command reads), four skills underneath (two authoring skills write, two validation skills read; the S102 validation runs in a fresh subagent). Right: your repository's specs folder with the S101 and N S102s: the phase-0 skeleton, one builder task per slice and stack, one Calvin acceptance-test task per slice.">
+      <style>
+        .sm text { font-family: 'Inter', system-ui, sans-serif; font-size: 13px; fill: #fff; }
+        .sm .mono { font-family: 'JetBrains Mono', ui-monospace, Consolas, monospace; }
+        .sm .sub { font-size: 11px; fill: #a8b8d0; }
+        .sm .lbl { font-size: 10px; letter-spacing: 0.14em; fill: #6b7a93; }
+        .sm .head { font-size: 11px; letter-spacing: 0.08em; font-weight: 700; }
+        .sm .repo { fill: #66bb6a; fill-opacity: 0.08; stroke: #66bb6a; stroke-width: 1.5; }
+        .sm .repohead rect { fill: #66bb6a; fill-opacity: 0.16; }
+        .sm .repohead text { fill: #66bb6a; }
+        .sm .plug { fill: #122039; stroke: #3b5e8f; stroke-width: 1.5; }
+        .sm .plughead rect { fill: #3b5e8f; fill-opacity: 0.25; }
+        .sm .plughead text { fill: #a8b8d0; }
+        .sm .writes rect { fill: #4fc3f7; fill-opacity: 0.16; stroke: #4fc3f7; stroke-width: 1.5; }
+        .sm .writes .head { fill: #4fc3f7; }
+        .sm .reads rect { fill: #ffb74d; fill-opacity: 0.14; stroke: #ffb74d; stroke-width: 1.5; }
+        .sm .reads .head { fill: #ffb74d; }
+        .sm .contract rect { fill: #1b2e4d; stroke: #3b5e8f; stroke-width: 1.5; }
+        .sm .group { fill: none; stroke: #2b4a73; stroke-width: 1; stroke-dasharray: 4 4; }
+        .sm .fresh { fill: none; stroke: #3b5e8f; stroke-width: 1.5; stroke-dasharray: 4 4; }
+        .sm .flow { fill: none; stroke-width: 1.75; }
+        .sm .flow.cyan, .sm #smArrCyan path { stroke: #4fc3f7; fill: #4fc3f7; }
+        .sm .flow.amber, .sm #smArrAmber path { stroke: #ffb74d; fill: #ffb74d; }
+        .sm .flow.cyan, .sm .flow.amber { fill: none; }
+      </style>
+      <defs>
+        <marker id="smArrCyan" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 Z"/></marker>
+        <marker id="smArrAmber" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 Z"/></marker>
+      </defs>
+      <g class="sm">
+        <rect x="0" y="0" width="1200" height="500" fill="#14253f"/>
+
+        <!-- left: your repository, the D101 -->
+        <rect class="repo" x="8" y="40" width="252" height="400" rx="12"/>
+        <g class="repohead">
+          <rect x="8" y="40" width="252" height="34" rx="12"/>
+          <text class="head mono" x="24" y="62">YOUR REPOSITORY</text>
+        </g>
+        <text class="lbl mono" x="28" y="144">documentation/features/</text>
+        <g class="writes">
+          <rect x="28" y="156" width="212" height="76" rx="8"/>
+          <text x="44" y="180" style="font-weight:700">D101 design</text>
+          <text class="sub" x="44" y="200">Full design</text>
+        </g>
+        
+        <!-- middle: the plugin -->
+        <rect class="plug" x="300" y="40" width="620" height="400" rx="12"/>
+        <g class="plughead">
+          <rect x="300" y="40" width="620" height="34" rx="12"/>
+          <text class="head mono" x="316" y="62">ASIMOV PLUGIN</text>
+                  </g>
+
+        <text class="lbl mono" x="320" y="96">CONTRACTS</text>
+        <g class="contract">
+          <rect x="320" y="104" width="284" height="28" rx="6"/>
+          <text class="mono" x="332" y="123" style="font-size:10px;fill:#a8b8d0">S101 · <tspan style="fill:#fff">definition</tspan> + <tspan style="fill:#fff">template</tspan></text>
+        </g>
+        <g class="contract">
+          <rect x="616" y="104" width="284" height="28" rx="6"/>
+          <text class="mono" x="628" y="123" style="font-size:10px;fill:#a8b8d0">S102 · <tspan style="fill:#fff">definition</tspan> + <tspan style="fill:#fff">template</tspan></text>
+        </g>
+
+        <text class="lbl mono" x="320" y="158">COMMANDS</text>
+        <g class="writes">
+          <rect x="320" y="166" width="280" height="64" rx="8"/>
+          <text class="head mono" x="336" y="190">/s101-implementation-plan</text>
+          <text class="sub" x="336" y="210">asks · writes · validates</text>
+        </g>
+        <g class="reads">
+          <rect x="620" y="166" width="280" height="64" rx="8"/>
+          <text class="head mono" x="636" y="190">/s101-review</text>
+          <text class="sub" x="636" y="210">validates · writes nothing</text>
+        </g>
+
+        <text class="lbl mono" x="320" y="284">SKILLS</text>
+        <rect class="group" x="312" y="292" width="296" height="136" rx="10"/>
+        <text class="lbl mono" x="324" y="310" style="fill:#4fc3f7">AUTHORING</text>
+        <g class="writes">
+          <rect x="324" y="320" width="132" height="92" rx="8"/>
+          <text class="head mono" x="336" y="342" style="font-size:10px">artifact-s101-</text>
+          <text class="head mono" x="336" y="356" style="font-size:10px">authoring</text>
+          <text class="sub" x="336" y="378">cuts the plan</text>
+        </g>
+        <g class="writes">
+          <rect x="464" y="320" width="132" height="92" rx="8"/>
+          <text class="head mono" x="476" y="342" style="font-size:10px">artifact-s102-</text>
+          <text class="head mono" x="476" y="356" style="font-size:10px">authoring</text>
+          <text class="sub" x="476" y="378">one task</text>
+        </g>
+
+        <rect class="group" x="616" y="292" width="292" height="136" rx="10"/>
+        <text class="lbl mono" x="628" y="310" style="fill:#ffb74d">VALIDATION</text>
+        <g class="reads">
+          <rect x="628" y="320" width="132" height="92" rx="8"/>
+          <text class="head mono" x="640" y="342" style="font-size:10px">artifact-s102-</text>
+          <text class="head mono" x="640" y="356" style="font-size:10px">validation</text>
+          <text class="sub" x="640" y="378">one task</text>
+          <rect class="fresh" x="636" y="386" width="116" height="18" rx="4"/>
+          <text class="sub" x="694" y="399" text-anchor="middle" style="font-size:9px">in a fresh subagent</text>
+        </g>
+        <g class="reads">
+          <rect x="768" y="320" width="132" height="92" rx="8"/>
+          <text class="head mono" x="780" y="342" style="font-size:10px">artifact-s101-</text>
+          <text class="head mono" x="780" y="356" style="font-size:10px">validation</text>
+          <text class="sub" x="780" y="378">the whole plan</text>
+        </g>
+
+        <!-- right: your repository, the specs -->
+        <rect class="repo" x="960" y="40" width="232" height="400" rx="12"/>
+        <g class="repohead">
+          <rect x="960" y="40" width="232" height="34" rx="12"/>
+          <text class="head mono" x="976" y="62">YOUR REPOSITORY</text>
+        </g>
+        <text class="lbl mono" x="980" y="144">documentation/specs/&lt;slug&gt;/</text>
+        <g class="writes">
+          <rect x="980" y="156" width="192" height="64" rx="8"/>
+          <text x="996" y="180" style="font-weight:700">S101 plan</text>
+          <text class="sub" x="996" y="200">the task graph</text>
+        </g>
+        <text class="lbl mono" x="980" y="252">S102 × N</text>
+        <!-- a stack of identical task specs: back cards offset, one front card labelled; each card sits on an opaque base so the one behind does not show through -->
+        <rect x="1000" y="274" width="160" height="60" rx="8" fill="#14253f"/>
+        <g class="writes"><rect x="1000" y="274" width="160" height="60" rx="8" style="fill-opacity:0.08"/></g>
+        <rect x="988" y="286" width="160" height="60" rx="8" fill="#14253f"/>
+        <g class="writes"><rect x="988" y="286" width="160" height="60" rx="8" style="fill-opacity:0.10"/></g>
+        <rect x="976" y="298" width="160" height="60" rx="8" fill="#14253f"/>
+        <g class="writes">
+          <rect x="976" y="298" width="160" height="60" rx="8"/>
+          <text x="992" y="322" style="font-weight:700">S102 task</text>
+          <text class="sub" x="992" y="342">one builder</text>
+        </g>
+
+        <!-- flows: an arrow takes the colour of the box it enters; writes and reads target the folder, not one file -->
+        <g class="flow cyan" marker-end="url(#smArrCyan)">
+          <path d="M240 198 H316"/>
+          <path d="M460 230 V288"/>
+          <path d="M460 428 V468 H936 V300 H956"/>
+        </g>
+        <path class="flow cyan" d="M460 262 H700" marker-end="none"/>
+        <g class="flow amber" marker-end="url(#smArrAmber)">
+          <path d="M700 262 V288"/>
+          <path d="M760 230 V288"/>
+          <path d="M960 236 H948 V352 H912"/>
+        </g>
+        <text class="lbl mono" x="278" y="190" text-anchor="middle">READS</text>
+        <text class="lbl mono" x="580" y="256" text-anchor="middle">USES</text>
+        <text class="lbl mono" x="702" y="460" text-anchor="middle" style="fill:#4fc3f7">WRITES</text>
+        <text class="lbl mono" x="940" y="228" text-anchor="end" style="fill:#ffb74d">READS</text>
+      </g>
+    </svg>
+    <div class="flow-legend">
+      <span class="item"><span class="swatch" style="background:var(--green)"></span>Yours: the repository</span>
+      <span class="item"><span class="swatch" style="background:var(--cyan)"></span>Asimov writes</span>
+      <span class="item"><span class="swatch" style="background:var(--amber)"></span>Asimov reads, then validates</span>
+      <span class="item"><span class="swatch" style="background:var(--border-2); border:1px dashed var(--text-mute)"></span>Fresh subagent, no conversation history</span>
+    </div>
+  </div>
+  <ul class="bullets">
+    <li><strong>In:</strong> one D101 at <em>Full design</em>. Anything else is refused (R2).</li>
+    <li><strong>The plan command</strong> reads the D101 and the repo, asks at most 5 questions with defaults, then uses the authoring skills to write and the validation skills to check, task by task and then the whole (R19–R23).</li>
+    <li><strong>Out:</strong> one S101 and N S102s in <code>documentation/specs/&lt;slug&gt;/</code>: phase 0 skeleton per stack, then per slice one builder task per stack and one Calvin acceptance-test task (R1, R3–R7).</li>
+    <li><strong>The review command</strong> runs the same validation skills on an existing plan and writes nothing (R14). The author self-previews; the reviewer ≠ author approves; the author sets <code>ready</code> (R15).</li>
+  </ul>
+
+  <div class="subhead" style="margin-top:2rem">The authoring loop</div>
+  <p class="section-desc" style="margin-bottom:0.8rem">Each S102 is validated blind as it is written; the plan is validated once every task exists. A finding at either level sends the affected task back; a third failure, or a finding that points at the D101, stops the run.</p>
+  <div class="flow-wrap">
+    <svg viewBox="0 0 980 296" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Flowchart: the authoring loop inside /s101-implementation-plan">
+      <rect x="0" y="0" width="980" height="296" fill="#14253f"/>
+      <defs>
+        <marker id="fc-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 Z" fill="#a8b8d0"/>
+        </marker>
+      </defs>
+      <!-- start -->
+      <rect x="24" y="48" width="136" height="56" rx="28" fill="#66bb6a22" stroke="#66bb6a"/>
+      <text x="92" y="72" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">S101 skeleton</text>
+      <text x="92" y="88" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">graph · interfaces</text>
+      <line x1="160" y1="76" x2="198" y2="76" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#fc-arr)"/>
+      <!-- 01 -->
+      <rect x="200" y="48" width="136" height="56" rx="8" fill="#ffb74d1a" stroke="#ffb74d"/>
+      <text x="268" y="72" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">01 · Write S102</text>
+      <text x="268" y="88" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">one task, one role</text>
+      <line x1="336" y1="76" x2="374" y2="76" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#fc-arr)"/>
+      <!-- 02 predefined -->
+      <rect x="376" y="48" width="136" height="56" rx="8" fill="#122039" stroke="#3b5e8f" stroke-dasharray="4 4"/>
+      <line x1="384" y1="48" x2="384" y2="104" stroke="#3b5e8f"/>
+      <line x1="504" y1="48" x2="504" y2="104" stroke="#3b5e8f"/>
+      <text x="444" y="72" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">02 · Validate blind</text>
+      <text x="444" y="88" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">fresh subagent</text>
+      <line x1="512" y1="76" x2="570" y2="76" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#fc-arr)"/>
+      <!-- D1 -->
+      <polygon points="600,48 628,76 600,104 572,76" fill="#66bb6a22" stroke="#66bb6a" stroke-width="1.5"/>
+      <text x="600" y="80" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="9">clears?</text>
+      <!-- D1 [fails] → D4 -->
+      <path d="M600,104 L600,132 A8,8 0 0 1 592,140 L474,140" fill="none" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#fc-arr)"/>
+      <text x="612" y="124" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">[fails]</text>
+      <!-- D4: third failure or D101 gap? -->
+      <polygon points="444,112 472,140 444,168 416,140" fill="#66bb6a22" stroke="#66bb6a" stroke-width="1.5"/>
+      <text x="444" y="144" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="9">3rd/D101?</text>
+      <!-- D4 [no] → 01 -->
+      <path d="M416,140 L276,140 A8,8 0 0 1 268,132 L268,106" fill="none" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#fc-arr)"/>
+      <text x="340" y="136" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">[no: rewrite]</text>
+      <!-- D4 [yes] → end -->
+      <line x1="444" y1="168" x2="444" y2="190" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#fc-arr)"/>
+      <text x="452" y="184" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">[yes: stop]</text>
+      <!-- D1 [clears] → D2 -->
+      <line x1="628" y1="76" x2="690" y2="76" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#fc-arr)"/>
+      <text x="660" y="66" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">[clears]</text>
+      <!-- D2 -->
+      <polygon points="720,48 748,76 720,104 692,76" fill="#66bb6a22" stroke="#66bb6a" stroke-width="1.5"/>
+      <text x="720" y="80" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="9">more?</text>
+      <!-- D2 [more tasks] → 01 (above) -->
+      <path d="M720,48 L720,32 A8,8 0 0 0 712,24 L276,24 A8,8 0 0 0 268,32 L268,46" fill="none" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#fc-arr)"/>
+      <text x="494" y="20" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">[more tasks]</text>
+      <!-- D2 [all written] → 03 -->
+      <line x1="720" y1="104" x2="720" y2="190" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#fc-arr)"/>
+      <text x="728" y="150" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">[all written]</text>
+      <!-- 03 -->
+      <rect x="652" y="192" width="136" height="56" rx="8" fill="#ffb74d1a" stroke="#ffb74d"/>
+      <text x="720" y="216" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">03 · Validate plan</text>
+      <text x="720" y="232" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">coverage · closure · disjoint</text>
+      <line x1="652" y1="220" x2="610" y2="220" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#fc-arr)"/>
+      <!-- D3 -->
+      <polygon points="580,192 608,220 580,248 552,220" fill="#66bb6a22" stroke="#66bb6a" stroke-width="1.5"/>
+      <text x="580" y="224" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="9">findings?</text>
+      <!-- D3 [findings] → joins the return line to 01 -->
+      <line x1="580" y1="192" x2="580" y2="142" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#fc-arr)"/>
+      <text x="588" y="172" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">[findings]</text>
+      <!-- D3 [none] → end -->
+      <line x1="552" y1="220" x2="510" y2="220" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#fc-arr)"/>
+      <text x="530" y="210" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">[none]</text>
+      <!-- end -->
+      <rect x="372" y="192" width="136" height="56" rx="28" fill="#ef535022" stroke="#ef5350"/>
+      <text x="440" y="216" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">Report · stop</text>
+      <text x="440" y="232" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">findings + assumptions</text>
+    </svg>
+    <div class="flow-legend">
+      <span class="item"><span class="swatch" style="background:var(--green)"></span>Start / decision</span>
+      <span class="item"><span class="swatch" style="background:var(--amber)"></span>Writing or validating</span>
+      <span class="item"><span class="swatch" style="background:var(--border-2); border:1px dashed var(--text-mute)"></span>Delegated to a fresh subagent</span>
+      <span class="item"><span class="swatch" style="background:var(--coral)"></span>Stop</span>
+    </div>
+  </div>
+  <ol class="principles" style="margin-top:1rem">
+    <li class="principle"><div class="num">01</div><div class="text">Write one S102 for one builder role from the S101 graph (R8).</div></li>
+    <li class="principle"><div class="num">02</div><div class="text">A fresh read-only subagent validates it against the S102 checks, seeing only the S102, the S101, the D101 and the repo (R9). Fails → rewrite → 02 again (R10); a third failure, or a finding that names a D101 gap, stops the run with a report (R11).</div></li>
+    <li class="principle"><div class="num">03</div><div class="text">With every task written, validate the plan against the S101 checks: coverage both ways, interface closure, disjoint parallel sets, no cycle, no contradicted constraint, size warnings (R12, R18). A finding sends the affected tasks back to 01 (R13).</div></li>
+  </ol>
+</section>
+
+<section class="s" id="s4-4">
+  <h2 class="section-title"><span class="sec-ref">§4.4</span>Architecture</h2>
+  <p class="section-desc">Two definitions, two templates, four skills, two commands, one blind subagent and one folder. One D101 in; one S101 and N S102s out. The definitions set the bars, the templates the shape, the skills the method, the commands the conversation.</p>
+  <div class="flow-wrap">
+    <svg viewBox="0 0 980 568" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Sequence diagram: how the command, the skills, the blind validator and the specs folder turn one D101 into an S101 and N S102s">
+      <rect x="0" y="0" width="980" height="568" fill="#14253f"/>
+      <defs>
+        <marker id="seq-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 Z" fill="#a8b8d0"/>
+        </marker>
+        <marker id="seq-open" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10" fill="none" stroke="#a8b8d0" stroke-width="1.5"/>
+        </marker>
+        <marker id="seq-arr-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 Z" fill="#66bb6a"/>
+        </marker>
+      </defs>
+      <!-- heads -->
+      <g>
+        <rect x="24" y="24" width="160" height="48" rx="8" fill="#66bb6a22" stroke="#66bb6a"/>
+        <text x="104" y="44" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">Author</text>
+        <text x="104" y="60" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">human · has a D101 at Full design</text>
+      </g>
+      <g>
+        <rect x="216" y="24" width="160" height="48" rx="8" fill="#ffb74d1a" stroke="#ffb74d"/>
+        <text x="296" y="44" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">/s101-implementation-plan</text>
+        <text x="296" y="60" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">command · the conversation</text>
+      </g>
+      <g>
+        <rect x="408" y="24" width="160" height="48" rx="8" fill="#ffb74d1a" stroke="#ffb74d"/>
+        <text x="488" y="44" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">Authoring skills</text>
+        <text x="488" y="60" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">artifact-s101-/s102-authoring</text>
+      </g>
+      <g>
+        <rect x="600" y="24" width="160" height="48" rx="8" fill="#122039" stroke="#3b5e8f" stroke-dasharray="4 4"/>
+        <text x="680" y="44" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">Blind validator</text>
+        <text x="680" y="60" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">fresh subagent · artifact-s102-validation</text>
+      </g>
+      <g>
+        <rect x="792" y="24" width="160" height="48" rx="8" fill="#4fc3f71a" stroke="#4fc3f7"/>
+        <text x="872" y="44" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">specs/&lt;slug&gt;/</text>
+        <text x="872" y="60" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">S101 + S102 × N</text>
+      </g>
+      <!-- lifelines -->
+      <line x1="104" y1="72" x2="104" y2="552" stroke="#3b5e8f" stroke-width="1.5" stroke-dasharray="4 4"/>
+      <line x1="296" y1="72" x2="296" y2="552" stroke="#3b5e8f" stroke-width="1.5" stroke-dasharray="4 4"/>
+      <line x1="488" y1="72" x2="488" y2="552" stroke="#3b5e8f" stroke-width="1.5" stroke-dasharray="4 4"/>
+      <line x1="680" y1="72" x2="680" y2="552" stroke="#3b5e8f" stroke-width="1.5" stroke-dasharray="4 4"/>
+      <line x1="872" y1="72" x2="872" y2="552" stroke="#3b5e8f" stroke-width="1.5" stroke-dasharray="4 4"/>
+      <!-- activation bars -->
+      <rect x="100" y="104" width="8" height="424" fill="#66bb6a22" stroke="#66bb6a"/>
+      <rect x="292" y="104" width="8" height="424" fill="#ffb74d1a" stroke="#ffb74d"/>
+      <rect x="484" y="168" width="8" height="40" fill="#ffb74d1a" stroke="#ffb74d"/>
+      <rect x="484" y="288" width="8" height="40" fill="#ffb74d1a" stroke="#ffb74d"/>
+      <rect x="676" y="352" width="8" height="56" fill="#122039" stroke="#3b5e8f" stroke-dasharray="4 4"/>
+      <rect x="868" y="196" width="8" height="16" fill="#4fc3f71a" stroke="#4fc3f7"/>
+      <rect x="868" y="316" width="8" height="16" fill="#4fc3f71a" stroke="#4fc3f7"/>
+      <rect x="868" y="380" width="8" height="16" fill="#4fc3f71a" stroke="#4fc3f7"/>
+      <rect x="868" y="492" width="8" height="16" fill="#4fc3f71a" stroke="#4fc3f7"/>
+      <!-- loop fragment: command, skills, validator, store -->
+      <rect x="276" y="224" width="616" height="192" fill="none" stroke="#3b5e8f" stroke-width="1.5"/>
+      <rect x="276" y="224" width="64" height="24" fill="#122039" stroke="#3b5e8f"/>
+      <text x="308" y="240" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700">loop</text>
+      <text x="308" y="264" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">[for each task · repeat until it clears the bar]</text>
+      <!-- m1 author → command -->
+      <line x1="108" y1="104" x2="290" y2="104" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#seq-arr)"/>
+      <text x="200" y="96" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">/s101-implementation-plan D101</text>
+      <!-- m2 command → author -->
+      <line x1="292" y1="136" x2="110" y2="136" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#seq-arr)"/>
+      <text x="200" y="128" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">≤5 questions, with defaults</text>
+      <!-- m3 command → skills -->
+      <line x1="300" y1="168" x2="482" y2="168" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#seq-arr)"/>
+      <text x="392" y="160" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">decompose: AC → slices → phases</text>
+      <!-- m4 skills → store -->
+      <line x1="492" y1="200" x2="866" y2="200" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#seq-arr)"/>
+      <text x="680" y="192" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">write S101 skeleton: graph · interfaces · constraints</text>
+      <!-- m5 command → skills -->
+      <line x1="300" y1="288" x2="482" y2="288" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#seq-arr)"/>
+      <text x="392" y="280" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">write task n</text>
+      <!-- m6 skills → store -->
+      <line x1="492" y1="320" x2="866" y2="320" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#seq-arr)"/>
+      <text x="680" y="312" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">write S102-n · one builder role</text>
+      <!-- m7 command → validator (accent) -->
+      <line x1="300" y1="352" x2="674" y2="352" stroke="#66bb6a" stroke-width="1.5" marker-end="url(#seq-arr-green)"/>
+      <text x="488" y="344" text-anchor="middle" fill="#66bb6a" font-family="JetBrains Mono, monospace" font-size="9">validate S102-n blind · no conversation</text>
+      <!-- m8 validator → store -->
+      <line x1="684" y1="384" x2="866" y2="384" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#seq-arr)"/>
+      <text x="776" y="376" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">read S102-n · S101 · D101</text>
+      <!-- m9 validator → command (return) -->
+      <line x1="676" y1="408" x2="302" y2="408" stroke="#a8b8d0" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#seq-open)"/>
+      <text x="488" y="400" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">findings per check</text>
+      <!-- m10 self-message: validate plan -->
+      <path d="M300,440 L348,440 L348,464 L302,464" fill="none" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#seq-arr)"/>
+      <text x="360" y="456" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">validate plan · artifact-s101-validation</text>
+      <!-- m11 command → store -->
+      <line x1="300" y1="496" x2="866" y2="496" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#seq-arr)"/>
+      <text x="584" y="488" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">finalise S101: coverage map · assumptions · status draft</text>
+      <!-- m12 command → author (return) -->
+      <line x1="292" y1="528" x2="110" y2="528" stroke="#a8b8d0" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#seq-open)"/>
+      <text x="200" y="520" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">S101 + S102 × N · findings</text>
+    </svg>
+    <div class="flow-legend">
+      <span class="item"><span class="swatch" style="background:var(--green)"></span>Human · the one accented message is the blind call</span>
+      <span class="item"><span class="swatch" style="background:var(--amber)"></span>Command and skills</span>
+      <span class="item"><span class="swatch" style="background:var(--border-2); border:1px dashed var(--text-mute)"></span>Fresh subagent, no conversation history</span>
+      <span class="item"><span class="swatch" style="background:var(--cyan)"></span>The specs folder</span>
+    </div>
+  </div>
+  <ul class="bullets">
+    <li><code>/s101-review</code> is the same picture without the author's questions and without the writes: both validation skills run, the report is printed, the folder is untouched (R14).</li>
+    <li>A lone S102 from the board calls <code>artifact-s102-authoring</code> and the blind validator directly; there is no S101 to decompose.</li>
+  </ul>
+
+  <div class="subhead" style="margin-top:2rem">The two artifacts</div>
+  <div class="data-table">
+    <div class="row head" style="grid-template-columns: 0.6fr 2.2fr 0.8fr 1.4fr;"><div>Artifact</div><div>Carries</div><div>Bar</div><div>Lives at</div></div>
+    <div class="row" style="grid-template-columns: 0.6fr 2.2fr 0.8fr 1.4fr;"><div class="label-cell">S101</div><div>Header · global constraints · task graph (frontmatter) · phases with checkpoints · interfaces · review focus · escalation routing · coverage map · assumptions (Q1)</div><div>Dispatch-ready</div><div><code>documentation/specs/&lt;slug&gt;/S101-&lt;slug&gt;.md</code></div></div>
+    <div class="row" style="grid-template-columns: 0.6fr 2.2fr 0.8fr 1.4fr;"><div class="label-cell">S102</div><div>Header · intent · files (create / modify / test) · interfaces (consumes / produces) · behaviour as scenarios · constraints · steps, test first · acceptance criteria · out of scope</div><div>Buildable blind</div><div><code>documentation/specs/&lt;slug&gt;/S102-&lt;slug&gt;-NNN-&lt;task&gt;.md</code></div></div>
+  </div>
+
+  <div class="subhead" style="margin-top:2rem">The components</div>
+  <div class="data-table">
+    <div class="row head cols-3"><div>Component</div><div>Kind</div><div>Does</div></div>
+    <div class="row cols-3"><div class="label-cell">s101-implementation-plan-definition.md</div><div>Definition</div><div>The S101 bar (<em>dispatch-ready</em>), required content, the checks, size thresholds (R18) and the assumptions section (Q1). Exists today; this design owns it and revises it.</div></div>
+    <div class="row cols-3"><div class="label-cell">s102-task-spec-definition.md</div><div>Definition</div><div>The S102 bar (<em>buildable blind</em>), required content and the checks the blind validator runs. Exists today; this design owns it.</div></div>
+    <div class="row cols-3"><div class="label-cell">s101-implementation-plan-template.md</div><div>Template</div><div>The S101 shape; the graph in frontmatter, the body refers to tasks by id.</div></div>
+    <div class="row cols-3"><div class="label-cell">s102-task-spec-template.md</div><div>Template</div><div>The S102 shape: one task, one builder.</div></div>
+    <div class="row cols-3"><div class="label-cell">artifact-s101-authoring</div><div>Skill</div><div>The decomposition: acceptance criteria → slices → phases → stack split → interfaces → skeleton task, cut per slice so parallel tasks never share a file; writes the S101.</div></div>
+    <div class="row cols-3"><div class="label-cell">artifact-s102-authoring</div><div>Skill</div><div>Writes one S102 from the template; called per task, and usable alone for a lone task.</div></div>
+    <div class="row cols-3"><div class="label-cell">artifact-s101-validation</div><div>Skill</div><div>The S101 checks, including the cross-S102 ones; shape by script, content by model.</div></div>
+    <div class="row cols-3"><div class="label-cell">artifact-s102-validation</div><div>Skill</div><div>The S102 checks for one file; the skill the blind subagent loads.</div></div>
+    <div class="row cols-3"><div class="label-cell">/s101-implementation-plan</div><div>Command</div><div>The conversation and the loop (§4.3); stops once.</div></div>
+    <div class="row cols-3"><div class="label-cell">/s101-review</div><div>Command</div><div>Runs both validations on an existing plan; reports; changes nothing.</div></div>
+  </div>
+</section>
+
+<section class="s" id="s4-5">
+  <h2 class="section-title"><span class="sec-ref">§4.5</span>Rules</h2>
+  <p class="section-desc">Each rule with the case where it fires and the adjacent case where it does not.</p>
+  <div class="data-table">
+    <div class="row head cols-3"><div>Rule</div><div>Fires</div><div>Does not fire</div></div>
+    <div class="row cols-3"><div class="label-cell">Only Full design is planned</div><div>A D101 at Full design → an S101.</div><div>A D101 at Business design → refused, no file written.</div></div>
+    <div class="row cols-3"><div class="label-cell">Slice = phase</div><div>AC3, single-stack → phase 3 with one builder S102 and one Calvin S102.</div><div>A shared type two slices need is not a slice; it goes to Foundation.</div></div>
+    <div class="row cols-3"><div class="label-cell">Parallel = disjoint</div><div>Two slices with no common file may run together.</div><div>A common file is a dependency; the plan says which task owns it, and two slices needing the same skeleton file get the skeleton cut so each owns its own, decided at planning time.</div></div>
+    <div class="row cols-3"><div class="label-cell">The loop exits</div><div>A third failed validation, or a finding that names a D101 gap → the run stops and reports.</div><div>A second failure on an S102 defect → rewrite and validate again.</div></div>
+    <div class="row cols-3"><div class="label-cell">Size warns</div><div>Four owned non-test files → a warning; the plan is still written.</div><div>A cycle in the graph → rejected; that is shape, not size.</div></div>
+    <div class="row cols-3"><div class="label-cell">Ask only about the cut</div><div>Two criteria could be one slice or two → ask.</div><div>Which model tier → decide, record as an assumption.</div></div>
+    <div class="row cols-3"><div class="label-cell">Update or supersede</div><div>Requirements and criteria unchanged in content → update in place, and an S102 that already clears is left untouched.</div><div>A criterion changed in content → new S101, old one <code>superseded</code>; a version bump with a wording fix is not a change.</div></div>
+    <div class="row cols-3"><div class="label-cell">Validate blind</div><div>An S102 is validated by a fresh subagent with only the S102, S101, D101 and repo.</div><div>The plan validation runs inline; it is mechanical and cross-file, not a blind property.</div></div>
+  </div>
+</section>
+
+<section class="s" id="s4-6">
+  <h2 class="section-title"><span class="sec-ref">§4.6</span>Plan lifecycle</h2>
+  <p class="section-desc">One status axis on the S101. The Spec workflow moves it as far as <code>ready</code>; the Build workflow moves the rest.</p>
+  <div class="flow-wrap">
+    <svg viewBox="0 0 980 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="State machine: S101 status">
+      <rect x="0" y="0" width="980" height="320" fill="#14253f"/>
+      <defs>
+        <marker id="sm-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 Z" fill="#a8b8d0"/>
+        </marker>
+      </defs>
+      <circle cx="48" cy="120" r="8" fill="#66bb6a"/>
+      <line x1="56" y1="120" x2="86" y2="120" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#sm-arr)"/>
+      <!-- draft -->
+      <rect x="88" y="92" width="152" height="56" rx="8" fill="#66bb6a22" stroke="#66bb6a"/>
+      <text x="164" y="116" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">draft</text>
+      <text x="164" y="132" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">the command writes here</text>
+      <!-- self-loop -->
+      <path d="M140,92 L140,68 A8,8 0 0 1 148,60 L180,60 A8,8 0 0 1 188,68 L188,90" fill="none" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#sm-arr)"/>
+      <text x="164" y="52" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">re-run [same D101 version]</text>
+      <!-- draft → ready -->
+      <line x1="240" y1="120" x2="302" y2="120" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#sm-arr)"/>
+      <text x="272" y="82" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">reviewer approves</text>
+      <!-- ready -->
+      <rect x="304" y="92" width="152" height="56" rx="8" fill="#ffb74d1a" stroke="#ffb74d"/>
+      <text x="380" y="116" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">ready</text>
+      <text x="380" y="132" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">dispatch-ready</text>
+      <!-- ready → in progress -->
+      <line x1="456" y1="120" x2="518" y2="120" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#sm-arr)"/>
+      <text x="488" y="82" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">first dispatch [Build]</text>
+      <!-- in progress -->
+      <rect x="520" y="92" width="152" height="56" rx="8" fill="#ffb74d1a" stroke="#ffb74d"/>
+      <text x="596" y="116" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">in progress</text>
+      <text x="596" y="132" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">phases running</text>
+      <!-- in progress → done -->
+      <line x1="672" y1="120" x2="734" y2="120" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#sm-arr)"/>
+      <text x="704" y="82" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">all checkpoints met [Build]</text>
+      <!-- done -->
+      <rect x="736" y="92" width="152" height="56" rx="8" fill="#ef535022" stroke="#ef5350"/>
+      <text x="812" y="116" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">done</text>
+      <text x="812" y="132" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">kept as the record</text>
+      <line x1="888" y1="120" x2="926" y2="120" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#sm-arr)"/>
+      <circle cx="940" cy="120" r="12" fill="none" stroke="#ef5350" stroke-width="1.5"/>
+      <circle cx="940" cy="120" r="6" fill="#ef5350"/>
+      <!-- ready → superseded -->
+      <line x1="380" y1="148" x2="380" y2="230" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#sm-arr)"/>
+      <text x="388" y="192" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">D101 intent changed</text>
+      <!-- in progress → superseded -->
+      <path d="M596,148 L596,252 A8,8 0 0 1 588,260 L458,260" fill="none" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#sm-arr)"/>
+      <text x="604" y="208" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">re-planned</text>
+      <!-- superseded -->
+      <rect x="304" y="232" width="152" height="56" rx="8" fill="#ef535022" stroke="#ef5350"/>
+      <text x="380" y="256" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">superseded</text>
+      <text x="380" y="272" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">the new S101 names this one</text>
+    </svg>
+    <div class="flow-legend">
+      <span class="item"><span class="swatch" style="background:var(--green)"></span>Start state</span>
+      <span class="item"><span class="swatch" style="background:var(--amber)"></span>In progress</span>
+      <span class="item"><span class="swatch" style="background:var(--coral)"></span>Terminal</span>
+    </div>
+  </div>
+  <ul class="bullets">
+    <li><strong>The command</strong> writes and re-writes <code>draft</code>, and writes the successor when the D101's criteria changed (R16, R17).</li>
+    <li><strong>The author</strong> sets <code>ready</code> after the reviewer's approval; no command does (R15).</li>
+    <li><strong>The Build workflow</strong> moves <code>ready</code> → <code>in progress</code> → <code>done</code>; out of scope here.</li>
+  </ul>
+</section>
+
+<section class="s" id="s4-7">
+  <h2 class="section-title"><span class="sec-ref">§4.7</span>Decisions</h2>
+  <p class="section-desc">A decision recorded without its rejected alternative is one that gets re-litigated.</p>
+  <div class="decisions">
+    <div class="decisions-head"><div>Decided</div><div>Alternative considered</div><div>Why rejected</div></div>
+    <div class="decision-row"><div class="decided">One command with the loop built in</div><div class="alt">One command per task</div><div class="why">The graph has to be seen whole; per-task commands re-derive it.</div></div>
+    <div class="decision-row"><div class="decided">Blind validation by a fresh subagent</div><div class="alt">Inline, by the writing model</div><div class="why">The author fills the gaps from memory; <em>buildable blind</em> is a fresh-context property.</div></div>
+    <div class="decision-row"><div class="decided">Skeleton as phase 0</div><div class="alt">Inside each S102, or written during planning</div><div class="why">Inside each task the names are agreed only on paper; during planning the Spec stage would write code.</div></div>
+    <div class="decision-row"><div class="decided">Builder tests inline, Calvin per slice</div><div class="alt">Builder only, or Calvin only</div><div class="why">L3 has no human Test bar: tests are agent-written and the acceptance test must be reviewable before code exists.</div></div>
+    <div class="decision-row"><div class="decided">Shape by script</div><div class="alt">Everything by the model</div><div class="why">A model is soft even when told to be hard; the L3 bar is "schema-validated".</div></div>
+    <div class="decision-row"><div class="decided">At most 5 front-loaded questions</div><div class="alt">Step-by-step interview, or no questions</div><div class="why">The D101 did the intent work; a per-step interview repeats Kiro's heavy mode, and no questions guesses the cut.</div></div>
+    <div class="decision-row"><div class="decided">Stop once, at the end</div><div class="alt">A gate per artifact</div><div class="why">Two stops for the same reviewer on the same plan.</div></div>
+    <div class="decision-row"><div class="decided">Soft size warnings</div><div class="alt">A hard size gate</div><div class="why">Evidence is strong on direction and weak on the number, and the number moves every few months.</div></div>
+    <div class="decision-row"><div class="decided">Update in place; supersede on changed intent</div><div class="alt">Always a full replacement</div><div class="why">Review findings are the same work refined; a replacement discards the reviewer's reading.</div></div>
+    <div class="decision-row"><div class="decided">Acceptance tests at API level against the skeleton</div><div class="alt">End-to-end per slice</div><div class="why">A bodiless skeleton cannot run an app; end-to-end only where the repo's conventions name a runner.</div></div>
+    <div class="decision-row"><div class="decided">The loop exits after three failures or a D101 gap</div><div class="alt">Loop until it clears</div><div class="why">An unclear D101 is not fixed by rewriting the S102; the third attempt is the signal.</div></div>
+    <div class="decision-row"><div class="decided">Validation ≠ verification</div><div class="alt">One word for both</div><div class="why">Two checks, two moments, two inputs; one word made the design talk past itself.</div></div>
+  </div>
+</section>
+
+<!-- ═════════ §5 ═════════ -->
+<section class="s" id="s5">
+  <h2 class="section-title"><span class="sec-ref">§5</span>UI Design</h2>
+  <div class="callout">N/A — backend-only feature, no user-facing surface. The feature is two slash commands and their files.</div>
+</section>
+
+<!-- ═════════ §6 OPEN ═════════ -->
+<section class="s" id="s6-open">
+  <h2 class="section-title"><span class="sec-ref">§6</span>Still to write</h2>
+  <div class="callout warn">
+    <strong>⚠ This document is not gap-free.</strong> §2–§5 settle what the Spec workflow produces, who owns each step and the rules it follows. No S101 can be written from it until the items below exist.
+  </div>
+  <ul class="bullets">
+    <li>How the blind subagent is dispatched and what it is given, so a "pass" means the same in Claude Code and in a harness without subagents.</li>
+    <li>What the shape script checks and how it reports, so two runs on the same plan agree.</li>
+    <li>How the S101 frontmatter encodes the graph, so a validator reads dependencies, phases and owned files without reading the body.</li>
+    <li>How the command detects a requirement or criterion changed in content across D101 versions (stable ids, a stored fingerprint), so a re-run never silently overwrites a plan the reviewer approved.</li>
+    <li>How an S102 that already clears is recognised on a re-run (a fingerprint per task), so a resumed run rewrites only what changed.</li>
+    <li>Which runtime the shape script assumes in a product repo, so two repos get the same shape report.</li>
+    <li>How the command keeps its own context small across twenty or more validation rounds, so a twelve-task plan still stops once.</li>
+    <li>Where a run's findings and assumptions land, so the reviewer sees what the command decided alone.</li>
+    <li>How the method splits between the authoring and validation skills, so a hand-edited S102 can be validated without the command.</li>
+    <li>What the command does when its five questions are spent and a decision remains.</li>
+  </ul>
+</section>
+
+<!-- ═════════ §7 PENDING ═════════ -->
+<section class="s" id="s7-pending">
+  <h2 class="section-title"><span class="sec-ref">§7</span>Implementation</h2>
+  <div class="callout warn">
+    <strong>⚠ Pending the technical design.</strong> The build recipe is written once §6 is settled; while this document is in the <em>Business design</em> phase the outstanding technical work is listed under §6 <a href="#s6-open">Still to write</a>.
+  </div>
+</section>
+
+<!-- ═════════ §8 ═════════ -->
+<section class="s" id="s8">
+  <h2 class="section-title"><span class="sec-ref">§8</span>Acceptance criteria</h2>
+  <div class="ac-table">
+    <div class="ac-head"><div>#</div><div>Verifies</div><div>Description</div></div>
+    <div class="ac-row"><div class="ac-id">AC1</div><div class="ac-verifies"><span class="verify-chip">R1</span><span class="verify-chip">R3</span><span class="verify-chip">R5</span><span class="verify-chip">R7</span></div><div>Run on a Full-design D101 with n acceptance criteria, one S101 and its S102s exist under <code>documentation/specs/&lt;slug&gt;/</code>: one skeleton S102 per stack in phase 0, and per criterion one phase with at least one builder S102 and one Calvin S102.</div></div>
+    <div class="ac-row"><div class="ac-id">AC2</div><div class="ac-verifies"><span class="verify-chip">R2</span></div><div>Run on a Business-design D101, no file is written and the chat states why.</div></div>
+    <div class="ac-row"><div class="ac-id">AC3</div><div class="ac-verifies"><span class="verify-chip">R4</span></div><div>A slice that needs both .NET and Angular yields one S102 per stack in the same phase, with the interface named in S101 §4.5.</div></div>
+    <div class="ac-row"><div class="ac-id">AC4</div><div class="ac-verifies"><span class="verify-chip">R8</span></div><div>Every S102 header names exactly one builder role.</div></div>
+    <div class="ac-row"><div class="ac-id">AC5</div><div class="ac-verifies"><span class="verify-chip">R9</span><span class="verify-chip">R10</span></div><div>A reviewer reading the run transcript sees one fresh subagent per S102, given only the S102, the S101, the D101 and the repo, and no S102 remains with a failed check (manual step).</div></div>
+    <div class="ac-row"><div class="ac-id">AC6</div><div class="ac-verifies"><span class="verify-chip">R12</span><span class="verify-chip">R13</span></div><div>The plan report lists S101 checks 1–10 with a result; a seeded interface gap (a consumed name with no producer) is reported and the affected S102 rewritten.</div></div>
+    <div class="ac-row"><div class="ac-id">AC7</div><div class="ac-verifies"><span class="verify-chip">R14</span><span class="verify-chip">R15</span></div><div><code>/s101-review</code> on an existing plan prints both reports and <code>git status</code> is unchanged afterwards.</div></div>
+    <div class="ac-row"><div class="ac-id">AC8</div><div class="ac-verifies"><span class="verify-chip">R16</span><span class="verify-chip">R17</span></div><div>A re-run with requirements and criteria unchanged in content updates the same S101 file with a bumped version and leaves every cleared S102 byte-identical; a re-run after a criterion changed in content writes a new S101 and marks the old one <code>superseded</code>.</div></div>
+    <div class="ac-row"><div class="ac-id">AC9</div><div class="ac-verifies"><span class="verify-chip">R18</span></div><div>An S102 with four owned non-test files produces a warning in the report; the plan is still written.</div></div>
+    <div class="ac-row"><div class="ac-id">AC10</div><div class="ac-verifies"><span class="verify-chip">R19</span><span class="verify-chip">R20</span><span class="verify-chip">R21</span><span class="verify-chip">R22</span></div><div>The transcript shows the D101 and repo read before the first question, at most 5 questions, each with a recommended default, none about model tier or file paths, and every self-decided item as an assumption in the S101.</div></div>
+    <div class="ac-row"><div class="ac-id">AC11</div><div class="ac-verifies"><span class="verify-chip">R23</span></div><div>The command stops exactly once, after the files exist, with a findings list.</div></div>
+    <div class="ac-row"><div class="ac-id">AC12</div><div class="ac-verifies"><span class="verify-chip">NF1</span><span class="verify-chip">NF3</span></div><div>A reviewer ≠ author finds no product entity and no inlined definition text in the two commands, four skills and two templates.</div></div>
+    <div class="ac-row"><div class="ac-id">AC13</div><div class="ac-verifies"><span class="verify-chip">NF2</span></div><div>The S101 frontmatter parses as YAML and carries the graph: id, dependencies, phase and owned files per task.</div></div>
+    <div class="ac-row"><div class="ac-id">AC14</div><div class="ac-verifies"><span class="verify-chip">NF4</span></div><div>After a run, <code>git status</code> shows changes only under <code>documentation/specs/&lt;slug&gt;/</code>.</div></div>
+    <div class="ac-row"><div class="ac-id">AC15</div><div class="ac-verifies"><span class="verify-chip">§4.1-6</span></div><div>The shape checks are one script; two runs on the same plan give an identical shape report.</div></div>
+    <div class="ac-row"><div class="ac-id">AC16</div><div class="ac-verifies"><span class="verify-chip">R6</span></div><div>In an S101 with two slices marked parallel, no skeleton file appears in both slices' owned sets.</div></div>
+    <div class="ac-row"><div class="ac-id">AC17</div><div class="ac-verifies"><span class="verify-chip">R11</span></div><div>An S102 seeded to fail validation three times stops the run with a report naming the task, and no fourth rewrite occurs.</div></div>
+  </div>
+</section>
+
+<!-- ═════════ §9 ═════════ -->
+<section class="s" id="s9">
+  <h2 class="section-title"><span class="sec-ref">§9</span>Open questions</h2>
+  <div class="q-grid">
+    <div class="q-card">
+      <div class="q-head"><span class="q-id">Q1</span><span class="q-decider">Allan Borup</span></div>
+      <div class="q-body">The S101 definition has no home for the assumptions R22 requires.</div>
+      <div class="q-resolution">Resolution path: add an assumptions section to the S101 definition when the S101 template is written.</div>
+    </div>
+    <div class="q-card">
+      <div class="q-head"><span class="q-id">Q2</span><span class="q-decider">Allan Borup</span></div>
+      <div class="q-body">The size thresholds' numbers (3 and 7 files, ~100 lines, ~60 minutes) and their place in the S101 definition.</div>
+      <div class="q-resolution">Resolution path: set with the template; revisit about every four months, the evidence moves.</div>
+    </div>
+    <div class="q-card">
+      <div class="q-head"><span class="q-id">Q3</span><span class="q-decider">Allan Borup</span></div>
+      <div class="q-body">Blind validation in a harness without subagents (Codex).</div>
+      <div class="q-resolution">Resolution path: §6, first item of the still-to-write list.</div>
+    </div>
+    <div class="q-card">
+      <div class="q-head"><span class="q-id">Q4</span><span class="q-decider">Allan Borup</span></div>
+      <div class="q-body">Where a run's findings and assumptions land: chat only, or a sidecar like <code>/d101-review</code>'s <code>.review.md</code>.</div>
+      <div class="q-resolution">Resolution path: §6, the item on where findings and assumptions land.</div>
+    </div>
+  </div>
+  <div class="subhead" style="margin-top:1.5rem">Resolved during authoring</div>
+  <div class="q-grid">
+    <div class="q-card resolved">
+      <div class="q-head"><span class="q-id">Q5</span><span class="q-decider">Resolved 2026-09-29</span></div>
+      <div class="q-body">Who writes the tests of an S102?</div>
+      <div class="q-resolution"><strong>Decision:</strong> the builder writes unit tests inline; Calvin writes the slice's acceptance test as its own S102, which is the phase checkpoint (§4.7). Reopens if a slice's acceptance test cannot be written before its code.</div>
+    </div>
+    <div class="q-card resolved">
+      <div class="q-head"><span class="q-id">Q6</span><span class="q-decider">Resolved 2026-09-29</span></div>
+      <div class="q-body">Where does the code skeleton belong?</div>
+      <div class="q-resolution"><strong>Decision:</strong> phase 0 Foundation, one S102 per stack (§4.7). Reopens if the skeleton tasks turn out to need judgement rather than transcription.</div>
+    </div>
+    <div class="q-card resolved">
+      <div class="q-head"><span class="q-id">Q7</span><span class="q-decider">Resolved 2026-09-29</span></div>
+      <div class="q-body">Interview the developer, or plan from the D101?</div>
+      <div class="q-resolution"><strong>Decision:</strong> plan from the D101 and the repo, ask at most 5 front-loaded questions with defaults, stop once (§4.7). Reopens if runs regularly exhaust the five.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════ §10 ═════════ -->
+<section class="s" id="s10">
+  <h2 class="section-title"><span class="sec-ref">§10</span>References</h2>
+  <div class="refs">
+    <div class="refs-block">
+      <h4>Definitions</h4>
+      <ul>
+        <li>plugins/asimov-plugin/artifacts/documentation/s101-implementation-plan/s101-implementation-plan-definition.md</li>
+        <li>plugins/asimov-plugin/artifacts/documentation/s102-task-spec/s102-task-spec-definition.md</li>
+        <li>plugins/asimov-plugin/artifacts/documentation/d101-feature-design/d101-feature-design-definition.md</li>
+      </ul>
+    </div>
+    <div class="refs-block">
+      <h4>Docs</h4>
+      <ul>
+        <li>documentation/D100-Asimov-architecture.md §3, §9, §10 Q5</li>
+        <li>documentation/ai-transition-levels-and-zones.md (L3: Spec, Review vs. Spec, Test vs. Spec)</li>
+        <li>documentation/features/D101-d101-feature-design.html</li>
+        <li>documentation/features/D101-subagents.html</li>
+      </ul>
+    </div>
+    <div class="refs-block">
+      <h4>Research</h4>
+      <ul>
+        <li>documentation/research/S101-S102-spec-stage-research.md §5–§7</li>
+        <li>documentation/research/L3-spec-format-research.md</li>
+      </ul>
+    </div>
+    <div class="refs-block">
+      <h4>Diagrams</h4>
+      <ul>
+        <li>plugins/asimov-plugin/resources/diagrams/activity-swimlane-template.svg</li>
+        <li>plugins/asimov-plugin/resources/diagrams/flowchart-template.svg</li>
+        <li>plugins/asimov-plugin/resources/diagrams/state-machine-template.svg</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+  </article>
+</div>
+
+<footer class="site-footer">
+  <div>
+    <a href="../index.html">← Documentation home</a>
+    · <span class="mono">features/D101-spec-stage.html</span>
+  </div>
+  <div style="margin-top: 0.4rem">
+    D101 · Spec stage · Asimov plugin · Draft v0.2 · 2026-09-29
+  </div>
+</footer>
+
+</body>
+</html>
