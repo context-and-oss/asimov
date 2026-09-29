@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D101 — Codex support — asimov docs</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+:root {
+  --bg:        #0a1424;
+  --bg2:       #122039;
+  --bg3:       #1b2e4d;
+  --bg-card:   #14253f;
+  --border:    #2b4a73;
+  --border-2:  #3b5e8f;
+  --text:      #fff;
+  --text-dim:  #a8b8d0;
+  --text-mute: #6b7a93;
+  --cyan:      #4fc3f7;
+  --teal:      #26c6da;
+  --green:     #66bb6a;
+  --amber:     #ffb74d;
+  --coral:     #ef5350;
+  --gold:      #ffd54f;
+  --violet:    #ab47bc;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; font-size: 15px; line-height: 1.6; overflow-x: hidden; padding-top: 56px; }
+a { color: inherit; text-decoration: none; }
+code, .mono { font-family: 'JetBrains Mono', monospace; font-size: 0.88em; }
+code { background: var(--bg3); padding: 1px 6px; border-radius: 4px; color: var(--cyan); }
+
+/* Top nav (site-wide — every D101 links to documentation home + chapter sections of the index) */
+.top-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(10,20,36,0.85); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 0.55rem 2rem; display: flex; gap: 1.4rem; align-items: center; font-size: 0.82rem; }
+.top-nav .brand, .top-nav .brand a { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--cyan); letter-spacing: 0.04em; text-decoration: none; }
+.top-nav .brand .sep { color: var(--border); margin: 0 0.5rem; }
+.top-nav a { color: var(--text-dim); font-weight: 500; }
+.top-nav a:hover { color: #fff; }
+.top-nav .spacer { flex: 1; }
+.top-nav .status-chip { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.25rem 0.7rem; border-radius: 999px; background: #ffd54f15; border: 1px solid #ffd54f44; color: var(--gold); font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 700; }
+.top-nav .status-chip::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--gold); }
+/* Phase chip — the authoring axis, deliberately NOT the status axis (see ground rule 12).
+   Square marker + cyan so the two chips never read as one control. */
+.top-nav .phase-chip { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.25rem 0.7rem; border-radius: 999px; background: #4fc3f715; border: 1px solid #4fc3f744; color: var(--cyan); font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 700; }
+.top-nav .phase-chip::before { content: ''; width: 6px; height: 6px; border-radius: 1px; background: var(--cyan); }
+.top-nav .phase-chip.full { background: #66bb6a15; border-color: #66bb6a44; color: var(--green); }
+.top-nav .phase-chip.full::before { background: var(--green); }
+
+/* Layout with left sidebar (per-page TOC) + content column */
+.layout-doc { display: grid; grid-template-columns: 200px minmax(0, 1fr); max-width: 1300px; margin: 0 auto; gap: 1.8rem; padding: 0.5rem 1.5rem; }
+.side-nav { position: sticky; top: 76px; align-self: start; max-height: calc(100vh - 90px); overflow-y: auto; padding: 0.7rem 0.5rem 1rem 0.2rem; font-size: 0.85rem; }
+.side-nav .side-head { font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-mute); margin-bottom: 0.7rem; padding-left: 0.6rem; }
+.side-nav ul { list-style: none; padding: 0; margin: 0; }
+.side-nav ul ul { padding-left: 0.9rem; margin-top: 0.1rem; }
+.side-nav li { margin: 0.1rem 0; }
+.side-nav a { display: block; padding: 0.32rem 0.7rem; color: var(--text-dim); border-left: 2px solid transparent; font-size: 0.86rem; line-height: 1.4; border-radius: 0 4px 4px 0; }
+.side-nav a:hover { color: #fff; background: #4fc3f708; border-left-color: var(--border-2); }
+.content { min-width: 0; }
+
+/* Hero (compact — top-nav already provides separation from page chrome) */
+.hero { padding: 1.5rem 2rem 1.5rem; position: relative; overflow: hidden; max-width: 1300px; margin: 0 auto; }
+.hero::before { content: ''; position: absolute; inset: 0; z-index: 0; background: radial-gradient(ellipse at 20% 30%, #4fc3f718 0%, transparent 50%), radial-gradient(ellipse at 80% 60%, #26c6da14 0%, transparent 50%); }
+.hero > * { position: relative; z-index: 1; }
+.kicker { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--cyan); padding: 0.3rem 0.8rem; border-radius: 999px; border: 1px solid #4fc3f744; background: #4fc3f711; margin-bottom: 1rem; }
+.hero h1 { font-size: clamp(2rem, 4.5vw, 3.4rem); font-weight: 900; letter-spacing: -0.03em; line-height: 1.05; background: linear-gradient(135deg, #fff 0%, var(--cyan) 50%, var(--teal) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.hero .tagline { font-size: 1.05rem; color: var(--text-dim); margin-top: 1rem; max-width: 760px; line-height: 1.6; }
+
+/* Metadata strip */
+.meta-strip { max-width: 1300px; margin: 1rem auto 0; padding: 0 2rem; display: grid; grid-template-columns: repeat(6, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.meta-cell { background: var(--bg-card); padding: 1rem 1.2rem; }
+.meta-cell .label { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-mute); margin-bottom: 0.35rem; }
+.meta-cell .value { font-size: 0.95rem; font-weight: 600; color: var(--text); }
+.meta-cell .value.mono { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; }
+
+/* Sections + chapter bands */
+section.s { max-width: 1300px; margin: 0 auto; padding: 3rem 2rem 0; }
+.chapter-band + section.s { padding-top: 1.5rem; }
+.section-title { font-size: clamp(1.5rem, 2.6vw, 2rem); font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.7rem; }
+.section-title .sec-ref { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; font-weight: 600; color: var(--text-mute); letter-spacing: 0.04em; margin-right: 0.7rem; vertical-align: middle; padding: 0.2rem 0.5rem; border-radius: 4px; background: var(--bg2); border: 1px solid var(--border); }
+.section-desc { color: var(--text-dim); font-size: 1rem; max-width: 780px; margin-bottom: 1.8rem; line-height: 1.65; }
+.chapter-band { max-width: 1300px; margin: 3.5rem auto 0; padding: 0 2rem; }
+.chapter-band-inner { display: grid; grid-template-columns: auto 1fr; gap: 1.5rem; align-items: center; padding: 1.4rem 1.8rem; border-radius: 12px; background: linear-gradient(135deg, #4fc3f714 0%, #26c6da05 100%); border: 1px solid var(--border); border-left: 4px solid var(--cyan); }
+.chapter-band .ch-num { font-family: 'JetBrains Mono', monospace; font-size: 2.6rem; font-weight: 800; color: var(--cyan); line-height: 1; }
+.chapter-band .ch-name { font-size: 1.35rem; font-weight: 700; color: #fff; letter-spacing: 0.01em; margin-bottom: 0.25rem; }
+.chapter-band .ch-summary { font-size: 0.88rem; color: var(--text-dim); line-height: 1.5; }
+
+/* Doc-scope line below metadata strip */
+.doc-scope { max-width: 1300px; margin: 0.7rem auto 0; padding: 0 2.2rem; font-size: 0.82rem; color: var(--text-mute); line-height: 1.5; }
+.doc-scope strong { color: var(--text-dim); font-weight: 600; }
+
+/* Principles */
+.principles { display: grid; gap: 0.65rem; }
+.principle { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 0.95rem 1.3rem; display: flex; gap: 1rem; align-items: center; }
+.principle .num { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; font-weight: 700; width: 30px; height: 30px; border-radius: 8px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--cyan), var(--teal)); color: #0a1424; }
+.principle .text { font-size: 0.95rem; }
+.principle .text strong { color: var(--cyan); font-weight: 700; }
+
+/* Generic bullet list — used anywhere with → / ⚠ items */
+ul.bullets { list-style: none; padding: 0; margin: 0.7rem 0 0; }
+ul.bullets li { position: relative; padding: 0.3rem 0 0.3rem 1.5rem; font-size: 0.9rem; color: var(--text-dim); line-height: 1.6; }
+ul.bullets li + li { margin-top: 0.15rem; }
+ul.bullets li::before { content: '→'; position: absolute; left: 0; top: 0.3rem; font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--cyan); }
+ul.bullets li.warn::before { content: '!'; color: var(--amber); }
+ul.bullets li code { font-size: 0.78rem; }
+
+/* Requirements — flat lists (Functional / Non-functional / Out of scope), all visible, no tabs */
+.req-list { display: grid; gap: 0.5rem; margin-bottom: 1.6rem; }
+.req-list:last-child { margin-bottom: 0; }
+.req { display: grid; grid-template-columns: 60px 1fr; gap: 1rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 0.7rem 1rem; align-items: start; }
+.req .id { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; font-weight: 700; color: var(--cyan); padding-top: 2px; }
+.req .body { font-size: 0.9rem; color: var(--text); line-height: 1.55; }
+.req.oos .id, .req-list.nf .req .id { color: var(--amber); }
+
+/* Data flow SVG diagram */
+.flow-wrap { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.8rem; overflow-x: auto; }
+.flow-wrap svg { display: block; margin: 0 auto; max-width: 100%; height: auto; }
+.flow-legend { display: flex; flex-wrap: wrap; gap: 1.2rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); font-size: 0.82rem; color: var(--text-dim); }
+.flow-legend .item { display: inline-flex; align-items: center; gap: 0.4rem; }
+.flow-legend .swatch { width: 14px; height: 4px; border-radius: 2px; }
+
+/* Interactive UI mockup (embedded via iframe; the mockup file is separate + self-contained) */
+.mockup-wrap { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 0.5rem; margin: 0.6rem 0 1rem; overflow: hidden; }
+.mockup-frame { display: block; width: 100%; border: none; border-radius: 8px; background: #fff; }
+
+/* Code map */
+.codemap { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.codemap-row { display: grid; grid-template-columns: 1fr 1.5fr; gap: 1rem; padding: 0.7rem 1.2rem; border-bottom: 1px solid var(--border); font-size: 0.85rem; align-items: center; }
+.codemap-row:last-child { border-bottom: none; }
+.codemap-row:nth-child(odd) { background: rgba(255,255,255,0.015); }
+.codemap-row .what { color: var(--text); }
+.codemap-row .where { color: var(--cyan); font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; word-break: break-all; }
+
+/* Decisions matrix */
+.decisions { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.decisions-head, .decision-row { display: grid; grid-template-columns: 1.2fr 1fr 1.4fr; gap: 1rem; padding: 0.9rem 1.2rem; align-items: start; border-bottom: 1px solid var(--border); }
+.decisions-head { background: var(--bg2); font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); }
+.decision-row { font-size: 0.85rem; }
+.decision-row:last-child { border-bottom: none; }
+.decision-row .decided { color: #fff; font-weight: 600; }
+.decision-row .alt { color: var(--amber); font-style: italic; font-size: 0.82rem; line-height: 1.5; }
+.decision-row .why { color: var(--text-dim); font-size: 0.82rem; line-height: 1.55; }
+
+/* Generic data table (Shapes §6.4, Configuration §6.6) */
+.data-table { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.data-table .row { display: grid; gap: 1rem; padding: 0.65rem 1.2rem; border-bottom: 1px solid var(--border); font-size: 0.85rem; align-items: start; }
+.data-table .row.head { background: var(--bg2); font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); font-weight: 700; }
+.data-table .row:last-child { border-bottom: none; }
+.data-table .row.cols-2 { grid-template-columns: 1fr 2fr; }
+.data-table .row.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+.data-table .row code { font-size: 0.78rem; }
+.data-table .row .label-cell { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; color: var(--cyan); }
+
+/* Inline-path list (Shapes §6.4) */
+.gps-paths { list-style: none; padding: 0.7rem 0 0; margin: 0; display: grid; gap: 0.4rem; }
+.gps-paths li { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--cyan); background: var(--bg2); border: 1px solid var(--border); border-radius: 6px; padding: 0.45rem 0.8rem; }
+
+/* Sub-section heading (Shapes has multiple sub-blocks) */
+.subhead { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-dim); font-weight: 700; margin: 1.5rem 0 0.6rem; }
+.subhead:first-child { margin-top: 0; }
+/* Anchored subhead (§7 per-unit blocks key to §6 contracts by number) — scroll-margin clears the fixed nav */
+.subhead[id] { scroll-margin-top: 80px; }
+.subhead .s-ref { color: var(--text-mute); margin-right: 0.45rem; }
+/* Implementation label under a §6 contract (§7 build notes) — lighter sibling of .subhead */
+.impl-head { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); font-weight: 700; margin: 1rem 0 0.3rem; }
+
+/* Build-status chip on §7 implementation rows (reuse / new / note) */
+.tag { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+.tag.reuse { background: #66bb6a22; color: var(--green); border: 1px solid #66bb6a55; }
+.tag.new   { background: #ffb74d22; color: var(--amber); border: 1px solid #ffb74d55; }
+.tag.note  { background: var(--bg2); color: var(--text-mute); border: 1px solid var(--border); }
+/* Per-unit build-notes table (§7.x) — a .data-table variant: Aspect | Build tag | Details-with-bullets */
+.impl-table .row { grid-template-columns: 0.5fr 0.45fr 2.75fr; }
+.impl-table .row ul { list-style: disc; margin: 0; padding-left: 1.05rem; display: grid; gap: 0.35rem; }
+.impl-table .row li { line-height: 1.5; }
+
+/* Failure handling */
+.failures { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.failures-head, .failure-row { display: grid; grid-template-columns: 1fr 1fr 80px 1.2fr; gap: 1rem; padding: 0.85rem 1.2rem; align-items: center; border-bottom: 1px solid var(--border); }
+.failures-head { background: var(--bg2); font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); }
+.failure-row { font-size: 0.85rem; }
+.failure-row:last-child { border-bottom: none; }
+.sev { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; font-weight: 700; padding: 0.2rem 0.55rem; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.06em; }
+.sev.med  { background: #ffb74d22; color: var(--amber); border: 1px solid #ffb74d55; }
+.sev.low  { background: #66bb6a22; color: var(--green); border: 1px solid #66bb6a55; }
+.sev.high { background: #ef535022; color: var(--coral); border: 1px solid #ef535055; }
+
+/* Acceptance criteria */
+.ac-table { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.ac-head, .ac-row { display: grid; grid-template-columns: 60px 150px 1fr; gap: 1rem; padding: 0.8rem 1.2rem; align-items: start; border-bottom: 1px solid var(--border); }
+.ac-head { background: var(--bg2); font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); }
+.ac-row { font-size: 0.86rem; }
+.ac-row:last-child { border-bottom: none; }
+.ac-row .ac-id { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--cyan); }
+.ac-row .ac-verifies { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+.verify-chip { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; padding: 0.15rem 0.5rem; border-radius: 4px; background: #4fc3f714; border: 1px solid #4fc3f744; color: var(--cyan); }
+
+/* Open questions — auto-fit */
+.q-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 0.7rem; }
+.q-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.2rem; border-left: 3px solid var(--gold); }
+.q-card .q-head { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
+.q-card .q-id { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; color: var(--gold); background: #ffd54f15; padding: 0.15rem 0.5rem; border-radius: 4px; }
+.q-card .q-decider { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--text-mute); }
+.q-card .q-body { font-size: 0.88rem; color: var(--text); line-height: 1.55; }
+
+/* Accepted deviation (d101-feature-design-definition §4.9) — a rule deliberately not met, recorded next to the
+   thing it excuses. Sits INSIDE the element it annotates (.req, .ac-row, after a .subhead).
+   Violet, so it reads as neither a warning (amber) nor a pass (green): a deliberate third state. */
+.accepted { margin-top: 0.5rem; padding: 0.5rem 0.7rem; border-left: 3px solid var(--violet); border-radius: 0 6px 6px 0; background: #ab47bc12; font-size: 0.82rem; color: var(--text-dim); line-height: 1.55; }
+.accepted .accepted-tag { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--violet); background: #ab47bc22; border: 1px solid #ab47bc55; border-radius: 4px; padding: 0.1rem 0.45rem; margin-right: 0.45rem; }
+.accepted .accepted-rule { color: var(--text); font-weight: 600; }
+.accepted .accepted-by { display: block; margin-top: 0.3rem; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--text-mute); }
+/* Resolution path (required by d101-feature-design-definition §4.3 — every open question names a decider AND a
+   resolution path) and the resolved variant, for questions closed during authoring. */
+.q-card .q-resolution { font-size: 0.82rem; color: var(--text-dim); line-height: 1.5; margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--border); }
+.q-card .q-resolution strong { color: var(--green); }
+.q-card.resolved { border-left-color: var(--green); }
+.q-card.resolved .q-id { color: var(--green); background: #66bb6a15; }
+
+/* References — auto-fit */
+.refs { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+.refs-block { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 1.1rem 1.3rem; }
+.refs-block h4 { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--cyan); margin-bottom: 0.7rem; }
+.refs-block ul { list-style: none; }
+.refs-block li { font-family: 'JetBrains Mono', monospace; font-size: 0.76rem; color: var(--text-dim); padding: 0.2rem 0; line-height: 1.5; word-break: break-all; }
+
+/* Callouts */
+.callout { background: linear-gradient(135deg, #4fc3f712, #26c6da08); border: 1px solid #4fc3f744; border-radius: 10px; padding: 1rem 1.3rem; margin: 1.2rem 0; font-size: 0.9rem; color: var(--text-dim); line-height: 1.6; }
+.callout strong { color: var(--cyan); }
+.callout.warn { background: linear-gradient(135deg, #ffd54f15, #ff890608); border-color: #ffd54f55; }
+.callout.warn strong { color: var(--gold); }
+
+footer.site-footer { max-width: 1300px; margin: 4rem auto 0; padding: 2rem; border-top: 1px solid var(--border); text-align: center; color: var(--text-mute); font-size: 0.82rem; line-height: 1.7; }
+footer.site-footer .mono { color: var(--text-dim); font-family: 'JetBrains Mono', monospace; }
+footer.site-footer a { color: var(--cyan); }
+
+@media (max-width: 1100px) {
+  .meta-strip { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 900px) {
+  .layout-doc { grid-template-columns: 1fr; gap: 1rem; padding: 1rem 1.2rem; }
+  .side-nav { position: static; max-height: none; overflow: visible; border: 1px solid var(--border); border-radius: 8px; padding: 1rem; background: var(--bg-card); }
+}
+@media (max-width: 720px) {
+  .top-nav { overflow-x: auto; padding: 0.55rem 1rem; gap: 1rem; }
+  .top-nav .spacer { display: none; }
+  .hero { padding: 1.2rem 1.2rem 1rem; }
+  section.s { padding: 2.5rem 1.2rem 0; }
+  .meta-strip { grid-template-columns: repeat(2, 1fr); margin: 1rem 1.2rem 0; }
+  .chapter-band { padding: 0 1.2rem; margin-top: 3rem; }
+  .chapter-band-inner { grid-template-columns: 1fr; gap: 0.5rem; padding: 1.2rem 1.4rem; }
+  .chapter-band .ch-num { font-size: 2rem; }
+  .decisions-head, .decision-row { grid-template-columns: 1fr; gap: 0.4rem; }
+  .failures-head, .failure-row { grid-template-columns: 1fr; }
+  .ac-head, .ac-row { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <span class="brand"><a href="../index.html">asimov<span class="sep">/</span>docs</a></span>
+  <a href="../index.html#s1">Architecture</a>
+  <a href="../index.html#s2">Features</a>
+  <a href="../index.html#s3">Environments</a>
+  <a href="../index.html#s4">Conventions</a>
+  <a href="../index.html#s5">Reference</a>
+  <a href="../index.html#s6">Diagrams</a>
+  <span class="spacer"></span>
+  <span class="phase-chip">Business design</span>
+  <span class="status-chip draft">Draft v0.1</span>
+</nav>
+
+<div class="layout-doc">
+  <aside class="side-nav">
+    <div class="side-head">On this page</div>
+    <ul>
+      <li><a href="#s2">§2 Why this exists</a></li>
+      <li><a href="#s3">§3 Requirements</a></li>
+      <li><a href="#c4">§4 Business design</a>
+        <ul>
+          <li><a href="#s4-1">§4.1 Principles</a></li>
+          <li><a href="#s4-2">§4.2 Concepts</a></li>
+          <li><a href="#s4-3">§4.3 What a developer sees</a></li>
+          <li><a href="#s4-4">§4.4 Rules</a></li>
+          <li><a href="#s4-5">§4.5 Decisions</a></li>
+        </ul>
+      </li>
+      <li><a href="#s5">§5 UI Design</a></li>
+      <li><a href="#s6-open">§6 Still to write</a></li>
+      <li><a href="#s7-pending">§7 Implementation</a></li>
+      <li><a href="#s8">§8 Acceptance</a></li>
+      <li><a href="#s9">§9 Open questions</a></li>
+      <li><a href="#s10">§10 References</a></li>
+    </ul>
+  </aside>
+
+  <article class="content">
+
+<header class="hero">
+  <div class="kicker">D101 · Feature design · asimov-plugin</div>
+  <h1>Codex support</h1>
+  <p class="tagline">Asimov's method is tool-independent, but the plugin runs only in Claude Code, so a team member on Codex cannot use it. This design adds Codex as a second tool with the smallest change that works: one plugin folder both tools install, the method held once in skills, a thin agent shell per tool, and no model named anywhere.</p>
+</header>
+
+<div class="meta-strip">
+  <div class="meta-cell"><div class="label">Owner</div><div class="value">cka</div></div>
+  <div class="meta-cell"><div class="label">Business approver</div><div class="value">cka</div></div>
+  <div class="meta-cell"><div class="label">Tools</div><div class="value mono">Claude Code · Codex</div></div>
+  <div class="meta-cell"><div class="label">Plugin shape</div><div class="value mono">1 folder · 2 manifests</div></div>
+  <div class="meta-cell"><div class="label">Last updated</div><div class="value mono">2026-09-29</div></div>
+  <div class="meta-cell"><div class="label">Compatibility</div><div class="value">Existing Claude Code installs unchanged</div></div>
+</div>
+
+<div class="doc-scope">
+  <strong>Scope:</strong> the Asimov plugin (<code>plugins/asimov-plugin</code>) and the repository files that make it installable in Codex alongside Claude Code — the manifests, the skills, the agent shells, <code>/asimov-init</code> and the README. Not in scope: the update flow, CI checks, model routing and anything not needed for Codex to work (§3). §2–§5 are the business agreement; §6 is open — see §6.
+</div>
+
+<!-- ═════════════════════ §2 ═════════════════════ -->
+<section class="s" id="s2">
+  <h2 class="section-title"><span class="sec-ref">§2</span>Why this exists</h2>
+  <p class="section-desc">Asimov's method is tool-independent, but the plugin is Claude Code-only, so a team member on Codex cannot use it at all.</p>
+  <ul class="bullets">
+    <li><strong>The design flow stops at the tool boundary.</strong> A Codex user can read a D101 but cannot author or review one against the bar.</li>
+    <li><strong>No subagents in Codex.</strong> Giskard, Daneel, Calvin and Baley, and the delegation flow in the Asimov context, exist only for Claude Code.</li>
+    <li><strong>Nothing in the plugin can be picked up as it stands.</strong> It pins Claude model names and Claude-only file paths.</li>
+    <li><strong>The first attempt was too heavy.</strong> A generator and a tool-neutral source tree were judged more than the project wants to maintain; the change must be the minimal one.</li>
+  </ul>
+  <div class="callout">
+    <strong>Audience.</strong> Toolkit maintainers, who build it; developers on either tool, who install and use it; team leads, who need to know what parity between the two tools means.
+  </div>
+</section>
+
+<!-- ═════════════════════ §3 ═════════════════════ -->
+<section class="s" id="s3">
+  <h2 class="section-title"><span class="sec-ref">§3</span>Requirements</h2>
+
+  <div class="subhead">Functional — 11</div>
+  <div class="req-list">
+    <div class="req"><div class="id">R1</div><div class="body">A developer installs Asimov in Codex from the same repository as in Claude Code, through Codex's own plugin marketplace mechanism.</div></div>
+    <div class="req"><div class="id">R2</div><div class="body">Every skill Asimov ships — today's six commands and the three standard personas — is invocable in Codex under the same name as in Claude Code.</div></div>
+    <div class="req"><div class="id">R3</div><div class="body">An entry point that is a user's decision (<code>asimov-init</code>) cannot be invoked by the model on its own, in either tool.</div></div>
+    <div class="req"><div class="id">R4</div><div class="body">The four subagents can be delegated to by name in Codex, with the same method as in Claude Code.</div></div>
+    <div class="req"><div class="id">R5</div><div class="body">A subagent's method is authored once and shared by both tools; only the per-tool shell differs.</div></div>
+    <div class="req"><div class="id">R6</div><div class="body">The toolkit names no model: agents and skills run on the model the session runs on, in both tools.</div></div>
+    <div class="req"><div class="id">R7</div><div class="body"><code>/asimov-init</code> wires a product repo for both tools in one run, from whichever tool it is run in: the Asimov context reaches both, and the Codex subagents land in the repo.</div></div>
+    <div class="req"><div class="id">R8</div><div class="body">A custom persona authored with <code>/persona-new</code> is invocable in both tools.</div></div>
+    <div class="req"><div class="id">R9</div><div class="body">Every skill that writes files writes UTF-8 in both tools.</div></div>
+    <div class="req"><div class="id">R10</div><div class="body">Every file a skill reads from the plugin resolves in both tools.</div></div>
+    <div class="req"><div class="id">R11</div><div class="body">The README states how to install, update and use Asimov in each tool, and what a user must do after a plugin update.</div></div>
+  </div>
+
+  <div class="subhead">Non-functional — 4</div>
+  <div class="req-list nf">
+    <div class="req"><div class="id">NF1</div><div class="body">No build or generation step: the plugin folder in the repository is what both tools install.</div></div>
+    <div class="req"><div class="id">NF2</div><div class="body">Existing Claude Code installs keep working unchanged: same plugin name, same path, same <code>/name</code> entry points.</div></div>
+    <div class="req"><div class="id">NF3</div><div class="body">Every skill has the same two-file shape: a minimal <code>SKILL.md</code> (frontmatter, invocation flags, and the instruction to read <code>method.md</code>) and a <code>method.md</code> holding the method; <code>SKILL.md</code> stays under 8 kB.</div></div>
+    <div class="req"><div class="id">NF4</div><div class="body">A capability ships only when it works in both tools; an asymmetry is a documented known limitation.</div></div>
+  </div>
+
+  <div class="subhead">Out of scope — 8</div>
+  <div class="req-list">
+    <div class="req oos"><div class="id">OOS1</div><div class="body">A session-start notice that a newer plugin exists — deferred 2026-09-29 to the update-flow task; the README carries the guidance.</div></div>
+    <div class="req oos"><div class="id">OOS2</div><div class="body">CI checks for drift between the two tools' files — a separate issue after this task; checks live where the files live.</div></div>
+    <div class="req oos"><div class="id">OOS3</div><div class="body">Model routing by written criteria and the delegation log — proposal #7, which waits for this to land.</div></div>
+    <div class="req oos"><div class="id">OOS4</div><div class="body">The Codex IDE extension — Codex plugins are not available there; a tool limitation, recorded in the README.</div></div>
+    <div class="req oos"><div class="id">OOS5</div><div class="body">The small-tier twin of the .NET builder — dropped (#6 closed); with inherited models the choice is the session's.</div></div>
+    <div class="req oos"><div class="id">OOS6</div><div class="body">Updating the plugin itself from inside a session — each tool's own marketplace command does that, and a running session keeps the version it started with.</div></div>
+    <div class="req oos"><div class="id">OOS7</div><div class="body">A CI check inside product repos of the mirrored files — optional for teams, backlog.</div></div>
+    <div class="req oos"><div class="id">OOS8</div><div class="body">The update flow — <code>/asimov-update</code> and the session-start hook — its own task; until then a changed agent shell reaches a repo by running <code>/asimov-init</code> again, which the README says.</div></div>
+  </div>
+</section>
+
+<!-- ═════════════════════ §4 ═════════════════════ -->
+<div class="chapter-band" id="c4">
+  <div class="chapter-band-inner">
+    <div class="ch-num">4</div>
+    <div>
+      <div class="ch-name">Business design</div>
+      <div class="ch-summary">The principles, the vocabulary, what a developer sees in each tool, the rules that keep the two tools in step, and the decisions with the alternatives they ruled out.</div>
+    </div>
+  </div>
+</div>
+
+<section class="s" id="s4-1">
+  <h2 class="section-title"><span class="sec-ref">§4.1</span>Principles</h2>
+  <div class="principles">
+    <div class="principle"><div class="num">1</div><div class="text"><strong>One toolkit, two tools.</strong> A developer picks the tool; the team shares one method. A capability counts as shipped only when it works in both (NF4).</div></div>
+    <div class="principle"><div class="num">2</div><div class="text"><strong>Minimal change.</strong> What exists for Claude Code stays as it is; Codex is added beside it, never by rebuilding. No build step, no generated tree.</div></div>
+    <div class="principle"><div class="num">3</div><div class="text"><strong>The method lives once, in skills.</strong> A tool gets only the thin adapter it needs — a manifest, an agent shell — and the adapter carries no method text.</div></div>
+    <div class="principle"><div class="num">4</div><div class="text"><strong>Follow established practice.</strong> Do what the multi-tool add-ons already do (Superpowers: one plugin folder, an explicit manifest per tool); never build on one tool tolerating another tool's files.</div></div>
+    <div class="principle"><div class="num">5</div><div class="text"><strong>The toolkit names no model.</strong> Agents and skills run on the model the session runs on; a model choice is the user's or the session's, never the plugin's.</div></div>
+    <div class="principle"><div class="num">6</div><div class="text"><strong>User decisions stay user decisions.</strong> Setting up a repo for Asimov is never the model's call, in either tool.</div></div>
+    <div class="principle"><div class="num">7</div><div class="text"><strong>Nothing after install or update is assumed.</strong> What a user must do — install, trust, re-run, restart — is written where they look, in the README, for each tool.</div></div>
+  </div>
+</section>
+
+<section class="s" id="s4-2">
+  <h2 class="section-title"><span class="sec-ref">§4.2</span>Concepts</h2>
+  <p class="section-desc">The words the rest of this document leans on; the split between what is shared and what is per tool is the load-bearing one.</p>
+  <div class="data-table">
+    <div class="row head cols-2"><div>Concept</div><div>What it means</div></div>
+    <div class="row cols-2"><div class="label-cell">Plugin</div><div>The one folder, <code>plugins/asimov-plugin</code>, that both tools install; nothing else ships.</div></div>
+    <div class="row cols-2"><div class="label-cell">Plugin manifest</div><div>The plugin's identity card — name, version, description — one small file per tool, both in the plugin folder.</div></div>
+    <div class="row cols-2"><div class="label-cell">Marketplace manifest</div><div>The repo-root file that tells a tool where the plugin is, one per tool; the two point at the same folder.</div></div>
+    <div class="row cols-2"><div class="label-cell">Skill</div><div>The unit of method both tools read: a folder with a minimal <code>SKILL.md</code> entry and a <code>method.md</code>; the only shared layer.</div></div>
+    <div class="row cols-2"><div class="label-cell">Entry-point skill</div><div>A skill the user invokes by name — today's six commands in their new form.</div></div>
+    <div class="row cols-2"><div class="label-cell">User-only skill</div><div>An entry-point skill the model may not invoke on its own; <code>asimov-init</code> is the only one today.</div></div>
+    <div class="row cols-2"><div class="label-cell">Role skill</div><div>The method of a subagent, run by the subagent's shell; must stay visible to the model.</div></div>
+    <div class="row cols-2"><div class="label-cell">Agent shell</div><div>The thin per-tool file that gives a subagent its name, description and the pointer to its role skill; a <code>.md</code> for Claude Code, a <code>.toml</code> for Codex, side by side in the plugin.</div></div>
+    <div class="row cols-2"><div class="label-cell">Delivery</div><div>The step that puts the Codex shells into a product repo (<code>.codex/agents/</code>), because a Codex plugin cannot carry agents; done by <code>/asimov-init</code>.</div></div>
+    <div class="row cols-2"><div class="label-cell">Asimov context</div><div>The team's working agreement and delegation flow: <code>asimov.md</code> imported by <code>CLAUDE.md</code> for Claude Code, the same text inline in an <code>AGENTS.md</code> managed region for Codex.</div></div>
+    <div class="row cols-2"><div class="label-cell">Custom persona</div><div>A project-specific reader skill written by <code>/persona-new</code> into the product repo, one copy in each tool's skills folder.</div></div>
+    <div class="row cols-2"><div class="label-cell">Version</div><div>The value in the plugin manifests that both tools use to notice an update; it changes whenever the plugin changes.</div></div>
+    <div class="row cols-2"><div class="label-cell">Parity</div><div>The rule that a capability ships only when it works in both tools; anything else is a documented known limitation.</div></div>
+  </div>
+</section>
+
+<section class="s" id="s4-3">
+  <h2 class="section-title"><span class="sec-ref">§4.3</span>What a developer sees, tool by tool</h2>
+  <p class="section-desc">Every point where a developer touches Asimov, with the one rule that governs it and what it looks like in each tool.</p>
+
+  <div class="subhead">Installing</div>
+  <p class="section-desc" style="margin-bottom:0.4rem"><em>"How do I get Asimov into my tool?"</em> — one repository, each tool's own marketplace command.</p>
+  <ul class="bullets">
+    <li>Claude Code: <code>/plugin marketplace add context-and-oss/asimov</code>, then <code>/plugin install asimov-plugin</code>.</li>
+    <li>Codex: <code>codex plugin marketplace add context-and-oss/asimov</code>, then <code>codex plugin add asimov-plugin@asimov-marketplace</code>.</li>
+    <li>Both: start a new session afterwards.</li>
+    <li class="warn">The plugin is not available in Codex's IDE extension (OOS4).</li>
+  </ul>
+
+  <div class="subhead">Invoking an entry point</div>
+  <p class="section-desc" style="margin-bottom:0.4rem"><em>"How do I run a command?"</em> — same name in both tools, invoked the way the tool invokes skills.</p>
+  <ul class="bullets">
+    <li>Claude Code: <code>/d101-review path/to/D101.html</code> (bare name, or <code>/asimov-plugin:d101-review</code>).</li>
+    <li>Codex: <code>$asimov-plugin:d101-review</code> followed by the path in the same prompt, or the <code>/skills</code> picker.</li>
+    <li>A skill that needs a target takes it from the prompt and asks when none is given.</li>
+  </ul>
+
+  <div class="subhead">User-only entry points</div>
+  <p class="section-desc" style="margin-bottom:0.4rem"><em>"Can the model set up my repo on its own?"</em> — no: <code>asimov-init</code> is never the model's choice.</p>
+  <ul class="bullets">
+    <li>Claude Code: absent from what the model can call; <code>/asimov-init</code> still works for the user.</li>
+    <li>Codex: absent from the model's skill list; the explicit <code>$asimov-plugin:asimov-init</code> still works.</li>
+  </ul>
+
+  <div class="subhead">Delegating to a subagent</div>
+  <p class="section-desc" style="margin-bottom:0.4rem"><em>"How does Giskard get my task?"</em> — the orchestrator delegates by name, following the delegation flow in the Asimov context; the agent runs on the session's model.</p>
+  <ul class="bullets">
+    <li>Claude Code: the four agents come with the plugin; nothing to set up beyond <code>/asimov-init</code>.</li>
+    <li>Codex: the four agents appear after <code>/asimov-init</code> has delivered them and the developer has marked the repo trusted; they load at the start of a session, so delivery is followed by a new session.</li>
+    <li>Same method in both: the agent opens its role skill and follows it.</li>
+  </ul>
+
+  <div class="subhead">Personas</div>
+  <p class="section-desc" style="margin-bottom:0.4rem"><em>"Who can read my design?"</em> — the three standard readers ship with the plugin in both tools; a custom reader written with <code>/persona-new</code> appears in both tools of the same repo.</p>
+  <ul class="bullets">
+    <li>Standard: <code>persona-poseidon</code>, <code>persona-athena</code>, <code>persona-hermes</code>, invoked like any skill.</li>
+    <li>Custom: one skill, written to both tools' skills folders in the product repo.</li>
+  </ul>
+
+  <div class="subhead">Setting up a repo</div>
+  <p class="section-desc" style="margin-bottom:0.4rem"><em>"What does init do for the tool I am not using?"</em> — <code>/asimov-init</code>, run from either tool, wires both.</p>
+  <ul class="bullets">
+    <li>Writes the Asimov context for Claude Code and for Codex, scaffolds the convention read-lists and the documentation site, and delivers the Codex shells.</li>
+    <li>Its report lists what was written and, for Codex, that the repo must be trusted and a new session started.</li>
+  </ul>
+
+  <div class="subhead">After a plugin update</div>
+  <p class="section-desc" style="margin-bottom:0.4rem"><em>"I updated the plugin — what now?"</em> — each tool's own refresh, then a new session; <code>/asimov-init</code> again only if the agent shells changed (R11).</p>
+  <ul class="bullets">
+    <li>Claude Code: <code>/plugin marketplace update asimov-marketplace</code>, then <code>/reload-plugins</code> or a new session.</li>
+    <li>Codex: <code>codex plugin marketplace upgrade asimov-marketplace</code>, then a new session.</li>
+  </ul>
+</section>
+
+<section class="s" id="s4-4">
+  <h2 class="section-title"><span class="sec-ref">§4.4</span>Rules</h2>
+  <p class="section-desc">Eight rules keep the two tools in step; each carries the case where it fires and the adjacent case where it does not.</p>
+
+  <div class="subhead">Parity rule</div>
+  <p class="section-desc" style="margin-bottom:0.4rem">A capability ships only when it works in both tools.</p>
+  <ul class="bullets">
+    <li>Fires: a new persona skill is added to the plugin → it is checked in Codex too before it is merged.</li>
+    <li>Does not fire: the Codex IDE extension cannot load plugins at all → recorded as a known limitation, not a blocker.</li>
+  </ul>
+
+  <div class="subhead">User-only rule</div>
+  <p class="section-desc" style="margin-bottom:0.4rem">An entry point that is a user's decision is closed to the model in both tools.</p>
+  <ul class="bullets">
+    <li>Fires: <code>asimov-init</code> writes into the repo on the user's behalf → the model can never start it.</li>
+    <li>Does not fire: <code>d101-review</code> → the model may run it when the user asks for a review in plain words; the user just as often types it.</li>
+  </ul>
+
+  <div class="subhead">Role-skill rule</div>
+  <p class="section-desc" style="margin-bottom:0.4rem">A role skill is run only by its agent shell; the orchestrator delegates to the agent and never runs the role skill itself. Entry-point skills are the user's to invoke in the session.</p>
+  <ul class="bullets">
+    <li>Fires: a <code>.cs</code> task arrives in the session → delegated to Giskard, not answered by opening <code>role-dotnet-builder</code>.</li>
+    <li>Does not fire: the user runs <code>/asimov-init</code> → an entry-point skill, invoked in the session as intended.</li>
+    <li class="warn">Neither tool can enforce this technically — role skills must stay visible so the shells can reach them — so the rule lives in the Asimov context, next to the delegation flow.</li>
+  </ul>
+
+  <div class="subhead">Thin-shell rule</div>
+  <p class="section-desc" style="margin-bottom:0.4rem">An agent shell carries name, description and the pointer to its role skill — never method text.</p>
+  <ul class="bullets">
+    <li>Fires: a wording fix to how Giskard cites conventions → changed in the role skill only; both shells stay untouched.</li>
+    <li>Does not fire: the description sentence that tells the orchestrator when to pick Giskard → it lives in the shell, because it is routing, not method.</li>
+  </ul>
+
+  <div class="subhead">No-model rule</div>
+  <p class="section-desc" style="margin-bottom:0.4rem">Nothing in the plugin names a model; agents and skills run on the session's model.</p>
+  <ul class="bullets">
+    <li>Fires: an agent shell would pin a model → removed; the shell inherits.</li>
+    <li>Does not fire: a developer starts their session on a smaller model → their choice, and the agents follow it.</li>
+  </ul>
+
+  <div class="subhead">Two-file skill rule</div>
+  <p class="section-desc" style="margin-bottom:0.4rem">Every skill is a minimal <code>SKILL.md</code> that points at <code>method.md</code>.</p>
+  <ul class="bullets">
+    <li>Fires: <code>artifact-d101-authoring</code> at 13.7 kB → the method moves to <code>method.md</code>, the entry shrinks to frontmatter plus the pointer.</li>
+    <li>Does not fire: <code>persona-hermes</code> at 3 kB → still split; the shape is the same for every skill, size or not.</li>
+  </ul>
+
+  <div class="subhead">Source-and-mirror rule</div>
+  <p class="section-desc" style="margin-bottom:0.4rem">Every file that exists once per tool has one source; the other copy is a mirror.</p>
+  <ul class="bullets">
+    <li>Fires: a custom persona is edited in <code>.claude/skills/</code> → <code>/persona-new</code> re-run (or the later update flow) refreshes <code>.agents/skills/</code>.</li>
+    <li>Does not fire: someone edits the <code>.agents/skills/</code> copy directly → that is drift, not a new source; the Claude copy wins on the next sync.</li>
+  </ul>
+
+  <div class="subhead">Version rule</div>
+  <p class="section-desc" style="margin-bottom:0.4rem">The plugin's version changes in the same change that alters anything under the plugin folder.</p>
+  <ul class="bullets">
+    <li>Fires: a role skill's <code>method.md</code> is corrected → version bumps, so both tools offer the update.</li>
+    <li>Does not fire: a D101 under <code>documentation/</code> is edited → nothing in the plugin moved; no bump.</li>
+  </ul>
+</section>
+
+<section class="s" id="s4-5">
+  <h2 class="section-title"><span class="sec-ref">§4.5</span>Decisions</h2>
+  <p class="section-desc">A decision recorded without its rejected alternative is one that gets re-litigated.</p>
+  <div class="decisions">
+    <div class="decisions-head">
+      <div>Decided</div>
+      <div>Alternative considered</div>
+      <div>Why rejected</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided">One plugin folder with an explicit manifest per tool, hand-written.</div>
+      <div class="alt">Rely on Codex reading the Claude manifests (it can).</div>
+      <div class="why">Established practice (Superpowers ships both); the fallback is tolerated, not recommended, and could change under us.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided">No generator, no tool-neutral source tree; the folder in the repo is what ships.</div>
+      <div class="alt">The earlier design: a neutral source tree, a generator, a plugin per tool on release tags.</div>
+      <div class="why">Judged too heavy for the project; a build step is a second thing to maintain and a second way to drift.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided">Commands become skills; <code>commands/</code> is retired.</div>
+      <div class="alt">Keep <code>commands/</code> and let Codex migrate them at install.</div>
+      <div class="why">Codex drops anything over 4 kB silently (five of six today); skills are the successor in both tools anyway.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided">Every skill is <code>SKILL.md</code> + <code>method.md</code>.</div>
+      <div class="alt">Split only the skills over 8 kB.</div>
+      <div class="why">One shape for all is checkable by a rule; a size-triggered split is a surprise waiting for the next edit.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided">Agents inherit the session's model in both tools.</div>
+      <div class="alt">Pin a model per tool; or the retired tier/effort mapping.</div>
+      <div class="why">The toolkit names no model (#7's direction); a Codex pin would be an organisation's deployment name, not a toolkit fact.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided">Codex agents are thin TOML shells delivered into the repo by <code>/asimov-init</code> and spawned by name.</div>
+      <div class="alt">No Codex shells: the orchestrator spawns a generic agent and hands it the role skill.</div>
+      <div class="why">Named agents mirror the Claude shape, carry the routing description and Baley's read-only sandbox; the generic spawn stays the documented fallback.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided">Method reaches a shell by pointer: a preload in Claude Code, an instruction to run the role skill in Codex.</div>
+      <div class="alt">Copy the method into each shell.</div>
+      <div class="why">One method text; the shells never carry it (thin-shell rule).</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided">Plugin files are referenced relative to the skill folder.</div>
+      <div class="alt">Keep the Claude Code path variable.</div>
+      <div class="why">The variable is Claude-only; both tools tell a skill where it lives.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided">A custom persona is written to both tools' skills folders; the Claude copy is the source.</div>
+      <div class="alt">One folder both tools read.</div>
+      <div class="why">No such folder exists; a copy with a named source is the simplest thing that works.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided">Drift between toolkit files is checked in CI; product-repo mirrors by the update flow.</div>
+      <div class="alt">Checks inside commands (e.g. <code>persona-list</code>).</div>
+      <div class="why">Checks live where the files live; a required check cannot be forgotten.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided">The update flow (<code>/asimov-update</code>, session-start hook) is its own later task.</div>
+      <div class="alt">Ship it here.</div>
+      <div class="why">Minimal change first; shells rarely change, so a re-run of <code>/asimov-init</code> covers the gap until then.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided">The small-tier twin is dropped.</div>
+      <div class="alt">Keep it as a second hand-written shell pair.</div>
+      <div class="why">It existed to run a smaller model; with inherited models the choice is the session's (#6 closed).</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════════════════ §5 ═════════════════════ -->
+<section class="s" id="s5">
+  <h2 class="section-title"><span class="sec-ref">§5</span>UI Design</h2>
+  <div class="callout">N/A — a developer-tool change with no product surface; what a developer sees is the two tools' own command lines (§4.3).</div>
+</section>
+
+<!-- ═════════════════════ §6 — open ═════════════════════ -->
+<section class="s" id="s6-open">
+  <h2 class="section-title"><span class="sec-ref">§6</span>Still to write</h2>
+  <div class="callout warn">
+    <strong>⚠ This document is not gap-free.</strong> §2–§5 settle what Codex support is, what a developer sees in each tool, and the rules and decisions behind it. How the plugin is laid out to deliver that is not written yet; no S102 can be written from this document until the items below exist.
+  </div>
+  <ul class="bullets">
+    <li>How each of the six commands is laid out as a two-file skill and what its <code>method.md</code> carries, so that no command behaviour is lost in the move and Codex never truncates an entry.</li>
+    <li>What exactly the two Codex manifests contain and how a wrong field fails an install silently, so the manifests can be checked rather than trusted.</li>
+    <li>How a Codex shell finds and runs its role skill, and what Baley's read-only looks like in Codex, so a shell never runs with more rights than its Claude counterpart.</li>
+    <li>How <code>/asimov-init</code> locates the shells in the plugin from either tool and writes the <code>AGENTS.md</code> region without touching the team's own text.</li>
+    <li>How <code>/persona-new</code> writes and names the two copies so both tools discover them, and what <code>/persona-list</code> shows when only one exists.</li>
+    <li>Which relative-path form every skill uses to reach the definitions and templates, so a moved file is caught before install and not by a user.</li>
+    <li>How the UTF-8 rule is written into a skill so Codex's PowerShell honours it on Windows.</li>
+    <li>Which of today's D101s (subagents, asimov-init, personas), D100 sections and CLAUDE.md recipes must change so nothing points at a retired command or a pinned model.</li>
+    <li>What an existing Claude Code user sees in the first session after the update — skills replacing commands — and whether anything must be removed or renamed for them.</li>
+  </ul>
+</section>
+
+<!-- ═════════════════════ §7 — pending ═════════════════════ -->
+<section class="s" id="s7-pending">
+  <h2 class="section-title"><span class="sec-ref">§7</span>Implementation</h2>
+  <div class="callout warn">
+    <strong>⚠ Pending the technical design.</strong> The build recipe is written once §6 is settled; while this document is in the <em>Business design</em> phase the outstanding technical work is listed under §6 <a href="#s6-open">Still to write</a>.
+  </div>
+</section>
+
+<!-- ═════════════════════ §8 ═════════════════════ -->
+<section class="s" id="s8">
+  <h2 class="section-title"><span class="sec-ref">§8</span>Acceptance criteria</h2>
+  <div class="ac-table">
+    <div class="ac-head"><div>#</div><div>Verifies</div><div>Description</div></div>
+    <div class="ac-row"><div class="ac-id">AC1</div><div class="ac-verifies"><span class="verify-chip">R1</span><span class="verify-chip">NF1</span></div><div>From a clean clone of the repository, the two Codex commands in §4.3 install the plugin and <code>codex plugin list</code> shows <code>asimov-plugin@asimov-marketplace</code>; the two Claude Code commands do the same in Claude Code. No generation step is run first.</div></div>
+    <div class="ac-row"><div class="ac-id">AC2</div><div class="ac-verifies"><span class="verify-chip">R2</span></div><div>Each entry-point skill (the six former commands, the three personas, <code>pm-advisor</code>) is invoked in Codex as <code>$asimov-plugin:&lt;name&gt;</code> and in Claude Code as <code>/&lt;name&gt;</code>, and each opens its <code>method.md</code>.</div></div>
+    <div class="ac-row"><div class="ac-id">AC3</div><div class="ac-verifies"><span class="verify-chip">R3</span><span class="verify-chip">User-only rule</span></div><div>In both tools, a plain-words request that matches <code>asimov-init</code>'s description does not make the model start it; the user's explicit invocation does.</div></div>
+    <div class="ac-row"><div class="ac-id">AC4</div><div class="ac-verifies"><span class="verify-chip">R4</span><span class="verify-chip">R5</span></div><div>In a trusted product repo after <code>/asimov-init</code> and a new session, the Codex orchestrator delegates a <code>.cs</code> change to <code>giskard-the-dotnet-developer</code> by name and the agent's report cites the role skill; the same task in Claude Code produces a report citing the same <code>method.md</code>.</div></div>
+    <div class="ac-row"><div class="ac-id">AC5</div><div class="ac-verifies"><span class="verify-chip">R5</span><span class="verify-chip">Thin-shell rule</span></div><div>For each of the four agents, the <code>.md</code> and <code>.toml</code> shells carry the same name and description, and no sentence from any <code>method.md</code> appears under <code>agents/</code>.</div></div>
+    <div class="ac-row"><div class="ac-id">AC6</div><div class="ac-verifies"><span class="verify-chip">R6</span><span class="verify-chip">No-model rule</span></div><div>No <code>model</code> key exists under <code>agents/</code> or in any <code>SKILL.md</code>; an agent spawned in each tool reports the session's model.</div></div>
+    <div class="ac-row"><div class="ac-id">AC7</div><div class="ac-verifies"><span class="verify-chip">R7</span></div><div><code>/asimov-init</code> run in Codex in a fresh repo yields <code>asimov.md</code>, the <code>CLAUDE.md</code> import, the <code>AGENTS.md</code> managed region and four <code>.codex/agents/*.toml</code>; run in Claude Code it yields the same set.</div></div>
+    <div class="ac-row"><div class="ac-id">AC8</div><div class="ac-verifies"><span class="verify-chip">R8</span><span class="verify-chip">Source-and-mirror rule</span></div><div>A persona written with <code>/persona-new</code> in one tool exists with identical content in <code>.claude/skills/</code> and <code>.agents/skills/</code> and is invocable in both tools.</div></div>
+    <div class="ac-row"><div class="ac-id">AC9</div><div class="ac-verifies"><span class="verify-chip">R9</span></div><div>A D101 written by a skill from Codex on Windows, containing <code>æøå</code> and <code>→</code>, re-reads as valid UTF-8 with those characters intact.</div></div>
+    <div class="ac-row"><div class="ac-id">AC10</div><div class="ac-verifies"><span class="verify-chip">R10</span></div><div>No Claude-only path variable appears under <code>skills/</code>, and every relative file reference in a <code>method.md</code> resolves to an existing file in the plugin.</div></div>
+    <div class="ac-row"><div class="ac-id">AC11</div><div class="ac-verifies"><span class="verify-chip">R11</span></div><div>The README has, per tool, the install, invocation and after-update steps from §4.3, including the Codex trust step and the new session after delivery.</div></div>
+    <div class="ac-row"><div class="ac-id">AC12</div><div class="ac-verifies"><span class="verify-chip">NF2</span></div><div>An existing Claude Code install updated to the new version runs <code>/d101-review</code> under the same name; plugin name and folder path are unchanged.</div></div>
+    <div class="ac-row"><div class="ac-id">AC13</div><div class="ac-verifies"><span class="verify-chip">NF3</span><span class="verify-chip">Two-file skill rule</span></div><div>Every folder under <code>skills/</code> holds a <code>SKILL.md</code> under 8,000 bytes whose body is the pointer only, and a <code>method.md</code>.</div></div>
+    <div class="ac-row"><div class="ac-id">AC14</div><div class="ac-verifies"><span class="verify-chip">NF4</span><span class="verify-chip">Parity rule</span></div><div>Every known limitation named in this document (IDE extension, trusted repo, new session after delivery) appears in the README's Codex section.</div></div>
+    <div class="ac-row"><div class="ac-id">AC15</div><div class="ac-verifies"><span class="verify-chip">Version rule</span></div><div>The plugin manifests' <code>version</code> is higher than on <code>main</code> before this change.</div></div>
+  </div>
+</section>
+
+<!-- ═════════════════════ §9 ═════════════════════ -->
+<section class="s" id="s9">
+  <h2 class="section-title"><span class="sec-ref">§9</span>Open questions</h2>
+  <div class="callout">N/A — every question raised in the business design was decided (§4.5) or moved out of scope (§3); the technical unknowns are the §6 list.</div>
+</section>
+
+<!-- ═════════════════════ §10 ═════════════════════ -->
+<section class="s" id="s10">
+  <h2 class="section-title"><span class="sec-ref">§10</span>References</h2>
+  <div class="refs">
+    <div class="refs-block">
+      <h4>Docs</h4>
+      <ul>
+        <li>documentation/research/codex-support-probes.md — what both tools guarantee, verified 2026-09-29</li>
+        <li>documentation/features/D101-subagents.html — the role skills and the thin shells this builds on</li>
+        <li>documentation/features/D101-asimov-init.html — the repo wiring <code>/asimov-init</code> extends</li>
+        <li>documentation/features/D101-personas.html — the persona skills</li>
+        <li>documentation/D100-Asimov-architecture.md §4, §6</li>
+      </ul>
+    </div>
+    <div class="refs-block">
+      <h4>Code</h4>
+      <ul>
+        <li>plugins/asimov-plugin/.claude-plugin/plugin.json · .claude-plugin/marketplace.json</li>
+        <li>plugins/asimov-plugin/agents/ — the four shell pairs</li>
+        <li>plugins/asimov-plugin/skills/ — role-*, artifact-*, persona-*, pm-advisor</li>
+        <li>plugins/asimov-plugin/commands/ — the six commands to become skills</li>
+      </ul>
+    </div>
+    <div class="refs-block">
+      <h4>External</h4>
+      <ul>
+        <li>Codex documentation — plugins, skills, custom agents (learn.chatgpt.com/docs)</li>
+        <li>Claude Code documentation — skills, subagents, plugins (code.claude.com/docs)</li>
+        <li>github.com/obra/superpowers — the one-folder, two-manifest layout this follows</li>
+        <li>github.com/context-and-oss/asimov/issues/1 — the proposal this design realises</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+  </article>
+</div>
+
+<footer class="site-footer">
+  <div>
+    <a href="../index.html">← Documentation home</a>
+    · <span class="mono">features/D101-codex-support.html</span>
+  </div>
+  <div style="margin-top: 0.4rem">
+    D101 · Codex support · asimov-plugin · Draft v0.1 · 2026-09-29
+  </div>
+</footer>
+
+</body>
+</html>
