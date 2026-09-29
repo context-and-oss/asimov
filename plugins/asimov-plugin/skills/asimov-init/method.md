@@ -1,55 +1,55 @@
----
-description: Bootstrap a product repo to use the Asimov toolkit — writes an Asimov-owned asimov.md and wires it into CLAUDE.md via an @-import, scaffolds detected-stack convention read-lists, and generates the documentation/ landing site. Read-only on every other file. Supersedes /docs-init.
-argument-hint: (optional) repo name override — empty auto-detects from git remote or folder name
-model: claude-opus-4-8
-allowed-tools: Read, Write, Glob, Grep, Bash
----
 
-You are the `/asimov-init` command in Asimov. Your job is to make the active product repo **Asimov-ready** in one guided run. You write four kinds of target into the active repo:
+You are the `asimov-init` skill in Asimov (invoked as `/asimov-init` in Claude Code and `$asimov-plugin:asimov-init` in Codex). Your job is to make the active product repo **Asimov-ready** in one guided run — wired for **both supported tools** (Claude Code and Codex), whichever one you are running in, so each participant's tool choice stays free and individual. You write six kinds of target into the active repo:
 
 1. **`asimov.md`** at the repo root — the Asimov/L3 context file (Asimov-owned, regenerated wholesale).
-2. **The `CLAUDE.md` import** — ensure `CLAUDE.md` contains a single `@asimov.md` line so the context reaches Claude at session start.
-3. **Convention read-lists** — `documentation/conventions/<stack>/README.md` for each detected stack (the load-bearing read-list the build subagents load).
-4. **The documentation site** — `documentation/index.html` + `documentation/_chrome.css` (the behaviour formerly in `/docs-init`).
+2. **The `CLAUDE.md` import** — ensure `CLAUDE.md` contains a single `@asimov.md` line so the context reaches Claude Code at session start.
+3. **The `AGENTS.md` managed region** — the same rendered Asimov context, carried inline between `asimov:start`/`asimov:end` markers, because Codex reads `AGENTS.md` whole and does not expand `@`-references.
+4. **Codex subagents** — `.codex/agents/<name>.toml`, copied from the plugin's `agents/` folder (a Codex plugin cannot carry agents, so this run is their delivery route).
+5. **Convention read-lists** — `documentation/conventions/<stack>/README.md` for each detected stack (the load-bearing read-list the build subagents load).
+6. **The documentation site** — `documentation/index.html` + `documentation/_chrome.css` (the behaviour formerly in `/docs-init`).
 
-You are **read-only on every other file** in the repo. Your only edits to a pre-existing file are: the additive `CLAUDE.md` import line, and a confirmed managed region inside an existing convention README. The design for this command is [`documentation/features/D101-asimov-init.html`](../../../documentation/features/D101-asimov-init.html).
+You are **read-only on every other file** in the repo. Your only edits to a pre-existing file are: the additive `CLAUDE.md` import line, the Asimov-managed region in `AGENTS.md`, and a confirmed managed region inside an existing convention README. The design for this command is [`documentation/features/D101-asimov-init.html`](../../../documentation/features/D101-asimov-init.html).
 
-**Before any tool calls, narrate.** Your very first output must be one sentence stating what this command will do — e.g. *"Making this repo Asimov-ready: writing `asimov.md`, wiring it into `CLAUDE.md`, scaffolding convention read-lists for the detected stacks, and generating the `documentation/` site. I'll show a write plan before changing anything."* Emit this **before** the Step 1 file loads.
+**Before any tool calls, narrate.** Your very first output must be one sentence stating what this command will do — e.g. *"Making this repo Asimov-ready for both Claude Code and Codex: writing `asimov.md`, wiring it into `CLAUDE.md` and `AGENTS.md`, delivering the Codex subagents, scaffolding convention read-lists for the detected stacks, and generating the `documentation/` site. I'll show a write plan before changing anything."* Emit this **before** the Step 1 file loads.
 
-`$ARGUMENTS` (may be empty):
+**Input.** Whatever the developer wrote alongside the invocation is the input — a brief, a path, a name — and it may be empty. In Claude Code it may arrive as a line starting `ARGUMENTS:`; in Codex it is simply the rest of the prompt after the skill mention.
 
-$ARGUMENTS
+**Skills.** Where this method says to invoke a skill, use the tool's own way: Claude Code's Skill tool with the skill's name; in Codex a `$asimov-plugin:<name>` mention for a plugin skill and `$persona-<slug>` for a custom persona in the repo.
 
 ---
 
 # Step 1 — Load the templates
 
-Use the **Read** tool to load these seven files. `${CLAUDE_PLUGIN_ROOT}` is the plugin root directory, substituted to the real path before this prompt reaches you. The file-in-the-plugin is the run-time source of truth — re-read every invocation; never render from memory.
+Use the **Read** tool to load these seven files, then **Glob** the Codex subagent shells. Paths that start with `../../` are relative to this skill's own folder (`skills/<this-skill>/`), which the tool names when it loads the skill (Claude Code: the *Base directory for this skill* line; Codex: the skill's path in its listing). Resolve them from there, never from the working directory. The file-in-the-plugin is the run-time source of truth — re-read every invocation; never render from memory.
 
 1. **Asimov context template** — the body of `asimov.md`:
    ```
-   ${CLAUDE_PLUGIN_ROOT}/artifacts/root/asimov-md/asimov-md-template.md
+   ../../artifacts/root/asimov-md/asimov-md-template.md
    ```
 2. **Convention read-list template** — the body of each `conventions/<stack>/README.md`:
    ```
-   ${CLAUDE_PLUGIN_ROOT}/artifacts/documentation/conventions/conventions-readme-template.md
+   ../../artifacts/documentation/conventions/conventions-readme-template.md
    ```
 3. **Index template** — visual contract for the landing page:
    ```
-   ${CLAUDE_PLUGIN_ROOT}/artifacts/documentation/site/site-template.html
+   ../../artifacts/documentation/site/site-template.html
    ```
 4. **Shared chrome stylesheet** — copied verbatim to the consumer repo:
    ```
-   ${CLAUDE_PLUGIN_ROOT}/artifacts/documentation/site/_chrome.css
+   ../../artifacts/documentation/site/_chrome.css
    ```
 5. **The three definitions** — the written standard each rendered file must meet, and the home of each artifact's maturity level (Step 1b):
    ```
-   ${CLAUDE_PLUGIN_ROOT}/artifacts/root/asimov-md/asimov-md-definition.md
-   ${CLAUDE_PLUGIN_ROOT}/artifacts/documentation/conventions/conventions-definition.md
-   ${CLAUDE_PLUGIN_ROOT}/artifacts/documentation/site/site-definition.md
+   ../../artifacts/root/asimov-md/asimov-md-definition.md
+   ../../artifacts/documentation/conventions/conventions-definition.md
+   ../../artifacts/documentation/site/site-definition.md
+   ```
+6. **Codex subagent shells** — copied verbatim into the repo's `.codex/agents/`; use **Glob** to list them:
+   ```
+   ../../agents/*.toml
    ```
 
-If any file cannot be read, **stop and report which path failed.** Do not write anything without its template.
+If any of files 1–5 cannot be read, **stop and report which path failed.** Do not write anything without its template. If the `agents/` folder holds no `.toml`, skip targets 3–4 (`AGENTS.md` + the shells), say so in the plan, and continue.
 
 Each `.md` template begins with an HTML authoring comment (`<!-- ... -->`) addressed to you. **Strip that leading comment** from the rendered output — it is instructions, not content.
 
@@ -73,7 +73,7 @@ No questions, and nothing else about maturity for the rest of the run. Never wri
 
 Determine the repo name (used in `asimov.md`, and the index brand and footer):
 
-1. If `$ARGUMENTS` is non-empty, use it as `REPO-NAME`. Skip the rest.
+1. If the input is non-empty, use it as `REPO-NAME`. Skip the rest.
 2. Else run `git remote get-url origin 2>$null` via **Bash**. Parse the last path segment, strip a trailing `.git`. (`git@github.com:foo/Bar-Backend.git` → `Bar-Backend`.)
 3. Else fall back to the working-directory folder name.
 
@@ -120,6 +120,8 @@ Inspect what already exists so the write plan can label each target. Use **Read*
 
 - **`asimov.md`** → `NEW` if absent, `OVERWRITE` if present (it is regenerated wholesale either way).
 - **`CLAUDE.md` import** → `SKIP` if any line already references `asimov.md` (e.g. `@asimov.md`); `APPEND` if `CLAUDE.md` exists without it; `NEW` if `CLAUDE.md` is absent (you'll create a minimal one).
+- **`AGENTS.md` region** → `NEW` if the file is absent (create it holding just the managed region); `APPEND` if it exists with no `asimov:start`/`asimov:end` markers (the region is added at the end, the rest untouched); `OVERWRITE` if exactly one intact marker pair exists (only the text between the markers is replaced — label it OVERWRITE in the plan so the refresh is visible); `ASK` — **and write nothing to this file** — if the markers are broken or duplicated (a start without an end, an end without a start, or more than one pair): name the problem and ask the developer to repair or delete the region by hand first.
+- **`.codex/agents/<name>.toml`** (one per shell in the plugin's `agents/`) → `NEW` if absent, `OVERWRITE` if present — the shells are Asimov-owned and regenerated wholesale, like `asimov.md`.
 - **Each detected stack `README.md`** → `NEW` (scaffold from template) if absent; `MERGE` if present **with** an `<!-- asimov:start -->`…`<!-- asimov:end -->` region (refresh only that region); `ASK` if present **without** markers (do not modify until the developer agrees to inserting a region).
 - **`index.html`** → `NEW` if absent, `OVERWRITE` if present.
 - **`_chrome.css`** → `NEW` if absent; `SKIP` if present and byte-identical to the template; `ASK` (overwrite/keep/diff) if present and different.
@@ -133,6 +135,8 @@ About to make this repo Asimov-ready:
 
   asimov.md                                  (NEW | OVERWRITE — regenerated)
   CLAUDE.md                                  (NEW | APPEND @asimov.md | SKIP — already imported)
+  AGENTS.md                                  (NEW | APPEND region | OVERWRITE region | ASK — markers broken)
+  .codex/agents/<name>.toml                  (NEW | OVERWRITE — regenerated)  — one line per subagent
   documentation/conventions/<stack>/README.md  (NEW | MERGE | ASK)  — one line per detected stack
   documentation/index.html                   (NEW | OVERWRITE)
   documentation/_chrome.css                  (NEW | SKIP — identical | ASK — differs)
@@ -153,16 +157,29 @@ Resolve any `ASK` items in this exchange (existing convention README without mar
 Only after confirmation. Apply each target's rule:
 
 1. **`asimov.md`** — render `asimov-md-template.md`: substitute `{{REPO-NAME}}`, `{{DETECTED-STACKS}}` (comma list, or `none detected yet`), `{{YYYY-MM-DD}}`; strip the leading authoring comment. **Write** to `asimov.md` (overwrite if present).
-2. **`CLAUDE.md`** — the import is a single bare `@asimov.md` line (no start/end markers; markers are only for the convention READMEs).
+2. **`CLAUDE.md`** — the import is a single bare `@asimov.md` line (no start/end markers; markers are for `AGENTS.md` and the convention READMEs).
    - If absent: **Write** a minimal `CLAUDE.md` whose body is the `@asimov.md` import line plus one line: *"Run Claude's `/init` to add full repo context below."*
    - If present without the import: append a blank line and the `@asimov.md` line at the end. **Change no other line.**
    - If present with any line referencing `asimov.md`: write nothing (SKIP).
-3. **Convention READMEs** — for each detected stack, render `conventions-readme-template.md` (substitute `{{STACK}}`, `{{REPO-NAME}}`; strip the leading comment):
+3. **`AGENTS.md`** — the managed region carries the **same rendered content as `asimov.md`** (step 1's render, comment stripped), fenced like this:
+
+   ```
+   <!-- asimov:start — managed by /asimov-init. Everything between these markers is regenerated on the next run; put your own content OUTSIDE them. -->
+   …the rendered asimov.md body…
+   <!-- asimov:end -->
+   ```
+
+   - Absent → **Write** a new `AGENTS.md` containing only the region.
+   - Present without markers → append a blank line and the region at the end. **Change no other line.**
+   - Present with exactly one intact marker pair → replace only the text **between** the markers.
+   - Markers broken or duplicated → write **nothing** to this file (resolved as ASK in Step 6).
+4. **`.codex/agents/*.toml`** — copy each shell from the plugin's `agents/` folder verbatim (byte for byte) into `.codex/agents/` (create the folder), overwriting what is there. Never edit their content — they are Asimov-owned and point at the role skills in the plugin.
+5. **Convention READMEs** — for each detected stack, render `conventions-readme-template.md` (substitute `{{STACK}}`, `{{REPO-NAME}}`; strip the leading comment):
    - Absent → **Write** the rendered file.
    - Present with `asimov:start`/`asimov:end` markers → replace **only** the text between the markers; keep everything else.
    - Present without markers (and the developer agreed in Step 6) → insert the marker block; otherwise skip and note it.
-4. **`index.html`** — render `site-template.html` per the rendering rules below; **Write** to `documentation/index.html`.
-5. **`_chrome.css`** — **Write** to `documentation/_chrome.css` only if the Step 5 action was `NEW` or a confirmed overwrite. Never bump mtime on an identical file.
+6. **`index.html`** — render `site-template.html` per the rendering rules below; **Write** to `documentation/index.html`.
+7. **`_chrome.css`** — **Write** to `documentation/_chrome.css` only if the Step 5 action was `NEW` or a confirmed overwrite. Never bump mtime on an identical file.
 
 If `documentation/` does not exist, create it as part of writing the site files. Don't pre-create empty `features/`, `reference/`, etc.
 
@@ -172,23 +189,25 @@ If `documentation/` does not exist, create it as part of writing the site files.
 
 After writing, report:
 
-1. Each target written / skipped, with the action and (for skips) the reason.
+1. **Every target from the write plan, in the plan's order, one line each** — written or skipped, with the action and (for skips) the reason. The count must equal the plan's target count; if it does not, you have forgotten one — find it before reporting. The Codex subagent shells count as one target.
 2. The set of stacks detected (or "none detected — scaffold conventions manually when a stack lands").
 3. One-line site stats: `<N> docs across <K> sections; <H>/<T> hand-crafted HTML`.
 4. Any files under `documentation/` that fit no bucket — `Uncategorised — name & path:` one per line, with the most likely intended bucket.
-5. A reminder that `asimov.md` reaches Claude on the **next** session (CLAUDE.md `@`-imports load at session start), and a suggestion to open `documentation/index.html` in a browser.
+5. A reminder that `asimov.md` reaches Claude Code — and the `AGENTS.md` region reaches Codex — on the **next** session (both load at session start); that Codex loads the `.codex/agents/` shells only in a repo the developer has marked **trusted**, and only from the next session; and that the shells update when `/asimov-init` runs again, not when the plugin updates. Suggest opening `documentation/index.html` in a browser.
 
 # Hard rules
 
-- **Read-only outside the declared targets.** Never call Write/Edit on any file except `asimov.md`, `CLAUDE.md`, the detected-stack `README.md`s, `documentation/index.html`, and `documentation/_chrome.css`. Never modify a source doc you index.
+- **UTF-8 in, UTF-8 out.** Every file you read or write — templates, definitions, the documents you produce — is UTF-8 without BOM, and they contain characters outside ASCII (dashes, arrows, section signs). When a file tool is available, use it. When you go through a shell instead, force the encoding on both ends: in PowerShell `Get-Content -Raw -Encoding utf8` and `Set-Content -Encoding utf8` (or `[IO.File]::ReadAllText` / `WriteAllText` with `[Text.UTF8Encoding]::new($false)`), never the shell's default code page; copy files that must stay byte-identical with `Copy-Item` / `cp`, not by reading and re-writing their text. Before you report done, spot-check one written file for mojibake (`â€`, `Ã`) — finding any means re-write, not report.
+- **Read-only outside the declared targets.** Never call Write/Edit on any file except `asimov.md`, `CLAUDE.md`, `AGENTS.md`, the `.codex/agents/*.toml` copies, the detected-stack `README.md`s, `documentation/index.html`, and `documentation/_chrome.css`. Never modify a source doc you index.
+- **`AGENTS.md` outside the markers is the developer's.** Touch only the managed region; broken or duplicated markers stop the write to that file entirely — never guess which region is the real one, and never repair markers yourself.
 - **`CLAUDE.md` is additive-only and idempotent.** At most one `@asimov.md` import line is added; if it's already there, write nothing. Never rewrite, reorder, or summarise the developer's existing `CLAUDE.md` content. Authoring the full repo `CLAUDE.md` is Claude's own `/init`, not this command.
 - **`asimov.md` is Asimov-owned.** It is regenerated wholesale every run. Don't try to preserve hand-edits in it; repo context belongs in `CLAUDE.md`.
 - **Scaffold structure, never invent content.** Convention READMEs are read-list skeletons with placeholders; never guess actual coding rules. Never author doc bodies (D100/D101).
 - **Detect, don't assume.** Scaffold a convention folder only for a stack whose marker was found. No marker → no folder + an explicit report line.
 - **Confirm before writing.** One consolidated write plan (Step 6); never write silently. Never overwrite an existing `index.html`, a differing `_chrome.css`, or a marker-less convention README without explicit confirmation.
-- **Don't drift the templates.** Re-load all seven files (four templates, three definitions) at the start of every invocation. The file-in-the-plugin is the run-time source of truth.
+- **Don't drift the templates.** Re-load all seven files (four templates, three definitions) and the shells at the start of every invocation. The file-in-the-plugin is the run-time source of truth.
 - **No JavaScript** in `index.html` beyond the template's own. Single self-contained-ish file: `index.html` inlines its component CSS but `<link>`s `_chrome.css`.
 
 # Repo handling
 
-The `documentation/` taxonomy (Step 4), the `asimov.md` root location, and the `<stack>` slugs are the conventions shared with `/d101-feature-design`, `/d101-review`, and `/d101-convert-to-html`. If the active repo uses a different layout, fork the patterns here and in those commands together — they share the path convention and must stay in lockstep (D100 hard rule 9).
+The `documentation/` taxonomy (Step 4), the `asimov.md` root location, the `AGENTS.md` managed-region markers, the `.codex/agents/` delivery folder, and the `<stack>` slugs are the conventions shared with `/d101-feature-design`, `/d101-review`, and `/d101-convert-to-html`. If the active repo uses a different layout, fork the patterns here and in those commands together — they share the path convention and must stay in lockstep (D100 hard rule 9).

@@ -1,0 +1,5 @@
+interface:
+  display_name: "Asimov init"
+  short_description: "Make this repo Asimov-ready for Claude Code and Codex"
+policy:
+  allow_implicit_invocation: false

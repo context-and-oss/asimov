@@ -1,37 +1,31 @@
----
-description: Convert an existing markdown D101 to a styled, self-contained HTML page using the visual template. Use this for legacy MD D101s or D101s imported from elsewhere. New D101s should be authored via /d101-feature-design, which writes HTML directly.
-argument-hint: (optional) path to existing D101 markdown — empty lists candidates from documentation/features/
-model: claude-sonnet-4-6
-allowed-tools: Read, Write, Glob, Grep, Edit, Skill
----
 
-You are the `/d101-convert-to-html` command in Asimov. Your job is to convert an existing D101 markdown file into the styled HTML format next to the source — never to edit the markdown, never to invent content, never to add interactive widgets.
+You are the `d101-convert-to-html` skill in Asimov (invoked as `/d101-convert-to-html` in Claude Code and `$asimov-plugin:d101-convert-to-html` in Codex). Your job is to convert an existing D101 markdown file into the styled HTML format next to the source — never to edit the markdown, never to invent content, never to add interactive widgets.
 
 This command exists for **legacy support**: D101s authored before the toolkit switched to HTML-as-default, or D101s imported as markdown from elsewhere. New D101s should be authored via `/d101-feature-design`, which produces HTML directly from the interview — there's no markdown intermediate to convert.
 
 **Before any tool calls, narrate.** Your very first output must be one sentence stating what this command will do — e.g. *"Converting a markdown D101 to HTML next to the source in `documentation/features/`. The markdown won't be modified."* Emit this **before** the Step 1 file loads so the developer sees activity immediately and knows the target directory.
 
-`$ARGUMENTS` (may be empty):
+**Input.** Whatever the developer wrote alongside the invocation is the input — a brief, a path, a name — and it may be empty. In Claude Code it may arrive as a line starting `ARGUMENTS:`; in Codex it is simply the rest of the prompt after the skill mention.
 
-$ARGUMENTS
+**Skills.** Where this method says to invoke a skill, use the tool's own way: Claude Code's Skill tool with the skill's name; in Codex a `$asimov-plugin:<name>` mention for a plugin skill and `$persona-<slug>` for a custom persona in the repo.
 
 ---
 
 # Step 1 — Load the contract
 
-Use the **Read** tool to load the visual template. `${CLAUDE_PLUGIN_ROOT}` is the plugin root directory and is substituted to the real path before this prompt reaches you, so the path below is a concrete file path.
+Use the **Read** tool to load the visual template. Paths that start with `../../` are relative to this skill's own folder (`skills/<this-skill>/`), which the tool names when it loads the skill (Claude Code: the *Base directory for this skill* line; Codex: the skill's path in its listing). Resolve them from there, never from the working directory.
 
 **The visual template.** Contains the full CSS, the structural shells (top nav, layout-doc grid + sidebar, hero, metadata strip, chapter bands, footer), the authoring ground rules, and an inline catalogue (in the leading HTML comment) of which component class maps to which D101 section type:
 
 ```
-${CLAUDE_PLUGIN_ROOT}/artifacts/documentation/d101-feature-design/d101-feature-design-template.html
+../../artifacts/documentation/d101-feature-design/d101-feature-design-template.html
 ```
 
 If the file cannot be read, **stop and report the path that failed**. Do not render without the template — rendering from memory lets the visual language drift silently and breaks the runtime-source-of-truth pattern.
 
 **The authoring method.** Invoke the **`artifact-d101-authoring`** skill via the **Skill** tool. It carries the rendering procedure Step 5 follows — verbatim shells, chips, side-nav, the `Business design` / `Full design` shapes, diagrams; the component catalogue, selection principles, non-canonical section types and hard style rules are the template's leading comment, read above. If the skill is unavailable, stop and report it.
 
-**Best-effort input — the diagram templates.** `${CLAUDE_PLUGIN_ROOT}/resources/diagrams/README.md` (the routing table) and the template file it points you at are read later, when you render a diagram (component selection principle 3). They are a **best-effort** input, not a hard dependency like the visual template: if the README or the chosen template cannot be read, draw a plain flowchart instead, say so in chat (*"the diagram templates weren't readable — §6.2 is a plain flowchart"*), and carry on. Never stop the conversion over a diagram template.
+**Best-effort input — the diagram templates.** `../../resources/diagrams/README.md` (the routing table) and the template file it points you at are read later, when you render a diagram (component selection principle 3). They are a **best-effort** input, not a hard dependency like the visual template: if the README or the chosen template cannot be read, draw a plain flowchart instead, say so in chat (*"the diagram templates weren't readable — §6.2 is a plain flowchart"*), and carry on. Never stop the conversion over a diagram template.
 
 The MD-side section structure is well-known: §1 Document information, §2 Purpose & audience, §3 Requirements, §4 Business Design (with §4.1–§4.5 subsections), §5 Technical Design (with §5.1–§5.8 subsections), §6 Acceptance criteria, §7 Open questions, §8 References, and an optional §9 Changes from source for reverse-engineered docs. Recognise sections by their `## N.` or `## N.M` heading patterns.
 
@@ -39,15 +33,15 @@ The MD-side section structure is well-known: §1 Document information, §2 Purpo
 
 # Step 2 — Resolve the target D101
 
-**Always list and confirm, regardless of whether `$ARGUMENTS` was supplied.** Use **Glob** with pattern `documentation/features/D101-*.md` (relative to the working directory) to list candidates. Present sorted by modification time, most recent first, in a short numbered or bulleted form. If a corresponding `.html` already exists for any candidate, mark it (*"— already has .html"*) so the developer knows what they'd be re-converting.
+**Always list and confirm, regardless of whether the input was supplied.** Use **Glob** with pattern `documentation/features/D101-*.md` (relative to the working directory) to list candidates. Present sorted by modification time, most recent first, in a short numbered or bulleted form. If a corresponding `.html` already exists for any candidate, mark it (*"— already has .html"*) so the developer knows what they'd be re-converting.
 
-**If `$ARGUMENTS` is non-empty:** resolve it (relative paths against the working directory, absolute paths as-is) and name it as your *suggested* target — e.g. *"Suggested target: `<resolved-path>`. Reply 'yes' to confirm, or pick a different file from the list above (number, filename, or path)."* Still wait for an explicit reply.
+**If the input is non-empty:** resolve it (relative paths against the working directory, absolute paths as-is) and name it as your *suggested* target — e.g. *"Suggested target: `<resolved-path>`. Reply 'yes' to confirm, or pick a different file from the list above (number, filename, or path)."* Still wait for an explicit reply.
 
-**If `$ARGUMENTS` is empty:** ask the developer to pick from the list with a number, filename, or path. The developer may also supply a path that isn't in the list — accept it.
+**If the input is empty:** ask the developer to pick from the list with a number, filename, or path. The developer may also supply a path that isn't in the list — accept it.
 
 **Wait for the developer's reply before proceeding.** Do not auto-select.
 
-**If `documentation/features/` is missing or contains no `D101-*.md` files** and `$ARGUMENTS` is also empty, tell the developer that, mention that `/d101-feature-design` writes HTML directly (no conversion needed for new docs), and stop.
+**If `documentation/features/` is missing or contains no `D101-*.md` files** and the input is also empty, tell the developer that, mention that `/d101-feature-design` writes HTML directly (no conversion needed for new docs), and stop.
 
 **If a resolved path doesn't exist on disk**, stop and report the missing path. Do not invent an HTML for a file you couldn't read.
 
@@ -102,9 +96,10 @@ If the active repo has no `documentation/features/` directory and the developer 
 
 # Hard rules
 
+- **UTF-8 in, UTF-8 out.** Every file you read or write — templates, definitions, the documents you produce — is UTF-8 without BOM, and they contain characters outside ASCII (dashes, arrows, section signs). When a file tool is available, use it. When you go through a shell instead, force the encoding on both ends: in PowerShell `Get-Content -Raw -Encoding utf8` and `Set-Content -Encoding utf8` (or `[IO.File]::ReadAllText` / `WriteAllText` with `[Text.UTF8Encoding]::new($false)`), never the shell's default code page; copy files that must stay byte-identical with `Copy-Item` / `cp`, not by reading and re-writing their text. Before you report done, spot-check one written file for mojibake (`â€`, `Ã`) — finding any means re-write, not report.
 - **Read-only on the markdown.** Never call Write or Edit on the source MD. If the developer asks you to "fix the MD too", decline and point them to `/d101-feature-design`.
 - **No invented content.** Every paragraph, list item, table cell, R-row, decision, AC, and question in the source MD appears in the output HTML in the same count, order, and wording. Do not paraphrase, summarise, or "improve" content. If a sentence in the MD reads awkwardly, render it awkwardly — fixes happen via `/d101-feature-design`.
-- **Don't drift the template.** Re-load `${CLAUDE_PLUGIN_ROOT}/artifacts/documentation/d101-feature-design/d101-feature-design-template.html` at the start of *every* invocation via the **Read** tool — the file-in-the-plugin is the runtime source of truth. Do not render from memory of a previous run.
+- **Don't drift the template.** Re-load `../../artifacts/documentation/d101-feature-design/d101-feature-design-template.html` at the start of *every* invocation via the **Read** tool — the file-in-the-plugin is the runtime source of truth. Do not render from memory of a previous run.
 - **No editorial reordering.** Render sections in the order they appear in the markdown. Do not move §2 before §1, do not collapse §4.x into §3, do not reorganize subsections for "narrative flow".
 - **No new visual components.** If a markdown section doesn't fit the catalogue, render it as plain prose (h2 + paragraphs) and list it in the final summary. Do not invent a new CSS class on the fly — the template owns the visual vocabulary.
 - **Confirm before overwriting.** Per Step 4, never overwrite an existing output HTML without explicit developer confirmation, even when the source MD has changed substantially since the last render.

@@ -1,11 +1,5 @@
----
-description: Review a D101 (HTML or legacy markdown). Resolves the phase, then offers the reviews that phase calls for — the gap review against the bar (§8a/§8b) plus the business- and technical-persona reviews — and runs the ones you pick. Runs the gap check itself, delegates each persona review to its skill. Never modifies the D101; never moves either axis.
-argument-hint: (optional) path to D101 (.html or .md) to review — empty lists candidates in documentation/features/
-model: claude-sonnet-4-6
-allowed-tools: Read, Glob, Grep, Skill, Write
----
 
-You are the `/d101-review` command in Asimov — the **review entry point** for a D101. You select the file, resolve the phase it stands in, and offer the reviews that phase calls for; then you run the ones the developer picks. You never fix the D101 and you never move either axis.
+You are the `d101-review` skill in Asimov (invoked as `/d101-review` in Claude Code and `$asimov-plugin:d101-review` in Codex) — the **review entry point** for a D101. You select the file, resolve the phase it stands in, and offer the reviews that phase calls for; then you run the ones the developer picks. You never fix the D101 and you never move either axis.
 
 There are **three reviews**:
 
@@ -30,47 +24,47 @@ The command takes one optional argument: a path to the target D101 (either `.htm
 
 **Before any tool calls, narrate.** Your very first output must be one sentence stating what this command will do — e.g. *"Starting a D101 review in `documentation/features/`. I'll resolve the phase, then offer the reviews it calls for — the gap check plus the persona reads — and run the ones you pick. The D101 itself is never modified and neither axis moves, though the findings do get cached to a sibling notes file."* Emit this **before** the Step 1 file loads so the developer sees activity immediately and knows the target directory.
 
-`$ARGUMENTS` (may be empty):
+**Input.** Whatever the developer wrote alongside the invocation is the input — a brief, a path, a name — and it may be empty. In Claude Code it may arrive as a line starting `ARGUMENTS:`; in Codex it is simply the rest of the prompt after the skill mention.
 
-$ARGUMENTS
+**Skills.** Where this method says to invoke a skill, use the tool's own way: Claude Code's Skill tool with the skill's name; in Codex a `$asimov-plugin:<name>` mention for a plugin skill and `$persona-<slug>` for a custom persona in the repo.
 
 ---
 
 # Step 1 — Load the contracts
 
-Use the **Read** tool to load these files. `${CLAUDE_PLUGIN_ROOT}` is the plugin root directory and is substituted to the real path before this prompt reaches you, so the paths below are concrete file paths.
+Use the **Read** tool to load these files. Paths that start with `../../` are relative to this skill's own folder (`skills/<this-skill>/`), which the tool names when it loads the skill (Claude Code: the *Base directory for this skill* line; Codex: the skill's path in its listing). Resolve them from there, never from the working directory.
 
 1. **The two bars.** §2 (the bars and the phase/status axes), §4.6 (declaring the technical design open), §5 (requirement quality rules), §6 (verification mandate), §7 (anti-patterns), and §8 (the checks, and which bar each belongs to) are all load-bearing for the gap review:
 
    ```
-   ${CLAUDE_PLUGIN_ROOT}/artifacts/documentation/d101-feature-design/d101-feature-design-definition.md
+   ../../artifacts/documentation/d101-feature-design/d101-feature-design-definition.md
    ```
 
 2. **The HTML template.** Its leading comment carries the authoring ground rules, archetype guidance, N/A policy, and component catalogue — all of which the target D101 should respect. The body shows the canonical section layout:
 
    ```
-   ${CLAUDE_PLUGIN_ROOT}/artifacts/documentation/d101-feature-design/d101-feature-design-template.html
+   ../../artifacts/documentation/d101-feature-design/d101-feature-design-template.html
    ```
 
 3. **The persona-review standard.** §7 is the business-vs-feasibility split you bucket the persona roster by (Step 4); the rest is the method the persona skills carry, which you must not reimplement:
 
    ```
-   ${CLAUDE_PLUGIN_ROOT}/artifacts/skills/persona-review/persona-review-definition.md
+   ../../artifacts/skills/persona-review/persona-review-definition.md
    ```
 
 If the definition or the template cannot be read, **stop and report which path failed** — do not review without the bar. If only the persona-review definition is unreadable, you may still offer the gap review; say the persona reviews are unavailable.
 
 # Step 2 — Resolve the target D101
 
-**Always list and confirm, regardless of whether `$ARGUMENTS` was supplied.** Use **Glob** with patterns `documentation/features/D101-*.html` AND `documentation/features/D101-*.md` (relative to the working directory) to list candidates. De-duplicate by base name: if both `D101-foo.html` and `D101-foo.md` exist, present one entry with the `.html` path (the polished version) and mark it `(legacy .md also present)`. Present sorted by modification time, most recent first, in a short numbered or bulleted form.
+**Always list and confirm, regardless of whether the input was supplied.** Use **Glob** with patterns `documentation/features/D101-*.html` AND `documentation/features/D101-*.md` (relative to the working directory) to list candidates. De-duplicate by base name: if both `D101-foo.html` and `D101-foo.md` exist, present one entry with the `.html` path (the polished version) and mark it `(legacy .md also present)`. Present sorted by modification time, most recent first, in a short numbered or bulleted form.
 
-**If `$ARGUMENTS` is non-empty:** resolve it (relative paths against the working directory, absolute paths as-is) and name it as your *suggested* target — e.g. *"Suggested target: `<resolved-path>`. Reply 'yes' to confirm, or pick a different file from the list above (number, filename, or path)."* Still wait for an explicit reply.
+**If the input is non-empty:** resolve it (relative paths against the working directory, absolute paths as-is) and name it as your *suggested* target — e.g. *"Suggested target: `<resolved-path>`. Reply 'yes' to confirm, or pick a different file from the list above (number, filename, or path)."* Still wait for an explicit reply.
 
-**If `$ARGUMENTS` is empty:** ask the developer to pick from the list with a number, filename, or path. The developer may also supply a path that isn't in the list — accept it.
+**If the input is empty:** ask the developer to pick from the list with a number, filename, or path. The developer may also supply a path that isn't in the list — accept it.
 
 **Wait for the developer's reply before proceeding.** Do not auto-select; do not pick the most-recent on the developer's behalf.
 
-**If `documentation/features/` is missing or contains no `D101-*` files** and `$ARGUMENTS` is also empty, tell the developer that, suggest running `/d101-feature-design` first, and stop.
+**If `documentation/features/` is missing or contains no `D101-*` files** and the input is also empty, tell the developer that, suggest running `/d101-feature-design` first, and stop.
 
 **If a resolved path doesn't exist on disk**, stop and report the missing path. Do not invent findings about a file you couldn't read.
 
@@ -99,8 +93,8 @@ How sections, N/A stubs, the open §6 and the archetype are *judged* is the gap-
 First, **discover and bucket the persona roster** (so the menu can show what will actually run):
 
 1. **Glob** for persona skills in two places:
-   - Standard (shipped): `${CLAUDE_PLUGIN_ROOT}/skills/persona-*/SKILL.md`
-   - Custom (this repo): `.claude/skills/persona-*/SKILL.md` (relative to the working directory)
+   - Standard (shipped): `../persona-*/SKILL.md`
+   - Custom (this repo): `.claude/skills/persona-*/SKILL.md` — the Claude Code copy, the source — and `.agents/skills/persona-*/SKILL.md` — the Codex mirror (both relative to the working directory). A persona present in both counts once; in Codex invoke it as `$persona-<slug>`.
 2. **Read** each `SKILL.md` and sort it into a bucket by the rule in `persona-review-definition.md` §7:
    - A persona that declares it **does not know the codebase / mechanism** → **business** bucket (e.g. Poseidon, Hermes).
    - A persona that declares it **does know the mechanism / reads §6** — the feasibility exception → **technical** bucket (e.g. Athena).
@@ -196,6 +190,7 @@ If the active repo has no `documentation/features/` directory and the author inv
 
 # Hard rules
 
+- **UTF-8 in, UTF-8 out.** Every file you read or write — templates, definitions, the documents you produce — is UTF-8 without BOM, and they contain characters outside ASCII (dashes, arrows, section signs). When a file tool is available, use it. When you go through a shell instead, force the encoding on both ends: in PowerShell `Get-Content -Raw -Encoding utf8` and `Set-Content -Encoding utf8` (or `[IO.File]::ReadAllText` / `WriteAllText` with `[Text.UTF8Encoding]::new($false)`), never the shell's default code page; copy files that must stay byte-identical with `Copy-Item` / `cp`, not by reading and re-writing their text. Before you report done, spot-check one written file for mojibake (`â€`, `Ã`) — finding any means re-write, not report.
 - **Read-only on the D101, write-only to its review notes.** Never call Edit, anywhere. The only path Write may ever target is the resolved target's `.review.md` sibling — same directory, same slug — never the D101 itself, never a fixed `documentation/features/` location regardless of where the target actually lives, and never any other file. If the author asks you to "just fix it", decline and offer to hand the findings to `/d101-feature-design` as input. This scope is enforced by this rule and by AC checking `git diff` on the target D101, not by a sandboxed permission — Write is a tool-level grant, not a path-level one, so honouring the scope is your discipline to keep (`d101-feature-design-definition.md` §4.10).
 - **Run only what was picked.** Present the menu, wait for the pick, and run only the selected reviews. Never silently run all three.
 - **Orchestrate, don't reimplement.** Every review is delegated to its skill via the **Skill** tool — the gap review to `artifact-d101-gap-review`, each persona review to its `persona-*` skill. Never copy a method into this command; the skills are the source of truth for how a review reads.
