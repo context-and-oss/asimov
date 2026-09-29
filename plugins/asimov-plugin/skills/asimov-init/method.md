@@ -121,7 +121,7 @@ Inspect what already exists so the write plan can label each target. Use **Read*
 - **`asimov.md`** → `NEW` if absent, `OVERWRITE` if present (it is regenerated wholesale either way).
 - **`CLAUDE.md` import** → `SKIP` if any line already references `asimov.md` (e.g. `@asimov.md`); `APPEND` if `CLAUDE.md` exists without it; `NEW` if `CLAUDE.md` is absent (you'll create a minimal one).
 - **`AGENTS.md` region** → `NEW` if the file is absent (create it holding just the managed region); `APPEND` if it exists with no `asimov:start`/`asimov:end` markers (the region is added at the end, the rest untouched); `OVERWRITE` if exactly one intact marker pair exists (only the text between the markers is replaced — label it OVERWRITE in the plan so the refresh is visible); `ASK` — **and write nothing to this file** — if the markers are broken or duplicated (a start without an end, an end without a start, or more than one pair): name the problem and ask the developer to repair or delete the region by hand first.
-- **`.codex/agents/<name>.toml`** (one per shell in the plugin's `agents/`) → `NEW` if absent, `OVERWRITE` if present — the shells are Asimov-owned and regenerated wholesale, like `asimov.md`.
+- **`.codex/agents/<name>.toml`** (one per shell in the plugin's `agents/`) → `NEW` if absent, `OVERWRITE` if present — the shells are Asimov-owned and regenerated wholesale, like `asimov.md`. In Codex this write needs the developer's approval: the sandbox protects `.codex/`, so Codex asks before allowing it.
 - **Each detected stack `README.md`** → `NEW` (scaffold from template) if absent; `MERGE` if present **with** an `<!-- asimov:start -->`…`<!-- asimov:end -->` region (refresh only that region); `ASK` if present **without** markers (do not modify until the developer agrees to inserting a region).
 - **`index.html`** → `NEW` if absent, `OVERWRITE` if present.
 - **`_chrome.css`** → `NEW` if absent; `SKIP` if present and byte-identical to the template; `ASK` (overwrite/keep/diff) if present and different.
@@ -173,7 +173,7 @@ Only after confirmation. Apply each target's rule:
    - Present without markers → append a blank line and the region at the end. **Change no other line.**
    - Present with exactly one intact marker pair → replace only the text **between** the markers.
    - Markers broken or duplicated → write **nothing** to this file (resolved as ASK in Step 6).
-4. **`.codex/agents/*.toml`** — copy each shell from the plugin's `agents/` folder verbatim (byte for byte) into `.codex/agents/` (create the folder), overwriting what is there. Never edit their content — they are Asimov-owned and point at the role skills in the plugin.
+4. **`.codex/agents/*.toml`** — copy each shell from the plugin's `agents/` folder verbatim (byte for byte) into `.codex/agents/` (create the folder), overwriting what is there. Never edit their content — they are Asimov-owned and point at the role skills in the plugin. **In Codex the sandbox refuses this write until the developer approves it** — when Codex asks, that is the prompt to approve. In a run that cannot ask (no approval prompts), do not retry another way: report the four shells as `SKIP — Codex needs your approval to write into .codex/agents/` and say how to finish (approve in an interactive session, or run `asimov-init` from Claude Code once, which writes the same files).
 5. **Convention READMEs** — for each detected stack, render `conventions-readme-template.md` (substitute `{{STACK}}`, `{{REPO-NAME}}`; strip the leading comment):
    - Absent → **Write** the rendered file.
    - Present with `asimov:start`/`asimov:end` markers → replace **only** the text between the markers; keep everything else.
@@ -193,7 +193,7 @@ After writing, report:
 2. The set of stacks detected (or "none detected — scaffold conventions manually when a stack lands").
 3. One-line site stats: `<N> docs across <K> sections; <H>/<T> hand-crafted HTML`.
 4. Any files under `documentation/` that fit no bucket — `Uncategorised — name & path:` one per line, with the most likely intended bucket.
-5. A reminder that `asimov.md` reaches Claude Code — and the `AGENTS.md` region reaches Codex — on the **next** session (both load at session start); that Codex loads the `.codex/agents/` shells only in a repo the developer has marked **trusted**, and only from the next session; and that the shells update when `/asimov-init` runs again, not when the plugin updates. Suggest opening `documentation/index.html` in a browser.
+5. A reminder that `asimov.md` reaches Claude Code — and the `AGENTS.md` region reaches Codex — on the **next** session (both load at session start); that Codex loads the `.codex/agents/` shells only in a repo the developer has marked **trusted**, and only from the next session; and that the shells update when `/asimov-init` runs again, not when the plugin updates. If the shells were skipped because Codex could not get approval to write them, say that first, with the two ways to finish. Suggest opening `documentation/index.html` in a browser.
 
 # Hard rules
 

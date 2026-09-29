@@ -270,7 +270,7 @@ footer.site-footer a { color: var(--cyan); }
   <a href="../index.html#s6">Diagrams</a>
   <span class="spacer"></span>
   <span class="phase-chip full">Full design</span>
-  <span class="status-chip draft">Draft v0.2</span>
+  <span class="status-chip draft">Draft v0.3</span>
 </nav>
 
 <div class="layout-doc">
@@ -485,6 +485,7 @@ footer.site-footer a { color: var(--cyan); }
   <ul class="bullets">
     <li>Writes the Asimov context for Claude Code and for Codex, scaffolds the convention read-lists and the documentation site, and delivers the Codex shells.</li>
     <li>Its report lists what was written and, for Codex, that the repo must be trusted and a new session started.</li>
+    <li class="warn">Run in Codex, the write into <code>.codex/agents/</code> asks for the developer's approval — Codex's sandbox protects that folder. Approve it, or run <code>asimov-init</code> once from Claude Code.</li>
   </ul>
 
   <div class="subhead">After a plugin update</div>
@@ -860,6 +861,7 @@ footer.site-footer a { color: var(--cyan); }
   <div class="failures">
     <div class="failures-head"><div>Failure</div><div>Effect</div><div>Severity</div><div>Recovery</div></div>
     <div class="failure-row"><div>A field in a Codex manifest is wrong</div><div>Codex skips the plugin entry without an error</div><div><span class="sev high">High</span></div><div>AC1 on every change until the CI manifest check exists; the two manifests share their three values.</div></div>
+    <div class="failure-row"><div>Codex refuses the write into <code>.codex/agents/</code></div><div>Shells not delivered; the run reports them as skipped</div><div><span class="sev med">Med</span></div><div>The developer approves the prompt in an interactive session, or runs <code>asimov-init</code> from Claude Code once (same files). Observed live 2026-09-29: a non-interactive Codex run skipped the four shells and wrote everything else.</div></div>
     <div class="failure-row"><div>Repo not trusted in Codex</div><div>Agents absent; delegation falls to a generic agent or fails</div><div><span class="sev med">Med</span></div><div><code>/asimov-init</code>'s report and the README name the trust step and the new session.</div></div>
     <div class="failure-row"><div>A <code>SKILL.md</code> grows past 8 kB</div><div>Codex truncates it; the pointer to <code>method.md</code> may be lost</div><div><span class="sev med">Med</span></div><div>Two-file rule keeps the entry small; AC13; CI check later.</div></div>
     <div class="failure-row"><div>A role skill is marked user-only by mistake</div><div>Claude Code cannot preload it; a Codex agent cannot invoke it</div><div><span class="sev med">Med</span></div><div>AC5/AC13 review the flags; the debug log's "skill not found" warning is the symptom.</div></div>
@@ -874,6 +876,7 @@ footer.site-footer a { color: var(--cyan); }
 <section class="s" id="s6-8">
   <h2 class="section-title"><span class="sec-ref">§6.8</span>Known constraints &amp; gotchas</h2>
   <div class="callout warn"><strong>User-only blocks preload.</strong> Claude Code's <code>disable-model-invocation: true</code> also stops a subagent from preloading that skill, and Codex's <code>allow_implicit_invocation: false</code> hides it from sub-agents. Only entry points a user runs may carry the flag; role skills never.</div>
+  <div class="callout warn"><strong>Codex protects <code>.codex/</code> inside the repo.</strong> Its workspace-write sandbox refuses a write into <code>.codex/agents/</code> until the developer approves it, so delivering the shells from Codex is an approved write, never a silent one; Claude Code writes the same files without asking.</div>
   <div class="callout warn"><strong>Codex reads project agents only in a trusted repo, and only at session start.</strong> Delivery by <code>/asimov-init</code> is followed by a new session; an untrusted repo shows no agents at all.</div>
   <div class="callout"><strong>Codex skills take no arguments.</strong> Whatever follows <code>$asimov-plugin:&lt;skill&gt;</code> in the prompt is the input; the entry-point methods read their target from the prompt and ask when none is given.</div>
   <div class="callout"><strong>Codex namespaces plugin skills.</strong> The model and the user see <code>asimov-plugin:d101-review</code>; the bare name is Claude Code's convenience.</div>
@@ -1088,7 +1091,7 @@ footer.site-footer a { color: var(--cyan); }
     · <span class="mono">features/D101-codex-support.html</span>
   </div>
   <div style="margin-top: 0.4rem">
-    D101 · Codex support · asimov-plugin · Draft v0.2 · 2026-09-29
+    D101 · Codex support · asimov-plugin · Draft v0.3 · 2026-09-29
   </div>
 </footer>
 

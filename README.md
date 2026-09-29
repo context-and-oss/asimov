@@ -54,7 +54,7 @@ $asimov-plugin:d101-review documentation/features/D101-my-feature.html
 - Second one interviews you and writes the D101. Stops after the business design; run it again for the technical design.
 - Third one tells you what the document still lacks. Can also run the persona reviews.
 
-Codex reads the subagents from `.codex/agents/` only in a repo you have marked **trusted**, and only from the next session after `/asimov-init` delivered them. Codex skills take no arguments: whatever follows the skill mention in the prompt is the input.
+Codex reads the subagents from `.codex/agents/` only in a repo you have marked **trusted**, and only from the next session after `/asimov-init` delivered them. When `asimov-init` writes into `.codex/agents/`, Codex asks for your approval — its sandbox protects that folder; approve it, or run `asimov-init` from Claude Code once (it writes the same files). Codex skills take no arguments: whatever follows the skill mention in the prompt is the input.
 
 ## After a plugin update
 
