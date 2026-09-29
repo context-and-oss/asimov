@@ -269,8 +269,8 @@ footer.site-footer a { color: var(--cyan); }
   <a href="../index.html#s5">Reference</a>
   <a href="../index.html#s6">Diagrams</a>
   <span class="spacer"></span>
-  <span class="phase-chip">Business design</span>
-  <span class="status-chip draft">Draft v0.1</span>
+  <span class="phase-chip full">Full design</span>
+  <span class="status-chip draft">Draft v0.2</span>
 </nav>
 
 <div class="layout-doc">
@@ -289,8 +289,27 @@ footer.site-footer a { color: var(--cyan); }
         </ul>
       </li>
       <li><a href="#s5">§5 UI Design</a></li>
-      <li><a href="#s6-open">§6 Still to write</a></li>
-      <li><a href="#s7-pending">§7 Implementation</a></li>
+      <li><a href="#c6">§6 Technical design</a>
+        <ul>
+          <li><a href="#s6-1">§6.1 Platform</a></li>
+          <li><a href="#s6-2">§6.2 Data flow</a></li>
+          <li><a href="#s6-3">§6.3 Code map</a></li>
+          <li><a href="#s6-4">§6.4 Shapes</a></li>
+          <li><a href="#s6-5">§6.5 Contracts</a></li>
+          <li><a href="#s6-6">§6.6 Configuration</a></li>
+          <li><a href="#s6-7">§6.7 Failure handling</a></li>
+          <li><a href="#s6-8">§6.8 Gotchas</a></li>
+        </ul>
+      </li>
+      <li><a href="#c7">§7 Implementation</a>
+        <ul>
+          <li><a href="#s7-1">§7.1 New vs. reuse</a></li>
+          <li><a href="#s7-2">§7.2 Code layout</a></li>
+          <li><a href="#s7-3">§7.3 Setup &amp; wiring</a></li>
+          <li><a href="#s7-4">§7.4 Per-unit build notes</a></li>
+          <li><a href="#s7-5">§7.5 Cross-cutting</a></li>
+        </ul>
+      </li>
       <li><a href="#s8">§8 Acceptance</a></li>
       <li><a href="#s9">§9 Open questions</a></li>
       <li><a href="#s10">§10 References</a></li>
@@ -315,7 +334,7 @@ footer.site-footer a { color: var(--cyan); }
 </div>
 
 <div class="doc-scope">
-  <strong>Scope:</strong> the Asimov plugin (<code>plugins/asimov-plugin</code>) and the repository files that make it installable in Codex alongside Claude Code — the manifests, the skills, the agent shells, <code>/asimov-init</code> and the README. Not in scope: the update flow, CI checks, model routing and anything not needed for Codex to work (§3). §2–§5 are the business agreement; §6 is open — see §6.
+  <strong>Scope:</strong> the Asimov plugin (<code>plugins/asimov-plugin</code>) and the repository files that make it installable in Codex alongside Claude Code — the manifests, the skills, the agent shells, <code>/asimov-init</code> and the README. Not in scope: the update flow, CI checks, model routing and anything not needed for Codex to work (§3). §2–§5 are the business agreement; §6 is the plugin layout that delivers it; §7 is the build recipe.
 </div>
 
 <!-- ═════════════════════ §2 ═════════════════════ -->
@@ -617,31 +636,382 @@ footer.site-footer a { color: var(--cyan); }
 </section>
 
 <!-- ═════════════════════ §6 — open ═════════════════════ -->
-<section class="s" id="s6-open">
-  <h2 class="section-title"><span class="sec-ref">§6</span>Still to write</h2>
-  <div class="callout warn">
-    <strong>⚠ This document is not gap-free.</strong> §2–§5 settle what Codex support is, what a developer sees in each tool, and the rules and decisions behind it. How the plugin is laid out to deliver that is not written yet; no S102 can be written from this document until the items below exist.
+<!-- ═════════════════════ §6 ═════════════════════ -->
+<div class="chapter-band" id="c6">
+  <div class="chapter-band-inner">
+    <div class="ch-num">6</div>
+    <div>
+      <div class="ch-name">Technical design</div>
+      <div class="ch-summary">Where the plugin lives, how a task flows from a developer to an agent in either tool, the file map, the shapes of every per-tool file, the external contracts relied on, the settings, the failures and the gotchas.</div>
+    </div>
   </div>
+</div>
+
+<section class="s" id="s6-1">
+  <h2 class="section-title"><span class="sec-ref">§6.1</span>Platform</h2>
+  <p style="color: var(--text-dim); font-size: 0.95rem; line-height: 1.65;">
+    One folder, <code>plugins/asimov-plugin</code>, committed on <code>main</code>, is the whole installable. Claude Code reads its <code>.claude-plugin/plugin.json</code>, <code>skills/</code>, <code>agents/*.md</code>; Codex reads its <code>.codex-plugin/plugin.json</code> and <code>skills/</code> and ignores the rest. Each tool finds the folder through its own marketplace manifest at the repo root — <code>.claude-plugin/marketplace.json</code> and <code>.agents/plugins/marketplace.json</code> — both pointing at the same path. No build step: what is in the repository is what installs, cached per version by each tool. The method lives in <code>skills/&lt;name&gt;/method.md</code>; every other per-tool file is a pointer to it. Codex cannot carry agents in a plugin, so the Codex shells (<code>agents/*.toml</code>) travel to a product repo's <code>.codex/agents/</code> with <code>/asimov-init</code>, and Codex loads them there only when the developer has marked the repo trusted.
+  </p>
+  <div class="callout warn">
+    <strong>⚠ Escalation gate.</strong> Anything that would need a file transformed per tool — a generated manifest, a converted shell, a substituted path — is out; the design holds only while every file in the folder is read as-is by the tool it is for. If a tool changes so that stops being true, that is a new D101, not a build step slipped in.
+  </div>
+</section>
+
+<section class="s" id="s6-2">
+  <h2 class="section-title"><span class="sec-ref">§6.2</span>Data flow</h2>
+  <p class="section-desc">One delegated task, from the developer's prompt to the agent's report. The two tools differ only in how the agent's shell gets its method — the <em>alt</em> fragment — everything before and after is the same exchange.</p>
+  <div class="flow-wrap">
+    <svg viewBox="0 0 980 560" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="UML sequence diagram: a developer's task is delegated by the orchestrator to an agent shell, which loads its role skill (preloaded in Claude Code, invoked in Codex), reads and writes the product repo, and reports back">
+      <rect x="0" y="0" width="980" height="560" fill="#14253f"/>
+      <defs>
+        <marker id="seq-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 Z" fill="#a8b8d0"/></marker>
+        <marker id="seq-arr-accent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 Z" fill="#66bb6a"/></marker>
+        <marker id="seq-arr-accent2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 Z" fill="#ffb74d"/></marker>
+        <marker id="seq-arr-open" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10" fill="none" stroke="#a8b8d0" stroke-width="1.4"/></marker>
+      </defs>
+      <g>
+        <rect x="40" y="24" width="168" height="48" rx="8" fill="#66bb6a22" stroke="#66bb6a"/>
+        <text x="124" y="44" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">Developer</text>
+        <text x="124" y="60" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">human · either tool</text>
+      </g>
+      <g>
+        <rect x="284" y="24" width="168" height="48" rx="8" fill="#ffb74d1a" stroke="#ffb74d"/>
+        <text x="368" y="44" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">Orchestrator</text>
+        <text x="368" y="60" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">the tool's session</text>
+      </g>
+      <g>
+        <rect x="528" y="24" width="168" height="48" rx="8" fill="#ffb74d1a" stroke="#ffb74d"/>
+        <text x="612" y="44" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">Agent shell</text>
+        <text x="612" y="60" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">.md · Claude Code / .toml · Codex</text>
+      </g>
+      <g>
+        <rect x="772" y="24" width="168" height="48" rx="8" fill="#4fc3f71a" stroke="#4fc3f7"/>
+        <text x="856" y="44" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">Product repo</text>
+        <text x="856" y="60" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">conventions · code · tests</text>
+      </g>
+      <line x1="124" y1="72" x2="124" y2="536" stroke="#3b5e8f" stroke-width="1.5" stroke-dasharray="4 4"/>
+      <line x1="368" y1="72" x2="368" y2="536" stroke="#3b5e8f" stroke-width="1.5" stroke-dasharray="4 4"/>
+      <line x1="612" y1="72" x2="612" y2="536" stroke="#3b5e8f" stroke-width="1.5" stroke-dasharray="4 4"/>
+      <line x1="856" y1="72" x2="856" y2="536" stroke="#3b5e8f" stroke-width="1.5" stroke-dasharray="4 4"/>
+      <rect x="120" y="112" width="8" height="400" fill="#66bb6a22" stroke="#66bb6a"/>
+      <rect x="364" y="112" width="8" height="400" fill="#ffb74d1a" stroke="#ffb74d"/>
+      <rect x="608" y="208" width="8" height="272" fill="#ffb74d1a" stroke="#ffb74d"/>
+      <rect x="852" y="424" width="8" height="24" fill="#4fc3f71a" stroke="#4fc3f7"/>
+      <!-- m1: the task -->
+      <line x1="128" y1="112" x2="364" y2="112" stroke="#66bb6a" stroke-width="1.5" marker-end="url(#seq-arr-accent)"/>
+      <text x="246" y="104" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">task, in the prompt</text>
+      <!-- m2: self — read the Asimov context -->
+      <path d="M372,144 H420 V168 H376" fill="none" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#seq-arr)"/>
+      <text x="432" y="160" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">read Asimov context · delegation flow</text>
+      <!-- m3: spawn by name -->
+      <line x1="372" y1="208" x2="608" y2="208" stroke="#ffb74d" stroke-width="1.5" marker-end="url(#seq-arr-accent2)"/>
+      <text x="490" y="200" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">delegate to agent by name</text>
+      <!-- alt: how the shell gets its method -->
+      <rect x="592" y="232" width="188" height="168" fill="none" stroke="#3b5e8f" stroke-width="1.5"/>
+      <rect x="592" y="232" width="64" height="24" fill="#122039" stroke="#3b5e8f"/>
+      <text x="624" y="248" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700">alt</text>
+      <text x="624" y="272" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">[Claude Code]</text>
+      <path d="M616,292 H664 V316 H620" fill="none" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#seq-arr)"/>
+      <text x="676" y="308" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">entry preloaded</text>
+      <line x1="592" y1="336" x2="780" y2="336" stroke="#3b5e8f" stroke-width="1.5" stroke-dasharray="4 4"/>
+      <text x="624" y="356" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">[Codex]</text>
+      <path d="M616,364 H664 V388 H620" fill="none" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#seq-arr)"/>
+      <text x="676" y="380" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">invoke $asimov-plugin:role</text>
+      <!-- m6: self — read method.md (common) -->
+      <path d="M616,412 H664 V436 H620" fill="none" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#seq-arr)"/>
+      <text x="676" y="428" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">read method.md</text>
+      <!-- m7: read conventions -->
+      <line x1="616" y1="448" x2="852" y2="448" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#seq-arr)"/>
+      <text x="734" y="440" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">read conventions · write code or tests</text>
+      <!-- m8: report -->
+      <line x1="608" y1="480" x2="372" y2="480" stroke="#a8b8d0" stroke-width="1.5" stroke-dasharray="4 4" marker-end="url(#seq-arr-open)"/>
+      <text x="490" y="472" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">report · citations · flags</text>
+      <!-- m9: result -->
+      <line x1="364" y1="512" x2="128" y2="512" stroke="#a8b8d0" stroke-width="1.5" stroke-dasharray="4 4" marker-end="url(#seq-arr-open)"/>
+      <text x="246" y="504" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">result</text>
+    </svg>
+    <div class="flow-legend">
+      <span class="item"><span class="swatch" style="background:var(--green)"></span>Entry</span>
+      <span class="item"><span class="swatch" style="background:var(--amber)"></span>Processing</span>
+      <span class="item"><span class="swatch" style="background:var(--cyan)"></span>Repo files</span>
+    </div>
+  </div>
+  <ol class="principles">
+    <li>The developer states the task in the prompt; the model's session is the orchestrator.</li>
+    <li>The orchestrator reads the Asimov context — <code>asimov.md</code> through the <code>CLAUDE.md</code> import in Claude Code, the <code>AGENTS.md</code> managed region in Codex — and follows its delegation flow; in Codex that text is also what authorises spawning at all.</li>
+    <li>It delegates by name: Claude Code's agent tool with the plugin agent; Codex's <code>spawn_agent</code> with <code>agent_type</code> set to the shell's name. No model is passed; the agent inherits the session's.</li>
+    <li>The shell gets its method: Claude Code preloads the role skill's <code>SKILL.md</code> (the <code>skills:</code> field); in Codex the shell's instructions invoke <code>$asimov-plugin:&lt;role-skill&gt;</code>. Either way the entry says "read <code>method.md</code>", and the agent does.</li>
+    <li>The agent reads the repo's convention read-list and files, writes code or tests (Baley writes nothing), and reports with citations and flags.</li>
+    <li>The orchestrator continues the delegation flow (test-impact check, the opt-in questions) and answers the developer.</li>
+  </ol>
+</section>
+
+<section class="s" id="s6-3">
+  <h2 class="section-title"><span class="sec-ref">§6.3</span>Code map</h2>
+  <div class="codemap">
+    <div class="codemap-row"><div class="what">Claude Code plugin manifest</div><div class="where">plugins/asimov-plugin/.claude-plugin/plugin.json</div></div>
+    <div class="codemap-row"><div class="what">Codex plugin manifest (new)</div><div class="where">plugins/asimov-plugin/.codex-plugin/plugin.json</div></div>
+    <div class="codemap-row"><div class="what">Claude Code marketplace manifest</div><div class="where">.claude-plugin/marketplace.json</div></div>
+    <div class="codemap-row"><div class="what">Codex marketplace manifest (new)</div><div class="where">.agents/plugins/marketplace.json</div></div>
+    <div class="codemap-row"><div class="what">Entry-point skills (from the six commands)</div><div class="where">plugins/asimov-plugin/skills/{asimov-init,d101-feature-design,d101-review,d101-convert-to-html,persona-new,persona-list}/SKILL.md + method.md</div></div>
+    <div class="codemap-row"><div class="what">User-only marker for Codex</div><div class="where">plugins/asimov-plugin/skills/asimov-init/agents/openai.yaml</div></div>
+    <div class="codemap-row"><div class="what">Role, artifact, persona and advisory skills</div><div class="where">plugins/asimov-plugin/skills/{role-*,artifact-*,persona-*,pm-advisor}/SKILL.md + method.md</div></div>
+    <div class="codemap-row"><div class="what">Agent shells, one pair per agent</div><div class="where">plugins/asimov-plugin/agents/&lt;name&gt;.md · &lt;name&gt;.toml</div></div>
+    <div class="codemap-row"><div class="what">Asimov context template (delegation flow, role-skill rule)</div><div class="where">plugins/asimov-plugin/artifacts/root/asimov-md/asimov-md-template.md</div></div>
+    <div class="codemap-row"><div class="what">Definitions, templates, corpus (unchanged, referenced relatively)</div><div class="where">plugins/asimov-plugin/{artifacts,resources,processes}/</div></div>
+    <div class="codemap-row"><div class="what">Retired</div><div class="where">plugins/asimov-plugin/commands/ · documentation/model-choice.md · the CI model-sync step</div></div>
+    <div class="codemap-row"><div class="what">Written into a product repo</div><div class="where">asimov.md · CLAUDE.md (import) · AGENTS.md (region) · .codex/agents/*.toml · .claude/skills/persona-*/ · .agents/skills/persona-*/</div></div>
+  </div>
+</section>
+
+<section class="s" id="s6-4">
+  <h2 class="section-title"><span class="sec-ref">§6.4</span>Shapes</h2>
+
+  <div class="subhead">§6.4.1 Skill entry — <code>skills/&lt;name&gt;/SKILL.md</code></div>
+  <div class="data-table">
+    <div class="row head cols-2"><div>Field</div><div>Notes</div></div>
+    <div class="row cols-2"><div class="label-cell">name</div><div>The skill's name; equals the folder name. Read by both tools.</div></div>
+    <div class="row cols-2"><div class="label-cell">description</div><div>The trigger both tools show the model and the user; one paragraph. Read by both tools.</div></div>
+    <div class="row cols-2"><div class="label-cell">argument-hint</div><div>Entry-point skills only; Claude Code shows it, Codex ignores it.</div></div>
+    <div class="row cols-2"><div class="label-cell">disable-model-invocation</div><div><code>true</code> on <code>asimov-init</code> only; Claude Code hides the skill from the model. Never on a role skill (it would block the preload).</div></div>
+    <div class="row cols-2"><div class="label-cell">allowed-tools</div><div>Kept where the command had it; Claude Code only.</div></div>
+    <div class="row cols-2"><div class="label-cell">body</div><div>Two sentences: what the skill is for, and <em>"Read <code>method.md</code> in this skill's folder first and follow it."</em> Nothing else; under 8 kB by construction.</div></div>
+  </div>
+
+  <div class="subhead">§6.4.2 Method — <code>skills/&lt;name&gt;/method.md</code></div>
   <ul class="bullets">
-    <li>How each of the six commands is laid out as a two-file skill and what its <code>method.md</code> carries, so that no command behaviour is lost in the move and Codex never truncates an entry.</li>
-    <li>What exactly the two Codex manifests contain and how a wrong field fails an install silently, so the manifests can be checked rather than trusted.</li>
-    <li>How a Codex shell finds and runs its role skill, and what Baley's read-only looks like in Codex, so a shell never runs with more rights than its Claude counterpart.</li>
-    <li>How <code>/asimov-init</code> locates the shells in the plugin from either tool and writes the <code>AGENTS.md</code> region without touching the team's own text.</li>
-    <li>How <code>/persona-new</code> writes and names the two copies so both tools discover them, and what <code>/persona-list</code> shows when only one exists.</li>
-    <li>Which relative-path form every skill uses to reach the definitions and templates, so a moved file is caught before install and not by a user.</li>
-    <li>How the UTF-8 rule is written into a skill so Codex's PowerShell honours it on Windows.</li>
-    <li>Which of today's D101s (subagents, asimov-init, personas), D100 sections and CLAUDE.md recipes must change so nothing points at a retired command or a pinned model.</li>
-    <li>What an existing Claude Code user sees in the first session after the update — skills replacing commands — and whether anything must be removed or renamed for them.</li>
+    <li>The full text the command or skill body carried before, unchanged in substance.</li>
+    <li>Plugin files are referenced relative to the skill folder: <code>../../artifacts/…</code>, <code>../../resources/…</code>, <code>../../processes/…</code>, <code>../../agents/*.toml</code>.</li>
+    <li>The developer's input is "whatever the prompt gave alongside the invocation"; no placeholder the tool must substitute.</li>
+    <li>A skill that writes files carries the UTF-8 rule: read and write as UTF-8 explicitly, byte-copy templates, spot-check the written file for mojibake.</li>
+  </ul>
+
+  <div class="subhead">§6.4.3 Codex user-only marker — <code>skills/asimov-init/agents/openai.yaml</code></div>
+  <ul class="gps-paths">
+    <li>policy.allow_implicit_invocation: false</li>
+    <li>interface.display_name · interface.short_description (what Codex shows in its picker)</li>
+  </ul>
+
+  <div class="subhead">§6.4.4 Claude Code shell — <code>agents/&lt;name&gt;.md</code></div>
+  <div class="data-table">
+    <div class="row head cols-2"><div>Field</div><div>Notes</div></div>
+    <div class="row cols-2"><div class="label-cell">name · description</div><div>Identical to the <code>.toml</code> twin's; the description is the orchestrator's routing text.</div></div>
+    <div class="row cols-2"><div class="label-cell">skills</div><div>The one role skill, preloaded by bare name.</div></div>
+    <div class="row cols-2"><div class="label-cell">tools</div><div><code>Read, Grep, Glob, Bash</code> on Baley only — the read-only reviewer.</div></div>
+    <div class="row cols-2"><div class="label-cell">model</div><div>Absent. The agent runs on the session's model.</div></div>
+    <div class="row cols-2"><div class="label-cell">body</div><div>Who the agent is and "your method is the preloaded role skill — read its <code>method.md</code> and follow it". No method text.</div></div>
+  </div>
+
+  <div class="subhead">§6.4.5 Codex shell — <code>agents/&lt;name&gt;.toml</code></div>
+  <div class="data-table">
+    <div class="row head cols-2"><div>Field</div><div>Notes</div></div>
+    <div class="row cols-2"><div class="label-cell">name · description</div><div>Identical to the <code>.md</code> twin's; Codex identifies the agent by <code>name</code>.</div></div>
+    <div class="row cols-2"><div class="label-cell">developer_instructions</div><div>The same body as the <code>.md</code>, with "invoke the skill <code>$asimov-plugin:&lt;role&gt;</code> first, then read its <code>method.md</code>".</div></div>
+    <div class="row cols-2"><div class="label-cell">sandbox_mode</div><div><code>"read-only"</code> on Baley only — Codex's counterpart of the tool restriction.</div></div>
+    <div class="row cols-2"><div class="label-cell">model · model_reasoning_effort</div><div>Absent. The agent inherits the parent's.</div></div>
+  </div>
+
+  <div class="subhead">§6.4.6 Manifests</div>
+  <ul class="bullets">
+    <li><code>.codex-plugin/plugin.json</code>: <code>name</code>, <code>version</code>, <code>description</code> (the same three values as the Claude manifest), <code>skills: "./skills/"</code>, plus <code>author</code>, <code>homepage</code>, <code>repository</code>, <code>license</code>, <code>keywords</code> as Superpowers ships them.</li>
+    <li><code>.agents/plugins/marketplace.json</code>: <code>name: "asimov-marketplace"</code>, <code>interface.displayName</code>, one plugin entry <code>{ name: "asimov-plugin", source: "./plugins/asimov-plugin", description }</code>; resolved from the marketplace root, so it works from a GitHub add and a local clone alike.</li>
+    <li>The Claude Code pair is unchanged.</li>
+  </ul>
+
+  <div class="subhead">§6.4.7 Asimov context in a product repo</div>
+  <ul class="bullets">
+    <li><code>asimov.md</code> at the root, imported by one <code>@asimov.md</code> line in <code>CLAUDE.md</code> — as today.</li>
+    <li>The same rendered text inside <code>AGENTS.md</code> between <code>&lt;!-- asimov:start --&gt;</code> and <code>&lt;!-- asimov:end --&gt;</code>; everything outside the markers is the team's.</li>
+    <li>The template gains the role-skill rule and the Codex delegation form ("spawn the agent by its name; pass no model").</li>
+  </ul>
+
+  <div class="subhead">§6.4.8 Custom persona in a product repo</div>
+  <ul class="gps-paths">
+    <li>.claude/skills/persona-&lt;slug&gt;/SKILL.md — the source</li>
+    <li>.agents/skills/persona-&lt;slug&gt;/SKILL.md — the mirror, byte-identical</li>
   </ul>
 </section>
 
-<!-- ═════════════════════ §7 — pending ═════════════════════ -->
-<section class="s" id="s7-pending">
-  <h2 class="section-title"><span class="sec-ref">§7</span>Implementation</h2>
-  <div class="callout warn">
-    <strong>⚠ Pending the technical design.</strong> The build recipe is written once §6 is settled; while this document is in the <em>Business design</em> phase the outstanding technical work is listed under §6 <a href="#s6-open">Still to write</a>.
+<section class="s" id="s6-5">
+  <h2 class="section-title"><span class="sec-ref">§6.5</span>Contracts relied on</h2>
+  <div class="callout">
+    No API of Asimov's own. The design rests on five external contracts, each documented by its owner and verified live on 2026-09-29 (research note): Claude Code's plugin, skill and subagent formats (<code>disable-model-invocation</code>, <code>skills:</code> preload, "Base directory for this skill"); Codex's plugin and marketplace manifests (compatibility path for Claude manifests noted, not used); Codex skills (<code>$plugin:skill</code>, the skill path in the listing, <code>policy.allow_implicit_invocation</code>, the 8 kB entry limit); Codex custom agents (TOML in <code>~/.codex/agents/</code> or a trusted repo's <code>.codex/agents/</code>, <code>agent_type</code> spawn, inheritance when <code>model</code> is absent); and the shared SKILL.md convention both tools read.
   </div>
 </section>
+
+<section class="s" id="s6-6">
+  <h2 class="section-title"><span class="sec-ref">§6.6</span>Configuration &amp; secrets</h2>
+  <p class="section-desc">Nothing is configurable at run time; these are the fixed values and the one user-side switch.</p>
+  <div class="data-table">
+    <div class="row head cols-3"><div>Setting</div><div>Default</div><div>Justification</div></div>
+    <div class="row cols-3"><div class="label-cell">plugin name</div><div><code>asimov-plugin</code></div><div>In both plugin manifests and both marketplace entries; Claude Code installs keep working (NF2).</div></div>
+    <div class="row cols-3"><div class="label-cell">marketplace name</div><div><code>asimov-marketplace</code></div><div>Same in both tools, so the README's update commands read the same.</div></div>
+    <div class="row cols-3"><div class="label-cell">plugin version</div><div><code>0.2.0</code> at this change</div><div>Both tools detect updates by version; bumped with every plugin change (version rule).</div></div>
+    <div class="row cols-3"><div class="label-cell">asimov-init: disable-model-invocation</div><div><code>true</code></div><div>User-only in Claude Code (R3).</div></div>
+    <div class="row cols-3"><div class="label-cell">asimov-init: policy.allow_implicit_invocation</div><div><code>false</code></div><div>User-only in Codex (R3).</div></div>
+    <div class="row cols-3"><div class="label-cell">Baley: tools · sandbox_mode</div><div><code>Read, Grep, Glob, Bash</code> · <code>"read-only"</code></div><div>The reviewer never edits, in either tool.</div></div>
+    <div class="row cols-3"><div class="label-cell">SKILL.md size</div><div>&lt; <code>8000</code> bytes</div><div>Codex truncates the entry above it (NF3); checked by hand until the CI check exists.</div></div>
+    <div class="row cols-3"><div class="label-cell">Codex project trust</div><div>user-side, per repo</div><div>Codex loads <code>.codex/agents/</code> only in a trusted repo; not ours to set — <code>/asimov-init</code>'s report and the README say so.</div></div>
+  </div>
+</section>
+
+<section class="s" id="s6-7">
+  <h2 class="section-title"><span class="sec-ref">§6.7</span>Failure handling</h2>
+  <div class="failures">
+    <div class="failures-head"><div>Failure</div><div>Effect</div><div>Severity</div><div>Recovery</div></div>
+    <div class="failure-row"><div>A field in a Codex manifest is wrong</div><div>Codex skips the plugin entry without an error</div><div><span class="sev high">High</span></div><div>AC1 on every change until the CI manifest check exists; the two manifests share their three values.</div></div>
+    <div class="failure-row"><div>Repo not trusted in Codex</div><div>Agents absent; delegation falls to a generic agent or fails</div><div><span class="sev med">Med</span></div><div><code>/asimov-init</code>'s report and the README name the trust step and the new session.</div></div>
+    <div class="failure-row"><div>A <code>SKILL.md</code> grows past 8 kB</div><div>Codex truncates it; the pointer to <code>method.md</code> may be lost</div><div><span class="sev med">Med</span></div><div>Two-file rule keeps the entry small; AC13; CI check later.</div></div>
+    <div class="failure-row"><div>A role skill is marked user-only by mistake</div><div>Claude Code cannot preload it; a Codex agent cannot invoke it</div><div><span class="sev med">Med</span></div><div>AC5/AC13 review the flags; the debug log's "skill not found" warning is the symptom.</div></div>
+    <div class="failure-row"><div>Persona edited in one folder only</div><div>The two tools read different personas</div><div><span class="sev low">Low</span></div><div>Re-run <code>/persona-new</code> for that reader; the Claude copy is the source.</div></div>
+    <div class="failure-row"><div><code>AGENTS.md</code> markers broken or duplicated</div><div>Region cannot be located</div><div><span class="sev med">Med</span></div><div><code>/asimov-init</code> stops that write and reports; never guesses or repairs markers.</div></div>
+    <div class="failure-row"><div>Codex on Windows writes a file as ANSI</div><div>Mojibake in a D101 or persona</div><div><span class="sev med">Med</span></div><div>The UTF-8 rule in every writing skill; the spot-check re-reads the file.</div></div>
+    <div class="failure-row"><div>Shell delivered mid-session</div><div>Codex lists the agent but cannot spawn it</div><div><span class="sev low">Low</span></div><div>New session — the report says so; known Codex behaviour.</div></div>
+    <div class="failure-row"><div>Version not bumped</div><div>Neither tool offers the update</div><div><span class="sev med">Med</span></div><div>AC15 and the CLAUDE.md rule; CI check later.</div></div>
+  </div>
+</section>
+
+<section class="s" id="s6-8">
+  <h2 class="section-title"><span class="sec-ref">§6.8</span>Known constraints &amp; gotchas</h2>
+  <div class="callout warn"><strong>User-only blocks preload.</strong> Claude Code's <code>disable-model-invocation: true</code> also stops a subagent from preloading that skill, and Codex's <code>allow_implicit_invocation: false</code> hides it from sub-agents. Only entry points a user runs may carry the flag; role skills never.</div>
+  <div class="callout warn"><strong>Codex reads project agents only in a trusted repo, and only at session start.</strong> Delivery by <code>/asimov-init</code> is followed by a new session; an untrusted repo shows no agents at all.</div>
+  <div class="callout"><strong>Codex skills take no arguments.</strong> Whatever follows <code>$asimov-plugin:&lt;skill&gt;</code> in the prompt is the input; the entry-point methods read their target from the prompt and ask when none is given.</div>
+  <div class="callout"><strong>Codex namespaces plugin skills.</strong> The model and the user see <code>asimov-plugin:d101-review</code>; the bare name is Claude Code's convenience.</div>
+  <div class="callout"><strong>Codex truncates a skill entry at 8 kB</strong> and does not truncate the files the skill then reads — hence the two-file shape.</div>
+  <div class="callout"><strong>Codex migrates <code>commands/</code> at install, dropping anything over 4 kB silently.</strong> Removing <code>commands/</code> is what makes the six entry points reach Codex whole.</div>
+  <div class="callout"><strong>Version is the update signal in both tools.</strong> Claude Code: "push new commits without changing it, users don't receive them"; Codex caches per version. A local-clone marketplace in Claude Code reads in place and needs no bump — the development path.</div>
+  <div class="callout"><strong>Development installs.</strong> Claude Code: <code>claude --plugin-dir plugins/asimov-plugin</code> loads the folder for one session and overrides an installed plugin of the same name. Codex: add the clone as a local marketplace (<code>codex plugin marketplace add &lt;clone&gt;</code>); remove and add the plugin again after editing.</div>
+  <div class="callout"><strong>Codex plugins are not available in the IDE extension</strong>; the CLI and the desktop app load them.</div>
+</section>
+
+
+<!-- ═════════════════════ §7 — pending ═════════════════════ -->
+<!-- ═════════════════════ §7 ═════════════════════ -->
+<div class="chapter-band" id="c7">
+  <div class="chapter-band-inner">
+    <div class="ch-num">7</div>
+    <div>
+      <div class="ch-name">Implementation</div>
+      <div class="ch-summary">The build recipe for the §6 shapes: what is new and what is reused, where it goes, the one wiring step, per-unit notes keyed to §6.4, and the rules that apply to every unit. Code-grounded against <code>main</code> at 77e2283.</div>
+    </div>
+  </div>
+</div>
+
+<section class="s" id="s7-1">
+  <h2 class="section-title"><span class="sec-ref">§7.1</span>What is genuinely new to build</h2>
+  <div class="callout">Checked against the plugin on <code>main</code>: ten skills exist (four <code>role-*</code>, two <code>artifact-*</code>, three <code>persona-*</code>, <code>pm-advisor</code>), each with its method inside <code>SKILL.md</code>; eight shell files exist (four <code>.md</code> with <code>model: claude-sonnet-4-6</code>, four prototype <code>.toml</code> without a model); six commands exist under <code>commands/</code> with <code>model:</code> frontmatter and <code>${CLAUDE_PLUGIN_ROOT}</code> paths. Most of the work is moving text, not writing it.</div>
+  <ul class="bullets">
+    <li><span class="tag new">new</span> <code>.codex-plugin/plugin.json</code> and <code>.agents/plugins/marketplace.json</code> (§6.4.6).</li>
+    <li><span class="tag new">new</span> Six skill folders from the six commands: body → <code>method.md</code>, frontmatter → <code>SKILL.md</code> minus <code>model</code>/<code>effort</code>, plus the pointer body (§6.4.1–§6.4.2).</li>
+    <li><span class="tag new">new</span> <code>skills/asimov-init/agents/openai.yaml</code> (§6.4.3) and <code>disable-model-invocation: true</code> on its entry.</li>
+    <li><span class="tag reuse">reuse</span> Ten existing skills: body → <code>method.md</code>, entry rewritten to the pointer; <code>${CLAUDE_PLUGIN_ROOT}</code> → relative paths in the two <code>artifact-*</code> skills and <code>pm-advisor</code>.</li>
+    <li><span class="tag reuse">reuse</span> Eight shells: <code>model:</code> removed from the four <code>.md</code>; the four <code>.toml</code> lose their prototype comments, gain the invoke instruction and, for Baley, <code>sandbox_mode = "read-only"</code>.</li>
+    <li><span class="tag reuse">reuse</span> <code>asimov-init</code>: the <code>AGENTS.md</code> region and the <code>.codex/agents/</code> delivery, ported from the earlier Codex branch's version of the command (write plan, actions, hard rules, report lines), with the TOML source now <code>../../agents/*.toml</code>.</li>
+    <li><span class="tag new">new</span> <code>persona-new</code> writes the mirror copy; <code>persona-list</code> lists both folders and marks a lone copy.</li>
+    <li><span class="tag reuse">reuse</span> <code>asimov-md-template.md</code>: the role-skill rule and the Codex spawn form added to the delegation flow.</li>
+    <li><span class="tag note">docs</span> README, CLAUDE.md, D100, <code>D101-subagents</code> (model decision), <code>D101-asimov-init</code> and <code>D101-personas</code> (amendment callouts), the site's Codex section; <code>model-choice.md</code> and the CI model-sync step retired.</li>
+  </ul>
+</section>
+
+<section class="s" id="s7-2">
+  <h2 class="section-title"><span class="sec-ref">§7.2</span>The project</h2>
+  <div class="data-table">
+    <div class="row head cols-2"><div>Folder</div><div>What it holds after this change</div></div>
+    <div class="row cols-2"><div class="label-cell">plugins/asimov-plugin/.claude-plugin/ · .codex-plugin/</div><div>One manifest each; same name, version, description.</div></div>
+    <div class="row cols-2"><div class="label-cell">plugins/asimov-plugin/skills/&lt;name&gt;/</div><div>Sixteen skills, each <code>SKILL.md</code> + <code>method.md</code>; <code>asimov-init/agents/openai.yaml</code>.</div></div>
+    <div class="row cols-2"><div class="label-cell">plugins/asimov-plugin/agents/</div><div>Four shell pairs, no model.</div></div>
+    <div class="row cols-2"><div class="label-cell">plugins/asimov-plugin/{artifacts,resources,processes}/</div><div>Unchanged content; referenced relatively.</div></div>
+    <div class="row cols-2"><div class="label-cell">.claude-plugin/ · .agents/plugins/ (repo root)</div><div>One marketplace manifest each.</div></div>
+    <div class="row cols-2"><div class="label-cell">plugins/asimov-plugin/commands/</div><div>Removed.</div></div>
+  </div>
+</section>
+
+<section class="s" id="s7-3">
+  <h2 class="section-title"><span class="sec-ref">§7.3</span>Setup &amp; wiring — Codex trust · §6.6</h2>
+  <p class="section-desc">The one step outside the plugin. Codex loads a repo's <code>.codex/agents/</code> only when the developer has trusted the repo, and reads that folder at session start.</p>
+  <div class="data-table">
+    <div class="row head cols-2"><div>Where</div><div>What</div></div>
+    <div class="row cols-2"><div class="label-cell"><code>/asimov-init</code> report</div><div>After delivering the TOMLs: "Codex loads these agents in a trusted repo, from your next session."</div></div>
+    <div class="row cols-2"><div class="label-cell">README, Codex section</div><div>The same two sentences, next to the install commands.</div></div>
+  </div>
+</section>
+
+<section class="s" id="s7-4">
+  <h2 class="section-title"><span class="sec-ref">§7.4</span>Each unit</h2>
+
+  <div class="subhead"><span class="s-ref">§7.4.1</span> Manifests — §6.4.6</div>
+  <div class="data-table impl-table">
+    <div class="row head cols-3"><div>Aspect</div><div></div><div>Details</div></div>
+    <div class="row cols-3"><div class="label-cell">Codex plugin manifest</div><div><span class="tag new">new</span></div><div>Model on Superpowers' <code>.codex-plugin/plugin.json</code>; copy <code>name</code>, <code>version</code>, <code>description</code> from the Claude manifest; <code>skills: "./skills/"</code>.</div></div>
+    <div class="row cols-3"><div class="label-cell">Codex marketplace manifest</div><div><span class="tag new">new</span></div><div>Model on <code>openai/plugins</code>' <code>.agents/plugins/marketplace.json</code>; <code>source</code> as a plain <code>./plugins/asimov-plugin</code> string.</div></div>
+    <div class="row cols-3"><div class="label-cell">Version</div><div><span class="tag note">rule</span></div><div><code>0.1.0</code> → <code>0.2.0</code> in both plugin manifests in the same commit as the first plugin change.</div></div>
+  </div>
+
+  <div class="subhead"><span class="s-ref">§7.4.2</span> Entry-point skills — §6.4.1, §6.4.2</div>
+  <div class="data-table impl-table">
+    <div class="row head cols-3"><div>Aspect</div><div></div><div>Details</div></div>
+    <div class="row cols-3"><div class="label-cell">Split</div><div><span class="tag new">new</span></div><div>For each of the six commands: frontmatter → <code>SKILL.md</code> (drop <code>model</code>, <code>effort</code>; keep <code>description</code>, <code>argument-hint</code>, <code>allowed-tools</code>; add <code>name</code>), body → <code>method.md</code>.</div></div>
+    <div class="row cols-3"><div class="label-cell">Paths</div><div><span class="tag note">edit</span></div><div><code>${CLAUDE_PLUGIN_ROOT}/</code> → <code>../../</code> in every <code>method.md</code> (nine occurrences across the six).</div></div>
+    <div class="row cols-3"><div class="label-cell">Input</div><div><span class="tag note">edit</span></div><div>The <code>$ARGUMENTS</code> block becomes one sentence: the input is whatever the prompt gave with the invocation; Claude Code may pass it as <code>ARGUMENTS: …</code>. The "if non-empty" branches read "if the prompt named a target".</div></div>
+    <div class="row cols-3"><div class="label-cell">Self-reference</div><div><span class="tag note">edit</span></div><div>"You are the <code>/x</code> command" → "the <code>x</code> skill"; the lockstep note in each names the other skills' <code>method.md</code>.</div></div>
+    <div class="row cols-3"><div class="label-cell">Skill tool calls</div><div><span class="tag note">edit</span></div><div>Where a command invoked another skill through the tool (the authoring and gap-review skills, the personas), the wording stays; in Codex the same call is <code>$asimov-plugin:&lt;skill&gt;</code> — said once in the method.</div></div>
+  </div>
+
+  <div class="subhead"><span class="s-ref">§7.4.3</span> Existing skills — §6.4.1, §6.4.2</div>
+  <div class="data-table impl-table">
+    <div class="row head cols-3"><div>Aspect</div><div></div><div>Details</div></div>
+    <div class="row cols-3"><div class="label-cell">Split</div><div><span class="tag reuse">reuse</span></div><div>Body after the frontmatter → <code>method.md</code> verbatim; the entry keeps the frontmatter and gets the pointer body.</div></div>
+    <div class="row cols-3"><div class="label-cell">Paths</div><div><span class="tag note">edit</span></div><div><code>artifact-d101-authoring</code>, <code>artifact-d101-gap-review</code>, <code>pm-advisor</code>: <code>${CLAUDE_PLUGIN_ROOT}/</code> → <code>../../</code>.</div></div>
+    <div class="row cols-3"><div class="label-cell">Role skills</div><div><span class="tag reuse">reuse</span></div><div>Unchanged text; they read product-repo paths only.</div></div>
+  </div>
+
+  <div class="subhead"><span class="s-ref">§7.4.4</span> Agent shells — §6.4.4, §6.4.5</div>
+  <div class="data-table impl-table">
+    <div class="row head cols-3"><div>Aspect</div><div></div><div>Details</div></div>
+    <div class="row cols-3"><div class="label-cell">.md</div><div><span class="tag note">edit</span></div><div>Delete the <code>model:</code> line; body says "read its <code>method.md</code>".</div></div>
+    <div class="row cols-3"><div class="label-cell">.toml</div><div><span class="tag note">edit</span></div><div>Delete the PROTOTYPE comments; <code>developer_instructions</code> opens with "Invoke the skill <code>$asimov-plugin:&lt;role&gt;</code> first and read its <code>method.md</code>"; Baley gets <code>sandbox_mode = "read-only"</code>.</div></div>
+    <div class="row cols-3"><div class="label-cell">Parity</div><div><span class="tag note">check</span></div><div>Name and description identical across the pair (AC5).</div></div>
+  </div>
+
+  <div class="subhead"><span class="s-ref">§7.4.5</span> asimov-init — §6.4.7</div>
+  <div class="data-table impl-table">
+    <div class="row head cols-3"><div>Aspect</div><div></div><div>Details</div></div>
+    <div class="row cols-3"><div class="label-cell">Targets</div><div><span class="tag reuse">reuse</span></div><div>Two more targets in the write plan, the action table, Step 7 and the hard rules: the <code>AGENTS.md</code> region (NEW / APPEND / OVERWRITE / ASK on broken markers) and <code>.codex/agents/&lt;name&gt;.toml</code> (NEW / OVERWRITE), taken from the earlier branch's command text.</div></div>
+    <div class="row cols-3"><div class="label-cell">Source of the TOMLs</div><div><span class="tag note">edit</span></div><div><code>../../agents/*.toml</code>, listed with the glob tool; missing folder → skip both Codex targets and say so.</div></div>
+    <div class="row cols-3"><div class="label-cell">Report</div><div><span class="tag note">edit</span></div><div>Adds the trust and new-session lines (§7.3); "TOMLs update when <code>/asimov-init</code> runs again, not when the plugin updates."</div></div>
+  </div>
+
+  <div class="subhead"><span class="s-ref">§7.4.6</span> Personas — §6.4.8</div>
+  <div class="data-table impl-table">
+    <div class="row head cols-3"><div>Aspect</div><div></div><div>Details</div></div>
+    <div class="row cols-3"><div class="label-cell">persona-new</div><div><span class="tag new">new</span></div><div>After writing <code>.claude/skills/persona-&lt;slug&gt;/SKILL.md</code>, write the identical file to <code>.agents/skills/persona-&lt;slug&gt;/SKILL.md</code>; both in the plan and the report.</div></div>
+    <div class="row cols-3"><div class="label-cell">persona-list</div><div><span class="tag new">new</span></div><div>Glob both folders; a persona present in one only is listed with "Claude Code only" / "Codex only"; a differing pair with "copies differ".</div></div>
+  </div>
+
+  <div class="subhead"><span class="s-ref">§7.4.7</span> Documentation</div>
+  <div class="data-table impl-table">
+    <div class="row head cols-3"><div>Aspect</div><div></div><div>Details</div></div>
+    <div class="row cols-3"><div class="label-cell">README</div><div><span class="tag note">edit</span></div><div>Install, invoke, update per tool; known limitations; the two-file skill shape in "What's inside"; <code>model-choice.md</code> references removed.</div></div>
+    <div class="row cols-3"><div class="label-cell">CLAUDE.md</div><div><span class="tag note">edit</span></div><div>Quick map; "how to add a skill" (two-file shape, no model, relative paths); "how to add a subagent" (shell pair, no model); hard rules: no model names, version bump, no Claude-only paths in skills, shell parity; the model-choice rule retired.</div></div>
+    <div class="row cols-3"><div class="label-cell">D100</div><div><span class="tag note">edit</span></div><div>§4.3 commands → entry-point skills; §4.4 shells without a model, Codex delivery; §4.6 the two-file shape; §5 layout; §6 install per tool; §7.3 and §8.1 model selection → "the session's"; §10 Q1 closed.</div></div>
+    <div class="row cols-3"><div class="label-cell">D101-subagents</div><div><span class="tag note">edit</span></div><div>Amendment callout: the model decision (§4.5 "Sonnet 4.6 for all four") superseded by inheritance — this document; the <code>.toml</code> prototype notes resolved.</div></div>
+    <div class="row cols-3"><div class="label-cell">D101-asimov-init · D101-personas</div><div><span class="tag note">edit</span></div><div>Amendment callouts pointing here for the new targets and the mirror copy.</div></div>
+    <div class="row cols-3"><div class="label-cell">CI</div><div><span class="tag note">edit</span></div><div>The model-sync step removed (it would fail on the absent <code>commands/</code>); the other two steps stay. New checks are OOS2.</div></div>
+  </div>
+</section>
+
+<section class="s" id="s7-5">
+  <h2 class="section-title"><span class="sec-ref">§7.5</span>Cross-cutting — shared by every unit</h2>
+  <ul class="bullets">
+    <li>No <code>model</code>, <code>effort</code> or <code>model_reasoning_effort</code> anywhere in the plugin (no-model rule).</li>
+    <li>No <code>${CLAUDE_PLUGIN_ROOT}</code> under <code>skills/</code>; every plugin reference is relative to the skill folder (R10).</li>
+    <li>Every writing skill carries the UTF-8 rule as its first hard rule (R9).</li>
+    <li>Every <code>SKILL.md</code> under 8 kB with the pointer body; every skill has <code>method.md</code> (NF3).</li>
+    <li>Both plugin manifests carry the same name, version and description; the version is bumped once for the whole change.</li>
+    <li>Commits stay logical: manifests · skills · shells · init and personas · docs and CI, so a reviewer can read each against its §6.4 shape.</li>
+  </ul>
+</section>
+
 
 <!-- ═════════════════════ §8 ═════════════════════ -->
 <section class="s" id="s8">
@@ -679,29 +1049,31 @@ footer.site-footer a { color: var(--cyan); }
     <div class="refs-block">
       <h4>Docs</h4>
       <ul>
-        <li>documentation/research/codex-support-probes.md — what both tools guarantee, verified 2026-09-29</li>
+        <li>documentation/research/codex-support-probes.md — what both tools guarantee, verified 2026-09-29; the basis of §6</li>
         <li>documentation/features/D101-subagents.html — the role skills and the thin shells this builds on</li>
         <li>documentation/features/D101-asimov-init.html — the repo wiring <code>/asimov-init</code> extends</li>
         <li>documentation/features/D101-personas.html — the persona skills</li>
-        <li>documentation/D100-Asimov-architecture.md §4, §6</li>
+        <li>documentation/D100-Asimov-architecture.md §4, §6, §7.3</li>
       </ul>
     </div>
     <div class="refs-block">
       <h4>Code</h4>
       <ul>
-        <li>plugins/asimov-plugin/.claude-plugin/plugin.json · .claude-plugin/marketplace.json</li>
-        <li>plugins/asimov-plugin/agents/ — the four shell pairs</li>
-        <li>plugins/asimov-plugin/skills/ — role-*, artifact-*, persona-*, pm-advisor</li>
-        <li>plugins/asimov-plugin/commands/ — the six commands to become skills</li>
+        <li>plugins/asimov-plugin/.claude-plugin/plugin.json · .codex-plugin/plugin.json</li>
+        <li>.claude-plugin/marketplace.json · .agents/plugins/marketplace.json</li>
+        <li>plugins/asimov-plugin/skills/*/SKILL.md · method.md · asimov-init/agents/openai.yaml</li>
+        <li>plugins/asimov-plugin/agents/*.md · *.toml</li>
+        <li>plugins/asimov-plugin/artifacts/root/asimov-md/asimov-md-template.md</li>
       </ul>
     </div>
     <div class="refs-block">
       <h4>External</h4>
       <ul>
-        <li>Codex documentation — plugins, skills, custom agents (learn.chatgpt.com/docs)</li>
+        <li>Codex documentation — plugins, skills, custom agents (learn.chatgpt.com/docs; developers.openai.com/plugins)</li>
         <li>Claude Code documentation — skills, subagents, plugins (code.claude.com/docs)</li>
         <li>github.com/obra/superpowers — the one-folder, two-manifest layout this follows</li>
-        <li>github.com/context-and-oss/asimov/issues/1 — the proposal this design realises</li>
+        <li>github.com/openai/plugins — OpenAI's curated marketplace; manifest shapes</li>
+        <li>github.com/context-and-oss/asimov/issues/1 — the proposal this design realises; #7 — model routing, the follow-up</li>
       </ul>
     </div>
   </div>
@@ -716,7 +1088,7 @@ footer.site-footer a { color: var(--cyan); }
     · <span class="mono">features/D101-codex-support.html</span>
   </div>
   <div style="margin-top: 0.4rem">
-    D101 · Codex support · asimov-plugin · Draft v0.1 · 2026-09-29
+    D101 · Codex support · asimov-plugin · Draft v0.2 · 2026-09-29
   </div>
 </footer>
 
