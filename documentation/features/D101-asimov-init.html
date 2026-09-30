@@ -301,7 +301,7 @@ footer.site-footer a { color: var(--cyan); }
   <a href="../index.html#s6">Diagrams</a>
   <span class="spacer"></span>
   <span class="phase-chip full">Full design</span>
-  <span class="status-chip">Draft v0.4</span>
+  <span class="status-chip">Draft v0.5</span>
 </nav>
 
 <div class="layout-doc">
@@ -350,9 +350,9 @@ footer.site-footer a { color: var(--cyan); }
   <div class="meta-cell"><div class="label">Owner</div><div class="value">Allan Borup</div></div>
   <div class="meta-cell"><div class="label">Approver</div><div class="value">Allan Borup</div></div>
   <div class="meta-cell"><div class="label">Version</div><div class="value mono">0.2</div></div>
-  <div class="meta-cell"><div class="label">Model</div><div class="value">The session's (inherited) · was <span class="mono">claude-opus-4-8</span></div></div>
+  <div class="meta-cell"><div class="label">Model</div><div class="value">The session's (skills name no model) · was <span class="mono">claude-opus-4-8</span></div></div>
   <div class="meta-cell"><div class="label">Outputs</div><div class="value mono">asimov.md · CLAUDE.md · conventions · index.html</div></div>
-  <div class="meta-cell"><div class="label">Last updated</div><div class="value mono">2026-09-29</div></div>
+  <div class="meta-cell"><div class="label">Last updated</div><div class="value mono">2026-09-30</div></div>
   <div class="meta-cell"><div class="label">Archetype</div><div class="value">Greenfield (evolves /docs-init)</div></div>
 </div>
 
@@ -445,7 +445,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="req"><div class="id">NF3</div><div class="body">The generated <code>index.html</code> is pure static HTML + CSS — no JavaScript, no client-side behaviour — and links to <code>_chrome.css</code> rather than inlining it.</div></div>
     <div class="req"><div class="id">NF4</div><div class="body">All templates are re-read at the start of every invocation; the file in the plugin is the run-time source of truth.</div></div>
     <div class="req"><div class="id">NF5</div><div class="body">The command's first output is a one-sentence narration of what it will do, emitted before any tool call.</div></div>
-    <div class="req"><div class="id">NF6</div><div class="body">The command runs on <code>claude-opus-4-8</code>, matching its row in <code>model-choice.md §1</code>. <em>(superseded 2026-09-29: the plugin names no model — <a href="D101-codex-support.html">D101-codex-support</a>)</em></div></div>
+    <div class="req"><div class="id">NF6</div><div class="body">The command runs on <code>claude-opus-4-8</code>, matching its row in <code>model-choice.md §1</code>. <em>(superseded 2026-09-29: skills name no model, the entry point runs on the session's model — <a href="D101-codex-support.html">D101-codex-support</a>)</em></div></div>
     <div class="req"><div class="id">NF7</div><div class="body">The Asimov-managed region in an existing convention README is delimited by explicit <code>&lt;!-- asimov:start --&gt;</code>/<code>&lt;!-- asimov:end --&gt;</code> markers so a re-run refreshes exactly that region. The <code>CLAUDE.md</code> import needs no markers — it is a single bare <code>@asimov.md</code> line, located on re-run by reference.</div></div>
   </div>
 
@@ -724,7 +724,7 @@ footer.site-footer a { color: var(--cyan); }
       <div class="why">One entry point is the whole point — "make this repo Asimov-ready". The docs-site step is one of four; a separate command splits the mental model and doubles maintenance for no real standalone use case.</div>
     </div>
     <div class="decision-row">
-      <div class="decided">Run on <code>claude-opus-4-8</code> <em>(superseded 2026-09-29: the plugin names no model — <a href="D101-codex-support.html">D101-codex-support</a>)</em></div>
+      <div class="decided">Run on <code>claude-opus-4-8</code> <em>(superseded 2026-09-29: skills name no model, the entry point runs on the session's model — <a href="D101-codex-support.html">D101-codex-support</a>)</em></div>
       <div class="alt">Keep <code>/docs-init</code>'s <code>claude-sonnet-4-6</code></div>
       <div class="why">Authoring repo-orienting <code>asimov.md</code> prose, judging stack detection from ambiguous markers, and safely merging into existing files demand more judgment than mechanical docs-indexing. The run is infrequent (once per repo) so cost is secondary.</div>
     </div>
@@ -1066,7 +1066,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="ac-row"><div class="ac-id">AC17</div><div class="ac-verifies"><span class="verify-chip">NF3</span></div><div>The generated <code>index.html</code> contains no <code>&lt;script&gt;</code> and links to <code>_chrome.css</code> rather than inlining it.</div></div>
     <div class="ac-row"><div class="ac-id">AC18</div><div class="ac-verifies"><span class="verify-chip">R14</span></div><div>With no argument, the repo name used in <code>asimov.md</code> and the index equals the last path segment of the git remote origin URL (trailing <code>.git</code> stripped).</div></div>
     <div class="ac-row"><div class="ac-id">AC19</div><div class="ac-verifies"><span class="verify-chip">NF5</span></div><div>The command's first line of output is a one-sentence statement of intent, emitted before any tool call.</div></div>
-    <div class="ac-row"><div class="ac-id">AC20</div><div class="ac-verifies"><span class="verify-chip">NF6</span></div><div>The command file's <code>model:</code> frontmatter is <code>claude-opus-4-8</code>, matching its row in <code>model-choice.md §1</code>. <em>(superseded 2026-09-29: the plugin names no model — <a href="D101-codex-support.html">D101-codex-support</a>)</em> The current check is D101-codex-support AC6: no <code>model</code> key anywhere in the plugin.</div></div>
+    <div class="ac-row"><div class="ac-id">AC20</div><div class="ac-verifies"><span class="verify-chip">NF6</span></div><div>The command file's <code>model:</code> frontmatter is <code>claude-opus-4-8</code>, matching its row in <code>model-choice.md §1</code>. <em>(superseded 2026-09-29: skills name no model, the entry point runs on the session's model — <a href="D101-codex-support.html">D101-codex-support</a>)</em> The current check is D101-codex-support AC6: no <code>model</code> key in any skill.</div></div>
     <div class="ac-row"><div class="ac-id">AC21</div><div class="ac-verifies"><span class="verify-chip">R17</span><span class="verify-chip">R19</span></div><div>In a repo whose architecture doc describes a named pipeline, the index carries a flow band with kind-typed nodes and a matching legend; in a repo with no documented pipeline and no sibling cast, the index goes straight from hero to the §1 catalogue with no invented showcase.</div></div>
     <div class="ac-row"><div class="ac-id">AC22</div><div class="ac-verifies"><span class="verify-chip">R18</span></div><div>In a repo whose <code>features/</code> holds 3+ sibling D101s of one category, the index carries an entity gallery with one tile per sibling linking to its doc; with fewer than three siblings, no gallery is emitted.</div></div>
     <div class="ac-row"><div class="ac-id">AC23</div><div class="ac-verifies"><span class="verify-chip">R13</span></div><div>With the three definitions at <code>assess</code>, the run prints exactly one maturity chat line before its first question; with a definition at <code>adopt</code>, that artifact appears in no line; and no generated file (<code>asimov.md</code>, README, <code>index.html</code>) contains a maturity level.</div></div>
@@ -1142,7 +1142,7 @@ footer.site-footer a { color: var(--cyan); }
     · <span class="mono">features/D101-asimov-init.html</span>
   </div>
   <div style="margin-top: 0.4rem">
-    D101 · /asimov-init · Asimov plugin · Full design · Draft v0.4 · 2026-09-29
+    D101 · /asimov-init · Asimov plugin · Full design · Draft v0.5 · 2026-09-30
   </div>
 </footer>
 

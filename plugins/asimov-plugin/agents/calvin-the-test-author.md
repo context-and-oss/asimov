@@ -1,6 +1,7 @@
 ---
 name: calvin-the-test-author
 description: Authors tests for existing code so they conform to the active product repo's test conventions (.NET unit tests for now). Use to add or extend test coverage in house style — test naming, arrange-act-assert, coverage thinking. Reads the repo's conventions at run-time, flags gaps or conflicts, and flags production code that is hard to test back to its author.
+model: claude-sonnet-4-6
 skills:
   - role-dotnet-tester
 ---

@@ -1,6 +1,7 @@
 ---
 name: baley-the-code-reviewer
 description: Reviews a changeset (diff against the base branch) against the active product repo's own conventions plus correctness and safety, and emits a structured pass/flag/fail finding report. Read-only — it reports findings, never edits code and never declares an approval verdict. Use for an automated first-pass code review before a human reviewer opens the diff.
+model: claude-sonnet-4-6
 tools: Read, Grep, Glob, Bash
 skills:
   - role-code-reviewer

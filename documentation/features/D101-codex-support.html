@@ -270,7 +270,7 @@ footer.site-footer a { color: var(--cyan); }
   <a href="../index.html#s6">Diagrams</a>
   <span class="spacer"></span>
   <span class="phase-chip full">Full design</span>
-  <span class="status-chip draft">Draft v0.5</span>
+  <span class="status-chip draft">Draft v0.6</span>
 </nav>
 
 <div class="layout-doc">
@@ -363,7 +363,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="req"><div class="id">R3</div><div class="body">An entry point that is a user's decision (<code>asimov-init</code>) cannot be invoked by the model on its own, in either tool.</div></div>
     <div class="req"><div class="id">R4</div><div class="body">The four subagents can be delegated to by name in Codex, with the same method as in Claude Code.</div></div>
     <div class="req"><div class="id">R5</div><div class="body">A subagent's method is authored once and shared by both tools; only the per-tool shell differs.</div></div>
-    <div class="req"><div class="id">R6</div><div class="body">The toolkit names no model: agents and skills run on the model the session runs on, in both tools.</div></div>
+    <div class="req"><div class="id">R6</div><div class="body">A model is named only in an agent shell, never in a skill: skills run on the session's model in both tools; the Claude Code shells keep their pin; the Codex shells name none until #7.</div></div>
     <div class="req"><div class="id">R7</div><div class="body"><code>/asimov-init</code> wires a product repo for both tools in one run, from whichever tool it is run in: the Asimov context reaches both, and the Codex subagents land in the repo.</div></div>
     <div class="req"><div class="id">R8</div><div class="body">A custom persona authored with <code>/persona-new</code> is invocable in both tools.</div></div>
     <div class="req"><div class="id">R9</div><div class="body">Every skill that writes files writes UTF-8 in both tools.</div></div>
@@ -410,7 +410,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="principle"><div class="num">2</div><div class="text"><strong>Minimal change.</strong> What exists for Claude Code stays as it is; Codex is added beside it, never by rebuilding. No build step, no generated tree.</div></div>
     <div class="principle"><div class="num">3</div><div class="text"><strong>The method lives once, in skills.</strong> A tool gets only the thin adapter it needs — a manifest, an agent shell — and the adapter carries no method text.</div></div>
     <div class="principle"><div class="num">4</div><div class="text"><strong>Follow established practice.</strong> Do what the multi-tool add-ons already do (Superpowers: one plugin folder, an explicit manifest per tool); never build on one tool tolerating another tool's files.</div></div>
-    <div class="principle"><div class="num">5</div><div class="text"><strong>The toolkit names no model.</strong> Agents and skills run on the model the session runs on; a model choice is the user's or the session's, never the plugin's.</div></div>
+    <div class="principle"><div class="num">5</div><div class="text"><strong>A model is a shell fact.</strong> Skills run on the model the session runs on; a Claude Code shell pins its agent's model, a Codex shell inherits until #7 settles Codex pins.</div></div>
     <div class="principle"><div class="num">6</div><div class="text"><strong>User decisions stay user decisions.</strong> Setting up a repo for Asimov is never the model's call, in either tool.</div></div>
     <div class="principle"><div class="num">7</div><div class="text"><strong>Nothing after install or update is assumed.</strong> What a user must do — install, trust, re-run, restart — is written where they look, in the README, for each tool.</div></div>
   </div>
@@ -466,7 +466,7 @@ footer.site-footer a { color: var(--cyan); }
   </ul>
 
   <div class="subhead">Delegating to a subagent</div>
-  <p class="section-desc" style="margin-bottom:0.4rem"><em>"How does Giskard get my task?"</em> — the orchestrator delegates by name, following the delegation flow in the Asimov context; the agent runs on the session's model.</p>
+  <p class="section-desc" style="margin-bottom:0.4rem"><em>"How does Giskard get my task?"</em> — the orchestrator delegates by name, following the delegation flow in the Asimov context; the agent runs on the model its shell names, or the session's when it names none.</p>
   <ul class="bullets">
     <li>Claude Code: the four agents come with the plugin; nothing to set up beyond <code>/asimov-init</code>.</li>
     <li>Codex: the four agents appear after <code>/asimov-init</code> has delivered them and the developer has marked the repo trusted; they load at the start of a session, so delivery is followed by a new session.</li>
@@ -529,11 +529,11 @@ footer.site-footer a { color: var(--cyan); }
     <li>Does not fire: the description sentence that tells the orchestrator when to pick Giskard → it lives in the shell, because it is routing, not method.</li>
   </ul>
 
-  <div class="subhead">No-model rule</div>
-  <p class="section-desc" style="margin-bottom:0.4rem">Nothing in the plugin names a model; agents and skills run on the session's model.</p>
+  <div class="subhead">Shell-model rule</div>
+  <p class="section-desc" style="margin-bottom:0.4rem">A model is named only in an agent shell, never in a skill; skills run on the session's model.</p>
   <ul class="bullets">
-    <li>Fires: an agent shell would pin a model → removed; the shell inherits.</li>
-    <li>Does not fire: a developer starts their session on a smaller model → their choice, and the agents follow it.</li>
+    <li>Fires: an entry-point skill would pin Opus for its interview → dropped; Claude Code applies a skill pin for one turn only, and it would sit in the layer both tools read.</li>
+    <li>Does not fire: a Claude Code shell pins <code>claude-sonnet-4-6</code> → kept; the shell is per tool and the pin holds for the agent's whole run.</li>
   </ul>
 
   <div class="subhead">Single-file skill rule</div>
@@ -588,9 +588,9 @@ footer.site-footer a { color: var(--cyan); }
       <div class="why">The 8 kB cap does not apply to our legacy manifest, so the split would change sixteen skills for a limit that does not bite; taking it when it becomes relevant is the smaller change.</div>
     </div>
     <div class="decision-row">
-      <div class="decided">Agents inherit the session's model in both tools.</div>
-      <div class="alt">Pin a model per tool; or the retired tier/effort mapping.</div>
-      <div class="why">The toolkit names no model (#7's direction); a Codex pin would be an organisation's deployment name, not a toolkit fact.</div>
+      <div class="decided">Skills run on the session's model; the Claude Code shells keep their pin; the Codex shells name none until #7 <em>(2026-09-30; replaces "agents inherit in both tools" decided the day before)</em>.</div>
+      <div class="alt">No model in the plugin at all; or the retired tier/effort mapping.</div>
+      <div class="why">A skill pin holds one turn and would put a Claude name into the shared layer; a shell pin is per tool and holds the whole run. A Codex pin would be an organisation's deployment name, so it waits for #7.</div>
     </div>
     <div class="decision-row">
       <div class="decided">Codex agents are thin TOML shells delivered into the repo by <code>/asimov-init</code> and spawned by name.</div>
@@ -625,7 +625,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="decision-row">
       <div class="decided">The small-tier twin is dropped.</div>
       <div class="alt">Keep it as a second hand-written shell pair.</div>
-      <div class="why">It existed to run a smaller model; with inherited models the choice is the session's (#6 closed).</div>
+      <div class="why">It existed to run a smaller model; that routing is #7's question (#6 closed).</div>
     </div>
   </div>
 </section>
@@ -737,7 +737,7 @@ footer.site-footer a { color: var(--cyan); }
   <ol class="principles">
     <li>The developer states the task in the prompt; the model's session is the orchestrator.</li>
     <li>The orchestrator reads the Asimov context — <code>asimov.md</code> through the <code>CLAUDE.md</code> import in Claude Code, the <code>AGENTS.md</code> managed region in Codex — and follows its delegation flow; in Codex that text is also what authorises spawning at all.</li>
-    <li>It delegates by name: Claude Code's agent tool with the plugin agent; Codex's <code>spawn_agent</code> with <code>agent_type</code> set to the shell's name. No model is passed; the agent inherits the session's.</li>
+    <li>It delegates by name: Claude Code's agent tool with the plugin agent; Codex's <code>spawn_agent</code> with <code>agent_type</code> set to the shell's name. No model is passed; the agent runs on what its shell names, or the session's.</li>
     <li>The shell gets its method: Claude Code preloads the role skill's <code>SKILL.md</code> (the <code>skills:</code> field); in Codex the shell's instructions invoke <code>$asimov-plugin:&lt;role-skill&gt;</code>. Either way the whole method is in front of the agent.</li>
     <li>The agent reads the repo's convention read-list and files, writes code or tests (Baley writes nothing), and reports with citations and flags.</li>
     <li>The orchestrator continues the delegation flow (test-impact check, the opt-in questions) and answers the developer.</li>
@@ -796,7 +796,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="row cols-2"><div class="label-cell">name · description</div><div>Identical to the <code>.toml</code> twin's; the description is the orchestrator's routing text.</div></div>
     <div class="row cols-2"><div class="label-cell">skills</div><div>The one role skill, preloaded by bare name.</div></div>
     <div class="row cols-2"><div class="label-cell">tools</div><div><code>Read, Grep, Glob, Bash</code> on Baley only — the read-only reviewer.</div></div>
-    <div class="row cols-2"><div class="label-cell">model</div><div>Absent. The agent runs on the session's model.</div></div>
+    <div class="row cols-2"><div class="label-cell">model</div><div><code>claude-sonnet-4-6</code> on all four — the pre-Codex pin, kept (D100 §7.3). Claude Code only; Codex never reads this file.</div></div>
     <div class="row cols-2"><div class="label-cell">body</div><div>Who the agent is and "your method is the preloaded role skill — follow it". No method text.</div></div>
   </div>
 
@@ -806,7 +806,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="row cols-2"><div class="label-cell">name · description</div><div>Identical to the <code>.md</code> twin's; Codex identifies the agent by <code>name</code>.</div></div>
     <div class="row cols-2"><div class="label-cell">developer_instructions</div><div>The same body as the <code>.md</code>, with "invoke the skill <code>$asimov-plugin:&lt;role&gt;</code> first".</div></div>
     <div class="row cols-2"><div class="label-cell">sandbox_mode</div><div><code>"read-only"</code> on Baley only — Codex's counterpart of the tool restriction.</div></div>
-    <div class="row cols-2"><div class="label-cell">model · model_reasoning_effort</div><div>Absent. The agent inherits the parent's.</div></div>
+    <div class="row cols-2"><div class="label-cell">model · model_reasoning_effort</div><div>Absent until #7 settles Codex pins; the agent inherits the parent's.</div></div>
   </div>
 
   <div class="subhead">§6.4.6 Manifests</div>
@@ -905,11 +905,11 @@ footer.site-footer a { color: var(--cyan); }
     <li><span class="tag new">new</span> Six skill folders from the six commands: each command file becomes <code>skills/&lt;name&gt;/SKILL.md</code>, frontmatter minus <code>model</code>/<code>effort</code> plus <code>name</code>, body unchanged in substance (§6.4.1–§6.4.2).</li>
     <li><span class="tag new">new</span> <code>skills/asimov-init/agents/openai.yaml</code> (§6.4.3) and <code>disable-model-invocation: true</code> on its entry.</li>
     <li><span class="tag reuse">reuse</span> Ten existing skills: unchanged, except <code>${CLAUDE_PLUGIN_ROOT}</code> → relative paths in the two <code>artifact-*</code> skills and <code>pm-advisor</code>.</li>
-    <li><span class="tag reuse">reuse</span> Eight shells: <code>model:</code> removed from the four <code>.md</code>; the four <code>.toml</code> lose their prototype comments, gain the invoke instruction and, for Baley, <code>sandbox_mode = "read-only"</code>.</li>
+    <li><span class="tag reuse">reuse</span> Eight shells: the four <code>.md</code> keep <code>model:</code>; the four <code>.toml</code> lose their prototype comments, gain the invoke instruction and, for Baley, <code>sandbox_mode = "read-only"</code>.</li>
     <li><span class="tag reuse">reuse</span> <code>asimov-init</code>: the <code>AGENTS.md</code> region and the <code>.codex/agents/</code> delivery, ported from the earlier Codex branch's version of the command (write plan, actions, hard rules, report lines), with the TOML source now <code>../../agents/*.toml</code>.</li>
     <li><span class="tag new">new</span> <code>persona-new</code> writes the mirror copy; <code>persona-list</code> lists both folders and marks a lone copy.</li>
     <li><span class="tag reuse">reuse</span> <code>asimov-md-template.md</code>: the role-skill rule and the Codex spawn form added to the delegation flow.</li>
-    <li><span class="tag note">docs</span> README, CLAUDE.md, D100, <code>D101-subagents</code> (model decision), <code>D101-asimov-init</code> and <code>D101-personas</code> (amendment callouts), the site's Codex section; <code>model-choice.md</code> and the CI model-sync step retired.</li>
+    <li><span class="tag note">docs</span> README, CLAUDE.md, D100, <code>D101-subagents</code> (the Codex shells), <code>D101-asimov-init</code> and <code>D101-personas</code> (amendment callouts), the site's Codex section; <code>model-choice.md</code> and the CI model-sync step retired.</li>
   </ul>
 </section>
 
@@ -919,7 +919,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="row head cols-2"><div>Folder</div><div>What it holds after this change</div></div>
     <div class="row cols-2"><div class="label-cell">plugins/asimov-plugin/.claude-plugin/ · .codex-plugin/</div><div>One manifest each; same name, version, description.</div></div>
     <div class="row cols-2"><div class="label-cell">plugins/asimov-plugin/skills/&lt;name&gt;/</div><div>Sixteen skills, one <code>SKILL.md</code> each; <code>asimov-init/agents/openai.yaml</code>.</div></div>
-    <div class="row cols-2"><div class="label-cell">plugins/asimov-plugin/agents/</div><div>Four shell pairs, no model.</div></div>
+    <div class="row cols-2"><div class="label-cell">plugins/asimov-plugin/agents/</div><div>Four shell pairs; the model in the <code>.md</code> only.</div></div>
     <div class="row cols-2"><div class="label-cell">plugins/asimov-plugin/{artifacts,resources,processes}/</div><div>Unchanged content; referenced relatively.</div></div>
     <div class="row cols-2"><div class="label-cell">.claude-plugin/ · .agents/plugins/ (repo root)</div><div>One marketplace manifest each.</div></div>
     <div class="row cols-2"><div class="label-cell">plugins/asimov-plugin/commands/</div><div>Removed.</div></div>
@@ -967,7 +967,7 @@ footer.site-footer a { color: var(--cyan); }
   <div class="subhead"><span class="s-ref">§7.4.4</span> Agent shells — §6.4.4, §6.4.5</div>
   <div class="data-table impl-table">
     <div class="row head cols-3"><div>Aspect</div><div></div><div>Details</div></div>
-    <div class="row cols-3"><div class="label-cell">.md</div><div><span class="tag note">edit</span></div><div>Delete the <code>model:</code> line.</div></div>
+    <div class="row cols-3"><div class="label-cell">.md</div><div><span class="tag reuse">reuse</span></div><div>Keep the <code>model:</code> line (<code>claude-sonnet-4-6</code>).</div></div>
     <div class="row cols-3"><div class="label-cell">.toml</div><div><span class="tag note">edit</span></div><div>Delete the PROTOTYPE comments; <code>developer_instructions</code> opens with "Invoke the skill <code>$asimov-plugin:&lt;role&gt;</code> first"; Baley gets <code>sandbox_mode = "read-only"</code>.</div></div>
     <div class="row cols-3"><div class="label-cell">Parity</div><div><span class="tag note">check</span></div><div>Name and description identical across the pair (AC5).</div></div>
   </div>
@@ -990,10 +990,10 @@ footer.site-footer a { color: var(--cyan); }
   <div class="subhead"><span class="s-ref">§7.4.7</span> Documentation</div>
   <div class="data-table impl-table">
     <div class="row head cols-3"><div>Aspect</div><div></div><div>Details</div></div>
-    <div class="row cols-3"><div class="label-cell">README</div><div><span class="tag note">edit</span></div><div>Install, invoke, update per tool; known limitations; the two-file skill shape in "What's inside"; <code>model-choice.md</code> references removed.</div></div>
-    <div class="row cols-3"><div class="label-cell">CLAUDE.md</div><div><span class="tag note">edit</span></div><div>Quick map; "how to add a skill" (two-file shape, no model, relative paths); "how to add a subagent" (shell pair, no model); hard rules: no model names, version bump, no Claude-only paths in skills, shell parity; the model-choice rule retired.</div></div>
-    <div class="row cols-3"><div class="label-cell">D100</div><div><span class="tag note">edit</span></div><div>§4.3 commands → entry-point skills; §4.4 shells without a model, Codex delivery; §4.6 the two-file shape; §5 layout; §6 install per tool; §7.3 and §8.1 model selection → "the session's"; §10 Q1 closed.</div></div>
-    <div class="row cols-3"><div class="label-cell">D101-subagents</div><div><span class="tag note">edit</span></div><div>Amendment callout: the model decision (§4.5 "Sonnet 4.6 for all four") superseded by inheritance — this document; the <code>.toml</code> prototype notes resolved.</div></div>
+    <div class="row cols-3"><div class="label-cell">README</div><div><span class="tag note">edit</span></div><div>Install, invoke, update per tool; known limitations; the layout in "What's inside"; <code>model-choice.md</code> references removed.</div></div>
+    <div class="row cols-3"><div class="label-cell">CLAUDE.md</div><div><span class="tag note">edit</span></div><div>Quick map; "how to add a skill" (no model, relative paths); "how to add a subagent" (shell pair, model in the <code>.md</code>); hard rules: model only in a shell, version bump, no Claude-only paths in skills, shell parity; the model-choice rule retired.</div></div>
+    <div class="row cols-3"><div class="label-cell">D100</div><div><span class="tag note">edit</span></div><div>§4.3 commands → entry-point skills; §4.4 Codex delivery; §4.6 skills as the shared layer; §5 layout; §6 install per tool; §7.3 and §8.1 model selection → shells only; §10 Q1 closed.</div></div>
+    <div class="row cols-3"><div class="label-cell">D101-subagents</div><div><span class="tag note">edit</span></div><div>Amendment callout: the <code>.toml</code> prototype notes resolved; the §4.5 model decision ("Sonnet 4.6 for all four") stands for the Claude Code shells.</div></div>
     <div class="row cols-3"><div class="label-cell">D101-asimov-init · D101-personas</div><div><span class="tag note">edit</span></div><div>Amendment callouts pointing here for the new targets and the mirror copy.</div></div>
     <div class="row cols-3"><div class="label-cell">CI</div><div><span class="tag note">edit</span></div><div>The model-sync step removed (it would fail on the absent <code>commands/</code>); the other two steps stay. New checks are OOS2.</div></div>
   </div>
@@ -1002,7 +1002,7 @@ footer.site-footer a { color: var(--cyan); }
 <section class="s" id="s7-5">
   <h2 class="section-title"><span class="sec-ref">§7.5</span>Cross-cutting — shared by every unit</h2>
   <ul class="bullets">
-    <li>No <code>model</code>, <code>effort</code> or <code>model_reasoning_effort</code> anywhere in the plugin (no-model rule).</li>
+    <li>No <code>model</code>, <code>effort</code> or <code>model_reasoning_effort</code> outside <code>agents/*.md</code> (shell-model rule).</li>
     <li>No <code>${CLAUDE_PLUGIN_ROOT}</code> under <code>skills/</code>; every plugin reference is relative to the skill folder (R10).</li>
     <li>Every writing skill carries the UTF-8 rule as its first hard rule (R9).</li>
     <li>One <code>SKILL.md</code> per skill, no <code>method.md</code>; the eight over 8 kB are listed in §6.8 for the day the manifest format changes (NF3).</li>
@@ -1022,7 +1022,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="ac-row"><div class="ac-id">AC3</div><div class="ac-verifies"><span class="verify-chip">R3</span><span class="verify-chip">User-only rule</span></div><div>In both tools, a plain-words request that matches <code>asimov-init</code>'s description does not make the model start it; the user's explicit invocation does.</div></div>
     <div class="ac-row"><div class="ac-id">AC4</div><div class="ac-verifies"><span class="verify-chip">R4</span><span class="verify-chip">R5</span></div><div>In a trusted product repo after <code>/asimov-init</code> and a new session, the Codex orchestrator delegates a <code>.cs</code> change to <code>giskard-the-dotnet-developer</code> by name and the agent's report cites the role skill; the same task in Claude Code produces a report citing the same role skill.</div></div>
     <div class="ac-row"><div class="ac-id">AC5</div><div class="ac-verifies"><span class="verify-chip">R5</span><span class="verify-chip">Thin-shell rule</span></div><div>For each of the four agents, the <code>.md</code> and <code>.toml</code> shells carry the same name and description, and no sentence from any role skill's method appears under <code>agents/</code>.</div></div>
-    <div class="ac-row"><div class="ac-id">AC6</div><div class="ac-verifies"><span class="verify-chip">R6</span><span class="verify-chip">No-model rule</span></div><div>No <code>model</code> key exists under <code>agents/</code> or in any <code>SKILL.md</code>; an agent spawned in each tool reports the session's model.</div></div>
+    <div class="ac-row"><div class="ac-id">AC6</div><div class="ac-verifies"><span class="verify-chip">R6</span><span class="verify-chip">Shell-model rule</span></div><div>No <code>model</code> key exists in any <code>SKILL.md</code> or <code>.toml</code>; each <code>agents/*.md</code> carries <code>model: claude-sonnet-4-6</code>; an agent spawned in Codex reports the session's model.</div></div>
     <div class="ac-row"><div class="ac-id">AC7</div><div class="ac-verifies"><span class="verify-chip">R7</span></div><div><code>/asimov-init</code> run in Codex in a fresh repo yields <code>asimov.md</code>, the <code>CLAUDE.md</code> import, the <code>AGENTS.md</code> managed region and four <code>.codex/agents/*.toml</code>; run in Claude Code it yields the same set.</div></div>
     <div class="ac-row"><div class="ac-id">AC8</div><div class="ac-verifies"><span class="verify-chip">R8</span><span class="verify-chip">Source-and-mirror rule</span></div><div>A persona written with <code>/persona-new</code> in one tool exists with identical content in <code>.claude/skills/</code> and <code>.agents/skills/</code> and is invocable in both tools.</div></div>
     <div class="ac-row"><div class="ac-id">AC9</div><div class="ac-verifies"><span class="verify-chip">R9</span></div><div>A D101 written by a skill from Codex on Windows, containing <code>æøå</code> and <code>→</code>, re-reads as valid UTF-8 with those characters intact.</div></div>
@@ -1087,7 +1087,7 @@ footer.site-footer a { color: var(--cyan); }
     · <span class="mono">features/D101-codex-support.html</span>
   </div>
   <div style="margin-top: 0.4rem">
-    D101 · Codex support · asimov-plugin · Draft v0.5 · 2026-09-30
+    D101 · Codex support · asimov-plugin · Draft v0.6 · 2026-09-30
   </div>
 </footer>
 

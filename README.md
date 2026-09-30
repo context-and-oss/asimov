@@ -72,7 +72,7 @@ Neither tool auto-updates a third-party plugin by default.
 - Built: Design-stage entry points, the four subagents (each a `role-*` skill plus a thin shell per tool), the two D101 artifact skills, persona reviews, the `pm-advisor` skill (delivery-model advice), Codex support.
 - Planned: Spec stage (`/s101-*`; the S101 and S102 definitions exist), `/conventions-check`, S102 validator subagent, the update flow (`/asimov-update` and a session-start notice). See [D100 §9](documentation/D100-Asimov-architecture.md#9-not-yet-built).
 - Every artifact carries a maturity level (`assess` / `trial` / `adopt` / `hold`). The producing skill tells you if it's not at `adopt`.
-- Asimov names no model. Skills and subagents run on whatever model your session uses, in both tools.
+- Skills run on whatever model your session uses, in both tools. The Claude Code subagents pin Sonnet 4.6; the Codex subagents inherit your session's model for now.
 
 ## Entry points
 
@@ -96,7 +96,7 @@ Invoked as `/<name>` in Claude Code and `$asimov-plugin:<name>` in Codex.
 | `calvin-the-test-author` | Code | Tests (.NET for now) in the repo's test conventions. Flags untestable code back to its author. |
 | `baley-the-code-reviewer` | Review | Diff vs base against conventions + correctness. Read-only, findings only. |
 
-Each subagent's method lives in a `role-*` skill; the agent file is a thin shell — `.md` for Claude Code (ships with the plugin), `.toml` for Codex (delivered into your repo's `.codex/agents/` by `/asimov-init`). Neither shell names a model.
+Each subagent's method lives in a `role-*` skill; the agent file is a thin shell — `.md` for Claude Code (ships with the plugin), `.toml` for Codex (delivered into your repo's `.codex/agents/` by `/asimov-init`). The `.md` shell pins the model (Sonnet 4.6); the `.toml` shell names none and inherits the session's.
 
 ## Personas
 
@@ -120,7 +120,7 @@ plugins/asimov-plugin/                    the plugin (install scope), read as-is
 │   ├── artifact-d101-*/                  D101 authoring + gap review
 │   ├── persona-*/                        Poseidon, Athena, Hermes
 │   └── pm-advisor/                       delivery-model advice over processes/
-├── agents/                               subagent shells — <name>.md (Claude Code) + <name>.toml (Codex), no model in either
+├── agents/                               subagent shells — <name>.md (Claude Code, pins the model) + <name>.toml (Codex, inherits)
 ├── artifacts/                            one folder per artifact the toolkit writes into a product repo, grouped by where it lands
 │   ├── documentation/                    lands in the product repo's documentation/
 │   │   ├── d101-feature-design/          the D101 artifact: definition + template side by side

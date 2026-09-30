@@ -69,7 +69,7 @@ The rendered D101 carries two chips in its top bar: **phase** (`Business design`
 
 Always delegate to the appropriate subagent when writing or modifying code — do not edit source or test files directly.
 
-**Role-skill rule.** Each subagent's method is a `role-*` skill of the plugin. That skill is run only by its agent: delegate to the agent and never run a role skill yourself. In Claude Code delegate with the agent tool by name; in Codex spawn the agent by its name (`agent_type`) — the agents live in this repo's `.codex/agents/`, loaded in a trusted repo at session start. Pass no model in either tool; the agent runs on the session's.
+**Role-skill rule.** Each subagent's method is a `role-*` skill of the plugin. That skill is run only by its agent: delegate to the agent and never run a role skill yourself. In Claude Code delegate with the agent tool by name; in Codex spawn the agent by its name (`agent_type`) — the agents live in this repo's `.codex/agents/`, loaded in a trusted repo at session start. Pass no model in either tool; the agent runs on the model its shell names, or on the session's when the shell names none.
 
 | Subagent                       | Role                 | Use for                                        |
 | ------------------------------ | -------------------- | ---------------------------------------------- |
