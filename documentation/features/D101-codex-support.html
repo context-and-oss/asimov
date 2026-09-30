@@ -270,7 +270,7 @@ footer.site-footer a { color: var(--cyan); }
   <a href="../index.html#s6">Diagrams</a>
   <span class="spacer"></span>
   <span class="phase-chip full">Full design</span>
-  <span class="status-chip draft">Draft v0.6</span>
+  <span class="status-chip draft">Draft v0.7</span>
 </nav>
 
 <div class="layout-doc">
@@ -878,7 +878,7 @@ footer.site-footer a { color: var(--cyan); }
   <div class="callout"><strong>Codex skills take no arguments.</strong> Whatever follows <code>$asimov-plugin:&lt;skill&gt;</code> in the prompt is the input; the entry-point methods read their target from the prompt and ask when none is given.</div>
   <div class="callout"><strong>Codex namespaces plugin skills.</strong> The model and the user see <code>asimov-plugin:d101-review</code>; the bare name is Claude Code's convenience.</div>
   <div class="callout"><strong>The 8 kB cap is real but conditional.</strong> Codex truncates a <code>SKILL.md</code> at 8,000 bytes only for skills of plugins in its portable Agent-Plugins manifest format (a root <code>plugin.json</code> with <code>$schema</code>); a legacy <code>.codex-plugin</code> manifest — ours, and Superpowers' in OpenAI's own catalogue, whose skills run to 15 kB — injects the full file. Skills therefore stay single-file (decided 2026-09-30); the eight above 8 kB — <code>d101-feature-design</code> 31.9 kB, <code>asimov-init</code> 23.7 kB, <code>d101-review</code> 19.9 kB, <code>artifact-d101-gap-review</code> 15.0 kB, <code>artifact-d101-authoring</code> 14.6 kB, <code>d101-convert-to-html</code> 13.6 kB, <code>persona-new</code> 10.5 kB, <code>role-code-reviewer</code> 8.4 kB — are split into an entry plus a method file the day the plugin adopts the portable format. Files a skill reads with tools are never truncated.</div>
-  <div class="callout"><strong>Codex migrates <code>commands/</code> at install, dropping anything over 4 kB silently.</strong> Removing <code>commands/</code> is what makes the six entry points reach Codex whole.</div>
+  <div class="callout warn"><strong>Codex has no commands, and no error for a missing one.</strong> At install it migrates a <code>commands/*.md</code> into a skill named <code>source-command-&lt;name&gt;</code> only if the body carries no <code>$ARGUMENTS</code>, <code>{{ }}</code>, shell injection or <code>@file</code> and renders under 4,000 bytes; everything else is skipped without a message — one of main's six survived. <code>$asimov-plugin:asimov-init</code> against such a plugin is not an error either: the text reaches the model, which may dig <code>commands/asimov-init.md</code> out of the plugin cache and follow Claude-specific text, or may answer "not on PATH" (re-probe 2026-09-30, research note §8). Skills are the only form Codex runs on purpose; that is why the six entry points are skills.</div>
   <div class="callout"><strong>Version is the update signal in both tools.</strong> Claude Code: "push new commits without changing it, users don't receive them"; Codex caches per version. A local-clone marketplace in Claude Code reads in place and needs no bump — the development path.</div>
   <div class="callout"><strong>Development installs.</strong> Claude Code: <code>claude --plugin-dir plugins/asimov-plugin</code> loads the folder for one session and overrides an installed plugin of the same name. Codex: add the clone as a local marketplace (<code>codex plugin marketplace add &lt;clone&gt;</code>); remove and add the plugin again after editing.</div>
   <div class="callout"><strong>Codex plugins are not available in the IDE extension</strong>; the CLI and the desktop app load them.</div>
@@ -1087,7 +1087,7 @@ footer.site-footer a { color: var(--cyan); }
     · <span class="mono">features/D101-codex-support.html</span>
   </div>
   <div style="margin-top: 0.4rem">
-    D101 · Codex support · asimov-plugin · Draft v0.6 · 2026-09-30
+    D101 · Codex support · asimov-plugin · Draft v0.7 · 2026-09-30
   </div>
 </footer>
 
