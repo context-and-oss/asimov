@@ -299,7 +299,7 @@ footer.site-footer a { color: var(--cyan); }
 </div>
 
 <div class="callout">
-  <strong>Amended 2026-09-29 by <a href="D101-codex-support.html">D101-codex-support</a>.</strong> <code>persona-new</code> writes each custom persona twice — <code>.claude/skills/persona-&lt;slug&gt;/</code> (the source, read by Claude Code) and a byte-identical <code>.agents/skills/persona-&lt;slug&gt;/</code> (the mirror, read by Codex) — and <code>persona-list</code> and <code>d101-review</code> read both. The two commands are entry-point skills, and the standard personas are <code>SKILL.md</code> + <code>method.md</code>. No skill declares a model; the "/persona-list model" decision below is superseded.
+  <strong>Amended 2026-09-29 by <a href="D101-codex-support.html">D101-codex-support</a>.</strong> <code>persona-new</code> writes each custom persona twice — <code>.claude/skills/persona-&lt;slug&gt;/</code> (the source, read by Claude Code) and a byte-identical <code>.agents/skills/persona-&lt;slug&gt;/</code> (the mirror, read by Codex) — and <code>persona-list</code> and <code>d101-review</code> read both. The two commands are entry-point skills. No skill declares a model; the "/persona-list model" decision below is superseded.
 </div>
 
 <!-- ═════════════════════ §2 — Why this exists ═════════════════════ -->

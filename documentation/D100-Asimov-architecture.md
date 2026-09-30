@@ -60,7 +60,7 @@ The sole plugin in the marketplace. Lives under `plugins/asimov-plugin/` with on
 
 ### 4.3 Entry-point skills (the former slash commands)
 
-Developer-driven entry points. Each is a skill under `plugins/asimov-plugin/skills/<name>/` — a minimal `SKILL.md` entry and a `method.md` (§4.6) — invoked as `/<name>` in Claude Code and `$asimov-plugin:<name>` in Codex. None declares a model (§7.3). `asimov-init` is **user-only**: the model cannot invoke it in either tool. Per-entry-point design lives in `features/D101-<feature>.html`.
+Developer-driven entry points. Each is a skill under `plugins/asimov-plugin/skills/<name>/` (one `SKILL.md`, §4.6), invoked as `/<name>` in Claude Code and `$asimov-plugin:<name>` in Codex. None declares a model (§7.3). `asimov-init` is **user-only**: the model cannot invoke it in either tool. Per-entry-point design lives in `features/D101-<feature>.html`.
 
 | Entry point | Stage | User-only | D101 |
 |---|---|---|---|
@@ -74,7 +74,7 @@ Developer-driven entry points. Each is a skill under `plugins/asimov-plugin/skil
 | `s101-review` *(planned)* | Spec | no | — |
 | `conventions-check` *(planned)* | Review + Test | no | — |
 
-Entry-point skills follow the pattern `plugins/asimov-plugin/skills/<name>/SKILL.md` + `method.md`. The method reads its input from the prompt (Codex passes no arguments to a skill) and asks when none is given.
+Entry-point skills follow the pattern `plugins/asimov-plugin/skills/<name>/SKILL.md`. The method reads its input from the prompt (Codex passes no arguments to a skill) and asks when none is given.
 
 **`/d101-feature-design` runs in three phases with a stop in the middle.** Phase A settles requirements (§2, §3) and writes nothing. Phase B settles the business design (§4, §5 UI Design, §8, §9), writes the file with the document phase marked `Business design`, §6 *declared open* and §7 Implementation *pending*, and **stops the run**. Phase C — the technical design plus the build recipe (§6, §7 Implementation, §10) — is reachable only in a *later* invocation against a file already at `Business design`, and flips it to `Full design`. §7 Implementation is the code-grounded recipe realising the §6 contracts; it sits **outside the two bars** (`d101-feature-design-definition.md` §4.8) and is the interim home for build-readiness notes until the Spec stage (S101/S102) is in use for the feature (§9).
 
@@ -140,7 +140,7 @@ They are laid out **per artifact, not per file kind**: an *artifact* is somethin
 
 ### 4.6 Skills
 
-The shared layer both tools read: a folder under `plugins/asimov-plugin/skills/<name>/`, discovered on install. **Every skill is two files** — a minimal `SKILL.md` entry (frontmatter, invocation flags, one purpose sentence and the instruction to read `method.md`; under 8 kB, the cap Codex applies to entries of plugins in its portable Agent-Plugins manifest format — not to our legacy `.codex-plugin` manifest, so today the cap is precautionary) and `method.md` with the whole method. Skills declare no model, take no arguments (Codex passes none; the method reads the prompt), and reach plugin files relative to their own folder — never through a tool-specific variable. Some are model-invoked (activated when a task matches the `description`), the entry points (§4.3) are user-invoked, and `asimov-init` is user-only.
+The shared layer both tools read: a folder under `plugins/asimov-plugin/skills/<name>/`, discovered on install. Every skill is one `SKILL.md`, read in full by both tools. Codex caps a skill entry at 8 kB only for plugins in its portable Agent-Plugins manifest format; with our legacy `.codex-plugin` manifest nothing is truncated, so skills stay single-file until that format is adopted — then the skills above 8 kB are split first (CLAUDE.md hard rule 11). Skills declare no model, take no arguments (Codex passes none; the method reads the prompt), and reach plugin files relative to their own folder — never through a tool-specific variable. Some are model-invoked (activated when a task matches the `description`), the entry points (§4.3) are user-invoked, and `asimov-init` is user-only.
 
 | Skill | Kind | Purpose |
 |---|---|---|
@@ -172,7 +172,7 @@ asimov/
 │       │   ├── calvin-the-test-author.{md,toml}
 │       │   ├── baley-the-code-reviewer.{md,toml}
 │       │   └── s102-validator.md          ← not built yet
-│       ├── skills/                       ← the shared layer (§4.6); every skill = SKILL.md (entry) + method.md (method)
+│       ├── skills/                       ← the shared layer (§4.6); one SKILL.md per skill
 │       │   ├── asimov-init/ · d101-feature-design/ · d101-review/ · d101-convert-to-html/ · persona-new/ · persona-list/   ← entry points (§4.3)
 │       │   ├── role-dotnet-builder/              ← role method (Giskard)
 │       │   ├── role-angular-builder/             ← role method (Daneel)
@@ -254,12 +254,12 @@ There is no production deployment to provision — the toolkit is a developer to
 
 ### 7.1 Entry-point skill shape
 
-An entry point is a skill folder with two files:
+An entry point is a skill folder with one `SKILL.md`:
 
-- **`SKILL.md`** — frontmatter (`name`, `description`, `argument-hint`, `allowed-tools`; `disable-model-invocation: true` when the entry point is a user decision) and a body of two sentences: the purpose, and *"Read `method.md` in this skill's folder first and follow it."* A user-only entry point also carries `agents/openai.yaml` with `policy.allow_implicit_invocation: false` for Codex. No model.
-- **`method.md`** — the whole prompt: phases, steps, hard rules. Plugin files are referenced relative to the skill folder; the developer's input is whatever the prompt gave with the invocation.
+- **Frontmatter** — `name`, `description`, `argument-hint`, `allowed-tools`; `disable-model-invocation: true` when the entry point is a user decision (then also `agents/openai.yaml` with `policy.allow_implicit_invocation: false` for Codex). No model.
+- **Body** — the whole prompt: phases, steps, hard rules. Plugin files are referenced relative to the skill folder; the developer's input is whatever the prompt gave with the invocation.
 
-The exact prompt text and interview heuristics are implementation detail; they live in `method.md` and are designed against the relevant `features/D101-<feature>.html`.
+The exact prompt text and interview heuristics are implementation detail; they live in the skill file and are designed against the relevant `features/D101-<feature>.html`.
 
 ### 7.2 Subagent shape
 
@@ -335,7 +335,7 @@ Planned components that slot into the structure above when added:
 
 | Item | Adds to layout |
 |---|---|
-| `s101-implementation-plan` entry-point skill | `plugins/asimov-plugin/skills/s101-implementation-plan/` (SKILL.md + method.md) |
+| `s101-implementation-plan` entry-point skill | `plugins/asimov-plugin/skills/s101-implementation-plan/SKILL.md` |
 | `s101-review` entry-point skill | `plugins/asimov-plugin/skills/s101-review/` |
 | `conventions-check` entry-point skill | `plugins/asimov-plugin/skills/conventions-check/` |
 | The update flow — `asimov-update` entry-point skill + a session-start hook | `plugins/asimov-plugin/skills/asimov-update/`, `plugins/asimov-plugin/hooks/hooks.json` |

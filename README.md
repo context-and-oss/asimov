@@ -114,7 +114,7 @@ A persona review reads a D101 as one of its intended readers and reports where t
 plugins/asimov-plugin/                    the plugin (install scope), read as-is by both tools — no build step
 ├── .claude-plugin/plugin.json            Claude Code plugin manifest
 ├── .codex-plugin/plugin.json             Codex plugin manifest — same name, version, description
-├── skills/                               every skill is two files: a minimal SKILL.md entry and method.md with the method
+├── skills/                               one SKILL.md per skill, read in full by both tools
 │   ├── asimov-init/ · d101-*/ · persona-new/ · persona-list/   entry points (the former commands)
 │   ├── role-*/                           the subagents' methods
 │   ├── artifact-d101-*/                  D101 authoring + gap review
@@ -143,7 +143,7 @@ documentation/                            repo docs (not inside install scope)
 
 - [Website](https://asimov-plugin.netlify.app) – what Asimov is, for someone who has never used it
 - [D100 – Architecture](documentation/D100-Asimov-architecture.md) – why, components, distribution, patterns
-- [D101 – Codex support](documentation/features/D101-codex-support.html) – one plugin folder for two tools, the two-file skills, the shells
+- [D101 – Codex support](documentation/features/D101-codex-support.html) – one plugin folder for two tools, skills both tools read, a thin agent shell per tool
 - [D101 definition](plugins/asimov-plugin/artifacts/documentation/d101-feature-design/d101-feature-design-definition.md) – the two bars, phase vs status
 - [D101 template](plugins/asimov-plugin/artifacts/documentation/d101-feature-design/d101-feature-design-template.html) – structure + ground rules in the leading comment
 - [Diagram templates](plugins/asimov-plugin/resources/diagrams/README.md) – the four notations and when to use which
