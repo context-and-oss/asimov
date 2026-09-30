@@ -140,7 +140,7 @@ They are laid out **per artifact, not per file kind**: an *artifact* is somethin
 
 ### 4.6 Skills
 
-The shared layer both tools read: a folder under `plugins/asimov-plugin/skills/<name>/`, discovered on install. **Every skill is two files** — a minimal `SKILL.md` entry (frontmatter, invocation flags, one purpose sentence and the instruction to read `method.md`; under 8 kB, the size at which Codex truncates an entry) and `method.md` with the whole method. Skills declare no model, take no arguments (Codex passes none; the method reads the prompt), and reach plugin files relative to their own folder — never through a tool-specific variable. Some are model-invoked (activated when a task matches the `description`), the entry points (§4.3) are user-invoked, and `asimov-init` is user-only.
+The shared layer both tools read: a folder under `plugins/asimov-plugin/skills/<name>/`, discovered on install. **Every skill is two files** — a minimal `SKILL.md` entry (frontmatter, invocation flags, one purpose sentence and the instruction to read `method.md`; under 8 kB, the cap Codex applies to entries of plugins in its portable Agent-Plugins manifest format — not to our legacy `.codex-plugin` manifest, so today the cap is precautionary) and `method.md` with the whole method. Skills declare no model, take no arguments (Codex passes none; the method reads the prompt), and reach plugin files relative to their own folder — never through a tool-specific variable. Some are model-invoked (activated when a task matches the `description`), the entry points (§4.3) are user-invoked, and `asimov-init` is user-only.
 
 | Skill | Kind | Purpose |
 |---|---|---|

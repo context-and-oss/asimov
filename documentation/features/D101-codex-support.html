@@ -270,7 +270,7 @@ footer.site-footer a { color: var(--cyan); }
   <a href="../index.html#s6">Diagrams</a>
   <span class="spacer"></span>
   <span class="phase-chip full">Full design</span>
-  <span class="status-chip draft">Draft v0.3</span>
+  <span class="status-chip draft">Draft v0.4</span>
 </nav>
 
 <div class="layout-doc">
@@ -836,7 +836,7 @@ footer.site-footer a { color: var(--cyan); }
 <section class="s" id="s6-5">
   <h2 class="section-title"><span class="sec-ref">§6.5</span>Contracts relied on</h2>
   <div class="callout">
-    No API of Asimov's own. The design rests on five external contracts, each documented by its owner and verified live on 2026-09-29 (research note): Claude Code's plugin, skill and subagent formats (<code>disable-model-invocation</code>, <code>skills:</code> preload, "Base directory for this skill"); Codex's plugin and marketplace manifests (compatibility path for Claude manifests noted, not used); Codex skills (<code>$plugin:skill</code>, the skill path in the listing, <code>policy.allow_implicit_invocation</code>, the 8 kB entry limit); Codex custom agents (TOML in <code>~/.codex/agents/</code> or a trusted repo's <code>.codex/agents/</code>, <code>agent_type</code> spawn, inheritance when <code>model</code> is absent); and the shared SKILL.md convention both tools read.
+    No API of Asimov's own. The design rests on five external contracts, each documented by its owner and verified live on 2026-09-29 (research note): Claude Code's plugin, skill and subagent formats (<code>disable-model-invocation</code>, <code>skills:</code> preload, "Base directory for this skill"); Codex's plugin and marketplace manifests (compatibility path for Claude manifests noted, not used); Codex skills (<code>$plugin:skill</code>, the skill path in the listing, <code>policy.allow_implicit_invocation</code>, the 8 kB entry cap for portable-format plugins); Codex custom agents (TOML in <code>~/.codex/agents/</code> or a trusted repo's <code>.codex/agents/</code>, <code>agent_type</code> spawn, inheritance when <code>model</code> is absent); and the shared SKILL.md convention both tools read.
   </div>
 </section>
 
@@ -851,7 +851,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="row cols-3"><div class="label-cell">asimov-init: disable-model-invocation</div><div><code>true</code></div><div>User-only in Claude Code (R3).</div></div>
     <div class="row cols-3"><div class="label-cell">asimov-init: policy.allow_implicit_invocation</div><div><code>false</code></div><div>User-only in Codex (R3).</div></div>
     <div class="row cols-3"><div class="label-cell">Baley: tools · sandbox_mode</div><div><code>Read, Grep, Glob, Bash</code> · <code>"read-only"</code></div><div>The reviewer never edits, in either tool.</div></div>
-    <div class="row cols-3"><div class="label-cell">SKILL.md size</div><div>&lt; <code>8000</code> bytes</div><div>Codex truncates the entry above it (NF3); checked by hand until the CI check exists.</div></div>
+    <div class="row cols-3"><div class="label-cell">SKILL.md size</div><div>&lt; <code>8000</code> bytes</div><div>The cap Codex applies to skills of plugins in its portable Agent-Plugins manifest format; our legacy <code>.codex-plugin</code> manifest is not truncated today, so the limit is precautionary and the shape is the point (NF3). Checked by hand until the CI check exists.</div></div>
     <div class="row cols-3"><div class="label-cell">Codex project trust</div><div>user-side, per repo</div><div>Codex loads <code>.codex/agents/</code> only in a trusted repo; not ours to set — <code>/asimov-init</code>'s report and the README say so.</div></div>
   </div>
 </section>
@@ -863,7 +863,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="failure-row"><div>A field in a Codex manifest is wrong</div><div>Codex skips the plugin entry without an error</div><div><span class="sev high">High</span></div><div>AC1 on every change until the CI manifest check exists; the two manifests share their three values.</div></div>
     <div class="failure-row"><div>Codex refuses the write into <code>.codex/agents/</code></div><div>Shells not delivered; the run reports them as skipped</div><div><span class="sev med">Med</span></div><div>The developer approves the prompt in an interactive session, or runs <code>asimov-init</code> from Claude Code once (same files). Observed live 2026-09-29: a non-interactive Codex run skipped the four shells and wrote everything else.</div></div>
     <div class="failure-row"><div>Repo not trusted in Codex</div><div>Agents absent; delegation falls to a generic agent or fails</div><div><span class="sev med">Med</span></div><div><code>/asimov-init</code>'s report and the README name the trust step and the new session.</div></div>
-    <div class="failure-row"><div>A <code>SKILL.md</code> grows past 8 kB</div><div>Codex truncates it; the pointer to <code>method.md</code> may be lost</div><div><span class="sev med">Med</span></div><div>Two-file rule keeps the entry small; AC13; CI check later.</div></div>
+    <div class="failure-row"><div>A <code>SKILL.md</code> grows past 8 kB</div><div>Under Codex's portable manifest format the entry is truncated and the pointer to <code>method.md</code> may be lost; under the legacy manifest nothing happens today</div><div><span class="sev low">Low</span></div><div>Two-file rule keeps the entry small; AC13; CI check later.</div></div>
     <div class="failure-row"><div>A role skill is marked user-only by mistake</div><div>Claude Code cannot preload it; a Codex agent cannot invoke it</div><div><span class="sev med">Med</span></div><div>AC5/AC13 review the flags; the debug log's "skill not found" warning is the symptom.</div></div>
     <div class="failure-row"><div>Persona edited in one folder only</div><div>The two tools read different personas</div><div><span class="sev low">Low</span></div><div>Re-run <code>/persona-new</code> for that reader; the Claude copy is the source.</div></div>
     <div class="failure-row"><div><code>AGENTS.md</code> markers broken or duplicated</div><div>Region cannot be located</div><div><span class="sev med">Med</span></div><div><code>/asimov-init</code> stops that write and reports; never guesses or repairs markers.</div></div>
@@ -880,7 +880,7 @@ footer.site-footer a { color: var(--cyan); }
   <div class="callout warn"><strong>Codex reads project agents only in a trusted repo, and only at session start.</strong> Delivery by <code>/asimov-init</code> is followed by a new session; an untrusted repo shows no agents at all.</div>
   <div class="callout"><strong>Codex skills take no arguments.</strong> Whatever follows <code>$asimov-plugin:&lt;skill&gt;</code> in the prompt is the input; the entry-point methods read their target from the prompt and ask when none is given.</div>
   <div class="callout"><strong>Codex namespaces plugin skills.</strong> The model and the user see <code>asimov-plugin:d101-review</code>; the bare name is Claude Code's convenience.</div>
-  <div class="callout"><strong>Codex truncates a skill entry at 8 kB</strong> and does not truncate the files the skill then reads — hence the two-file shape.</div>
+  <div class="callout"><strong>The 8 kB cap is real but conditional.</strong> Codex truncates a <code>SKILL.md</code> at 8,000 bytes only for skills of plugins in its portable Agent-Plugins manifest format (a root <code>plugin.json</code> with <code>$schema</code>); a legacy <code>.codex-plugin</code> manifest — ours, and Superpowers' in OpenAI's own catalogue, whose skills run to 15 kB — injects the full file. The two-file shape is kept for uniformity and to be safe if the manifest format moves; files a skill reads with tools are never truncated.</div>
   <div class="callout"><strong>Codex migrates <code>commands/</code> at install, dropping anything over 4 kB silently.</strong> Removing <code>commands/</code> is what makes the six entry points reach Codex whole.</div>
   <div class="callout"><strong>Version is the update signal in both tools.</strong> Claude Code: "push new commits without changing it, users don't receive them"; Codex caches per version. A local-clone marketplace in Claude Code reads in place and needs no bump — the development path.</div>
   <div class="callout"><strong>Development installs.</strong> Claude Code: <code>claude --plugin-dir plugins/asimov-plugin</code> loads the folder for one session and overrides an installed plugin of the same name. Codex: add the clone as a local marketplace (<code>codex plugin marketplace add &lt;clone&gt;</code>); remove and add the plugin again after editing.</div>
@@ -1091,7 +1091,7 @@ footer.site-footer a { color: var(--cyan); }
     · <span class="mono">features/D101-codex-support.html</span>
   </div>
   <div style="margin-top: 0.4rem">
-    D101 · Codex support · asimov-plugin · Draft v0.3 · 2026-09-29
+    D101 · Codex support · asimov-plugin · Draft v0.4 · 2026-09-29
   </div>
 </footer>
 
