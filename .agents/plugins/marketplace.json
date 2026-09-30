@@ -1,0 +1,17 @@
+{
+  "name": "asimov-marketplace",
+  "plugins": [
+    {
+      "name": "asimov-plugin",
+      "source": {
+        "source": "local",
+        "path": "./plugins/asimov-plugin"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_USE"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

@@ -1,6 +1,7 @@
 <!--
   asimov.md template — the Asimov/L3 context file that /asimov-init writes to the
-  ROOT of a product repo and wires into CLAUDE.md via an `@asimov.md` import.
+  ROOT of a product repo and wires into CLAUDE.md via an `@asimov.md` import (Claude Code);
+  Codex reads the same rendered text inline in the asimov:start/asimov:end region of AGENTS.md.
 
   HOW /asimov-init USES THIS FILE
   - Read at run-time (the file in the plugin is the source of truth — D100 §7.4).
@@ -20,8 +21,9 @@
 > Last generated: {{YYYY-MM-DD}}.
 
 This repo uses the **Asimov** L3 toolkit (`asimov-plugin`) for the AI-assisted middle of
-the delivery pipeline — _Design → Spec → Code → Review → Test_. This file gives Claude the
-standing context to orient and auto-delegate. It is imported into `CLAUDE.md` via `@asimov.md`.
+the delivery pipeline — _Design → Spec → Code → Review → Test_. This file gives the coding agent —
+Claude Code or Codex — the standing context to orient and auto-delegate. Claude Code reads it through the
+`@asimov.md` import in `CLAUDE.md`; Codex reads the same text inline in the managed region of `AGENTS.md`.
 
 ## Documentation taxonomy
 

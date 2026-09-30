@@ -1,7 +1,6 @@
 ---
 description: List the persona review skills available in this repo — the standard set shipped with Asimov plus the custom personas authored into .claude/skills/ — labelling which is which. Read-only; writes nothing.
 argument-hint: (none)
-model: claude-sonnet-4-6
 allowed-tools: Read, Glob
 ---
 
