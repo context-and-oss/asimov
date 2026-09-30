@@ -90,6 +90,7 @@ Moving from one shape to the other is the author's move (the phase axis). Never 
 
 These hold on every change to a D101, by any route.
 
+- **UTF-8 in, UTF-8 out.** Every file you read or write — the definition, the template, the D101 and its mockups — is UTF-8 without BOM, and they contain characters outside ASCII (dashes, arrows, section signs). When a file tool is available, use it. When you go through a shell instead, force the encoding on both ends: in PowerShell `Get-Content -Raw -Encoding utf8` and `Set-Content -Encoding utf8` (or `[IO.File]::ReadAllText` / `WriteAllText` with `[Text.UTF8Encoding]::new($false)`), never the shell's default code page. Before you report done, spot-check the written file for mojibake (`â€`, `Ã`) — finding any means re-write, not report.
 - **Don't fabricate.** No guesses dressed as decisions. When the author doesn't know, write `TBD — verify` with a named decider (definition §4.3) — or, for mechanism at `Business design`, add it to the open-§6 list.
 - **Don't invent mechanism to fill §6.** A §6 subsection you can only write by guessing belongs in the open-§6 list (definition §7 *Mechanism invented ahead of the business shape*).
 - **Don't drift the template.** Section order, names and CSS classes as written; no new component classes, no reordering, no non-template sections beyond the non-canonical list.
