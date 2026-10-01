@@ -271,7 +271,7 @@ footer.site-footer a { color: var(--cyan); }
   <a href="../index.html#s6">Diagrams</a>
   <span class="spacer"></span>
   <span class="phase-chip full">Full design</span>
-  <span class="status-chip">Draft v0.6</span>
+  <span class="status-chip">Draft v0.5</span>
 </nav>
 
 <div class="layout-doc">
@@ -315,12 +315,12 @@ footer.site-footer a { color: var(--cyan); }
   <div class="meta-cell"><div class="label">Business approver</div><div class="value">Allan Borup</div></div>
   <div class="meta-cell"><div class="label">Kind</div><div class="value mono">cross-cutting</div></div>
   <div class="meta-cell"><div class="label">Artifacts covered</div><div class="value mono">5</div></div>
-  <div class="meta-cell"><div class="label">Last updated</div><div class="value mono">2026-09-30</div></div>
+  <div class="meta-cell"><div class="label">Last updated</div><div class="value mono">2026-09-15</div></div>
   <div class="meta-cell"><div class="label">Status</div><div class="value">Draft</div></div>
 </div>
 
 <div class="doc-scope">
-  <strong>Scope:</strong> Every artifact under <code>plugins/asimov-plugin/artifacts/</code>. No new command; touches the definitions, the three producing commands, D100 §4.5, <code>CLAUDE.md</code> and, since 2026-09-15, the PR workflow. Answers Q2 of <a href="D101-d101-feature-design.html" style="color:var(--cyan)">accepted deviations</a>. §2–§5 are the business agreement; §6 is the mechanism; §7 the edits.
+  <strong>Scope:</strong> Every artifact under <code>plugins/asimov-plugin/artifacts/</code>. No new command; touches the definitions, the three producing commands, D100 §4.5, <code>CLAUDE.md</code> and, since 2026-09-15, the PR workflow. Answers Q2 of <a href="D101-accepted-deviations.html" style="color:var(--cyan)">accepted deviations</a>. §2–§5 are the business agreement; §6 is the mechanism; §7 the edits.
 </div>
 
 <!-- §2 -->
@@ -513,7 +513,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="row cols-2"><div class="label-cell">conventions-definition.md</div><div>New, <code>artifact: conventions</code>.</div></div>
     <div class="row cols-2"><div class="label-cell">d101-feature-design.md</div><div>After Step 1, a <strong>Step 1b — Maturity notice</strong>: read the block from the definition just loaded, resolve to the §6.2 notice line, print it before Step 2 begins. Add the hard rule <em>never write the level into the D101</em>.</div></div>
     <div class="row cols-2"><div class="label-cell">persona-new.md</div><div>Same step after its Step 1, reading the persona definition.</div></div>
-    <div class="row cols-2"><div class="label-cell">skills/asimov-init/SKILL.md</div><div>Loads the three definitions in Step 1; same step after it, one line per level present, artifacts named. Its index rendering rule strips the template's leading comment explicitly.</div></div>
+    <div class="row cols-2"><div class="label-cell">asimov-init.md</div><div>Loads the three definitions in Step 1; same step after it, one line per level present, artifacts named. Its index rendering rule strips the template's leading comment explicitly.</div></div>
     <div class="row cols-2"><div class="label-cell">D100 §4.5</div><div>Add the <strong>Maturity</strong> column; one paragraph under the table pointing at this D101.</div></div>
     <div class="row cols-2"><div class="label-cell">CLAUDE.md</div><div>Under Conventions: the three fields and four levels, one line each. Hard rule 10: <em>the level block and the D100 §4.5 column change in the same commit</em>, modelled on hard rule 2.</div></div>
     <div class="row cols-2"><div class="label-cell">.github/workflows/Asimov-PR.yml</div><div>One step on every PR to <code>main</code>: each <code>artifacts/*/*/*-definition.md</code> opens with frontmatter carrying <code>maturity: assess|trial|adopt|hold</code>, else the PR fails. It checks presence only — not that <code>artifact</code> equals the folder slug (R2), that <code>since</code> is a date (R4), that templates carry no block (R3), or that D100 §4.5 moved with the level (R10). Those stay manual.</div></div>
@@ -563,8 +563,8 @@ footer.site-footer a { color: var(--cyan); }
     <div class="refs-block">
       <h4>Sibling docs</h4>
       <ul>
-        <li><a href="D101-d101-feature-design.html">D101-d101-feature-design.html</a> (accepted deviations) — Q2, answered by §4.3 rule 3</li>
-        <li><a href="D101-d101-feature-design.html">D101-d101-feature-design.html</a> (review handoff) — precedent for a cross-command convention</li>
+        <li><a href="D101-accepted-deviations.html">D101-accepted-deviations.html</a> — Q2, answered by §4.3 rule 3</li>
+        <li><a href="D101-review-handoff.html">D101-review-handoff.html</a> — precedent for a cross-command convention</li>
       </ul>
     </div>
     <div class="refs-block">
@@ -601,7 +601,7 @@ footer.site-footer a { color: var(--cyan); }
     · <span class="mono">features/D101-artifact-maturity.html</span>
   </div>
   <div style="margin-top: 0.4rem">
-    D101 · Artifact maturity · asimov · Draft v0.6 · 2026-09-30
+    D101 · Artifact maturity · asimov · Draft v0.5 · 2026-09-15
   </div>
 </footer>
 
