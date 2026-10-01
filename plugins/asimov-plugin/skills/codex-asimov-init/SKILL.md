@@ -67,7 +67,7 @@ Take the match and set `<plugin-root>` to the folder that holds its `artifacts/`
    <plugin-root>/agents/*.toml
    ```
 
-If any of files 1–5 cannot be read, **stop and report which absolute path failed.** Do not write anything without its template. If the `agents/` folder holds no `.toml`, skip target 4 (the shells), say so in the plan, and continue.
+If any of files 1–5 cannot be read, **stop and report which absolute path failed.** Do not write anything without its template. If the `agents/` folder holds no `.toml`, skip target 2 (the shells), say so in the plan, and continue.
 
 Each `.md` template begins with an HTML authoring comment (`<!-- ... -->`) addressed to you. **Strip that leading comment** from the rendered output — it is instructions, not content.
 
