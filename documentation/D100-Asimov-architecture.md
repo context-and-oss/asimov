@@ -321,7 +321,7 @@ None per developer. No API keys, no environment variables, no per-repo wiring. T
 
 ### 8.3 Lifecycle independence
 
-Toolkit updates flow via `/plugin marketplace update` (Claude Code) or a plugin remove + re-add (Codex, §6), not by merging into product repos — the load-bearing reason the toolkit is a **separate repo**. Templates, slash commands, and subagent prompts move on their own cadence; bundling them into a product repo would drag every product release through every tooling iteration.
+Toolkit updates flow via `/plugin marketplace update` (Claude Code) or `codex plugin marketplace upgrade` (Codex, §6), not by merging into product repos — the load-bearing reason the toolkit is a **separate repo**. Templates, slash commands, and subagent prompts move on their own cadence; bundling them into a product repo would drag every product release through every tooling iteration.
 
 Alternatives considered: (a) co-locate the toolkit in a product repo's `.claude-plugin/` — rejected because the toolkit serves multiple systems and tooling updates shouldn't churn any single product's release pipeline; (b) one toolkit repo per system — rejected because the L3 workflow is one contract across systems; per-system forks would diverge.
 
