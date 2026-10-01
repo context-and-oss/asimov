@@ -42,6 +42,8 @@ Then run the command or subagent in any product repo. After editing:
 
 There is no auto-reload.
 
+To test a change in Codex as well, follow the Codex subsection of "How to test the plugin locally" in [`CLAUDE.md`](CLAUDE.md).
+
 ## Pull requests
 
 - One change per pull request. A refactor and a behaviour change are two pull requests.

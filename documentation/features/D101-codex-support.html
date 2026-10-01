@@ -271,7 +271,7 @@ footer.site-footer a { color: var(--cyan); }
   <a href="../index.html#s6">Diagrams</a>
   <span class="spacer"></span>
   <span class="phase-chip full">Full design</span>
-  <span class="status-chip draft">Draft v0.8</span>
+  <span class="status-chip draft">Draft v0.9</span>
 </nav>
 
 <div class="layout-doc">
@@ -293,18 +293,17 @@ footer.site-footer a { color: var(--cyan); }
       <li><a href="#c6">§6 Technical design</a>
         <ul>
           <li><a href="#s6-1">§6.1 Platform</a></li>
-          <li><a href="#s6-2">§6.2 An install</a></li>
+          <li><a href="#s6-2">§6.2 Finding the plugin</a></li>
           <li><a href="#s6-3">§6.3 Code map</a></li>
           <li><a href="#s6-4">§6.4 Shapes</a></li>
-          <li><a href="#s6-5">§6.5 APIs</a></li>
           <li><a href="#s6-7">§6.7 Failure handling</a></li>
           <li><a href="#s6-8">§6.8 Gotchas</a></li>
         </ul>
       </li>
       <li><a href="#c7">§7 Implementation</a>
         <ul>
-          <li><a href="#s7-1">§7.1 New</a></li>
-          <li><a href="#s7-2">§7.2 Edits in place</a></li>
+          <li><a href="#s7-1">§7.1 New vs. reuse</a></li>
+          <li><a href="#s7-2">§7.2 Code layout</a></li>
           <li><a href="#s7-5">§7.5 Cross-cutting</a></li>
         </ul>
       </li>
@@ -319,31 +318,30 @@ footer.site-footer a { color: var(--cyan); }
 <header class="hero">
   <div class="kicker">D101 · Feature design · asimov-plugin</div>
   <h1>Codex support</h1>
-  <p class="tagline">One plugin that Claude Code and Codex both install straight from the repository, with no generator and no build step. The method stays in skills, each subagent gets a thin shell per tool, a model is named only in a Claude Code agent shell, and the setup entry point is one skill both tools run.</p>
+  <p class="tagline">One plugin folder that Claude Code and Codex both install. Each tool reads its own manifest, both load the plugin's skills, and the setup has one entry point per tool: the <code>/asimov-init</code> command in Claude Code and the <code>codex-asimov-init</code> skill in Codex, which works out where the plugin is by itself.</p>
 </header>
 
 <div class="meta-strip">
   <div class="meta-cell"><div class="label">Owner</div><div class="value">Christian Kaysen</div></div>
   <div class="meta-cell"><div class="label">Business approver</div><div class="value">Allan Borup</div></div>
   <div class="meta-cell"><div class="label">Tools</div><div class="value mono">Claude Code · Codex</div></div>
-  <div class="meta-cell"><div class="label">Plugin version</div><div class="value mono">0.1.0 → 0.2.0</div></div>
-  <div class="meta-cell"><div class="label">Last updated</div><div class="value mono">2026-09-30</div></div>
+  <div class="meta-cell"><div class="label">Files added</div><div class="value mono">4</div></div>
+  <div class="meta-cell"><div class="label">Last updated</div><div class="value mono">2026-10-01</div></div>
   <div class="meta-cell"><div class="label">Build step</div><div class="value">None</div></div>
 </div>
 
 <div class="doc-scope">
-  <strong>Scope:</strong> installing the Asimov plugin in Codex beside Claude Code from one plugin folder: the tool manifests, the agent shells, where a model may be named, the setup entry point as a skill both tools run, and the repository guidance that describes them.
+  <strong>Scope:</strong> installing the Asimov plugin in Codex beside Claude Code from one plugin folder — the Codex marketplace listing and plugin manifest, the Codex setup entry point and how it finds the plugin's files, the convention that keeps a Codex-only skill out of Claude Code, and what stays Claude Code only. What the setup writes into a repository, target by target, is designed in <a href="D101-asimov-init.html">D101-asimov-init.html</a> and not repeated here.
 </div>
 
 <section class="s" id="s2">
   <h2 class="section-title"><span class="sec-ref">§2</span>Why</h2>
-  <p class="section-desc">Teams on Codex cannot use Asimov today, and the parts already prepared for Codex have nothing that installs them.</p>
+  <p class="section-desc">A team on Codex could not install Asimov: the repository listed the plugin for Claude Code alone.</p>
   <ul class="bullets">
-    <li><strong>Claude Code only.</strong> The plugin carries a manifest for Claude Code alone, so a Codex user has nothing to install.</li>
-    <li><strong>Shells without a home.</strong> A Codex shell exists for every subagent, marked as a prototype, and no install path reaches it.</li>
-    <li><strong>Two places to keep in step.</strong> Every model name is written in the component and again in a separate index, which a check compares by hand-written rule.</li>
-    <li><strong>Setup out of reach.</strong> The setup command lives where only Claude Code looks, so a Codex user cannot make a repository Asimov-ready.</li>
-    <li><strong>Context one tool never sees.</strong> <code>asimov.md</code> reaches Claude Code through an import in <code>CLAUDE.md</code>; Codex reads neither, so a Codex session starts without the Asimov context.</li>
+    <li><strong>Claude Code only.</strong> The plugin had a manifest for Claude Code and none for Codex, so a Codex user had nothing to add or install.</li>
+    <li><strong>Setup out of reach.</strong> The setup command sits in <code>commands/</code>, a folder Codex does not load, so a Codex user could not make a repository Asimov-ready.</li>
+    <li><strong>Context one tool never sees.</strong> <code>asimov.md</code> reaches Claude Code through an import in <code>CLAUDE.md</code>; Codex reads <code>AGENTS.md</code> and expands no imports.</li>
+    <li><strong>Plugin files out of reach from a skill.</strong> The skills name the plugin's files through a variable only Claude Code fills in, so a skill running in Codex cannot find its templates.</li>
   </ul>
   <div class="callout"><strong>Audience.</strong> Asimov maintainers, and developers in product repositories who work in Claude Code, in Codex, or in both.</div>
 </section>
@@ -351,41 +349,34 @@ footer.site-footer a { color: var(--cyan); }
 <section class="s" id="s3">
   <h2 class="section-title"><span class="sec-ref">§3</span>Requirements</h2>
 
-  <div class="subhead">Functional — 15</div>
+  <div class="subhead">Functional — 11</div>
   <div class="req-list">
     <div class="req"><div class="id">R1</div><div class="body">A Claude Code user installs the plugin from the repository with the same steps as before this change.</div></div>
     <div class="req"><div class="id">R2</div><div class="body">A Codex user installs the plugin from the same repository.</div></div>
     <div class="req"><div class="id">R3</div><div class="body">Both tools install the same plugin folder, with no file generated or copied per tool beforehand.</div></div>
-    <div class="req"><div class="id">R4</div><div class="body">Both tools see the same plugin version number.</div></div>
-    <div class="req"><div class="id">R5</div><div class="body">Every subagent has exactly one shell per tool.</div></div>
-    <div class="req"><div class="id">R6</div><div class="body">A shell carries the subagent's identity and the name of its role skill, and no part of the method.</div></div>
-    <div class="req"><div class="id">R7</div><div class="body">A Claude Code shell has its role skill loaded before the subagent starts work.</div></div>
-    <div class="req"><div class="id">R8</div><div class="body">A Codex shell tells the subagent to load its role skill before any other step.</div></div>
-    <div class="req"><div class="id">R9</div><div class="body">The reviewer cannot change a file in the repository, in either tool.</div></div>
-    <div class="req"><div class="id">R10</div><div class="body">A model is named in a Claude Code agent shell and nowhere else in the plugin.</div></div>
-    <div class="req"><div class="id">R11</div><div class="body">The repository keeps no separate index of model names.</div></div>
-    <div class="req"><div class="id">R12</div><div class="body">The setup entry point runs in Codex and in Claude Code from one file, and only the developer can start it in either tool.</div></div>
-    <div class="req"><div class="id">R13</div><div class="body">Each of the five other Claude Code commands behaves as before this change, apart from the model it runs on.</div></div>
-    <div class="req"><div class="id">R14</div><div class="body">The Asimov context the setup entry point writes reaches a Codex session as well as a Claude Code session.</div></div>
-    <div class="req"><div class="id">R15</div><div class="body">The setup entry point delivers the Codex subagent shells into the repository, where a trusted Codex session loads them.</div></div>
+    <div class="req"><div class="id">R4</div><div class="body">A Codex user runs the setup from the installed plugin.</div></div>
+    <div class="req"><div class="id">R5</div><div class="body">The Codex setup entry point finds the plugin's templates without a variable the tool must fill in.</div></div>
+    <div class="req"><div class="id">R6</div><div class="body">When the Codex setup entry point cannot find the plugin's templates, it writes nothing and reports what it looked for.</div></div>
+    <div class="req"><div class="id">R7</div><div class="body">Claude Code neither lists nor runs the Codex setup entry point.</div></div>
+    <div class="req"><div class="id">R8</div><div class="body">Codex starts the Codex setup entry point only when the developer invokes it.</div></div>
+    <div class="req"><div class="id">R9</div><div class="body">The Codex setup writes the Asimov context where a Codex session reads it.</div></div>
+    <div class="req"><div class="id">R10</div><div class="body">The Codex setup delivers the plugin's Codex subagent shells into the repository.</div></div>
+    <div class="req"><div class="id">R11</div><div class="body">Each Claude Code command behaves as before this change.</div></div>
   </div>
 
   <div class="subhead">Non-functional — 3</div>
   <div class="req-list nf">
-    <div class="req"><div class="id">NF1</div><div class="body">No product identifiers in anything the plugin ships (hard rule 7).</div></div>
-    <div class="req"><div class="id">NF2</div><div class="body">Each tool's manifest is small and written by hand; no tooling is needed to produce it.</div></div>
+    <div class="req"><div class="id">NF1</div><div class="body">No product identifiers in anything the plugin ships.</div></div>
+    <div class="req"><div class="id">NF2</div><div class="body">Each tool's manifest is small and written by hand; no tooling produces it.</div></div>
     <div class="req"><div class="id">NF3</div><div class="body">Nothing the plugin ships names a Codex model.</div></div>
   </div>
 
-  <div class="subhead">Out of scope — 6</div>
+  <div class="subhead">Out of scope — 4</div>
   <div class="req-list">
-    <div class="req oos"><div class="id">OOS1</div><div class="body">Turning the five other Claude Code commands into skills — decided against for this round (Christian Kaysen, 2026-09-30); Codex does not load them, and how a Codex user reaches them is Q1.</div></div>
-    <div class="req oos"><div class="id">OOS2</div><div class="body">Choosing a model for a Codex subagent — proposal #7 settles how, and until then the Codex shells name none.</div></div>
-    <div class="req oos"><div class="id">OOS3</div><div class="body">A small-tier variant of any subagent — one shell per tool per role; routing to a smaller model is #7.</div></div>
-    <div class="req oos"><div class="id">OOS4</div><div class="body">Changes to the pull-request checks — decided against for this round (Christian Kaysen, 2026-09-30); the consequence is Q3.</div></div>
-    <div class="req oos"><div class="id">OOS5</div><div class="body">Writing custom personas where Codex looks as well — taken out of this round (Christian Kaysen, 2026-09-30); a custom persona stays a Claude Code skill in <code>.claude/skills/</code>.</div></div>
-    <div class="req oos"><div class="id">OOS6</div><div class="body">An update notice when the plugin is newer than a repository's Asimov files — deferred; the README says when to re-run setup.</div></div>
-  </div>
+    <div class="req oos"><div class="id">OOS1</div><div class="body">Running the five other slash commands in Codex — Codex does not load <code>commands/</code>; how a Codex user reaches them is Q1.</div></div>
+    <div class="req oos"><div class="id">OOS2</div><div class="body">Making the three skills that still address plugin files through the Claude Code variable work in Codex — the setup skill shows the method; applying it to them is Q2.</div></div>
+    <div class="req oos"><div class="id">OOS3</div><div class="body">Choosing a model for a Codex subagent — organisations reach different Codex models, so any pin would fail somewhere; the Codex shells name none.</div></div>
+    <div class="req oos"><div class="id">OOS4</div><div class="body">Custom personas for Codex — <code>/persona-new</code> writes into <code>.claude/skills/</code>, a Claude Code location; where a Codex user would keep one is not designed.</div></div>  </div>
 </section>
 
 <div class="chapter-band" id="c4">
@@ -402,10 +393,10 @@ footer.site-footer a { color: var(--cyan); }
   <h2 class="section-title"><span class="sec-ref">§4.1</span>Principles</h2>
   <div class="principles">
     <div class="principle"><div class="num">1</div><div class="text"><strong>One folder, one manifest per tool.</strong> Each tool reads its own small manifest and ignores the other's.</div></div>
-    <div class="principle"><div class="num">2</div><div class="text"><strong>The method lives once.</strong> Skills hold every procedure; a shell only says who the subagent is and which skill it follows.</div></div>
-    <div class="principle"><div class="num">3</div><div class="text"><strong>A model belongs to an agent shell.</strong> The shared layer names no model, so it reads the same in both tools.</div></div>
-    <div class="principle"><div class="num">4</div><div class="text"><strong>One file per entry point.</strong> An entry point that must run in both tools is a skill, the one format both tools load from a plugin.</div></div>
-    <div class="principle"><div class="num">5</div><div class="text"><strong>Claude Code keeps working.</strong> A Claude Code user notices nothing but the model a command runs on.</div></div>
+    <div class="principle"><div class="num">2</div><div class="text"><strong>Skills are the shared layer.</strong> Both tools load the plugin's skills; commands and agent shells are per tool.</div></div>
+    <div class="principle"><div class="num">3</div><div class="text"><strong>One setup entry point per tool.</strong> Claude Code keeps its command; Codex gets a skill of its own, marked so that Claude Code ignores it.</div></div>
+    <div class="principle"><div class="num">4</div><div class="text"><strong>A skill that runs in Codex finds the plugin itself.</strong> It derives the plugin folder from its own location and checks it, because Codex fills in no plugin-root variable.</div></div>
+    <div class="principle"><div class="num">5</div><div class="text"><strong>Claude Code keeps working.</strong> Nothing a Claude Code user sees changes.</div></div>
   </div>
 </section>
 
@@ -414,29 +405,27 @@ footer.site-footer a { color: var(--cyan); }
   <div class="data-table">
     <div class="row head cols-2"><div>Concept</div><div>What it means</div></div>
     <div class="row cols-2"><div class="label-cell">Plugin folder</div><div>The one folder in the repository that both tools install.</div></div>
-    <div class="row cols-2"><div class="label-cell">Tool manifest</div><div>The small file that tells one tool the plugin's name, version and contents.</div></div>
-    <div class="row cols-2"><div class="label-cell">Marketplace</div><div>The repository-level listing a tool reads to find the plugin; one per tool, both naming the same folder.</div></div>
-    <div class="row cols-2"><div class="label-cell">Role skill</div><div>The whole method of one subagent, read by both tools.</div></div>
-    <div class="row cols-2"><div class="label-cell">Shell</div><div>A subagent's per-tool identity: name, description, permissions, and the role skill it follows.</div></div>
-    <div class="row cols-2"><div class="label-cell">Model pin</div><div>A model named for a component; allowed only in a Claude Code agent shell.</div></div>
-    <div class="row cols-2"><div class="label-cell">Entry-point skill</div><div>A skill only the developer starts, invoked as <code>/name</code> in Claude Code and <code>$asimov-plugin:name</code> in Codex.</div></div>
+    <div class="row cols-2"><div class="label-cell">Tool manifest</div><div>The small file that tells one tool the plugin's name, version and contents; one per tool, side by side.</div></div>
+    <div class="row cols-2"><div class="label-cell">Marketplace listing</div><div>The repository-level file a tool reads to find the plugin; one per tool, both naming the same folder.</div></div>
+    <div class="row cols-2"><div class="label-cell">Skill</div><div>A folder with a <code>SKILL.md</code> that both tools load from the plugin.</div></div>
+    <div class="row cols-2"><div class="label-cell">Codex-only skill</div><div>A skill whose frontmatter tells Claude Code to neither list nor run it; Codex loads it like any other.</div></div>
+    <div class="row cols-2"><div class="label-cell">Setup entry point</div><div>What a developer runs to make a repository Asimov-ready: a command in Claude Code, a skill in Codex.</div></div>
+    <div class="row cols-2"><div class="label-cell">Plugin root</div><div>The absolute path of the installed plugin folder, which a skill running in Codex works out for itself.</div></div>
   </div>
 </section>
 
 <section class="s" id="s4-3">
   <h2 class="section-title"><span class="sec-ref">§4.3</span>What a developer sees in each tool</h2>
-  <p class="section-desc">The same plugin, reached through each tool's own commands; where this design does not yet promise parity, the row says so.</p>
+  <p class="section-desc">The same plugin, reached through each tool's own commands; where the two tools differ, the row says so.</p>
   <div class="data-table">
     <div class="row head cols-3"><div>Action</div><div>Claude Code</div><div>Codex</div></div>
-    <div class="row cols-3"><div class="label-cell">Add the marketplace</div><div>As before this change.</div><div>The tool's marketplace command pointed at the same repository.</div></div>
-    <div class="row cols-3"><div class="label-cell">Install the plugin</div><div>As before this change.</div><div>The tool's install command for the same plugin name.</div></div>
-    <div class="row cols-3"><div class="label-cell">Run a command</div><div>The five slash commands, as before.</div><div>Not loaded; how a Codex user reaches them is Q1.</div></div>
-    <div class="row cols-3"><div class="label-cell">Set up a repository</div><div><code>/asimov-init</code>, as before.</div><div><code>$asimov-plugin:asimov-init</code>, the same skill.</div></div>
-    <div class="row cols-3"><div class="label-cell">Read the Asimov context</div><div>From <code>asimov.md</code>, through the <code>@asimov.md</code> import in <code>CLAUDE.md</code>.</div><div>From the managed region in <code>AGENTS.md</code>; Codex reads neither <code>CLAUDE.md</code> nor <code>@</code>-imports.</div></div>
-    <div class="row cols-3"><div class="label-cell">Use a skill</div><div>The shipped skills, as before.</div><div>The same shipped skills.</div></div>
-    <div class="row cols-3"><div class="label-cell">Delegate to a subagent</div><div>By name; the role skill is already loaded.</div><div>By name (<code>agent_type</code>); the shells sit in the repository's <code>.codex/agents/</code>, delivered by the setup skill and loaded in a trusted repository from the next session. The subagent loads its role skill first.</div></div>
-    <div class="row cols-3"><div class="label-cell">Model of a subagent</div><div>The one its shell names.</div><div>The session's, until #7.</div></div>
-    <div class="row cols-3"><div class="label-cell">Model of a command or skill</div><div>The session's.</div><div>The session's.</div></div>
+    <div class="row cols-3"><div class="label-cell">Add the marketplace</div><div>As before.</div><div><code>codex plugin marketplace add context-and-oss/asimov</code>, or a local clone's path.</div></div>
+    <div class="row cols-3"><div class="label-cell">Install the plugin</div><div>As before.</div><div><code>codex plugin add asimov-plugin@asimov-marketplace</code>.</div></div>
+    <div class="row cols-3"><div class="label-cell">Set up a repository</div><div><code>/asimov-init</code>, as before.</div><div><code>$asimov-plugin:codex-asimov-init</code>.</div></div>
+    <div class="row cols-3"><div class="label-cell">Run a slash command</div><div>The five others, as before.</div><div>Not available; Codex does not load <code>commands/</code> (Q1).</div></div>
+    <div class="row cols-3"><div class="label-cell">Use a skill</div><div>Every shipped skill except the Codex-only one.</div><div>Every shipped skill; three of them cannot find their plugin files (Q2).</div></div>
+    <div class="row cols-3"><div class="label-cell">Codex subagent shells</div><div>Not used; Claude Code has its own shells.</div><div>Copied into the repository's <code>.codex/agents/</code> by the setup; the shells themselves are a prototype (see <a href="D101-subagents.html">D101-subagents.html</a>).</div></div>
+    <div class="row cols-3"><div class="label-cell">Read the Asimov context</div><div>From <code>asimov.md</code>, through the import in <code>CLAUDE.md</code>.</div><div>From the managed region in <code>AGENTS.md</code>.</div></div>
   </div>
 </section>
 
@@ -444,55 +433,35 @@ footer.site-footer a { color: var(--cyan); }
   <h2 class="section-title"><span class="sec-ref">§4.4</span>Rules</h2>
   <p class="section-desc">What holds whichever tool is in use.</p>
 
-  <div class="subhead">Rule 1 — A model is named only in a Claude Code agent shell</div>
-  <p class="section-desc" style="margin-bottom:0.4rem">Every other file the plugin ships runs on the model of the session that uses it.</p>
+  <div class="subhead">Rule 1 — Each tool reads only its own manifest</div>
+  <p class="section-desc" style="margin-bottom:0.4rem">The plugin folder carries one manifest per tool, and the repository one marketplace listing per tool; a tool ignores the other's.</p>
   <ul class="bullets">
-    <li>The .NET builder's Claude Code shell names Sonnet 4.6, and the builder runs on it.</li>
-    <li>Counter-example: the feature-design command, pinned to a larger model until now, names none and runs on the session's model.</li>
-    <li>Counter-example: the .NET builder's Codex shell names none and runs on the session's model.</li>
+    <li>Codex reads the Codex listing and the Codex manifest; Claude Code reads its own two and sees nothing new.</li>
+    <li>Counter-example: the <code>skills/</code> folder is read by both tools; it is not per tool.</li>
   </ul>
 
-  <div class="subhead">Rule 2 — A shell holds identity, never method</div>
-  <p class="section-desc" style="margin-bottom:0.4rem">A shell names the subagent, describes when to use it, sets its permissions and points at its role skill.</p>
+  <div class="subhead">Rule 2 — A Codex-only skill is marked, not hidden</div>
+  <p class="section-desc" style="margin-bottom:0.4rem">A skill meant for Codex alone stays in the shared <code>skills/</code> folder and carries the two frontmatter switches (<code>disable-model-invocation</code>, <code>user-invocable</code>) that make Claude Code ignore it.</p>
   <ul class="bullets">
-    <li>The reviewer's shells say who Baley is, that it is read-only, and which skill to follow.</li>
-    <li>Counter-example: the steps of a review — resolve the diff, walk it, grade findings — are in the role skill, not repeated in either shell.</li>
+    <li><code>codex-asimov-init</code> carries both switches, so Claude Code neither lists it, runs it when typed, nor lets the model start it.</li>
+    <li>Counter-example: the role skills carry neither switch and load in both tools.</li>
   </ul>
 
-  <div class="subhead">Rule 3 — The reviewer is read-only in both tools</div>
-  <p class="section-desc" style="margin-bottom:0.4rem">Each tool is told, in its own terms, that the reviewer may read but not write.</p>
+  <div class="subhead">Rule 3 — Only the developer starts the Codex setup</div>
+  <p class="section-desc" style="margin-bottom:0.4rem">The Codex setup skill runs when the developer invokes it; Codex never starts it on its own.</p>
   <ul class="bullets">
-    <li>Asked to fix what it found, the reviewer reports the finding and changes nothing, in Claude Code and in Codex.</li>
-    <li>Counter-example: the builders and the tester keep write access in both tools.</li>
+    <li>A developer types <code>$asimov-plugin:codex-asimov-init</code>, and the run opens with one sentence on what it will do, then a write plan.</li>
+    <li>Counter-example: asked to "set up the repo", Codex does not start the skill; it names the invocation for the developer to type.</li>
   </ul>
 
-  <div class="subhead">Rule 4 — Both tools see one version</div>
-  <p class="section-desc" style="margin-bottom:0.4rem">The two tool manifests carry the same version, and it moves on every plugin release.</p>
+  <div class="subhead">Rule 4 — A skill in Codex finds the plugin itself</div>
+  <p class="section-desc" style="margin-bottom:0.4rem">A skill that reads plugin files in Codex derives the plugin root from its own file path and verifies it by reading a known file before it uses it.</p>
   <ul class="bullets">
-    <li>This change moves both manifests from 0.1.0 to 0.2.0 together.</li>
-    <li>Counter-example: the marketplace listings carry no version of their own.</li>
+    <li>The setup skill takes its own path, cuts it two levels above the skill folder, reads the first template there, and only then loads the rest.</li>
+    <li>Counter-example: the three skills that still name plugin files through the Claude Code variable do not find them in Codex (Q2).</li>
+    <li>Counter-example: the skill never passes a <code>..</code> path; Codex resolves one from the working directory, not the skill folder.</li>
   </ul>
 
-  <div class="subhead">Rule 5 — The setup entry point is a skill only the developer starts</div>
-  <p class="section-desc" style="margin-bottom:0.4rem">The developer invokes it in either tool; neither tool's model may start it on its own.</p>
-  <ul class="bullets">
-    <li>A developer types <code>/asimov-init</code> in Claude Code or <code>$asimov-plugin:asimov-init</code> in Codex, and the run opens with the write plan.</li>
-    <li>Counter-example: asked to "set up the repo", the model does not start it; it names the command for the developer to type.</li>
-  </ul>
-
-  <div class="subhead">Rule 6 — The context lands where each tool reads</div>
-  <p class="section-desc" style="margin-bottom:0.4rem">The same rendered text goes to the place each tool loads at session start: the <code>@asimov.md</code> import in <code>CLAUDE.md</code> for Claude Code, a managed region in <code>AGENTS.md</code> for Codex.</p>
-  <ul class="bullets">
-    <li>After a run, a Codex session knows the Asimov commands and subagents without anyone pasting <code>asimov.md</code>.</li>
-    <li>Counter-example: text outside the markers in <code>AGENTS.md</code> is the team's and is never touched; broken markers stop the write to that file.</li>
-  </ul>
-
-  <div class="subhead">Rule 7 — The setup entry point delivers the Codex shells</div>
-  <p class="section-desc" style="margin-bottom:0.4rem">The plugin's <code>agents/*.toml</code> are copied byte for byte into the repository's <code>.codex/agents/</code>, the only place Codex loads custom agents from; they are Asimov-owned and regenerated on every run.</p>
-  <ul class="bullets">
-    <li>After a run in a trusted repository, a Codex session can spawn <code>giskard-the-dotnet-developer</code> by name, and the shell it runs is identical to the plugin's.</li>
-    <li>Counter-example: a run that cannot obtain Codex's approval for the <code>.codex/</code> write reports the shells as skipped and names the two ways to finish; it never writes them another way.</li>
-  </ul>
 </section>
 
 <section class="s" id="s4-5">
@@ -510,49 +479,24 @@ footer.site-footer a { color: var(--cyan); }
       <div class="why">A build step and two generated trees to keep in step, for what two small files achieve.</div>
     </div>
     <div class="decision-row">
-      <div class="decided">A Codex manifest of its own beside Claude Code's.</div>
-      <div class="alt">Relying on Codex reading the Claude Code manifest.</div>
-      <div class="why">That is a fallback in Codex, not its own format, and it gives Asimov no say in what Codex reads.</div>
+      <div class="decided">The Codex setup is a separate, Codex-only skill; the Claude Code command stays.</div>
+      <div class="alt">One entry-point skill that both tools run.</div>
+      <div class="why">It would replace the command Claude Code users have, and the Claude Code side is to stay as it is (R1, R11).</div>
     </div>
     <div class="decision-row">
-      <div class="decided">A model only in the Claude Code agent shells.</div>
-      <div class="alt">Keeping the per-command pins, larger models for design work included.</div>
-      <div class="why">Codex ignores a model named outside an agent, so the same command would behave differently per tool.</div>
+      <div class="decided">The Codex-only skill is marked by frontmatter, inside the shared <code>skills/</code> folder.</div>
+      <div class="alt">A folder Claude Code does not scan, or a manifest <code>skills</code> key that leaves it out.</div>
+      <div class="why">Claude Code scans <code>skills/</code> by default and the manifest key only adds paths (<a href="https://code.claude.com/docs/en/plugins-reference">plugins reference</a>); the two switches are the documented way (<a href="https://code.claude.com/docs/en/skills">skills</a>).</div>
     </div>
     <div class="decision-row">
-      <div class="decided">No separate model index.</div>
-      <div class="alt">Keeping the index as the readable list of every pin.</div>
-      <div class="why">Four identical pins in four shells need no second copy, and the copy is what drifts.</div>
+      <div class="decided">The plugin root is derived from the skill's own path, then verified by a read.</div>
+      <div class="alt"><code>${CLAUDE_PLUGIN_ROOT}</code> in the skill text, or <code>../../</code> relative paths.</div>
+      <div class="why">Codex leaves the variable literal (<a href="https://github.com/openai/codex/issues/19582">codex#19582</a>) and resolves a relative path from the working directory (<a href="https://github.com/openai/codex/issues/22842">codex#22842</a>).</div>
     </div>
     <div class="decision-row">
-      <div class="decided">Codex shells name no model until #7.</div>
-      <div class="alt">Pinning a Codex model now.</div>
-      <div class="why">Organisations reach different Codex models, so any pin fails somewhere; #7 designs the choice.</div>
-    </div>
-    <div class="decision-row">
-      <div class="decided">One shell per tool per role, no small-tier variant.</div>
-      <div class="alt">A second, smaller-model shell for simple tasks.</div>
-      <div class="why">It doubles the shells to keep in step and pre-empts the routing #7 will design.</div>
-    </div>
-    <div class="decision-row">
-      <div class="decided">The setup entry point moves to <code>skills/asimov-init/</code>.</div>
-      <div class="alt">A copy in <code>skills/</code> beside the command, or shrinking the command under Codex's 4 kB migration limit.</div>
-      <div class="why">A copy is two identical files to keep in step; the limit cannot hold the method, so it would move to a skill anyway.</div>
-    </div>
-    <div class="decision-row">
-      <div class="decided">The Codex counterpart of the <code>CLAUDE.md</code> import is a managed region in <code>AGENTS.md</code>.</div>
-      <div class="alt">A <code>@asimov.md</code> line in <code>AGENTS.md</code>, or telling Codex users to paste the file.</div>
-      <div class="why">Codex does not expand <code>@</code>-imports, and a paste is not regenerated on the next run.</div>
-    </div>
-    <div class="decision-row">
-      <div class="decided">The setup entry point delivers the Codex shells into <code>.codex/agents/</code>.</div>
-      <div class="alt">Teams copy them by hand, or each developer keeps them in <code>~/.codex/agents/</code>.</div>
-      <div class="why">A hand copy freezes at that version; a home copy is per person and per machine; the setup skill regenerates them per repository, like <code>asimov.md</code>.</div>
-    </div>
-    <div class="decision-row">
-      <div class="decided">The five other commands stay commands in this round.</div>
-      <div class="alt">Turning all six into skills that both tools can run.</div>
-      <div class="why">Decided by Christian Kaysen, 2026-09-30, after the Codex test showed them unreachable there; how a Codex user reaches them is Q1.</div>
+      <div class="decided">A search of the plugin cache as the fallback; the longest shared prefix wins.</div>
+      <div class="alt">Stop on the first failed read.</div>
+      <div class="why">The cache path is documented (<a href="https://developers.openai.com/plugins/build/plugins">build plugins</a>), so a search is cheap; older cached versions need a tie-break.</div>
     </div>
   </div>
 </section>
@@ -567,7 +511,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="ch-num">6</div>
     <div>
       <div class="ch-name">Technical design</div>
-      <div class="ch-summary">Where each tool reads, how an install runs, the files and their shapes, failure handling and the constraints that stay.</div>
+      <div class="ch-summary">Where each tool reads, how the Codex setup finds the plugin, the files and their shapes, failure handling, the constraints that stay.</div>
     </div>
   </div>
 </div>
@@ -575,174 +519,180 @@ footer.site-footer a { color: var(--cyan); }
 <section class="s" id="s6-1">
   <h2 class="section-title"><span class="sec-ref">§6.1</span>Platform</h2>
   <p style="color: var(--text-dim); font-size: 0.95rem; line-height: 1.65;">
-    The plugin folder <code>plugins/asimov-plugin/</code> holds a manifest per tool: <code>.claude-plugin/plugin.json</code> for Claude Code and <code>.codex-plugin/plugin.json</code> for Codex. The repository root holds a marketplace listing per tool: <code>.claude-plugin/marketplace.json</code> and <code>.agents/plugins/marketplace.json</code>, both pointing at the same folder. Claude Code loads <code>commands/</code>, <code>agents/*.md</code> and <code>skills/</code>. Codex loads <code>skills/</code>. The setup entry point is a skill (<code>skills/asimov-init/</code>), so both tools load it. Codex loads custom agents only from <code>~/.codex/agents/</code> or a trusted repository's <code>.codex/agents/</code>; the setup skill copies the plugin's <code>agents/*.toml</code> there. Each tool ignores the other's manifest and files.
+    The plugin folder <code>plugins/asimov-plugin/</code> holds a manifest per tool: <code>.claude-plugin/plugin.json</code> for Claude Code and <code>.codex-plugin/plugin.json</code> for Codex. The repository root holds a marketplace listing per tool: <code>.claude-plugin/marketplace.json</code> and <code>.agents/plugins/marketplace.json</code>, both named <code>asimov-marketplace</code> and both pointing at the same folder. Claude Code loads <code>commands/</code>, <code>agents/*.md</code> and <code>skills/</code>. Codex loads <code>skills/</code> and caches the installed plugin under <code>~/.codex/plugins/cache/&lt;marketplace&gt;/&lt;plugin&gt;/&lt;version&gt;/</code>. The Claude Code setup is the command <code>commands/asimov-init.md</code>; the Codex setup is the skill <code>skills/codex-asimov-init/</code>.
   </p>
   <div class="callout warn">
-    <strong>⚠ Required check turns red.</strong> The pull-request check on <code>main</code> requires a <code>model:</code> in every command and a row in <code>documentation/model-choice.md</code>; both are removed, so the check fails until the workflow is changed after this round (Q3).
+    <strong>⚠ Manifest versions differ.</strong> The Claude Code manifest and the Codex manifest carry different version numbers today; both must carry the same number (Q3).
   </div>
 </section>
 
 <section class="s" id="s6-2">
-  <h2 class="section-title"><span class="sec-ref">§6.2</span>An install</h2>
-  <p class="section-desc">The developer adds the same repository in either tool; each tool follows its own manifests and loads its own part of the folder.</p>
+  <h2 class="section-title"><span class="sec-ref">§6.2</span>How the Codex setup finds the plugin</h2>
+  <p class="section-desc">Step 1 of the skill, before any template is loaded: derive the root, verify it by one read, search the cache if the read fails, stop if nothing matches.</p>
   <div class="flow-wrap">
-    <svg viewBox="0 0 980 384" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="UML activity diagram: installing the plugin in Claude Code or Codex">
-      <rect x="0" y="0" width="980" height="384" fill="#14253f"/>
+    <svg viewBox="0 0 980 432" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="ISO 5807 flowchart: how the Codex setup skill finds the plugin root">
+      <rect x="0" y="0" width="980" height="432" fill="#14253f"/>
       <defs>
-        <marker id="act-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <marker id="fc-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
           <path d="M0,0 L10,5 L0,10 Z" fill="#a8b8d0"/>
         </marker>
       </defs>
-      <line x1="16" y1="24" x2="964" y2="24" stroke="#2b4a73" stroke-width="1"/>
-      <line x1="16" y1="136" x2="964" y2="136" stroke="#2b4a73" stroke-width="1"/>
-      <line x1="16" y1="248" x2="964" y2="248" stroke="#2b4a73" stroke-width="1"/>
-      <line x1="16" y1="360" x2="964" y2="360" stroke="#2b4a73" stroke-width="1"/>
-      <line x1="136" y1="24" x2="136" y2="360" stroke="#2b4a73" stroke-width="1"/>
-      <text x="76" y="84" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">DEVELOPER</text>
-      <text x="76" y="196" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">CLAUDE CODE</text>
-      <text x="76" y="308" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">CODEX</text>
 
-      <circle cx="152" cy="80" r="8" fill="#66bb6a"/>
+      <!-- start terminator -->
       <g>
-        <rect x="184" y="52" width="128" height="56" rx="8" fill="#66bb6a22" stroke="#66bb6a"/>
-        <text x="248" y="76" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">add + install</text>
-        <text x="248" y="92" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">same repository</text>
+        <rect x="72" y="48" width="136" height="56" rx="28" fill="#66bb6a22" stroke="#66bb6a"/>
+        <text x="140" y="72" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">codex-asimov-init</text>
+        <text x="140" y="88" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">Step 1 begins</text>
       </g>
-      <polygon points="400,52 428,80 400,108 372,80" fill="#66bb6a22" stroke="#66bb6a" stroke-width="1.5"/>
-      <text x="400" y="44" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">which tool</text>
 
+      <!-- 01 derive root -->
       <g>
-        <rect x="452" y="164" width="128" height="56" rx="8" fill="#4fc3f71a" stroke="#4fc3f7"/>
-        <text x="516" y="188" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">.claude-plugin</text>
-        <text x="516" y="204" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">read both manifests</text>
+        <rect x="248" y="48" width="136" height="56" rx="8" fill="#ffb74d1a" stroke="#ffb74d"/>
+        <text x="316" y="72" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">01 · derive root</text>
+        <text x="316" y="88" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">from the skill's own path</text>
       </g>
-      <g>
-        <rect x="620" y="164" width="128" height="56" rx="8" fill="#ffb74d1a" stroke="#ffb74d"/>
-        <text x="684" y="188" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">load</text>
-        <text x="684" y="204" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">commands · agents · skills</text>
-      </g>
-      <circle cx="800" cy="192" r="12" fill="none" stroke="#ef5350" stroke-width="1.5"/>
-      <circle cx="800" cy="192" r="6" fill="#ef5350"/>
 
+      <!-- 02 read the first template (input) -->
       <g>
-        <rect x="452" y="276" width="128" height="56" rx="8" fill="#4fc3f71a" stroke="#4fc3f7"/>
-        <text x="516" y="300" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">.codex-plugin</text>
-        <text x="516" y="316" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">read both manifests</text>
+        <polygon points="444,48 560,48 540,104 424,104" fill="#4fc3f71a" stroke="#4fc3f7" stroke-width="1.5"/>
+        <text x="492" y="72" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">02 · read file 1</text>
+        <text x="492" y="88" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">asimov-md-template.md</text>
       </g>
-      <g>
-        <rect x="620" y="276" width="128" height="56" rx="8" fill="#ffb74d1a" stroke="#ffb74d"/>
-        <text x="684" y="300" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">load</text>
-        <text x="684" y="316" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">skills</text>
-      </g>
-      <circle cx="800" cy="304" r="12" fill="none" stroke="#ef5350" stroke-width="1.5"/>
-      <circle cx="800" cy="304" r="6" fill="#ef5350"/>
 
-      <line x1="160" y1="80" x2="182" y2="80" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#act-arr)"/>
-      <line x1="312" y1="80" x2="370" y2="80" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#act-arr)"/>
-      <path d="M428,80 H508 A8,8 0 0 1 516,88 V162" fill="none" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#act-arr)"/>
-      <text x="468" y="70" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">[Claude Code]</text>
-      <path d="M400,108 V296 A8,8 0 0 0 408,304 H450" fill="none" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#act-arr)"/>
-      <text x="408" y="240" text-anchor="start" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">[Codex]</text>
-      <line x1="580" y1="192" x2="618" y2="192" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#act-arr)"/>
-      <line x1="748" y1="192" x2="786" y2="192" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#act-arr)"/>
-      <line x1="580" y1="304" x2="618" y2="304" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#act-arr)"/>
-      <line x1="748" y1="304" x2="786" y2="304" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#act-arr)"/>
+      <!-- decision: readable? -->
+      <polygon points="656,48 712,76 656,104 600,76" fill="#66bb6a22" stroke="#66bb6a" stroke-width="1.5"/>
+      <text x="656" y="40" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">readable?</text>
+
+      <!-- 03 search the cache (input) -->
+      <g>
+        <polygon points="796,48 912,48 892,104 776,104" fill="#4fc3f71a" stroke="#4fc3f7" stroke-width="1.5"/>
+        <text x="844" y="72" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">03 · search cache</text>
+        <text x="844" y="88" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">~/.codex/plugins/cache</text>
+      </g>
+
+      <!-- 04 load the templates (predefined process) -->
+      <g>
+        <rect x="588" y="192" width="136" height="56" rx="8" fill="#122039" stroke="#3b5e8f" stroke-dasharray="4 4"/>
+        <line x1="596" y1="192" x2="596" y2="248" stroke="#3b5e8f" stroke-width="1"/>
+        <line x1="716" y1="192" x2="716" y2="248" stroke="#3b5e8f" stroke-width="1"/>
+        <text x="656" y="216" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">04 · load templates</text>
+        <text x="656" y="232" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">Step 1 continues</text>
+      </g>
+
+      <!-- decision: match? -->
+      <polygon points="844,192 900,220 844,248 788,220" fill="#66bb6a22" stroke="#66bb6a" stroke-width="1.5"/>
+      <text x="908" y="224" text-anchor="start" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">match?</text>
+
+      <!-- end terminator: done -->
+      <g>
+        <rect x="412" y="192" width="136" height="56" rx="28" fill="#ef535022" stroke="#ef5350"/>
+        <text x="480" y="216" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">DONE</text>
+        <text x="480" y="232" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">templates loaded</text>
+      </g>
+
+      <!-- end terminator: stop -->
+      <g>
+        <rect x="776" y="336" width="136" height="56" rx="28" fill="#ef535022" stroke="#ef5350"/>
+        <text x="844" y="360" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">STOP</text>
+        <text x="844" y="376" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">report path + search</text>
+      </g>
+
+      <!-- e1: start to 01 -->
+      <line x1="208" y1="76" x2="246" y2="76" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#fc-arr)"/>
+      <!-- e2: 01 to 02 -->
+      <line x1="384" y1="76" x2="432" y2="76" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#fc-arr)"/>
+      <!-- e3: 02 to readable? -->
+      <line x1="550" y1="76" x2="598" y2="76" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#fc-arr)"/>
+      <!-- e4: readable? [missing] to 03 -->
+      <line x1="712" y1="76" x2="784" y2="76" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#fc-arr)"/>
+      <text x="748" y="66" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">[missing]</text>
+      <!-- e5: readable? [readable], straight drop to 04 -->
+      <line x1="656" y1="104" x2="656" y2="190" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#fc-arr)"/>
+      <text x="664" y="152" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">[readable]</text>
+      <!-- e6: 03, straight drop to match? -->
+      <line x1="844" y1="104" x2="844" y2="190" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#fc-arr)"/>
+      <!-- e7: match? [found] to 04 -->
+      <line x1="788" y1="220" x2="726" y2="220" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#fc-arr)"/>
+      <text x="757" y="210" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">[found]</text>
+      <!-- e8: 04 to done -->
+      <line x1="588" y1="220" x2="550" y2="220" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#fc-arr)"/>
+      <!-- e9: match? [none], straight drop to stop -->
+      <line x1="844" y1="248" x2="844" y2="334" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#fc-arr)"/>
+      <text x="852" y="296" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">[none]</text>
     </svg>
     <div class="flow-legend">
-      <span class="item"><span class="swatch" style="background:var(--green)"></span>Entry and the tool choice</span>
-      <span class="item"><span class="swatch" style="background:var(--cyan)"></span>Manifests read</span>
-      <span class="item"><span class="swatch" style="background:var(--amber)"></span>What the tool loads</span>
-      <span class="item"><span class="swatch" style="background:var(--coral)"></span>Installed</span>
+      <span class="item"><span class="swatch" style="background:var(--green)"></span>Start and the two decisions</span>
+      <span class="item"><span class="swatch" style="background:var(--amber)"></span>Deriving the root</span>
+      <span class="item"><span class="swatch" style="background:var(--cyan)"></span>Reads: the template, the cache</span>
+      <span class="item"><span class="swatch" style="background:var(--coral)"></span>Terminators</span>
+      <span class="item"><span class="swatch" style="background:var(--bg2); border:1px dashed var(--border-2)"></span>The rest of the run, designed in D101-asimov-init</span>
     </div>
   </div>
   <div class="principles" style="margin-top:1rem">
-    <div class="principle"><div class="num">1</div><div class="text"><strong>Add and install.</strong> The developer adds the repository as a marketplace and installs <code>asimov-plugin</code> with the tool's own commands.</div></div>
-    <div class="principle"><div class="num">2</div><div class="text"><strong>Claude Code reads its manifests.</strong> <code>.claude-plugin/marketplace.json</code> at the root, then <code>.claude-plugin/plugin.json</code> in the plugin folder.</div></div>
-    <div class="principle"><div class="num">3</div><div class="text"><strong>Claude Code loads.</strong> Five commands, four agents from <code>agents/*.md</code>, eleven skills; <code>agents/*.toml</code> and <code>.codex-plugin/</code> are ignored.</div></div>
-    <div class="principle"><div class="num">4</div><div class="text"><strong>Codex reads its manifests.</strong> <code>.agents/plugins/marketplace.json</code> at the root, then <code>.codex-plugin/plugin.json</code> in the plugin folder.</div></div>
-    <div class="principle"><div class="num">5</div><div class="text"><strong>Codex loads.</strong> The eleven skills, <code>asimov-init</code> among them; <code>commands/</code> is not loaded (Q1), and <code>agents/*.toml</code> reach Codex through the setup skill, not the plugin.</div></div>
+    <div class="principle"><div class="num">1</div><div class="text"><strong>Derive root.</strong> Take the skill's file path from Codex's skill list and cut it before <code>skills/codex-asimov-init</code>; every plugin path is built from the result, absolute.</div></div>
+    <div class="principle"><div class="num">2</div><div class="text"><strong>Read file 1.</strong> Read <code>artifacts/root/asimov-md/asimov-md-template.md</code> under that root; a successful read verifies it.</div></div>
+    <div class="principle"><div class="num">3</div><div class="text"><strong>Search cache.</strong> If the read fails, Glob <code>&lt;home&gt;/.codex/plugins/cache/**/artifacts/root/asimov-md/asimov-md-template.md</code>; several matches — take the longest shared prefix with the skill path; none — stop, report the derived path and the search, write nothing.</div></div>
+    <div class="principle"><div class="num">4</div><div class="text"><strong>Load templates.</strong> Read the four templates and three definitions and list <code>agents/*.toml</code>; from here the run follows <a href="D101-asimov-init.html">D101-asimov-init.html</a>.</div></div>
   </div>
 </section>
 
 <section class="s" id="s6-3">
   <h2 class="section-title"><span class="sec-ref">§6.3</span>Code map</h2>
   <div class="codemap">
-    <div class="codemap-row"><div class="what">Codex plugin manifest (new)</div><div class="where">plugins/asimov-plugin/.codex-plugin/plugin.json</div></div>
     <div class="codemap-row"><div class="what">Codex marketplace listing (new)</div><div class="where">.agents/plugins/marketplace.json</div></div>
-    <div class="codemap-row"><div class="what">Claude Code plugin manifest (version only)</div><div class="where">plugins/asimov-plugin/.claude-plugin/plugin.json</div></div>
-    <div class="codemap-row"><div class="what">Codex agent shells</div><div class="where">plugins/asimov-plugin/agents/*.toml</div></div>
-    <div class="codemap-row"><div class="what">Claude Code agent shells (unchanged)</div><div class="where">plugins/asimov-plugin/agents/*.md</div></div>
-    <div class="codemap-row"><div class="what">Commands losing their model</div><div class="where">plugins/asimov-plugin/commands/*.md</div></div>
-    <div class="codemap-row"><div class="what">Setup entry point as a skill (moved from commands/)</div><div class="where">plugins/asimov-plugin/skills/asimov-init/SKILL.md · agents/openai.yaml</div></div>
-    <div class="codemap-row"><div class="what">Context file standard and body (wording for both tools)</div><div class="where">plugins/asimov-plugin/artifacts/root/asimov-md/*</div></div>
-    <div class="codemap-row"><div class="what">Model index (deleted)</div><div class="where">documentation/model-choice.md</div></div>
-    <div class="codemap-row"><div class="what">Repository rules, architecture, install guide</div><div class="where">CLAUDE.md · documentation/D100-Asimov-architecture.md · README.md · CONTRIBUTING.md</div></div>
+    <div class="codemap-row"><div class="what">Codex plugin manifest (new)</div><div class="where">plugins/asimov-plugin/.codex-plugin/plugin.json</div></div>
+    <div class="codemap-row"><div class="what">Codex setup entry point (new)</div><div class="where">plugins/asimov-plugin/skills/codex-asimov-init/SKILL.md</div></div>
+    <div class="codemap-row"><div class="what">Codex invocation policy for it (new)</div><div class="where">plugins/asimov-plugin/skills/codex-asimov-init/agents/openai.yaml</div></div>
+    <div class="codemap-row"><div class="what">Claude Code setup command (unchanged)</div><div class="where">plugins/asimov-plugin/commands/asimov-init.md</div></div>
+    <div class="codemap-row"><div class="what">Claude Code manifests (unchanged)</div><div class="where">.claude-plugin/marketplace.json · plugins/asimov-plugin/.claude-plugin/plugin.json</div></div>
+    <div class="codemap-row"><div class="what">Codex agent shells the setup copies (unchanged)</div><div class="where">plugins/asimov-plugin/agents/*.toml</div></div>
+    <div class="codemap-row"><div class="what">Install guide, a block per tool</div><div class="where">README.md</div></div>
   </div>
 </section>
 
 <section class="s" id="s6-4">
   <h2 class="section-title"><span class="sec-ref">§6.4</span>Shapes</h2>
 
-  <div class="subhead">Codex plugin manifest</div>
-  <div class="data-table">
-    <div class="row head cols-2"><div>Field</div><div>Value</div></div>
-    <div class="row cols-2"><div class="label-cell">name · description · license · author</div><div>Identical to the Claude Code manifest.</div></div>
-    <div class="row cols-2"><div class="label-cell">version</div><div>Identical to the Claude Code manifest; <code>0.2.0</code> in this change.</div></div>
-    <div class="row cols-2"><div class="label-cell">repository</div><div>The repository's GitHub URL.</div></div>
-    <div class="row cols-2"><div class="label-cell">keywords</div><div>Generic toolkit terms only (NF1).</div></div>
-    <div class="row cols-2"><div class="label-cell">skills</div><div><code>./skills/</code></div></div>
-    <div class="row cols-2"><div class="label-cell">interface</div><div><code>displayName</code> Asimov, a one-line <code>shortDescription</code>, <code>developerName</code> as the author, <code>category</code> Productivity.</div></div>
-  </div>
-
   <div class="subhead">Codex marketplace listing</div>
   <div class="data-table">
     <div class="row head cols-2"><div>Field</div><div>Value</div></div>
     <div class="row cols-2"><div class="label-cell">name</div><div><code>asimov-marketplace</code>, as in the Claude Code listing.</div></div>
-    <div class="row cols-2"><div class="label-cell">plugins[0].name</div><div><code>asimov-plugin</code></div></div>
+    <div class="row cols-2"><div class="label-cell">plugins[0].name</div><div><code>asimov-plugin</code>.</div></div>
     <div class="row cols-2"><div class="label-cell">plugins[0].source</div><div><code>{ "source": "local", "path": "./plugins/asimov-plugin" }</code>, resolved from the repository root.</div></div>
     <div class="row cols-2"><div class="label-cell">plugins[0].policy</div><div><code>installation</code> AVAILABLE, <code>authentication</code> ON_USE.</div></div>
     <div class="row cols-2"><div class="label-cell">plugins[0].category</div><div>Productivity.</div></div>
   </div>
 
-  <div class="subhead">Codex agent shell</div>
+  <div class="subhead">Codex plugin manifest</div>
   <div class="data-table">
-    <div class="row head cols-2"><div>Key</div><div>Value</div></div>
-    <div class="row cols-2"><div class="label-cell">name · description</div><div>Identical to the Claude Code shell of the same subagent.</div></div>
-    <div class="row cols-2"><div class="label-cell">sandbox_mode</div><div><code>read-only</code> in the reviewer's shell; absent in the others.</div></div>
-    <div class="row cols-2"><div class="label-cell">developer_instructions</div><div>The persona line, then: load the role skill first and follow it exactly.</div></div>
-    <div class="row cols-2"><div class="label-cell">model · model_reasoning_effort</div><div>Absent.</div></div>
+    <div class="row head cols-2"><div>Field</div><div>Value</div></div>
+    <div class="row cols-2"><div class="label-cell">name · description · license · author</div><div>As in the Claude Code manifest.</div></div>
+    <div class="row cols-2"><div class="label-cell">version</div><div>Differs from the Claude Code manifest today (Q3).</div></div>
+    <div class="row cols-2"><div class="label-cell">repository · keywords</div><div>The repository URL and generic toolkit terms (NF1).</div></div>
+    <div class="row cols-2"><div class="label-cell">skills</div><div><code>./skills/</code>, the folder Codex scans by default.</div></div>
+    <div class="row cols-2"><div class="label-cell">interface</div><div><code>displayName</code>, <code>shortDescription</code>, <code>developerName</code>, <code>category</code>.</div></div>
   </div>
 
-  <div class="subhead">Setup skill</div>
+  <div class="subhead">Codex setup skill</div>
   <div class="data-table">
     <div class="row head cols-2"><div>Element</div><div>Value</div></div>
-    <div class="row cols-2"><div class="label-cell">skills/asimov-init/SKILL.md</div><div>The former command body, moved; <code>name: asimov-init</code>, <code>disable-model-invocation: true</code>, no model.</div></div>
-    <div class="row cols-2"><div class="label-cell">skills/asimov-init/agents/openai.yaml</div><div><code>policy.allow_implicit_invocation: false</code> — Codex's form of the same rule.</div></div>
-    <div class="row cols-2"><div class="label-cell">Input</div><div>The text after the invocation; no <code>$ARGUMENTS</code>, which Codex does not substitute.</div></div>
-    <div class="row cols-2"><div class="label-cell">Plugin files</div><div>Addressed as <code>../../artifacts/…</code>, relative to the skill folder both tools name when they load the skill; no <code>${CLAUDE_PLUGIN_ROOT}</code>.</div></div>
-    <div class="row cols-2"><div class="label-cell">AGENTS.md region</div><div>The rendered <code>asimov.md</code> body between <code>&lt;!-- asimov:start --&gt;</code> and <code>&lt;!-- asimov:end --&gt;</code>: NEW when the file is absent, APPEND when it has no markers, OVERWRITE of the region alone when one intact pair exists, ASK and no write when markers are broken or duplicated.</div></div>
-    <div class="row cols-2"><div class="label-cell">.codex/agents/*.toml</div><div>Byte-for-byte copies of the plugin's four shells — a file copy, never a read-and-rewrite; NEW or OVERWRITE, Asimov-owned. In Codex the write needs the developer's approval; a run that cannot ask reports SKIP and the two ways to finish.</div></div>
+    <div class="row cols-2"><div class="label-cell">SKILL.md frontmatter</div><div><code>name: codex-asimov-init</code>, <code>disable-model-invocation: true</code>, <code>user-invocable: false</code>, <code>allowed-tools</code>; no model.</div></div>
+    <div class="row cols-2"><div class="label-cell">agents/openai.yaml</div><div>A display name and short description, and <code>policy.allow_implicit_invocation: false</code>; Claude Code ignores this file.</div></div>
+    <div class="row cols-2"><div class="label-cell">Invocation</div><div><code>$asimov-plugin:codex-asimov-init</code>, by the developer; the text after it is the input (a repository-name override, or nothing).</div></div>
+    <div class="row cols-2"><div class="label-cell">Plugin root</div><div>Derived once and verified (§6.2); never <code>${CLAUDE_PLUGIN_ROOT}</code>, never a <code>..</code> path.</div></div>
+    <div class="row cols-2"><div class="label-cell">Per-target rules</div><div>In <a href="D101-asimov-init.html">D101-asimov-init.html</a>, not repeated here.</div></div>
   </div>
 
-  <div class="subhead">Repository rules that change</div>
-  <div class="data-table">
-    <div class="row head cols-2"><div>Rule</div><div>New wording, in short</div></div>
-    <div class="row cols-2"><div class="label-cell">Hard rule 1</div><div>Four manifest files carry one plugin name: two plugin manifests, two marketplace listings, and the folder name.</div></div>
-    <div class="row cols-2"><div class="label-cell">Hard rule 2</div><div>A model is named only in a Claude Code agent shell; commands, skills and Codex shells name none.</div></div>
-    <div class="row cols-2"><div class="label-cell">Hard rule 11 (new)</div><div>Both plugin manifests carry the same version, moved together.</div></div>
-    <div class="row cols-2"><div class="label-cell">How to add a command / subagent</div><div>The model-index step is removed; a subagent gets a <code>.md</code> and a <code>.toml</code> shell.</div></div>
-  </div>
-
-  <div class="subhead">Test runs</div>
-  <div class="data-table">
-    <div class="row head cols-3"><div>Run</div><div>Where</div><div>Counts as the same</div></div>
-    <div class="row cols-3"><div class="label-cell">Claude Code install</div><div>Local marketplace on this clone</div><div>Five commands, four agents, eleven skills, version 0.2.0.</div></div>
-    <div class="row cols-3"><div class="label-cell">Claude Code commands</div><div>A throw-away product repository</div><div>Each command's opening and first stop match the previous version.</div></div>
-    <div class="row cols-3"><div class="label-cell">Codex install</div><div>Local marketplace on this clone</div><div>Eleven skills, version 0.2.0.</div></div>
-    <div class="row cols-3"><div class="label-cell">Setup in both tools</div><div>The same throw-away repository</div><div><code>/asimov-init</code> and <code>$asimov-plugin:asimov-init</code> reach the same write plan; neither tool's model lists the skill.</div></div>
-    <div class="row cols-3"><div class="label-cell">Shell delivery</div><div>The same throw-away repository</div><div><code>.codex/agents/</code> holds the four shells byte-identical to the plugin's, from either tool once the write is allowed.</div></div>
-    <div class="row cols-3"><div class="label-cell">Codex entry points and agents</div><div>The same throw-away repository, trusted</div><div>The same entry points and delegations reach the same first stop as in Claude Code; any difference is recorded, not fixed.</div></div>
-  </div>
+  <div class="subhead">What the Codex setup writes</div>
+  <ul class="bullets">
+    <li><code>asimov.md</code> at the repository root.</li>
+    <li>The <code>@asimov.md</code> import line in <code>CLAUDE.md</code>.</li>
+    <li>The same rendered body inside <code>AGENTS.md</code>, between <code>&lt;!-- asimov:start --&gt;</code> and <code>&lt;!-- asimov:end --&gt;</code>.</li>
+    <li>Byte-for-byte copies of the plugin's <code>agents/*.toml</code> into <code>.codex/agents/</code>.</li>
+    <li><code>documentation/conventions/&lt;stack&gt;/README.md</code> for each detected stack.</li>
+    <li>The <code>documentation/</code> landing site.</li>
+    <li>Read-only on every other file.</li>
+  </ul>
 </section>
 
 <section class="s" id="s6-5">
@@ -750,26 +700,30 @@ footer.site-footer a { color: var(--cyan); }
   <div class="callout">N/A — no programmatic interface; installation uses each tool's own commands.</div>
 </section>
 
+<section class="s" id="s6-6">
+  <h2 class="section-title"><span class="sec-ref">§6.6</span>Configuration</h2>
+  <div class="callout">N/A — nothing is configurable; the manifests and the skill's switches are fixed values (§6.4).</div>
+</section>
+
 <section class="s" id="s6-7">
   <h2 class="section-title"><span class="sec-ref">§6.7</span>Failure handling</h2>
   <div class="failures">
     <div class="failures-head"><div>Failure</div><div>Effect</div><div>Severity</div><div>Recovery</div></div>
-    <div class="failure-row"><div>Codex refuses the <code>.codex/</code> write in a run that cannot ask</div><div>Shells skipped; no Asimov subagent in Codex yet</div><div><span class="sev low">Low</span></div><div>Approve in an interactive session, or run the setup skill from Claude Code once.</div></div>
-    <div class="failure-row"><div>Repository not marked trusted in Codex</div><div>Shells present but not loaded</div><div><span class="sev low">Low</span></div><div>Mark the repository trusted; Codex loads them from the next session.</div></div>
-    <div class="failure-row"><div>Codex does not run the five commands</div><div>Only the setup skill is reachable in Codex</div><div><span class="sev med">Med</span></div><div>Recorded by the test; decided under Q1.</div></div>
-    <div class="failure-row"><div>A tool cannot resolve the setup skill's relative paths</div><div>The skill stops before writing</div><div><span class="sev low">Low</span></div><div>It reports the failing path, by its own rule; it never renders from memory.</div></div>
-    <div class="failure-row"><div><code>AGENTS.md</code> markers broken or duplicated</div><div>The region is not written</div><div><span class="sev low">Low</span></div><div>The run asks; the developer repairs or removes the markers by hand.</div></div>
-    <div class="failure-row"><div>Manifest versions disagree</div><div>The tools report different versions</div><div><span class="sev low">Low</span></div><div>Fixed by hand under hard rule 11.</div></div>
-    <div class="failure-row"><div>Pull-request check red</div><div>Merge to <code>main</code> blocked</div><div><span class="sev high">High</span></div><div>Workflow changed after this round (Q3).</div></div>
+    <div class="failure-row"><div>The derived root is wrong: the first template cannot be read</div><div>The skill searches the cache</div><div><span class="sev low">Low</span></div><div>The longest-prefix match becomes the root; nothing is written before the root is verified.</div></div>
+    <div class="failure-row"><div>Nothing matches in the cache</div><div>The skill stops before writing</div><div><span class="sev low">Low</span></div><div>It reports the derived path and the search it ran; the developer resolves where the plugin is.</div></div>
+    <div class="failure-row"><div>A Claude Code user types <code>/codex-asimov-init</code></div><div>Nothing runs</div><div><span class="sev low">Low</span></div><div>Expected; the Claude Code setup is <code>/asimov-init</code>.</div></div>
+    <div class="failure-row"><div>A skill run in Codex reads a plugin file through <code>${CLAUDE_PLUGIN_ROOT}</code></div><div>The path stays literal; the file is not found</div><div><span class="sev med">Med</span></div><div>The three affected skills are Q2; the setup skill avoids the variable.</div></div>
+    <div class="failure-row"><div>Manifest versions disagree</div><div>The two tools report different versions</div><div><span class="sev low">Low</span></div><div>Fixed by hand (Q3).</div></div>
   </div>
 </section>
 
 <section class="s" id="s6-8">
   <h2 class="section-title"><span class="sec-ref">§6.8</span>Known constraints &amp; gotchas</h2>
-  <div class="callout warn"><strong>Plugin-root variable in skills.</strong> <code>artifact-d101-authoring</code>, <code>artifact-d101-gap-review</code> and <code>pm-advisor</code> address their files through <code>${CLAUDE_PLUGIN_ROOT}</code>, which Claude Code substitutes and Codex does not; left as is in this round, recorded by the test. The setup skill uses relative paths instead (§6.4).</div>
-  <div class="callout warn"><strong>Where Codex looks for agents.</strong> Codex's documented agent locations are the user's <code>~/.codex/agents/</code> and a trusted repository's <code>.codex/agents/</code>, not a plugin folder; the setup skill copies the shells there (R15).</div>
-  <div class="callout"><strong>No preload in Codex.</strong> A Codex shell has no field that loads a skill; loading the role skill first rests on the instruction in <code>developer_instructions</code>.</div>
-  <div class="callout"><strong>Commands run on the session's model.</strong> Removing the pins moves <code>/d101-feature-design</code>, <code>/asimov-init</code> and <code>/persona-new</code> off Opus and the others off Sonnet, onto whatever the session runs.</div>
+  <div class="callout warn"><strong>Plugin-root variable in skills.</strong> <code>artifact-d101-authoring</code>, <code>artifact-d101-gap-review</code> and <code>pm-advisor</code> address their files through <code>${CLAUDE_PLUGIN_ROOT}</code>. Claude Code substitutes it in skill, command and agent content (<a href="https://code.claude.com/docs/en/plugins-reference">plugins reference</a>); Codex leaves it literal (<a href="https://github.com/openai/codex/issues/19582">codex#19582</a>) and sets <code>PLUGIN_ROOT</code>/<code>PLUGIN_DATA</code>, with <code>CLAUDE_PLUGIN_*</code> aliases, only as environment variables for hook commands (<a href="https://developers.openai.com/plugins/build/plugins">build plugins</a>). In Codex these three skills cannot find their files (Q2).</div>
+  <div class="callout warn"><strong>Why the root is derived, verified and searched.</strong> Codex resolves a relative path in a plugin file from the working directory (<a href="https://github.com/openai/codex/issues/22842">codex#22842</a>), shows the model each skill's file path (<a href="https://learn.chatgpt.com/docs/build-skills">build skills</a>), and caches plugins at <code>~/.codex/plugins/cache/&lt;marketplace&gt;/&lt;plugin&gt;/&lt;version&gt;/</code>, older versions included (<a href="https://developers.openai.com/plugins/build/plugins">build plugins</a>).</div>
+  <div class="callout"><strong>Commands are Claude Code only.</strong> Codex loads a plugin's <code>skills/</code> folder (<a href="https://developers.openai.com/plugins/build/plugins">build plugins</a>), not <code>commands/</code>; the five slash commands run in Claude Code alone (Q1).</div>
+  <div class="callout"><strong>Marking a Codex-only skill.</strong> <code>disable-model-invocation</code> and <code>user-invocable: false</code> are Claude Code's switches, and <code>skillOverrides</code> does not apply to plugin skills (<a href="https://code.claude.com/docs/en/skills">skills</a>); <code>allow_implicit_invocation: false</code> is Codex's, and <code>$</code>-invocation still works (<a href="https://learn.chatgpt.com/docs/build-skills">build skills</a>).</div>
+  <div class="callout"><strong>Manifest location.</strong> The Codex documentation names a root <code>plugin.json</code> as the portable manifest and keeps <code>.codex-plugin/plugin.json</code> as a compatibility fallback (<a href="https://developers.openai.com/plugins/build/plugins">build plugins</a>); the plugin uses the fallback location today.</div>
 </section>
 
 <div class="chapter-band" id="c7">
@@ -777,46 +731,40 @@ footer.site-footer a { color: var(--cyan); }
     <div class="ch-num">7</div>
     <div>
       <div class="ch-name">Implementation</div>
-      <div class="ch-summary">What is new, what changes in place, and the order of the work. Code-grounded throughout.</div>
+      <div class="ch-summary">What is new, where it sits, and the shared build concerns. Code-grounded throughout.</div>
     </div>
   </div>
 </div>
 
 <section class="s" id="s7-1">
   <h2 class="section-title"><span class="sec-ref">§7.1</span>What is genuinely new to build</h2>
-  <p class="section-desc">Everything not listed here is an edit in place.</p>
-  <div class="callout"><strong>These notes are code-grounded design.</strong> Each was checked against the repository on 2026-09-30 and against the Codex plugin catalogue installed on this machine (its <code>.agents/plugins/marketplace.json</code> and <code>.codex-plugin/plugin.json</code> shapes).</div>
+  <div class="callout"><strong>These notes are code-grounded.</strong> Each item was checked against the repository on 2026-10-01; the branch adds four files and edits one.</div>
   <ul class="bullets">
-    <li><span class="em">Codex plugin manifest.</span> A new JSON file on the §6.4 shape (R2, R4).</li>
-    <li><span class="em">Codex marketplace listing.</span> A new JSON file on the §6.4 shape (R2, R3).</li>
-    <li><span class="em">Reviewer's read-only in Codex.</span> <code>sandbox_mode = "read-only"</code> added to its <code>.toml</code> (R9).</li>
-    <li><span class="em">Setup entry point as a skill.</span> <code>commands/asimov-init.md</code> moved to <code>skills/asimov-init/SKILL.md</code> with the four adjustments of §6.4, plus its <code>agents/openai.yaml</code> (R12).</li>
-    <li><span class="em">AGENTS.md region.</span> The setup skill's fifth target: the rendered <code>asimov.md</code> body between markers, with its own NEW / APPEND / OVERWRITE / ASK rules (R14).</li>
-    <li><span class="em">Codex shells delivered.</span> The setup skill's sixth target: the plugin's <code>agents/*.toml</code> copied byte for byte into <code>.codex/agents/</code> (R15).</li>
-    <li class="warn"><span class="em">Model index removed.</span> <code>documentation/model-choice.md</code> deleted and every link to it rewritten (R11).</li>
+    <li><span class="em">New — Codex marketplace listing.</span> <code>.agents/plugins/marketplace.json</code>, on the §6.4 shape (R2, R3).</li>
+    <li><span class="em">New — Codex plugin manifest.</span> <code>plugins/asimov-plugin/.codex-plugin/plugin.json</code>, on the §6.4 shape (R2).</li>
+    <li><span class="em">New — Codex setup skill.</span> <code>skills/codex-asimov-init/SKILL.md</code> and its <code>agents/openai.yaml</code> (R4–R10).</li>
+    <li><span class="em">Reuse — the templates and definitions under <code>artifacts/</code>.</span> The skill reads the same files the <code>/asimov-init</code> command reads.</li>
+    <li><span class="em">Reuse — <code>agents/*.toml</code>.</span> Copied by the skill, not changed.</li>
+    <li><span class="em">Edit — <code>README.md</code>.</span> The Install section gains a Codex block beside the Claude Code block.</li>
   </ul>
 </section>
 
 <section class="s" id="s7-2">
-  <h2 class="section-title"><span class="sec-ref">§7.2</span>Edits in place</h2>
+  <h2 class="section-title"><span class="sec-ref">§7.2</span>Code layout</h2>
   <div class="data-table">
-    <div class="row head" style="grid-template-columns: 0.7fr 2fr;"><div>File</div><div>Edit</div></div>
-    <div class="row" style="grid-template-columns: 0.7fr 2fr;"><div class="label-cell">.claude-plugin/plugin.json</div><div><code>version</code> 0.1.0 → 0.2.0.</div></div>
-    <div class="row" style="grid-template-columns: 0.7fr 2fr;"><div class="label-cell">agents/*.toml</div><div>Instruction: load the role skill first; no model; the header names the delivery route (<code>.codex/agents/</code> via the setup skill) in place of the former prototype caveat.</div></div>
-    <div class="row" style="grid-template-columns: 0.7fr 2fr;"><div class="label-cell">commands/*.md</div><div><code>model:</code> removed from the frontmatter of the five that remain, and of the moved setup skill.</div></div>
-    <div class="row" style="grid-template-columns: 0.7fr 2fr;"><div class="label-cell">asimov-md-definition.md · -template.md</div><div>The wording names both tools and the <code>AGENTS.md</code> region.</div></div>
-    <div class="row" style="grid-template-columns: 0.7fr 2fr;"><div class="label-cell">CLAUDE.md</div><div>Quick map, hard rules 1, 2, 9 and 11, the two how-to lists, current state.</div></div>
-    <div class="row" style="grid-template-columns: 0.7fr 2fr;"><div class="label-cell">D100</div><div>§4.3, §4.4, §4.6 tables and §7.3 on models; install for both tools.</div></div>
-    <div class="row" style="grid-template-columns: 0.7fr 2fr;"><div class="label-cell">README.md · CONTRIBUTING.md</div><div>Install in Codex; the model-index reference removed.</div></div>
+    <div class="row head cols-2"><div>Folder</div><div>What it holds</div></div>
+    <div class="row cols-2"><div class="label-cell">.agents/plugins/</div><div>The Codex marketplace listing, beside <code>.claude-plugin/</code> at the repository root.</div></div>
+    <div class="row cols-2"><div class="label-cell">plugins/asimov-plugin/.codex-plugin/</div><div>The Codex plugin manifest, beside <code>.claude-plugin/</code> in the plugin folder.</div></div>
+    <div class="row cols-2"><div class="label-cell">plugins/asimov-plugin/skills/codex-asimov-init/</div><div>The Codex setup skill and its <code>agents/openai.yaml</code>, in the shared <code>skills/</code> folder.</div></div>
   </div>
 </section>
 
 <section class="s" id="s7-5">
   <h2 class="section-title"><span class="sec-ref">§7.5</span>Cross-cutting</h2>
   <ul class="bullets">
-    <li><span class="em">Drift sweep.</span> Grep the repository for <code>model-choice</code>, <code>claude-opus</code> and <code>commands/asimov-init</code> after the edits and fix what remains (hard rule 6).</li>
-    <li><span class="em">Older D101s.</span> A D101 that states the old model rule gets a one-line pointer to this document, not a rewrite.</li>
-    <li class="warn"><span class="em">The workflow stays as is.</span> <code>.github/workflows/Asimov-PR.yml</code> is not touched in this round (OOS5).</li>
+    <li><span class="em">Drift sweep.</span> When a file in §6.3 moves, grep the repository for <code>codex-asimov-init</code>, <code>.codex-plugin</code> and <code>.agents/plugins</code> and fix what remains.</li>
+    <li><span class="em">Versions move together.</span> When a release bumps the plugin version, both manifests take the new number (Q3).</li>
+    <li class="warn"><span class="em">Nothing is verified in Codex.</span> No run of the skill or install in Codex has been recorded; the acceptance criteria in §8 are what such a run would check.</li>
   </ul>
 </section>
 
@@ -824,21 +772,19 @@ footer.site-footer a { color: var(--cyan); }
   <h2 class="section-title"><span class="sec-ref">§8</span>Acceptance criteria</h2>
   <div class="ac-table">
     <div class="ac-head"><div>#</div><div>Verifies</div><div>Description</div></div>
-    <div class="ac-row"><div class="ac-id">AC1</div><div class="ac-verifies"><span class="verify-chip">R1</span></div><div>In Claude Code, adding the marketplace and installing the plugin from a local clone uses the same commands as before and lists five commands, four subagents and eleven skills.</div></div>
-    <div class="ac-row"><div class="ac-id">AC2</div><div class="ac-verifies"><span class="verify-chip">R2</span><span class="verify-chip">R3</span></div><div>In Codex, adding the same clone as a marketplace and installing the plugin succeeds, and the installed plugin lists the eleven shipped skills.</div></div>
-    <div class="ac-row"><div class="ac-id">AC3</div><div class="ac-verifies"><span class="verify-chip">R4</span><span class="verify-chip">Rule 4</span></div><div>Both tools report version 0.2.0 for the installed plugin.</div></div>
-    <div class="ac-row"><div class="ac-id">AC4</div><div class="ac-verifies"><span class="verify-chip">R5</span><span class="verify-chip">R6</span><span class="verify-chip">Rule 2</span></div><div>Each of the four subagents has one Claude Code shell and one Codex shell with the same name and description, and neither shell contains a workflow step.</div></div>
-    <div class="ac-row"><div class="ac-id">AC5</div><div class="ac-verifies"><span class="verify-chip">R7</span></div><div>A Claude Code delegation to the .NET builder shows its role skill loaded at start in the session's debug output.</div></div>
-    <div class="ac-row"><div class="ac-id">AC6</div><div class="ac-verifies"><span class="verify-chip">R8</span></div><div>A Codex delegation to the .NET builder shows loading its role skill as the subagent's first step in the transcript.</div></div>
-    <div class="ac-row"><div class="ac-id">AC7</div><div class="ac-verifies"><span class="verify-chip">R9</span><span class="verify-chip">Rule 3</span></div><div>Asked in each tool to fix a finding, the reviewer leaves the repository's working tree unchanged.</div></div>
-    <div class="ac-row"><div class="ac-id">AC8</div><div class="ac-verifies"><span class="verify-chip">R10</span><span class="verify-chip">NF3</span><span class="verify-chip">Rule 1</span></div><div>A search of the plugin finds a model name only in the four Claude Code agent shells, and no Codex model name anywhere.</div></div>
-    <div class="ac-row"><div class="ac-id">AC9</div><div class="ac-verifies"><span class="verify-chip">R11</span></div><div>The repository holds no model index, and no file links to one.</div></div>
-    <div class="ac-row"><div class="ac-id">AC10</div><div class="ac-verifies"><span class="verify-chip">R12</span><span class="verify-chip">Rule 5</span></div><div>In the same test repository, <code>/asimov-init</code> in Claude Code and <code>$asimov-plugin:asimov-init</code> in Codex reach the same write plan, and neither tool lists the skill among those its model may start.</div></div>
-    <div class="ac-row"><div class="ac-id">AC11</div><div class="ac-verifies"><span class="verify-chip">R13</span></div><div>In a test repository, each of the five Claude Code commands reaches its first stop with the same opening and questions as on the previous version.</div></div>
-    <div class="ac-row"><div class="ac-id">AC12</div><div class="ac-verifies"><span class="verify-chip">NF1</span></div><div>A search of the plugin for the test repository's name and entities finds nothing.</div></div>
-    <div class="ac-row"><div class="ac-id">AC13</div><div class="ac-verifies"><span class="verify-chip">NF2</span></div><div>Each tool manifest is a hand-edited file under 40 lines, and the repository holds no script that writes it.</div></div>
-    <div class="ac-row"><div class="ac-id">AC14</div><div class="ac-verifies"><span class="verify-chip">R14</span><span class="verify-chip">Rule 6</span></div><div>After the setup skill has run in either tool, <code>AGENTS.md</code> holds exactly one marker pair whose content equals the body of <code>asimov.md</code>, and everything outside the markers is unchanged.</div></div>
-    <div class="ac-row"><div class="ac-id">AC15</div><div class="ac-verifies"><span class="verify-chip">R15</span><span class="verify-chip">Rule 7</span></div><div>After the setup skill has run with the write allowed, <code>.codex/agents/</code> holds the four shells byte-identical to the plugin's, from Claude Code and from Codex alike; a run that could not obtain approval reports them as skipped with the two ways to finish.</div></div>
+    <div class="ac-row"><div class="ac-id">AC1</div><div class="ac-verifies"><span class="verify-chip">R1</span></div><div>In Claude Code, adding the marketplace and installing the plugin uses the same commands as before, and the installed plugin lists the six commands, four subagents and ten skills; <code>codex-asimov-init</code> is not among them.</div></div>
+    <div class="ac-row"><div class="ac-id">AC2</div><div class="ac-verifies"><span class="verify-chip">R2</span><span class="verify-chip">R3</span></div><div>In Codex, adding the same repository and installing <code>asimov-plugin@asimov-marketplace</code> succeeds, and the installed plugin lists the eleven shipped skills.</div></div>
+    <div class="ac-row"><div class="ac-id">AC3</div><div class="ac-verifies"><span class="verify-chip">R4</span><span class="verify-chip">R8</span><span class="verify-chip">Rule 3</span></div><div>In Codex, <code>$asimov-plugin:codex-asimov-init</code> opens with one sentence on what it will do and then a write plan, and the skill is not among those Codex may start from a prompt.</div></div>
+    <div class="ac-row"><div class="ac-id">AC4</div><div class="ac-verifies"><span class="verify-chip">R5</span><span class="verify-chip">Rule 4</span></div><div>The skill's text contains neither <code>${CLAUDE_PLUGIN_ROOT}</code> nor a <code>..</code> path segment, and its first plugin read is the template at the derived root.</div></div>
+    <div class="ac-row"><div class="ac-id">AC5</div><div class="ac-verifies"><span class="verify-chip">R6</span></div><div>With the template absent at the derived root and absent from the cache, the skill stops, reports the derived path and the search it ran, and the repository is unchanged.</div></div>
+    <div class="ac-row"><div class="ac-id">AC6</div><div class="ac-verifies"><span class="verify-chip">R7</span><span class="verify-chip">Rule 2</span></div><div>In Claude Code, the <code>/</code> menu does not list <code>codex-asimov-init</code>, a typed <code>/codex-asimov-init</code> does nothing, and the skill is absent from the model's skill list.</div></div>
+    <div class="ac-row"><div class="ac-id">AC7</div><div class="ac-verifies"><span class="verify-chip">R9</span></div><div>After a run, <code>AGENTS.md</code> holds exactly one marker pair whose content equals the body of <code>asimov.md</code>, and <code>CLAUDE.md</code> holds one <code>@asimov.md</code> line.</div></div>
+    <div class="ac-row"><div class="ac-id">AC8</div><div class="ac-verifies"><span class="verify-chip">R10</span></div><div>After a run with the write allowed, <code>.codex/agents/</code> holds a byte-identical copy of each <code>agents/*.toml</code> in the plugin.</div></div>
+    <div class="ac-row"><div class="ac-id">AC9</div><div class="ac-verifies"><span class="verify-chip">R11</span></div><div><code>git diff main -- plugins/asimov-plugin/commands/</code> is empty.</div></div>
+    <div class="ac-row"><div class="ac-id">AC10</div><div class="ac-verifies"><span class="verify-chip">NF1</span></div><div>A search of the plugin for a product repository's name and entities finds nothing.</div></div>
+    <div class="ac-row"><div class="ac-id">AC11</div><div class="ac-verifies"><span class="verify-chip">NF2</span></div><div>Each tool manifest is a hand-edited file under 40 lines, and no script in the repository writes it.</div></div>
+    <div class="ac-row"><div class="ac-id">AC12</div><div class="ac-verifies"><span class="verify-chip">NF3</span></div><div>A search of the plugin finds no Codex model name.</div></div>
+    <div class="ac-row"><div class="ac-id">AC13</div><div class="ac-verifies"><span class="verify-chip">Rule 1</span></div><div>Both marketplace listings are named <code>asimov-marketplace</code> and point at <code>plugins/asimov-plugin</code>; both plugin manifests are named <code>asimov-plugin</code>.</div></div>
   </div>
 </section>
 
@@ -847,18 +793,18 @@ footer.site-footer a { color: var(--cyan); }
   <div class="q-grid">
     <div class="q-card">
       <div class="q-head"><span class="q-id">Q1</span><span class="q-decider">Christian Kaysen</span></div>
-      <div class="q-body">With the five other commands kept as commands, how does a Codex user reach them?</div>
-      <div class="q-resolution">Resolution path: decided from the Codex test's recorded result, after this round.</div>
+      <div class="q-body">How does a Codex user reach the five other slash commands, which Codex does not load?</div>
+      <div class="q-resolution">Resolution path: decided after this round; until then they are Claude Code only.</div>
     </div>
-    <div class="q-card resolved">
-      <div class="q-head"><span class="q-id">Q2</span><span class="q-decider">Resolved 2026-09-30</span></div>
-      <div class="q-body">How does a Codex session find the Codex shells, which the plugin carries but may not load itself?</div>
-      <div class="q-resolution"><strong>Decision:</strong> Codex does not load a plugin's <code>agents/</code>; the setup skill copies the shells into the repository's <code>.codex/agents/</code>, and a trusted repository loads them from the next session (R15, Rule 7). Reopens if Codex learns to load agents from a plugin.</div>
+    <div class="q-card">
+      <div class="q-head"><span class="q-id">Q2</span><span class="q-decider">Christian Kaysen</span></div>
+      <div class="q-body">The three skills that address plugin files through <code>${CLAUDE_PLUGIN_ROOT}</code> cannot find them in Codex — do they adopt the derived-root method of §6.2?</div>
+      <div class="q-resolution">Resolution path: decided when the first of them is wanted in Codex; the setup skill is the worked example.</div>
     </div>
     <div class="q-card">
       <div class="q-head"><span class="q-id">Q3</span><span class="q-decider">Christian Kaysen</span></div>
-      <div class="q-body">The pull-request check still expects a model in every command and a row in the model index, so it fails once both are gone — how is that handled?</div>
-      <div class="q-resolution">Resolution path: the workflow is changed in GitHub after this round and before merge (Christian Kaysen, 2026-09-30).</div>
+      <div class="q-body">The two plugin manifests carry different version numbers today — which number do both take, and what keeps them in step on each release?</div>
+      <div class="q-resolution">Resolution path: brought in line by hand before the next release; the rule that keeps them together is written down with the repository's other rules when decided.</div>
     </div>
   </div>
 </section>
@@ -875,15 +821,24 @@ footer.site-footer a { color: var(--cyan); }
     <div class="refs-block">
       <h4>Related designs</h4>
       <ul>
-        <li><a href="D101-subagents.html">D101-subagents.html</a></li>
-        <li><a href="D101-personas.html">D101-personas.html</a></li>
-        <li><a href="D101-d101-feature-design.html">D101-d101-feature-design.html</a></li>
+        <li><a href="D101-asimov-init.html">D101-asimov-init.html</a> — what the setup writes, target by target</li>
+        <li><a href="D101-subagents.html">D101-subagents.html</a> — the agent shells the setup copies</li>
       </ul>
     </div>
     <div class="refs-block">
-      <h4>Proposals</h4>
+      <h4>Codex documentation</h4>
       <ul>
-        <li>#7 — model choice for agents and commands</li>
+        <li><a href="https://developers.openai.com/plugins/build/plugins">Build plugins</a> — hook environment variables, cache path, skills from <code>skills/</code>, manifest fallback</li>
+        <li><a href="https://learn.chatgpt.com/docs/build-skills">Build skills</a> — skill paths in the skill list, frontmatter, <code>allow_implicit_invocation</code></li>
+        <li><a href="https://github.com/openai/codex/issues/19582">codex#19582</a> — <code>${CLAUDE_PLUGIN_ROOT}</code> left literal in a plugin file</li>
+        <li><a href="https://github.com/openai/codex/issues/22842">codex#22842</a> — relative paths in plugin files resolve from the working directory</li>
+      </ul>
+    </div>
+    <div class="refs-block">
+      <h4>Claude Code documentation</h4>
+      <ul>
+        <li><a href="https://code.claude.com/docs/en/plugins-reference">Plugins reference</a> — <code>${CLAUDE_PLUGIN_ROOT}</code> substitution; the manifest <code>skills</code> key only adds</li>
+        <li><a href="https://code.claude.com/docs/en/skills">Skills</a> — <code>disable-model-invocation</code>, <code>user-invocable</code>, <code>skillOverrides</code></li>
       </ul>
     </div>
   </div>
@@ -898,7 +853,7 @@ footer.site-footer a { color: var(--cyan); }
     · <span class="mono">features/D101-codex-support.html</span>
   </div>
   <div style="margin-top: 0.4rem">
-    D101 · Codex support · asimov-plugin · Draft v0.8 · 2026-09-30
+    D101 · Codex support · asimov-plugin · Draft v0.9 · 2026-10-01
   </div>
 </footer>
 

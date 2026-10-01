@@ -1,6 +1,6 @@
 # D100 — Asimov Architecture
 
-Architecture of the `asimov` repo — the Claude Code marketplace that ships the L3 workflow's AI-assisted stages as one installable plugin.
+Architecture of the `asimov` repo — the marketplace that ships the L3 workflow's AI-assisted stages as one installable plugin, to Claude Code and Codex from one plugin folder.
 
 ---
 
@@ -8,8 +8,8 @@ Architecture of the `asimov` repo — the Claude Code marketplace that ships the
 
 | Field | Value |
 |---|---|
-| Version | 0.2 |
-| Last updated | 2026-09-15 |
+| Version | 0.3 |
+| Last updated | 2026-10-01 |
 | Status | Draft |
 | Owner | Context&; lead maintainer [@Aborup](https://github.com/Aborup), maintainer team `@context-and-oss/team-asimov` |
 
@@ -38,13 +38,13 @@ The toolkit does **not** enforce the L3 process — that lives in product repos.
 
 ## 4. Components
 
-The toolkit ships as a single Claude Code marketplace containing one plugin. Six kinds of **component** live in it.
+The toolkit ships as a single marketplace containing one plugin — one plugin folder, installed by Claude Code and by Codex. Six kinds of **component** live in it.
 
 > **Terminology.** A *component* is a part of the toolkit itself — the marketplace, the plugin, a slash command, a subagent, a skill, a definition or template. An *artifact* is something the toolkit writes into a product repo — a D101, a persona review skill, the `asimov.md` context file — and is what the `artifacts/` folder (§4.5) is organised around. The two words are not interchanged in this document.
 
 ### 4.1 Marketplace
 
-A Claude Code marketplace declared by `.claude-plugin/marketplace.json` at the repo root. Marketplace name: `asimov-marketplace`. One plugin entry.
+Declared twice at the repo root: `.claude-plugin/marketplace.json` for Claude Code and `.agents/plugins/marketplace.json` for Codex. Both carry the marketplace name `asimov-marketplace` and one plugin entry, pointing at the same plugin folder.
 
 Alternatives considered:
 
@@ -56,7 +56,7 @@ Alternatives considered:
 
 ### 4.2 Asimov Plugin
 
-The sole plugin in the marketplace. Lives under `plugins/asimov-plugin/` with its own `.claude-plugin/plugin.json`. The plugin's job is to expose every slash command, subagent, and skill the toolkit publishes. Developers install once; commands, subagents, and the shipped skills (§4.6) become available across all product repos.
+The sole plugin in the marketplace. Lives under `plugins/asimov-plugin/` with two plugin manifests side by side — `.claude-plugin/plugin.json` for Claude Code and `.codex-plugin/plugin.json` for Codex, both named `asimov-plugin`. The plugin's job is to expose every slash command, subagent, and skill the toolkit publishes. Developers install once; in Claude Code, commands, subagents, and the shipped skills (§4.6) become available across all product repos. Codex loads the skills only (§4.3, §4.6).
 
 ### 4.3 Slash commands
 
@@ -74,7 +74,7 @@ Developer-driven entrypoints. Each is a markdown file under `plugins/asimov-plug
 | `/s101-review` *(planned)* | Spec | Sonnet 4.6 | — |
 | `/conventions-check` *(planned)* | Review + Test | Sonnet 4.6 or Haiku 4.5 | — |
 
-Command file paths follow the pattern `plugins/asimov-plugin/commands/<command-name>.md`.
+Command file paths follow the pattern `plugins/asimov-plugin/commands/<command-name>.md`. Slash commands are Claude Code only — Codex does not load `commands/`; `/asimov-init` alone has a Codex counterpart, the skill `codex-asimov-init` (§4.6).
 
 **`/d101-feature-design` runs in three phases with a stop in the middle.** Phase A settles requirements (§2, §3) and writes nothing. Phase B settles the business design (§4, §5 UI Design, §8, §9), writes the file with the document phase marked `Business design`, §6 *declared open* and §7 Implementation *pending*, and **stops the run**. Phase C — the technical design plus the build recipe (§6, §7 Implementation, §10) — is reachable only in a *later* invocation against a file already at `Business design`, and flips it to `Full design`. §7 Implementation is the code-grounded recipe realising the §6 contracts; it sits **outside the two bars** (`d101-feature-design-definition.md` §4.8) and is the interim home for build-readiness notes until the Spec stage (S101/S102) is in use for the feature (§9).
 
@@ -88,7 +88,7 @@ The stop is deliberate and is the command's main design decision. Settling the m
 
 ### 4.4 Subagents
 
-Long-running, autonomous workers. Each is two layers: a **role skill** under `plugins/asimov-plugin/skills/role-<stack>-<role>/` that carries the whole method (§7.2.1) and is the harness-portable part, and a thin **shell** under `plugins/asimov-plugin/agents/` per harness — `<name>.md` for Claude Code (frontmatter `skills:` preloads the role skill) and `<name>.toml` for Codex (prototype; plugin-level discovery unverified) — carrying only identity, model, tool restrictions and the pointer to the skill. The three build subagents and the reviewer exist; the S102 validator is planned but not built yet.
+Long-running, autonomous workers. Each is two layers: a **role skill** under `plugins/asimov-plugin/skills/role-<stack>-<role>/` that carries the whole method (§7.2.1) and is the harness-portable part, and a thin **shell** under `plugins/asimov-plugin/agents/` per harness — `<name>.md` for Claude Code (frontmatter `skills:` preloads the role skill) and `<name>.toml` for Codex (prototype — Codex loads no plugin-level `agents/`, so the `codex-asimov-init` skill copies them into the product repo's `.codex/agents/`, §4.6) — carrying only identity, model, tool restrictions and the pointer to the skill. The three build subagents and the reviewer exist; the S102 validator is planned but not built yet.
 
 Subagent *kinds* follow the **Accelerate multi-agent roles** — *planner / builder / tester / reviewer* (the L3 multi-agent vocabulary; see [`ai-transition-levels-and-zones.md`](ai-transition-levels-and-zones.md)). Two roles ship today: **build subagents** (builders + tester — they produce code and tests) and the **reviewer** (it checks the changeset). *Planner* is reserved (architect/spec roles, not built).
 
@@ -140,7 +140,7 @@ They are laid out **per artifact, not per file kind**: an *artifact* is somethin
 
 ### 4.6 Skills
 
-Model-invoked capabilities: a `SKILL.md` under `plugins/asimov-plugin/skills/<name>/`, discovered automatically on install and activated by the model when a task matches the skill's `description`. Skills declare no model and take no arguments.
+Model-invoked capabilities: a `SKILL.md` under `plugins/asimov-plugin/skills/<name>/`, discovered automatically on install and activated by the model when a task matches the skill's `description`. Skills declare no model; all but the Codex setup entry point take no arguments. `skills/` is the one folder both harnesses load — Codex reads nothing else from the plugin (`.codex-plugin/plugin.json` names `./skills/` only).
 
 | Skill | Kind | Purpose |
 |---|---|---|
@@ -148,20 +148,26 @@ Model-invoked capabilities: a `SKILL.md` under `plugins/asimov-plugin/skills/<na
 | `artifact-d101-authoring`, `artifact-d101-gap-review` | Artifact method | How to produce or judge one artifact, independent of any command: the D101 rendering procedure + authoring invariants (used by `/d101-feature-design`, `/d101-convert-to-html`, and any hand edit of a `D101-*.html`), and the D101 gap review — section walk, §8a/§8b, report — that `/d101-review` delegates to. Both read the definition and template by path (§7.4); the command keeps only the conversation. Named `artifact-<code>-<action>`; `s101`/`s102` follow when their templates exist. |
 | `persona-poseidon`, `persona-athena`, `persona-hermes` | Persona review | Read a design document as one of its intended readers; the concrete form of `/d101-review` check 7. Their definition + template pair lives in `artifacts/skills/persona-review/` (§4.5). |
 | `pm-advisor` | Advisory | Advises on the delivery model held in `plugins/asimov-plugin/processes/`. Carries an intent → file routing table, reads the relevant page at run time, and advises from it. Read-only: it never writes, and never edits `processes/` (a generated export). First member of a planned `pm-*` family; the family's shared D101 is not yet written. |
+| `codex-asimov-init` | Setup entry point (Codex only) | The Codex counterpart of `/asimov-init` (§4.3), invoked as `$asimov-plugin:codex-asimov-init`. Codex-only via frontmatter — `disable-model-invocation: true` + `user-invocable: false` (and `allow_implicit_invocation: false` in its `agents/openai.yaml`). Derives the plugin root from its own file path, because Codex does not substitute `${CLAUDE_PLUGIN_ROOT}` (§7.4). Writes the same targets as the command plus an `AGENTS.md` managed region (`<!-- asimov:start -->` / `<!-- asimov:end -->`) and byte-for-byte copies of `agents/*.toml` into the product repo's `.codex/agents/`. Names no model. Design: [`D101-codex-support.html`](features/D101-codex-support.html). |
 
-The `processes/` corpus `pm-advisor` reads is exported from the Learn/Engineer/Deliver vault, not maintained here: `processes/README.md` is its meta-entry and carries the draft-status caveat; `processes/delivery-model-framework.md` is its map. It ships in install scope so the skill can resolve it under `${CLAUDE_PLUGIN_ROOT}/processes/`.
+The `processes/` corpus `pm-advisor` reads is exported from the Learn/Engineer/Deliver vault, not maintained here: `processes/README.md` is its meta-entry and carries the draft-status caveat; `processes/delivery-model-framework.md` is its map. It ships in install scope so the skill can resolve it under `${CLAUDE_PLUGIN_ROOT}/processes/`. That variable is a Claude Code substitution, so the three skills that use it — `artifact-d101-authoring`, `artifact-d101-gap-review`, `pm-advisor` — find their files only in Claude Code (§7.4).
 
 ## 5. Repo layout
 
 ```
 asimov/
 ├── .claude-plugin/
-│   └── marketplace.json
+│   └── marketplace.json                  ← Claude Code marketplace manifest (§4.1)
+├── .agents/
+│   └── plugins/
+│       └── marketplace.json              ← Codex marketplace manifest (§4.1)
 ├── plugins/
 │   └── asimov-plugin/
 │       ├── .claude-plugin/
-│       │   └── plugin.json
-│       ├── commands/                     ← slash commands (§4.3)
+│       │   └── plugin.json               ← Claude Code plugin manifest (§4.2)
+│       ├── .codex-plugin/
+│       │   └── plugin.json               ← Codex plugin manifest (§4.2)
+│       ├── commands/                     ← slash commands (§4.3); Claude Code only
 │       │   ├── d101-feature-design.md
 │       │   ├── d101-review.md
 │       │   ├── d101-convert-to-html.md
@@ -185,7 +191,8 @@ asimov/
 │       │   ├── persona-poseidon/SKILL.md
 │       │   ├── persona-athena/SKILL.md
 │       │   ├── persona-hermes/SKILL.md
-│       │   └── pm-advisor/SKILL.md
+│       │   ├── pm-advisor/SKILL.md
+│       │   └── codex-asimov-init/SKILL.md        ← Codex-only setup entry point (counterpart of /asimov-init)
 │       ├── artifacts/                    ← one folder per artifact, grouped by where it lands in a product repo (§4.5)
 │       │   ├── documentation/            ← artifacts that land in documentation/
 │       │   │   ├── d101-feature-design/  ← definition + template side by side
@@ -238,7 +245,7 @@ asimov/
     └── research/                         ← research notes behind the decisions in this doc
 ```
 
-The diagram shows the full intended shape. What exists today: the three Design-stage command files plus the setup command `/asimov-init`, the four subagents as role skills plus shells (Giskard, Daneel, Calvin, Baley), the two D101 artifact skills, the persona review layer (the `/persona-new` and `/persona-list` commands, the three standard persona skills, and the persona definition + template), the HTML D101 template, the four diagram templates, the site templates, and the `pm-advisor` skill over the Delivery Model corpus in `processes/`. Also there: the two Spec-stage definitions, `plugins/asimov-plugin/artifacts/documentation/s101-implementation-plan/s101-implementation-plan-definition.md` and `plugins/asimov-plugin/artifacts/documentation/s102-task-spec/s102-task-spec-definition.md`. Not built yet: the `/s101-*` and `/conventions-check` command files, the S102 validator subagent, and the S101 and S102 templates — they slot into the same directory structure when added; only the inventory grows.
+The diagram shows the full intended shape. What exists today: the three Design-stage command files plus the setup command `/asimov-init`, its Codex counterpart `codex-asimov-init` with the two Codex manifests (§4.1, §4.2, §4.6), the four subagents as role skills plus shells (Giskard, Daneel, Calvin, Baley), the two D101 artifact skills, the persona review layer (the `/persona-new` and `/persona-list` commands, the three standard persona skills, and the persona definition + template), the HTML D101 template, the four diagram templates, the site templates, and the `pm-advisor` skill over the Delivery Model corpus in `processes/`. Also there: the two Spec-stage definitions, `plugins/asimov-plugin/artifacts/documentation/s101-implementation-plan/s101-implementation-plan-definition.md` and `plugins/asimov-plugin/artifacts/documentation/s102-task-spec/s102-task-spec-definition.md`. Not built yet: the `/s101-*` and `/conventions-check` command files, the S102 validator subagent, and the S101 and S102 templates — they slot into the same directory structure when added; only the inventory grows.
 
 ## 6. Distribution & install
 
@@ -246,11 +253,14 @@ The diagram shows the full intended shape. What exists today: the three Design-s
 |---|---|
 | Repo | Public GitHub repo `asimov`, MIT-licensed, owned by Context&. |
 | Install | `/plugin marketplace add <owner>/asimov` once per developer. Claude Code reads `.claude-plugin/marketplace.json` from the default branch; the plugin entry in it points at the `latest` tag. |
+| Install (Codex) | `codex plugin marketplace add <owner>/asimov` once per developer, then `codex plugin add asimov-plugin@asimov-marketplace`. Codex reads `.agents/plugins/marketplace.json`; its plugin entry points at the same `plugins/asimov-plugin/` folder. |
 | Update | `/plugin marketplace update asimov-marketplace` refreshes the local cache to the newest release. No auto-update; releases are announced on the GitHub releases page. |
+| Update (Codex) | `codex plugin marketplace upgrade asimov-marketplace` refreshes the Git marketplace snapshot to the newest release, then start a new session. No auto-update. |
 | Auth | None for the public repo. Local development installs from a clone with `/plugin marketplace add <path-to-clone>`. |
+| Auth (Codex) | None for the public repo. Local development installs from a clone with `codex plugin marketplace add <path-to-clone>`. |
 | Versioning | Releases are semver majors (`1.0.0`, `2.0.0`, …) cut by the release workflow, which stamps `plugin.json` on a tag-only commit and moves the `latest` tag. Any release may change a bar or a template. |
 
-There is no production deployment to provision — the toolkit is a developer tool consumed by Claude Code, not a runtime service.
+There is no production deployment to provision — the toolkit is a developer tool consumed by Claude Code and Codex, not a runtime service.
 
 ## 7. Architectural patterns
 
@@ -291,7 +301,7 @@ Keeping them in sync is enforced by CI: the PR workflow (`.github/workflows/Asim
 
 ### 7.4 Definitions and templates as contract
 
-The definitions and templates under `artifacts/` are read both by humans and by commands. Commands embed the relevant document by reference at run-time, not as a frozen copy in the prompt — so updating `d101-feature-design-definition.md`, `s101-implementation-plan-definition.md` or `s102-task-spec-definition.md` immediately changes the bar every command applies. Same for the D101/S101/S102 templates.
+The definitions and templates under `artifacts/` are read both by humans and by commands. Commands embed the relevant document by reference at run-time, not as a frozen copy in the prompt — so updating `d101-feature-design-definition.md`, `s101-implementation-plan-definition.md` or `s102-task-spec-definition.md` immediately changes the bar every command applies. Same for the D101/S101/S102 templates. Commands and skills name those files by path under `${CLAUDE_PLUGIN_ROOT}`, which Claude Code substitutes at run-time. Codex substitutes nothing and resolves a relative path from the working directory, so a Codex-only skill cannot rely on the variable: `codex-asimov-init` derives the plugin root from its own file path instead (see [`features/D101-codex-support.html`](features/D101-codex-support.html)).
 
 This is the analogue of a product repo's `conventions/` — the standard everything in the codebase aligns to. The pattern: one canonical doc, many consumers, change in one place.
 
@@ -311,7 +321,7 @@ None per developer. No API keys, no environment variables, no per-repo wiring. T
 
 ### 8.3 Lifecycle independence
 
-Toolkit updates flow via `/plugin marketplace update`, not by merging into product repos — the load-bearing reason the toolkit is a **separate repo**. Templates, slash commands, and subagent prompts move on their own cadence; bundling them into a product repo would drag every product release through every tooling iteration.
+Toolkit updates flow via `/plugin marketplace update` (Claude Code) or a plugin remove + re-add (Codex, §6), not by merging into product repos — the load-bearing reason the toolkit is a **separate repo**. Templates, slash commands, and subagent prompts move on their own cadence; bundling them into a product repo would drag every product release through every tooling iteration.
 
 Alternatives considered: (a) co-locate the toolkit in a product repo's `.claude-plugin/` — rejected because the toolkit serves multiple systems and tooling updates shouldn't churn any single product's release pipeline; (b) one toolkit repo per system — rejected because the L3 workflow is one contract across systems; per-system forks would diverge.
 
@@ -365,6 +375,7 @@ Planned components that slot into the structure above when added:
 **Repo docs:**
 - [`features/D101-d101-feature-design.html`](features/D101-d101-feature-design.html) — the D101 artifact: its three commands, two skills, phases and axes, accepted deviations, review handoff
 - [`features/D101-subagents.html`](features/D101-subagents.html) — the four subagents: role skills, per-harness shells, the convention overlay
+- [`features/D101-codex-support.html`](features/D101-codex-support.html) — Codex support: the second manifest pair and the `codex-asimov-init` skill
 
 **Definitions and templates:**
 - `plugins/asimov-plugin/artifacts/documentation/d101-feature-design/d101-feature-design-definition.md` — Design-stage bars (business-complete §8a, gap-free §8b)
@@ -380,3 +391,4 @@ Planned components that slot into the structure above when added:
 **External framework references:**
 - *AI Transition — Levels & Zones* (Context&) — L0–L5 / Z1–Z3 framework, L3 pipeline stage names; the part Asimov uses is summarised in `documentation/ai-transition-levels-and-zones.md`
 - Claude Code plugin / marketplace documentation (Anthropic) — runtime contract for `.claude-plugin/*.json` shapes
+- Codex plugin documentation (OpenAI) — runtime contract for `.agents/plugins/marketplace.json` and `.codex-plugin/plugin.json` shapes
