@@ -521,9 +521,6 @@ footer.site-footer a { color: var(--cyan); }
   <p style="color: var(--text-dim); font-size: 0.95rem; line-height: 1.65;">
     The plugin folder <code>plugins/asimov-plugin/</code> holds a manifest per tool: <code>.claude-plugin/plugin.json</code> for Claude Code and <code>.codex-plugin/plugin.json</code> for Codex. The repository root holds a marketplace listing per tool: <code>.claude-plugin/marketplace.json</code> and <code>.agents/plugins/marketplace.json</code>, both named <code>asimov-marketplace</code> and both pointing at the same folder. Claude Code loads <code>commands/</code>, <code>agents/*.md</code> and <code>skills/</code>. Codex loads <code>skills/</code> and caches the installed plugin under <code>~/.codex/plugins/cache/&lt;marketplace&gt;/&lt;plugin&gt;/&lt;version&gt;/</code>. The Claude Code setup is the command <code>commands/asimov-init.md</code>; the Codex setup is the skill <code>skills/codex-asimov-init/</code>.
   </p>
-  <div class="callout warn">
-    <strong>⚠ Manifest versions differ.</strong> The Claude Code manifest and the Codex manifest carry different version numbers today; both must carry the same number (Q3).
-  </div>
 </section>
 
 <section class="s" id="s6-2">
@@ -667,7 +664,7 @@ footer.site-footer a { color: var(--cyan); }
   <div class="data-table">
     <div class="row head cols-2"><div>Field</div><div>Value</div></div>
     <div class="row cols-2"><div class="label-cell">name · description · license · author</div><div>As in the Claude Code manifest.</div></div>
-    <div class="row cols-2"><div class="label-cell">version</div><div>Differs from the Claude Code manifest today (Q3).</div></div>
+    <div class="row cols-2"><div class="label-cell">version</div><div>The same number as the Claude Code manifest (hard rule 11).</div></div>
     <div class="row cols-2"><div class="label-cell">repository · keywords</div><div>The repository URL and generic toolkit terms (NF1).</div></div>
     <div class="row cols-2"><div class="label-cell">skills</div><div><code>./skills/</code>, the folder Codex scans by default.</div></div>
     <div class="row cols-2"><div class="label-cell">interface</div><div><code>displayName</code>, <code>shortDescription</code>, <code>developerName</code>, <code>category</code>.</div></div>
@@ -801,8 +798,8 @@ footer.site-footer a { color: var(--cyan); }
     </div>
     <div class="q-card">
       <div class="q-head"><span class="q-id">Q3</span><span class="q-decider">Christian Kaysen</span></div>
-      <div class="q-body">The two plugin manifests carry different version numbers today — which number do both take, and what keeps them in step on each release?</div>
-      <div class="q-resolution">Resolution path: brought in line by hand before the next release; the rule that keeps them together is written down with the repository's other rules when decided.</div>
+      <div class="q-body">What keeps the two plugin manifests on the same version number on each release? The number itself was settled 2026-10-01: both carry the Claude Code manifest's number (hard rule 11).</div>
+      <div class="q-resolution">Resolution path: the release procedure that stamps both manifests is decided and written down with the repository's other rules.</div>
     </div>
   </div>
 </section>
