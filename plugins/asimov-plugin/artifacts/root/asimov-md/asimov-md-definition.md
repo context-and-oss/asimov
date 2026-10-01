@@ -6,7 +6,7 @@ since: 2026-09-10
 
 # Definition of asimov.md
 
-The Asimov context file `/asimov-init` writes to a product repo's root and wires into `CLAUDE.md` with a single `@asimov.md` import. When the Codex setup skill (`codex-asimov-init`) writes it, the same rendered body is also carried inline in an `AGENTS.md` managed region between `<!-- asimov:start -->` and `<!-- asimov:end -->`, because Codex reads `AGENTS.md` and does not expand `@` imports. Rendered from `asimov-md-template.md` in this folder. Design: `documentation/features/D101-asimov-init.html`.
+The Asimov context file `/asimov-init` writes to a product repo's root and wires into `CLAUDE.md` with a single `@asimov.md` import. The Codex setup skill (`codex-asimov-init`) does not write this file; it renders the same body from the template into an `AGENTS.md` managed region between `<!-- asimov:start -->` and `<!-- asimov:end -->` instead, because Codex reads `AGENTS.md` and does not expand `@` imports. Rendered from `asimov-md-template.md` in this folder. Design: `documentation/features/D101-asimov-init.html`.
 
 ## 1. What it is for
 

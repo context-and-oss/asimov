@@ -271,7 +271,7 @@ footer.site-footer a { color: var(--cyan); }
   <a href="../index.html#s6">Diagrams</a>
   <span class="spacer"></span>
   <span class="phase-chip full">Full design</span>
-  <span class="status-chip draft">Draft v0.9</span>
+  <span class="status-chip draft">Draft v0.10</span>
 </nav>
 
 <div class="layout-doc">
@@ -685,13 +685,11 @@ footer.site-footer a { color: var(--cyan); }
 
   <div class="subhead">What the Codex setup writes</div>
   <ul class="bullets">
-    <li><code>asimov.md</code> at the repository root.</li>
-    <li>The <code>@asimov.md</code> import line in <code>CLAUDE.md</code>.</li>
-    <li>The same rendered body inside <code>AGENTS.md</code>, between <code>&lt;!-- asimov:start --&gt;</code> and <code>&lt;!-- asimov:end --&gt;</code>.</li>
+    <li>The <code>AGENTS.md</code> managed region, rendered directly from <code>asimov-md-template.md</code> and fenced by <code>&lt;!-- asimov:start — managed by codex-asimov-init. … --&gt;</code> and <code>&lt;!-- asimov:end --&gt;</code>.</li>
     <li>Byte-for-byte copies of the plugin's <code>agents/*.toml</code> into <code>.codex/agents/</code>.</li>
     <li><code>documentation/conventions/&lt;stack&gt;/README.md</code> for each detected stack.</li>
     <li>The <code>documentation/</code> landing site.</li>
-    <li>Read-only on every other file.</li>
+    <li>Read-only on every other file. <code>asimov.md</code> and the <code>@asimov.md</code> import in <code>CLAUDE.md</code> are written by <code>/asimov-init</code> in Claude Code only.</li>
   </ul>
 </section>
 
@@ -778,7 +776,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="ac-row"><div class="ac-id">AC4</div><div class="ac-verifies"><span class="verify-chip">R5</span><span class="verify-chip">Rule 4</span></div><div>The skill's text contains neither <code>${CLAUDE_PLUGIN_ROOT}</code> nor a <code>..</code> path segment, and its first plugin read is the template at the derived root.</div></div>
     <div class="ac-row"><div class="ac-id">AC5</div><div class="ac-verifies"><span class="verify-chip">R6</span></div><div>With the template absent at the derived root and absent from the cache, the skill stops, reports the derived path and the search it ran, and the repository is unchanged.</div></div>
     <div class="ac-row"><div class="ac-id">AC6</div><div class="ac-verifies"><span class="verify-chip">R7</span><span class="verify-chip">Rule 2</span></div><div>In Claude Code, the <code>/</code> menu does not list <code>codex-asimov-init</code>, a typed <code>/codex-asimov-init</code> does nothing, and the skill is absent from the model's skill list.</div></div>
-    <div class="ac-row"><div class="ac-id">AC7</div><div class="ac-verifies"><span class="verify-chip">R9</span></div><div>After a run, <code>AGENTS.md</code> holds exactly one marker pair whose content equals the body of <code>asimov.md</code>, and <code>CLAUDE.md</code> holds one <code>@asimov.md</code> line.</div></div>
+    <div class="ac-row"><div class="ac-id">AC7</div><div class="ac-verifies"><span class="verify-chip">R9</span></div><div>After a run, <code>AGENTS.md</code> holds exactly one marker pair whose content is the rendered <code>asimov-md-template.md</code>, and <code>asimov.md</code> and <code>CLAUDE.md</code> are unchanged.</div></div>
     <div class="ac-row"><div class="ac-id">AC8</div><div class="ac-verifies"><span class="verify-chip">R10</span></div><div>After a run with the write allowed, <code>.codex/agents/</code> holds a byte-identical copy of each <code>agents/*.toml</code> in the plugin.</div></div>
     <div class="ac-row"><div class="ac-id">AC9</div><div class="ac-verifies"><span class="verify-chip">R11</span></div><div><code>git diff main -- plugins/asimov-plugin/commands/</code> is empty.</div></div>
     <div class="ac-row"><div class="ac-id">AC10</div><div class="ac-verifies"><span class="verify-chip">NF1</span></div><div>A search of the plugin for a product repository's name and entities finds nothing.</div></div>
@@ -853,7 +851,7 @@ footer.site-footer a { color: var(--cyan); }
     · <span class="mono">features/D101-codex-support.html</span>
   </div>
   <div style="margin-top: 0.4rem">
-    D101 · Codex support · asimov-plugin · Draft v0.9 · 2026-10-01
+    D101 · Codex support · asimov-plugin · Draft v0.10 · 2026-10-01
   </div>
 </footer>
 

@@ -301,7 +301,7 @@ footer.site-footer a { color: var(--cyan); }
   <a href="../index.html#s6">Diagrams</a>
   <span class="spacer"></span>
   <span class="phase-chip full">Full design</span>
-  <span class="status-chip">Draft v0.3</span>
+  <span class="status-chip">Draft v0.4</span>
 </nav>
 
 <div class="layout-doc">
@@ -343,21 +343,21 @@ footer.site-footer a { color: var(--cyan); }
 <header class="hero">
   <div class="kicker">D101 · Feature design · Asimov plugin</div>
   <h1>/asimov-init</h1>
-  <p class="tagline">Bootstrap a product repo to use the Asimov toolkit — writes an Asimov-owned <code>asimov.md</code> context file and wires it into <code>CLAUDE.md</code> via an <code>@</code>-import, scaffolds the <code>documentation/conventions/&lt;stack&gt;/README.md</code> read-lists the build subagents depend on, and generates the <code>documentation/</code> landing site. Supersedes <code>/docs-init</code>. Ships once per tool: the <code>/asimov-init</code> slash command for Claude Code and the <code>codex-asimov-init</code> skill for Codex, which also writes an <code>AGENTS.md</code> region and copies the Codex subagent shells into <code>.codex/agents/</code>.</p>
+  <p class="tagline">Bootstrap a product repo to use the Asimov toolkit — scaffolds the <code>documentation/conventions/&lt;stack&gt;/README.md</code> read-lists the build subagents depend on, generates the <code>documentation/</code> landing site, and gives the coding agent its Asimov context: in Claude Code an Asimov-owned <code>asimov.md</code> wired into <code>CLAUDE.md</code> via an <code>@</code>-import, in Codex a managed region in <code>AGENTS.md</code> plus the Codex subagent shells copied into <code>.codex/agents/</code>. Supersedes <code>/docs-init</code>. Ships once per tool: the <code>/asimov-init</code> slash command for Claude Code and the <code>codex-asimov-init</code> skill for Codex.</p>
 </header>
 
 <div class="meta-strip">
   <div class="meta-cell"><div class="label">Owner</div><div class="value">Allan Borup</div></div>
   <div class="meta-cell"><div class="label">Approver</div><div class="value">Allan Borup</div></div>
-  <div class="meta-cell"><div class="label">Version</div><div class="value mono">0.3</div></div>
+  <div class="meta-cell"><div class="label">Version</div><div class="value mono">0.4</div></div>
   <div class="meta-cell"><div class="label">Model</div><div class="value mono">claude-opus-4-8 (Claude Code) · none (Codex)</div></div>
-  <div class="meta-cell"><div class="label">Outputs</div><div class="value mono">asimov.md · CLAUDE.md · conventions · index.html · Codex: AGENTS.md · .codex/agents/</div></div>
+  <div class="meta-cell"><div class="label">Outputs</div><div class="value mono">conventions · index.html · Claude Code: asimov.md · CLAUDE.md · Codex: AGENTS.md · .codex/agents/</div></div>
   <div class="meta-cell"><div class="label">Last updated</div><div class="value mono">2026-10-01</div></div>
   <div class="meta-cell"><div class="label">Archetype</div><div class="value">Greenfield (evolves /docs-init)</div></div>
 </div>
 
 <div class="doc-scope">
-  <strong>Scope:</strong> The Asimov setup entry point shipped by <code>asimov-plugin</code>, in two forms with one purpose: the <code>/asimov-init</code> slash command (Claude Code) and the <code>codex-asimov-init</code> skill (Codex). Run once in a product repo to make it Asimov-ready: both write <code>asimov.md</code>, ensure <code>CLAUDE.md</code> imports it, scaffold detected-stack convention read-lists under <code>documentation/conventions/</code>, and write <code>documentation/index.html</code> + <code>documentation/_chrome.css</code>. The Codex skill additionally writes an Asimov-managed region in <code>AGENTS.md</code> and copies the plugin's <code>agents/*.toml</code> shells into <code>.codex/agents/</code>. Both are read-only on every other file in the repo. Renames and absorbs the former <code>/docs-init</code>. §2–§5 are tool-neutral except where a target is marked Codex-only; §6.1 holds the per-tool split.
+  <strong>Scope:</strong> The Asimov setup entry point shipped by <code>asimov-plugin</code>, in two forms with one purpose: the <code>/asimov-init</code> slash command (Claude Code) and the <code>codex-asimov-init</code> skill (Codex). Run once in a product repo to make it Asimov-ready: both scaffold detected-stack convention read-lists under <code>documentation/conventions/</code> and write <code>documentation/index.html</code> + <code>documentation/_chrome.css</code>. The Claude Code command writes <code>asimov.md</code> and ensures <code>CLAUDE.md</code> imports it; the Codex skill instead writes an Asimov-managed region in <code>AGENTS.md</code> and copies the plugin's <code>agents/*.toml</code> shells into <code>.codex/agents/</code>. Neither writes the other's targets. Both are read-only on every other file in the repo. Renames and absorbs the former <code>/docs-init</code>. §2–§5 are tool-neutral except where a target is marked Claude Code-only or Codex-only; §6.1 holds the per-tool split.
 </div>
 
 
@@ -413,11 +413,11 @@ footer.site-footer a { color: var(--cyan); }
   </div>
 
   <div class="req-list" data-tab="func">
-    <div class="req"><div class="id">R1</div><div class="body">The command writes <code>asimov.md</code> at the repo root, populated from the plugin's <code>asimov-md-template.md</code> with the Asimov/L3 context: the <code>documentation/</code> taxonomy, where D101s live, the convention-overlay pointers, and the available Asimov commands and subagents.</div></div>
-    <div class="req"><div class="id">R2</div><div class="body">On re-run, the command regenerates <code>asimov.md</code> wholesale — it is an Asimov-owned file, not a developer-edited one.</div></div>
-    <div class="req"><div class="id">R3</div><div class="body">When a <code>CLAUDE.md</code> exists at the repo root, the command ensures it contains a single <code>@asimov.md</code> import line, appending it (in a clearly labelled position) only if absent.</div></div>
-    <div class="req"><div class="id">R4</div><div class="body">When no <code>CLAUDE.md</code> exists, the command creates a minimal one whose body is the <code>@asimov.md</code> import plus a one-line pointer to run Claude's own <code>/init</code> for full repo context.</div></div>
-    <div class="req"><div class="id">R5</div><div class="body">The command never modifies any line of an existing <code>CLAUDE.md</code> other than adding the import line; it does not rewrite, reorder, or summarise the developer's existing content.</div></div>
+    <div class="req"><div class="id">R1</div><div class="body"><em>Claude Code command only.</em> The command writes <code>asimov.md</code> at the repo root, populated from the plugin's <code>asimov-md-template.md</code> with the Asimov/L3 context: the <code>documentation/</code> taxonomy, where D101s live, the convention-overlay pointers, and the available Asimov commands and subagents.</div></div>
+    <div class="req"><div class="id">R2</div><div class="body"><em>Claude Code command only.</em> On re-run, the command regenerates <code>asimov.md</code> wholesale — it is an Asimov-owned file, not a developer-edited one.</div></div>
+    <div class="req"><div class="id">R3</div><div class="body"><em>Claude Code command only.</em> When a <code>CLAUDE.md</code> exists at the repo root, the command ensures it contains a single <code>@asimov.md</code> import line, appending it (in a clearly labelled position) only if absent.</div></div>
+    <div class="req"><div class="id">R4</div><div class="body"><em>Claude Code command only.</em> When no <code>CLAUDE.md</code> exists, the command creates a minimal one whose body is the <code>@asimov.md</code> import plus a one-line pointer to run Claude's own <code>/init</code> for full repo context.</div></div>
+    <div class="req"><div class="id">R5</div><div class="body"><em>Claude Code command only.</em> The command never modifies any line of an existing <code>CLAUDE.md</code> other than adding the import line; it does not rewrite, reorder, or summarise the developer's existing content.</div></div>
     <div class="req"><div class="id">R6</div><div class="body">The command detects which stacks the repo uses by scanning for stack markers (the §6.4 detection table) and reports the detected set.</div></div>
     <div class="req"><div class="id">R7</div><div class="body">For each detected stack, the command scaffolds <code>documentation/conventions/&lt;stack&gt;/README.md</code> from the plugin's <code>conventions-readme-template.md</code> when that file is absent.</div></div>
     <div class="req"><div class="id">R8</div><div class="body">When a stack's <code>README.md</code> already exists, the command offers to merge/update the Asimov-managed region of it rather than skipping silently or overwriting it wholesale.</div></div>
@@ -427,21 +427,21 @@ footer.site-footer a { color: var(--cyan); }
     <div class="req"><div class="id">R12</div><div class="body">The command emits exactly one index doc card per unique doc (base name without extension), drops buckets with zero docs, and excludes the defined non-document files (§6.4).</div></div>
     <div class="req"><div class="id">R13</div><div class="body">The command reads every template it uses (<code>asimov-md-template.md</code>, <code>conventions-readme-template.md</code>, <code>site-template.html</code>, <code>_chrome.css</code>) from the plugin root at run-time, before writing — and, since <a href="D101-artifact-maturity.html" style="color:var(--cyan)">D101 — artifact maturity</a>, the three artifact definitions beside them (<code>asimov-md-definition.md</code>, <code>conventions-definition.md</code>, <code>site-definition.md</code>) for their maturity level. From each definition's YAML block it prints one chat line per level present, before its first question (Step 1b); nothing is printed for <code>adopt</code>, and no level is ever written into a generated file.</div></div>
     <div class="req"><div class="id">R14</div><div class="body">The command derives the repo name from its input (<code>$ARGUMENTS</code> in Claude Code; the text after the invocation in Codex) when non-empty, otherwise from the <code>git remote origin</code> URL, otherwise from the working-directory folder name.</div></div>
-    <div class="req"><div class="id">R15</div><div class="body">The command presents a single consolidated write plan listing every target (<code>asimov.md</code>, the <code>CLAUDE.md</code> edit, each convention README, <code>index.html</code>, <code>_chrome.css</code> — and, in Codex, the <code>AGENTS.md</code> region and each <code>.codex/agents/</code> shell) with its action drawn from one canonical set — <strong>NEW · OVERWRITE · APPEND · MERGE · SKIP · ASK</strong> — and waits for explicit confirmation before writing anything.</div></div>
+    <div class="req"><div class="id">R15</div><div class="body">The command presents a single consolidated write plan listing every target (each convention README, <code>index.html</code>, <code>_chrome.css</code> — plus, in Claude Code, <code>asimov.md</code> and the <code>CLAUDE.md</code> edit; in Codex, the <code>AGENTS.md</code> region and each <code>.codex/agents/</code> shell) with its action drawn from one canonical set — <strong>NEW · OVERWRITE · APPEND · MERGE · SKIP · ASK</strong> — and waits for explicit confirmation before writing anything.</div></div>
     <div class="req"><div class="id">R16</div><div class="body">After writing, the command reports each target written/skipped with the reason, the set of stacks detected, a one-line site stat (<code>&lt;N&gt; docs across &lt;K&gt; sections; &lt;H&gt;/&lt;T&gt; hand-crafted HTML</code>), and any files under <code>documentation/</code> that fit no bucket with a suggested target.</div></div>
     <div class="req"><div class="id">R17</div><div class="body">When the architecture doc describes a named pipeline or dataflow (per the §6.4 detection rule), the command MAY add a flow band to the index between hero and catalogue, with each node typed by a <em>repo-defined</em> kind and a legend mapping colour → kind.</div></div>
     <div class="req"><div class="id">R18</div><div class="body">When the repo ships 3+ sibling docs of one category (per the §6.4 detection rule), the command MAY add an entity gallery to the index, one tile per sibling linking to that sibling's doc.</div></div>
     <div class="req"><div class="id">R19</div><div class="body">When no pipeline and no sibling cast is detected, the command emits no showcase block and never invents one; an omitted flow band is recorded in the report as a suggested manual enhancement (§4.4, §6.4).</div></div>
     <div class="req"><div class="id">R20</div><div class="body">When the repo has an orientation source — the <code>README.md</code> intro, else a charter/overview doc under <code>documentation/</code>, else the D100 Purpose section — the command MAY add 2–3 short overview paragraphs to the index between hero and catalogue, naming the source used in the write plan and report; with no source it emits none.</div></div>
-    <div class="req"><div class="id">R21</div><div class="body"><em>Codex skill only.</em> The skill writes the rendered <code>asimov.md</code> body into <code>AGENTS.md</code> at the repo root, inside a managed region between <code>&lt;!-- asimov:start --&gt;</code> and <code>&lt;!-- asimov:end --&gt;</code> markers — creating the file with only the region when absent, appending the region at the end when the file exists without markers.</div></div>
+    <div class="req"><div class="id">R21</div><div class="body"><em>Codex skill only.</em> The skill renders <code>asimov-md-template.md</code> (the same substitutions as <code>asimov.md</code>, leading comment stripped) directly into a managed region of <code>AGENTS.md</code> at the repo root, between <code>&lt;!-- asimov:start --&gt;</code> and <code>&lt;!-- asimov:end --&gt;</code> markers — creating the file with only the region when absent, appending the region at the end when the file exists without markers. The region is rendered from the template, never copied from an <code>asimov.md</code>.</div></div>
     <div class="req"><div class="id">R22</div><div class="body"><em>Codex skill only.</em> On re-run against an <code>AGENTS.md</code> with exactly one intact marker pair, the skill replaces only the text between the markers; every line outside the markers is left unchanged.</div></div>
     <div class="req"><div class="id">R23</div><div class="body"><em>Codex skill only.</em> When the <code>AGENTS.md</code> markers are broken or duplicated (a start without an end, an end without a start, more than one pair), the skill writes nothing to that file, labels the target ASK, and asks the developer to repair or delete the region by hand.</div></div>
     <div class="req"><div class="id">R24</div><div class="body"><em>Codex skill only.</em> The skill copies each <code>agents/*.toml</code> shell in the plugin byte for byte into the product repo's <code>.codex/agents/</code> — NEW when absent, OVERWRITE when present — using a file copy, never a read-and-rewrite; when the plugin's <code>agents/</code> holds no <code>.toml</code>, the target is skipped and the plan says so.</div></div>
   </div>
 
   <div class="req-list" data-tab="nf" style="display:none">
-    <div class="req"><div class="id">NF1</div><div class="body">The command is read-only on every file in the repo except its declared write targets; it never calls Write on a source doc, and its only edits to an existing file are the additive <code>CLAUDE.md</code> import line, the managed region of an existing convention README and — Codex skill only — the <code>AGENTS.md</code> managed region and the Asimov-owned <code>.codex/agents/*.toml</code> copies. The Claude Code command writes neither <code>AGENTS.md</code> nor <code>.codex/agents/</code>.</div></div>
-    <div class="req"><div class="id">NF2</div><div class="body">The <code>CLAUDE.md</code> edit is idempotent: re-running the command when the <code>@asimov.md</code> import is already present adds nothing and reports SKIP.</div></div>
+    <div class="req"><div class="id">NF1</div><div class="body">The command is read-only on every file in the repo except its declared write targets; it never calls Write on a source doc, and its only edits to an existing file are the managed region of an existing convention README, the additive <code>CLAUDE.md</code> import line (Claude Code command only), and the <code>AGENTS.md</code> managed region plus the Asimov-owned <code>.codex/agents/*.toml</code> copies (Codex skill only). The Claude Code command writes neither <code>AGENTS.md</code> nor <code>.codex/agents/</code>; the Codex skill writes neither <code>asimov.md</code> nor the <code>CLAUDE.md</code> import.</div></div>
+    <div class="req"><div class="id">NF2</div><div class="body"><em>Claude Code command only.</em> The <code>CLAUDE.md</code> edit is idempotent: re-running the command when the <code>@asimov.md</code> import is already present adds nothing and reports SKIP.</div></div>
     <div class="req"><div class="id">NF3</div><div class="body">The generated <code>index.html</code> is pure static HTML + CSS — no JavaScript, no client-side behaviour — and links to <code>_chrome.css</code> rather than inlining it.</div></div>
     <div class="req"><div class="id">NF4</div><div class="body">All templates are re-read at the start of every invocation; the file in the plugin is the run-time source of truth.</div></div>
     <div class="req"><div class="id">NF5</div><div class="body">The command's first output is a one-sentence narration of what it will do, emitted before any tool call.</div></div>
@@ -466,7 +466,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="ch-num">4</div>
     <div>
       <div class="ch-name">Business design</div>
-      <div class="ch-summary">The principles the command holds to, its vocabulary, the targets it writes — four shared by both tools, two written by the Codex skill only — the conditional generation rules with counter-examples, and the decisions taken with their rejected alternatives.</div>
+      <div class="ch-summary">The principles the command holds to, its vocabulary, the targets it writes — two shared by both tools, two written by the Claude Code command only, two by the Codex skill only — the conditional generation rules with counter-examples, and the decisions taken with their rejected alternatives.</div>
     </div>
   </div>
 </div>
@@ -509,7 +509,7 @@ footer.site-footer a { color: var(--cyan); }
   <div class="concept-row">
     <div class="concept reading">
       <div class="c-head"><div class="c-name">asimov.md</div></div>
-      <p>The Asimov-owned context file written at the repo root. Holds the L3 taxonomy, doc locations, convention-overlay pointers, and the command/subagent inventory. Regenerated wholesale on every run.</p>
+      <p>The Asimov-owned context file the Claude Code command writes at the repo root. Holds the L3 taxonomy, doc locations, convention-overlay pointers, and the command/subagent inventory. Regenerated wholesale on every run.</p>
     </div>
     <div class="concept history">
       <div class="c-head"><div class="c-name">@-import</div></div>
@@ -525,7 +525,7 @@ footer.site-footer a { color: var(--cyan); }
     </div>
     <div class="concept history">
       <div class="c-head"><div class="c-name">Managed region</div></div>
-      <p>A marker-delimited block (<code>&lt;!-- asimov:start --&gt; … &lt;!-- asimov:end --&gt;</code>) the command refreshes inside a file it doesn't own, so a re-run updates exactly that block (NF7): an existing convention README (both tools) and <code>AGENTS.md</code>, where the Codex skill carries the rendered <code>asimov.md</code> body because Codex reads <code>AGENTS.md</code>, not <code>CLAUDE.md</code> (R21). The <code>CLAUDE.md</code> import needs none — it is a single bare line, detected by reference.</p>
+      <p>A marker-delimited block (<code>&lt;!-- asimov:start --&gt; … &lt;!-- asimov:end --&gt;</code>) the command refreshes inside a file it doesn't own, so a re-run updates exactly that block (NF7): an existing convention README (both tools) and <code>AGENTS.md</code>, where the Codex skill carries the Asimov context rendered from the same template as <code>asimov.md</code>, because Codex reads <code>AGENTS.md</code>, not <code>CLAUDE.md</code> (R21). The <code>CLAUDE.md</code> import needs none — it is a single bare line, detected by reference.</p>
     </div>
     <div class="concept reading">
       <div class="c-head"><div class="c-name">Codex subagent shells</div></div>
@@ -541,14 +541,14 @@ footer.site-footer a { color: var(--cyan); }
 <!-- §4.3 The write targets -->
 <section class="s" id="s4-3">
   <h2 class="section-title"><span class="sec-ref">§4.3</span>The write targets</h2>
-  <p class="section-desc">The map below is the repo shape after a run, colour-coded by what the command does to each target. Four targets are <strong>shared</strong> — both tools write them. Two more are <strong>Codex-only</strong>, written by the Codex skill and never by the Claude Code command. The cards beneath detail each one and its "what if it already exists" rule, which is the heart of the design.</p>
+  <p class="section-desc">The map below is the repo shape after a run, colour-coded by what the command does to each target. Two targets are <strong>shared</strong> — both tools write them. Two are <strong>Claude Code-only</strong>, written by the <code>/asimov-init</code> command; two are <strong>Codex-only</strong>, written by the <code>codex-asimov-init</code> skill. Neither tool writes the other's. The cards beneath detail each one and its "what if it already exists" rule, which is the heart of the design.</p>
 
   <div class="flow-wrap" style="margin-bottom:1.6rem">
     <div class="tree">
       <div class="row"><span class="ln"></span><span class="dir">&lt;repo root&gt;/</span></div>
-      <div class="row"><span class="ln">├─ </span><span class="path">CLAUDE.md</span><span class="tag edit">APPEND</span><span class="cond"># one @asimov.md line · NEW if absent · SKIP if already imported</span></div>
-      <div class="row"><span class="ln">├─ </span><span class="path">asimov.md</span><span class="tag new">NEW</span><span class="cond"># Asimov-owned · OVERWRITE on re-run · ↑ imported by CLAUDE.md</span></div>
-      <div class="row"><span class="ln">├─ </span><span class="path">AGENTS.md</span><span class="tag edit">APPEND</span><span class="cond"># Codex only · managed region holding the asimov.md body · NEW if absent · OVERWRITE region if present · ASK if markers broken</span></div>
+      <div class="row"><span class="ln">├─ </span><span class="path">CLAUDE.md</span><span class="tag edit">APPEND</span><span class="cond"># Claude Code only · one @asimov.md line · NEW if absent · SKIP if already imported</span></div>
+      <div class="row"><span class="ln">├─ </span><span class="path">asimov.md</span><span class="tag new">NEW</span><span class="cond"># Claude Code only · Asimov-owned · OVERWRITE on re-run · ↑ imported by CLAUDE.md</span></div>
+      <div class="row"><span class="ln">├─ </span><span class="path">AGENTS.md</span><span class="tag edit">APPEND</span><span class="cond"># Codex only · managed region rendered from the context template · NEW if absent · OVERWRITE region if present · ASK if markers broken</span></div>
       <div class="row"><span class="ln">├─ </span><span class="dir">.codex/agents/</span></div>
       <div class="row"><span class="ln">│  └─ </span><span class="path">&lt;subagent&gt;.toml</span><span class="tag copy">COPY</span><span class="cond"># Codex only · one per plugin agents/*.toml · NEW if absent · OVERWRITE if present</span></div>
       <div class="row"><span class="ln">└─ </span><span class="dir">documentation/</span></div>
@@ -571,31 +571,7 @@ footer.site-footer a { color: var(--cyan); }
   <div class="subhead">Shared targets — written by both tools</div>
   <div class="fields-grid">
     <div class="field-card">
-      <div class="f-thumb t1"><span class="badge-tl">§4.3.1</span>asimov.md</div>
-      <div class="f-body">
-        <div class="f-name">asimov.md (repo root)</div>
-        <div class="f-question">"What standing context does Claude need about this repo's L3 setup?"</div>
-        <div class="f-rule">Asimov-owned. Written from the plugin template, filled with repo name and detected stacks. Regenerated wholesale on re-run (R1, R2).</div>
-        <ul class="bullets">
-          <li>Holds taxonomy, doc locations, convention pointers, command/subagent inventory</li>
-          <li class="warn">Not for developer edits — they belong in <code>CLAUDE.md</code>, which survives re-runs</li>
-        </ul>
-      </div>
-    </div>
-    <div class="field-card">
-      <div class="f-thumb t2"><span class="badge-tl">§4.3.2</span>CLAUDE</div>
-      <div class="f-body">
-        <div class="f-name">CLAUDE.md import</div>
-        <div class="f-question">"How does asimov.md actually reach Claude?"</div>
-        <div class="f-rule">Ensure a single <code>@asimov.md</code> line exists. Append it if missing; create a minimal CLAUDE.md if none exists; never touch other content (R3–R5).</div>
-        <ul class="bullets">
-          <li>Idempotent: re-run with the import present adds nothing (NF2)</li>
-          <li class="warn">Does not author the rest of CLAUDE.md — that's Claude's <code>/init</code> (OOS1)</li>
-        </ul>
-      </div>
-    </div>
-    <div class="field-card">
-      <div class="f-thumb t3"><span class="badge-tl">§4.3.3</span>CONV</div>
+      <div class="f-thumb t1"><span class="badge-tl">§4.3.1</span>CONV</div>
       <div class="f-body">
         <div class="f-name">Convention read-lists</div>
         <div class="f-question">"What do the build subagents load as their local overlay?"</div>
@@ -607,7 +583,7 @@ footer.site-footer a { color: var(--cyan); }
       </div>
     </div>
     <div class="field-card">
-      <div class="f-thumb t4"><span class="badge-tl">§4.3.4</span>SITE</div>
+      <div class="f-thumb t2"><span class="badge-tl">§4.3.2</span>SITE</div>
       <div class="f-body">
         <div class="f-name">Documentation site</div>
         <div class="f-question">"Where do the repo's docs live as a browsable landing page?"</div>
@@ -621,15 +597,44 @@ footer.site-footer a { color: var(--cyan); }
     </div>
   </div>
 
-  <div class="subhead">Codex-only targets — written by the Codex skill, never by the Claude Code command</div>
+  <div class="subhead">Claude Code-only targets — written by the <code>/asimov-init</code> command, never by the Codex skill</div>
+  <div class="fields-grid">
+    <div class="field-card">
+      <div class="f-thumb t3"><span class="badge-tl">§4.3.3</span>asimov.md</div>
+      <div class="f-body">
+        <div class="f-name">asimov.md (repo root)</div>
+        <div class="f-question">"What standing context does Claude need about this repo's L3 setup?"</div>
+        <div class="f-rule">Asimov-owned. Written from the plugin template, filled with repo name and detected stacks. Regenerated wholesale on re-run (R1, R2).</div>
+        <ul class="bullets">
+          <li>Holds taxonomy, doc locations, convention pointers, command/subagent inventory</li>
+          <li class="warn">Not for developer edits — they belong in <code>CLAUDE.md</code>, which survives re-runs</li>
+        </ul>
+      </div>
+    </div>
+    <div class="field-card">
+      <div class="f-thumb t4"><span class="badge-tl">§4.3.4</span>CLAUDE</div>
+      <div class="f-body">
+        <div class="f-name">CLAUDE.md import</div>
+        <div class="f-question">"How does asimov.md actually reach Claude?"</div>
+        <div class="f-rule">Ensure a single <code>@asimov.md</code> line exists. Append it if missing; create a minimal CLAUDE.md if none exists; never touch other content (R3–R5).</div>
+        <ul class="bullets">
+          <li>Idempotent: re-run with the import present adds nothing (NF2)</li>
+          <li class="warn">Does not author the rest of CLAUDE.md — that's Claude's <code>/init</code> (OOS1)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="subhead">Codex-only targets — written by the <code>codex-asimov-init</code> skill, never by the Claude Code command</div>
   <div class="fields-grid">
     <div class="field-card">
       <div class="f-thumb t2"><span class="badge-tl">§4.3.5</span>AGENTS</div>
       <div class="f-body">
         <div class="f-name">AGENTS.md managed region</div>
         <div class="f-question">"How does the same context reach Codex, which reads AGENTS.md and expands no @-imports?"</div>
-        <div class="f-rule">Carry the rendered <code>asimov.md</code> body inline between <code>&lt;!-- asimov:start --&gt;</code> and <code>&lt;!-- asimov:end --&gt;</code>. Absent file → create it with only the region. Present without markers → append the region at the end. Present with one intact pair → replace only the text between the markers (R21–R22).</div>
+        <div class="f-rule">Carry the Asimov context, rendered straight from <code>asimov-md-template.md</code>, inline between <code>&lt;!-- asimov:start --&gt;</code> and <code>&lt;!-- asimov:end --&gt;</code>. Absent file → create it with only the region. Present without markers → append the region at the end. Present with one intact pair → replace only the text between the markers (R21–R22).</div>
         <ul class="bullets">
+          <li>Codex's counterpart of <code>asimov.md</code> + the import — the skill writes neither of those (NF1)</li>
           <li>Everything outside the markers is the developer's and is never touched</li>
           <li class="warn">Markers broken or duplicated → nothing written to the file; the plan shows ASK and the developer repairs it by hand (R23)</li>
         </ul>
@@ -656,7 +661,7 @@ footer.site-footer a { color: var(--cyan); }
   <p class="section-desc">The conditional rules that govern what the command writes. Each carries a positive example and a counter-example — the adjacent case where the rule does <em>not</em> fire.</p>
   <div class="history-grid">
     <div class="hist-card">
-      <div class="h-label">asimov.md regeneration</div>
+      <div class="h-label">asimov.md regeneration (Claude Code only)</div>
       <div class="h-value">Overwrite</div>
       <div class="h-desc">As an Asimov-owned file, <code>asimov.md</code> is regenerated wholesale every run — there is no merge step to preserve.</div>
       <ul class="bullets">
@@ -665,7 +670,7 @@ footer.site-footer a { color: var(--cyan); }
       </ul>
     </div>
     <div class="hist-card flag">
-      <div class="h-label">CLAUDE.md import</div>
+      <div class="h-label">CLAUDE.md import (Claude Code only)</div>
       <div class="h-value">Append-once</div>
       <div class="h-desc">Add the <code>@asimov.md</code> line only when absent; otherwise leave the file exactly as-is.</div>
       <ul class="bullets">
@@ -785,9 +790,9 @@ footer.site-footer a { color: var(--cyan); }
       <div class="why">Authoring repo-orienting <code>asimov.md</code> prose, judging stack detection from ambiguous markers, and safely merging into existing files demand more judgment than mechanical docs-indexing. The run is infrequent (once per repo) so cost is secondary. A Codex skill declares no model, so the choice applies to the Claude Code command only.</div>
     </div>
     <div class="decision-row">
-      <div class="decided">For Codex, carry the rendered <code>asimov.md</code> body inline in an <code>AGENTS.md</code> managed region</div>
-      <div class="alt">A single <code>@asimov.md</code> line in <code>AGENTS.md</code>, mirroring the <code>CLAUDE.md</code> wiring</div>
-      <div class="why">Codex reads <code>AGENTS.md</code>, not <code>CLAUDE.md</code>, and does not expand <code>@</code> imports — the line would be dead text. The managed region gives Codex the same context Claude Code gets through the import, and the markers keep the refresh bounded to the part Asimov owns.</div>
+      <div class="decided">For Codex, render the context template straight into an <code>AGENTS.md</code> managed region; the skill writes neither <code>asimov.md</code> nor <code>CLAUDE.md</code></div>
+      <div class="alt">Write <code>asimov.md</code> and the <code>CLAUDE.md</code> import in Codex too and copy the <code>asimov.md</code> body into <code>AGENTS.md</code>; or a single <code>@asimov.md</code> line in <code>AGENTS.md</code>, mirroring the <code>CLAUDE.md</code> wiring</div>
+      <div class="why">Codex reads <code>AGENTS.md</code>, not <code>CLAUDE.md</code>, and does not expand <code>@</code> imports — the line would be dead text, and an <code>asimov.md</code> nothing in Codex reads would be a dead file. The managed region gives Codex the same context Claude Code gets through the import, and the markers keep the refresh bounded to the part Asimov owns.</div>
     </div>
   </div>
 </section>
@@ -814,7 +819,7 @@ footer.site-footer a { color: var(--cyan); }
 <section class="s" id="s6-1">
   <h2 class="section-title"><span class="sec-ref">§6.1</span>Platform</h2>
   <p style="color: var(--text-dim); font-size: 0.95rem; line-height: 1.65;">
-    The setup entry point ships once per tool, both inside <code>asimov-plugin</code>. Both read the same seven plugin files — four templates and three definitions under <code>artifacts/root/asimov-md/</code> and <code>artifacts/documentation/{conventions,site}/</code> (the per-artifact folders that replaced the retired <code>templates/</code> folder on 2026-09-10) — and write into the active product repo's working tree. Both are granted <code>Read, Write, Glob, Grep, Bash</code>. No services, schema, or infrastructure are involved. The two differ in where they live, how they are invoked, how they find the plugin, and the two Codex-only targets (§4.3.5–§4.3.6).
+    The setup entry point ships once per tool, both inside <code>asimov-plugin</code>. Both read the same seven plugin files — four templates and three definitions under <code>artifacts/root/asimov-md/</code> and <code>artifacts/documentation/{conventions,site}/</code> (the per-artifact folders that replaced the retired <code>templates/</code> folder on 2026-09-10) — and write into the active product repo's working tree. Both are granted <code>Read, Write, Glob, Grep, Bash</code>. No services, schema, or infrastructure are involved. The two differ in where they live, how they are invoked, how they find the plugin, and the context carrier each writes — <code>asimov.md</code> + the <code>CLAUDE.md</code> import in Claude Code (§4.3.3–§4.3.4), the <code>AGENTS.md</code> region + the <code>.codex/agents/</code> shells in Codex (§4.3.5–§4.3.6).
   </p>
 
   <div class="subhead">Per-tool split</div>
@@ -825,14 +830,14 @@ footer.site-footer a { color: var(--cyan); }
     <div class="row cols-3"><div class="label-cell">Invocation</div><div><code>/asimov-init</code>, optional repo-name argument</div><div><code>$asimov-plugin:codex-asimov-init</code>, optional repo-name text after it</div></div>
     <div class="row cols-3"><div class="label-cell">Model</div><div><code>claude-opus-4-8</code> in frontmatter (NF6)</div><div>None declared; Codex decides</div></div>
     <div class="row cols-3"><div class="label-cell">Finds the plugin</div><div><code>${CLAUDE_PLUGIN_ROOT}</code>, which Claude Code substitutes with the real path before the prompt runs</div><div>Derives <code>&lt;plugin-root&gt;</code> from its own file path — two levels above the skill folder — and verifies it by reading the first template; on a miss, a Glob search under <code>&lt;home&gt;/.codex/plugins/cache/</code> for that template, then stop and report</div></div>
-    <div class="row cols-3"><div class="label-cell">Targets</div><div>The four shared targets</div><div>The four shared targets + the <code>AGENTS.md</code> region + the <code>.codex/agents/*.toml</code> copies</div></div>
+    <div class="row cols-3"><div class="label-cell">Targets</div><div>The two shared targets (convention read-lists, site) + <code>asimov.md</code> + the <code>CLAUDE.md</code> import; neither <code>AGENTS.md</code> nor <code>.codex/agents/</code></div><div>The two shared targets + the <code>AGENTS.md</code> region + the <code>.codex/agents/*.toml</code> copies; neither <code>asimov.md</code> nor <code>CLAUDE.md</code></div></div>
     <div class="row cols-3"><div class="label-cell">Hidden from the other tool</div><div>n/a — commands are Claude Code only</div><div><code>disable-model-invocation: true</code> + <code>user-invocable: false</code> keep it out of Claude Code; <code>allow_implicit_invocation: false</code> in <code>openai.yaml</code> is Codex's own switch (NF8)</div></div>
   </div>
   <div class="callout">
     <strong>Why Codex resolves its own root.</strong> Codex substitutes no plugin-root variable in skill text and resolves relative paths from the working directory — which is the product repo, not the plugin — so the skill builds every plugin path absolute from the derived <code>&lt;plugin-root&gt;</code>, once per run. The detailed reasoning and sources are in <a href="D101-codex-support.html" style="color:var(--cyan)">D101 — Codex support</a>.
   </div>
   <div class="callout">
-    <strong>No escalation gate, but a broad target set.</strong> The command touches more files than <code>/docs-init</code> (up to <code>asimov.md</code>, <code>CLAUDE.md</code>, N convention READMEs, the two site files and — in Codex — <code>AGENTS.md</code> and the shell copies), so the single consolidated confirmation (R15) is the gate — every action is listed with its canonical label (NEW · OVERWRITE · APPEND · MERGE · SKIP · ASK) before anything is written.
+    <strong>No escalation gate, but a broad target set.</strong> The command touches more files than <code>/docs-init</code> (N convention READMEs, the two site files, and either <code>asimov.md</code> + <code>CLAUDE.md</code> in Claude Code or <code>AGENTS.md</code> + the shell copies in Codex), so the single consolidated confirmation (R15) is the gate — every action is listed with its canonical label (NEW · OVERWRITE · APPEND · MERGE · SKIP · ASK) before anything is written.
   </div>
 </section>
 
@@ -896,7 +901,7 @@ footer.site-footer a { color: var(--cyan); }
       <g>
         <rect x="260" y="250" width="200" height="58" rx="8" fill="#1b2e4d" stroke="#ef5350"/>
         <text x="360" y="274" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="12" font-weight="700">8. Write targets</text>
-        <text x="360" y="292" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="11">shared targets · + Codex-only</text>
+        <text x="360" y="292" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="11">shared + per-tool targets</text>
       </g>
       <g>
         <rect x="500" y="250" width="200" height="58" rx="8" fill="#1b2e4d" stroke="#4fc3f7"/>
@@ -935,7 +940,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="principle"><div class="num">5</div><div class="text"><strong>Scan docs.</strong> Glob <code>documentation/</code> into the six buckets, applying exclusions and de-duplication (R10, R12).</div></div>
     <div class="principle"><div class="num">6</div><div class="text"><strong>Build plan.</strong> Resolve each target's action (NEW · OVERWRITE · APPEND · MERGE · SKIP · ASK), inspecting existing files (R15).</div></div>
     <div class="principle"><div class="num">7</div><div class="text"><strong>Confirm.</strong> Show the consolidated write plan; wait for explicit confirmation (R15).</div></div>
-    <div class="principle"><div class="num">8</div><div class="text"><strong>Write targets.</strong> Write <code>asimov.md</code>, the <code>CLAUDE.md</code> import, each convention README, and the two site files, applying each special-case (R1–R12); in Codex, also the <code>AGENTS.md</code> region and the <code>.codex/agents/</code> copies (R21–R24).</div></div>
+    <div class="principle"><div class="num">8</div><div class="text"><strong>Write targets.</strong> Write each convention README and the two site files, applying each special-case (R6–R12); in Claude Code, also <code>asimov.md</code> and the <code>CLAUDE.md</code> import (R1–R5); in Codex, instead the <code>AGENTS.md</code> region and the <code>.codex/agents/</code> copies (R21–R24).</div></div>
     <div class="principle"><div class="num">9</div><div class="text"><strong>Report.</strong> List each target written/skipped, the detected stacks, and any uncategorised docs with a suggested bucket (R16).</div></div>
   </div>
 </section>
@@ -944,19 +949,19 @@ footer.site-footer a { color: var(--cyan); }
 <section class="s" id="s6-3">
   <h2 class="section-title"><span class="sec-ref">§6.3</span>Code map</h2>
   <div class="codemap">
-    <div class="codemap-row"><div class="what">Claude Code command prompt (behaviour, all rules; shared targets)</div><div class="where">plugins/asimov-plugin/commands/asimov-init.md</div></div>
-    <div class="codemap-row"><div class="what">Codex skill (same behaviour + plugin-root resolution + the Codex-only targets)</div><div class="where">plugins/asimov-plugin/skills/codex-asimov-init/SKILL.md</div></div>
+    <div class="codemap-row"><div class="what">Claude Code command prompt (behaviour, all rules; shared + Claude Code-only targets)</div><div class="where">plugins/asimov-plugin/commands/asimov-init.md</div></div>
+    <div class="codemap-row"><div class="what">Codex skill (same behaviour + plugin-root resolution; shared + Codex-only targets)</div><div class="where">plugins/asimov-plugin/skills/codex-asimov-init/SKILL.md</div></div>
     <div class="codemap-row"><div class="what">Codex skill metadata (display name; implicit invocation off)</div><div class="where">plugins/asimov-plugin/skills/codex-asimov-init/agents/openai.yaml</div></div>
     <div class="codemap-row"><div class="what">Codex subagent shells (copied verbatim by the Codex skill)</div><div class="where">plugins/asimov-plugin/agents/*.toml</div></div>
-    <div class="codemap-row"><div class="what">asimov.md content contract (read at run-time)</div><div class="where">plugins/asimov-plugin/artifacts/root/asimov-md/asimov-md-template.md</div></div>
+    <div class="codemap-row"><div class="what">Asimov context template — body of asimov.md and of the AGENTS.md region (read at run-time)</div><div class="where">plugins/asimov-plugin/artifacts/root/asimov-md/asimov-md-template.md</div></div>
     <div class="codemap-row"><div class="what">Convention read-list skeleton (read at run-time)</div><div class="where">plugins/asimov-plugin/artifacts/documentation/conventions/conventions-readme-template.md</div></div>
     <div class="codemap-row"><div class="what">Index visual contract (read at run-time)</div><div class="where">plugins/asimov-plugin/artifacts/documentation/site/site-template.html</div></div>
     <div class="codemap-row"><div class="what">Shared chrome stylesheet (copied verbatim)</div><div class="where">plugins/asimov-plugin/artifacts/documentation/site/_chrome.css</div></div>
     <div class="codemap-row"><div class="what">asimov.md definition — standard + maturity level (read at run-time)</div><div class="where">plugins/asimov-plugin/artifacts/root/asimov-md/asimov-md-definition.md</div></div>
     <div class="codemap-row"><div class="what">Convention read-list definition — standard + maturity level (read at run-time)</div><div class="where">plugins/asimov-plugin/artifacts/documentation/conventions/conventions-definition.md</div></div>
     <div class="codemap-row"><div class="what">Site definition — standard + maturity level (read at run-time)</div><div class="where">plugins/asimov-plugin/artifacts/documentation/site/site-definition.md</div></div>
-    <div class="codemap-row"><div class="what">Output — Asimov context (consumer repo)</div><div class="where">asimov.md</div></div>
-    <div class="codemap-row"><div class="what">Output — import wiring (consumer repo)</div><div class="where">CLAUDE.md</div></div>
+    <div class="codemap-row"><div class="what">Output — Asimov context (consumer repo, Claude Code command only)</div><div class="where">asimov.md</div></div>
+    <div class="codemap-row"><div class="what">Output — import wiring (consumer repo, Claude Code command only)</div><div class="where">CLAUDE.md</div></div>
     <div class="codemap-row"><div class="what">Output — convention read-lists (consumer repo)</div><div class="where">documentation/conventions/&lt;stack&gt;/README.md</div></div>
     <div class="codemap-row"><div class="what">Output — landing page + chrome (consumer repo)</div><div class="where">documentation/index.html · documentation/_chrome.css</div></div>
     <div class="codemap-row"><div class="what">Output — Codex context region (consumer repo, Codex skill only)</div><div class="where">AGENTS.md</div></div>
@@ -968,7 +973,7 @@ footer.site-footer a { color: var(--cyan); }
 <!-- §6.4 Detection & content -->
 <section class="s" id="s6-4">
   <h2 class="section-title"><span class="sec-ref">§6.4</span>Detection &amp; content</h2>
-  <p class="section-desc">The stack-detection lookup the scan in §6.2 step 4 applies, the outline of what <code>asimov.md</code> contains, the inherited six-bucket index taxonomy, and the rule that decides the optional intro-zone showcase.</p>
+  <p class="section-desc">The stack-detection lookup the scan in §6.2 step 4 applies, the outline of the Asimov context (the <code>asimov.md</code> body in Claude Code, the <code>AGENTS.md</code> region body in Codex), the inherited six-bucket index taxonomy, and the rule that decides the optional intro-zone showcase.</p>
 
   <div class="subhead">Stack detection</div>
   <div class="data-table">
@@ -981,7 +986,7 @@ footer.site-footer a { color: var(--cyan); }
     <strong>Test fires on a marker, not on any stack.</strong> <code>conventions/test/</code> is scaffolded only when a test marker above is found alongside a detected stack — never merely because some stack exists (principle 4). The marker set is intentionally small and extends as new build subagents land (Q2).
   </div>
 
-  <div class="subhead">asimov.md content outline</div>
+  <div class="subhead">Asimov context outline — asimov.md body (Claude Code) · AGENTS.md region body (Codex)</div>
   <ul class="gps-paths">
     <li>Repo identity — name + one-line "this repo uses the Asimov L3 toolkit"</li>
     <li>documentation/ taxonomy — where D100 / D101 / conventions / reference live</li>
@@ -995,12 +1000,12 @@ footer.site-footer a { color: var(--cyan); }
 
   <div class="subhead">AGENTS.md managed region (Codex skill only)</div>
   <ul class="gps-paths">
-    <li>&lt;!-- asimov:start — managed by /asimov-init. Everything between these markers is regenerated on the next run; put your own content OUTSIDE them. --&gt;</li>
-    <li>…the rendered asimov.md body, authoring comment stripped — the same render as step 1…</li>
+    <li>&lt;!-- asimov:start — managed by codex-asimov-init. Everything between these markers is regenerated on the next run; put your own content OUTSIDE them. --&gt;</li>
+    <li>…asimov-md-template.md rendered with the asimov.md substitutions, authoring comment stripped…</li>
     <li>&lt;!-- asimov:end --&gt;</li>
   </ul>
   <div class="callout">
-    <strong>One render, two carriers.</strong> Claude Code gets the body through the <code>@asimov.md</code> import in <code>CLAUDE.md</code>; Codex gets the identical body inline in this region, because it reads <code>AGENTS.md</code> and expands no <code>@</code> imports (R21). The markers are the ones the convention READMEs already use (NF7).
+    <strong>One template, two carriers.</strong> Claude Code gets the body as <code>asimov.md</code> through the <code>@asimov.md</code> import in <code>CLAUDE.md</code>; Codex gets the same template rendered inline in this region, because it reads <code>AGENTS.md</code> and expands no <code>@</code> imports (R21). Each tool writes only its own carrier (NF1). The markers are the ones the convention READMEs already use (NF7).
   </div>
 
   <div class="subhead">Index bucket taxonomy (inherited from /docs-init)</div>
@@ -1044,7 +1049,7 @@ footer.site-footer a { color: var(--cyan); }
       <div class="h-value">auto<span class="unit">detect</span></div>
       <div class="h-desc">Optional repo-name override — <code>$ARGUMENTS</code> in Claude Code, the text after the invocation in Codex. When empty, the repo name is auto-detected from git remote origin, then the folder name (R14).</div>
       <ul class="bullets">
-        <li>Used in <code>asimov.md</code>, the index brand badge, and footer</li>
+        <li>Used in the Asimov context (<code>asimov.md</code> / the <code>AGENTS.md</code> region), the index brand badge, and footer</li>
       </ul>
     </div>
     <div class="hist-card flag">
@@ -1078,7 +1083,7 @@ footer.site-footer a { color: var(--cyan); }
       <div>Stop and report which path failed; do not write without the templates (R13).</div>
     </div>
     <div class="failure-row">
-      <div>Existing <code>CLAUDE.md</code> has the import but in odd form</div>
+      <div>Claude Code: existing <code>CLAUDE.md</code> has the import but in odd form</div>
       <div>Risk of a duplicate import</div>
       <div><span class="sev med">Med</span></div>
       <div>Detect any line referencing <code>asimov.md</code>; treat as present and SKIP rather than appending a second (NF2).</div>
@@ -1170,31 +1175,31 @@ footer.site-footer a { color: var(--cyan); }
   <h2 class="section-title"><span class="sec-ref">§7</span>Acceptance criteria</h2>
   <div class="ac-table">
     <div class="ac-head"><div>#</div><div>Verifies</div><div>Description</div></div>
-    <div class="ac-row"><div class="ac-id">AC1</div><div class="ac-verifies"><span class="verify-chip">R1</span></div><div>After a run, <code>asimov.md</code> exists at the repo root and contains the repo name, the documentation taxonomy, the convention-overlay pointer, and the command/subagent inventory.</div></div>
-    <div class="ac-row"><div class="ac-id">AC2</div><div class="ac-verifies"><span class="verify-chip">R2</span></div><div>Editing <code>asimov.md</code> and re-running replaces it with the freshly rendered version — the edit does not survive.</div></div>
-    <div class="ac-row"><div class="ac-id">AC3</div><div class="ac-verifies"><span class="verify-chip">R3</span><span class="verify-chip">R5</span></div><div>Running against an existing <code>CLAUDE.md</code> without the import adds exactly one <code>@asimov.md</code> line and leaves every other line byte-identical.</div></div>
-    <div class="ac-row"><div class="ac-id">AC4</div><div class="ac-verifies"><span class="verify-chip">R4</span></div><div>Running in a repo with no <code>CLAUDE.md</code> creates one whose body is the <code>@asimov.md</code> import plus a pointer to <code>/init</code>.</div></div>
-    <div class="ac-row"><div class="ac-id">AC5</div><div class="ac-verifies"><span class="verify-chip">NF2</span></div><div>Re-running when the <code>@asimov.md</code> import is already present writes nothing to <code>CLAUDE.md</code> and reports the action as SKIP.</div></div>
+    <div class="ac-row"><div class="ac-id">AC1</div><div class="ac-verifies"><span class="verify-chip">R1</span></div><div>After a Claude Code run, <code>asimov.md</code> exists at the repo root and contains the repo name, the documentation taxonomy, the convention-overlay pointer, and the command/subagent inventory.</div></div>
+    <div class="ac-row"><div class="ac-id">AC2</div><div class="ac-verifies"><span class="verify-chip">R2</span></div><div>Editing <code>asimov.md</code> and re-running the Claude Code command replaces it with the freshly rendered version — the edit does not survive.</div></div>
+    <div class="ac-row"><div class="ac-id">AC3</div><div class="ac-verifies"><span class="verify-chip">R3</span><span class="verify-chip">R5</span></div><div>Running the Claude Code command against an existing <code>CLAUDE.md</code> without the import adds exactly one <code>@asimov.md</code> line and leaves every other line byte-identical.</div></div>
+    <div class="ac-row"><div class="ac-id">AC4</div><div class="ac-verifies"><span class="verify-chip">R4</span></div><div>Running the Claude Code command in a repo with no <code>CLAUDE.md</code> creates one whose body is the <code>@asimov.md</code> import plus a pointer to <code>/init</code>.</div></div>
+    <div class="ac-row"><div class="ac-id">AC5</div><div class="ac-verifies"><span class="verify-chip">NF2</span></div><div>Re-running the Claude Code command when the <code>@asimov.md</code> import is already present writes nothing to <code>CLAUDE.md</code> and reports the action as SKIP.</div></div>
     <div class="ac-row"><div class="ac-id">AC6</div><div class="ac-verifies"><span class="verify-chip">R6</span><span class="verify-chip">R7</span></div><div>In a repo containing a <code>*.csproj</code>, the run scaffolds <code>documentation/conventions/dotnet/README.md</code> and lists <code>dotnet</code> among detected stacks.</div></div>
     <div class="ac-row"><div class="ac-id">AC7</div><div class="ac-verifies"><span class="verify-chip">R9</span></div><div>In a repo with no recognised stack marker, no <code>conventions/&lt;stack&gt;/</code> folder is created and the report states no stack was detected.</div></div>
     <div class="ac-row"><div class="ac-id">AC8</div><div class="ac-verifies"><span class="verify-chip">R8</span></div><div>When a stack <code>README.md</code> already exists, the command offers a managed-region merge and does not overwrite the file wholesale without confirmation.</div></div>
     <div class="ac-row"><div class="ac-id">AC9</div><div class="ac-verifies"><span class="verify-chip">R7</span><span class="verify-chip">NF7</span></div><div>A scaffolded convention <code>README.md</code> contains the read-list skeleton from the template within Asimov start/end markers.</div></div>
     <div class="ac-row"><div class="ac-id">AC10</div><div class="ac-verifies"><span class="verify-chip">R10</span><span class="verify-chip">R11</span></div><div>After a run in a repo with docs, both <code>documentation/index.html</code> and <code>documentation/_chrome.css</code> exist.</div></div>
     <div class="ac-row"><div class="ac-id">AC11</div><div class="ac-verifies"><span class="verify-chip">R12</span></div><div>A doc present as both <code>.md</code> and <code>.html</code> produces exactly one card with an HTML badge; a bucket with zero docs produces no section.</div></div>
-    <div class="ac-row"><div class="ac-id">AC12</div><div class="ac-verifies"><span class="verify-chip">NF1</span></div><div>No file outside the declared targets is modified — content and mtime are unchanged after a run; the only edits to a pre-existing file are the <code>CLAUDE.md</code> import line, a confirmed managed region and, in Codex, the <code>AGENTS.md</code> region and the <code>.codex/agents/</code> copies.</div></div>
+    <div class="ac-row"><div class="ac-id">AC12</div><div class="ac-verifies"><span class="verify-chip">NF1</span></div><div>No file outside the declared targets is modified — content and mtime are unchanged after a run; the only edits to a pre-existing file are a confirmed managed region plus, in Claude Code, the <code>CLAUDE.md</code> import line and, in Codex, the <code>AGENTS.md</code> region and the <code>.codex/agents/</code> copies.</div></div>
     <div class="ac-row"><div class="ac-id">AC13</div><div class="ac-verifies"><span class="verify-chip">R15</span></div><div>The command prints one consolidated write plan listing every target with an action from the canonical set (NEW · OVERWRITE · APPEND · MERGE · SKIP · ASK) and writes nothing until the developer confirms.</div></div>
     <div class="ac-row"><div class="ac-id">AC14</div><div class="ac-verifies"><span class="verify-chip">R16</span></div><div>The post-write report lists each target written/skipped with reason, the detected stacks, the one-line site stat (<code>&lt;N&gt; docs across &lt;K&gt; sections; &lt;H&gt;/&lt;T&gt; hand-crafted HTML</code>), and any uncategorised docs with a suggested bucket.</div></div>
     <div class="ac-row"><div class="ac-id">AC15</div><div class="ac-verifies"><span class="verify-chip">R13</span><span class="verify-chip">NF4</span></div><div>An edit to any template appears in the next run's output, and an unreadable template aborts the run naming the failing path — proving templates are re-read each invocation.</div></div>
     <div class="ac-row"><div class="ac-id">AC16</div><div class="ac-verifies"><span class="verify-chip">R11</span></div><div>When <code>_chrome.css</code> already exists byte-identical to the template, it is left untouched (not rewritten).</div></div>
     <div class="ac-row"><div class="ac-id">AC17</div><div class="ac-verifies"><span class="verify-chip">NF3</span></div><div>The generated <code>index.html</code> contains no <code>&lt;script&gt;</code> and links to <code>_chrome.css</code> rather than inlining it.</div></div>
-    <div class="ac-row"><div class="ac-id">AC18</div><div class="ac-verifies"><span class="verify-chip">R14</span></div><div>With no argument, the repo name used in <code>asimov.md</code> and the index equals the last path segment of the git remote origin URL (trailing <code>.git</code> stripped).</div></div>
+    <div class="ac-row"><div class="ac-id">AC18</div><div class="ac-verifies"><span class="verify-chip">R14</span></div><div>With no argument, the repo name used in the Asimov context and the index equals the last path segment of the git remote origin URL (trailing <code>.git</code> stripped).</div></div>
     <div class="ac-row"><div class="ac-id">AC19</div><div class="ac-verifies"><span class="verify-chip">NF5</span></div><div>The command's first line of output is a one-sentence statement of intent, emitted before any tool call.</div></div>
     <div class="ac-row"><div class="ac-id">AC20</div><div class="ac-verifies"><span class="verify-chip">NF6</span></div><div>The command file's <code>model:</code> frontmatter is <code>claude-opus-4-8</code>, matching its row in <code>model-choice.md §1</code>.</div></div>
     <div class="ac-row"><div class="ac-id">AC21</div><div class="ac-verifies"><span class="verify-chip">R17</span><span class="verify-chip">R19</span></div><div>In a repo whose architecture doc describes a named pipeline, the index carries a flow band with kind-typed nodes and a matching legend; in a repo with no documented pipeline and no sibling cast, the index goes straight from hero to the §1 catalogue with no invented showcase.</div></div>
     <div class="ac-row"><div class="ac-id">AC22</div><div class="ac-verifies"><span class="verify-chip">R18</span></div><div>In a repo whose <code>features/</code> holds 3+ sibling D101s of one category, the index carries an entity gallery with one tile per sibling linking to its doc; with fewer than three siblings, no gallery is emitted.</div></div>
-    <div class="ac-row"><div class="ac-id">AC23</div><div class="ac-verifies"><span class="verify-chip">R13</span></div><div>With the three definitions at <code>assess</code>, the run prints exactly one maturity chat line before its first question; with a definition at <code>adopt</code>, that artifact appears in no line; and no generated file (<code>asimov.md</code>, README, <code>index.html</code>) contains a maturity level.</div></div>
+    <div class="ac-row"><div class="ac-id">AC23</div><div class="ac-verifies"><span class="verify-chip">R13</span></div><div>With the three definitions at <code>assess</code>, the run prints exactly one maturity chat line before its first question; with a definition at <code>adopt</code>, that artifact appears in no line; and no generated file (<code>asimov.md</code> or the <code>AGENTS.md</code> region, README, <code>index.html</code>) contains a maturity level.</div></div>
     <div class="ac-row"><div class="ac-id">AC24</div><div class="ac-verifies"><span class="verify-chip">R20</span></div><div>In a repo with a <code>README.md</code> intro, the index carries a <code>&lt;section class="overview"&gt;</code> of 2–3 paragraphs and the write plan names the source; in a repo with no README intro, overview doc or D100 Purpose section, no overview block is emitted.</div></div>
-    <div class="ac-row"><div class="ac-id">AC25</div><div class="ac-verifies"><span class="verify-chip">R21</span></div><div>A Codex run in a repo with no <code>AGENTS.md</code> creates one whose only content is the region: the <code>asimov:start</code> marker, a body identical to the <code>asimov.md</code> written in the same run, and the <code>asimov:end</code> marker.</div></div>
+    <div class="ac-row"><div class="ac-id">AC25</div><div class="ac-verifies"><span class="verify-chip">R21</span></div><div>A Codex run in a repo with no <code>AGENTS.md</code> creates one whose only content is the region: the <code>asimov:start</code> marker, a body equal to <code>asimov-md-template.md</code> rendered for this repo with its leading comment stripped, and the <code>asimov:end</code> marker.</div></div>
     <div class="ac-row"><div class="ac-id">AC26</div><div class="ac-verifies"><span class="verify-chip">R21</span></div><div>A Codex run against an existing <code>AGENTS.md</code> without markers appends the region at the end and leaves every pre-existing line byte-identical.</div></div>
     <div class="ac-row"><div class="ac-id">AC27</div><div class="ac-verifies"><span class="verify-chip">R22</span><span class="verify-chip">NF7</span></div><div>Editing text inside the markers and re-running the Codex skill restores the rendered body between them; every line outside the markers is byte-identical, and the plan labelled the target OVERWRITE.</div></div>
     <div class="ac-row"><div class="ac-id">AC28</div><div class="ac-verifies"><span class="verify-chip">R23</span></div><div>With an <code>AGENTS.md</code> holding a start marker and no end marker (or two marker pairs), the plan shows the target as ASK and the file is byte-identical after the run.</div></div>
@@ -1202,6 +1207,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="ac-row"><div class="ac-id">AC30</div><div class="ac-verifies"><span class="verify-chip">NF1</span></div><div>A Claude Code <code>/asimov-init</code> run creates no <code>AGENTS.md</code> and no <code>.codex/agents/</code>; if either exists beforehand it is byte-identical after the run.</div></div>
     <div class="ac-row"><div class="ac-id">AC31</div><div class="ac-verifies"><span class="verify-chip">NF6</span></div><div>The Codex skill's <code>SKILL.md</code> frontmatter contains no <code>model</code> key, while the Claude Code command's frontmatter still reads <code>model: claude-opus-4-8</code>.</div></div>
     <div class="ac-row"><div class="ac-id">AC32</div><div class="ac-verifies"><span class="verify-chip">NF8</span></div><div>The Codex skill's frontmatter carries <code>disable-model-invocation: true</code> and <code>user-invocable: false</code>, its <code>agents/openai.yaml</code> carries <code>allow_implicit_invocation: false</code>, and the skill does not appear in Claude Code's skill list.</div></div>
+    <div class="ac-row"><div class="ac-id">AC33</div><div class="ac-verifies"><span class="verify-chip">NF1</span></div><div>A Codex <code>codex-asimov-init</code> run creates no <code>asimov.md</code> and adds no <code>@asimov.md</code> line to <code>CLAUDE.md</code>; if either file exists beforehand it is byte-identical after the run.</div></div>
   </div>
 </section>
 
@@ -1223,7 +1229,7 @@ footer.site-footer a { color: var(--cyan); }
     </div>
     <div class="q-card">
       <div class="q-head"><span class="q-id">Q4</span><span class="q-decider">Allan Borup</span></div>
-      <div class="q-body">Does <code>asimov.md</code> need a "do not edit — regenerated by /asimov-init" banner to stop developers treating it like <code>CLAUDE.md</code> (gotcha §6.8.01)? <strong>Resolved 2026-09-15:</strong> yes — <code>asimov-md-template.md</code> opens with a "Generated file — do not edit" banner naming the regenerating command and the generation date.</div>
+      <div class="q-body">Does <code>asimov.md</code> need a "do not edit — regenerated by /asimov-init" banner to stop developers treating it like <code>CLAUDE.md</code> (gotcha §6.8.01)? <strong>Resolved 2026-09-15:</strong> yes — <code>asimov-md-template.md</code> opens with a "do not edit" banner naming the generation date; since 2026-10-01 it reads "Generated content" and sends the developer's own context to <code>CLAUDE.md</code> (Claude Code) or outside the markers in <code>AGENTS.md</code> (Codex), because one render fills both carriers.</div>
     </div>
   </div>
 </section>
@@ -1277,7 +1283,7 @@ footer.site-footer a { color: var(--cyan); }
     · <span class="mono">features/D101-asimov-init.html</span>
   </div>
   <div style="margin-top: 0.4rem">
-    D101 · /asimov-init · Asimov plugin · Full design · Draft v0.3 · 2026-10-01
+    D101 · /asimov-init · Asimov plugin · Full design · Draft v0.4 · 2026-10-01
   </div>
 </footer>
 

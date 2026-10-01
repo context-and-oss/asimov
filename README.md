@@ -31,7 +31,7 @@ codex plugin add asimov-plugin@asimov-marketplace
 
 - Local clone: `codex plugin marketplace add <path-to-clone>`
 - Update: `codex plugin marketplace upgrade asimov-marketplace`, then start a new session
-- Codex loads the plugin's skills. Run the setup as `$asimov-plugin:codex-asimov-init` — it also writes an `AGENTS.md` region and copies the Codex agent shells into your repo's `.codex/agents/` (Codex asks before that write). The five other slash commands are Claude Code only — see [D101-codex-support](documentation/features/D101-codex-support.html).
+- Codex loads the plugin's skills. Run the setup as `$asimov-plugin:codex-asimov-init` — it writes the Asimov context into an `AGENTS.md` region (not `asimov.md`/`CLAUDE.md`, which `/asimov-init` handles in Claude Code) and copies the Codex agent shells into your repo's `.codex/agents/` (Codex asks before that write). The five other slash commands are Claude Code only — see [D101-codex-support](documentation/features/D101-codex-support.html).
 
 ## Try it
 
@@ -62,7 +62,7 @@ codex plugin add asimov-plugin@asimov-marketplace
 | `/d101-feature-design` | Design | Interview → D101 as self-contained HTML. Three phases, hard stop after the business design. |
 | `/d101-review` | Design | Reads a D101, resolves its phase, reports findings against §8a or §8b and leaves them in a gitignored `.review.md` beside the file for `/d101-feature-design` to pick up. Never edits the D101, no verdict. |
 | `/d101-convert-to-html` | Design | Legacy markdown D101 → HTML, next to the source. |
-| `/asimov-init` | Setup | Writes `asimov.md`, imports it from `CLAUDE.md`, scaffolds `documentation/conventions/<stack>/`, generates the docs landing page. Codex counterpart: the skill `codex-asimov-init`, which also writes the `AGENTS.md` region and the `.codex/agents/` copies. |
+| `/asimov-init` | Setup | Writes `asimov.md`, imports it from `CLAUDE.md`, scaffolds `documentation/conventions/<stack>/`, generates the docs landing page. Codex counterpart: the skill `codex-asimov-init`, which writes the `AGENTS.md` region and the `.codex/agents/` copies in place of `asimov.md` and the `CLAUDE.md` import, plus the same conventions and site. |
 | `/persona-new` | Design | Interview → custom persona review skill in `.claude/skills/persona-<slug>/`. |
 | `/persona-list` | Design | Lists standard + custom personas. |
 
