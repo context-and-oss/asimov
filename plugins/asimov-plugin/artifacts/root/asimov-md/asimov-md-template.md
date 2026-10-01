@@ -15,13 +15,14 @@
 
 # Asimov context — {{REPO-NAME}}
 
-> **Generated file — do not edit.** `/asimov-init` regenerates this file wholesale on
-> every run. Put repo-specific context you want to keep in `CLAUDE.md`, not here.
+> **Generated content — do not edit.** Asimov's setup regenerates this text wholesale on
+> every run. Put repo-specific context you want to keep in `CLAUDE.md` (Claude Code) or
+> outside the markers in `AGENTS.md` (Codex), not here.
 > Last generated: {{YYYY-MM-DD}}.
 
 This repo uses the **Asimov** L3 toolkit (`asimov-plugin`) for the AI-assisted middle of
-the delivery pipeline — _Design → Spec → Code → Review → Test_. This file gives Claude the
-standing context to orient and auto-delegate. It is imported into `CLAUDE.md` via `@asimov.md`.
+the delivery pipeline — _Design → Spec → Code → Review → Test_. This text gives the coding
+agent the standing context to orient and auto-delegate.
 
 ## Documentation taxonomy
 
