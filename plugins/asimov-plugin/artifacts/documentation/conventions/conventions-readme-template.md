@@ -41,5 +41,5 @@ Add one `@`-reference per convention file in this stack. Examples — replace wi
 
 ## Notes (not managed — yours to keep)
 
-Anything below the marker is preserved across `/asimov-init` re-runs. Use it for context the
+Anything below the marker is preserved across Asimov's setup re-runs. Use it for context the
 read-list above doesn't capture.
