@@ -1,12 +1,13 @@
 ---
-name: asimov-init
+name: codex-asimov-init
 description: Bootstrap a product repo to use the Asimov toolkit — writes an Asimov-owned asimov.md and wires it into CLAUDE.md via an @-import, scaffolds detected-stack convention read-lists, and generates the documentation/ landing site. Read-only on every other file. Supersedes /docs-init.
 argument-hint: (optional) repo name override — empty auto-detects from git remote or folder name
 allowed-tools: Read, Write, Glob, Grep, Bash
 disable-model-invocation: true
+user-invocable: false
 ---
 
-You are the `/asimov-init` command in Asimov (`$asimov-plugin:asimov-init` in Codex). Your job is to make the active product repo **Asimov-ready** in one guided run — for both Claude Code and Codex, whichever you are running in. You write six kinds of target into the active repo:
+You are `$asimov-plugin:codex-asimov-init`, the Codex counterpart of Asimov's `/asimov-init` command. Your job is to make the active product repo **Asimov-ready** in one guided run from Codex. You write six kinds of target into the active repo:
 
 1. **`asimov.md`** at the repo root — the Asimov/L3 context file (Asimov-owned, regenerated wholesale).
 2. **The `CLAUDE.md` import** — ensure `CLAUDE.md` contains a single `@asimov.md` line so the context reaches Claude Code at session start.
@@ -23,38 +24,52 @@ You are **read-only on every other file** in the repo. Your only edits to a pre-
 
 ---
 
-# Step 1 — Load the templates
+# Step 1 — Resolve the plugin root, then load the templates
 
-Use the **Read** tool to load these seven files, then **Glob** the Codex subagent shells (item 6). The paths below are relative to **this skill's own folder** (`skills/asimov-init/`), which the tool names when it loads the skill — Claude Code as the *Base directory for this skill* line, Codex as the skill's path in its skill list. Resolve them from there, never from the working directory. The file-in-the-plugin is the run-time source of truth — re-read every invocation; never render from memory.
+**Where you are is not where the plugin is.** Your working directory is the product repo. This skill and the templates it needs live in Codex's plugin cache under your home directory, `<home>/.codex/plugins/cache/<marketplace>/<plugin>/<version>/`. Never read a plugin file by a relative path: a relative path is resolved from the working directory and misses. Codex substitutes no plugin-root variable in a skill's text, so you resolve the root yourself, **once**:
+
+1. Take this skill's file path as Codex shows it in its skill list.
+2. Strip everything from `skills/codex-asimov-init` onward — the plugin root is two levels above the skill folder.
+3. Write the result down as `<plugin-root>` and build every path below from it, absolute. Never pass `..` to a tool, and never resolve from the working directory.
+
+**Verify before you load.** Read file 1. If it does not exist, the root you resolved is wrong — do not guess; **search** for the file instead, with `<home>` as your home directory (what `~` expands to, on every platform):
+
+```
+Glob  <home>/.codex/plugins/cache/**/artifacts/root/asimov-md/asimov-md-template.md
+```
+
+Take the match and set `<plugin-root>` to the folder that holds its `artifacts/`. If several match (older versions are still cached), take the one whose path shares the longest prefix with the skill path you were given. If nothing matches, **stop and report the path you derived and the search you ran** — the plugin is not installed where Codex documents it.
+
+**Load the templates.** With `<plugin-root>` verified, use **Read** on these seven files, then **Glob** the Codex subagent shells (item 6). The file-in-the-plugin is the run-time source of truth — re-read every invocation; never render from memory.
 
 1. **Asimov context template** — the body of `asimov.md`:
    ```
-   ../../artifacts/root/asimov-md/asimov-md-template.md
+   <plugin-root>/artifacts/root/asimov-md/asimov-md-template.md
    ```
 2. **Convention read-list template** — the body of each `conventions/<stack>/README.md`:
    ```
-   ../../artifacts/documentation/conventions/conventions-readme-template.md
+   <plugin-root>/artifacts/documentation/conventions/conventions-readme-template.md
    ```
 3. **Index template** — visual contract for the landing page:
    ```
-   ../../artifacts/documentation/site/site-template.html
+   <plugin-root>/artifacts/documentation/site/site-template.html
    ```
 4. **Shared chrome stylesheet** — copied verbatim to the consumer repo:
    ```
-   ../../artifacts/documentation/site/_chrome.css
+   <plugin-root>/artifacts/documentation/site/_chrome.css
    ```
 5. **The three definitions** — the written standard each rendered file must meet, and the home of each artifact's maturity level (Step 1b):
    ```
-   ../../artifacts/root/asimov-md/asimov-md-definition.md
-   ../../artifacts/documentation/conventions/conventions-definition.md
-   ../../artifacts/documentation/site/site-definition.md
+   <plugin-root>/artifacts/root/asimov-md/asimov-md-definition.md
+   <plugin-root>/artifacts/documentation/conventions/conventions-definition.md
+   <plugin-root>/artifacts/documentation/site/site-definition.md
    ```
 6. **Codex subagent shells** — copied verbatim into the repo's `.codex/agents/`; use **Glob** to list them, never read-and-rewrite them:
    ```
-   ../../agents/*.toml
+   <plugin-root>/agents/*.toml
    ```
 
-If any of files 1–5 cannot be read, **stop and report which path failed.** Do not write anything without its template. If the `agents/` folder holds no `.toml`, skip target 4 (the shells), say so in the plan, and continue.
+If any of files 1–5 cannot be read, **stop and report which absolute path failed.** Do not write anything without its template. If the `agents/` folder holds no `.toml`, skip target 4 (the shells), say so in the plan, and continue.
 
 Each `.md` template begins with an HTML authoring comment (`<!-- ... -->`) addressed to you. **Strip that leading comment** from the rendered output — it is instructions, not content.
 
