@@ -1,6 +1,6 @@
-# Codex agent shell for calvin-the-test-author — same name and description as calvin-the-test-author.md; the method is the
-# role skill, never this file. Delivered into a product repo's .codex/agents/ by /asimov-init and
-# regenerated on every run — edit it in the plugin, not here. Loaded by Codex in a trusted repo.
+# Codex custom agent — the same thin shell as calvin-the-test-author.md, for Codex.
+# PROTOTYPE. Discovery location not yet verified: openai/plugins names a plugin-level
+# agents/ folder, the plugin.json spec does not. Fallback is the product repo's .codex/agents/.
 name = "calvin-the-test-author"
 description = "Authors tests for existing code so they conform to the active product repo's test conventions (.NET unit tests for now). Use to add or extend test coverage in house style — test naming, arrange-act-assert, coverage thinking. Reads the repo's conventions at run-time, flags gaps or conflicts, and flags production code that is hard to test back to its author."
 # model omitted on purpose: inherits the parent agent's model and reasoning effort.

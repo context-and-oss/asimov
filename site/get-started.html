@@ -30,7 +30,7 @@
 
   <h2>Supported</h2>
   <ul>
-    <li><strong>Coding agents</strong>: Claude Code and Codex, from the same plugin. <code>/asimov-init</code> runs in both; the other slash commands are Claude Code only for now.</li>
+    <li><strong>Coding agents</strong>: Claude Code. Codex is planned.</li>
     <li><strong>Software stacks</strong>: C#/.NET and TypeScript/Angular. Tests in .NET.</li>
   </ul>
 
@@ -41,15 +41,10 @@
   <ul>
     <li>Update later with <code>/plugin marketplace update asimov-marketplace</code>. No auto-update.</li>
     <li>Versions are major-only. Any release may change a bar or a template, so read the release notes before updating a repo with designs in flight.</li>
-    <li>Commands and skills run on your session’s model; only the four subagents pin one.</li>
+    <li>Needs access to the models the commands pin, mapped in <a href="https://github.com/context-and-oss/asimov/blob/main/documentation/model-choice.md">model-choice.md</a>.</li>
   </ul>
   <h3>Codex</h3>
-  <pre class="mono" style="color:#fff;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:1rem;overflow-x:auto">codex plugin marketplace add context-and-oss/asimov
-codex plugin add asimov-plugin@asimov-marketplace</pre>
-  <ul>
-    <li>Update later with <code>codex plugin marketplace upgrade asimov-marketplace</code>, then start a new session.</li>
-    <li>Codex loads the plugin’s skills; run the setup as <code>$asimov-plugin:asimov-init</code>. It also places the Codex agent shells in your repo’s <code>.codex/agents/</code>; approve that write and mark the repo trusted. The other slash commands are Claude Code only for now.</li>
-  </ul>
+  <p>Planned.</p>
 
   <h2>Your first feature</h2>
   <div class="figure">

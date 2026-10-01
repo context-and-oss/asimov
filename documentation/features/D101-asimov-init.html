@@ -301,7 +301,7 @@ footer.site-footer a { color: var(--cyan); }
   <a href="../index.html#s6">Diagrams</a>
   <span class="spacer"></span>
   <span class="phase-chip full">Full design</span>
-  <span class="status-chip">Draft v0.6</span>
+  <span class="status-chip">Draft v0.2</span>
 </nav>
 
 <div class="layout-doc">
@@ -343,7 +343,7 @@ footer.site-footer a { color: var(--cyan); }
 <header class="hero">
   <div class="kicker">D101 · Feature design · Asimov plugin</div>
   <h1>/asimov-init</h1>
-  <p class="tagline">Bootstrap a product repo to use the Asimov toolkit — writes an Asimov-owned <code>asimov.md</code> context file and wires it into <code>CLAUDE.md</code> via an <code>@</code>-import (and, for Codex, into a managed region of <code>AGENTS.md</code>), scaffolds the <code>documentation/conventions/&lt;stack&gt;/README.md</code> read-lists the build subagents depend on, and generates the <code>documentation/</code> landing site. Supersedes <code>/docs-init</code>.</p>
+  <p class="tagline">Bootstrap a product repo to use the Asimov toolkit — writes an Asimov-owned <code>asimov.md</code> context file and wires it into <code>CLAUDE.md</code> via an <code>@</code>-import, scaffolds the <code>documentation/conventions/&lt;stack&gt;/README.md</code> read-lists the build subagents depend on, and generates the <code>documentation/</code> landing site. Supersedes <code>/docs-init</code>.</p>
 </header>
 
 <div class="meta-strip">
@@ -352,7 +352,7 @@ footer.site-footer a { color: var(--cyan); }
   <div class="meta-cell"><div class="label">Version</div><div class="value mono">0.2</div></div>
   <div class="meta-cell"><div class="label">Model</div><div class="value mono">claude-opus-4-8</div></div>
   <div class="meta-cell"><div class="label">Outputs</div><div class="value mono">asimov.md · CLAUDE.md · conventions · index.html</div></div>
-  <div class="meta-cell"><div class="label">Last updated</div><div class="value mono">2026-09-30</div></div>
+  <div class="meta-cell"><div class="label">Last updated</div><div class="value mono">2026-09-15</div></div>
   <div class="meta-cell"><div class="label">Archetype</div><div class="value">Greenfield (evolves /docs-init)</div></div>
 </div>
 
@@ -441,7 +441,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="req"><div class="id">NF3</div><div class="body">The generated <code>index.html</code> is pure static HTML + CSS — no JavaScript, no client-side behaviour — and links to <code>_chrome.css</code> rather than inlining it.</div></div>
     <div class="req"><div class="id">NF4</div><div class="body">All templates are re-read at the start of every invocation; the file in the plugin is the run-time source of truth.</div></div>
     <div class="req"><div class="id">NF5</div><div class="body">The command's first output is a one-sentence narration of what it will do, emitted before any tool call.</div></div>
-    <div class="req"><div class="id">NF6</div><div class="body">The command runs on <code>claude-opus-4-8</code>, matching its row in <code>model-choice.md §1</code>. <em>Superseded 2026-09-30 by <a href="D101-codex-support.html">D101-codex-support</a>: a model is named only in a Claude Code agent shell, and <code>model-choice.md</code> is retired.</em></div></div>
+    <div class="req"><div class="id">NF6</div><div class="body">The command runs on <code>claude-opus-4-8</code>, matching its row in <code>model-choice.md §1</code>.</div></div>
     <div class="req"><div class="id">NF7</div><div class="body">The Asimov-managed region in an existing convention README is delimited by explicit <code>&lt;!-- asimov:start --&gt;</code>/<code>&lt;!-- asimov:end --&gt;</code> markers so a re-run refreshes exactly that region. The <code>CLAUDE.md</code> import needs no markers — it is a single bare <code>@asimov.md</code> line, located on re-run by reference.</div></div>
   </div>
 
@@ -531,9 +531,8 @@ footer.site-footer a { color: var(--cyan); }
 
 <!-- §4.3 The four write targets -->
 <section class="s" id="s4-3">
-  <h2 class="section-title"><span class="sec-ref">§4.3</span>The write targets</h2>
-  <p class="section-desc">The map below is the repo shape after a run — the four original targets, colour-coded by what the command does to each. The cards beneath detail each one and its "what if it already exists" rule, which is the heart of the design.</p>
-  <div class="callout"><strong>Amended 2026-09-30 — two more targets.</strong> The run also writes the rendered <code>asimov.md</code> body into an <code>AGENTS.md</code> managed region (<code>&lt;!-- asimov:start --&gt;</code> … <code>&lt;!-- asimov:end --&gt;</code>), because Codex reads <code>AGENTS.md</code> and does not expand <code>@</code>-imports. Same shape as the convention-README region: NEW when absent, APPEND when the file has no markers, OVERWRITE of the region alone when one intact pair exists, ASK and no write when markers are broken. It also copies the plugin's four Codex agent shells (<code>agents/*.toml</code>) byte for byte into <code>.codex/agents/</code>, the only place Codex loads custom agents from; Codex asks for approval before that write, and loads the shells in a trusted repo from the next session. Design and rules: <a href="D101-codex-support.html">D101-codex-support</a> (R14–R15, Rules 6–7, §6.4).</div>
+  <h2 class="section-title"><span class="sec-ref">§4.3</span>The four write targets</h2>
+  <p class="section-desc">The map below is the repo shape after a run — four targets, colour-coded by what the command does to each. The cards beneath detail each one and its "what if it already exists" rule, which is the heart of the design.</p>
 
   <div class="flow-wrap" style="margin-bottom:1.6rem">
     <div class="tree">
@@ -750,7 +749,7 @@ footer.site-footer a { color: var(--cyan); }
 <section class="s" id="s6-1">
   <h2 class="section-title"><span class="sec-ref">§6.1</span>Platform</h2>
   <p style="color: var(--text-dim); font-size: 0.95rem; line-height: 1.65;">
-    <code>/asimov-init</code> is an entry-point skill (<code>/asimov-init</code> in Claude Code, <code>$asimov-plugin:asimov-init</code> in Codex) shipped by <code>asimov-plugin</code>, defined in <code>plugins/asimov-plugin/skills/asimov-init/SKILL.md</code>. It runs on <code>claude-opus-4-8</code> and is granted <code>Read, Write, Glob, Grep, Bash</code>. It reads its seven plugin files — four templates and three definitions — from <code>${CLAUDE_PLUGIN_ROOT}/artifacts/root/asimov-md/</code> and <code>${CLAUDE_PLUGIN_ROOT}/artifacts/documentation/{conventions,site}/</code> (the per-artifact folders that replaced the retired <code>templates/</code> folder on 2026-09-10) and writes into the active product repo's working tree (<code>asimov.md</code>, <code>CLAUDE.md</code>, <code>documentation/</code>). No services, schema, or infrastructure are involved.
+    <code>/asimov-init</code> is a Claude Code slash command shipped by <code>asimov-plugin</code>, defined in <code>plugins/asimov-plugin/commands/asimov-init.md</code>. It runs on <code>claude-opus-4-8</code> and is granted <code>Read, Write, Glob, Grep, Bash</code>. It reads its seven plugin files — four templates and three definitions — from <code>${CLAUDE_PLUGIN_ROOT}/artifacts/root/asimov-md/</code> and <code>${CLAUDE_PLUGIN_ROOT}/artifacts/documentation/{conventions,site}/</code> (the per-artifact folders that replaced the retired <code>templates/</code> folder on 2026-09-10) and writes into the active product repo's working tree (<code>asimov.md</code>, <code>CLAUDE.md</code>, <code>documentation/</code>). No services, schema, or infrastructure are involved.
   </p>
   <div class="callout">
     <strong>No escalation gate, but a broad target set.</strong> The command touches more files than <code>/docs-init</code> (up to <code>asimov.md</code>, <code>CLAUDE.md</code>, N convention READMEs, and the two site files), so the single consolidated confirmation (R15) is the gate — every action is listed with its canonical label (NEW · OVERWRITE · APPEND · MERGE · SKIP · ASK) before anything is written.
@@ -865,7 +864,7 @@ footer.site-footer a { color: var(--cyan); }
 <section class="s" id="s6-3">
   <h2 class="section-title"><span class="sec-ref">§6.3</span>Code map</h2>
   <div class="codemap">
-    <div class="codemap-row"><div class="what">Skill body (behaviour, all rules)</div><div class="where">plugins/asimov-plugin/skills/asimov-init/SKILL.md</div></div>
+    <div class="codemap-row"><div class="what">Command prompt (behaviour, all rules)</div><div class="where">plugins/asimov-plugin/commands/asimov-init.md</div></div>
     <div class="codemap-row"><div class="what">asimov.md content contract (read at run-time)</div><div class="where">plugins/asimov-plugin/artifacts/root/asimov-md/asimov-md-template.md</div></div>
     <div class="codemap-row"><div class="what">Convention read-list skeleton (read at run-time)</div><div class="where">plugins/asimov-plugin/artifacts/documentation/conventions/conventions-readme-template.md</div></div>
     <div class="codemap-row"><div class="what">Index visual contract (read at run-time)</div><div class="where">plugins/asimov-plugin/artifacts/documentation/site/site-template.html</div></div>
@@ -877,7 +876,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="codemap-row"><div class="what">Output — import wiring (consumer repo)</div><div class="where">CLAUDE.md</div></div>
     <div class="codemap-row"><div class="what">Output — convention read-lists (consumer repo)</div><div class="where">documentation/conventions/&lt;stack&gt;/README.md</div></div>
     <div class="codemap-row"><div class="what">Output — landing page + chrome (consumer repo)</div><div class="where">documentation/index.html · documentation/_chrome.css</div></div>
-    <div class="codemap-row"><div class="what">Model declaration (sync'd index)</div><div class="where">documentation/model-choice.md §1 (retired 2026-09-30)</div></div>
+    <div class="codemap-row"><div class="what">Model declaration (sync'd index)</div><div class="where">documentation/model-choice.md §1</div></div>
   </div>
 </section>
 
@@ -1063,7 +1062,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="ac-row"><div class="ac-id">AC17</div><div class="ac-verifies"><span class="verify-chip">NF3</span></div><div>The generated <code>index.html</code> contains no <code>&lt;script&gt;</code> and links to <code>_chrome.css</code> rather than inlining it.</div></div>
     <div class="ac-row"><div class="ac-id">AC18</div><div class="ac-verifies"><span class="verify-chip">R14</span></div><div>With no argument, the repo name used in <code>asimov.md</code> and the index equals the last path segment of the git remote origin URL (trailing <code>.git</code> stripped).</div></div>
     <div class="ac-row"><div class="ac-id">AC19</div><div class="ac-verifies"><span class="verify-chip">NF5</span></div><div>The command's first line of output is a one-sentence statement of intent, emitted before any tool call.</div></div>
-    <div class="ac-row"><div class="ac-id">AC20</div><div class="ac-verifies"><span class="verify-chip">NF6</span></div><div>The command file's <code>model:</code> frontmatter is <code>claude-opus-4-8</code>, matching its row in <code>model-choice.md §1</code>. <em>Superseded 2026-09-30 by <a href="D101-codex-support.html">D101-codex-support</a>: a model is named only in a Claude Code agent shell, and <code>model-choice.md</code> is retired.</em></div></div>
+    <div class="ac-row"><div class="ac-id">AC20</div><div class="ac-verifies"><span class="verify-chip">NF6</span></div><div>The command file's <code>model:</code> frontmatter is <code>claude-opus-4-8</code>, matching its row in <code>model-choice.md §1</code>.</div></div>
     <div class="ac-row"><div class="ac-id">AC21</div><div class="ac-verifies"><span class="verify-chip">R17</span><span class="verify-chip">R19</span></div><div>In a repo whose architecture doc describes a named pipeline, the index carries a flow band with kind-typed nodes and a matching legend; in a repo with no documented pipeline and no sibling cast, the index goes straight from hero to the §1 catalogue with no invented showcase.</div></div>
     <div class="ac-row"><div class="ac-id">AC22</div><div class="ac-verifies"><span class="verify-chip">R18</span></div><div>In a repo whose <code>features/</code> holds 3+ sibling D101s of one category, the index carries an entity gallery with one tile per sibling linking to its doc; with fewer than three siblings, no gallery is emitted.</div></div>
     <div class="ac-row"><div class="ac-id">AC23</div><div class="ac-verifies"><span class="verify-chip">R13</span></div><div>With the three definitions at <code>assess</code>, the run prints exactly one maturity chat line before its first question; with a definition at <code>adopt</code>, that artifact appears in no line; and no generated file (<code>asimov.md</code>, README, <code>index.html</code>) contains a maturity level.</div></div>
@@ -1101,7 +1100,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="refs-block">
       <h4>Code</h4>
       <ul>
-        <li>plugins/asimov-plugin/skills/asimov-init/SKILL.md</li>
+        <li>plugins/asimov-plugin/commands/asimov-init.md</li>
         <li>plugins/asimov-plugin/artifacts/root/asimov-md/asimov-md-template.md</li>
         <li>plugins/asimov-plugin/artifacts/documentation/conventions/conventions-readme-template.md</li>
         <li>plugins/asimov-plugin/artifacts/documentation/site/site-template.html</li>
@@ -1115,7 +1114,7 @@ footer.site-footer a { color: var(--cyan); }
       <h4>Docs</h4>
       <ul>
         <li>documentation/D100-Asimov-architecture.md (§3, §7.2.1, §7.4)</li>
-        <li>documentation/model-choice.md (retired 2026-09-30)</li>
+        <li>documentation/model-choice.md</li>
         <li>plugins/asimov-plugin/artifacts/documentation/d101-feature-design/d101-feature-design-definition.md</li>
       </ul>
     </div>
@@ -1139,7 +1138,7 @@ footer.site-footer a { color: var(--cyan); }
     · <span class="mono">features/D101-asimov-init.html</span>
   </div>
   <div style="margin-top: 0.4rem">
-    D101 · /asimov-init · Asimov plugin · Full design · Draft v0.6 · 2026-09-30
+    D101 · /asimov-init · Asimov plugin · Full design · Draft v0.2 · 2026-09-15
   </div>
 </footer>
 

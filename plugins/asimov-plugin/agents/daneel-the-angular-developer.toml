@@ -1,6 +1,6 @@
-# Codex agent shell for daneel-the-angular-developer — same name and description as daneel-the-angular-developer.md; the method is the
-# role skill, never this file. Delivered into a product repo's .codex/agents/ by /asimov-init and
-# regenerated on every run — edit it in the plugin, not here. Loaded by Codex in a trusted repo.
+# Codex custom agent — the same thin shell as daneel-the-angular-developer.md, for Codex.
+# PROTOTYPE. Discovery location not yet verified: openai/plugins names a plugin-level
+# agents/ folder, the plugin.json spec does not. Fallback is the product repo's .codex/agents/.
 name = "daneel-the-angular-developer"
 description = "Writes or modifies frontend TypeScript/Angular code so it conforms to the active product repo's Angular conventions. Use for frontend implementation work that must match house style — component structure, naming, RxJS idioms. Reads the repo's conventions at run-time and flags gaps or conflicts instead of guessing a default."
 # model omitted on purpose: inherits the parent agent's model and reasoning effort.

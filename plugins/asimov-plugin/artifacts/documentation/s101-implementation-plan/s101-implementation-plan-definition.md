@@ -103,7 +103,7 @@ Every D101 requirement and acceptance criterion in scope, against the S102 ids t
 - **State it once.** Constraints, interfaces and review focus appear in the S101 and are referenced, not copied, by the S102s. A rule copied into six tasks is six chances to drift.
 - **Link, don't duplicate.** D101 contracts by section number, conventions by path, existing code by path. Never a pasted schema, enum or column list.
 - **Size to the D101, not to a length.** An S101 is as long as its graph. A feature that needs one task gets a one-task plan; that is not a reason to skip it, because the constraints and the escalation routing still have to be written down somewhere the builder reads.
-- **Model tier is a recommendation, per task.** The tiers and their rule: a task whose S102 carries the code is transcription and takes the cheapest tier; a task written as prose takes a mid tier; a design or integration task takes the most capable. The plan names a tier; the run may override it.
+- **Model tier is a recommendation, per task.** The tiers and their rule (a task whose S102 carries the code is transcription and takes the cheapest tier; a task written as prose takes a mid tier; a design or integration task takes the most capable) follow `documentation/model-choice.md`. The plan names a tier; the run may override it.
 - **No product entity in the toolkit.** Product names, service names and ticket ids belong in the S101 in a product repo and never in this definition or the template (hard rule 7).
 
 ## 6. Lifecycle
@@ -135,7 +135,7 @@ One canonical list. Every check is asked of the S101 alone, with the D101 and th
 | 7 | Does the review focus name the uncovered failure modes, and is each pinned to a task? | Review focus |
 | 8 | Does the escalation routing name what stops a builder and who rules? | Escalation |
 | 9 | Is the S101 free of recipe (code, steps, test bodies) and free of run state? | Separation |
-| 10 | Is every model tier a recommendation consistent with the tier rule in §5? | Model choice |
+| 10 | Is every model tier a recommendation consistent with `model-choice.md`? | Model choice |
 
 A validator, when built, is **hard on shape, soft on content**: it rejects a missing header field, a cycle, an orphan task, a broken link, an intersecting parallel pair; it does not judge whether the phases are sensible or the review focus is the right five. That is the reviewer's.
 
