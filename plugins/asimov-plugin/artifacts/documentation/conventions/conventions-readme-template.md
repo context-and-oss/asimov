@@ -22,7 +22,7 @@ file** to discover which convention files to load — it is a read-list, not pro
 tool does **not** auto-expand `@`-imports, so a convention file that is not listed below is
 invisible to the subagent. List every file you want enforced.
 
-<!-- asimov:start — managed by /asimov-init; edit the link list, keep the markers -->
+<!-- asimov:start — managed by Asimov's setup; edit the link list, keep the markers -->
 
 ## Convention files (read-list)
 
