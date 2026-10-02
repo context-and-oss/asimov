@@ -116,6 +116,7 @@ plugins/asimov-plugin/                    the plugin (install scope)
 │       └── asimov-md/                    the asimov.md context file (/asimov-init)
 │           ├── asimov-md-definition.md
 │           └── asimov-md-template.md
+├── contracts/                            stage handoffs — design.md: what a design must contain for Spec to plan from it
 ├── resources/                            building blocks shared across artifacts
 │   └── diagrams/                         the 4 standard diagram notations a D101 may use
 │       ├── README.md                     routing table: reader intent → diagram type

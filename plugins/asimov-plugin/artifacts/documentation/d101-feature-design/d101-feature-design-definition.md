@@ -83,6 +83,24 @@ They do not track each other, and neither implies the other. A `Full design` doc
 
 Until the Spec stage is in use for a feature, the template's Implementation section (§7) is an **interim home** for some of this how-level detail — file layout, reuse-vs-new, method-level wiring — carried in the D101 without being dressed as design. It sits outside the two bars; see §4.8.
 
+### 3.1 How a D101 meets `contracts/design.md`
+
+The Spec stage reads any design through the members of the design contract (`plugins/asimov-plugin/contracts/design.md` §2). A D101 at `Full design` provides them here:
+
+| Member | Where in the D101 |
+|---|---|
+| Reference | The file path and the version in the status chip |
+| Approval | The phase chip at `Full design` (the author's move, after the business approver agreed to §2–§5) and the business approver named in §1. The status chip's `Approved` is the business sign-off on the whole; the Spec stage plans from `Full design` and does not wait for it, because the estimate depends on the plan (§2.3) |
+| Decision | §4 business design and §6 technical design |
+| Rules | §4.5, each with its counter-example (§6.3) |
+| Acceptance criteria | §8, each checkable (§6.1) and rooted in §3/§4 (§6.2) |
+| Out of scope | §3 out-of-scope items, each with its reason |
+| Ids | R, NF and AC numbers as written; §6.x.y for contracts |
+| Interfaces | §6 contracts, by number |
+| Open items | §9, each with a decider (§4.3) |
+
+A D101 at `Business design` does not meet the contract: §6 is open, so the decision and the interfaces are not there yet.
+
 ## 4. Required content
 
 Every D101 covers, at minimum, the items below. The D101 template determines the section layout; this section determines what *must* be present somewhere in those sections.

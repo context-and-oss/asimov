@@ -30,10 +30,11 @@ documentation/features/*.review.md
 # the next run (s101-implementation-plan-definition §9, D101-spec-stage.html §6.8).
 # A cache, never a record; the assumptions themselves live in the S101.
 documentation/specs/*/S101-*.review.md
-# Ticket cache for a ticket-sourced plan — the Jira text as fetched or pasted,
-# with the plan's ids in the margin, for the blind validation reader. Jira is
-# the record; asimov-spec rewrites this on every run (S101 definition §3.1, §9).
-documentation/specs/*/ticket.md
+# Design cache — a design that is not a file in the repo (a ticket thread),
+# normalised into the form of contracts/design.md §3 for the blind validation
+# reader. The source's tool is the record; asimov-spec rewrites this on every
+# run (S101 definition §3.1, §9).
+documentation/specs/*/design.md
 
 # Claude Code local state
 .claude/settings.local.json

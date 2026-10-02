@@ -25,7 +25,7 @@ Load with the file-read tool. In Claude Code `${CLAUDE_PLUGIN_ROOT}` is the plug
 
 3. **The S101**: the task's entry in the frontmatter graph (role, tier, phase, depends_on, owns, produces, consumes, traces) and the body sections it inherits: §1 global constraints, §3 interfaces (the exact signatures), §4 review focus (a line pinned to this task becomes a scenario and a test here), §5 escalation routing.
 
-4. **The design-source sections the entry traces to**, by the ids in `traces`: in a D101 the requirement wording for the intent, the §6 contract for the shapes, the rule and its counter-example for the scenarios, the acceptance criterion the slice makes pass; in a ticket cache (`documentation/specs/<slug>/ticket.md`, the S101 header says which) the sentences marked `[R..]`, `[AC..]` and `[OOS..]`.
+4. **The design, by the ids in `traces`**, through the members of `${CLAUDE_PLUGIN_ROOT}/contracts/design.md`: in a D101 the requirement wording for the intent, the §6 contract for the shapes, the rule and its counter-example for the scenarios, the acceptance criterion the slice makes pass; in a normalised design (`documentation/specs/<slug>/design.md`, named by the S101 header's `design.cache`) the R, AC and OOS items and the Interfaces section.
 
 5. **The repo code the task links to**: every path in `owns` that exists (read the region you will change), every existing type the interfaces section links, the conventions for this stack (`documentation/conventions/<stack>/README.md` and what it lists) for the test command, the test naming and the commit style.
 
@@ -40,13 +40,13 @@ Load with the file-read tool. In Claude Code `${CLAUDE_PLUGIN_ROOT}` is the plug
 
 1. **Header** from the graph entry, copied verbatim: `spec: S102`, `s101`, `task`, `title`, `traces`, `role`, `tier`, `depends_on`; `status: draft`, author, today's date. Never change a copied field to make the body easier; a mismatch is a plan finding, reported to the caller.
 
-2. **Intent.** One or two sentences in the design source's words: what this task delivers and why the feature needs it. The reason, not the recipe.
+2. **Intent.** One or two sentences in the design's words: what this task delivers and why the feature needs it. The reason, not the recipe.
 
 3. **Files.** The three lists, Create / Modify / Test, exactly the graph entry's `owns.create`, `owns.modify` and `owns.test`. A modify entry on a large file names the region. Every path exact and repo-relative; a modify path that does not exist is a plan gap you report (below), not a path you change.
 
 4. **Interfaces.** Consumes: every name from the entry's `consumes`, with the exact signature from the S101 §3 and the producing task id, or the path for existing code. Produces: every name from `produces`, signature fixed here as the S101 spells it. A consumed name the S101 does not spell is a plan gap: stop and report it (below).
 
-5. **Behaviour.** One Gherkin scenario per behaviour, in fenced `gherkin` blocks, written from the design source's rule and contract (D101 §4.5 and §6, or the ticket's `[R..]` sentences); every rule with its counter-example as its own scenario. For a tester task, the scenarios are the slice's acceptance criterion made concrete at API level against the skeleton's public methods, end to end only where the conventions name a runner.
+5. **Behaviour.** One Gherkin scenario per behaviour, in fenced `gherkin` blocks, written from the design's rule and contract (D101 §4.5 and §6, or the normalised design's R items and Interfaces); every rule with its counter-example as its own scenario. For a tester task, the scenarios are the slice's acceptance criterion made concrete at API level against the skeleton's public methods, end to end only where the conventions name a runner.
 
 6. **Constraints.** Only what is specific to this task: musts, must nots, preferences by path, escalation triggers. The global constraints and the routing are inherited from the S101 by reference; a global constraint restated here is a finding. The three standing triggers (a file outside the owned set, a consumed name that does not resolve, a conflict with the D101, the conventions or a neighbour) are always listed, plus the task's own.
 
@@ -65,7 +65,7 @@ Load with the file-read tool. In Claude Code `${CLAUDE_PLUGIN_ROOT}` is the plug
 A step, a signature or a scenario you cannot write without guessing is not written. Do not save a file with a gap or a placeholder in it. Return instead, with the same source prefix the validation skills use:
 
 ```
-cannot write <task id>: design: <what the design source does not settle>
+cannot write <task id>: design: <what the design does not settle>
   needs: <the D101 section, the ticket item or the author decision that would settle it>
 ```
 

@@ -20,7 +20,7 @@ A builder that sees only its own task, in a fresh context, needs everything in o
 
 It answers five questions:
 
-- **What, and why?** The intent, in one sentence, traced to the design source.
+- **What, and why?** The intent, in one sentence, traced to the design.
 - **Where?** The files it creates, modifies and tests, exactly. This is also the set it owns; nothing else is touched.
 - **Against what?** The interfaces it consumes and produces, by exact name and shape.
 - **Done when?** Acceptance criteria verification can run.
@@ -28,7 +28,7 @@ It answers five questions:
 
 ## 2. The bar: buildable blind
 
-An S102 clears one bar. **Buildable blind** means a competent builder with no conversation history, no access to the author and only the repo, the design source (the D101, or the ticket) and this file in front of it, builds the task and knows when it is finished. Concretely:
+An S102 clears one bar. **Buildable blind** means a competent builder with no conversation history, no access to the author and only the repo, the design (the D101, or the ticket) and this file in front of it, builds the task and knows when it is finished. Concretely:
 
 - every file path is exact and exists or is declared new;
 - every name the task consumes is defined by a producer task or by existing code linked by path;
@@ -52,7 +52,7 @@ The bar is **validated blind** right after the S102 is written: a fresh subagent
 | Runtime task / ledger | Execution | Claimed, in progress, fix round, done; **never part of the S102** |
 
 - **One of several under an S101, or the only one.** The S102 inherits the S101's global constraints and escalation routing without repeating them; it states only what is specific to this task.
-- **Never without a plan.** A bug fix from the board skips the D101, not the S101: its ticket is the design source and its plan may have one task (`s101-implementation-plan-definition.md` §3). The task then traces to the ids the plan assigned to the ticket's items.
+- **Never without a plan.** A bug fix from the board skips the D101, not the S101: its ticket is the design and its plan may have one task (`s101-implementation-plan-definition.md` §3). The task then traces to the ids the plan assigned to the ticket's items.
 - **It supersedes the D101's §7 Implementation.** File layout, reuse-vs-new and method-level wiring were carried in §7 as an interim (`d101-feature-design-definition.md` §4.8). That is S102 content. A feature with S102s marks §7 N/A.
 - **The S102 is the instruction, not the record of the run.** Which builder claimed it, how many fix rounds it took, what the reviewer found: ledger. The S102 changes only when the author re-specifies the task.
 
@@ -60,7 +60,7 @@ The bar is **validated blind** right after the S102 is written: a fresh subagent
 
 ### 4.1 Header
 
-The S101 it belongs to and its task id in that graph, the requirements, contracts and acceptance criteria of the design source it serves by id, the builder role it is written for (exactly one of the roles the S101 template's leading comment lists: a `role-*` skill such as `dotnet-builder`, `angular-builder` or `dotnet-tester`, or `human`), the model tier recommended, the tasks it depends on, the status (§6), the author and the date. Role, tier, dependencies and traces are copied from the graph entry so the brief stands alone; the plan validation checks they still match.
+The S101 it belongs to and its task id in that graph, the requirements, contracts and acceptance criteria of the design it serves by id, the builder role it is written for (exactly one of the roles the S101 template's leading comment lists: a `role-*` skill such as `dotnet-builder`, `angular-builder` or `dotnet-tester`, or `human`), the model tier recommended, the tasks it depends on, the status (§6), the author and the date. Role, tier, dependencies and traces are copied from the graph entry so the brief stands alone; the plan validation checks they still match.
 
 ### 4.2 Intent
 
@@ -128,11 +128,11 @@ There is no `superseded`. An S102 that fails validation, or that a plan-level fi
 
 ## 8. The checks
 
-Asked of the S102 with the S101 and the design source beside it. The verdict is the S101 reviewer's.
+Asked of the S102 with the S101 and the design beside it. The verdict is the S101 reviewer's.
 
 | # | Check | Tests |
 |---|---|---|
-| 1 | Does the header trace to an S101 task and to named ids of the design source (a D101's, or the ids the plan assigned to a ticket's items)? | Traceability |
+| 1 | Does the header trace to an S101 task and to named ids of the design (a D101's, or the ids the plan assigned to a ticket's items)? | Traceability |
 | 2 | Is every file path exact, and does every modified file exist? | Files |
 | 3 | Is every consumed name produced by a named task or by existing code linked by path? | Interface closure |
 | 4 | Is every behaviour a scenario a test can be written from, and does every rule carry a counter-example? | Behaviour |
@@ -147,4 +147,4 @@ Validation (`artifact-s102-validation`) is hard on shape and soft on content: it
 
 ## 9. Placement and naming
 
-An S102 lives beside its S101 at `documentation/specs/<feature-slug>/S102-<feature-slug>-<NNN>-<task-slug>.md`, `<NNN>` counting from `001` inside the feature folder. For a ticket-sourced plan the folder is the ticket key in kebab-case. Markdown body with YAML frontmatter; scenarios in Gherkin code fences, so validation can parse them. The path is a lockstep literal of hard rule 9, moved together with the S101's (`s101-implementation-plan-definition.md` §9).
+An S102 lives beside its S101 at `documentation/specs/<feature-slug>/S102-<feature-slug>-<NNN>-<task-slug>.md`, `<NNN>` counting from `001` inside the feature folder. For a plan cut from a normalised design the folder is the ticket key in kebab-case. Markdown body with YAML frontmatter; scenarios in Gherkin code fences, so validation can parse them. The path is a lockstep literal of hard rule 9, moved together with the S101's (`s101-implementation-plan-definition.md` §9).

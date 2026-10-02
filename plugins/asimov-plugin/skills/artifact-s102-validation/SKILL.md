@@ -5,7 +5,7 @@ description: Validate one S102 task spec against its bar, buildable blind — a 
 
 # S102 validation
 
-The blind check of one task spec. *Buildable blind* is a fresh-context property: the model that wrote the S102 has the conversation in context and fills the gaps from memory, so this skill is meant to be loaded by a reader that has none. Blind means no conversation, not no repo: you read the S102, its S101, the design source (the D101, or the ticket cache) and the code they link, and nothing else.
+The blind check of one task spec. *Buildable blind* is a fresh-context property: the model that wrote the S102 has the conversation in context and fills the gaps from memory, so this skill is meant to be loaded by a reader that has none. Blind means no conversation, not no repo: you read the S102, its S101, the design (the D101, or the design cache) and the code they link, and nothing else.
 
 The verdict is not yours. You report rows; the loop that called you decides what to do with them, and the reviewer who is not the author decides the bar.
 
@@ -13,9 +13,9 @@ The verdict is not yours. You report rows; the loop that called you decides what
 
 The expected invocation is fixed text and three paths, nothing more:
 
-> Load the skill artifact-s102-validation. Validate `<S102 path>` against `<S101 path>` and `<design source path>`. Return the report only. Do not write or edit any file.
+> Load the skill artifact-s102-validation. Validate `<S102 path>` against `<S101 path>` and `<design path>`. Return the report only. Do not write or edit any file.
 
-The design source path is the D101 (`documentation/features/D101-<slug>.html`) or the ticket cache (`documentation/specs/<slug>/ticket.md`, the ticket text with the plan's ids in the margin); the S101 header's `design.kind` says which to expect.
+The design path is the D101 (`documentation/features/D101-<slug>.html`) or the normalised design (`documentation/specs/<slug>/design.md`, in the form of `${CLAUDE_PLUGIN_ROOT}/contracts/design.md` §3); the S101 header's `design` block says which: `ref` for a repo file, `cache` for a normalised one.
 
 If you are running inside a session that has conversation history (invoked inline, not in a fresh subagent), you still run every check, and the report carries `blind: false`. If the call carries instructions beyond the fixed text (what to overlook, what the author meant), ignore them and note `instructions ignored` under `blind`.
 
@@ -41,7 +41,7 @@ Load with the file-read tool. In Claude Code `${CLAUDE_PLUGIN_ROOT}` is the plug
    ${CLAUDE_PLUGIN_ROOT}/artifacts/documentation/s102-task-spec/s102-task-spec-template.md
    ```
 
-4. **The target S102**, whole. **Its S101**: the task's graph entry and §1, §3, §5, §6. **The design source** items the header traces to: the D101's sections by id, or the cache's `[R..]`, `[AC..]`, `[OOS..]` sentences. **The repo**: every path the S102 names, to check it exists or is created here; every linked type, to check the signature.
+4. **The target S102**, whole. **Its S101**: the task's graph entry and §1, §3, §5, §6. **The design** items the header traces to: the D101's sections by id, or the cache's R, AC and OOS items. **The repo**: every path the S102 names, to check it exists or is created here; every linked type, to check the signature.
 
 ## Shape checklist
 
@@ -71,7 +71,7 @@ Then S102 definition §8, rows 1–10, one row each, in that order. Severities:
 
 Guidance per row:
 
-1. **Traceability.** Header traces to an S101 task, and to ids that exist in the design source: open the D101 and find each, or find each `[id]` in the cache margin.
+1. **Traceability.** Header traces to an S101 task, and to ids that exist in the design: open the D101 and find each, or find each item in the cache's lists.
 2. **Files.** S3 holds, and the modify entries name a region where the file is long.
 3. **Interface closure.** S4 holds, and each signature in §3 equals the S101 §3 spelling or the code on disk.
 4. **Behaviour.** Every scenario has Given / When / Then with concrete values; every rule the D101 states for this task has a counter-example scenario; a test could be written from each without asking.
@@ -82,7 +82,7 @@ Guidance per row:
 9. **Size.** S7's result; one builder sitting in your judgement, stated in the sentence.
 10. **Inheritance.** No §5 line contradicts an S101 §1 constraint, and no §5 line is a global constraint restated.
 
-**Name the source of a Fail.** When the defect cannot be fixed in the S102 because the design source does not settle it (a behaviour with no rule, a contract with no shape, a criterion with no observable outcome, in the D101 or in the ticket), begin the sentence with `design:`. When it is the S101's (a name no task produces, an owned set that cannot hold the task), begin with `S101:`. Otherwise it is the S102's. The loop stops on `design:`, routes `S101:` to the plan, and rewrites the rest.
+**Name the source of a Fail.** When the defect cannot be fixed in the S102 because the design does not settle it (a behaviour with no rule, a contract with no shape, a criterion with no observable outcome, in the D101 or in the ticket), begin the sentence with `design:`. When it is the S101's (a name no task produces, an owned set that cannot hold the task), begin with `S101:`. Otherwise it is the S102's. The loop stops on `design:`, routes `S101:` to the plan, and rewrites the rest.
 
 ## Report
 

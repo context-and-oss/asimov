@@ -30,7 +30,7 @@
     the steps; mid = prose steps with a clear check; high = judgement).
   - status: draft is the only value a skill writes; later values follow the
     S101's (definition §6).
-  - traces: ids of the design source — R3, NF2, §6.4.1, AC5 as a D101 writes
+  - traces: ids of the design — R3, NF2, §6.4.1, AC5 as a D101 writes
     them, or the ids the plan assigned to a ticket's items.
 
   WHAT THE BODY MUST DO
