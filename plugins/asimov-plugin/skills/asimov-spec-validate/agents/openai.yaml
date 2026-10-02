@@ -1,0 +1,11 @@
+# Codex metadata for the asimov-spec-validate asimov-skill (D101-spec-stage §6.1, NF5, NF6).
+# The method lives in ../SKILL.md, the same file Claude Code reads.
+# Codex skills take no arguments: the author names the slug in the same message.
+interface:
+  display_name: "Asimov · Spec validate"
+  short_description: "Validate an existing plan under documentation/specs/<slug>/: a blind check per task spec, then the plan checks. Writes only the review sidecar."
+  default_prompt: "Use $asimov-spec-validate on the plan <slug> under documentation/specs/<slug>/."
+
+policy:
+  # Only a person starts a validation run; the model never selects this skill (NF5).
+  allow_implicit_invocation: false
