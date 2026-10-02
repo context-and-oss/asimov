@@ -70,8 +70,8 @@ Developer-driven entrypoints. Each is a markdown file under `plugins/asimov-plug
 | `/asimov-init` | Setup (ad-hoc) | Opus 4.8 | [`D101-asimov-init.html`](features/D101-asimov-init.html) |
 | `/persona-new` | Design | Opus 4.8 | [`D101-personas.html`](features/D101-personas.html) |
 | `/persona-list` | Design | Sonnet 4.6 | [`D101-personas.html`](features/D101-personas.html) |
-| `/s101-implementation-plan` *(planned)* | Spec | Opus 4.8 xhigh | — |
-| `/s101-review` *(planned)* | Spec | Sonnet 4.6 | — |
+| `asimov-spec` *(planned; an asimov-skill, not a command — `features/D101-spec-stage.html` §4.2)* | Spec | Opus 4.8 xhigh (Claude Code only) | `features/D101-spec-stage.html` |
+| `asimov-spec-validate` *(planned; asimov-skill)* | Spec | Sonnet 4.6 (Claude Code only) | `features/D101-spec-stage.html` |
 | `/conventions-check` *(planned)* | Review + Test | Sonnet 4.6 or Haiku 4.5 | — |
 
 Command file paths follow the pattern `plugins/asimov-plugin/commands/<command-name>.md`. Slash commands are Claude Code only — Codex does not load `commands/`; `/asimov-init` alone has a Codex counterpart, the skill `codex-asimov-init` (§4.6).
@@ -348,13 +348,13 @@ Planned components that slot into the structure above when added:
 
 | Item | Adds to layout |
 |---|---|
-| `/s101-implementation-plan` slash command | `plugins/asimov-plugin/commands/s101-implementation-plan.md` |
-| `/s101-review` slash command | `plugins/asimov-plugin/commands/s101-review.md` |
+| `asimov-spec` asimov-skill | `plugins/asimov-plugin/skills/asimov-spec/SKILL.md` (+ `agents/openai.yaml` for Codex) |
+| `asimov-spec-validate` asimov-skill | `plugins/asimov-plugin/skills/asimov-spec-validate/SKILL.md` (+ `agents/openai.yaml` for Codex) |
 | `/conventions-check` slash command | `plugins/asimov-plugin/commands/conventions-check.md` |
 | S102 validator subagent | `plugins/asimov-plugin/agents/s102-validator.md` |
 | S101 template | `plugins/asimov-plugin/artifacts/documentation/s101-implementation-plan/s101-implementation-plan-template.md` |
 | S102 template | `plugins/asimov-plugin/artifacts/documentation/s102-task-spec/s102-task-spec-template.md` |
-| Spec-stage D101 | `documentation/features/D101-spec-stage.html` — the design behind the S101/S102 definitions and the `/s101-*` commands |
+| Spec-stage D101 | `documentation/features/D101-spec-stage.html` — the design behind the S101/S102 definitions and the `asimov-spec` / `asimov-spec-validate` skills |
 
 **The D101 §7 boundary is settled by the S102 definition.** §7 Implementation was the *interim* home for code-grounded build-readiness notes (project layout, reuse-vs-new, method-level wiring). That is S102 content (`s102-task-spec-definition.md` §3): a feature that has an S101 marks §7 N/A and points at its `documentation/specs/<feature-slug>/` folder. §7 stays in the template for repos and features not yet on the Spec stage (`d101-feature-design-definition.md` §4.8). Research and decisions: `documentation/research/S101-S102-spec-stage-research.md`.
 
