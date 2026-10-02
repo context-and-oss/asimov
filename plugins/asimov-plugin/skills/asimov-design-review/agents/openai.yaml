@@ -1,0 +1,11 @@
+# Codex metadata for the asimov-design-review asimov-skill (D101-design-stage).
+# The conversation lives in ../SKILL.md, the same file Claude Code reads.
+# Codex skills take no arguments: the author names the D101 slug or path in the same message.
+interface:
+  display_name: "Asimov · Design review"
+  short_description: "Gap check and persona reads of a D101; findings only, cached beside the file"
+  default_prompt: "Use $asimov-plugin:asimov-design-review to review the D101 <slug> under documentation/features/."
+
+policy:
+  # Only a person starts a review; the model never selects this skill.
+  allow_implicit_invocation: false

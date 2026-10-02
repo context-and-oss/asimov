@@ -50,22 +50,20 @@ reference is invisible to the subagent. See D100 §7.2.1.
 
 | Command                 | Stage  | Use it to                                                               |
 | ----------------------- | ------ | ----------------------------------------------------------------------- |
-| `/d101-feature-design`  | Design | Interview-author a D101 (HTML) — two runs, see below                    |
-| `/d101-review`          | Design | Review hub — the gap check (§8a/§8b) plus the persona reads             |
-| `/d101-convert-to-html` | Design | Convert a legacy markdown D101 to HTML                                  |
-| `/persona-new`          | Design | Author a custom persona — a product-specific reader — as a review skill |
-| `/persona-list`         | Design | List the persona review skills available (standard + custom)            |
+| `/asimov-design`        | Design | Interview-author a D101 (HTML) — two runs, see below; a legacy `.md` path renders it to HTML |
+| `/asimov-design-review` | Design | Review hub — the gap check (§8a/§8b) plus the persona reads             |
+| `artifact-persona-authoring` | Design | Show the persona roster, then author a custom persona — a product-specific reader — as a review skill (a skill: ask for it in plain words) |
 | `/asimov-spec`          | Spec   | Plan a Full-design D101 or an approved Jira ticket into `documentation/specs/<slug>/` — shows the cut, waits for your go |
 | `/asimov-spec-validate` | Spec   | Validate an existing plan; writes only its review sidecar               |
 | `/asimov-init`          | Setup  | Re-run to refresh this file, conventions, and the docs site             |
 
-`/asimov-spec` and `/asimov-spec-validate` are skills you invoke by name (in Codex: `$asimov-plugin:asimov-spec`, `$asimov-plugin:asimov-spec-validate`), never picked by the model; the D101, the Jira link or the ticket text goes in the same message. A bug fix needs no D101: a ticket whose thread meets the design contract (an approval, the problem, the decision, acceptance criteria, what is out of scope, and rules and open questions where there are any) is a design, and gets a plan, even of one task. The plan's `ready` status is set by hand after a reviewer who is not the author approves it.
+`/asimov-design`, `/asimov-design-review`, `/asimov-spec` and `/asimov-spec-validate` are skills you invoke by name (in Codex: `$asimov-plugin:asimov-design`, and so on), never picked by the model; the feature, the D101, the Jira link or the ticket text goes in the same message. A bug fix needs no D101: a ticket whose thread meets the design contract (an approval, the problem, the decision, acceptance criteria, what is out of scope, and rules and open questions where there are any) is a design, and gets a plan, even of one task. The plan's `ready` status is set by hand after a reviewer who is not the author approves it.
 
-**Two runs, not one.** `/d101-feature-design` works to two bars. The first run settles requirements and the business design, writes the file with §6 _Technical design_ marked open and a list of what is outstanding, and then stops. Open the file, read it, iterate on §2–§5 — then run the command again against that file to add §6. `/d101-review` reads the phase from the document, then offers and runs the reviews it calls for — the gap check against the matching bar (§8a while §6 is open, §8b once written) plus the persona reads (below).
+**Two runs, not one.** `/asimov-design` works to two bars. The first run settles requirements and the business design, writes the file with §6 _Technical design_ marked open and a list of what is outstanding, and then stops. Open the file, read it, iterate on §2–§5 — then run it again against that file to add §6. `/asimov-design-review` reads the phase from the document, then offers and runs the reviews it calls for — the gap check against the matching bar (§8a while §6 is open, §8b once written) plus the persona reads (below).
 
 The rendered D101 carries two chips in its top bar: **phase** (`Business design` → `Full design`, yours to move) and **status** (`Draft` → `Approved`, the business approver's, normally only after §6 exists because the estimate depends on it).
 
-**Read the design as its reader, too.** Beyond the bar check, a **persona review** reads a D101 (its §2/§4, plus §6 for a feasibility reader) _as one of its intended readers_ and reports where it talks to its author instead — the reader's-eye complement to the gap check, not a substitute; run both. `/d101-review` offers these persona reads alongside the gap check, or invoke a reader directly by name (`review as <name>`). Standard readers ship with Asimov; `/persona-list` shows the whole roster and `/persona-new` authors a reader specific to this repo. Reach for one before taking a design to a real reviewer.
+**Read the design as its reader, too.** Beyond the bar check, a **persona review** reads a D101 (its §2/§4, plus §6 for a feasibility reader) _as one of its intended readers_ and reports where it talks to its author instead — the reader's-eye complement to the gap check, not a substitute; run both. `/asimov-design-review` offers these persona reads alongside the gap check, or invoke a reader directly by name (`review as <name>`). Standard readers ship with Asimov; `artifact-persona-authoring` shows the whole roster and authors a reader specific to this repo ("author a persona for our dispatcher"). Reach for one before taking a design to a real reviewer.
 
 ## Available subagents
 

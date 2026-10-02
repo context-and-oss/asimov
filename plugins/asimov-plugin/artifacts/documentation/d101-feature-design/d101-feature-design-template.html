@@ -6,20 +6,19 @@
 <title>D101 — {{Feature name}} — {{Repo}} docs</title>
 <!--
   D101 HTML template — the visual + structural contract for D101 feature
-  designs. Read at run-time by two skills and, through them, three slash commands:
+  designs. Read at run-time by two skills and, through them, two asimov-skills:
     artifact-d101-authoring  — the rendering procedure + authoring invariants; drafts
-                               by it: /d101-feature-design (interview → new D101),
-                               /d101-convert-to-html (legacy markdown → HTML), and any
-                               hand edit of a D101
+                               by it: asimov-design (interview → new D101; a named
+                               legacy markdown path → HTML), and any hand edit of a D101
     artifact-d101-gap-review — judges a draft against this comment's ground rules +
                                component catalogue and the definition's bars;
-                               /d101-review delegates its gap review to it
+                               asimov-design-review delegates its gap review to it
   This comment is the single home of the component catalogue, the N/A policy, the
-  selection principles and the style rules — the skills and commands reference it,
+  selection principles and the style rules — the skills and asimov-skills reference it,
   never restate it.
 
   HOW TO USE
-  - This file is a working, render-faithful example. The commands above
+  - This file is a working, render-faithful example. The skills above
     read it at run-time to learn the visual language; they produce or
     judge HTML files using the same CSS and the same component classes.
   - When rendering a real D101, replace placeholder values like {{X}} and
@@ -42,7 +41,7 @@
     Top-nav is site-wide ONLY — no per-page anchors. The per-page anchors
     used to live in top-nav; they're now in the sidebar.
 
-  AUTHORING GROUND RULES — load-bearing; /d101-feature-design enforces them.
+  AUTHORING GROUND RULES — load-bearing; asimov-design enforces them.
 
     1. Code is the spec for *how*; the D101 is the spec for *what*.
        Link to files / lines; don't duplicate enum values, schemas,
@@ -117,7 +116,7 @@
         the accepter and the date. Never a side file — a waiver keyed to "R6" in another file
         rots the moment requirements renumber, and it hides the deviation from the reviewer who
         owns the §8b verdict. Never against a whole §8 check: one named rule instance at a time.
-        /d101-review then reports it as **Accepted** — visible on every run, but no longer a
+        asimov-design-review then reports it as **Accepted** — visible on every run, but no longer a
         decision the author has to take again.
 
   ARCHETYPE — this template fits both:
@@ -196,7 +195,7 @@
     ANY element → `.accepted` block for a deliberately-unmet rule (d101-feature-design-definition §4.9). Nests inside
                        the .req / .ac-row / section it excuses; `.accepted-tag` + `.accepted-rule` naming the
                        rule + one-sentence why + `.accepted-by` carrying "Name · YYYY-MM-DD". Never against
-                       a whole §8 check. /d101-review reports it as severity **Accepted**, never Pass.
+                       a whole §8 check. asimov-design-review reports it as severity **Accepted**, never Pass.
     §4 chapter heading → `.chapter-band` with numeral
     §4.1 Principles → `.principles` numbered list
     §4.2 Concepts → `.data-table` (Concept | What it means) — one row per term, one sentence each

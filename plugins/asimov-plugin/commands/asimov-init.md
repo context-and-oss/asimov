@@ -191,4 +191,4 @@ After writing, report:
 
 # Repo handling
 
-The `documentation/` taxonomy (Step 4), the `asimov.md` root location, and the `<stack>` slugs are the conventions shared with `/d101-feature-design`, `/d101-review`, and `/d101-convert-to-html`. If the active repo uses a different layout, fork the patterns here and in those commands together — they share the path convention and must stay in lockstep (D100 hard rule 9).
+The `documentation/` taxonomy (Step 4), the `asimov.md` root location, and the `<stack>` slugs are the conventions shared with `asimov-design`, `asimov-design-review` and the two `artifact-d101-*` skills. If the active repo uses a different layout, fork the patterns here and in those skills together — they share the path convention and must stay in lockstep (D100 hard rule 9).

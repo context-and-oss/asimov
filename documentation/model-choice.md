@@ -10,12 +10,9 @@ Canonical mapping from L3 pipeline stage → toolkit component (command, asimov-
 
 | Pipeline stage | Component | Model | Effort |
 |---|---|---|---|
-| Design | `/d101-feature-design` | `claude-opus-5-5` | `xhigh` |
-| Design | `/d101-review` | `claude-sonnet-5-5` | *(default)* |
-| Design | `/d101-convert-to-html` | `claude-sonnet-5-5` | *(default)* |
+| Design | `asimov-design` asimov-skill *(Claude Code only)* | `claude-opus-5-5` | `xhigh` |
+| Design | `asimov-design-review` asimov-skill *(Claude Code only)* | `claude-sonnet-5-5` | *(default)* |
 | Setup | `/asimov-init` | `claude-opus-5-5` | *(default)* |
-| Design | `/persona-new` | `claude-opus-5-5` | *(default)* |
-| Design | `/persona-list` | `claude-sonnet-5-5` | *(default)* |
 | Code | `giskard-the-dotnet-developer` subagent | `claude-sonnet-5-5` | *(default)* |
 | Code | `daneel-the-angular-developer` subagent | `claude-sonnet-5-5` | *(default)* |
 | Code | `calvin-the-test-author` subagent | `claude-sonnet-5-5` | *(default)* |
@@ -76,4 +73,4 @@ Field semantics (per Claude Code docs):
 
 How the toolkit rolls a model forward — e.g. when a current model is retired — remains an open architecture question tracked in [`D100 §10 Q4`](D100-Asimov-architecture.md#10-open-architecture-questions).
 
-The first roll-forward (Opus 4.7 → Opus 4.8 for `/d101-feature-design` and the then-planned Spec-stage command, now `asimov-spec`) was done as a **single PR** updating **this file**, **D100**, the affected **D101**, and **every relevant command/subagent frontmatter** together — establishing the working precedent until the ritual is formally decided. The second roll-forward (Opus 4.8 → Opus 5.5 and Sonnet 4.6 → Sonnet 5.5 for every pin at once, 2026-10-02, prompted by a review comment on the Spec stage) followed the same shape. Treat future bumps the same way; partial updates create drift that the sync rule (§above) is designed to prevent.
+The first roll-forward (Opus 4.7 → Opus 4.8 for the then `/d101-feature-design`, now `asimov-design`, and the then-planned Spec-stage command, now `asimov-spec`) was done as a **single PR** updating **this file**, **D100**, the affected **D101**, and **every relevant command/subagent frontmatter** together — establishing the working precedent until the ritual is formally decided. The second roll-forward (Opus 4.8 → Opus 5.5 and Sonnet 4.6 → Sonnet 5.5 for every pin at once, 2026-10-02, prompted by a review comment on the Spec stage) followed the same shape. Treat future bumps the same way; partial updates create drift that the sync rule (§above) is designed to prevent.

@@ -8,7 +8,7 @@ since: 2026-09-10
 
 The written standard a D101 (feature design document) must meet before downstream work — Spec (S101/S102), Code, Review+Test — can act on it. This document defines the Design stage's **two bars**: the **business-complete bar**, which a D101 clears before any technical design exists, and the **gap-free bar**, which it clears before an implementer can act on it (§2).
 
-Read both by humans (authors, reviewers) and by the `/d101-feature-design` and `/d101-review` slash commands at run-time.
+Read both by humans (authors, reviewers) and by the `asimov-design` and `asimov-design-review` asimov-skills at run-time, through the `artifact-d101-*` skills.
 
 ---
 
@@ -188,25 +188,25 @@ An accepted deviation carries four things:
 Three limits are what make it safe rather than corrosive:
 
 1. **It covers one named instance, never a check.** *"R6 is compound; accepted"* is a deviation. *"Check 1 does not apply here"* is not. No accepted deviation may cover a whole §8 check — that would let a document be *accepted* to the gap-free bar instead of reaching it.
-2. **It never silences the review.** `/d101-review` reports an accepted deviation on every run, with its reason and its accepter. What it stops doing is asking the author to decide again. Visibility is the entire mechanism: the reviewer who owns the §8b verdict must see what they are signing.
+2. **It never silences the review.** `asimov-design-review` reports an accepted deviation on every run, with its reason and its accepter. What it stops doing is asking the author to decide again. Visibility is the entire mechanism: the reviewer who owns the §8b verdict must see what they are signing.
 3. **It is bound to the text it annotates.** Rewrite the requirement, rule, or section it sits on and the acceptance lapses — new text needs a new decision.
 
 **Accepted is not Pass.** A section or check whose only outstanding item is an accepted deviation reads **Accepted**, never Pass. This is the same move as *open* in §4.6: a deliberate state gets its own name, so a reader can mistake it neither for a shortfall nor for a clean bill.
 
-An accepted deviation is a worse outcome than a fix, and the mechanism is deliberately narrow so that stays true — the ceiling on what it can excuse is one named rule instance at a time. Its design is `documentation/features/D101-d101-feature-design.html` (§4.4, §6.4).
+An accepted deviation is a worse outcome than a fix, and the mechanism is deliberately narrow so that stays true — the ceiling on what it can excuse is one named rule instance at a time. Its design is `documentation/features/D101-design-stage.html` (§4.4, §6.4).
 
 ### 4.10 Review notes — a cache, not a record
 
-`/d101-review` may write its findings to a sibling file, `<same directory as the target>/D101-<slug>.review.md`, so they survive past the chat session that produced them and reach a later `/d101-feature-design` run as input. The sibling is derived from wherever the target D101 actually resolved to — normally `documentation/features/`, but a target reviewed from a non-standard path gets its notes written beside it, never redirected to the standard location. The file is **read-only findings a review would have produced anyway** — never a place new judgement gets made, and never something an author edits by hand.
+`asimov-design-review` may write its findings to a sibling file, `<same directory as the target>/D101-<slug>.review.md`, so they survive past the chat session that produced them and reach a later `asimov-design` run as input. The sibling is derived from wherever the target D101 actually resolved to — normally `documentation/features/`, but a target reviewed from a non-standard path gets its notes written beside it, never redirected to the standard location. The file is **read-only findings a review would have produced anyway** — never a place new judgement gets made, and never something an author edits by hand.
 
 This is only safe because the gap review is **stateless**: every run derives its findings from the D101 alone, from scratch, with no memory of prior runs. That makes the review-notes file a disposable cache rather than a record of history:
 
 - It carries **no state the D101 itself and a re-run of the review couldn't reproduce.** Losing the file costs one re-run, never a lost decision.
-- It is **consumed once and then deleted** by `/d101-feature-design`, the moment it has been used as input to a rewrite of the same D101. An item left unaddressed does not vanish with the file — it resurfaces on the next `/d101-review` run, because the D101 that produced it is unchanged.
+- It is **consumed once and then deleted** by `asimov-design`, the moment it has been used as input to a rewrite of the same D101. An item left unaddressed does not vanish with the file — it resurfaces on the next `asimov-design-review` run, because the D101 that produced it is unchanged.
 - It carries a **fingerprint of the D101 it was written against** (§1's *Last updated* date, the phase-chip value, and the status chip's **literal text including its version number**, e.g. `Draft v0.3`, at review time), so a consumer can tell whether the D101 changed underneath it before the notes were used. The version number matters: it advances on every write, so two edits made on the same calendar day still produce different fingerprints even though the date alone would read as unchanged. A mismatch is reported, not silently trusted — the fingerprint is still a coarse proxy, not a hash, and says so.
 - It is **git-ignorable.** It is working state between two commands, not a design artifact — committing it turns review commentary into something that looks like a permanent record, which duplicates a PR's own review thread (out of scope — see the design).
 
-Its design, including the exact file shape and the hard-rule caveat this needs (`/d101-review` gains `Write`, but the *scope* of what it writes is a prompt discipline, not a sandboxed guarantee — the same category of promise the never-move-either-axis rule already relies on), is `documentation/features/D101-d101-feature-design.html` (R10–R11, §6.4).
+Its design, including the exact file shape and the hard-rule caveat this needs (`asimov-design-review` gains `Write`, but the *scope* of what it writes is a prompt discipline, not a sandboxed guarantee — the same category of promise the never-move-either-axis rule already relies on), is `documentation/features/D101-design-stage.html` (R10–R11, §6.4).
 
 ## 5. Requirement quality rules
 
@@ -295,7 +295,7 @@ Check 8 is conditional on the feature being user-facing. A backend-only feature 
 
 No accepted deviation (§4.9) may be written against a check in this table. A deviation excuses one named rule *instance*; the check that instance belongs to then reports **Accepted** — carrying the reason and the accepter — rather than Pass. A document is never excused from a check, only ever from a named case within one.
 
-Check 7's abstract question — *would the reader understand it?* — has a concrete, reader-in-the-loop form: a **persona review** puts a specific named reader in front of §2/§4 (and §6, for a feasibility reader) and narrates where they stall. `/d101-review` tests check 7 by the altitude litmus; a persona review tests it by the reader. They are complementary — run both. See `persona-review-definition.md`.
+Check 7's abstract question — *would the reader understand it?* — has a concrete, reader-in-the-loop form: a **persona review** puts a specific named reader in front of §2/§4 (and §6, for a feasibility reader) and narrates where they stall. `asimov-design-review` tests check 7 by the altitude litmus; a persona review tests it by the reader. They are complementary — run both. See `persona-review-definition.md`.
 
 ### 8a. The business-complete check
 

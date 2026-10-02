@@ -108,9 +108,9 @@
     <rect x="204" y="140" width="230" height="184" rx="10"/>
     <text class="head mono" x="220" y="166">COMMANDS<tspan class="go" dx="8">→</tspan></text>
     <text class="sub" x="220" y="186">what you type in Claude Code</text>
-    <text class="mono" x="220" y="220" style="font-size:12px">/d101-feature-design</text>
-    <text class="mono" x="220" y="244" style="font-size:12px">/d101-review</text>
-    <text class="mono" x="220" y="268" style="font-size:12px">/persona-new</text>
+    <text class="mono" x="220" y="220" style="font-size:12px">/asimov-design</text>
+    <text class="mono" x="220" y="244" style="font-size:12px">/asimov-design-review</text>
+    <text class="mono" x="220" y="268" style="font-size:12px">/asimov-init</text>
     <text class="sub" x="220" y="296">interview first, then write</text>
   </a>
 
@@ -193,7 +193,7 @@
   <p>Asimov-skills and agents on top: the conversation and the identity, nothing else. Skills in the middle: every method, one family per column. At the bottom, what each skill works on: role skills on your code, artifact skills on your documents, both in your repository; the advisor on the delivery model. Personas have nothing of their own; they read the artifacts the artifact skills write. The same skill works whichever tool runs it, and when you do the step by hand.</p>
 
   <div class="figure">
-<svg class="insidemap layers" viewBox="0 0 1200 520" style="min-width:900px" role="img" aria-label="Layer diagram, three bands. Top band, what you use: agents (Giskard, Daneel, Calvin, Baley), the asimov-skills you type (/asimov-d101, /asimov-d101-review, /asimov-init), and plain questions to a persona or the delivery model. Middle band, skills: role skills for the agents, artifact skills for writing and reviewing a D101, the standard persona skills, the pm-advisor. Bottom band, what each skill works on: your code under the role skills and your artifacts under the artifact skills, both inside your repository; the delivery model under the advisor; the personas read your artifacts too. Every box opens its page.">
+<svg class="insidemap layers" viewBox="0 0 1200 520" style="min-width:900px" role="img" aria-label="Layer diagram, three bands. Top band, what you use: agents (Giskard, Daneel, Calvin, Baley), the asimov-skills you type (/asimov-design, /asimov-design-review, /asimov-init), and plain questions to a persona or the delivery model. Middle band, skills: role skills for the agents, artifact skills for writing and reviewing a D101, the standard persona skills, the pm-advisor. Bottom band, what each skill works on: your code under the role skills and your artifacts under the artifact skills, both inside your repository; the delivery model under the advisor; the personas read your artifacts too. Every box opens its page.">
   <style>
     .layers .skill rect { fill: var(--violet, #ab47bc); fill-opacity: 0.14; stroke: var(--violet, #ab47bc); stroke-width: 1.5; }
     .layers .skill .go, .layers .skill .head { fill: var(--violet, #ab47bc); }
@@ -240,8 +240,8 @@
     <title>Open Commands — the asimov-skills you type</title>
     <rect x="316" y="44" width="270" height="100" rx="10"/>
     <text class="head mono" x="332" y="68">ASIMOV-*<tspan class="go" dx="8">→</tspan></text>
-    <text class="mono" x="332" y="88" style="font-size:12px">/asimov-d101</text>
-    <text class="mono" x="332" y="104" style="font-size:12px">/asimov-d101-review</text>
+    <text class="mono" x="332" y="88" style="font-size:12px">/asimov-design</text>
+    <text class="mono" x="332" y="104" style="font-size:12px">/asimov-design-review</text>
     <text class="mono" x="332" y="120" style="font-size:12px">/asimov-init</text>
     <text class="sub" x="332" y="138">they compose skills, never carry one</text>
   </a>
@@ -261,7 +261,7 @@
     <rect x="608" y="44" width="270" height="100" rx="10"/>
     <text class="head mono" x="624" y="70">YOU ASK<tspan class="go" dx="8">→</tspan></text>
     <text class="mono" x="624" y="94" style="font-size:12px">"review this as Athena"</text>
-    <text class="sub" x="624" y="118">or pick the readers in /asimov-d101-review</text>
+    <text class="sub" x="624" y="118">or pick the readers in /asimov-design-review</text>
   </a>
   <a class="skill" href="../inside/personas.html">
     <title>Open Personas — the reader skills</title>
@@ -270,7 +270,7 @@
     <text class="sub" x="624" y="242">read a design as the people who sign</text>
     <text class="mono" x="624" y="264" style="font-size:12px">persona-poseidon · persona-athena</text>
     <text class="mono" x="624" y="282" style="font-size:12px">persona-hermes</text>
-    <text class="sub" x="624" y="310">yours: persona-new writes them into your repo</text>
+    <text class="sub" x="624" y="310">yours via artifact-persona-authoring</text>
   </a>
 
   <!-- ─── column 4: you ask → pm-* ─── -->
@@ -440,7 +440,7 @@
     <text class="mono" x="40" y="422" style="font-size:12px">artifact-d101-gap-review</text>
     <text class="head mono" x="40" y="452">PERSONA-*</text>
     <text class="mono" x="40" y="472" style="font-size:12px">persona-poseidon · persona-athena · persona-hermes</text>
-    <text class="sub" x="40" y="492">yours: persona-new writes them into your repo</text>
+    <text class="sub" x="40" y="492">yours via artifact-persona-authoring</text>
     <text class="sub" x="40" y="522">also when you edit the file by hand</text>
   </a>
   <a class="skill" href="../artifacts/documentation/index.html">

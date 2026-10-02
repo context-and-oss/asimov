@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>D101 — D101 feature design — asimov docs</title>
+<title>D101 — Design stage — asimov docs</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
@@ -310,21 +310,21 @@ footer.site-footer a { color: var(--cyan); }
 
 <header class="hero">
   <div class="kicker">D101 · Feature design · asimov-plugin</div>
-  <h1>D101 feature design</h1>
-  <p class="tagline">One artifact, two bars, two axes. The definition and template are the contract, two skills the method, three commands the conversation.</p>
+  <h1>Design stage</h1>
+  <p class="tagline">One artifact, two bars, two axes. The definition and template are the contract, two skills the method, two asimov-skills the conversation.</p>
 </header>
 
 <div class="meta-strip">
   <div class="meta-cell"><div class="label">Owner</div><div class="value">Allan Borup</div></div>
   <div class="meta-cell"><div class="label">Business approver</div><div class="value">Allan Borup</div></div>
   <div class="meta-cell"><div class="label">Maturity</div><div class="value mono">trial</div></div>
-  <div class="meta-cell"><div class="label">Pieces</div><div class="value mono">3 commands · 2 skills</div></div>
+  <div class="meta-cell"><div class="label">Pieces</div><div class="value mono">2 asimov-skills · 2 skills</div></div>
   <div class="meta-cell"><div class="label">Last updated</div><div class="value mono">2026-10-02</div></div>
   <div class="meta-cell"><div class="label">Models</div><div class="value">Opus 5.5 · Sonnet 5.5</div></div>
 </div>
 
 <div class="doc-scope">
-  <strong>Scope:</strong> the D101 artifact: contract, skills, commands, and the mechanisms they share. Supersedes the five D101s listed in §10. Personas: <em>D101-personas</em>.
+  <strong>Scope:</strong> the Design stage: the D101 artifact, its contract, its skills and the two asimov-skills that carry the conversation, and the mechanisms they share. Supersedes the five D101s listed in §10. Personas: <em>D101-personas</em>.
 </div>
 
 <section class="s" id="s2">
@@ -335,6 +335,7 @@ footer.site-footer a { color: var(--cyan); }
     <li><strong>Wrong bar.</strong> Unfinished designs were judged gap-free and failed for what they had not done yet.</li>
     <li><strong>Lost findings.</strong> Review output died with the session; settled deviations were re-decided every run.</li>
     <li><strong>Locked knowledge.</strong> How to render a valid D101 lived only inside the interview command.</li>
+    <li><strong>One harness.</strong> Commands run in Claude Code only; Codex never saw the Design stage.</li>
   </ul>
   <div class="callout"><strong>Audience.</strong> Developers authoring or reviewing a D101, and the humans who approve it.</div>
 </section>
@@ -355,12 +356,12 @@ footer.site-footer a { color: var(--cyan); }
     <div class="req"><div class="id">R9</div><div class="body">Gap review: section walk, then the phase's bar; five severities; no verdict.</div></div>
     <div class="req"><div class="id">R10</div><div class="body">Review writes one file only: the <code>.review.md</code> sibling with a fingerprint.</div></div>
     <div class="req"><div class="id">R11</div><div class="body">Authoring offers stale-checked notes, folds them in, deletes them on write.</div></div>
-    <div class="req"><div class="id">R12</div><div class="body">Legacy markdown converts 1:1 to HTML; chips derived, source untouched.</div></div>
+    <div class="req"><div class="id">R12</div><div class="body">A legacy markdown path renders 1:1 to HTML; chips derived, source untouched.</div></div>
   </div>
 
-  <div class="subhead">Non-functional — 3</div>
+  <div class="subhead">Non-functional — 4</div>
   <div class="req-list nf">
-    <div class="req"><div class="id">NF1</div><div class="body">Method lives in the skills; commands hold only the conversation (hard rule 3).</div></div>
+    <div class="req"><div class="id">NF1</div><div class="body">Method lives in the skills; asimov-skills hold only the conversation (hard rule 3).</div></div>
     <div class="req"><div class="id">NF2</div><div class="body">No product identifiers; models match <code>model-choice.md</code> (hard rules 2, 7).</div></div>
     <div class="req">
       <div class="id">NF3</div>
@@ -372,6 +373,7 @@ footer.site-footer a { color: var(--cyan); }
         </div>
       </div>
     </div>
+    <div class="req"><div class="id">NF4</div><div class="body">One file per asimov-skill serves Claude Code and Codex; Codex derives the plugin root (D101-codex-support §6.2).</div></div>
   </div>
 
   <div class="subhead">Out of scope — 4</div>
@@ -400,7 +402,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="principle"><div class="num">2</div><div class="text"><strong>The stop is a file.</strong> Ending the run makes reading the page the only way on.</div></div>
     <div class="principle"><div class="num">3</div><div class="text"><strong>Findings, not verdicts.</strong> Tools surface evidence; people decide the bars.</div></div>
     <div class="principle"><div class="num">4</div><div class="text"><strong>Record, don't suppress.</strong> A deviation prints every run with a name on it.</div></div>
-    <div class="principle"><div class="num">5</div><div class="text"><strong>One home per method.</strong> Contract, skill, command — nothing restated.</div></div>
+    <div class="principle"><div class="num">5</div><div class="text"><strong>One home per method.</strong> Contract, skill, asimov-skill — nothing restated.</div></div>
   </div>
 </section>
 
@@ -477,9 +479,8 @@ footer.site-footer a { color: var(--cyan); }
     <div class="row cols-3"><div class="label-cell">Template</div><div>Contract</div><div>Ground rules, N/A policy, component catalogue, shells.</div></div>
     <div class="row cols-3"><div class="label-cell"><code>artifact-d101-authoring</code></div><div>Skill</div><div>How to assemble or change a D101; fires on any edit.</div></div>
     <div class="row cols-3"><div class="label-cell"><code>artifact-d101-gap-review</code></div><div>Skill</div><div>Section walk, bar per phase, severities, report.</div></div>
-    <div class="row cols-3"><div class="label-cell"><code>/d101-feature-design</code></div><div>Command</div><div>The interview, the stop, the notes offer.</div></div>
-    <div class="row cols-3"><div class="label-cell"><code>/d101-review</code></div><div>Command</div><div>Target, menu, delegation, the notes file.</div></div>
-    <div class="row cols-3"><div class="label-cell"><code>/d101-convert-to-html</code></div><div>Command</div><div>Legacy markdown in, current template out.</div></div>
+    <div class="row cols-3"><div class="label-cell"><code>asimov-design</code></div><div>Asimov-skill</div><div>The interview, the stop, the notes offer; a legacy render when a <code>.md</code> is named.</div></div>
+    <div class="row cols-3"><div class="label-cell"><code>asimov-design-review</code></div><div>Asimov-skill</div><div>Target, phase, menu, delegation, the notes file.</div></div>
   </div>
 </section>
 
@@ -501,11 +502,13 @@ footer.site-footer a { color: var(--cyan); }
     <div class="decisions-head"><div>Decided</div><div>Alternative</div><div>Why rejected</div></div>
     <div class="decision-row"><div class="decided">Hard stop after B; C is a second run</div><div class="alt">Ask "is §4 done?" and continue</div><div class="why">A chat yes is given without opening the file.</div></div>
     <div class="decision-row"><div class="decided">Two chips, two hands</div><div class="alt">One combined scale</div><div class="why">A combined scale drags approval along.</div></div>
-    <div class="decision-row"><div class="decided">Method in skills, conversation in commands</div><div class="alt">Everything inline</div><div class="why">Hand edits had no contract; the catalogue existed three times.</div></div>
+    <div class="decision-row"><div class="decided">Method in skills, conversation in asimov-skills</div><div class="alt">Everything inline</div><div class="why">Hand edits had no contract; the catalogue existed three times.</div></div>
     <div class="decision-row"><div class="decided">Five severities, Accepted never Pass</div><div class="alt">Three</div><div class="why">Open §6 and a recorded deviation both read as Pass.</div></div>
     <div class="decision-row"><div class="decided">No verdict, ever</div><div class="alt">Ready / needs work</div><div class="why">It substitutes for the non-author gate.</div></div>
     <div class="decision-row"><div class="decided">Deviation inline, on the element</div><div class="alt">Exceptions file</div><div class="why">Side-file keys drift when requirements renumber.</div></div>
     <div class="decision-row"><div class="decided">Notes as a disposable cache</div><div class="alt">Review log; chat only</div><div class="why">A log is unneeded state; chat-only loses findings.</div></div>
+    <div class="decision-row"><div class="decided">Asimov-skills, not commands</div><div class="alt">A command per harness</div><div class="why">Codex loads no <code>commands/</code>; a skill a person names is what both share.</div></div>
+    <div class="decision-row"><div class="decided">Legacy render inside <code>asimov-design</code></div><div class="alt">Its own asimov-skill</div><div class="why">The method was already the authoring skill's; a <code>.md</code> path is one more thing the words can hold.</div></div>
   </div>
 </section>
 
@@ -528,8 +531,9 @@ footer.site-footer a { color: var(--cyan); }
   <h2 class="section-title"><span class="sec-ref">§6.1</span>Platform</h2>
   <ul class="bullets">
     <li>Prompt files only; a change lands on the next invocation after a plugin update.</li>
-    <li>Review allow-list <code>Read, Glob, Grep, Skill, Write</code>; never <code>Edit</code>. Authoring unrestricted.</li>
-    <li><code>documentation/features/D101-*</code> is a shared literal in commands, skills, template, <code>.gitignore</code> (hard rule 9).</li>
+    <li>Review allow-list <code>Read, Glob, Grep, Skill, Write</code>; never <code>Edit</code>. Authoring adds <code>Write, Edit, Bash</code>.</li>
+    <li>Frontmatter <code>model</code> binds in Claude Code only; Codex runs the session's model (D101-spec-stage §6.1).</li>
+    <li><code>documentation/features/D101-*</code> is a shared literal in asimov-skills, skills, template, <code>.gitignore</code> (hard rule 9).</li>
   </ul>
   <div class="callout warn"><strong>⚠ Write is a tool grant, not a path grant.</strong> The one-path scope is prompt discipline plus a git-diff check.</div>
 </section>
@@ -537,7 +541,7 @@ footer.site-footer a { color: var(--cyan); }
 <section class="s" id="s6-2">
   <h2 class="section-title"><span class="sec-ref">§6.2</span>The lifecycle</h2>
   <div class="flow-wrap">
-    <svg viewBox="0 0 980 488" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Activity diagram: a D101 from brief to full design across author, authoring command, review command and files">
+    <svg viewBox="0 0 980 488" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Activity diagram: a D101 from brief to full design across author, asimov-design, asimov-design-review and files">
       <rect x="0" y="0" width="980" height="488" fill="#14253f"/>
       <defs>
         <marker id="act-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
@@ -621,7 +625,7 @@ footer.site-footer a { color: var(--cyan); }
   </div>
   <ol class="principles">
     <li>Phases A and B interview, preview §8a, write <code>Business design</code>, end the run.</li>
-    <li>The author reads the page; <code>/d101-review</code> runs §8a and the business personas, writes the notes.</li>
+    <li>The author reads the page; <code>asimov-design-review</code> runs §8a and the business personas, writes the notes.</li>
     <li>Phase C offers the notes, works the open-§6 list, previews §8b, writes <code>Full design</code>, deletes the notes.</li>
     <li>A second review runs §8b; the non-author reviewer and the approver decide.</li>
   </ol>
@@ -632,7 +636,7 @@ footer.site-footer a { color: var(--cyan); }
   <div class="codemap">
     <div class="codemap-row"><div class="what">Definition · template</div><div class="where">plugins/asimov-plugin/artifacts/documentation/d101-feature-design/</div></div>
     <div class="codemap-row"><div class="what">Skills</div><div class="where">plugins/asimov-plugin/skills/artifact-d101-{authoring,gap-review}/SKILL.md</div></div>
-    <div class="codemap-row"><div class="what">Commands</div><div class="where">plugins/asimov-plugin/commands/d101-{feature-design,review,convert-to-html}.md</div></div>
+    <div class="codemap-row"><div class="what">Asimov-skills</div><div class="where">plugins/asimov-plugin/skills/asimov-design{,-review}/{SKILL.md,agents/openai.yaml}</div></div>
     <div class="codemap-row"><div class="what">Diagram notations</div><div class="where">plugins/asimov-plugin/resources/diagrams/</div></div>
   </div>
 </section>
@@ -684,8 +688,9 @@ footer.site-footer a { color: var(--cyan); }
     <div class="ac-row"><div class="ac-id">AC6</div><div class="ac-verifies"><span class="verify-chip">R9</span></div><div>No verdict line; a valid <code>.accepted</code> reads Accepted on element and check, never Pass.</div></div>
     <div class="ac-row"><div class="ac-id">AC7</div><div class="ac-verifies"><span class="verify-chip">R10</span></div><div>After a review, <code>git diff</code> shows only the <code>.review.md</code> sibling.</div></div>
     <div class="ac-row"><div class="ac-id">AC8</div><div class="ac-verifies"><span class="verify-chip">R11</span></div><div>Declined notes remain; accepted and written, they are gone; a changed date is named before the offer.</div></div>
-    <div class="ac-row"><div class="ac-id">AC9</div><div class="ac-verifies"><span class="verify-chip">R12</span></div><div>Conversion leaves the markdown untouched and every row in place; no <code>&lt;script&gt;</code>, no new mockup.</div></div>
-    <div class="ac-row"><div class="ac-id">AC10</div><div class="ac-verifies"><span class="verify-chip">NF1</span><span class="verify-chip">R2</span></div><div>Editing the definition changes interview and findings next run; no command edit needed.</div></div>
+    <div class="ac-row"><div class="ac-id">AC9</div><div class="ac-verifies"><span class="verify-chip">R12</span></div><div>A named <code>.md</code> renders with the markdown untouched and every row in place; no <code>&lt;script&gt;</code>, no new mockup.</div></div>
+    <div class="ac-row"><div class="ac-id">AC10</div><div class="ac-verifies"><span class="verify-chip">NF1</span><span class="verify-chip">R2</span></div><div>Editing the definition changes interview and findings next run; no asimov-skill edit needed.</div></div>
+    <div class="ac-row"><div class="ac-id">AC11</div><div class="ac-verifies"><span class="verify-chip">NF4</span></div><div>In a Codex session both asimov-skills read the definition from the derived root; no second file exists for them.</div></div>
   </div>
 </section>
 
@@ -702,11 +707,6 @@ footer.site-footer a { color: var(--cyan); }
       <div class="q-body">Where does the sign-off estimate live?</div>
       <div class="q-resolution">Resolution path: after the first phase-C runs (D100 §10 Q7).</div>
     </div>
-    <div class="q-card">
-      <div class="q-head"><span class="q-id">Q3</span><span class="q-decider">Allan Borup</span></div>
-      <div class="q-body">Do the three commands need Codex prompt equivalents, or do the two skills suffice there?</div>
-      <div class="q-resolution">Resolution path: try the skills alone in a Codex session.</div>
-    </div>
   </div>
 </section>
 
@@ -718,13 +718,14 @@ footer.site-footer a { color: var(--cyan); }
       <ul>
         <li>D100 §4.3 · §4.6 · §7.4</li>
         <li>CLAUDE.md hard rules 3, 4, 5, 9</li>
-        <li>D101-personas · D101-artifact-maturity</li>
+        <li>D101-personas · D101-artifact-maturity · D101-codex-support §6.2 · D101-spec-stage §4.2</li>
       </ul>
     </div>
     <div class="refs-block">
       <h4>Historical</h4>
       <ul>
         <li>Merged 2026-09-28: D101-d101-feature-design v0.6 · D101-d101-review v0.16 · D101-d101-convert-to-html v0.5 · D101-accepted-deviations v0.2 · D101-review-handoff v0.5</li>
+        <li>Renamed 2026-10-02 from D101-d101-feature-design v0.2, when the three commands became the two asimov-skills; Q3 (Codex equivalents) closed by it.</li>
       </ul>
     </div>
   </div>
@@ -736,10 +737,10 @@ footer.site-footer a { color: var(--cyan); }
 <footer class="site-footer">
   <div>
     <a href="../index.html">← Documentation home</a>
-    · <span class="mono">features/D101-d101-feature-design.html</span>
+    · <span class="mono">features/D101-design-stage.html</span>
   </div>
   <div style="margin-top: 0.4rem">
-    D101 · D101 feature design · asimov-plugin · Draft v0.3 · 2026-10-02
+    D101 · Design stage · asimov-plugin · Draft v0.3 · 2026-10-02
   </div>
 </footer>
 

@@ -4,7 +4,7 @@
   that reads a design document as that reader and reports where the
   document talks to its author instead of to them.
 
-  Rendered by: /persona-new (interviews the author for the product-specific
+  Rendered by: artifact-persona-authoring (interviews the author for the product-specific
   content and writes the filled-in skill into the product repo at
   .claude/skills/persona-<slug>/SKILL.md). Also copyable by hand.
 
@@ -62,7 +62,7 @@
 
   ONE PERSONA, ONE SKILL. Each skill stands in for exactly one reader. A
   colleague who reads a document the same way is authored as their own persona
-  (their own run of /persona-new), not folded in here.
+  (their own run of artifact-persona-authoring), not folded in here.
 -->
 ---
 name: persona-{{SLUG}}

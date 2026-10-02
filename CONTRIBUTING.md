@@ -7,7 +7,7 @@ Asimov is a Claude Code plugin: slash commands, subagents, skills, definitions a
 Asimov ships **generic** tooling for the AI-assisted stages of the L3 pipeline ([what L3 means](documentation/ai-transition-levels-and-zones.md)). Anything that only makes sense for one product stays in that product's repo. In particular:
 
 - Definitions, templates and command prompts carry no product-specific identifiers (CLAUDE.md hard rule 7). Path conventions such as `documentation/features/` are fine; product entity names are not.
-- Standard personas are generic archetypes. A reader specific to one product is a **custom** persona, authored with `/persona-new` into the product repo, not into the plugin.
+- Standard personas are generic archetypes. A reader specific to one product is a **custom** persona, authored with `artifact-persona-authoring` into the product repo, not into the plugin.
 - When in doubt, name it generically and add an example as illustration (hard rule 8).
 
 ## Before you start
@@ -22,7 +22,7 @@ Every command and subagent in Asimov has a design document (a D101) before it ha
 
 1. Read [`CLAUDE.md`](CLAUDE.md): the conventions, the "How to add" recipes and the hard rules. They are enforcement rules, not style preferences.
 2. Read [`documentation/D100-Asimov-architecture.md`](documentation/D100-Asimov-architecture.md) for where your change sits.
-3. For a new command or subagent, author the D101 with `/d101-feature-design` and clear the business-complete bar (§8a) before writing the technical design. The definition is [`d101-feature-design-definition.md`](plugins/asimov-plugin/artifacts/documentation/d101-feature-design/d101-feature-design-definition.md).
+3. For a new command or subagent, author the D101 with `asimov-design` and clear the business-complete bar (§8a) before writing the technical design. The definition is [`d101-feature-design-definition.md`](plugins/asimov-plugin/artifacts/documentationasimov-designasimov-design-definition.md).
 4. Author the change. Keep the D100 rows, the `model-choice.md` row and the frontmatter in sync in the same commit (hard rules 2, 6 and 10).
 5. Test it locally in a product repo (below).
 6. Open a pull request against `main`.
@@ -53,7 +53,7 @@ To test a change in Codex as well, follow the Codex subsection of "How to test t
 - Dates are `YYYY-MM-DD`. Prose is English.
 - Do not commit `*.review.md` files or raw images; `.gitignore` excludes them at the standard locations (`documentation/features/`, `documentation/**/images/_raw/`). A D101 kept elsewhere needs its own ignore entry.
 
-A maintainer may ask you to run `/d101-review` on your D101 and address the findings before review. Accepted deviations are recorded in the D101 itself, never in the pull request (hard rule 5).
+A maintainer may ask you to run `asimov-design-review` on your D101 and address the findings before review. Accepted deviations are recorded in the D101 itself, never in the pull request (hard rule 5).
 
 ## Maintainers and decisions
 
