@@ -1,6 +1,6 @@
 ---
 name: artifact-d101-gap-review
-description: The gap review of a D101 feature design — walk every section against the HTML template and the definition's quality rules, then run the checks of the bar the document's phase calls for (§8a business-complete while §6 is open, §8b gap-free once written), and report findings in two tables with no verdict. Use when asked to "gap-review this D101", "check this D101 against the bar", "does it pass §8a / §8b", "run the section walk", or when previewing a draft before a human review; also the method /d101-review delegates to for its gap review. Read-only, verdict-free: it surfaces evidence, never edits, never approves, never proposes an accepted deviation.
+description: The gap review of a D101 feature design — walk every section against the HTML template and the definition's quality rules, then run the checks of the bar the document's phase calls for (§8a business-complete while §6 is open, §8b gap-free once written), and report findings in two tables with no verdict. Use when asked to "gap-review this D101", "check this D101 against the bar", "does it pass §8a / §8b", "run the section walk", or when previewing a draft before a human review; also the method asimov-design-review delegates to for its gap review. Read-only, verdict-free: it surfaces evidence, never edits, never approves, never proposes an accepted deviation.
 ---
 
 # D101 gap review
@@ -9,7 +9,7 @@ The method for judging one D101 against its contract. It answers *is the contrac
 
 ## Read first
 
-Load with the file-read tool; `${CLAUDE_PLUGIN_ROOT}` is the plugin root. If either cannot be read, stop and report the path — never review against a remembered bar.
+Load with the file-read tool. In Claude Code `${CLAUDE_PLUGIN_ROOT}` is the plugin root and is substituted for you. In Codex the variable stays literal and a `..` path resolves from the working directory, so derive the root once: take this skill's file path as Codex shows it, strip everything from `skills/artifact-d101-gap-review` onward, and use what remains as `<plugin-root>` in every path below, absolute. Verify it by reading file 1; if that fails, Glob `<home>/.codex/plugins/cache/**/d101-feature-design-definition.md`, take the match whose path shares the longest prefix with the skill path, and if nothing matches stop and report the path you derived and the search you ran (the method of `D101-codex-support.html` §6.2). If 1 or 2 cannot be read either way, stop and report the path — never review against a remembered bar.
 
 1. **The definition** — §2 (the bars and the two axes), §4.6 (open §6), §4.8 (§6 vs §7), §4.9 (accepted deviations), §5 (requirement quality), §6 (verification), §7 (anti-patterns), §8 (the ten checks and their bars):
 
@@ -73,7 +73,7 @@ Walk §1 through §10 (plus §11 when present). Judge each against the template'
 
 **Accepted deviations (definition §4.9).** A `.accepted` block is **valid** when it names one rule instance, gives a one-sentence reason, names a person and carries a date. Then: the element's row is **Accepted** (accepter and reason in the cell), the §8 check that instance belongs to reads **Accepted** rather than Pass with the same reason, and `Accepted` never becomes `Pass` — the reviewer who owns §8b has to see what they are signing. Judge everything else in the element normally. It is **invalid**, and the finding stands at its normal severity, when it names no person or date (also **Flag** the suppression: *deviation without an accepter*); is written against a whole §8 check (**Fail**: *a deviation that swallows a check*); names several rules in one block (covers none — say the record was not honoured because it spans more than one instance); sits on no element (a general claim, not an instance); or annotates text since rewritten so the reason no longer describes it.
 
-**TBD rule.** Flag any TBD or open question without a named decider (definition §4.3, §7). Do **not** flag a bare `TBD` for lacking the `— verify` suffix — that is `/d101-feature-design`'s output style, not a definition requirement.
+**TBD rule.** Flag any TBD or open question without a named decider (definition §4.3, §7). Do **not** flag a bare `TBD` for lacking the `— verify` suffix — that is asimov-design's output style, not a definition requirement.
 
 **§5 UI Design (top-level, always present).** Infer from §2/§3 whether the feature is user-facing. Backend-only: the `N/A — backend-only feature` stub ⇒ **Pass**; §5 absent ⇒ **Fail** (a top-level section dropped). User-facing: follow each `<iframe class="mockup-frame">` `src` and read the mockup file(s) under `mockups/d101-<slug>/`, then judge — **presence/linkage** (§5 absent, no embedded mockup, or an `src` resolving to no file ⇒ **Fail**, check 8, at *both* phases); **one-vs-several** (mockup count vs the surfaces §5 describes: navigable screens crammed into one file, or one screen needlessly split ⇒ **Flag**); **styling fit** (reads as the product UI, not the D101 dark chrome, and is self-contained — dark doc tokens or a CDN `<script src>` ⇒ **Flag**; consistent with any recorded style basis); **interactivity** (primary interactions wired, not a static screenshot-in-HTML ⇒ otherwise **Flag**).
 
@@ -116,10 +116,10 @@ Emit in this order, to chat:
 
 ## Invariants
 
-- **Read-only.** Never edit the D101, never write a file. If asked to "just fix it", decline and point at `/d101-feature-design` (or the `artifact-d101-authoring` skill for a hand edit).
+- **Read-only.** Never edit the D101, never write a file. If asked to "just fix it", decline and point at `asimov-design` (or the `artifact-d101-authoring` skill for a hand edit).
 - **Resolve the phase before judging.** Never review a `Business design` document against §8b; an open §6 is **Open**, never Fail.
 - **Never move either axis.** You set neither phase nor status; you may show the status, never change it (definition §2.3).
-- **Never author or propose an acceptance.** Honour a valid `.accepted` block; never write one, never suggest a finding be accepted rather than fixed — a reviewer that offers the waiver excuses itself. If the author says a finding is settled, point them at `/d101-feature-design` to record it.
+- **Never author or propose an acceptance.** Honour a valid `.accepted` block; never write one, never suggest a finding be accepted rather than fixed — a reviewer that offers the waiver excuses itself. If the author says a finding is settled, point them at `asimov-design` to record it.
 - **No invented findings.** Report only sections and checks read from disk; a structurally damaged file gets **Fail** rows with structural reasons, not guesses.
 - **Don't drift the bar.** Re-load the definition and the template at the start of every review.
 - **Name anti-patterns explicitly**, and **one sentence per reason**.

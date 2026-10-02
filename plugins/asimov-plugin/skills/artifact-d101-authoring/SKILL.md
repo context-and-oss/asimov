@@ -1,15 +1,15 @@
 ---
 name: artifact-d101-authoring
-description: How to write or change a D101 feature-design file (documentation/features/D101-*.html and its mockups under documentation/features/mockups/d101-*/) so it still meets the D101 contract — the definition's bars and the HTML template's structure. Use whenever you create, render, edit, or fix any part of a D101, whether or not a slash command is running — "update §4.4 of this D101", "add a decision row", "render this as a D101", "fix the side-nav" — and inside /d101-feature-design and /d101-convert-to-html when they draft. Carries the rendering procedure and the authoring invariants; the contract itself is read from the plugin at run-time.
+description: How to write or change a D101 feature-design file (documentation/features/D101-*.html and its mockups under documentation/features/mockups/d101-*/) so it still meets the D101 contract — the definition's bars and the HTML template's structure. Use whenever you create, render, edit, or fix any part of a D101, whether or not asimov-design is running — "update §4.4 of this D101", "add a decision row", "render this as a D101", "fix the side-nav" — and inside asimov-design when it writes or renders. Carries the rendering procedure and the authoring invariants; the contract itself is read from the plugin at run-time.
 ---
 
 # D101 authoring
 
-The method for producing or modifying a D101. It is the layer between the **contract** (the definition and the template, read from disk) and the **conversation** (a slash command's interview, phases and stops). This skill owns neither: it tells you what to read, how to render, and which invariants hold whenever a D101 changes — by a command or by hand.
+The method for producing or modifying a D101. It is the layer between the **contract** (the definition and the template, read from disk) and the **conversation** (the asimov-design interview, phases and stops). This skill owns neither: it tells you what to read, how to render, and which invariants hold whenever a D101 changes — by a command or by hand.
 
 ## Read first
 
-Load these with the file-read tool before touching a D101. `${CLAUDE_PLUGIN_ROOT}` is the plugin root. If 1 or 2 cannot be read, stop and report the path — never author from memory; the file in the plugin is the run-time source of truth and drafting from a remembered copy is how the bars and the visual language drift.
+Load these with the file-read tool before touching a D101. In Claude Code `${CLAUDE_PLUGIN_ROOT}` is the plugin root and is substituted for you. In Codex the variable stays literal and a `..` path resolves from the working directory, so derive the root once: take this skill's file path as Codex shows it, strip everything from `skills/artifact-d101-authoring` onward, and use what remains as `<plugin-root>` in every path below, absolute. Verify it by reading file 1; if that fails, Glob `<home>/.codex/plugins/cache/**/d101-feature-design-definition.md`, take the match whose path shares the longest prefix with the skill path, and if nothing matches stop and report the path you derived and the search you ran (the method of `D101-codex-support.html` §6.2). If 1 or 2 cannot be read either way, stop and report the path — never author from memory; the file in the plugin is the run-time source of truth and drafting from a remembered copy is how the bars and the visual language drift.
 
 1. **The definition** — the two bars (§2.1 business-complete, §2.2 gap-free), the phase/status axes (§2.3), requirement quality (§5), verification (§6), anti-patterns (§7), the checks (§8), the open-§6 block (§4.6), §6-vs-§7 (§4.8), accepted deviations (§4.9), review notes (§4.10):
 
@@ -31,7 +31,7 @@ Load these with the file-read tool before touching a D101. `${CLAUDE_PLUGIN_ROOT
 
 ## What lives where
 
-Do not restate the template's leading comment here or in a command — it is read at run-time. This skill adds only what the template does not say: the rendering procedure, the mockup rules, and the invariants.
+Do not restate the template's leading comment here or in an asimov-skill — it is read at run-time. This skill adds only what the template does not say: the rendering procedure, the mockup rules, and the invariants.
 
 | Question | Answer lives in |
 |---|---|
@@ -46,7 +46,7 @@ Do not restate the template's leading comment here or in a command — it is rea
 
 - The D101: `documentation/features/D101-<slug>.html` (kebab-case slug, no `D101-` repeated). A legacy `.md` sibling is left alone.
 - Its mockups: `documentation/features/mockups/d101-<slug>/<surface>.html`, parallel to `documentation/features/images/<doc-slug>/` for screenshots.
-- Its review notes, when `/d101-review` has run: `documentation/features/D101-<slug>.review.md`. Read-only for you; the command that consumes them deletes them (definition §4.10).
+- Its review notes, when `asimov-design-review` has run: `documentation/features/D101-<slug>.review.md`. Read-only for you; `asimov-design` consumes and deletes them (definition §4.10).
 
 ## Rendering procedure
 
@@ -88,7 +88,15 @@ Moving from one shape to the other is the author's move (the phase axis). Never 
 - **Record the style basis** in one phrase in §5's intro `.section-desc` (*"styled after the existing order-list grid"*) so a review can check the mockup against it.
 - **Portability.** The iframe path is relative: the D101 renders from the repo tree and breaks if mailed without `mockups/` — same as relative `<img>` screenshots.
 
-**Converting** an existing document never authors a mockup: embed one only if the source already references it.
+## Converting a legacy markdown D101
+
+A render of an existing `.md` next to its source (`<path>.md` → `<path>.html`) keeps every paragraph, list item, table row, requirement, decision, acceptance criterion and open question in the same count, order and wording; nothing is paraphrased, improved or reordered, and an awkward sentence is rendered awkwardly. The `.md` is never edited.
+
+- **Chips are derived, not asked.** `.status-chip` from the source's §1 *Status* row plus the version; never `Draft` → `Approved`. `.phase-chip`: a populated technical design ⇒ `Full design` with `.full`; none, or an empty or bare-TBD one ⇒ `Business design`, with the `#s6-open` block built only from what the source says is undecided (TBDs, mechanism-shaped open questions; *"the source names the technical design but leaves it empty"* when that is all there is) and the `#s7-pending` stub. Never manufacture outstanding items; report thinness instead.
+- **Legacy numbering → current template.** The legacy layout predates the top-level §5 UI design and §7 Implementation, so everything from the technical design down moves by two: MD §1–§4 → §1–§4; any UI content, wherever the MD kept it → **§5** (none ⇒ the `N/A — backend-only feature` stub, never omitted); MD §5 Technical design → **§6** (§5.1–§5.8 → §6.1–§6.8); **§7** has no MD counterpart (`N/A — no implementation notes in source` at `Full design`, the pending stub at `Business design`, never invented build notes); MD §6 Acceptance criteria → **§8**; MD §7 Open questions → **§9**; MD §8 References → **§10**; MD §9 Changes from source → **§11**. Recognise MD sections by their `## N.` / `## N.M` headings.
+- **Legacy markers.** `✓` / `✗` bullets become neutral `<li>`; `<li class="warn">` only where the MD starts the item with `⚠` or frames it as a foot-gun. Self-referential "structural note" paragraphs are dropped. UI screenshots render as relative `<img>`.
+- **Never author a mockup** for a converted document: embed one via `<iframe class="mockup-frame">` only if the source already references a file under `mockups/d101-<slug>/`.
+- **Report** the path, a one-line size summary (size, sections, acceptance criteria) and every section rendered as plain prose for want of a component, so the catalogue can grow.
 
 ## Invariants
 
