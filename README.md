@@ -1,6 +1,6 @@
 # Asimov
 
-Claude Code plugin. Feature design docs done properly, plus subagents that code and review the way your repo already does.
+Plugin for Claude Code and Codex. Feature design docs done properly, plus subagents that code and review the way your repo already does.
 
 - `/d101-feature-design` – interviews you, writes a D101 (feature design) as HTML to `documentation/features/`
 - `/d101-review` – checks a D101 against its bar, lists what's missing
@@ -12,6 +12,8 @@ Why: agents write decent code when the design is actually written down. Most des
 
 ## Install
 
+Claude Code:
+
 ```
 /plugin marketplace add context-and-oss/asimov
 /plugin install asimov-plugin
@@ -19,6 +21,17 @@ Why: agents write decent code when the design is actually written down. Most des
 
 - Local clone: `/plugin marketplace add <path-to-clone>`
 - Update: `/plugin marketplace update asimov-marketplace` (no auto-update)
+
+Codex:
+
+```
+codex plugin marketplace add context-and-oss/asimov
+codex plugin add asimov-plugin@asimov-marketplace
+```
+
+- Local clone: `codex plugin marketplace add <path-to-clone>`
+- Update: `codex plugin marketplace upgrade asimov-marketplace`, then start a new session
+- Codex loads the plugin's skills. Run the setup as `$asimov-plugin:codex-asimov-init` — it writes the Asimov context into an `AGENTS.md` region (not `asimov.md`/`CLAUDE.md`, which `/asimov-init` handles in Claude Code) and copies the Codex agent shells into your repo's `.codex/agents/` (Codex asks before that write). The five other slash commands are Claude Code only — see [D101-codex-support](documentation/features/D101-codex-support.html).
 
 ## Try it
 
@@ -40,7 +53,7 @@ Why: agents write decent code when the design is actually written down. Most des
 - Built: Design-stage commands, the four subagents (each a `role-*` skill plus a thin shell per harness), the two D101 artifact skills, persona reviews, the `pm-advisor` skill (delivery-model advice).
 - Planned: Spec stage (`/s101-*`; the S101 and S102 definitions exist), `/conventions-check`, S102 validator subagent. See [D100 §9](documentation/D100-Asimov-architecture.md#9-not-yet-built).
 - Every artifact carries a maturity level (`assess` / `trial` / `adopt` / `hold`). The producing command tells you if it's not at `adopt`.
-- Requires Claude Code with plugin support and access to the models the commands pin. Map in [model-choice.md](documentation/model-choice.md).
+- Requires Claude Code with plugin support and access to the models the commands pin. Map in [model-choice.md](documentation/model-choice.md). Codex with plugin support runs the setup skill (`codex-asimov-init`), which names no model.
 
 ## Commands
 
@@ -49,7 +62,7 @@ Why: agents write decent code when the design is actually written down. Most des
 | `/d101-feature-design` | Design | Interview → D101 as self-contained HTML. Three phases, hard stop after the business design. |
 | `/d101-review` | Design | Reads a D101, resolves its phase, reports findings against §8a or §8b and leaves them in a gitignored `.review.md` beside the file for `/d101-feature-design` to pick up. Never edits the D101, no verdict. |
 | `/d101-convert-to-html` | Design | Legacy markdown D101 → HTML, next to the source. |
-| `/asimov-init` | Setup | Writes `asimov.md`, imports it from `CLAUDE.md`, scaffolds `documentation/conventions/<stack>/`, generates the docs landing page. |
+| `/asimov-init` | Setup | Writes `asimov.md`, imports it from `CLAUDE.md`, scaffolds `documentation/conventions/<stack>/`, generates the docs landing page. Codex counterpart: the skill `codex-asimov-init`, which writes the `AGENTS.md` region and the `.codex/agents/` copies in place of `asimov.md` and the `CLAUDE.md` import, plus the same conventions and site. |
 | `/persona-new` | Design | Interview → custom persona review skill in `.claude/skills/persona-<slug>/`. |
 | `/persona-list` | Design | Lists standard + custom personas. |
 
@@ -75,12 +88,14 @@ A persona review reads a D101 as one of its intended readers and reports where t
 ## What's inside
 
 ```
-.claude-plugin/marketplace.json           marketplace manifest
+.claude-plugin/marketplace.json           marketplace manifest (Claude Code)
+.agents/plugins/marketplace.json          marketplace manifest (Codex)
 plugins/asimov-plugin/                    the plugin (install scope)
-├── .claude-plugin/plugin.json
+├── .claude-plugin/plugin.json            plugin manifest (Claude Code)
+├── .codex-plugin/plugin.json             plugin manifest (Codex)
 ├── commands/                             slash commands
 ├── agents/                               subagent shells (Giskard, Daneel, Calvin, Baley) — .md for Claude Code, .toml for Codex
-├── skills/                               role-* (the subagents' methods), artifact-d101-* (D101 authoring + gap review), persona-* (Poseidon, Athena, Hermes), pm-advisor
+├── skills/                               role-* (the subagents' methods), artifact-d101-* (D101 authoring + gap review), persona-* (Poseidon, Athena, Hermes), pm-advisor, codex-asimov-init (Codex setup entry point)
 ├── artifacts/                            one folder per artifact the toolkit writes into a product repo, grouped by where it lands
 │   ├── documentation/                    lands in the product repo's documentation/
 │   │   ├── d101-feature-design/          the D101 artifact: definition + template side by side

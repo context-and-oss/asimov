@@ -1,6 +1,6 @@
 # CLAUDE.md — Asimov
 
-This repo is **Asimov** — a Claude Code marketplace publishing one plugin (`asimov-plugin`) that ships L3 workflow tooling. Slash commands, subagents, definitions, and document templates for the Design → Spec → Code → Review+Test stages of the L3 pipeline.
+This repo is **Asimov** — a marketplace for Claude Code and Codex publishing one plugin (`asimov-plugin`, one plugin folder both tools install) that ships L3 workflow tooling. Slash commands, subagents, definitions, and document templates for the Design → Spec → Code → Review+Test stages of the L3 pipeline.
 
 You are working *on* the toolkit. Commands and subagents *built by* the toolkit run in product repos; this repo is where their definitions, prompts, and templates live.
 
@@ -8,9 +8,11 @@ You are working *on* the toolkit. Commands and subagents *built by* the toolkit 
 
 ```
 .claude-plugin/marketplace.json                ← marketplace manifest (declares asimov-marketplace)
+.agents/plugins/marketplace.json               ← Codex marketplace manifest (same asimov-marketplace, same plugin folder)
 plugins/asimov-plugin/                         ← the plugin (install scope)
 ├── .claude-plugin/plugin.json                 ← plugin manifest
-├── commands/                                  ← slash commands (auto-discovered)
+├── .codex-plugin/plugin.json                  ← Codex plugin manifest (same asimov-plugin; "skills": "./skills/")
+├── commands/                                  ← slash commands (auto-discovered; Claude Code only)
 │   ├── d101-feature-design.md                 ← authors D101s directly as HTML
 │   ├── d101-review.md                         ← review hub: resolves the phase, offers + runs the gap review (§8a/§8b) and the business/technical persona reviews (delegated to persona skills)
 │   ├── d101-convert-to-html.md                ← legacy MD → HTML
@@ -32,7 +34,8 @@ plugins/asimov-plugin/                         ← the plugin (install scope)
 │   ├── persona-poseidon/SKILL.md              ← operational-reality reader
 │   ├── persona-athena/SKILL.md                ← technical-feasibility reader
 │   ├── persona-hermes/SKILL.md                ← cost/ROI reader
-│   └── pm-advisor/SKILL.md                    ← advises on the delivery model in processes/ (routing table; read-only)
+│   ├── pm-advisor/SKILL.md                    ← advises on the delivery model in processes/ (routing table; read-only)
+│   └── codex-asimov-init/SKILL.md             ← Codex-only setup entry point ($asimov-plugin:codex-asimov-init), counterpart of commands/asimov-init.md
 ├── artifacts/                                 ← one folder per artifact the toolkit writes into a product repo; sub-folder = where it lands
 │   ├── documentation/                         ← artifacts that land in the product repo's documentation/
 │   │   ├── d101-feature-design/               ← the D101 artifact: definition + template side by side
@@ -94,6 +97,7 @@ documentation/                                 ← repo-level docs (NOT inside i
 | [`documentation/model-choice.md`](documentation/model-choice.md) | Before changing a command's or subagent's model |
 | [`plugins/asimov-plugin/artifacts/documentation/d101-feature-design/d101-feature-design-template.html`](plugins/asimov-plugin/artifacts/documentation/d101-feature-design/d101-feature-design-template.html) | When authoring a D101 (its leading comment holds the authoring ground rules + component catalogue) |
 | [`plugins/asimov-plugin/resources/diagrams/README.md`](plugins/asimov-plugin/resources/diagrams/README.md) | Before drawing any diagram in a D101 (routing table: reader intent → diagram type → template; each template's leading comment holds its notation, node budget and geometry) |
+| [`documentation/features/D101-codex-support.html`](documentation/features/D101-codex-support.html) | Before changing a manifest, a Codex-only skill or how a skill finds plugin files |
 
 ## Conventions
 
@@ -125,9 +129,12 @@ Always `YYYY-MM-DD` (e.g. `2026-05-21`). Never American month/day. Never relativ
 
 ### Manifest names vs repo name vs prose names
 - Repo: `asimov` (GitHub)
-- Marketplace manifest name: `asimov-marketplace`
-- Plugin manifest name: `asimov-plugin` (also the directory name `plugins/asimov-plugin/`)
+- Marketplace manifest name: `asimov-marketplace` (in `.claude-plugin/marketplace.json` and `.agents/plugins/marketplace.json`)
+- Plugin manifest name: `asimov-plugin` (in `.claude-plugin/plugin.json` and `.codex-plugin/plugin.json`; also the directory name `plugins/asimov-plugin/`)
 - Friendly prose: "Asimov Plugin" (capitalised, used in headings + sentences)
+
+### Codex-only skills
+A skill only Codex should run is named `codex-<name>` (today: `skills/codex-asimov-init/`). Its frontmatter carries `disable-model-invocation: true` and `user-invocable: false`, so Claude Code neither lists nor runs it; its `agents/openai.yaml` carries `allow_implicit_invocation: false`. Codex invokes it as `$asimov-plugin:<skill-name>` (`$asimov-plugin:codex-asimov-init`). It never uses `${CLAUDE_PLUGIN_ROOT}` (Codex does not substitute it) and never a `../../` path (resolved from the working directory): it derives the plugin root from its own file path — two levels above the skill folder, verified by reading the first template, falling back to a Glob under `<home>/.codex/plugins/cache/` — as `skills/codex-asimov-init/SKILL.md` Step 1 does.
 
 ## How to add a new slash command
 
@@ -176,6 +183,8 @@ An **advisory skill** answers questions from a body of reference material shippe
 
 ## How to test the plugin locally
 
+### Claude Code
+
 ```
 /plugin marketplace add <path-to-your-clone>
 ```
@@ -194,11 +203,27 @@ The slash commands become available. To pick up changes after editing:
 
 No auto-reload.
 
+### Codex
+
+```
+codex plugin marketplace add <path-to-your-clone>
+codex plugin add asimov-plugin@asimov-marketplace
+```
+
+Codex loads the plugin's skills in a new session. A local marketplace is cached per version, so to pick up changes after editing, remove and add again:
+
+```
+codex plugin remove asimov-plugin@asimov-marketplace
+codex plugin add asimov-plugin@asimov-marketplace
+```
+
+Then, in a product repo, run `$asimov-plugin:codex-asimov-init`.
+
 ## Hard rules
 
 These are enforcement rules, not style preferences. Violations break the toolkit's contract.
 
-1. **Manifest names and folder names stay in sync.** `plugin.json`'s `name` field, the `plugins/<name>/` directory, the `marketplace.json` plugin entry — all three are the same string.
+1. **Manifest names and folder names stay in sync.** The `plugins/<name>/` directory, the `name` field in both plugin manifests (`.claude-plugin/plugin.json`, `.codex-plugin/plugin.json`) and the plugin entry in both marketplace manifests (`.claude-plugin/marketplace.json`, `.agents/plugins/marketplace.json`) — all the same string.
 2. **Command/subagent model in frontmatter MUST match the row in `documentation/model-choice.md`** — in the same commit (see model-choice.md §1 sync rule).
 3. **Commands and skills reference definitions and templates by *path*, not by inlining content.** A command's or skill's prompt body says "read `plugins/asimov-plugin/artifacts/documentation/d101-feature-design/d101-feature-design-definition.md`"; it doesn't paste the definition into the prompt. This keeps the doc-in-the-repo as the runtime source of truth (D100 §7.4). The same rule holds one layer up: a command references an `artifact-*` or `role-*` skill by name and never restates its method — the skill is the single home of the procedure, the command owns only the conversation sequence.
 4. **D101s mature through two bars, and each bar's verdict belongs to a different person.** *Business-complete* (`d101-feature-design-definition.md` §2.1, checked by §8a) is the **author's** call — it's the gate that stops them writing §6 before the business shape holds. *Gap-free* (§2.2, checked by §8b) is the **human reviewer's** (≠ author) call. The author runs `/d101-review` or a self-preview to surface weak sections before requesting review; automating the gap-free verdict would collapse the reviewer-not-author gate. Never review a `Business design` document against §8b — a deliberately open §6 is *open*, not a failure.
@@ -207,8 +232,9 @@ These are enforcement rules, not style preferences. Violations break the toolkit
 6. **No drift between D100, D101s, and code/manifests.** When you change one, run a quick grep for related references in the other docs. When a D101 is renamed, superseded or its R/NF/AC numbers change, grep for the old file name and the old numbers in `documentation/`, `CLAUDE.md`, `README.md`, `plugins/asimov-plugin/**` (definitions, templates, skills, commands) and repo config comments such as `.gitignore` — the definitions ship to every product repo, so a stale pointer there travels with each release.
 7. **Don't bake product-specific identifiers into definitions, templates, or command prompts.** Path conventions (e.g. `documentation/features/`) are acceptable shared conventions; product entity names are not (D100 §8.4 reusability).
 8. **Reusability across products is a goal, not a hope.** When in doubt, name something generically and add an example as illustration.
-9. **Path-convention fork point:** the path convention `documentation/features/D101-*` is baked into `plugins/asimov-plugin/commands/d101-feature-design.md` (the `.html` output path + listing glob), `plugins/asimov-plugin/commands/d101-review.md` (the `.html`/`.md` auto-detect glob), and `plugins/asimov-plugin/commands/d101-convert-to-html.md` (the `.md` source glob), and into the two artifact skills `skills/artifact-d101-authoring/SKILL.md` (its trigger description and *Paths* section, including the `mockups/d101-<slug>/` sibling) and `skills/artifact-d101-gap-review/SKILL.md` (the mockup path it follows). `asimov-init.md` shares the same `documentation/` taxonomy (`features/`, `conventions/`, `reference/`, root `D100-*`/`E100-*`) and adds two more literals of its own: the `asimov.md` root location and the `<stack>` slugs under `conventions/`. The `D101-<slug>.review.md` sibling-file convention (`d101-feature-design-definition.md` §4.10) is a third literal shared by `d101-review.md` (writer) and `d101-feature-design.md` (reader + deleter) and must move with the other two, and so must the `documentation/features/*.review.md` pattern in `.gitignore`, which fuses both literals. The D101 template's leading comment and `asimov-md-template.md`'s taxonomy table repeat the `documentation/features/D101-*` path as authoring guidance. A fork that uses a different layout changes the literal in *all* of these files — they must stay in lockstep. The delivery-model corpus path `plugins/asimov-plugin/processes/` is a fourth literal, and its lockstep partner is **not** inside the corpus — the corpus never names its own location. The literal lives in `skills/pm-advisor/SKILL.md` (the `${CLAUDE_PLUGIN_ROOT}/processes/` routing root) and in the vault's export target (`export-delivery-model.ps1 -Target plugin`, per `processes/README.md` *Refreshing*), which writes to this path from outside the repo. A fork that relocates the corpus changes the skill **and** tells the vault; editing this repo alone leaves the next export writing to the old path. Intentionally not a config — we don't have a config mechanism for one toggle.
+9. **Path-convention fork point:** the path convention `documentation/features/D101-*` is baked into `plugins/asimov-plugin/commands/d101-feature-design.md` (the `.html` output path + listing glob), `plugins/asimov-plugin/commands/d101-review.md` (the `.html`/`.md` auto-detect glob), and `plugins/asimov-plugin/commands/d101-convert-to-html.md` (the `.md` source glob), and into the two artifact skills `skills/artifact-d101-authoring/SKILL.md` (its trigger description and *Paths* section, including the `mockups/d101-<slug>/` sibling) and `skills/artifact-d101-gap-review/SKILL.md` (the mockup path it follows). `asimov-init.md` shares the same `documentation/` taxonomy (`features/`, `conventions/`, `reference/`, root `D100-*`/`E100-*`) and adds two more literals of its own: the `asimov.md` root location and the `<stack>` slugs under `conventions/`. `skills/codex-asimov-init/SKILL.md` shares the `documentation/` taxonomy and the `<stack>` slugs — not the `asimov.md` root location, which it does not write — and adds two of its own: the `AGENTS.md` managed-region marker pair (`asimov:start` / `asimov:end`) and the `.codex/agents/` delivery folder. The `D101-<slug>.review.md` sibling-file convention (`d101-feature-design-definition.md` §4.10) is a third literal shared by `d101-review.md` (writer) and `d101-feature-design.md` (reader + deleter) and must move with the other two, and so must the `documentation/features/*.review.md` pattern in `.gitignore`, which fuses both literals. The D101 template's leading comment and `asimov-md-template.md`'s taxonomy table repeat the `documentation/features/D101-*` path as authoring guidance. A fork that uses a different layout changes the literal in *all* of these files — they must stay in lockstep. The delivery-model corpus path `plugins/asimov-plugin/processes/` is a fourth literal, and its lockstep partner is **not** inside the corpus — the corpus never names its own location. The literal lives in `skills/pm-advisor/SKILL.md` (the `${CLAUDE_PLUGIN_ROOT}/processes/` routing root) and in the vault's export target (`export-delivery-model.ps1 -Target plugin`, per `processes/README.md` *Refreshing*), which writes to this path from outside the repo. A fork that relocates the corpus changes the skill **and** tells the vault; editing this repo alone leaves the next export writing to the old path. Intentionally not a config — we don't have a config mechanism for one toggle.
 10. **A maturity level and its D100 mirror move in the same commit.** The `maturity`/`since` block in an artifact's definition is the source; the *Maturity* column in D100 §4.5 is the mirror. Change one, change the other, and name the evidence for a promotion in the commit message. Same shape as rule 2.
+11. **Both plugin manifests carry the same `version`, moved together in one commit.** `.claude-plugin/plugin.json` and `.codex-plugin/plugin.json` must show the same number; each tool detects an update by it, so bumping one and not the other leaves that tool on the old plugin. Same shape as rule 2.
 
 ## Research notes
 
@@ -242,5 +268,7 @@ The **artifact-maturity** convention is built: every artifact under `artifacts/`
 The **Spec stage** is defined but not tooled: `artifacts/documentation/s101-implementation-plan/s101-implementation-plan-definition.md` (the plan: task graph, phases, interfaces, constraints, escalation routing; bar *dispatch-ready*) and `artifacts/documentation/s102-task-spec/s102-task-spec-definition.md` (one task: files, interfaces, behaviour, steps, acceptance criteria; bar *buildable blind*), both `assess`. They land in a product repo at `documentation/specs/<feature-slug>/`. Research: `documentation/research/S101-S102-spec-stage-research.md`.
 
 Not built yet: the S101/S102 templates, the `/s101-*` commands, the Spec-stage D101, `/conventions-check`, and the S102 validator subagent (D100 §9).
+
+**Codex support** (2026-10-01): the same plugin folder installs in Codex. Built: the Codex marketplace manifest `.agents/plugins/marketplace.json` (same `asimov-marketplace`, same plugin folder as `.claude-plugin/marketplace.json`); the Codex plugin manifest `plugins/asimov-plugin/.codex-plugin/plugin.json` (same `asimov-plugin`, `"skills": "./skills/"`) beside `.claude-plugin/plugin.json`; and the Codex-only setup entry point `skills/codex-asimov-init/` (`$asimov-plugin:codex-asimov-init`, the counterpart of `/asimov-init`, whose command file is unchanged). It derives the plugin root from its own file path (Step 1) and writes four targets: an `AGENTS.md` managed region (`asimov:start` / `asimov:end` markers) rendered directly from `asimov-md-template.md`, byte-for-byte copies of the plugin's `agents/*.toml` into the product repo's `.codex/agents/`, the `documentation/conventions/<stack>/README.md` read-lists, and the documentation site. `asimov.md` and the `@asimov.md` import in `CLAUDE.md` are written by `/asimov-init` only. The other skills that read plugin files (`artifact-d101-authoring`, `artifact-d101-gap-review`, `pm-advisor`) use `${CLAUDE_PLUGIN_ROOT}` and so find them only in Claude Code; Codex does not load `commands/`, so the slash commands are Claude Code only. Design: `features/D101-codex-support.html`.
 
 **Plugin layout is per artifact, not per file kind** (restructured 2026-09-10; the former `definitions/` and `templates/` folders are gone). `artifacts/<landing-place>/<artifact-slug>/` holds an artifact's definition and template together, grouped by where the artifact lands in a product repo; `resources/` holds the building blocks shared across artifacts. `model-choice.md` is a maintainer contract no command reads at run-time, so it lives outside install scope next to D100.
