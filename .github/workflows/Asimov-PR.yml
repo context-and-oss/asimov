@@ -29,12 +29,17 @@ jobs:
           [ "$entry" = "$plugin" ]        || { echo "::error::marketplace.json entry '$entry' ≠ plugin.json '$plugin'"; exit 1; }
           echo "ok: $plugin"
 
-      - name: Command and subagent models match model-choice.md (hard rule 2)
+      - name: Command, asimov-skill and subagent models match model-choice.md (hard rule 2)
         run: |
           set -euo pipefail
           fail=0
-          for f in plugins/asimov-plugin/commands/*.md plugins/asimov-plugin/agents/*.md; do
-            name=$(basename "$f" .md)
+          # Commands and agent shells must declare a model. Skills normally declare none;
+          # an asimov-skill (skills/asimov-*/SKILL.md) does, and is checked by its folder name.
+          for f in plugins/asimov-plugin/commands/*.md plugins/asimov-plugin/agents/*.md plugins/asimov-plugin/skills/asimov-*/SKILL.md; do
+            case "$f" in
+              */SKILL.md) name=$(basename "$(dirname "$f")") ;;
+              *)          name=$(basename "$f" .md) ;;
+            esac
             model=$(awk 'NR==1 && $0!="---"{exit} /^---$/{c++; if(c==2) exit; next} c==1 && /^model:/{sub(/^model:[ \t]*/,""); print; exit}' "$f")
             if [ -z "$model" ]; then
               echo "::error file=$f::no model: in frontmatter"; fail=1; continue

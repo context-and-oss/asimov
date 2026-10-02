@@ -25,7 +25,7 @@ Architecture of the `asimov` repo — the marketplace that ships the L3 workflow
 
 The toolkit sits inside the L3 workflow defined in the *AI Transition — Levels & Zones* framework (the part Asimov uses is summarised in [`ai-transition-levels-and-zones.md`](ai-transition-levels-and-zones.md)) — specifically, teams making the workflow change to **L3 on Zone 2**. The L3 pipeline has nine stages — *Intent → Design → Spec → Code → Review → Test → Approve → Deploy → Observe*.
 
-The toolkit covers the **AI-assisted** portion of the pipeline — Design, Spec, Code, Review, and Test. Each stage maps to a tool: **Design** → the `/d101-*` commands; **Spec** → the S101 implementation plan and its S102 task specs (definitions written; the `/s101-*` commands planned); **Code** → the build subagents (Giskard and Daneel write production code, Calvin authors the tests); **Review** → the reviewer subagent (Baley, conventions + correctness on the diff); **Test** → the planned validator subagent, which validates the built code against the S102's acceptance criteria (*"Agent vs Spec"*). See §4.4. Intent is captured upstream (e.g. Jira). Approve is the human gate. Deploy and Observe live in existing CI/CD and monitoring.
+The toolkit covers the **AI-assisted** portion of the pipeline — Design, Spec, Code, Review, and Test. Each stage maps to a tool: **Design** → the `/d101-*` commands; **Spec** → the `asimov-spec` and `asimov-spec-validate` asimov-skills, which write and validate the S101 implementation plan and its S102 task specs; **Code** → the build subagents (Giskard and Daneel write production code, Calvin authors the tests); **Review** → the reviewer subagent (Baley, conventions + correctness on the diff); **Test** → the planned verification subagent, which runs the built code against the S102's acceptance criteria (*"Agent vs Spec"*; *verification*, as distinct from the Spec stage's *validation* of the specs themselves). See §4.4. Intent is captured upstream (e.g. Jira). Approve is the human gate. Deploy and Observe live in existing CI/CD and monitoring.
 
 At L3 the unit of work shifts from a line (L2) to a whole spec, and the human role from **maker** to **director and reviewer**.
 
@@ -70,11 +70,15 @@ Developer-driven entrypoints. Each is a markdown file under `plugins/asimov-plug
 | `/asimov-init` | Setup (ad-hoc) | Opus 4.8 | [`D101-asimov-init.html`](features/D101-asimov-init.html) |
 | `/persona-new` | Design | Opus 4.8 | [`D101-personas.html`](features/D101-personas.html) |
 | `/persona-list` | Design | Sonnet 4.6 | [`D101-personas.html`](features/D101-personas.html) |
-| `asimov-spec` *(planned; an asimov-skill, not a command — `features/D101-spec-stage.html` §4.2)* | Spec | Opus 4.8 xhigh (Claude Code only) | `features/D101-spec-stage.html` |
-| `asimov-spec-validate` *(planned; asimov-skill)* | Spec | Sonnet 4.6 (Claude Code only) | `features/D101-spec-stage.html` |
+| `asimov-spec` (asimov-skill; cuts via `artifact-s101-authoring`, writes via `artifact-s102-authoring`, validates via `artifact-s101-validation` and the blind `artifact-s102-validation`) | Spec | Opus 4.8 xhigh (Claude Code only) | [`D101-spec-stage.html`](features/D101-spec-stage.html) |
+| `asimov-spec-validate` (asimov-skill; both validations, writes only the sidecar) | Spec | Sonnet 4.6 (Claude Code only) | [`D101-spec-stage.html`](features/D101-spec-stage.html) |
 | `/conventions-check` *(planned)* | Review + Test | Sonnet 4.6 or Haiku 4.5 | — |
 
 Command file paths follow the pattern `plugins/asimov-plugin/commands/<command-name>.md`. Slash commands are Claude Code only — Codex does not load `commands/`; `/asimov-init` alone has a Codex counterpart, the skill `codex-asimov-init` (§4.6).
+
+An **asimov-skill** is a user-invoked skill rather than a command file: `plugins/asimov-plugin/skills/asimov-<name>/SKILL.md` plus `agents/openai.yaml` beside it, one file read by both Claude Code (`/asimov-<name>`) and Codex (`$asimov-<name>`), started only when a person names it (`disable-model-invocation` / `policy.allow_implicit_invocation: false`). It composes `artifact-*` skills and carries the conversation, never a method; the frontmatter `model` binds in Claude Code only (§7.1). The Spec stage is the first to use the shape; `asimov-design`/`asimov-design-review` and `asimov-build`/`asimov-build-verify` are the planned siblings (`features/D101-spec-stage.html` §4.2, §4.7).
+
+**`asimov-spec` shows the cut before it expands it.** It reads the D101 and the repo, asks at most five questions with defaults, writes the S101 draft and shows the cut (phases with checkpoints, tasks with role, owned files, dependencies, traces; assumptions; graph checks), then waits: *go* writes and blind-validates every S102 and validates the plan, free text re-cuts, *stop* leaves the S101 alone. One finish, with a findings list and a gitignored `S101-<slug>.review.md` sidecar. It never records an approval; `ready` is the author's hand after a reviewer ≠ author. See `features/D101-spec-stage.html` §4.3, §5, §6.2.
 
 **`/d101-feature-design` runs in three phases with a stop in the middle.** Phase A settles requirements (§2, §3) and writes nothing. Phase B settles the business design (§4, §5 UI Design, §8, §9), writes the file with the document phase marked `Business design`, §6 *declared open* and §7 Implementation *pending*, and **stops the run**. Phase C — the technical design plus the build recipe (§6, §7 Implementation, §10) — is reachable only in a *later* invocation against a file already at `Business design`, and flips it to `Full design`. §7 Implementation is the code-grounded recipe realising the §6 contracts; it sits **outside the two bars** (`d101-feature-design-definition.md` §4.8) and is the interim home for build-readiness notes until the Spec stage (S101/S102) is in use for the feature (§9).
 
@@ -88,7 +92,7 @@ The stop is deliberate and is the command's main design decision. Settling the m
 
 ### 4.4 Subagents
 
-Long-running, autonomous workers. Each is two layers: a **role skill** under `plugins/asimov-plugin/skills/role-<stack>-<role>/` that carries the whole method (§7.2.1) and is the harness-portable part, and a thin **shell** under `plugins/asimov-plugin/agents/` per harness — `<name>.md` for Claude Code (frontmatter `skills:` preloads the role skill) and `<name>.toml` for Codex (prototype — Codex loads no plugin-level `agents/`, so the `codex-asimov-init` skill copies them into the product repo's `.codex/agents/`, §4.6) — carrying only identity, model, tool restrictions and the pointer to the skill. The three build subagents and the reviewer exist; the S102 validator is planned but not built yet.
+Long-running, autonomous workers. Each is two layers: a **role skill** under `plugins/asimov-plugin/skills/role-<stack>-<role>/` that carries the whole method (§7.2.1) and is the harness-portable part, and a thin **shell** under `plugins/asimov-plugin/agents/` per harness — `<name>.md` for Claude Code (frontmatter `skills:` preloads the role skill) and `<name>.toml` for Codex (prototype — Codex loads no plugin-level `agents/`, so the `codex-asimov-init` skill copies them into the product repo's `.codex/agents/`, §4.6) — carrying only identity, model, tool restrictions and the pointer to the skill. The three build subagents and the reviewer exist; the S102 verification subagent is planned but not built yet.
 
 Subagent *kinds* follow the **Accelerate multi-agent roles** — *planner / builder / tester / reviewer* (the L3 multi-agent vocabulary; see [`ai-transition-levels-and-zones.md`](ai-transition-levels-and-zones.md)). Two roles ship today: **build subagents** (builders + tester — they produce code and tests) and the **reviewer** (it checks the changeset). *Planner* is reserved (architect/spec roles, not built).
 
@@ -98,11 +102,11 @@ Subagent *kinds* follow the **Accelerate multi-agent roles** — *planner / buil
 | `daneel-the-angular-developer` (Angular developer) | `role-angular-builder` | Builder | Code | Sonnet 4.6 | [`D101-subagents.html`](features/D101-subagents.html) |
 | `calvin-the-test-author` (test author) | `role-dotnet-tester` | Tester | Code | Sonnet 4.6 | [`D101-subagents.html`](features/D101-subagents.html) |
 | `baley-the-code-reviewer` (code reviewer) | `role-code-reviewer` | Reviewer | Review | Sonnet 4.6 | [`D101-subagents.html`](features/D101-subagents.html) |
-| S102 validator *(planned)* | — | Tester | Test | Sonnet 4.6 | — |
+| S102 verification subagent *(planned)* | — | Tester | Test | Sonnet 4.6 | — |
 
 All four share one D101 (`features/D101-subagents.html`): the roles differ in competence, boundary and target, not in mechanism, and the shared mechanism lives in §7.2.1.
 
-**Role vs. stage — note the split.** The *tester* role spans two pipeline stages: Calvin **authors** tests during **Code** (build time — writing a test is a build activity), while the planned validator **runs** that validation at the **Test** stage (the built code checked against the spec — *"Agent vs Spec"*). **Review** — conventions and correctness on the diff — is Baley's, and is distinct from the spec-validation at Test. So *who builds the tests* (Calvin, Code) is not *who validates* (the validator, Test).
+**Role vs. stage — note the split.** The *tester* role spans two pipeline stages: Calvin **authors** tests during **Code** (build time — writing a test is a build activity), while the planned verification subagent **runs** the S102's acceptance criteria at the **Test** stage (the built code checked against the spec — *"Agent vs Spec"*). **Review** — conventions and correctness on the diff — is Baley's, and is distinct from the verification at Test. So *who builds the tests* (Calvin, Code) is not *who verifies* (the verification subagent, Test). Neither is the Spec stage's *validation*, which checks the specs before any code exists (§4.3). The blind S102 validation runs in a fresh generic read-only subagent, not in an Asimov-named one: it is a context boundary, not a role.
 
 Subagent shells follow the pattern `plugins/asimov-plugin/agents/<subagent-name>.md` (Claude Code) and `.toml` (Codex); role skills follow `plugins/asimov-plugin/skills/role-<stack>-<accelerate-role>/SKILL.md` — subject first, like the shell names and the `conventions/<stack>/` folders. A role that spans stacks drops the stack (`role-code-reviewer`): its method is one, only its read-list is stack-specific, so it is not split per stack. The skill body names roles, never Asimov personas; persona names live in the shells.
 
@@ -119,7 +123,7 @@ They are laid out **per artifact, not per file kind**: an *artifact* is somethin
 | Definition of documentation site | `plugins/asimov-plugin/artifacts/documentation/site/site-definition.md` | Written standard for the landing site `/asimov-init` renders — the bucket order, one card per concept, what may be added and what is never invented | assess |
 | Definition of asimov.md | `plugins/asimov-plugin/artifacts/root/asimov-md/asimov-md-definition.md` | Written standard for the Asimov-owned context file and its single `@asimov.md` import into `CLAUDE.md` | assess |
 | Definition of convention read-list | `plugins/asimov-plugin/artifacts/documentation/conventions/conventions-definition.md` | Written standard for the per-stack read-list the build subagents load (§7.2.1) — managed region, detected stacks only, never the rules themselves | assess |
-| Model choice | `documentation/model-choice.md` | Canonical (stage → command/subagent → model) mapping | — |
+| Model choice | `documentation/model-choice.md` | Canonical (stage → command/asimov-skill/subagent → model) mapping, plus the S101 task tiers (`low`/`mid`/`high` → model) | — |
 | D101 template | `plugins/asimov-plugin/artifacts/documentation/d101-feature-design/d101-feature-design-template.html` | Visual + structural contract every D101 follows; authoring ground rules + component catalogue live in its leading HTML comment | trial |
 | Persona template | `plugins/asimov-plugin/artifacts/skills/persona-review/persona-review-template.md` | SKILL.md skeleton a persona review skill is authored from — one skill per reader; leading comment holds the ground rules + an anonymised worked example | assess |
 | Standard persona set | `plugins/asimov-plugin/skills/persona-*` | Curated generic reader archetypes shipped as plugin skills — the day-one personas. The v1 set is three, one per orthogonal stake: **Poseidon** (operational reality), **Athena** (technical feasibility), **Hermes** (cost/ROI). Each a self-contained `SKILL.md` following `persona-review-template.md`, named `persona-<god>` (Greek-god handles, distinct from the Asimov-canon subagents) | — |
@@ -127,10 +131,10 @@ They are laid out **per artifact, not per file kind**: an *artifact* is somethin
 | Documentation site templates | `plugins/asimov-plugin/artifacts/documentation/site/site-template.html` + `plugins/asimov-plugin/artifacts/documentation/site/_chrome.css` | Landing-page + shared-chrome templates `/asimov-init` renders the `documentation/` site from | assess |
 | Asimov context template | `plugins/asimov-plugin/artifacts/root/asimov-md/asimov-md-template.md` | Body of the `asimov.md` context file `/asimov-init` writes to a product repo root and wires into `CLAUDE.md` via `@asimov.md` | assess |
 | Convention read-list template | `plugins/asimov-plugin/artifacts/documentation/conventions/conventions-readme-template.md` | Skeleton `documentation/conventions/<stack>/README.md` `/asimov-init` scaffolds per detected stack (the subagent read-list, §7.2.1) | assess |
-| Definition of S101 | `plugins/asimov-plugin/artifacts/documentation/s101-implementation-plan/s101-implementation-plan-definition.md` | Written standard for the Spec stage's **plan** — one per gap-free D101: the task graph (dependencies, parallelism by disjoint file sets, phases with checkpoints), the interfaces, global constraints and review focus stated once, the escalation routing, the coverage map back to the D101. One bar, *dispatch-ready*, judged by a reviewer ≠ author; never the ledger | assess |
-| Definition of S102 | `plugins/asimov-plugin/artifacts/documentation/s102-task-spec/s102-task-spec-definition.md` | Written standard for the Spec stage's **task** — the brief one fresh builder receives: intent traced to the D101, owned files, consumed/produced interfaces, behaviour as scenarios, musts / must nots / escalation triggers, test-first steps, validator-checkable acceptance criteria. One bar, *buildable blind*; no placeholders; the builder never edits what it does not own | assess |
-| S101 template *(planned)* | `plugins/asimov-plugin/artifacts/documentation/s101-implementation-plan/s101-implementation-plan-template.md` | Structure every S101 follows; decides the graph's encoding (frontmatter) | assess (planned) |
-| S102 template *(planned)* | `plugins/asimov-plugin/artifacts/documentation/s102-task-spec/s102-task-spec-template.md` | Structure every S102 follows | assess (planned) |
+| Definition of S101 | `plugins/asimov-plugin/artifacts/documentation/s101-implementation-plan/s101-implementation-plan-definition.md` | Written standard for the Spec stage's **plan** — one per Full-design D101: the task graph (dependencies, parallelism by disjoint file sets, phase = slice with its checkpoint, Foundation as phase 0), the interfaces, global constraints and review focus stated once, the escalation routing, the coverage map back to the D101, the assumptions. One bar, *dispatch-ready*, judged by a reviewer ≠ author; validated in two modes (graph-only at the cut, full at the end); size thresholds in §8.1; never the ledger | assess |
+| Definition of S102 | `plugins/asimov-plugin/artifacts/documentation/s102-task-spec/s102-task-spec-definition.md` | Written standard for the Spec stage's **task** — the brief one fresh builder receives: intent traced to the D101, owned files, consumed/produced interfaces, behaviour as Gherkin, musts / must nots / escalation triggers, test-first steps, runnable acceptance criteria. One bar, *buildable blind*, validated blind by a fresh subagent right after it is written; no placeholders; the builder never edits what it does not own | assess |
+| S101 template | `plugins/asimov-plugin/artifacts/documentation/s101-implementation-plan/s101-implementation-plan-template.md` | Structure every S101 follows: the graph once in YAML frontmatter (`phases[]`, `tasks[]`), the body by task id, Assumptions last; the leading comment holds the ids, values and what never goes in | assess |
+| S102 template | `plugins/asimov-plugin/artifacts/documentation/s102-task-spec/s102-task-spec-template.md` | Structure every S102 follows: header copied from the graph entry, then intent, files, interfaces, behaviour, constraints, steps, acceptance criteria, out of scope | assess |
 
 **A rule can be declined on the record.** `d101-feature-design-definition.md` §4.9 defines an **accepted deviation**: a decision that one named rule of the definition is deliberately not met at one named place in a D101, written *into that D101* next to the element it excuses and carrying the rule, a one-sentence reason, the accepter's name and the date. It exists because a review that re-reports a settled finding spends the author's decision on every run, and the signal decays. Three limits keep it from becoming a waiver system: it covers one rule *instance* and never a §8 check, it never stops the finding being reported (`/d101-review` prints it as the severity **Accepted**, which never resolves to Pass), and it lapses when the text it annotates is rewritten. Deliberately **not** a side file — a waiver keyed to a requirement number rots when numbering moves, and it hides the deviation from the human reviewer who owns the gap-free verdict. The mechanism spans `d101-feature-design-definition.md` §4.9/§7/§8, the D101 template, and both D101 commands; its design is `features/D101-d101-feature-design.html`.
 
@@ -140,12 +144,14 @@ They are laid out **per artifact, not per file kind**: an *artifact* is somethin
 
 ### 4.6 Skills
 
-Model-invoked capabilities: a `SKILL.md` under `plugins/asimov-plugin/skills/<name>/`, discovered automatically on install and activated by the model when a task matches the skill's `description`. Skills declare no model; all but the Codex setup entry point take no arguments. `skills/` is the one folder both harnesses load — Codex reads nothing else from the plugin (`.codex-plugin/plugin.json` names `./skills/` only).
+A `SKILL.md` under `plugins/asimov-plugin/skills/<name>/`, discovered automatically on install. Most are **model-invoked**: activated when a task matches the skill's `description`; they declare no model and take no arguments (the Codex setup entry point excepted). The `asimov-*` family is **user-invoked**: started only by name, with a model bound in Claude Code (§4.3). `skills/` is the one folder both harnesses load — Codex reads nothing else from the plugin (`.codex-plugin/plugin.json` names `./skills/` only).
 
 | Skill | Kind | Purpose |
 |---|---|---|
 | `role-dotnet-builder`, `role-angular-builder`, `role-dotnet-tester`, `role-code-reviewer` | Role method | The whole method of one subagent (the six-field skeleton of §7.2.1), portable across harnesses. Preloaded into the matching shell in `agents/` (§4.4); also usable directly by a main agent where no subagent exists. Named `role-<stack>-<accelerate-role>`; the cross-stack reviewer drops the stack. |
-| `artifact-d101-authoring`, `artifact-d101-gap-review` | Artifact method | How to produce or judge one artifact, independent of any command: the D101 rendering procedure + authoring invariants (used by `/d101-feature-design`, `/d101-convert-to-html`, and any hand edit of a `D101-*.html`), and the D101 gap review — section walk, §8a/§8b, report — that `/d101-review` delegates to. Both read the definition and template by path (§7.4); the command keeps only the conversation. Named `artifact-<code>-<action>`; `s101`/`s102` follow when their templates exist. |
+| `artifact-d101-authoring`, `artifact-d101-gap-review` | Artifact method | How to produce or judge one artifact, independent of any command: the D101 rendering procedure + authoring invariants (used by `/d101-feature-design`, `/d101-convert-to-html`, and any hand edit of a `D101-*.html`), and the D101 gap review — section walk, §8a/§8b, report — that `/d101-review` delegates to. Both read the definition and template by path (§7.4); the command keeps only the conversation. Named `artifact-<code>-<action>`. |
+| `artifact-s101-authoring`, `artifact-s102-authoring`, `artifact-s101-validation`, `artifact-s102-validation` | Artifact method | The Spec stage's four methods: cut one D101 into an S101 and return the cut summary; write one S102 from one graph entry (or a lone ticket); validate the plan (graph-only or full, inline); validate one S102 blind (loaded by a fresh read-only subagent). Each reads its definition and template by path and calls no other skill — a skill is a leaf. Design: `features/D101-spec-stage.html` §6.4–§6.7. |
+| `asimov-spec`, `asimov-spec-validate` | Asimov-skill | User-invoked entry points (§4.3): the conversation, the gate and the loop of one planning run, and the two validations on an existing plan. Compose the four Spec-stage artifact skills; carry no method. Ship with `agents/openai.yaml` for Codex. |
 | `persona-poseidon`, `persona-athena`, `persona-hermes` | Persona review | Read a design document as one of its intended readers; the concrete form of `/d101-review` check 7. Their definition + template pair lives in `artifacts/skills/persona-review/` (§4.5). |
 | `pm-advisor` | Advisory | Advises on the delivery model held in `plugins/asimov-plugin/processes/`. Carries an intent → file routing table, reads the relevant page at run time, and advises from it. Read-only: it never writes, and never edits `processes/` (a generated export). First member of a planned `pm-*` family; the family's shared D101 is not yet written. |
 | `codex-asimov-init` | Setup entry point (Codex only) | The Codex counterpart of `/asimov-init` (§4.3), invoked as `$asimov-plugin:codex-asimov-init`. Codex-only via frontmatter — `disable-model-invocation: true` + `user-invocable: false` (and `allow_implicit_invocation: false` in its `agents/openai.yaml`). Derives the plugin root from its own file path, because Codex does not substitute `${CLAUDE_PLUGIN_ROOT}` (§7.4). Writes four targets: an `AGENTS.md` managed region (`<!-- asimov:start -->` / `<!-- asimov:end -->`) rendered directly from `asimov-md-template.md`, byte-for-byte copies of `agents/*.toml` into the product repo's `.codex/agents/`, the `documentation/conventions/<stack>/README.md` read-lists, and the documentation site. `asimov.md` and the `@asimov.md` import in `CLAUDE.md` stay with `/asimov-init`. Names no model. Design: [`D101-codex-support.html`](features/D101-codex-support.html). |
@@ -180,14 +186,24 @@ asimov/
 │       │   ├── daneel-the-angular-developer.{md,toml}
 │       │   ├── calvin-the-test-author.{md,toml}
 │       │   ├── baley-the-code-reviewer.{md,toml}
-│       │   └── s102-validator.md          ← not built yet
-│       ├── skills/                       ← model-invoked skills (§4.6); the harness-portable layer
+│       │   └── s102-verifier.md           ← not built yet (the Test-stage verification subagent)
+│       ├── skills/                       ← skills (§4.6); the harness-portable layer
+│       │   ├── asimov-spec/                      ← asimov-skill: the Spec-stage planning run (user-invoked)
+│       │   │   ├── SKILL.md
+│       │   │   └── agents/openai.yaml            ← Codex metadata: allow_implicit_invocation: false
+│       │   ├── asimov-spec-validate/             ← asimov-skill: validate an existing plan
+│       │   │   ├── SKILL.md
+│       │   │   └── agents/openai.yaml
 │       │   ├── role-dotnet-builder/SKILL.md      ← role method (Giskard)
 │       │   ├── role-angular-builder/SKILL.md     ← role method (Daneel)
 │       │   ├── role-dotnet-tester/SKILL.md       ← role method (Calvin)
 │       │   ├── role-code-reviewer/SKILL.md       ← role method (Baley)
 │       │   ├── artifact-d101-authoring/SKILL.md  ← how to write/change a D101
 │       │   ├── artifact-d101-gap-review/SKILL.md ← the D101 gap review
+│       │   ├── artifact-s101-authoring/SKILL.md  ← cut a D101 into an S101; returns the cut summary
+│       │   ├── artifact-s102-authoring/SKILL.md  ← one S102 from one graph entry
+│       │   ├── artifact-s101-validation/SKILL.md ← the plan checks, graph-only or full
+│       │   ├── artifact-s102-validation/SKILL.md ← the blind S102 check (fresh subagent)
 │       │   ├── persona-poseidon/SKILL.md
 │       │   ├── persona-athena/SKILL.md
 │       │   ├── persona-hermes/SKILL.md
@@ -200,10 +216,10 @@ asimov/
 │       │   │   │   └── d101-feature-design-template.html
 │       │   │   ├── s101-implementation-plan/  ← Spec stage: the plan (one per D101)
 │       │   │   │   ├── s101-implementation-plan-definition.md
-│       │   │   │   └── s101-implementation-plan-template.md   ← not built yet
+│       │   │   │   └── s101-implementation-plan-template.md   ← graph in frontmatter, body by task id
 │       │   │   ├── s102-task-spec/       ← Spec stage: one task for one builder
 │       │   │   │   ├── s102-task-spec-definition.md
-│       │   │   │   └── s102-task-spec-template.md             ← not built yet
+│       │   │   │   └── s102-task-spec-template.md             ← header from the graph entry, eight sections
 │       │   │   ├── site/                 ← the documentation/ landing site (/asimov-init)
 │       │   │   │   ├── site-definition.md
 │       │   │   │   ├── site-template.html
@@ -245,7 +261,7 @@ asimov/
     └── research/                         ← research notes behind the decisions in this doc
 ```
 
-The diagram shows the full intended shape. What exists today: the three Design-stage command files plus the setup command `/asimov-init`, its Codex counterpart `codex-asimov-init` with the two Codex manifests (§4.1, §4.2, §4.6), the four subagents as role skills plus shells (Giskard, Daneel, Calvin, Baley), the two D101 artifact skills, the persona review layer (the `/persona-new` and `/persona-list` commands, the three standard persona skills, and the persona definition + template), the HTML D101 template, the four diagram templates, the site templates, and the `pm-advisor` skill over the Delivery Model corpus in `processes/`. Also there: the two Spec-stage definitions, `plugins/asimov-plugin/artifacts/documentation/s101-implementation-plan/s101-implementation-plan-definition.md` and `plugins/asimov-plugin/artifacts/documentation/s102-task-spec/s102-task-spec-definition.md`. Not built yet: the `/s101-*` and `/conventions-check` command files, the S102 validator subagent, and the S101 and S102 templates — they slot into the same directory structure when added; only the inventory grows.
+The diagram shows the full intended shape. What exists today: the three Design-stage command files plus the setup command `/asimov-init`, its Codex counterpart `codex-asimov-init` with the two Codex manifests (§4.1, §4.2, §4.6), the four subagents as role skills plus shells (Giskard, Daneel, Calvin, Baley), the two D101 artifact skills, the persona review layer (the `/persona-new` and `/persona-list` commands, the three standard persona skills, and the persona definition + template), the HTML D101 template, the four diagram templates, the site templates, and the `pm-advisor` skill over the Delivery Model corpus in `processes/`. Also there, as of 2026-10-02: the whole Spec workflow — the two Spec-stage definitions and templates under `artifacts/documentation/s101-implementation-plan/` and `artifacts/documentation/s102-task-spec/`, the four `artifact-s10x-*` skills, and the `asimov-spec` / `asimov-spec-validate` asimov-skills with their Codex metadata. Not built yet: the `/conventions-check` command file and the S102 verification subagent — they slot into the same directory structure when added; only the inventory grows. A product repo gains `documentation/specs/<slug>/` the first time `asimov-spec` runs in it.
 
 ## 6. Distribution & install
 
@@ -272,6 +288,8 @@ A command is a markdown file with YAML frontmatter + prompt body:
 - **Body** is the prompt that runs against the model.
 
 The exact prompt text and interview heuristics are implementation detail; they live in the command file itself and are designed against the relevant `features/D101-<feature>.html`.
+
+**Asimov-skill shape.** The same frontmatter + body, in `skills/asimov-<name>/SKILL.md` instead of `commands/`, with `disable-model-invocation: true` so only a person starts it, and `agents/openai.yaml` beside it carrying `policy.allow_implicit_invocation: false` for Codex. Claude Code binds `model`/`effort` and resolves `${CLAUDE_PLUGIN_ROOT}`; Codex ignores the model and hands the skill its own directory, so the skills also resolve the plugin paths relative to their folder. The body is the conversation only: every method is an `artifact-*` skill invoked by name, and the fresh subagent for the blind S102 check is the harness's generic read-only agent (`Explore` in Claude Code), never an Asimov-named one. Decided 2026-10-01 (`features/D101-spec-stage.html` §4.7); the three Design-stage commands stay commands until they are moved to the same shape.
 
 ### 7.2 Subagent shape
 
@@ -348,13 +366,10 @@ Planned components that slot into the structure above when added:
 
 | Item | Adds to layout |
 |---|---|
-| `asimov-spec` asimov-skill | `plugins/asimov-plugin/skills/asimov-spec/SKILL.md` (+ `agents/openai.yaml` for Codex) |
-| `asimov-spec-validate` asimov-skill | `plugins/asimov-plugin/skills/asimov-spec-validate/SKILL.md` (+ `agents/openai.yaml` for Codex) |
 | `/conventions-check` slash command | `plugins/asimov-plugin/commands/conventions-check.md` |
-| S102 validator subagent | `plugins/asimov-plugin/agents/s102-validator.md` |
-| S101 template | `plugins/asimov-plugin/artifacts/documentation/s101-implementation-plan/s101-implementation-plan-template.md` |
-| S102 template | `plugins/asimov-plugin/artifacts/documentation/s102-task-spec/s102-task-spec-template.md` |
-| Spec-stage D101 | `documentation/features/D101-spec-stage.html` — the design behind the S101/S102 definitions and the `asimov-spec` / `asimov-spec-validate` skills |
+| S102 verification subagent (the Test stage; was called "S102 validator" before validation and verification were split, 2026-09-29) | `plugins/asimov-plugin/agents/s102-verifier.md` + a `role-s102-verifier` skill |
+| The Build workflow — dispatch from the S101 graph, the ledger, `asimov-build` / `asimov-build-verify`, Baley reading the S102 (*Review vs. Spec*) | Designed once a real S101 has been run (`features/D101-spec-stage.html` OOS1–OOS3) |
+| `asimov-design` / `asimov-design-review` — the Design-stage commands as asimov-skills | `plugins/asimov-plugin/skills/asimov-design*/` (decided 2026-10-01, `features/D101-spec-stage.html` §4.2; not scheduled) |
 
 **The D101 §7 boundary is settled by the S102 definition.** §7 Implementation was the *interim* home for code-grounded build-readiness notes (project layout, reuse-vs-new, method-level wiring). That is S102 content (`s102-task-spec-definition.md` §3): a feature that has an S101 marks §7 N/A and points at its `documentation/specs/<feature-slug>/` folder. §7 stays in the template for repos and features not yet on the Spec stage (`d101-feature-design-definition.md` §4.8). Research and decisions: `documentation/research/S101-S102-spec-stage-research.md`.
 
@@ -366,7 +381,7 @@ Planned components that slot into the structure above when added:
 | Q2 | Should the marketplace lint its manifests (`marketplace.json`, `plugin.json`) before merging changes to the default branch? Manifest typos break install silently. | alb (Context& lead) | **Resolved 2026-09-15:** yes. The same workflow parses both manifests and checks the plugin name agrees (hard rule 1). |
 | Q3 | Where does the D101 template's structure live as the single source of truth — in product repos or in `asimov`? Keeping it in both risks drift. | alb (Context& lead) | Observe drift over the first stretch of real use, then decide |
 | Q4 | Model versions are pinned per command (e.g. `claude-opus-4-8`). What's the upgrade ritual when CC ships a new model or retires a current one — single PR bumping all commands, or per-command rollout? *First bump (4.7 → 4.8) was done as a single PR (this file + model-choice.md + the D101 + frontmatter together) — provisional precedent; formalise vs. CI lint still open (see Q1).* | alb (Context& lead) | Decide whether to formalise the single-PR ritual / add a CI lint |
-| Q5 | The S102 validator subagent (not built yet) produces a report that has to land somewhere reviewable on a PR. Is the toolkit's job to format the report, or just to produce structured output for an external poster? | alb (Context& lead) | Decide while spec'ing the validator subagent |
+| Q5 | The S102 verification subagent (not built yet) produces a report that has to land somewhere reviewable on a PR. Is the toolkit's job to format the report, or just to produce structured output for an external poster? *The Spec-stage validation chose chat plus a gitignored sidecar (`S101-<slug>.review.md`); a precedent, not the answer for a PR.* | alb (Context& lead) | Decide while spec'ing the verification subagent |
 | Q6 | How is the toolkit itself tested before a release? Manual run-through of each D101's acceptance criteria by a developer ≠ the author, or something more automated? No T100 / T101-equivalent exists yet. | alb (Context& lead) | Author T100 / T101 alongside the next commands; today, manual AC run-throughs by a reviewer ≠ author. |
 | Q7 | A D101 goes to the business approver together with an **estimate** — that's why sign-off waits for the technical design (`d101-feature-design-definition.md` §2.3). The D101 has no place for one today. Does the estimate belong in §1 / a new section, in the S101 (which carries the task graph and the model tiers, so it is the natural neighbour), or outside the documents entirely? | alb (Context& lead) | Observe over the first few phase-C run-throughs where the estimate actually gets written down, then decide |
 
@@ -376,6 +391,7 @@ Planned components that slot into the structure above when added:
 - [`features/D101-d101-feature-design.html`](features/D101-d101-feature-design.html) — the D101 artifact: its three commands, two skills, phases and axes, accepted deviations, review handoff
 - [`features/D101-subagents.html`](features/D101-subagents.html) — the four subagents: role skills, per-harness shells, the convention overlay
 - [`features/D101-codex-support.html`](features/D101-codex-support.html) — Codex support: the second manifest pair and the `codex-asimov-init` skill
+- [`features/D101-spec-stage.html`](features/D101-spec-stage.html) — the Spec stage: the two asimov-skills, the four artifact skills, the gate, the two artifacts
 
 **Definitions and templates:**
 - `plugins/asimov-plugin/artifacts/documentation/d101-feature-design/d101-feature-design-definition.md` — Design-stage bars (business-complete §8a, gap-free §8b)
@@ -386,7 +402,7 @@ Planned components that slot into the structure above when added:
 - `plugins/asimov-plugin/resources/diagrams/` — the four standard diagram notations a D101 diagram may use (`README.md` is the routing table)
 - `plugins/asimov-plugin/artifacts/documentation/site/site-template.html` + `plugins/asimov-plugin/artifacts/documentation/site/_chrome.css` (documentation site)
 - `plugins/asimov-plugin/artifacts/root/asimov-md/asimov-md-template.md` + `plugins/asimov-plugin/artifacts/documentation/conventions/conventions-readme-template.md` (`/asimov-init` repo bootstrap)
-- `plugins/asimov-plugin/artifacts/documentation/s101-implementation-plan/s101-implementation-plan-template.md` + `plugins/asimov-plugin/artifacts/documentation/s102-task-spec/s102-task-spec-template.md` (not built yet)
+- `plugins/asimov-plugin/artifacts/documentation/s101-implementation-plan/s101-implementation-plan-template.md` + `plugins/asimov-plugin/artifacts/documentation/s102-task-spec/s102-task-spec-template.md` (Spec-stage templates)
 
 **External framework references:**
 - *AI Transition — Levels & Zones* (Context&) — L0–L5 / Z1–Z3 framework, L3 pipeline stage names; the part Asimov uses is summarised in `documentation/ai-transition-levels-and-zones.md`

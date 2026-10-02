@@ -1,6 +1,6 @@
 # S101 / S102 spec-stage research
 
-**Date:** 2026-09-25, brainstorm continued 2026-09-28 and 2026-09-29. **Status:** definitions written at `assess`; the Spec-stage D101 is at `Full design` (`documentation/features/D101-spec-stage.html`, Draft v0.10, 2026-10-01), revised after its first read by a non-author (the gate, §7) and awaiting review; the component list for the first build round is settled (§7.1); templates and commands pending.
+**Date:** 2026-09-25, brainstorm continued 2026-09-28 and 2026-09-29. **Status:** definitions at `assess`, revised 2026-10-02 to the D101's component list; the Spec-stage D101 is at `Full design` (`documentation/features/D101-spec-stage.html`, Draft v0.11, 2026-10-01), revised after its first read by a non-author (the gate, §7) and awaiting review; the first build round (§7.1) is built as of 2026-10-02 and untried on a real D101.
 
 Companion to [`L3-spec-format-research.md`](L3-spec-format-research.md), which researched the *format* of a single spec (MinimumCD's five artifacts, Markdown over JSON, the validator's authority). This note researched the *layer above it*: how the field orders, parallelises and hands out the tasks a design produces, and what that means for Asimov's Spec stage. It revises two of the earlier note's locked decisions (§5).
 
@@ -102,7 +102,7 @@ Follows the skill split (method in skills, conversation in commands, identity in
 | Template | `artifacts/documentation/s101-implementation-plan/s101-implementation-plan-template.md` | Graph in frontmatter; body refers to tasks by id |
 | Template | `artifacts/documentation/s102-task-spec/s102-task-spec-template.md` | One task, one builder |
 | Skill | `artifact-s101-authoring` | The decomposition procedure (AC → slices → phases → stack split → interfaces → phase-0 skeleton task), writing the S101, and returning the cut summary the command shows at the gate |
-| Skill | `artifact-s102-authoring` | Writing one S102 from the template. Called per task by `artifact-s101-authoring`; stands alone for a lone S102 from the board |
+| Skill | `artifact-s102-authoring` | Writing one S102 from the template. Called per task by `asimov-spec` (a skill calls no skill, per the layer rule of 2026-10-01); stands alone for a lone S102 from the board |
 | Skill | `artifact-s101-validation` | S101 §8 as a fixed checklist, in two modes: graph-only on the S101 alone (at the gate), full including the cross-S102 checks |
 | Skill | `artifact-s102-validation` | S102 §8 for one file, shape checklist first; the skill the blind subagent loads |
 | Asimov-skill | `asimov-spec` (was `/s101-implementation-plan` until 2026-10-01) | The conversation, the gate and the loop (§7, *The gate* and *The authoring loop*) |

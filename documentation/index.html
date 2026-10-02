@@ -73,6 +73,9 @@ a.cmd-tile:hover { transform: translateY(-2px); border-color: var(--border-2); }
 .cmd-tile.adhoc { border-top-color: var(--teal); }
 .cmd-tile.adhoc .cmd-mark { background: linear-gradient(135deg, var(--teal), var(--cyan)); }
 .cmd-tile.adhoc .cmd-stage { color: var(--teal); background: #26c6da15; border: 1px solid #26c6da44; }
+.cmd-tile.spec { border-top-color: var(--violet); }
+.cmd-tile.spec .cmd-mark { background: linear-gradient(135deg, var(--violet), var(--cyan)); }
+.cmd-tile.spec .cmd-stage { color: var(--violet); background: #ab47bc15; border: 1px solid #ab47bc44; }
 .cmd-tile.planned { opacity: 0.5; border-style: dashed; }
 .cmd-tile.planned .cmd-mark { background: var(--bg3); color: var(--text-mute); }
 .cmd-tile.planned .cmd-stage { color: var(--text-mute); background: var(--bg2); border: 1px solid var(--border); }
@@ -247,18 +250,18 @@ a.cmd-tile:hover { transform: translateY(-2px); border-color: var(--border-2); }
       <div class="cmd-stage">Design</div>
       <div class="cmd-desc">Lists the persona review skills in the repo — standard set plus custom — labelling which is which.</div>
     </a>
-    <div class="cmd-tile planned">
+    <a class="cmd-tile spec" href="features/D101-spec-stage.html">
       <div class="cmd-mark">/</div>
-      <div class="cmd-name">/s101-implementation-plan</div>
-      <div class="cmd-stage">Spec · planned</div>
-      <div class="cmd-desc">Drafts the implementation plan (S101) and its task specs (S102) from a gap-free D101.</div>
-    </div>
-    <div class="cmd-tile planned">
+      <div class="cmd-name">/asimov-spec</div>
+      <div class="cmd-stage">Spec</div>
+      <div class="cmd-desc">Plans a Full-design D101 into an S101 and its S102s; shows the cut and waits for your go before any task spec is written.</div>
+    </a>
+    <a class="cmd-tile spec" href="features/D101-spec-stage.html">
       <div class="cmd-mark">/</div>
-      <div class="cmd-name">/s101-review</div>
-      <div class="cmd-stage">Spec · planned</div>
-      <div class="cmd-desc">Checks an S101 and its S102s against their bars before code starts.</div>
-    </div>
+      <div class="cmd-name">/asimov-spec-validate</div>
+      <div class="cmd-stage">Spec</div>
+      <div class="cmd-desc">Validates an existing plan — a blind check per task spec, then the plan checks — and writes nothing but the review sidecar.</div>
+    </a>
     <div class="cmd-tile planned">
       <div class="cmd-mark">/</div>
       <div class="cmd-name">/conventions-check</div>
