@@ -52,8 +52,7 @@ reference is invisible to the subagent. See D100 §7.2.1.
 | ----------------------- | ------ | ----------------------------------------------------------------------- |
 | `/asimov-design`        | Design | Interview-author a D101 (HTML) — two runs, see below; a legacy `.md` path renders it to HTML |
 | `/asimov-design-review` | Design | Review hub — the gap check (§8a/§8b) plus the persona reads             |
-| `/persona-new`          | Design | Author a custom persona — a product-specific reader — as a review skill |
-| `/persona-list`         | Design | List the persona review skills available (standard + custom)            |
+| `artifact-persona-authoring` | Design | Show the persona roster, then author a custom persona — a product-specific reader — as a review skill (a skill: ask for it in plain words) |
 | `/asimov-spec`          | Spec   | Plan a Full-design D101 or an approved Jira ticket into `documentation/specs/<slug>/` — shows the cut, waits for your go |
 | `/asimov-spec-validate` | Spec   | Validate an existing plan; writes only its review sidecar               |
 | `/asimov-init`          | Setup  | Re-run to refresh this file, conventions, and the docs site             |
@@ -64,7 +63,7 @@ reference is invisible to the subagent. See D100 §7.2.1.
 
 The rendered D101 carries two chips in its top bar: **phase** (`Business design` → `Full design`, yours to move) and **status** (`Draft` → `Approved`, the business approver's, normally only after §6 exists because the estimate depends on it).
 
-**Read the design as its reader, too.** Beyond the bar check, a **persona review** reads a D101 (its §2/§4, plus §6 for a feasibility reader) _as one of its intended readers_ and reports where it talks to its author instead — the reader's-eye complement to the gap check, not a substitute; run both. `/asimov-design-review` offers these persona reads alongside the gap check, or invoke a reader directly by name (`review as <name>`). Standard readers ship with Asimov; `/persona-list` shows the whole roster and `/persona-new` authors a reader specific to this repo. Reach for one before taking a design to a real reviewer.
+**Read the design as its reader, too.** Beyond the bar check, a **persona review** reads a D101 (its §2/§4, plus §6 for a feasibility reader) _as one of its intended readers_ and reports where it talks to its author instead — the reader's-eye complement to the gap check, not a substitute; run both. `/asimov-design-review` offers these persona reads alongside the gap check, or invoke a reader directly by name (`review as <name>`). Standard readers ship with Asimov; `artifact-persona-authoring` shows the whole roster and authors a reader specific to this repo ("author a persona for our dispatcher"). Reach for one before taking a design to a real reviewer.
 
 ## Available subagents
 

@@ -1,6 +1,6 @@
 {
   "name": "asimov-plugin",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "L3 workflow tooling — slash commands, subagents, and skills for the Design, Spec, Code, and Review+Test stages.",
   "license": "MIT",
   "author": {

@@ -271,7 +271,7 @@ footer.site-footer a { color: var(--cyan); }
   <a href="../index.html#s6">Diagrams</a>
   <span class="spacer"></span>
   <span class="phase-chip full">Full design</span>
-  <span class="status-chip">Draft v0.6</span>
+  <span class="status-chip">Draft v0.7</span>
 </nav>
 
 <div class="layout-doc">
@@ -387,7 +387,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="row head cols-2"><div>Concept</div><div>What it means</div></div>
     <div class="row cols-2"><div class="label-cell">Artifact</div><div>Something the toolkit writes into a product repo; a definition and a template in one folder. Three artifacts had no definition and get one here.</div></div>
     <div class="row cols-2"><div class="label-cell">Level</div><div>One of the four values; how far to trust the rules and what a change comes with.</div></div>
-    <div class="row cols-2"><div class="label-cell">Producing skill or command</div><div>An asimov-skill or command that writes an artifact: <code>asimov-design</code>, <code>/persona-new</code>, <code>/asimov-init</code>.</div></div>
+    <div class="row cols-2"><div class="label-cell">Producing skill or command</div><div>An asimov-skill or command that writes an artifact: <code>asimov-design</code>, <code>artifact-persona-authoring</code>, <code>/asimov-init</code>.</div></div>
   </div>
 </section>
 
@@ -512,7 +512,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="row cols-2"><div class="label-cell">asimov-md-definition.md</div><div>New, <code>artifact: asimov-md</code>.</div></div>
     <div class="row cols-2"><div class="label-cell">conventions-definition.md</div><div>New, <code>artifact: conventions</code>.</div></div>
     <div class="row cols-2"><div class="label-cell">asimov-design/SKILL.md</div><div>In Step 00, a <strong>maturity notice</strong>: read the block from the definition just loaded, resolve to the §6.2 notice line, print it before the first question. Add the hard rule <em>never write the level into the D101</em>.</div></div>
-    <div class="row cols-2"><div class="label-cell">persona-new.md</div><div>Same step after its Step 1, reading the persona definition.</div></div>
+    <div class="row cols-2"><div class="label-cell">artifact-persona-authoring/SKILL.md</div><div>Same notice before its first question, reading the persona definition.</div></div>
     <div class="row cols-2"><div class="label-cell">asimov-init.md</div><div>Loads the three definitions in Step 1; same step after it, one line per level present, artifacts named. Its index rendering rule strips the template's leading comment explicitly.</div></div>
     <div class="row cols-2"><div class="label-cell">D100 §4.5</div><div>Add the <strong>Maturity</strong> column; one paragraph under the table pointing at this D101.</div></div>
     <div class="row cols-2"><div class="label-cell">CLAUDE.md</div><div>Under Conventions: the three fields and four levels, one line each. Hard rule 10: <em>the level block and the D100 §4.5 column change in the same commit</em>, modelled on hard rule 2.</div></div>
@@ -579,7 +579,7 @@ footer.site-footer a { color: var(--cyan); }
       <h4>Files touched</h4>
       <ul>
         <li>plugins/asimov-plugin/artifacts/**/*-definition.md</li>
-        <li>plugins/asimov-plugin/skills/asimov-design/SKILL.md · plugins/asimov-plugin/commands/{persona-new,asimov-init}.md</li>
+        <li>plugins/asimov-plugin/skills/asimov-design/SKILL.md · plugins/asimov-plugin/skills/artifact-persona-authoring/SKILL.md · plugins/asimov-plugin/commands/asimov-init.md</li>
         <li>.github/workflows/Asimov-PR.yml</li>
       </ul>
     </div>
@@ -601,7 +601,7 @@ footer.site-footer a { color: var(--cyan); }
     · <span class="mono">features/D101-artifact-maturity.html</span>
   </div>
   <div style="margin-top: 0.4rem">
-    D101 · Artifact maturity · asimov · Draft v0.6 · 2026-10-02
+    D101 · Artifact maturity · asimov · Draft v0.7 · 2026-10-02
   </div>
 </footer>
 

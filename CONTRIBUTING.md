@@ -7,7 +7,7 @@ Asimov is a Claude Code plugin: slash commands, subagents, skills, definitions a
 Asimov ships **generic** tooling for the AI-assisted stages of the L3 pipeline ([what L3 means](documentation/ai-transition-levels-and-zones.md)). Anything that only makes sense for one product stays in that product's repo. In particular:
 
 - Definitions, templates and command prompts carry no product-specific identifiers (CLAUDE.md hard rule 7). Path conventions such as `documentation/features/` are fine; product entity names are not.
-- Standard personas are generic archetypes. A reader specific to one product is a **custom** persona, authored with `/persona-new` into the product repo, not into the plugin.
+- Standard personas are generic archetypes. A reader specific to one product is a **custom** persona, authored with `artifact-persona-authoring` into the product repo, not into the plugin.
 - When in doubt, name it generically and add an example as illustration (hard rule 8).
 
 ## Before you start

@@ -50,7 +50,7 @@ Print `Reviewing: <path>` on one line once it is pinned, with the real extension
 
 **Discover and bucket the roster.** Glob `${CLAUDE_PLUGIN_ROOT}/skills/persona-*/SKILL.md` (standard, shipped) and `.claude/skills/persona-*/SKILL.md` in the working directory (custom, this repo). Read each and sort it by persona-review definition §7: a persona that declares it **does not know the codebase or mechanism** → **business**; one that declares it **does know the mechanism and reads §6** → **technical**. Bucket by what the persona says of itself, never by its name; a genuinely ambiguous one goes to business, noted. Keep each skill's frontmatter `name`; that is what Step 4 invokes.
 
-**Present the menu**, only what the phase allows, naming the personas in each bucket, marking an empty bucket as such (picking it points at `persona-new`, it produces no read):
+**Present the menu**, only what the phase allows, naming the personas in each bucket, marking an empty bucket as such (picking it points at `artifact-persona-authoring`, it produces no read):
 
 - **`Business design`:** 1. gap review against §8a *(recommended)* · 2. business-persona reads of §2/§4, personas `<names>` *(recommended)* · 3. technical-persona reads of §4, feasibility of the intent, §6 not written yet, personas `<names>`.
 - **`Full design`:** 1. gap review against §8b *(recommended)* · 2. business-persona reads of §2/§4, personas `<names>` *(recommended)* · 3. technical-persona reads of §4 and §6, personas `<names>` *(recommended)*.
@@ -65,7 +65,7 @@ Invoke **`artifact-d101-gap-review`** via the **Skill** tool with the path, the 
 
 For each picked bucket, invoke every persona in it via the **Skill** tool by its `name` (e.g. `persona-poseidon`): the business bucket reads the **business design, §2/§4**; the technical bucket reads **§4 for feasibility of intent**, plus **§6** when the phase is `Full design`. Each skill carries its method and output shape (a first-person read-through, then that reader's cuts or, for a feasibility reader, concerns). Print each under `## Review, as <Persona>`, verbatim; never merge personas with one another or with the gap tables, never soften one.
 
-An empty picked bucket is one line pointing at `persona-new`, not a blank report. A persona skill that errors is skipped and named; one broken reader does not sink the roster. A persona's verdict belongs to the reader it stands in for, never to you.
+An empty picked bucket is one line pointing at `artifact-persona-authoring`, not a blank report. A persona skill that errors is skipped and named; one broken reader does not sink the roster. A persona's verdict belongs to the reader it stands in for, never to you.
 
 # Step 5 — Write the notes, then stop
 
@@ -106,4 +106,4 @@ Then the footer, matching the phase, and stop. No fixes offered, no verdict, not
 - **Reviews stay distinct.** No persona read in the gap tables, no combined verdict or score across reviews.
 - **Never move either axis.** You set no phase and record no approval; you show the status, never change it (definition §2.3).
 - **The review invariants bind here too.** No verdict or aggregated score, no invented findings, never author or propose an acceptance, the bar re-read on every run: defined once in `artifact-d101-gap-review` (*Invariants*), never restated here.
-- **Paths are a hard-rule-9 literal.** `documentation/features/D101-*.html` (plus `*.md` for legacy review), the `D101-<slug>.review.md` sibling and the persona paths `skills/persona-*` and `.claude/skills/persona-*` move together with `asimov-design`, the two `artifact-d101-*` skills, `persona-new`, `.gitignore`, `CLAUDE.md` and D100.
+- **Paths are a hard-rule-9 literal.** `documentation/features/D101-*.html` (plus `*.md` for legacy review), the `D101-<slug>.review.md` sibling and the persona paths `skills/persona-*` and `.claude/skills/persona-*` move together with `asimov-design`, the two `artifact-d101-*` skills, `artifact-persona-authoring`, `.gitignore`, `CLAUDE.md` and D100.

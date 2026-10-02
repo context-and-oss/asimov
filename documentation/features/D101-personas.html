@@ -240,7 +240,7 @@ footer.site-footer a { color: var(--cyan); }
   <a href="../index.html#s6">Diagrams</a>
   <span class="spacer"></span>
   <span class="phase-chip full">Full design</span>
-  <span class="status-chip">Draft v0.12</span>
+  <span class="status-chip">Draft v0.13</span>
 </nav>
 
 <div class="layout-doc">
@@ -288,7 +288,7 @@ footer.site-footer a { color: var(--cyan); }
 <div class="meta-strip">
   <div class="meta-cell"><div class="label">Owner</div><div class="value">alb</div></div>
   <div class="meta-cell"><div class="label">Approver (target)</div><div class="value">alb (Context&amp; lead)</div></div>
-  <div class="meta-cell"><div class="label">Commands</div><div class="value mono">/persona-new · /persona-list</div></div>
+  <div class="meta-cell"><div class="label">Authoring</div><div class="value mono">artifact-persona-authoring</div></div>
   <div class="meta-cell"><div class="label">Standard set</div><div class="value mono">skills/persona-*</div></div>
   <div class="meta-cell"><div class="label">Last updated</div><div class="value mono">2026-10-02</div></div>
   <div class="meta-cell"><div class="label">Stage</div><div class="value">Design</div></div>
@@ -342,7 +342,7 @@ footer.site-footer a { color: var(--cyan); }
   </div>
 
   <div class="callout">
-    <strong>Audience.</strong> The author working in a product repo — the same developer who runs the design commands, not an expert in the persona-review form. They know the reader they have in mind; they should not have to know the toolkit's machinery to reach for one or capture their own.
+    <strong>Audience.</strong> The author working in a product repo — the same developer who runs the design skills, not an expert in the persona-review form. They know the reader they have in mind; they should not have to know the toolkit's machinery to reach for one or capture their own.
   </div>
 </section>
 
@@ -358,31 +358,31 @@ footer.site-footer a { color: var(--cyan); }
 
   <div class="req-list" data-tab="func">
     <div class="req"><div class="id">R1</div><div class="body">The toolkit ships a curated set of <strong>standard personas</strong> — generic reader archetypes with no product-specific content — as plugin skills, invokable in any repo that has Asimov installed without local authoring. The starter set is three, one per orthogonal stake: <strong>Athena</strong> (technical feasibility), <strong>Hermes</strong> (cost / ROI), and <strong>Poseidon</strong> (operational reality).</div></div>
-    <div class="req"><div class="id">R2</div><div class="body"><code>/persona-new</code> interviews the author for the five persona fields and writes one <strong>custom</strong> persona skill to the product repo's <code>.claude/skills/</code>.</div></div>
+    <div class="req"><div class="id">R2</div><div class="body"><code>artifact-persona-authoring</code> interviews the author for the five persona fields and writes one <strong>custom</strong> persona skill to the product repo's <code>.claude/skills/</code>.</div></div>
     <div class="req"><div class="id">R3</div><div class="body">Every generated custom skill carries the generic fail catalogue and reward catalogue inline, so it runs without reading any toolkit file.</div></div>
     <div class="req"><div class="id">R4</div><div class="body">Every persona skill — standard or custom — is named <code>persona-&lt;slug&gt;</code>; the slug is derived from the reader's name and confirmable/overridable, and the description carries the "review as &lt;name&gt;" trigger phrases.</div></div>
     <div class="req"><div class="id">R5</div><div class="body">The template's leading authoring comment is stripped from a generated skill — it is instructions, not content.</div></div>
-    <div class="req"><div class="id">R6</div><div class="body">Before writing, <code>/persona-new</code> checks the described persona against the quality bar, flagging one that would know the codebase, read as a rubber stamp, use internal jargon, or be too generic to stall.</div></div>
-    <div class="req"><div class="id">R7</div><div class="body">The quality-bar check is advisory: after a warning, <code>/persona-new</code> still writes on the author's explicit confirmation — it names the risk, it does not overrule the author.</div></div>
-    <div class="req"><div class="id">R8</div><div class="body"><code>/persona-new</code> shows a write plan naming the target path and the action (NEW or OVERWRITE), and writes only after the author confirms it.</div></div>
-    <div class="req"><div class="id">R9</div><div class="body">When a skill already exists at the target path, <em>or</em> the slug matches a shipped standard persona, <code>/persona-new</code> surfaces it and offers overwrite or a different slug, rather than clobbering or silently shadowing.</div></div>
-    <div class="req"><div class="id">R10</div><div class="body"><code>/persona-new</code> reads the persona-review standard and the persona template at run time rather than from memory. <code>/persona-list</code> reads neither — see R12.</div></div>
-    <div class="req"><div class="id">R11</div><div class="body"><code>/persona-list</code> lists <strong>both</strong> the standard personas (shipped with the toolkit) and the custom personas (in the repo), labelling which is which, and writes nothing.</div></div>
-    <div class="req"><div class="id">R12</div><div class="body"><code>/persona-list</code> globs <code>persona-*/SKILL.md</code> in both sources and reads each skill's <strong>frontmatter only</strong> (<code>name</code> + <code>description</code>) — never the body, never the standard or the template.</div></div>
+    <div class="req"><div class="id">R6</div><div class="body">Before writing, <code>artifact-persona-authoring</code> checks the described persona against the quality bar, flagging one that would know the codebase, read as a rubber stamp, use internal jargon, or be too generic to stall.</div></div>
+    <div class="req"><div class="id">R7</div><div class="body">The quality-bar check is advisory: after a warning, <code>artifact-persona-authoring</code> still writes on the author's explicit confirmation — it names the risk, it does not overrule the author.</div></div>
+    <div class="req"><div class="id">R8</div><div class="body"><code>artifact-persona-authoring</code> shows a write plan naming the target path and the action (NEW or OVERWRITE), and writes only after the author confirms it.</div></div>
+    <div class="req"><div class="id">R9</div><div class="body">When a skill already exists at the target path, <em>or</em> the slug matches a shipped standard persona, <code>artifact-persona-authoring</code> surfaces it and offers overwrite or a different slug, rather than clobbering or silently shadowing.</div></div>
+    <div class="req"><div class="id">R10</div><div class="body"><code>artifact-persona-authoring</code> reads the persona-review standard and the persona template at run time rather than from memory; the roster it shows first reads neither — see R12.</div></div>
+    <div class="req"><div class="id">R11</div><div class="body">The roster <code>artifact-persona-authoring</code> shows before its interview lists <strong>both</strong> the standard personas (shipped with the toolkit) and the custom personas (in the repo), labelling which is which, and writes nothing; asked only who exists, the skill stops there.</div></div>
+    <div class="req"><div class="id">R12</div><div class="body">The roster globs <code>persona-*/SKILL.md</code> in both sources and reads each skill's <strong>frontmatter only</strong> (<code>name</code> + <code>description</code>) — never the body, never the standard or the template.</div></div>
     <div class="req"><div class="id">R13</div><div class="body"><code>asimov-design-review</code> discovers the same roster, sorts each persona into a <strong>business</strong> or <strong>technical</strong> bucket by what it declares it does not know (definition §7), and runs a picked persona review by invoking the skill through the Skill tool — never by re-implementing the method (<code>D101-design-stage.html</code>).</div></div>
-    <div class="req"><div class="id">R14</div><div class="body"><code>/persona-new</code> prints the persona-review artifact's maturity level as at most one chat line before its first question, read from the definition's <code>maturity:</code> block — nothing for <code>adopt</code> (<code>D101-artifact-maturity.html</code>).</div></div>
+    <div class="req"><div class="id">R14</div><div class="body"><code>artifact-persona-authoring</code> prints the persona-review artifact's maturity level as at most one chat line before its first question, read from the definition's <code>maturity:</code> block — nothing for <code>adopt</code> (<code>D101-artifact-maturity.html</code>).</div></div>
   </div>
 
   <div class="req-list" data-tab="nf" style="display:none">
-    <div class="req"><div class="id">NF1</div><div class="body">No product-specific reader content is baked into the commands or the standard set; the standard personas are generic archetypes and all product-specific content is author-supplied (reusability across products).</div></div>
-    <div class="req"><div class="id">NF2</div><div class="body">The commands are read-only on every file except the custom persona skill file(s) <code>/persona-new</code> writes.</div></div>
+    <div class="req"><div class="id">NF1</div><div class="body">No product-specific reader content is baked into the authoring skill or the standard set; the standard personas are generic archetypes and all product-specific content is author-supplied (reusability across products).</div></div>
+    <div class="req"><div class="id">NF2</div><div class="body">The authoring skill is read-only on every file except the custom persona skill file(s) it writes.</div></div>
   </div>
 
   <div class="req-list" data-tab="oos" style="display:none">
-    <div class="req oos"><div class="id">OOS1</div><div class="body">Running a persona review from <code>/persona-new</code> or <code>/persona-list</code> — the review is the skill's job, invoked by name ("review as &lt;name&gt;") or delegated by <code>asimov-design-review</code> (R13); the two persona commands author and list, keeping authoring and reviewing separate.</div></div>
+    <div class="req oos"><div class="id">OOS1</div><div class="body">Running a persona review from <code>artifact-persona-authoring</code> — the review is the skill's job, invoked by name ("review as &lt;name&gt;") or delegated by <code>asimov-design-review</code> (R13); the authoring skill authors and lists, keeping authoring and reviewing separate.</div></div>
     <div class="req oos"><div class="id">OOS2</div><div class="body">Interactive partial editing of an existing persona skill — v1 regenerates wholesale or the author edits the file by hand; bounds the first version.</div></div>
     <div class="req oos"><div class="id">OOS3</div><div class="body">Persona reviews of code — persona reviews target design documents (business and technical); code review is Baley's job.</div></div>
-    <div class="req oos"><div class="id">OOS4</div><div class="body"><code>/persona-new</code> creating or editing the standard set — standard personas are curated in the toolkit for consistency, not interview-generated per repo.</div></div>
+    <div class="req oos"><div class="id">OOS4</div><div class="body"><code>artifact-persona-authoring</code> creating or editing the standard set — standard personas are curated in the toolkit for consistency, not interview-generated per repo.</div></div>
   </div>
 </section>
 
@@ -423,7 +423,7 @@ footer.site-footer a { color: var(--cyan); }
     </div>
     <div class="principle">
       <div class="num">6</div>
-      <div class="text"><strong>Create, then hand off.</strong> <code>/persona-new</code> creates a custom reader; <code>/persona-list</code> shows the whole roster; running the review is the skill's job, reached by name or through <code>asimov-design-review</code> — no one command does two.</div>
+      <div class="text"><strong>Create, then hand off.</strong> <code>artifact-persona-authoring</code> shows the roster and creates a custom reader; running the review is the skill's job, reached by name or through <code>asimov-design-review</code> — authoring never reviews.</div>
     </div>
   </div>
 </section>
@@ -431,7 +431,7 @@ footer.site-footer a { color: var(--cyan); }
 <!-- §4.2 The five fields -->
 <section class="s" id="s4-2">
   <h2 class="section-title"><span class="sec-ref">§4.2</span>The five fields</h2>
-  <p class="section-desc">Every persona — a shipped <strong>standard</strong> one (§4.4) or a <strong>custom</strong> one a team authors — is defined by exactly these five, and nothing else. They are not biography: each field is what lets the review catch a specific kind of reader-hostility, so each carries a quality guard <code>/persona-new</code> checks (§4.3, R6).</p>
+  <p class="section-desc">Every persona — a shipped <strong>standard</strong> one (§4.4) or a <strong>custom</strong> one a team authors — is defined by exactly these five, and nothing else. They are not biography: each field is what lets the review catch a specific kind of reader-hostility, so each carries a quality guard <code>artifact-persona-authoring</code> checks (§4.3, R6).</p>
 
   <div class="fields-grid">
     <div class="field-card">
@@ -500,10 +500,10 @@ footer.site-footer a { color: var(--cyan); }
 <!-- §4.3 Rules -->
 <section class="s" id="s4-3">
   <h2 class="section-title"><span class="sec-ref">§4.3</span>Rules</h2>
-  <p class="section-desc">The rules <code>/persona-new</code> enforces as it turns an interview into a skill. Each conditional rule shows the case where it fires and the adjacent case where it does not.</p>
+  <p class="section-desc">The rules <code>artifact-persona-authoring</code> enforces as it turns an interview into a skill. Each conditional rule shows the case where it fires and the adjacent case where it does not.</p>
   <div class="data-table">
     <div class="row head cols-3"><div>Rule</div><div>Fires when</div><div>Does not fire when</div></div>
-    <div class="row cols-3"><div class="label-cell">Who authors which</div><div>a generic archetype → curated once, shipped by the toolkit</div><div>"Lauren, our MCI service lead" → custom, authored by <code>/persona-new</code> in the repo</div></div>
+    <div class="row cols-3"><div class="label-cell">Who authors which</div><div>a generic archetype → curated once, shipped by the toolkit</div><div>"Lauren, our MCI service lead" → custom, authored by <code>artifact-persona-authoring</code> in the repo</div></div>
     <div class="row cols-3"><div class="label-cell">Codebase knowledge → warn</div><div>"knows the permission enums" → warned; a reader who knows the mechanism can't catch leaked jargon</div><div>"has heard the feature named in a meeting" → domain awareness, not code knowledge; no warning</div></div>
     <div class="row cols-3"><div class="label-cell">One persona, one skill</div><div>two readers who stall differently → two <code>persona-&lt;slug&gt;</code> skills</div><div>one reader with a nickname → still one skill</div></div>
     <div class="row cols-3"><div class="label-cell">Advisory, not blocking</div><div>a thin persona → warned, then written on an explicit "go anyway"</div><div>a persona that clears the bar → written with no warning at all</div></div>
@@ -576,12 +576,12 @@ footer.site-footer a { color: var(--cyan); }
       <div class="why">Skill discovery is flat — a subfolder is not discovered, in the plugin or in a repo. A name prefix survives into every repo and doubles as the lister's recognition marker.</div>
     </div>
     <div class="decision-row">
-      <div class="decided"><code>/persona-new</code> authors custom only; the standard set is curated by hand.</div>
-      <div class="alt"><code>/persona-new</code> also generates the standard personas.</div>
+      <div class="decided"><code>artifact-persona-authoring</code> authors custom only; the standard set is curated by hand.</div>
+      <div class="alt"><code>artifact-persona-authoring</code> also generates the standard personas.</div>
       <div class="why">The standard set must be consistent and quality-controlled; an interview would make it vary run to run.</div>
     </div>
     <div class="decision-row">
-      <div class="decided"><code>/persona-list</code> shows both standard and custom, labelled.</div>
+      <div class="decided">The roster shown before authoring lists both standard and custom, labelled.</div>
       <div class="alt">List only the repo's custom personas.</div>
       <div class="why">The author needs the whole roster — what already ships plus what's local — before adding a reader or invoking a review.</div>
     </div>
@@ -598,7 +598,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="decision-row">
       <div class="decided">The quality-bar check is advisory.</div>
       <div class="alt">Blocking — refuse to write a weak persona.</div>
-      <div class="why">It is the author's document; the command surfaces and names the risk but does not overrule the author.</div>
+      <div class="why">It is the author's document; the skill surfaces and names the risk but does not overrule the author.</div>
     </div>
     <div class="decision-row">
       <div class="decided">Ship three standard personas to start — Athena · Hermes · Poseidon.</div>
@@ -626,7 +626,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="ch-num">6</div>
     <div>
       <div class="ch-name">Technical design</div>
-      <div class="ch-summary">Where the commands and the standard set live, the flow <code>/persona-new</code> runs, the shape of a skill and how the lister finds both kinds, configuration, and how it fails.</div>
+      <div class="ch-summary">Where the authoring skill and the standard set live, the flow it runs, the shape of a skill and how the roster finds both kinds, configuration, and how it fails.</div>
     </div>
   </div>
 </div>
@@ -635,19 +635,19 @@ footer.site-footer a { color: var(--cyan); }
 <section class="s" id="s6-1">
   <h2 class="section-title"><span class="sec-ref">§6.1</span>Platform</h2>
   <p style="color: var(--text-dim); font-size: 0.95rem; line-height: 1.65;">
-    Both commands are markdown prompt files in the Asimov plugin — <code>commands/persona-new.md</code> and <code>commands/persona-list.md</code> — with YAML frontmatter (<code>description</code>, <code>argument-hint</code>, <code>model</code>, <code>allowed-tools</code>). <code>/persona-new</code> is granted <code>Read, Write, Glob</code>; <code>/persona-list</code> is granted <code>Read, Glob</code> and is read-only. The <strong>standard set</strong> ships as plugin skills at <code>plugins/asimov-plugin/skills/persona-{poseidon,athena,hermes}/SKILL.md</code>, available in any repo the moment Asimov is installed; <strong>custom</strong> personas are written to the product repo's <code>.claude/skills/persona-&lt;slug&gt;/</code>.
+    The authoring skill is <code>plugins/asimov-plugin/skills/artifact-persona-authoring/SKILL.md</code>, a plain skill both Claude Code and Codex read (frontmatter <code>name</code> and <code>description</code>, no model, no tool list), deriving the plugin root in Codex. Named outside <code>persona-*</code> so the roster glob never takes it for a reader. The <strong>standard set</strong> ships as plugin skills at <code>plugins/asimov-plugin/skills/persona-{poseidon,athena,hermes}/SKILL.md</code>, available in any repo the moment Asimov is installed; <strong>custom</strong> personas are written to the product repo's <code>.claude/skills/persona-&lt;slug&gt;/</code>.
   </p>
   <div class="callout warn">
-    <strong>⚠ Escalation gate.</strong> <code>/persona-new</code> writes a file into the product repo, so every write sits behind the confirmed write-plan (R8) — the same gate <code>/asimov-init</code> uses. No schema or configuration change is involved.
+    <strong>⚠ Escalation gate.</strong> <code>artifact-persona-authoring</code> writes a file into the product repo, so every write sits behind the confirmed write-plan (R8) — the same gate <code>/asimov-init</code> uses. No schema or configuration change is involved.
   </div>
 </section>
 
 <!-- §6.2 Data flow -->
 <section class="s" id="s6-2">
   <h2 class="section-title"><span class="sec-ref">§6.2</span>Data flow</h2>
-  <p class="section-desc">The run <code>/persona-new</code> performs, end to end. One actor, with the advisory check, the maturity notice and the overwrite guard drawn as the numbered detail below rather than as branches.</p>
+  <p class="section-desc">The run <code>artifact-persona-authoring</code> performs, end to end. One actor, with the advisory check, the maturity notice and the overwrite guard drawn as the numbered detail below rather than as branches.</p>
   <div class="flow-wrap">
-    <svg viewBox="0 0 980 288" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="/persona-new control flow, ISO 5807 flowchart">
+    <svg viewBox="0 0 980 288" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="artifact-persona-authoring control flow, ISO 5807 flowchart">
       <rect x="0" y="0" width="980" height="288" fill="#14253f"/>
       <defs>
         <marker id="fc-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
@@ -656,8 +656,8 @@ footer.site-footer a { color: var(--cyan); }
       </defs>
       <g>
         <rect x="8" y="48" width="136" height="56" rx="28" fill="#66bb6a22" stroke="#66bb6a"/>
-        <text x="76" y="72" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">/persona-new</text>
-        <text x="76" y="88" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">author invokes</text>
+        <text x="76" y="72" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">persona authoring</text>
+        <text x="76" y="88" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">author asks for a reader</text>
       </g>
       <g>
         <polygon points="204,48 320,48 300,104 184,104" fill="#4fc3f71a" stroke="#4fc3f7" stroke-width="1.5"/>
@@ -723,8 +723,7 @@ footer.site-footer a { color: var(--cyan); }
 <section class="s" id="s6-3">
   <h2 class="section-title"><span class="sec-ref">§6.3</span>Code map</h2>
   <div class="codemap">
-    <div class="codemap-row"><div class="what">Interview, render, write a custom skill</div><div class="where">plugins/asimov-plugin/commands/persona-new.md</div></div>
-    <div class="codemap-row"><div class="what">List standard + custom personas (read-only)</div><div class="where">plugins/asimov-plugin/commands/persona-list.md</div></div>
+    <div class="codemap-row"><div class="what">Show the roster, interview, render, write a custom skill</div><div class="where">plugins/asimov-plugin/skills/artifact-persona-authoring/SKILL.md</div></div>
     <div class="codemap-row"><div class="what">Discover, bucket and delegate persona reviews (Step 2 / Step 4)</div><div class="where">plugins/asimov-plugin/skills/asimov-design-review/SKILL.md</div></div>
     <div class="codemap-row"><div class="what">Persona form, rendered for a custom skill</div><div class="where">plugins/asimov-plugin/artifacts/skills/persona-review/persona-review-template.md</div></div>
     <div class="codemap-row"><div class="what">Standard, read at run time</div><div class="where">plugins/asimov-plugin/artifacts/skills/persona-review/persona-review-definition.md</div></div>
@@ -745,14 +744,14 @@ footer.site-footer a { color: var(--cyan); }
     <div class="row cols-2"><div class="label-cell">body</div><div>The five fields, a persona-tailored fail/reward list drawn from the catalogue, and the output shape the definition assigns the persona's kind (<code>Cuts:</code> for a business reader, <code>Concerns:</code> for the feasibility reader — definition §6).</div></div>
   </div>
 
-  <div class="subhead">What /persona-list and asimov-design-review read — two sources, one roster</div>
+  <div class="subhead">What the roster and asimov-design-review read — two sources, one roster</div>
   <ul class="gps-paths">
     <li>plugins/asimov-plugin/skills/persona-*/SKILL.md   — standard (shipped)</li>
     <li>.claude/skills/persona-*/SKILL.md                 — custom (this repo)</li>
   </ul>
   <ul class="bullets">
     <li>The <code>persona-</code> name prefix is the recognition signature; the source path is what labels each row <em>standard</em> or <em>custom</em>.</li>
-    <li><code>/persona-list</code> reads frontmatter only (R12). <code>asimov-design-review</code> reads each body to bucket it — <em>business</em> if the persona declares it does not know the mechanism, <em>technical</em> if it does (definition §7) — then invokes the picked bucket's skills by <code>name</code> via the Skill tool (R13).</li>
+    <li>The roster reads frontmatter only (R12). <code>asimov-design-review</code> reads each body to bucket it — <em>business</em> if the persona declares it does not know the mechanism, <em>technical</em> if it does (definition §7) — then invokes the picked bucket's skills by <code>name</code> via the Skill tool (R13).</li>
     <li class="warn">A custom slug that collides with a shipped one is listed under both, labelled — final resolution is §8 Q3.</li>
   </ul>
 </section>
@@ -761,20 +760,19 @@ footer.site-footer a { color: var(--cyan); }
 <section class="s" id="s6-5">
   <h2 class="section-title"><span class="sec-ref">§6.5</span>APIs &amp; contracts</h2>
   <div class="callout">
-    N/A — no runtime API surface. Both commands are prompt files invoked as slash commands; their only contract is the frontmatter and the generated-skill shape in §6.4.
+    N/A — no runtime API surface. The authoring skill is a prompt file; its only contract is its frontmatter and the generated-skill shape in §6.4.
   </div>
 </section>
 
 <!-- §6.6 Configuration -->
 <section class="s" id="s6-6">
   <h2 class="section-title"><span class="sec-ref">§6.6</span>Configuration &amp; secrets</h2>
-  <p class="section-desc">What each command declares, and the two baked paths — in three command files — a layout fork must change.</p>
+  <p class="section-desc">What the skill declares, and the two baked paths — in two files — a layout fork must change.</p>
   <div class="history-grid">
-    <div class="hist-card"><div class="h-label">/persona-new model</div><div class="h-value">Opus 5.5</div><div class="h-desc">Interview and judgment; runs once per persona, so cost is secondary.</div></div>
-    <div class="hist-card"><div class="h-label">/persona-list model</div><div class="h-value">Sonnet 5.5</div><div class="h-desc">Mechanical read-only listing; the lighter model suffices.</div></div>
-    <div class="hist-card"><div class="h-label">allowed-tools</div><div class="h-value">R · W · G</div><div class="h-desc">persona-new: Read, Write, Glob. persona-list: Read, Glob — no Write.</div></div>
-    <div class="hist-card flag"><div class="h-label">Custom output path (fork)</div><div class="h-value">.claude/skills/</div><div class="h-desc">Baked literal in <code>persona-new.md</code>, <code>persona-list.md</code> and <code>asimov-design-review/SKILL.md</code>; forking the layout means changing all three in lockstep.</div></div>
-    <div class="hist-card flag"><div class="h-label">Standard set path (fork)</div><div class="h-value">skills/persona-*</div><div class="h-desc">The plugin folder the shipped set lives in and the lister and <code>asimov-design-review</code> scan; a fork changes it in the same three files, alongside the output path.</div></div>
+    <div class="hist-card"><div class="h-label">model</div><div class="h-value">the session's</div><div class="h-desc">A skill declares none; the interview runs on whatever model the session has, in either harness.</div></div>
+    <div class="hist-card"><div class="h-label">allowed-tools</div><div class="h-value">none declared</div><div class="h-desc">A skill restricts no tools; the one-file write scope is prompt discipline, as in asimov-design-review.</div></div>
+    <div class="hist-card flag"><div class="h-label">Custom output path (fork)</div><div class="h-value">.claude/skills/</div><div class="h-desc">Baked literal in <code>artifact-persona-authoring/SKILL.md</code> and <code>asimov-design-review/SKILL.md</code>; forking the layout means changing both in lockstep.</div></div>
+    <div class="hist-card flag"><div class="h-label">Standard set path (fork)</div><div class="h-value">skills/persona-*</div><div class="h-desc">The plugin folder the shipped set lives in and the roster and <code>asimov-design-review</code> scan; a fork changes it in both files, alongside the output path.</div></div>
   </div>
 </section>
 
@@ -787,8 +785,8 @@ footer.site-footer a { color: var(--cyan); }
     <div class="failure-row"><div>Skill already exists at the target path</div><div>Would clobber a reader</div><div><span class="sev low">Low</span></div><div>Surface it; offer overwrite or a different slug (R9).</div></div>
     <div class="failure-row"><div><code>.claude/skills/</code> absent</div><div>Nowhere to write</div><div><span class="sev low">Low</span></div><div>Create the folder as part of the write.</div></div>
     <div class="failure-row"><div>Author overrides a quality-bar warning</div><div>A weak persona is written</div><div><span class="sev low">Low</span></div><div>By design — advisory, not blocking (R7); the risk was named.</div></div>
-    <div class="failure-row"><div><code>/persona-list</code> finds no personas</div><div>Empty roster</div><div><span class="sev low">Low</span></div><div>Report "none yet" and suggest <code>/persona-new</code> (the standard set should always show).</div></div>
-    <div class="failure-row"><div>Custom slug collides with a shipped standard one</div><div>Ambiguous which runs</div><div><span class="sev low">Low</span></div><div>At creation, <code>/persona-new</code> warns and offers a different slug (R9); in listings both are shown and labelled; deeper precedence is §8 Q3.</div></div>
+    <div class="failure-row"><div>The roster finds no personas</div><div>Empty roster</div><div><span class="sev low">Low</span></div><div>Report "none yet" and go on to the interview (the standard set should always show; an empty one means the plugin root did not resolve).</div></div>
+    <div class="failure-row"><div>Custom slug collides with a shipped standard one</div><div>Ambiguous which runs</div><div><span class="sev low">Low</span></div><div>At creation, <code>artifact-persona-authoring</code> warns and offers a different slug (R9); in listings both are shown and labelled; deeper precedence is §8 Q3.</div></div>
   </div>
 </section>
 
@@ -806,7 +804,7 @@ footer.site-footer a { color: var(--cyan); }
     </div>
     <div class="problem-card">
       <div class="pc-head"><div class="pc-num">03</div><div class="pc-title">Two baked paths, three files</div></div>
-      <div class="pc-body"><code>.claude/skills/</code> (custom) and <code>skills/persona-*</code> (standard) are literals in <code>persona-new.md</code>, <code>persona-list.md</code> and <code>asimov-design-review/SKILL.md</code>; a layout fork must change all three files in lockstep.</div>
+      <div class="pc-body"><code>.claude/skills/</code> (custom) and <code>skills/persona-*</code> (standard) are literals in <code>artifact-persona-authoring/SKILL.md</code> and <code>asimov-design-review/SKILL.md</code>; a layout fork must change both files in lockstep.</div>
     </div>
   </div>
 </section>
@@ -844,37 +842,37 @@ footer.site-footer a { color: var(--cyan); }
     <div class="ac-row">
       <div class="ac-id">AC6</div>
       <div class="ac-verifies"><span class="verify-chip">R6</span><span class="verify-chip">R7</span></div>
-      <div>Given a persona described with code-level knowledge, the command emits a warning naming the issue, then writes only after the author confirms — the warning did not block (defined manual step).</div>
+      <div>Given a persona described with code-level knowledge, the skill emits a warning naming the issue, then writes only after the author confirms — the warning did not block (defined manual step).</div>
     </div>
     <div class="ac-row">
       <div class="ac-id">AC7</div>
       <div class="ac-verifies"><span class="verify-chip">R8</span><span class="verify-chip">R9</span></div>
-      <div>The command prints a write plan with the target path and NEW / OVERWRITE before writing; an existing skill at the path yields an overwrite-or-rename choice, never a silent overwrite.</div>
+      <div>The skill prints a write plan with the target path and NEW / OVERWRITE before writing; an existing skill at the path yields an overwrite-or-rename choice, never a silent overwrite.</div>
     </div>
     <div class="ac-row">
       <div class="ac-id">AC8</div>
       <div class="ac-verifies"><span class="verify-chip">R11</span></div>
-      <div><code>/persona-list</code> in a repo with S standard and C custom personas names all S+C, labels each as standard or custom, and changes no file.</div>
+      <div>The roster <code>artifact-persona-authoring</code> shows first, in a repo with S standard and C custom personas, names all S+C, labels each as standard or custom, and changes no file.</div>
     </div>
     <div class="ac-row">
       <div class="ac-id">AC9</div>
       <div class="ac-verifies"><span class="verify-chip">R10</span></div>
-      <div>Editing the persona-review standard or the template and re-running <code>/persona-new</code> produces a skill that reflects the edit — the contract is read from disk, not from memory (defined manual step).</div>
+      <div>Editing the persona-review standard or the template and re-running <code>artifact-persona-authoring</code> produces a skill that reflects the edit — the contract is read from disk, not from memory (defined manual step).</div>
     </div>
     <div class="ac-row">
       <div class="ac-id">AC10</div>
       <div class="ac-verifies"><span class="verify-chip">NF2</span></div>
-      <div>After a <code>/persona-new</code> run, version control shows only the new custom skill file(s) under <code>.claude/skills/</code> changed.</div>
+      <div>After a <code>artifact-persona-authoring</code> run, version control shows only the new custom skill file(s) under <code>.claude/skills/</code> changed.</div>
     </div>
     <div class="ac-row">
       <div class="ac-id">AC11</div>
       <div class="ac-verifies"><span class="verify-chip">NF1</span></div>
-      <div>The standard set and the two command prompts contain no product-specific reader content — a read of each finds only generic archetypes or author-supplied placeholders.</div>
+      <div>The standard set and the authoring skill contain no product-specific reader content — a read of each finds only generic archetypes or author-supplied placeholders.</div>
     </div>
     <div class="ac-row">
       <div class="ac-id">AC12</div>
       <div class="ac-verifies"><span class="verify-chip">R12</span></div>
-      <div>Editing a persona skill's body (not its frontmatter) and re-running <code>/persona-list</code> leaves the roster row unchanged; editing the standard or the template changes nothing in the roster either — only <code>name</code> and <code>description</code> are read.</div>
+      <div>Editing a persona skill's body (not its frontmatter) and re-running the roster leaves the row unchanged; editing the standard or the template changes nothing in the roster either — only <code>name</code> and <code>description</code> are read.</div>
     </div>
     <div class="ac-row">
       <div class="ac-id">AC13</div>
@@ -884,7 +882,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="ac-row">
       <div class="ac-id">AC14</div>
       <div class="ac-verifies"><span class="verify-chip">R14</span></div>
-      <div><code>/persona-new</code> prints exactly one maturity line before its first interview question when the definition's <code>maturity:</code> is <code>assess</code>, <code>trial</code> or <code>hold</code>, and none for <code>adopt</code>; the generated skill contains no maturity text.</div>
+      <div><code>artifact-persona-authoring</code> prints exactly one maturity line before its first interview question when the definition's <code>maturity:</code> is <code>assess</code>, <code>trial</code> or <code>hold</code>, and none for <code>adopt</code>; the generated skill contains no maturity text.</div>
     </div>
   </div>
 </section>
@@ -903,7 +901,7 @@ footer.site-footer a { color: var(--cyan); }
     </div>
     <div class="q-card">
       <div class="q-head"><span class="q-id">Q3</span><span class="q-decider">alb (Context&amp; lead)</span></div>
-      <div class="q-body">When a repo's custom persona takes the same slug as a shipped standard one, which wins, and how does <code>/persona-list</code> present the clash — override, shadow, or flag?</div>
+      <div class="q-body">When a repo's custom persona takes the same slug as a shipped standard one, which wins, and how does the roster present the clash — override, shadow, or flag?</div>
     </div>
   </div>
 </section>
@@ -917,7 +915,6 @@ footer.site-footer a { color: var(--cyan); }
       <ul>
         <li>artifacts/skills/persona-review/persona-review-definition.md</li>
         <li>artifacts/skills/persona-review/persona-review-template.md</li>
-        <li>documentation/model-choice.md (/persona-new, /persona-list rows)</li>
       </ul>
     </div>
     <div class="refs-block">
@@ -932,14 +929,13 @@ footer.site-footer a { color: var(--cyan); }
       <ul>
         <li>features/D101-asimov-init.html (interviews + writes into a product repo)</li>
         <li>features/D101-design-stage.html (check 7 — the abstract this makes concrete; the hub that delegates to the skills)</li>
-        <li>features/D101-artifact-maturity.html (the maturity notice /persona-new prints)</li>
+        <li>features/D101-artifact-maturity.html (the maturity notice artifact-persona-authoring prints)</li>
       </ul>
     </div>
     <div class="refs-block">
       <h4>Implements to</h4>
       <ul>
-        <li>commands/persona-new.md</li>
-        <li>commands/persona-list.md</li>
+        <li>skills/artifact-persona-authoring/SKILL.md</li>
         <li>skills/asimov-design-review/SKILL.md (Step 2 roster + Step 4 delegation)</li>
         <li>skills/persona-* (standard set)</li>
       </ul>
@@ -956,7 +952,7 @@ footer.site-footer a { color: var(--cyan); }
     · <span class="mono">features/D101-personas.html</span>
   </div>
   <div style="margin-top: 0.4rem">
-    D101 · Personas · Design-stage tooling · Draft v0.12 · 2026-10-02
+    D101 · Personas · Design-stage tooling · Draft v0.13 · 2026-10-02
   </div>
 </footer>
 
