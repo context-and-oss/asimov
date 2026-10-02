@@ -369,7 +369,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="req"><div class="id">R10</div><div class="body"><code>/persona-new</code> reads the persona-review standard and the persona template at run time rather than from memory. <code>/persona-list</code> reads neither — see R12.</div></div>
     <div class="req"><div class="id">R11</div><div class="body"><code>/persona-list</code> lists <strong>both</strong> the standard personas (shipped with the toolkit) and the custom personas (in the repo), labelling which is which, and writes nothing.</div></div>
     <div class="req"><div class="id">R12</div><div class="body"><code>/persona-list</code> globs <code>persona-*/SKILL.md</code> in both sources and reads each skill's <strong>frontmatter only</strong> (<code>name</code> + <code>description</code>) — never the body, never the standard or the template.</div></div>
-    <div class="req"><div class="id">R13</div><div class="body"><code>/d101-review</code> discovers the same roster, sorts each persona into a <strong>business</strong> or <strong>technical</strong> bucket by what it declares it does not know (definition §7), and runs a picked persona review by invoking the skill through the Skill tool — never by re-implementing the method (<code>D101-d101-feature-design.html</code>).</div></div>
+    <div class="req"><div class="id">R13</div><div class="body"><code>asimov-design-review</code> discovers the same roster, sorts each persona into a <strong>business</strong> or <strong>technical</strong> bucket by what it declares it does not know (definition §7), and runs a picked persona review by invoking the skill through the Skill tool — never by re-implementing the method (<code>D101-design-stage.html</code>).</div></div>
     <div class="req"><div class="id">R14</div><div class="body"><code>/persona-new</code> prints the persona-review artifact's maturity level as at most one chat line before its first question, read from the definition's <code>maturity:</code> block — nothing for <code>adopt</code> (<code>D101-artifact-maturity.html</code>).</div></div>
   </div>
 
@@ -379,7 +379,7 @@ footer.site-footer a { color: var(--cyan); }
   </div>
 
   <div class="req-list" data-tab="oos" style="display:none">
-    <div class="req oos"><div class="id">OOS1</div><div class="body">Running a persona review from <code>/persona-new</code> or <code>/persona-list</code> — the review is the skill's job, invoked by name ("review as &lt;name&gt;") or delegated by <code>/d101-review</code> (R13); the two persona commands author and list, keeping authoring and reviewing separate.</div></div>
+    <div class="req oos"><div class="id">OOS1</div><div class="body">Running a persona review from <code>/persona-new</code> or <code>/persona-list</code> — the review is the skill's job, invoked by name ("review as &lt;name&gt;") or delegated by <code>asimov-design-review</code> (R13); the two persona commands author and list, keeping authoring and reviewing separate.</div></div>
     <div class="req oos"><div class="id">OOS2</div><div class="body">Interactive partial editing of an existing persona skill — v1 regenerates wholesale or the author edits the file by hand; bounds the first version.</div></div>
     <div class="req oos"><div class="id">OOS3</div><div class="body">Persona reviews of code — persona reviews target design documents (business and technical); code review is Baley's job.</div></div>
     <div class="req oos"><div class="id">OOS4</div><div class="body"><code>/persona-new</code> creating or editing the standard set — standard personas are curated in the toolkit for consistency, not interview-generated per repo.</div></div>
@@ -423,7 +423,7 @@ footer.site-footer a { color: var(--cyan); }
     </div>
     <div class="principle">
       <div class="num">6</div>
-      <div class="text"><strong>Create, then hand off.</strong> <code>/persona-new</code> creates a custom reader; <code>/persona-list</code> shows the whole roster; running the review is the skill's job, reached by name or through <code>/d101-review</code> — no one command does two.</div>
+      <div class="text"><strong>Create, then hand off.</strong> <code>/persona-new</code> creates a custom reader; <code>/persona-list</code> shows the whole roster; running the review is the skill's job, reached by name or through <code>asimov-design-review</code> — no one command does two.</div>
     </div>
   </div>
 </section>
@@ -725,7 +725,7 @@ footer.site-footer a { color: var(--cyan); }
   <div class="codemap">
     <div class="codemap-row"><div class="what">Interview, render, write a custom skill</div><div class="where">plugins/asimov-plugin/commands/persona-new.md</div></div>
     <div class="codemap-row"><div class="what">List standard + custom personas (read-only)</div><div class="where">plugins/asimov-plugin/commands/persona-list.md</div></div>
-    <div class="codemap-row"><div class="what">Discover, bucket and delegate persona reviews (Step 4 / Step 6)</div><div class="where">plugins/asimov-plugin/commands/d101-review.md</div></div>
+    <div class="codemap-row"><div class="what">Discover, bucket and delegate persona reviews (Step 2 / Step 4)</div><div class="where">plugins/asimov-plugin/skills/asimov-design-review/SKILL.md</div></div>
     <div class="codemap-row"><div class="what">Persona form, rendered for a custom skill</div><div class="where">plugins/asimov-plugin/artifacts/skills/persona-review/persona-review-template.md</div></div>
     <div class="codemap-row"><div class="what">Standard, read at run time</div><div class="where">plugins/asimov-plugin/artifacts/skills/persona-review/persona-review-definition.md</div></div>
     <div class="codemap-row"><div class="what">Standard set, shipped</div><div class="where">plugins/asimov-plugin/skills/persona-{poseidon,athena,hermes}/SKILL.md</div></div>
@@ -745,14 +745,14 @@ footer.site-footer a { color: var(--cyan); }
     <div class="row cols-2"><div class="label-cell">body</div><div>The five fields, a persona-tailored fail/reward list drawn from the catalogue, and the output shape the definition assigns the persona's kind (<code>Cuts:</code> for a business reader, <code>Concerns:</code> for the feasibility reader — definition §6).</div></div>
   </div>
 
-  <div class="subhead">What /persona-list and /d101-review read — two sources, one roster</div>
+  <div class="subhead">What /persona-list and asimov-design-review read — two sources, one roster</div>
   <ul class="gps-paths">
     <li>plugins/asimov-plugin/skills/persona-*/SKILL.md   — standard (shipped)</li>
     <li>.claude/skills/persona-*/SKILL.md                 — custom (this repo)</li>
   </ul>
   <ul class="bullets">
     <li>The <code>persona-</code> name prefix is the recognition signature; the source path is what labels each row <em>standard</em> or <em>custom</em>.</li>
-    <li><code>/persona-list</code> reads frontmatter only (R12). <code>/d101-review</code> reads each body to bucket it — <em>business</em> if the persona declares it does not know the mechanism, <em>technical</em> if it does (definition §7) — then invokes the picked bucket's skills by <code>name</code> via the Skill tool (R13).</li>
+    <li><code>/persona-list</code> reads frontmatter only (R12). <code>asimov-design-review</code> reads each body to bucket it — <em>business</em> if the persona declares it does not know the mechanism, <em>technical</em> if it does (definition §7) — then invokes the picked bucket's skills by <code>name</code> via the Skill tool (R13).</li>
     <li class="warn">A custom slug that collides with a shipped one is listed under both, labelled — final resolution is §8 Q3.</li>
   </ul>
 </section>
@@ -773,8 +773,8 @@ footer.site-footer a { color: var(--cyan); }
     <div class="hist-card"><div class="h-label">/persona-new model</div><div class="h-value">Opus 5.5</div><div class="h-desc">Interview and judgment; runs once per persona, so cost is secondary.</div></div>
     <div class="hist-card"><div class="h-label">/persona-list model</div><div class="h-value">Sonnet 5.5</div><div class="h-desc">Mechanical read-only listing; the lighter model suffices.</div></div>
     <div class="hist-card"><div class="h-label">allowed-tools</div><div class="h-value">R · W · G</div><div class="h-desc">persona-new: Read, Write, Glob. persona-list: Read, Glob — no Write.</div></div>
-    <div class="hist-card flag"><div class="h-label">Custom output path (fork)</div><div class="h-value">.claude/skills/</div><div class="h-desc">Baked literal in <code>persona-new.md</code>, <code>persona-list.md</code> and <code>d101-review.md</code>; forking the layout means changing all three in lockstep.</div></div>
-    <div class="hist-card flag"><div class="h-label">Standard set path (fork)</div><div class="h-value">skills/persona-*</div><div class="h-desc">The plugin folder the shipped set lives in and the lister and <code>/d101-review</code> scan; a fork changes it in the same three files, alongside the output path.</div></div>
+    <div class="hist-card flag"><div class="h-label">Custom output path (fork)</div><div class="h-value">.claude/skills/</div><div class="h-desc">Baked literal in <code>persona-new.md</code>, <code>persona-list.md</code> and <code>asimov-design-review/SKILL.md</code>; forking the layout means changing all three in lockstep.</div></div>
+    <div class="hist-card flag"><div class="h-label">Standard set path (fork)</div><div class="h-value">skills/persona-*</div><div class="h-desc">The plugin folder the shipped set lives in and the lister and <code>asimov-design-review</code> scan; a fork changes it in the same three files, alongside the output path.</div></div>
   </div>
 </section>
 
@@ -806,7 +806,7 @@ footer.site-footer a { color: var(--cyan); }
     </div>
     <div class="problem-card">
       <div class="pc-head"><div class="pc-num">03</div><div class="pc-title">Two baked paths, three files</div></div>
-      <div class="pc-body"><code>.claude/skills/</code> (custom) and <code>skills/persona-*</code> (standard) are literals in <code>persona-new.md</code>, <code>persona-list.md</code> and <code>d101-review.md</code>; a layout fork must change all three files in lockstep.</div>
+      <div class="pc-body"><code>.claude/skills/</code> (custom) and <code>skills/persona-*</code> (standard) are literals in <code>persona-new.md</code>, <code>persona-list.md</code> and <code>asimov-design-review/SKILL.md</code>; a layout fork must change all three files in lockstep.</div>
     </div>
   </div>
 </section>
@@ -879,7 +879,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="ac-row">
       <div class="ac-id">AC13</div>
       <div class="ac-verifies"><span class="verify-chip">R13</span></div>
-      <div>In a repo with a business persona and the feasibility persona, <code>/d101-review</code> names each in the right bucket on its menu; picking a persona review produces one <code>## Review, as &lt;Persona&gt;</code> block per persona in that bucket, emitted by invoking the skill — the command prompt contains no copy of the persona method.</div>
+      <div>In a repo with a business persona and the feasibility persona, <code>asimov-design-review</code> names each in the right bucket on its menu; picking a persona review produces one <code>## Review, as &lt;Persona&gt;</code> block per persona in that bucket, emitted by invoking the skill — the asimov-skill contains no copy of the persona method.</div>
     </div>
     <div class="ac-row">
       <div class="ac-id">AC14</div>
@@ -931,7 +931,7 @@ footer.site-footer a { color: var(--cyan); }
       <h4>Sibling D101s</h4>
       <ul>
         <li>features/D101-asimov-init.html (interviews + writes into a product repo)</li>
-        <li>features/D101-d101-feature-design.html (check 7 — the abstract this makes concrete; the hub that delegates to the skills)</li>
+        <li>features/D101-design-stage.html (check 7 — the abstract this makes concrete; the hub that delegates to the skills)</li>
         <li>features/D101-artifact-maturity.html (the maturity notice /persona-new prints)</li>
       </ul>
     </div>
@@ -940,7 +940,7 @@ footer.site-footer a { color: var(--cyan); }
       <ul>
         <li>commands/persona-new.md</li>
         <li>commands/persona-list.md</li>
-        <li>commands/d101-review.md (Step 4 roster + Step 6 delegation)</li>
+        <li>skills/asimov-design-review/SKILL.md (Step 2 roster + Step 4 delegation)</li>
         <li>skills/persona-* (standard set)</li>
       </ul>
     </div>

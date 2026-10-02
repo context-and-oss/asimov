@@ -453,7 +453,7 @@ footer.site-footer a { color: var(--cyan); }
   <div class="req-list" data-tab="oos" style="display:none">
     <div class="req oos"><div class="id">OOS1</div><div class="body">Authoring the full repo <code>CLAUDE.md</code> / analysing the codebase to describe the product. Why: that is Claude's own <code>/init</code>; <code>/asimov-init</code> only adds the Asimov layer via <code>@asimov.md</code> and points the developer at <code>/init</code> for the rest.</div></div>
     <div class="req oos"><div class="id">OOS2</div><div class="body">Authoring the convention <em>content</em> (the actual coding rules). Why: the command scaffolds the read-list skeleton; the team fills in the rules. Guessing rules would bake wrong conventions into the subagents' overlay.</div></div>
-    <div class="req oos"><div class="id">OOS3</div><div class="body">Authoring doc bodies (D100/D101 content). Why: that is the job of <code>/d101-feature-design</code> and siblings; <code>/asimov-init</code> only indexes and scaffolds.</div></div>
+    <div class="req oos"><div class="id">OOS3</div><div class="body">Authoring doc bodies (D100/D101 content). Why: that is the job of <code>asimov-design</code> and siblings; <code>/asimov-init</code> only indexes and scaffolds.</div></div>
     <div class="req oos"><div class="id">OOS4</div><div class="body">A config mechanism for the <code>documentation/</code> path taxonomy. Why: the layout is intentionally a code fork point shared across the D101 commands, not a one-toggle config (D100 hard rule 9).</div></div>
     <div class="req oos"><div class="id">OOS5</div><div class="body">Installing or verifying the plugin itself. Why: marketplace install is a developer step done before the command runs; the command assumes the plugin is present.</div></div>
     <div class="req oos"><div class="id">OOS6</div><div class="body">Writing L3 process-rule docs or configuring PR / Copilot settings. Why: process enforcement lives in product-repo settings, not in the toolkit (D100 §3); deferred out of this command's scope.</div></div>
@@ -1259,14 +1259,14 @@ footer.site-footer a { color: var(--cyan); }
       <ul>
         <li>documentation/D100-Asimov-architecture.md (§3, §7.2.1, §7.4)</li>
         <li>documentation/model-choice.md</li>
-        <li>plugins/asimov-plugin/artifacts/documentation/d101-feature-design/d101-feature-design-definition.md</li>
+        <li>plugins/asimov-plugin/artifacts/documentationasimov-designasimov-design-definition.md</li>
       </ul>
     </div>
     <div class="refs-block">
       <h4>Sibling D101s</h4>
       <ul>
         <li>features/D101-codex-support.html</li>
-        <li>features/D101-d101-feature-design.html</li>
+        <li>features/D101-design-stage.html</li>
         <li>features/D101-subagents.html</li>
         <li>features/D101-artifact-maturity.html</li>
       </ul>

@@ -21,7 +21,7 @@ Every persona skill — standard or custom — is named **`persona-<slug>`** (e.
 
 A design document has two failure modes. The first is being *wrong* — the business shape is settled at the wrong altitude, a rule has no counter-example, an acceptance criterion isn't checkable. The second is being *unread* — the document is correct but so tuned to its author that the reader it was written for skips it, resents it, or misunderstands it, and so never corrects the thing only they could correct.
 
-`/d101-review` and Baley catch the first mode. **A persona review catches the second.** It answers one question:
+`asimov-design-review` and Baley catch the first mode. **A persona review catches the second.** It answers one question:
 
 > *When the actual reader this document was written for opens it, with the time and knowledge they really have, do they read it — or do they stall, skip, and hand back a rubber stamp?*
 
@@ -31,13 +31,13 @@ The point is not politeness. A business reviewer who skims and approves has told
 
 | Reviewer | Reads | Judges against | Verdict axis |
 |---|---|---|---|
-| `/d101-review` | a D101 | the two bars (`d101-feature-design-definition.md` §8a/§8b) | is the *contract* complete? |
+| `asimov-design-review` | a D101 | the two bars (`d101-feature-design-definition.md` §8a/§8b) | is the *contract* complete? |
 | Baley | a code diff | the repo's conventions + correctness | is the *code* conforming and safe? |
 | **A persona review** | any design document (business or technical) | **a reader** — a named target audience | will the *reader* actually read and correct it? |
 
-A persona review is the concrete form of `/d101-review` **check 7** (*"Could a product or business reviewer who doesn't know the codebase understand §2 and §4?"*). Check 7 asks the question in the abstract; a persona review answers it by putting a specific reader in front of the document and narrating what they hit. Where check 7 is a proxy, the persona is the thing itself.
+A persona review is the concrete form of `asimov-design-review` **check 7** (*"Could a product or business reviewer who doesn't know the codebase understand §2 and §4?"*). Check 7 asks the question in the abstract; a persona review answers it by putting a specific reader in front of the document and narrating what they hit. Where check 7 is a proxy, the persona is the thing itself.
 
-It reviews **design documents** — a D101's business sections (§2/§4) for most readers, plus its technical design (§6) for a feasibility reader like the standard *Athena* — and analyses, proposals, anything taken to a stakeholder. It does **not** review code (that is Baley), and it does **not** replace the bar check (`/d101-review`): a document can pass every persona and still fail §8b, and vice versa. Run both.
+It reviews **design documents** — a D101's business sections (§2/§4) for most readers, plus its technical design (§6) for a feasibility reader like the standard *Athena* — and analyses, proposals, anything taken to a stakeholder. It does **not** review code (that is Baley), and it does **not** replace the bar check (`asimov-design-review`): a document can pass every persona and still fail §8b, and vice versa. Run both.
 
 ## 3. The persona — the reusable form
 

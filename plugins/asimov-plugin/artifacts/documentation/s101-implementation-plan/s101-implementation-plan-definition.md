@@ -58,7 +58,7 @@ The author sees the plan twice before the reviewer does. Once as the **cut**: th
 - **One design produces exactly one S101.** A D101 at `Full design`, or any other design that meets the contract (§3.1). A D101 at `Business design` produces none; §6 is open and no task can be cut. A design missing a member of the contract produces none either; what is missing is added to the design, never to a copy.
 - **One S101 produces one or more S102s.** Three to eight is typical for a feature; one is legitimate for a small change. A bug fix from the board skips the D101, not the S101: its ticket is the design, and the plan may have one task. There is no S102 without a plan.
 - **The S101 owns the graph; the S102 owns the recipe.** File paths, signatures, steps and test code live in the S102. The S101 names the task and its edges, and never repeats its body.
-- **The S101 is not the ledger.** Run state (claimed, in progress, fix round, done) lives in a gitignored ledger the orchestrator keeps, as `/d101-review`'s `.review.md` cache does for reviews. Writing state into the plan makes every run a diff on a reviewed document.
+- **The S101 is not the ledger.** Run state (claimed, in progress, fix round, done) lives in a gitignored ledger the orchestrator keeps, as `asimov-design-review`'s `.review.md` cache does for reviews. Writing state into the plan makes every run a diff on a reviewed document.
 - **The S101 is not the validation report either.** A run's findings and the assumptions it decided by default land in a gitignored sidecar beside the plan (§9); the assumptions themselves are plan content (§4.9), the findings are not.
 - **The D101's §7 Implementation is superseded for a feature that has an S101.** §7 was the interim home for file layout, reuse-vs-new and wiring (`d101-feature-design-definition.md` §4.8). That content is S102 content. A feature with an S101 marks §7 N/A and points at the specs folder.
 
@@ -229,7 +229,7 @@ Approval: <who> · <YYYY-MM-DD> · <where: a comment, a status>
 
 `asimov-spec` writes it at the start of a run from the fetch or from pasted text, and `asimov-spec-validate` rewrites it when it is missing; the authoring and validation skills read it as the design. It is never committed and never edited by hand: a correction goes into the source, and the next run reads it.
 
-Beside the plan, both asimov-skills write one gitignored sidecar, `S101-<feature-slug>.review.md`. Overwritten by the next run, read by no skill, never a record; the same role as `/d101-review`'s `D101-<slug>.review.md`. One shape, so a reader learns it once:
+Beside the plan, both asimov-skills write one gitignored sidecar, `S101-<feature-slug>.review.md`. Overwritten by the next run, read by no skill, never a record; the same role as `asimov-design-review`'s `D101-<slug>.review.md`. One shape, so a reader learns it once:
 
 ```markdown
 # Validation — S101-<feature-slug>

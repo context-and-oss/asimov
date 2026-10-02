@@ -60,4 +60,4 @@ End with a one-line footer: *"Author another with `/persona-new`; invoke any of 
 
 # Repo handling
 
-The custom path `.claude/skills/persona-*` and the shipped path `skills/persona-*` are the default convention, shared with `/persona-new` and `/d101-review` (which discovers the roster from the same two paths). A fork that uses a different layout changes the literal in **all three** command files in lockstep (D101 §6.6).
+The custom path `.claude/skills/persona-*` and the shipped path `skills/persona-*` are the default convention, shared with `/persona-new` and `asimov-design-review` (which discovers the roster from the same two paths). A fork that uses a different layout changes the literal in **all three** files in lockstep (D101 §6.6).

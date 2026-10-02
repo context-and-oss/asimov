@@ -105,4 +105,4 @@ Create the `.claude/skills/persona-<slug>/` folder if absent, then **Write** the
 
 # Repo handling
 
-The output path `.claude/skills/persona-<slug>/` and the shipped-set path `skills/persona-*` are the default convention, shared with `/persona-list` and `/d101-review` (which discovers the roster from the same two paths). A fork that uses a different layout changes the literal in **all three** command files in lockstep (D101 §6.6). Intentionally not a config.
+The output path `.claude/skills/persona-<slug>/` and the shipped-set path `skills/persona-*` are the default convention, shared with `/persona-list` and `asimov-design-review` (which discovers the roster from the same two paths). A fork that uses a different layout changes the literal in **all three** files in lockstep (D101 §6.6). Intentionally not a config.
