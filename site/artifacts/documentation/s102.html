@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>S102 — Task spec · Asimov</title>
-<meta name="description" content="S102: one per task; the exact brief a build agent receives. Definition written; template and command not yet.">
+<meta name="description" content="S102: one per task; the whole brief a fresh build agent receives, validated blind by a reader that never saw the conversation.">
 <link rel="stylesheet" href="../../site.css">
 </head>
 <body class="has-subnav">
@@ -34,24 +34,54 @@
 
 <main class="page">
   <h1>S102 — Task spec</h1>
-  <p class="lede">One per task. The exact brief a fresh build agent receives: sized for one sitting, checkable afterwards by a validator that never saw the conversation. <span class="chip assess">assess</span></p>
+  <p class="lede">One per task. The whole brief a fresh build agent receives, sized for one sitting. <span class="chip assess">assess</span></p>
+
+  <dl class="meta">
+    <dt>Produced by</dt><dd><code>/asimov-spec</code>, one per task in the plan's graph, after your go at the cut.</dd>
+    <dt>Validated by</dt><dd>A fresh subagent with no conversation history, right after each one is written. It sees the task spec, the plan, the design and the repo, and nothing else.</dd>
+    <dt>Lands in</dt><dd><code>documentation/specs/&lt;feature&gt;/S102-&lt;feature&gt;-NNN-&lt;task&gt;.md</code></dd>
+    <dt>Source</dt><dd><a href="https://github.com/context-and-oss/asimov/blob/main/plugins/asimov-plugin/artifacts/documentation/s102-task-spec/s102-task-spec-definition.md">Definition</a> · <a href="https://github.com/context-and-oss/asimov/blob/main/plugins/asimov-plugin/artifacts/documentation/s102-task-spec/s102-task-spec-template.md">Template</a> · <a href="https://github.com/context-and-oss/asimov/blob/main/documentation/features/D101-spec-stage.html">The Spec-stage D101</a></dd>
+    <dt>Read by</dt><dd>The builder it is written for, as its whole brief. The reviewer, as part of the plan. The build run, when it verifies the code against it.</dd>
+  </dl>
 
   <h2>What it holds</h2>
   <ul>
-    <li><strong>Intent</strong>, traced to the D101 requirement it serves.</li>
+    <li><strong>A header copied from the plan</strong>: role, tier, dependencies, traces. The brief stands alone; the plan check confirms they still match.</li>
+    <li><strong>Intent</strong>, in the design's words, traced to the requirement it serves.</li>
     <li><strong>Files</strong> it creates, modifies and tests. Exact paths; also the set it owns. Nothing else is touched.</li>
-    <li><strong>Interfaces</strong> it consumes and produces, by exact name, so neighbouring tasks agree before either exists.</li>
-    <li><strong>Behaviour</strong> as scenarios a test is written from; <strong>constraints</strong> as musts, must nots, preferences and escalation triggers.</li>
-    <li><strong>Steps</strong>, test first, with the code inline where the task is transcription. <strong>Acceptance criteria</strong> a validator can run.</li>
+    <li><strong>Interfaces</strong> it consumes and produces, by exact signature, so neighbouring tasks agree before either exists.</li>
+    <li><strong>Behaviour</strong> as Gherkin scenarios, one per behaviour, every rule with its counter-example.</li>
+    <li><strong>Constraints</strong> specific to this task: musts, must nots, preferences, escalation triggers. The global ones are inherited, never repeated.</li>
+    <li><strong>Steps</strong>, test first, one action each, with the code inline where the task is transcription.</li>
+    <li><strong>Acceptance criteria</strong> each checkable by running something, and <strong>out of scope</strong>, one line each.</li>
   </ul>
 
   <h2>The bar</h2>
   <p><strong>Buildable blind.</strong> A competent builder with no conversation history, only the repo, the D101 and this file, builds it and knows when it is done. No placeholders. The builder never edits what it does not own; a conflict is a stop and a report, not a fix.</p>
 
-  <h2>Where it comes from, where it goes</h2>
-  <p>Normally one of several under an S101. A bug fix from the board skips the design and the plan and gets a single S102. Giskard, Daneel and Calvin build from it; the planned validator checks the code against its acceptance criteria. <a href="../../artifacts/documentation/index.html">The document model →</a></p>
+  <h2>Validated blind</h2>
+  <p>The model that wrote the spec has the conversation in its head and fills the gaps from memory. So a fresh reader checks it instead.</p>
+  <ul>
+    <li><strong>Write, then check.</strong> Each task spec goes to a fresh read-only subagent as soon as it is written. The report is one row per check, no verdict.</li>
+    <li><strong>Fail, then rewrite.</strong> A failed check sends the spec back; the rewrite is checked again.</li>
+    <li><strong>Three fails, or a design gap, stop the run.</strong> A spec that fails three times, or a finding that points at the D101 rather than the spec, is reported, not rewritten. The design is fixed first.</li>
+  </ul>
 
-  <p><a href="https://github.com/context-and-oss/asimov/blob/main/plugins/asimov-plugin/artifacts/documentation/s102-task-spec/s102-task-spec-definition.md">Definition</a> · template and command not built yet</p>
+  <h2>Rules</h2>
+  <ul>
+    <li><strong>No placeholders.</strong> No <em>TBD</em>, no <em>handle edge cases</em>, no <em>similar to task 3</em>. A step the author cannot write is reported, not papered over.</li>
+    <li><strong>Code to write is inline; code that exists is linked.</strong> Never a pasted enum or schema.</li>
+    <li><strong>Own your files; stop at the edge.</strong> Needing a file outside the owned set is an escalation, not a judgement call.</li>
+    <li><strong>Inherit, don't repeat.</strong> Global constraints and the escalation route live in the plan.</li>
+  </ul>
+
+  <h2>A lone task</h2>
+  <p>A bug fix from the board skips the design and the plan and gets a single S102. It traces to the ticket instead of a requirement, and carries its own constraints and escalation route, because there is no plan to inherit from.</p>
+
+  <h2>Where it comes from, where it goes</h2>
+  <p>Normally one of several under an S101. Giskard, Daneel and Calvin build from it; the planned verification agent runs the code against its acceptance criteria. <a href="../../artifacts/documentation/index.html">The document model →</a></p>
+
+  <p>Definition, template and skills exist since 2026-10-02 and have not run outside the Asimov repo. That is what <span class="chip assess">assess</span> means: use it, and expect the shape to move.</p>
 
 </main>
 <footer class="foot"><div class="in">
