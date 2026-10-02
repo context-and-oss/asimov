@@ -10,9 +10,9 @@
     The file in the plugin is the source of truth (D100 §7.4).
   - Written to documentation/specs/{{SLUG}}/S102-{{SLUG}}-{{NNN}}-{{TASK-SLUG}}.md,
     beside the S101 whose graph entry it expands. {{NNN}} is the task id's
-    number: T003 → 003. A lone S102 from the board (no D101, no S101) uses the
-    ticket's slug as {{SLUG}}, 001 as {{NNN}}, and the `ticket` key instead of
-    `s101` + `task`.
+    number: T003 → 003. There is no S102 without an S101; a ticket that needs
+    one task has a one-task plan, and {{SLUG}} is then the ticket key in
+    kebab-case.
   - Strip THIS comment from the rendered file.
 
   THE HEADER IS COPIED FROM THE GRAPH
@@ -30,7 +30,8 @@
     the steps; mid = prose steps with a clear check; high = judgement).
   - status: draft is the only value a skill writes; later values follow the
     S101's (definition §6).
-  - traces: D101 ids as written there — R3, NF2, §6.4.1, AC5.
+  - traces: ids of the design source — R3, NF2, §6.4.1, AC5 as a D101 writes
+    them, or the ids the plan assigned to a ticket's items.
 
   WHAT THE BODY MUST DO
   - Intent in the D101's words. Files exact and complete; the modify list names
@@ -41,8 +42,6 @@
     S101 §1 by reference. Steps test first, one action each, the code inline
     where the task is transcription. Acceptance criteria each runnable. Out of
     scope one line each.
-  - A lone S102 carries its own global constraints and escalation route in §5,
-    because there is no plan to inherit from.
 
   WHAT NEVER GOES HERE
   - Placeholders: TBD, TODO, "handle edge cases", "add appropriate error
@@ -54,7 +53,7 @@
   - A product entity in THIS template (hard rule 7).
 
   PLACEHOLDERS
-  {{SLUG}}           the feature slug (the D101's, or the ticket's for a lone task)
+  {{SLUG}}           the feature slug (the D101's, or the ticket key in kebab-case)
   {{NNN}}            the task number, three digits
   {{TASK-SLUG}}      kebab-case task name
   {{TASK-ID}}        the id in the S101 graph, e.g. T003
@@ -68,7 +67,6 @@
 spec: S102
 s101: documentation/specs/{{SLUG}}/S101-{{SLUG}}.md
 task: "{{TASK-ID}}"
-# ticket: <id>            # lone task only, instead of s101 + task
 title: "{{TITLE}}"
 traces: [R1, §6.2.1, AC1]
 role: dotnet-builder

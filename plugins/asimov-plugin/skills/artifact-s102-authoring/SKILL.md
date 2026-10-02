@@ -1,6 +1,6 @@
 ---
 name: artifact-s102-authoring
-description: How to write one S102 task spec (documentation/specs/<slug>/S102-<slug>-NNN-<task>.md) for one builder role from one task entry in an S101 graph, or for a lone task from the board with no S101 — header copied from the graph, intent, files, interfaces by exact signature, behaviour as Gherkin, task-specific constraints, steps test first with the code inline where the task is transcription, runnable acceptance criteria, out of scope — so that a builder with no conversation history can build it. Use when asked to "write the S102 for task T003", "write a task spec for this ticket", "rewrite this S102 against these findings", or inside asimov-spec at every task. Writes one S102; never the S101, never another S102, never a placeholder.
+description: How to write one S102 task spec (documentation/specs/<slug>/S102-<slug>-NNN-<task>.md) for one builder role from one task entry in an S101 graph — header copied from the graph, intent, files, interfaces by exact signature, behaviour as Gherkin, task-specific constraints, steps test first with the code inline where the task is transcription, runnable acceptance criteria, out of scope — so that a builder with no conversation history can build it. Use when asked to "write the S102 for task T003", "write a task spec for this ticket", "rewrite this S102 against these findings", or inside asimov-spec at every task. Writes one S102; never the S101, never another S102, never a placeholder.
 ---
 
 # S102 authoring
@@ -25,31 +25,28 @@ Load with the file-read tool. In Claude Code `${CLAUDE_PLUGIN_ROOT}` is the plug
 
 3. **The S101**: the task's entry in the frontmatter graph (role, tier, phase, depends_on, owns, produces, consumes, traces) and the body sections it inherits: §1 global constraints, §3 interfaces (the exact signatures), §4 review focus (a line pinned to this task becomes a scenario and a test here), §5 escalation routing.
 
-4. **The D101 sections the entry traces to**: the requirement wording for the intent, the §6 contract for the shapes, the rule and its counter-example for the scenarios, the acceptance criterion the slice makes pass.
+4. **The design-source sections the entry traces to**, by the ids in `traces`: in a D101 the requirement wording for the intent, the §6 contract for the shapes, the rule and its counter-example for the scenarios, the acceptance criterion the slice makes pass; in a ticket cache (`documentation/specs/<slug>/ticket.md`, the S101 header says which) the sentences marked `[R..]`, `[AC..]` and `[OOS..]`.
 
 5. **The repo code the task links to**: every path in `owns` that exists (read the region you will change), every existing type the interfaces section links, the conventions for this stack (`documentation/conventions/<stack>/README.md` and what it lists) for the test command, the test naming and the commit style.
-
-6. **For a lone task**: the ticket text the caller passes in place of the S101 and D101.
 
 ## Inputs from the caller
 
 | Input | Meaning |
 |---|---|
-| `s101` + `task` | Path of the S101 and the task id (`T003`). The normal case. |
-| `ticket` + `brief` | For a lone task: the ticket id and its text. No S101, no D101; the S102 then carries its own global constraints and escalation route. |
+| `s101` + `task` | Path of the S101 and the task id (`T003`). |
 | `findings` | On a rewrite: the validation report of the previous attempt. Address every Flag and Fail row; keep what cleared. [none] |
 
 ## Steps
 
-1. **Header** from the graph entry, copied verbatim: `spec: S102`, `s101`, `task`, `title`, `traces`, `role`, `tier`, `depends_on`; `status: draft`, author, today's date. A lone task carries `ticket` instead of `s101` + `task`. Never change a copied field to make the body easier; a mismatch is a plan finding, reported to the caller.
+1. **Header** from the graph entry, copied verbatim: `spec: S102`, `s101`, `task`, `title`, `traces`, `role`, `tier`, `depends_on`; `status: draft`, author, today's date. Never change a copied field to make the body easier; a mismatch is a plan finding, reported to the caller.
 
-2. **Intent.** One or two sentences in the D101's words: what this task delivers and why the feature needs it. The reason, not the recipe.
+2. **Intent.** One or two sentences in the design source's words: what this task delivers and why the feature needs it. The reason, not the recipe.
 
 3. **Files.** The three lists, Create / Modify / Test, exactly the graph entry's `owns.create`, `owns.modify` and `owns.test`. A modify entry on a large file names the region. Every path exact and repo-relative; a modify path that does not exist is a plan gap you report (below), not a path you change.
 
 4. **Interfaces.** Consumes: every name from the entry's `consumes`, with the exact signature from the S101 §3 and the producing task id, or the path for existing code. Produces: every name from `produces`, signature fixed here as the S101 spells it. A consumed name the S101 does not spell is a plan gap: stop and report it (below).
 
-5. **Behaviour.** One Gherkin scenario per behaviour, in fenced `gherkin` blocks, written from the D101 rule and the §6 contract; every rule with its counter-example as its own scenario. For a tester task, the scenarios are the slice's acceptance criterion made concrete at API level against the skeleton's public methods, end to end only where the conventions name a runner.
+5. **Behaviour.** One Gherkin scenario per behaviour, in fenced `gherkin` blocks, written from the design source's rule and contract (D101 §4.5 and §6, or the ticket's `[R..]` sentences); every rule with its counter-example as its own scenario. For a tester task, the scenarios are the slice's acceptance criterion made concrete at API level against the skeleton's public methods, end to end only where the conventions name a runner.
 
 6. **Constraints.** Only what is specific to this task: musts, must nots, preferences by path, escalation triggers. The global constraints and the routing are inherited from the S101 by reference; a global constraint restated here is a finding. The three standing triggers (a file outside the owned set, a consumed name that does not resolve, a conflict with the D101, the conventions or a neighbour) are always listed, plus the task's own.
 
@@ -68,16 +65,16 @@ Load with the file-read tool. In Claude Code `${CLAUDE_PLUGIN_ROOT}` is the plug
 A step, a signature or a scenario you cannot write without guessing is not written. Do not save a file with a gap or a placeholder in it. Return instead, with the same source prefix the validation skills use:
 
 ```
-cannot write <task id>: D101: <what the design does not settle>
-  needs: <the D101 section or the author decision that would settle it>
+cannot write <task id>: design: <what the design source does not settle>
+  needs: <the D101 section, the ticket item or the author decision that would settle it>
 ```
 
-or `S101:` (a name no task produces, an owned path that does not exist, an entry that cannot hold the task) with the plan section that would settle it. The caller stops on `D101:` (the design is fixed first, not the S102) and routes `S101:` to the plan. Reporting the gap is the method; filling it from memory is the failure the blind validation exists to catch.
+or `S101:` (a name no task produces, an owned path that does not exist, an entry that cannot hold the task) with the plan section that would settle it. The caller stops on `design:` (the D101 or the ticket is fixed first, not the S102) and routes `S101:` to the plan. Reporting the gap is the method; filling it from memory is the failure the blind validation exists to catch.
 
 ## Never
 
 - **Paste existing code**: an enum, a schema, a column list, a type that is already in the repo. Link it by path.
-- **Repeat a global constraint** or the escalation routing. The S101 has them; a lone task is the one exception.
+- **Repeat a global constraint** or the escalation routing. The S101 has them.
 - **Write a placeholder**: `TBD`, `TODO`, "handle edge cases", "add appropriate error handling", "similar to T002", a step that says what without how. Report the gap instead.
 - **Touch the S101 or another S102.** A mismatch between the entry and what the body needs is reported, never patched on either side.
 - **Validate** your own output or call any other skill.
@@ -88,4 +85,4 @@ or `S101:` (a name no task produces, an owned path that does not exist, an entry
 ## Used by
 
 - asimov-spec, step 05, once per task after the author's go, and again with `findings` after a failed blind validation or a plan-level finding.
-- A lone task from the board, directly, followed by artifact-s102-validation by hand.
+- A hand run, one task at a time, once a plan exists; there is no S102 without an S101.

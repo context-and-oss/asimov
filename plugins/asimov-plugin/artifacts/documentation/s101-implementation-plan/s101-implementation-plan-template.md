@@ -10,8 +10,12 @@
     artifact-s101-validation (checks an S101 against it). The file in the plugin
     is the source of truth (D100 §7.4); never author from a remembered copy.
   - Written to documentation/specs/{{SLUG}}/S101-{{SLUG}}.md in the product
-    repo. {{SLUG}} is the D101's slug: documentation/features/D101-permissions.html
-    plans to documentation/specs/permissions/S101-permissions.md.
+    repo. {{SLUG}} is the D101's slug (documentation/features/D101-permissions.html
+    plans to documentation/specs/permissions/S101-permissions.md) or, for a
+    ticket, its key in kebab-case (PROJ-123 → documentation/specs/proj-123/).
+  - The design source is a D101 at Full design or a ticket that meets the
+    S101 definition §3.1. The `design` block says which; the body never
+    depends on the kind beyond the coverage map's wording column.
   - The first write is the CUT: frontmatter + body with §7 Assumptions, no S102
     beside it. asimov-spec shows the cut and waits for the author's go before any
     S102 is written; the author may edit this file by hand at that point and
@@ -41,8 +45,10 @@
     mid = prose steps with a clear check; high = judgement or integration.
     The plan names a tier only; the toolkit's model-choice.md maps tiers to
     models, and the run picks the model.
-  - traces: D101 ids as written there — R3, NF2, §6.4.1, AC5. A phase traces
-    to the acceptance criterion it makes pass; a task to everything it serves.
+  - traces: ids of the design source — a D101's R3, NF2, §6.4.1, AC5 as written
+    there, or the R/AC/OOS ids this plan assigned to a ticket's items. A phase
+    traces to the acceptance criterion it makes pass; a task to everything it
+    serves.
   - owns: the task's paths in three lists, create / modify / test, exact and
     repo-relative; the S102's §2 Files repeats them list for list. The owned
     set is the union. Two tasks that may run in parallel own disjoint sets; a
@@ -65,12 +71,14 @@
     product repo names whatever it needs.
 
   PLACEHOLDERS
-  {{SLUG}}             the D101's slug
-  {{TITLE}}            the feature name, as the D101's h1
-  {{D101-VERSION}}     the D101's version at planning time, e.g. 0.11
+  {{SLUG}}             the D101's slug, or the ticket key in kebab-case
+  {{TITLE}}            the feature name, as the D101's h1 or the ticket's summary
+  {{D101-VERSION}}     the D101's version at planning time, e.g. 0.11 (D101 only)
+  {{TICKET-URL}}, {{TICKET-KEY}}, {{FETCHED}}   the ticket's link, key and fetch date (ticket only)
   {{AUTHOR}}           who ran asimov-spec
   {{YYYY-MM-DD}}       the date of this write
-  {{GOAL}}             the feature in one sentence, in the D101's words
+  {{GOAL}}             the feature in one sentence, in the design source's words
+  Keep one `design` block and delete the other.
   Everything inside <angle brackets> in the body is a description of what to
   write there, replaced in full. Sample rows show the shape; replace them.
 -->
@@ -78,9 +86,15 @@
 spec: S101
 slug: "{{SLUG}}"
 title: "{{TITLE}}"
-d101:
+design:                       # a D101 …
+  kind: d101
   path: documentation/features/D101-{{SLUG}}.html
   version: "{{D101-VERSION}}"
+# design:                     # … or a ticket (keep one block)
+#   kind: ticket
+#   url: "{{TICKET-URL}}"
+#   key: "{{TICKET-KEY}}"
+#   fetched: "{{FETCHED}}"
 status: draft
 version: 0.1
 author: "{{AUTHOR}}"
@@ -147,7 +161,7 @@ tasks:
 
 {{GOAL}}
 
-Plans `documentation/features/D101-{{SLUG}}.html` v{{D101-VERSION}}. Status, author, date and the task graph are in the frontmatter; this body says what the graph cannot.
+Plans <`documentation/features/D101-{{SLUG}}.html` v{{D101-VERSION}} | the ticket [{{TICKET-KEY}}]({{TICKET-URL}}), fetched {{FETCHED}}, approved by <who> on <date>>. Status, author, date and the task graph are in the frontmatter; this body says what the graph cannot.
 
 ## 1. Global constraints
 
@@ -193,15 +207,15 @@ What a builder stops on and who rules. A builder never edits an artifact it does
 
 ## 6. Coverage map
 
-Every D101 requirement, contract and acceptance criterion in scope, against the task ids that deliver it. A criterion verified by review or by hand carries *verified by review* instead of task ids. The ids in the first column are what a re-run compares against the D101 to decide between an update and a rewrite.
+Every requirement, contract and acceptance criterion of the design source in scope, against the task ids that deliver it. A criterion verified by review or by hand carries *verified by review* instead of task ids. *Says* is the source's wording in one line: required for a ticket, whose ids are this plan's own; optional for a D101, whose ids exist in the document. The first column is what a re-run compares against the design source to decide between an update and a rewrite.
 
-| D101 id | Delivered by |
-|---|---|
-| R1 | T002 |
-| NF1 | T001, T002 |
-| §6.2.1 | T001 |
-| AC1 | T002, T003 |
-| AC2 | verified by review |
+| Id | Says | Delivered by |
+|---|---|---|
+| R1 | <the rule or decision, in the source's words> | T002 |
+| NF1 | — | T001, T002 |
+| §6.2.1 | — | T001 |
+| AC1 | <the observable outcome, in the source's words> | T002, T003 |
+| AC2 | — | verified by review |
 
 ## 7. Assumptions
 

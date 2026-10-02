@@ -37,7 +37,7 @@
   <p class="lede">Scope, design, specification: the documents behind a feature. Click any box to read about it.</p>
 
   <div class="figure">
-<svg class="docmodel" viewBox="0 0 1200 640" style="min-width:760px" role="img" aria-label="The document model. Work enters from two sources: an A100 scoping and planning report, or the scrumboard. The A100 feeds a D100 solution architecture and one D101 feature design per feature; a scrumboard design task also enters at a D101. Each D101 feeds a stack of one S101 implementation plan and its S102 task specs. A scrumboard bug fix task skips the design and goes straight to a single S102 task spec. Everything is published on the documentation overview landing site. Colour carries one meaning only: each lane has a colour — violet for source, cyan for design, green for specification — and every arrow takes the colour of the lane it enters.">
+<svg class="docmodel" viewBox="0 0 1200 640" style="min-width:760px" role="img" aria-label="The document model. Work enters from two sources: an A100 scoping and planning report, or the scrumboard. The A100 feeds a D100 solution architecture and one D101 feature design per feature; a scrumboard design task also enters at a D101. Each D101 feeds a stack of one S101 implementation plan and its S102 task specs. A scrumboard bug fix task skips the D101 and goes straight to its own small stack of one S101 implementation plan and its S102 task spec; the approved ticket is its design. Everything is published on the documentation overview landing site. Colour carries one meaning only: each lane has a colour — violet for source, cyan for design, green for specification — and every arrow takes the colour of the lane it enters.">
   <style>
     .docmodel { font-family: 'JetBrains Mono', ui-monospace, Consolas, monospace; }
     .docmodel text { font-size: 13px; text-anchor: middle; fill: var(--text, #fff); }
@@ -242,12 +242,18 @@
     <text class="go r" x="1178" y="514">→</text>
   </a>
 
-  <rect class="stack" x="760" y="569" width="439" height="38" rx="10"/>
+  <rect class="stack" x="760" y="569" width="439" height="64" rx="10"/>
+  <a class="spec plan" href="../../artifacts/documentation/s101.html">
+    <title>Open S101 — Implementation plan</title>
+    <rect x="769" y="576" width="421" height="24" rx="5"/>
+    <text x="781" y="592">S101 — bugfix 1 — Implementation plan</text>
+    <text class="go r" x="1178" y="592">→</text>
+  </a>
   <a class="spec" href="../../artifacts/documentation/s102.html">
     <title>Open S102 — Task spec</title>
-    <rect x="769" y="576" width="421" height="24" rx="5"/>
-    <text x="781" y="592">S102 — bugfix 1 — Task spec 1</text>
-    <text class="go r" x="1178" y="592">→</text>
+    <rect x="769" y="602" width="421" height="24" rx="5"/>
+    <text x="781" y="618">S102 — bugfix 1 — Task spec 1</text>
+    <text class="go r" x="1178" y="618">→</text>
   </a>
 
   <!-- ─── connectors ─── -->
@@ -263,7 +269,7 @@
     <path d="M660 484 H756"/>
     <path d="M284 588 H756"/>
   </g>
-  <text class="note" x="520" y="578">SKIPS THE DESIGN</text>
+  <text class="note" x="520" y="578">SKIPS THE D101 · THE TICKET IS THE DESIGN</text>
 </svg>
   <div class="key" aria-label="Document model colour key">
     <b>Key</b>

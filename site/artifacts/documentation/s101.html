@@ -37,7 +37,7 @@
   <p class="lede">One per feature. The task graph a D101 becomes, and what every task must respect, stated once. <span class="chip assess">assess</span></p>
 
   <dl class="meta">
-    <dt>Produced by</dt><dd><code>/asimov-spec</code>. One run: it reads the design and the repo, asks at most five questions, shows you the cut, and expands it on your go.</dd>
+    <dt>Produced by</dt><dd><code>/asimov-spec</code>, named in a message with the D101, or with a Jira link for a bug fix that needs no D101. One run: it reads the design and the repo, asks at most five questions, shows you the cut, and expands it on your go.</dd>
     <dt>Validated by</dt><dd><code>/asimov-spec-validate</code>: the graph checks and the plan checks, plus a blind check per task spec. Writes nothing but a sidecar.</dd>
     <dt>Lands in</dt><dd><code>documentation/specs/&lt;feature&gt;/S101-&lt;feature&gt;.md</code>, beside its S102s.</dd>
     <dt>Source</dt><dd><a href="https://github.com/context-and-oss/asimov/blob/main/plugins/asimov-plugin/artifacts/documentation/s101-implementation-plan/s101-implementation-plan-definition.md">Definition</a> · <a href="https://github.com/context-and-oss/asimov/blob/main/plugins/asimov-plugin/artifacts/documentation/s101-implementation-plan/s101-implementation-plan-template.md">Template</a> · <a href="https://github.com/context-and-oss/asimov/blob/main/documentation/features/D101-spec-stage.html">The Spec-stage D101</a></dd>
@@ -89,7 +89,7 @@
   </ul>
 
   <h2>Where it comes from, where it goes</h2>
-  <p>A D101 at full design produces exactly one; anything less is refused. It produces one or more S102 task specs. <a href="../../artifacts/documentation/index.html">The document model →</a></p>
+  <p>A D101 at full design produces exactly one; so does an approved ticket whose thread carries the decision, the rules, acceptance criteria and what is out of scope. Anything less is refused, and the fix goes into the D101 or the ticket. It produces one or more S102 task specs; a bug fix may get a plan of one. <a href="../../artifacts/documentation/index.html">The document model →</a></p>
 
   <p>Definition, template and skills exist since 2026-10-02 and have not run outside the Asimov repo. That is what <span class="chip assess">assess</span> means: use it, and expect the shape to move.</p>
 
