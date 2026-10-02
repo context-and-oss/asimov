@@ -64,15 +64,15 @@ Developer-driven entrypoints. Each is a markdown file under `plugins/asimov-plug
 
 | Command | Stage | Model | D101 |
 |---|---|---|---|
-| `/d101-feature-design` (drafts via `artifact-d101-authoring`) | Design | Opus 4.8 xhigh | [`D101-d101-feature-design.html`](features/D101-d101-feature-design.html) |
-| `/d101-review` (gap review via `artifact-d101-gap-review`, persona reads via `persona-*`) | Design | Sonnet 4.6 | [`D101-d101-feature-design.html`](features/D101-d101-feature-design.html) |
-| `/d101-convert-to-html` (renders via `artifact-d101-authoring`) | Design | Sonnet 4.6 | [`D101-d101-feature-design.html`](features/D101-d101-feature-design.html) |
-| `/asimov-init` | Setup (ad-hoc) | Opus 4.8 | [`D101-asimov-init.html`](features/D101-asimov-init.html) |
-| `/persona-new` | Design | Opus 4.8 | [`D101-personas.html`](features/D101-personas.html) |
-| `/persona-list` | Design | Sonnet 4.6 | [`D101-personas.html`](features/D101-personas.html) |
-| `asimov-spec` (asimov-skill; cuts via `artifact-s101-authoring`, writes via `artifact-s102-authoring`, validates via `artifact-s101-validation` and the blind `artifact-s102-validation`) | Spec | Opus 4.8 xhigh (Claude Code only) | [`D101-spec-stage.html`](features/D101-spec-stage.html) |
-| `asimov-spec-validate` (asimov-skill; both validations, writes only the sidecar) | Spec | Sonnet 4.6 (Claude Code only) | [`D101-spec-stage.html`](features/D101-spec-stage.html) |
-| `/conventions-check` *(planned)* | Review + Test | Sonnet 4.6 or Haiku 4.5 | — |
+| `/d101-feature-design` (drafts via `artifact-d101-authoring`) | Design | Opus 5.5 xhigh | [`D101-d101-feature-design.html`](features/D101-d101-feature-design.html) |
+| `/d101-review` (gap review via `artifact-d101-gap-review`, persona reads via `persona-*`) | Design | Sonnet 5.5 | [`D101-d101-feature-design.html`](features/D101-d101-feature-design.html) |
+| `/d101-convert-to-html` (renders via `artifact-d101-authoring`) | Design | Sonnet 5.5 | [`D101-d101-feature-design.html`](features/D101-d101-feature-design.html) |
+| `/asimov-init` | Setup (ad-hoc) | Opus 5.5 | [`D101-asimov-init.html`](features/D101-asimov-init.html) |
+| `/persona-new` | Design | Opus 5.5 | [`D101-personas.html`](features/D101-personas.html) |
+| `/persona-list` | Design | Sonnet 5.5 | [`D101-personas.html`](features/D101-personas.html) |
+| `asimov-spec` (asimov-skill; cuts via `artifact-s101-authoring`, writes via `artifact-s102-authoring`, validates via `artifact-s101-validation` and the blind `artifact-s102-validation`) | Spec | Opus 5.5 xhigh (Claude Code only) | [`D101-spec-stage.html`](features/D101-spec-stage.html) |
+| `asimov-spec-validate` (asimov-skill; both validations, writes only the sidecar) | Spec | Sonnet 5.5 (Claude Code only) | [`D101-spec-stage.html`](features/D101-spec-stage.html) |
+| `/conventions-check` *(planned)* | Review + Test | Sonnet 5.5 or Haiku 4.5 | — |
 
 Command file paths follow the pattern `plugins/asimov-plugin/commands/<command-name>.md`. Slash commands are Claude Code only — Codex does not load `commands/`; `/asimov-init` alone has a Codex counterpart, the skill `codex-asimov-init` (§4.6).
 
@@ -98,11 +98,11 @@ Subagent *kinds* follow the **Accelerate multi-agent roles** — *planner / buil
 
 | Subagent (shell) | Role skill | Accelerate role | Stage | Model | D101 |
 |---|---|---|---|---|---|
-| `giskard-the-dotnet-developer` (.NET developer) | `role-dotnet-builder` | Builder | Code | Sonnet 4.6 | [`D101-subagents.html`](features/D101-subagents.html) |
-| `daneel-the-angular-developer` (Angular developer) | `role-angular-builder` | Builder | Code | Sonnet 4.6 | [`D101-subagents.html`](features/D101-subagents.html) |
-| `calvin-the-test-author` (test author) | `role-dotnet-tester` | Tester | Code | Sonnet 4.6 | [`D101-subagents.html`](features/D101-subagents.html) |
-| `baley-the-code-reviewer` (code reviewer) | `role-code-reviewer` | Reviewer | Review | Sonnet 4.6 | [`D101-subagents.html`](features/D101-subagents.html) |
-| S102 verification subagent *(planned)* | — | Tester | Test | Sonnet 4.6 | — |
+| `giskard-the-dotnet-developer` (.NET developer) | `role-dotnet-builder` | Builder | Code | Sonnet 5.5 | [`D101-subagents.html`](features/D101-subagents.html) |
+| `daneel-the-angular-developer` (Angular developer) | `role-angular-builder` | Builder | Code | Sonnet 5.5 | [`D101-subagents.html`](features/D101-subagents.html) |
+| `calvin-the-test-author` (test author) | `role-dotnet-tester` | Tester | Code | Sonnet 5.5 | [`D101-subagents.html`](features/D101-subagents.html) |
+| `baley-the-code-reviewer` (code reviewer) | `role-code-reviewer` | Reviewer | Review | Sonnet 5.5 | [`D101-subagents.html`](features/D101-subagents.html) |
+| S102 verification subagent *(planned)* | — | Tester | Test | Sonnet 5.5 | — |
 
 All four share one D101 (`features/D101-subagents.html`): the roles differ in competence, boundary and target, not in mechanism, and the shared mechanism lives in §7.2.1.
 
@@ -288,7 +288,7 @@ There is no production deployment to provision — the toolkit is a developer to
 
 A command is a markdown file with YAML frontmatter + prompt body:
 
-- **Frontmatter** declares the model (e.g. `model: claude-opus-4-8` + `effort: xhigh`), tool restrictions, and any runtime hints CC honours.
+- **Frontmatter** declares the model (e.g. `model: claude-opus-5-5` + `effort: xhigh`), tool restrictions, and any runtime hints CC honours.
 - **Body** is the prompt that runs against the model.
 
 The exact prompt text and interview heuristics are implementation detail; they live in the command file itself and are designed against the relevant `features/D101-<feature>.html`.
@@ -387,7 +387,7 @@ Planned components that slot into the structure above when added:
 | Q1 | Are command-frontmatter model declarations and `documentation/model-choice.md` kept in sync by review discipline, or by a small CI lint? | alb (Context& lead) | **Resolved 2026-09-15:** by CI. `.github/workflows/Asimov-PR.yml` fails the PR when a `model:` has no matching row (hard rule 2). |
 | Q2 | Should the marketplace lint its manifests (`marketplace.json`, `plugin.json`) before merging changes to the default branch? Manifest typos break install silently. | alb (Context& lead) | **Resolved 2026-09-15:** yes. The same workflow parses both manifests and checks the plugin name agrees (hard rule 1). |
 | Q3 | Where does the D101 template's structure live as the single source of truth — in product repos or in `asimov`? Keeping it in both risks drift. | alb (Context& lead) | Observe drift over the first stretch of real use, then decide |
-| Q4 | Model versions are pinned per command (e.g. `claude-opus-4-8`). What's the upgrade ritual when CC ships a new model or retires a current one — single PR bumping all commands, or per-command rollout? *First bump (4.7 → 4.8) was done as a single PR (this file + model-choice.md + the D101 + frontmatter together) — provisional precedent; formalise vs. CI lint still open (see Q1).* | alb (Context& lead) | Decide whether to formalise the single-PR ritual / add a CI lint |
+| Q4 | Model versions are pinned per command (e.g. `claude-opus-5-5`). What's the upgrade ritual when CC ships a new model or retires a current one — single PR bumping all commands, or per-command rollout? *First bump (4.7 → 4.8) was done as a single PR (this file + model-choice.md + the D101 + frontmatter together); the second (Opus 4.8 → 5.5, Sonnet 4.6 → 5.5, every pin, 2026-10-02) the same way — provisional precedent; formalise vs. CI lint still open (see Q1).* | alb (Context& lead) | Decide whether to formalise the single-PR ritual / add a CI lint |
 | Q5 | The S102 verification subagent (not built yet) produces a report that has to land somewhere reviewable on a PR. Is the toolkit's job to format the report, or just to produce structured output for an external poster? *The Spec-stage validation chose chat plus a gitignored sidecar (`S101-<slug>.review.md`); a precedent, not the answer for a PR.* | alb (Context& lead) | Decide while spec'ing the verification subagent |
 | Q6 | How is the toolkit itself tested before a release? Manual run-through of each D101's acceptance criteria by a developer ≠ the author, or something more automated? No T100 / T101-equivalent exists yet. | alb (Context& lead) | Author T100 / T101 alongside the next commands; today, manual AC run-throughs by a reviewer ≠ author. |
 | Q7 | A D101 goes to the business approver together with an **estimate** — that's why sign-off waits for the technical design (`d101-feature-design-definition.md` §2.3). The D101 has no place for one today. Does the estimate belong in §1 / a new section, in the S101 (which carries the task graph and the model tiers, so it is the natural neighbour), or outside the documents entirely? | alb (Context& lead) | Observe over the first few phase-C run-throughs where the estimate actually gets written down, then decide |

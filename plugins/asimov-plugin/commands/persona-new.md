@@ -1,7 +1,7 @@
 ---
 description: Author a custom persona review skill by interviewing the developer for the five persona fields, then rendering the persona template into a self-contained SKILL.md in the product repo's .claude/skills/. One reader per run; advisory quality check; never writes without a confirmed plan.
 argument-hint: (optional) the reader in a phrase — e.g. "our depot dispatcher" — or empty to start the interview cold
-model: claude-opus-4-8
+model: claude-opus-5-5
 allowed-tools: Read, Write, Glob
 ---
 

@@ -3,7 +3,7 @@ name: asimov-spec-validate
 description: Validate an existing implementation plan under documentation/specs/<slug>/ without changing it — run the blind check on every S102 in a fresh subagent, then the plan validation (graph-only on a cut, full once every task spec exists) — print both reports and write only the gitignored S101-<slug>.review.md sidecar (and the design cache, when a plan cut from a normalised design has lost it). The author's self-preview and the reviewer's first read. Invoked by name only, the plan's slug or path in the same message; "/asimov-spec-validate" in Claude Code, "$asimov-plugin:asimov-spec-validate" in Codex; never selected by the model. Asks nothing, writes no spec, moves no status.
 disable-model-invocation: true
 argument-hint: a plan slug or path to S101-<slug>.md — empty lists the plans under documentation/specs/
-model: claude-sonnet-4-6
+model: claude-sonnet-5-5
 allowed-tools: Read, Glob, Grep, Skill, Agent, Write
 ---
 

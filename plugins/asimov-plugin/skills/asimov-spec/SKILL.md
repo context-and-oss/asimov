@@ -3,7 +3,7 @@ name: asimov-spec
 description: Turn one design, a D101 at Full design or an approved Jira ticket, into its implementation plan (S101) and task specs (S102s) under documentation/specs/<slug>/ — read the design and the repo, ask at most five questions with defaults, show the cut and wait for the author's go, then write and blind-validate every task spec and validate the plan, finishing once with a findings list. Invoked by name only, the target in the same message (a D101 slug or path, a Jira link or key, or pasted ticket text); "/asimov-spec" in Claude Code, "$asimov-plugin:asimov-spec" in Codex; never selected by the model. Refuses a D101 not at Full design and a ticket that misses a required member of contracts/design.md; never records an approval or sets a status beyond draft.
 disable-model-invocation: true
 argument-hint: a D101 slug or path, a Jira link or key, or the ticket text — empty lists what the skill accepts
-model: claude-opus-4-8
+model: claude-opus-5-5
 effort: xhigh
 allowed-tools: Read, Glob, Grep, Write, Edit, Bash, Skill, Agent
 ---

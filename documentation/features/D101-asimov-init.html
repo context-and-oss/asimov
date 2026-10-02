@@ -301,7 +301,7 @@ footer.site-footer a { color: var(--cyan); }
   <a href="../index.html#s6">Diagrams</a>
   <span class="spacer"></span>
   <span class="phase-chip full">Full design</span>
-  <span class="status-chip">Draft v0.4</span>
+  <span class="status-chip">Draft v0.5</span>
 </nav>
 
 <div class="layout-doc">
@@ -350,9 +350,9 @@ footer.site-footer a { color: var(--cyan); }
   <div class="meta-cell"><div class="label">Owner</div><div class="value">Allan Borup</div></div>
   <div class="meta-cell"><div class="label">Approver</div><div class="value">Allan Borup</div></div>
   <div class="meta-cell"><div class="label">Version</div><div class="value mono">0.4</div></div>
-  <div class="meta-cell"><div class="label">Model</div><div class="value mono">claude-opus-4-8 (Claude Code) · none (Codex)</div></div>
+  <div class="meta-cell"><div class="label">Model</div><div class="value mono">claude-opus-5-5 (Claude Code) · none (Codex)</div></div>
   <div class="meta-cell"><div class="label">Outputs</div><div class="value mono">conventions · index.html · Claude Code: asimov.md · CLAUDE.md · Codex: AGENTS.md · .codex/agents/</div></div>
-  <div class="meta-cell"><div class="label">Last updated</div><div class="value mono">2026-10-01</div></div>
+  <div class="meta-cell"><div class="label">Last updated</div><div class="value mono">2026-10-02</div></div>
   <div class="meta-cell"><div class="label">Archetype</div><div class="value">Greenfield (evolves /docs-init)</div></div>
 </div>
 
@@ -445,7 +445,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="req"><div class="id">NF3</div><div class="body">The generated <code>index.html</code> is pure static HTML + CSS — no JavaScript, no client-side behaviour — and links to <code>_chrome.css</code> rather than inlining it.</div></div>
     <div class="req"><div class="id">NF4</div><div class="body">All templates are re-read at the start of every invocation; the file in the plugin is the run-time source of truth.</div></div>
     <div class="req"><div class="id">NF5</div><div class="body">The command's first output is a one-sentence narration of what it will do, emitted before any tool call.</div></div>
-    <div class="req"><div class="id">NF6</div><div class="body">The Claude Code command runs on <code>claude-opus-4-8</code>, matching its row in <code>model-choice.md §1</code>. The Codex skill names no model — its frontmatter carries no <code>model</code> key.</div></div>
+    <div class="req"><div class="id">NF6</div><div class="body">The Claude Code command runs on <code>claude-opus-5-5</code>, matching its row in <code>model-choice.md §1</code>. The Codex skill names no model — its frontmatter carries no <code>model</code> key.</div></div>
     <div class="req"><div class="id">NF7</div><div class="body">The Asimov-managed region in an existing convention README is delimited by explicit <code>&lt;!-- asimov:start --&gt;</code>/<code>&lt;!-- asimov:end --&gt;</code> markers so a re-run refreshes exactly that region; the same markers delimit the <code>AGENTS.md</code> region the Codex skill writes (R21). The <code>CLAUDE.md</code> import needs no markers — it is a single bare <code>@asimov.md</code> line, located on re-run by reference.</div></div>
     <div class="req"><div class="id">NF8</div><div class="body">The Codex skill is kept out of Claude Code: its frontmatter carries <code>disable-model-invocation: true</code> and <code>user-invocable: false</code>, so Claude Code neither lists nor triggers it; <code>/asimov-init</code> is the Claude Code entry point. Its <code>agents/openai.yaml</code> sets <code>allow_implicit_invocation: false</code>, Codex's own switch, so Codex runs it only on explicit invocation.</div></div>
   </div>
@@ -785,8 +785,8 @@ footer.site-footer a { color: var(--cyan); }
       <div class="why">One entry point is the whole point — "make this repo Asimov-ready". The docs-site step is one of four; a separate command splits the mental model and doubles maintenance for no real standalone use case.</div>
     </div>
     <div class="decision-row">
-      <div class="decided">Run the Claude Code command on <code>claude-opus-4-8</code>; the Codex skill names no model</div>
-      <div class="alt">Keep <code>/docs-init</code>'s <code>claude-sonnet-4-6</code></div>
+      <div class="decided">Run the Claude Code command on <code>claude-opus-5-5</code>; the Codex skill names no model</div>
+      <div class="alt">Keep <code>/docs-init</code>'s Sonnet (then <code>claude-sonnet-4-6</code>)</div>
       <div class="why">Authoring repo-orienting <code>asimov.md</code> prose, judging stack detection from ambiguous markers, and safely merging into existing files demand more judgment than mechanical docs-indexing. The run is infrequent (once per repo) so cost is secondary. A Codex skill declares no model, so the choice applies to the Claude Code command only.</div>
     </div>
     <div class="decision-row">
@@ -828,7 +828,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="row cols-3"><div class="label-cell">Form</div><div>Slash command</div><div>Skill</div></div>
     <div class="row cols-3"><div class="label-cell">File</div><div><code>plugins/asimov-plugin/commands/asimov-init.md</code></div><div><code>plugins/asimov-plugin/skills/codex-asimov-init/SKILL.md</code> + <code>agents/openai.yaml</code></div></div>
     <div class="row cols-3"><div class="label-cell">Invocation</div><div><code>/asimov-init</code>, optional repo-name argument</div><div><code>$asimov-plugin:codex-asimov-init</code>, optional repo-name text after it</div></div>
-    <div class="row cols-3"><div class="label-cell">Model</div><div><code>claude-opus-4-8</code> in frontmatter (NF6)</div><div>None declared; Codex decides</div></div>
+    <div class="row cols-3"><div class="label-cell">Model</div><div><code>claude-opus-5-5</code> in frontmatter (NF6)</div><div>None declared; Codex decides</div></div>
     <div class="row cols-3"><div class="label-cell">Finds the plugin</div><div><code>${CLAUDE_PLUGIN_ROOT}</code>, which Claude Code substitutes with the real path before the prompt runs</div><div>Derives <code>&lt;plugin-root&gt;</code> from its own file path — two levels above the skill folder — and verifies it by reading the first template; on a miss, a Glob search under <code>&lt;home&gt;/.codex/plugins/cache/</code> for that template, then stop and report</div></div>
     <div class="row cols-3"><div class="label-cell">Targets</div><div>The two shared targets (convention read-lists, site) + <code>asimov.md</code> + the <code>CLAUDE.md</code> import; neither <code>AGENTS.md</code> nor <code>.codex/agents/</code></div><div>The two shared targets + the <code>AGENTS.md</code> region + the <code>.codex/agents/*.toml</code> copies; neither <code>asimov.md</code> nor <code>CLAUDE.md</code></div></div>
     <div class="row cols-3"><div class="label-cell">Hidden from the other tool</div><div>n/a — commands are Claude Code only</div><div><code>disable-model-invocation: true</code> + <code>user-invocable: false</code> keep it out of Claude Code; <code>allow_implicit_invocation: false</code> in <code>openai.yaml</code> is Codex's own switch (NF8)</div></div>
@@ -1194,7 +1194,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="ac-row"><div class="ac-id">AC17</div><div class="ac-verifies"><span class="verify-chip">NF3</span></div><div>The generated <code>index.html</code> contains no <code>&lt;script&gt;</code> and links to <code>_chrome.css</code> rather than inlining it.</div></div>
     <div class="ac-row"><div class="ac-id">AC18</div><div class="ac-verifies"><span class="verify-chip">R14</span></div><div>With no argument, the repo name used in the Asimov context and the index equals the last path segment of the git remote origin URL (trailing <code>.git</code> stripped).</div></div>
     <div class="ac-row"><div class="ac-id">AC19</div><div class="ac-verifies"><span class="verify-chip">NF5</span></div><div>The command's first line of output is a one-sentence statement of intent, emitted before any tool call.</div></div>
-    <div class="ac-row"><div class="ac-id">AC20</div><div class="ac-verifies"><span class="verify-chip">NF6</span></div><div>The command file's <code>model:</code> frontmatter is <code>claude-opus-4-8</code>, matching its row in <code>model-choice.md §1</code>.</div></div>
+    <div class="ac-row"><div class="ac-id">AC20</div><div class="ac-verifies"><span class="verify-chip">NF6</span></div><div>The command file's <code>model:</code> frontmatter is <code>claude-opus-5-5</code>, matching its row in <code>model-choice.md §1</code>.</div></div>
     <div class="ac-row"><div class="ac-id">AC21</div><div class="ac-verifies"><span class="verify-chip">R17</span><span class="verify-chip">R19</span></div><div>In a repo whose architecture doc describes a named pipeline, the index carries a flow band with kind-typed nodes and a matching legend; in a repo with no documented pipeline and no sibling cast, the index goes straight from hero to the §1 catalogue with no invented showcase.</div></div>
     <div class="ac-row"><div class="ac-id">AC22</div><div class="ac-verifies"><span class="verify-chip">R18</span></div><div>In a repo whose <code>features/</code> holds 3+ sibling D101s of one category, the index carries an entity gallery with one tile per sibling linking to its doc; with fewer than three siblings, no gallery is emitted.</div></div>
     <div class="ac-row"><div class="ac-id">AC23</div><div class="ac-verifies"><span class="verify-chip">R13</span></div><div>With the three definitions at <code>assess</code>, the run prints exactly one maturity chat line before its first question; with a definition at <code>adopt</code>, that artifact appears in no line; and no generated file (<code>asimov.md</code> or the <code>AGENTS.md</code> region, README, <code>index.html</code>) contains a maturity level.</div></div>
@@ -1205,7 +1205,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="ac-row"><div class="ac-id">AC28</div><div class="ac-verifies"><span class="verify-chip">R23</span></div><div>With an <code>AGENTS.md</code> holding a start marker and no end marker (or two marker pairs), the plan shows the target as ASK and the file is byte-identical after the run.</div></div>
     <div class="ac-row"><div class="ac-id">AC29</div><div class="ac-verifies"><span class="verify-chip">R24</span></div><div>After a Codex run, <code>.codex/agents/</code> holds one <code>.toml</code> per file in the plugin's <code>agents/</code>, each byte-identical to its source; editing a copy and re-running restores it.</div></div>
     <div class="ac-row"><div class="ac-id">AC30</div><div class="ac-verifies"><span class="verify-chip">NF1</span></div><div>A Claude Code <code>/asimov-init</code> run creates no <code>AGENTS.md</code> and no <code>.codex/agents/</code>; if either exists beforehand it is byte-identical after the run.</div></div>
-    <div class="ac-row"><div class="ac-id">AC31</div><div class="ac-verifies"><span class="verify-chip">NF6</span></div><div>The Codex skill's <code>SKILL.md</code> frontmatter contains no <code>model</code> key, while the Claude Code command's frontmatter still reads <code>model: claude-opus-4-8</code>.</div></div>
+    <div class="ac-row"><div class="ac-id">AC31</div><div class="ac-verifies"><span class="verify-chip">NF6</span></div><div>The Codex skill's <code>SKILL.md</code> frontmatter contains no <code>model</code> key, while the Claude Code command's frontmatter still reads <code>model: claude-opus-5-5</code>.</div></div>
     <div class="ac-row"><div class="ac-id">AC32</div><div class="ac-verifies"><span class="verify-chip">NF8</span></div><div>The Codex skill's frontmatter carries <code>disable-model-invocation: true</code> and <code>user-invocable: false</code>, its <code>agents/openai.yaml</code> carries <code>allow_implicit_invocation: false</code>, and the skill does not appear in Claude Code's skill list.</div></div>
     <div class="ac-row"><div class="ac-id">AC33</div><div class="ac-verifies"><span class="verify-chip">NF1</span></div><div>A Codex <code>codex-asimov-init</code> run creates no <code>asimov.md</code> and adds no <code>@asimov.md</code> line to <code>CLAUDE.md</code>; if either file exists beforehand it is byte-identical after the run.</div></div>
   </div>
@@ -1283,7 +1283,7 @@ footer.site-footer a { color: var(--cyan); }
     · <span class="mono">features/D101-asimov-init.html</span>
   </div>
   <div style="margin-top: 0.4rem">
-    D101 · /asimov-init · Asimov plugin · Full design · Draft v0.4 · 2026-10-01
+    D101 · /asimov-init · Asimov plugin · Full design · Draft v0.5 · 2026-10-02
   </div>
 </footer>
 
