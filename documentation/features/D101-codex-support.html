@@ -271,7 +271,7 @@ footer.site-footer a { color: var(--cyan); }
   <a href="../index.html#s6">Diagrams</a>
   <span class="spacer"></span>
   <span class="phase-chip full">Full design</span>
-  <span class="status-chip draft">Draft v0.10</span>
+  <span class="status-chip draft">Draft v0.11</span>
 </nav>
 
 <div class="layout-doc">
@@ -326,7 +326,7 @@ footer.site-footer a { color: var(--cyan); }
   <div class="meta-cell"><div class="label">Business approver</div><div class="value">Allan Borup</div></div>
   <div class="meta-cell"><div class="label">Tools</div><div class="value mono">Claude Code · Codex</div></div>
   <div class="meta-cell"><div class="label">Files added</div><div class="value mono">4</div></div>
-  <div class="meta-cell"><div class="label">Last updated</div><div class="value mono">2026-10-01</div></div>
+  <div class="meta-cell"><div class="label">Last updated</div><div class="value mono">2026-10-02</div></div>
   <div class="meta-cell"><div class="label">Build step</div><div class="value">None</div></div>
 </div>
 
@@ -757,7 +757,7 @@ footer.site-footer a { color: var(--cyan); }
 <section class="s" id="s7-5">
   <h2 class="section-title"><span class="sec-ref">§7.5</span>Cross-cutting</h2>
   <ul class="bullets">
-    <li><span class="em">Drift sweep.</span> When a file in §6.3 moves, grep the repository for <code>codex-asimov-init</code>, <code>.codex-plugin</code> and <code>.agents/plugins</code> and fix what remains.</li>
+    <li><span class="em">Drift sweep.</span> When a file in §6.3 moves, grep the repository for <code>codex-asimov-init</code>, <code>.codex-plugin</code> and <code>.agents/plugins</code> and fix what remains. The derived-root step of §6.2 also lives in the five Spec-stage skills (<code>asimov-spec</code> and the four <code>artifact-s10x-*</code> skills, since 2026-10-02); a change to the method changes all six.</li>
     <li><span class="em">Versions move together.</span> When a release bumps the plugin version, both manifests take the new number (Q3).</li>
     <li class="warn"><span class="em">Nothing is verified in Codex.</span> No run of the skill or install in Codex has been recorded; the acceptance criteria in §8 are what such a run would check.</li>
   </ul>
@@ -767,8 +767,8 @@ footer.site-footer a { color: var(--cyan); }
   <h2 class="section-title"><span class="sec-ref">§8</span>Acceptance criteria</h2>
   <div class="ac-table">
     <div class="ac-head"><div>#</div><div>Verifies</div><div>Description</div></div>
-    <div class="ac-row"><div class="ac-id">AC1</div><div class="ac-verifies"><span class="verify-chip">R1</span></div><div>In Claude Code, adding the marketplace and installing the plugin uses the same commands as before, and the installed plugin lists the six commands, four subagents and ten skills; <code>codex-asimov-init</code> is not among them.</div></div>
-    <div class="ac-row"><div class="ac-id">AC2</div><div class="ac-verifies"><span class="verify-chip">R2</span><span class="verify-chip">R3</span></div><div>In Codex, adding the same repository and installing <code>asimov-plugin@asimov-marketplace</code> succeeds, and the installed plugin lists the eleven shipped skills.</div></div>
+    <div class="ac-row"><div class="ac-id">AC1</div><div class="ac-verifies"><span class="verify-chip">R1</span></div><div>In Claude Code, adding the marketplace and installing the plugin uses the same commands as before, and the installed plugin lists the six commands, four subagents and every shipped skill but one; <code>codex-asimov-init</code> is not among them.</div></div>
+    <div class="ac-row"><div class="ac-id">AC2</div><div class="ac-verifies"><span class="verify-chip">R2</span><span class="verify-chip">R3</span></div><div>In Codex, adding the same repository and installing <code>asimov-plugin@asimov-marketplace</code> succeeds, and the installed plugin lists every shipped skill, <code>codex-asimov-init</code> among them.</div></div>
     <div class="ac-row"><div class="ac-id">AC3</div><div class="ac-verifies"><span class="verify-chip">R4</span><span class="verify-chip">R8</span><span class="verify-chip">Rule 3</span></div><div>In Codex, <code>$asimov-plugin:codex-asimov-init</code> opens with one sentence on what it will do and then a write plan, and the skill is not among those Codex may start from a prompt.</div></div>
     <div class="ac-row"><div class="ac-id">AC4</div><div class="ac-verifies"><span class="verify-chip">R5</span><span class="verify-chip">Rule 4</span></div><div>The skill's text contains neither <code>${CLAUDE_PLUGIN_ROOT}</code> nor a <code>..</code> path segment, and its first plugin read is the template at the derived root.</div></div>
     <div class="ac-row"><div class="ac-id">AC5</div><div class="ac-verifies"><span class="verify-chip">R6</span></div><div>With the template absent at the derived root and absent from the cache, the skill stops, reports the derived path and the search it ran, and the repository is unchanged.</div></div>
@@ -794,7 +794,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="q-card">
       <div class="q-head"><span class="q-id">Q2</span><span class="q-decider">Christian Kaysen</span></div>
       <div class="q-body">The three skills that address plugin files through <code>${CLAUDE_PLUGIN_ROOT}</code> cannot find them in Codex — do they adopt the derived-root method of §6.2?</div>
-      <div class="q-resolution">Resolution path: decided when the first of them is wanted in Codex; the setup skill is the worked example.</div>
+      <div class="q-resolution">Resolution path: decided when the first of them is wanted in Codex; the setup skill is the worked example. The five Spec-stage skills built after this document (<code>asimov-spec</code>, <code>artifact-s101-authoring</code>, <code>artifact-s102-authoring</code>, <code>artifact-s101-validation</code>, <code>artifact-s102-validation</code>) adopted §6.2 from the start (2026-10-02, D101-spec-stage Q11); the three named here still wait.</div>
     </div>
     <div class="q-card">
       <div class="q-head"><span class="q-id">Q3</span><span class="q-decider">Christian Kaysen</span></div>
@@ -848,7 +848,7 @@ footer.site-footer a { color: var(--cyan); }
     · <span class="mono">features/D101-codex-support.html</span>
   </div>
   <div style="margin-top: 0.4rem">
-    D101 · Codex support · asimov-plugin · Draft v0.10 · 2026-10-01
+    D101 · Codex support · asimov-plugin · Draft v0.11 · 2026-10-02
   </div>
 </footer>
 

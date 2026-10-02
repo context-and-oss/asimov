@@ -1,7 +1,7 @@
 ---
 description: Convert an existing markdown D101 to a styled, self-contained HTML page using the visual template. Use this for legacy MD D101s or D101s imported from elsewhere. New D101s should be authored via /d101-feature-design, which writes HTML directly.
 argument-hint: (optional) path to existing D101 markdown — empty lists candidates from documentation/features/
-model: claude-sonnet-4-6
+model: claude-sonnet-5-5
 allowed-tools: Read, Write, Glob, Grep, Edit, Skill
 ---
 

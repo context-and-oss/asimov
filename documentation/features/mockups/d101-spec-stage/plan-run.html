@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mockup — one run of /asimov-spec</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap');
+:root { --bg:#1b1b1f; --bg2:#232329; --line:#34343c; --fg:#e6e6e6; --dim:#9a9aa6; --mute:#6c6c78; --user:#d7ba7d; --ok:#8fd18f; --warn:#f0b35a; --bad:#f28b82; --acc:#7cc4ff; }
+* { box-sizing:border-box; margin:0; padding:0; }
+html, body { height:100%; }
+body { background:var(--bg); color:var(--fg); font-family:'JetBrains Mono', ui-monospace, Consolas, monospace; font-size:12.5px; line-height:1.55; display:flex; flex-direction:column; }
+.bar { display:flex; gap:0.4rem; align-items:center; padding:0.5rem 0.8rem; background:var(--bg2); border-bottom:1px solid var(--line); flex-wrap:wrap; }
+.bar .lbl { color:var(--mute); font-size:11px; margin-right:0.3rem; }
+.bar button { font:inherit; font-size:11px; color:var(--dim); background:transparent; border:1px solid var(--line); border-radius:6px; padding:0.25rem 0.6rem; cursor:pointer; }
+.bar button.on { color:var(--fg); border-color:var(--acc); background:#7cc4ff14; }
+.bar .spacer { flex:1; }
+.term { flex:1; overflow:auto; padding:0.9rem 1rem 1.2rem; }
+.line { white-space:pre-wrap; word-break:break-word; margin:0 0 0.15rem; }
+.u { color:var(--user); }
+.u::before { content:'❯ '; color:var(--mute); }
+.a::before { content:'● '; color:var(--acc); }
+.a.ok::before { color:var(--ok); }
+.a.warn::before { color:var(--warn); }
+.a.bad::before { color:var(--bad); }
+.dim { color:var(--dim); }
+.mute { color:var(--mute); }
+.blk { margin:0.5rem 0 0.7rem 1.2rem; }
+.hd { color:var(--fg); font-weight:700; margin-top:0.5rem; }
+table { border-collapse:collapse; margin:0.25rem 0 0.4rem; font-size:12px; }
+th, td { text-align:left; padding:0.1rem 0.9rem 0.1rem 0; vertical-align:top; white-space:nowrap; }
+th { color:var(--mute); font-weight:500; }
+td.w { color:var(--warn); }
+.gate { margin:0.6rem 0 0.4rem 1.2rem; padding:0.6rem 0.8rem; border:1px solid var(--line); border-radius:8px; background:var(--bg2); }
+.gate .q { color:var(--fg); margin-bottom:0.45rem; }
+.gate .row { display:flex; gap:0.45rem; flex-wrap:wrap; align-items:center; }
+.gate button { font:inherit; font-size:12px; color:var(--fg); background:#2d2d35; border:1px solid var(--line); border-radius:6px; padding:0.3rem 0.7rem; cursor:pointer; }
+.gate button.go { border-color:var(--ok); color:var(--ok); }
+.gate button.stop { border-color:var(--bad); color:var(--bad); }
+.gate input { font:inherit; font-size:12px; color:var(--fg); background:var(--bg); border:1px solid var(--line); border-radius:6px; padding:0.3rem 0.6rem; min-width:260px; flex:1; }
+.gate input::placeholder { color:var(--mute); }
+.gate .hint { color:var(--mute); font-size:11px; margin-top:0.4rem; }
+</style>
+</head>
+<body>
+<div class="bar">
+  <span class="lbl">Scenario</span>
+  <button data-s="full" class="on">Full run</button>
+  <button data-s="ticket">Ticket run</button>
+  <button data-s="refused">Not Full design</button>
+  <button data-s="resumed">Resumed at the cut</button>
+  <button data-s="review">/asimov-spec-validate</button>
+  <span class="spacer"></span>
+  <button id="replay">Replay</button>
+</div>
+<div class="term" id="term"></div>
+
+<script>
+(function () {
+  const term = document.getElementById('term');
+  let scenario = 'full';
+  let timers = [];
+
+  // Sample plan for a generic feature; no product entity.
+  const SLUG = 'csv-export';
+  const base = () => ([
+    { id:'0', name:'Foundation', ac:'—', cp:'both skeletons compile, no bodies', tasks:[
+      ['001','skeleton-dotnet','dotnet-builder','.NET',3,'—','§6.1 §6.2'],
+      ['002','skeleton-angular','angular-builder','Angular',2,'—','§6.3'] ]},
+    { id:'1', name:'Export a filtered list as CSV', ac:'AC1', cp:'AC1 acceptance test green (API level)', tasks:[
+      ['003','export-service','dotnet-builder','.NET',2,'001','AC1 R1 R2'],
+      ['004','export-acceptance-test','dotnet-tester','.NET',1,'001','AC1'] ]},
+    { id:'2', name:'Export button downloads the file', ac:'AC2', cp:'AC2 acceptance test green', tasks:[
+      ['005','export-endpoint','dotnet-builder','.NET',2,'003','AC2 R3'],
+      ['006','export-button','angular-builder','Angular',4,'002 005','AC2 R3'],
+      ['007','button-acceptance-test','dotnet-tester','.NET',1,'005','AC2'] ]},
+    { id:'3', name:'Nightly export', ac:'AC3', cp:'AC3 acceptance test green', tasks:[
+      ['008','nightly-scheduler','dotnet-builder','.NET',2,'003','AC3 R4 R5'],
+      ['009','nightly-acceptance-test','dotnet-tester','.NET',1,'003','AC3'] ]}
+  ]);
+  let plan = base();
+  let notes = [];
+
+  function clear() { timers.forEach(clearTimeout); timers = []; term.innerHTML = ''; }
+  function el(cls, html) { const d = document.createElement('div'); d.className = cls; d.innerHTML = html; term.appendChild(d); term.scrollTop = term.scrollHeight; return d; }
+  function line(cls, html) { return el('line ' + cls, html); }
+  function later(ms, fn) { const t = setTimeout(fn, ms); timers.push(t); return t; }
+  function seq(steps) { let t = 0; steps.forEach(([ms, fn]) => { t += ms; later(t, fn); }); return t; }
+
+  function cutTable() {
+    let h = '<div class="blk">';
+    plan.forEach(p => {
+      h += '<div class="hd">Phase ' + p.id + ' · ' + p.name + ' <span class="mute">· ' + p.ac + '</span></div>';
+      h += '<div class="dim">checkpoint: ' + p.cp + '</div>';
+      h += '<table><tr><th>task</th><th>title</th><th>role</th><th>stack</th><th>owns</th><th>depends on</th><th>traces</th></tr>';
+      p.tasks.forEach(t => {
+        const w = t[4] > 3 ? ' class="w"' : '';
+        h += '<tr><td>' + t[0] + '</td><td>' + t[1] + '</td><td>' + t[2] + '</td><td>' + t[3] + '</td><td' + w + '>' + t[4] + ' file' + (t[4] === 1 ? '' : 's') + '</td><td>' + t[5] + '</td><td>' + t[6] + '</td></tr>';
+      });
+      h += '</table>';
+    });
+    const n = plan.reduce((a, p) => a + p.tasks.length, 0);
+    h += '<div class="hd">Assumptions <span class="mute">· decided without a question</span></div>';
+    h += '<div class="dim">· tier: mid for every builder, low for the skeletons (default)<br>· CSV dialect: RFC 4180, as the design names it<br>· no polish phase: no cross-cutting requirement is left over (default)';
+    notes.forEach(x => { h += '<br>· your correction: “' + x + '”'; });
+    h += '</div>';
+    const warn = plan.flatMap(p => p.tasks).filter(t => t[4] > 3);
+    h += '<div class="hd">Graph checks <span class="mute">· artifact-s101-validation · graph-only</span></div>';
+    h += '<div class="dim">pass · no cycle<br>pass · no orphan task<br>pass · parallel phases own disjoint files' + (plan.length === 4 ? ' (phase 1 ∥ phase 3)' : '') + '<br>pass · every consumed name has a producer (4/4)<br>pass · coverage both ways: R1–R5, NF1–NF2, AC1–AC3';
+    warn.forEach(t => { h += '<br><span style="color:var(--warn)">warn</span> · ' + t[0] + ' owns ' + t[4] + ' non-test files (threshold 3)'; });
+    h += '</div><div class="mute" style="margin-top:0.4rem">' + plan.length + ' phases · ' + n + ' tasks · S101-' + SLUG + '.md written (draft) · no S102 yet</div></div>';
+    return h;
+  }
+
+  function gate() {
+    const g = document.createElement('div');
+    g.className = 'gate';
+    const n = plan.reduce((a, p) => a + p.tasks.length, 0);
+    g.innerHTML = '<div class="q">Expand this cut into ' + n + ' task specs, or correct it first?</div>' +
+      '<div class="row">' +
+        '<button class="go">Go</button>' +
+        '<input type="text" placeholder="correct the cut in your own words — e.g. “merge phase 2 and 3”">' +
+        '<button class="send">Correct</button>' +
+        '<button class="stop">Stop</button>' +
+      '</div>' +
+      '<div class="hint">You can also edit S101-' + SLUG + '.md by hand and say “read again”. The go is not one of the five questions.</div>';
+    term.appendChild(g); term.scrollTop = term.scrollHeight;
+    const input = g.querySelector('input');
+    const done = () => { g.querySelectorAll('button,input').forEach(b => b.disabled = true); g.style.opacity = 0.6; };
+    g.querySelector('.go').onclick = () => { done(); line('u', 'go'); expand(); };
+    g.querySelector('.stop').onclick = () => { done(); line('u', 'stop'); stopAtCut(); };
+    const send = () => { const v = input.value.trim(); if (!v) return; done(); line('u', v); correct(v); };
+    g.querySelector('.send').onclick = send;
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') send(); });
+    input.focus();
+  }
+
+  function showCut(prefix) {
+    seq([
+      [0, () => line('a', prefix || 'The cut:')],
+      [250, () => el('', cutTable())],
+      [250, gate]
+    ]);
+  }
+
+  function correct(text) {
+    const t = text.toLowerCase();
+    if (/read again|læs igen/.test(t)) {
+      seq([
+        [300, () => line('a', 'Reading S101-' + SLUG + '.md as the graph — no re-cut.')],
+        [300, () => showCut('The cut, as edited:')]
+      ]);
+      return;
+    }
+    if (/merge|slå|sammen|combine|join|one phase|én fase/.test(t) && plan.length === 4) {
+      const p2 = plan[2], p3 = plan[3];
+      plan = [plan[0], plan[1], { id:'2', name:p2.name + ' + ' + p3.name, ac:'AC2 AC3', cp:'AC2 and AC3 acceptance tests green', tasks:[...p2.tasks, ...p3.tasks] }];
+    } else if (/split|del op|separate|two phases/.test(t) && plan.length === 3) {
+      plan = base();
+    } else {
+      const sched = plan.flatMap(p => p.tasks).find(x => x[0] === '008');
+      if (sched) sched[5] = '003';
+      notes.push(text);
+    }
+    seq([
+      [300, () => line('a', 're-cutting with your correction …')],
+      [500, () => showCut('The cut, re-cut:')]
+    ]);
+  }
+
+  function stopAtCut() {
+    seq([
+      [300, () => line('a ok', 'Stopped at the cut. S101-' + SLUG + '.md is on disk (draft), no S102 written.')],
+      [200, () => line('dim', '  Run /asimov-spec ' + SLUG + ' again to expand; the cut is shown first.')]
+    ]);
+  }
+
+  function expand() {
+    const tasks = plan.flatMap(p => p.tasks);
+    const steps = [[300, () => line('a', 'Expanding ' + tasks.length + ' tasks · each S102 validated blind in a fresh subagent …')]];
+    tasks.forEach(t => {
+      steps.push([260, () => line('dim', '  write  S102-' + SLUG + '-' + t[0] + '-' + t[1] + '.md · ' + t[2])]);
+      if (t[0] === '006') {
+        steps.push([420, () => line('dim', '  blind  ' + t[0] + ' · <span style="color:var(--bad)">fail</span> · check 4: consumed name ExportRequest not produced by a task or linked code')]);
+        steps.push([300, () => line('dim', '  rewrite ' + t[0] + ' · interface taken from S101 §interfaces')]);
+        steps.push([420, () => line('dim', '  blind  ' + t[0] + ' · <span style="color:var(--ok)">clear</span> · <span style="color:var(--warn)">warn</span> owns 4 non-test files')]);
+      } else {
+        steps.push([380, () => line('dim', '  blind  ' + t[0] + ' · <span style="color:var(--ok)">clear</span>')]);
+      }
+    });
+    steps.push([500, () => line('a', 'Plan validation · artifact-s101-validation · full · blind: false')]);
+    steps.push([400, () => line('dim', '  checks 1–10: 9 pass · 1 warn (size, 006) · 0 fail')]);
+    steps.push([400, () => line('a ok', 'Done. S101-' + SLUG + '.md (draft, v0.1) + ' + tasks.length + ' S102s under documentation/specs/' + SLUG + '/ · sidecar S101-' + SLUG + '.review.md written.')]);
+    steps.push([300, () => el('blk dim', 'Findings<br>· warn · 006 export-button owns 4 non-test files; the plan is written as is<br>· note · 3 assumptions recorded in the S101; read them before you ask for review<br><br>Next: /asimov-spec-validate ' + SLUG + ' to self-preview, then ask a reviewer who is not you. Set status: ready by hand after their approval — no command does.')]);
+    seq(steps);
+  }
+
+  function fullRun() {
+    seq([
+      [0, () => line('u', '/asimov-spec ' + SLUG)],
+      [400, () => line('a', 'Reading D101-' + SLUG + '.html (Full design v1.2), conventions/dotnet, conventions/angular, documentation/specs/ …')],
+      [700, () => line('dim', '  3 acceptance criteria buildable · 2 stacks · no existing S101 · 2 questions about the cut, the rest decided by default')],
+      [500, () => line('a', 'Q1 of 2 · AC2 and AC3 both read the export service. One slice or two?  <span class="dim">default: two — different checkpoints</span>')],
+      [900, () => line('u', 'two')],
+      [400, () => line('a', 'Q2 of 2 · Should phase 3 (nightly) depend on phase 2 (button), or only on the service?  <span class="dim">default: only on the service — they can run in parallel</span>')],
+      [900, () => line('u', 'default')],
+      [400, () => line('a', 'Cutting the plan · artifact-s101-authoring …')],
+      [700, () => showCut()]
+    ]);
+  }
+
+  function ticketRun() {
+    seq([
+      [0, () => line('u', '/asimov-spec https://jira.example/browse/OPS-412')],
+      [400, () => line('a', 'Reading OPS-412 and its 5 comments through the Jira connector, then conventions/dotnet, conventions/angular, documentation/specs/ …')],
+      [700, () => line('dim', '  Design OPS-412 · approved by the product owner on 2026-10-02 (comment) · R1–R3 · AC1–AC3 · OOS1–OOS2 · no NF · cache documentation/specs/ops-412/design.md written')],
+      [500, () => line('dim', '  3 acceptance criteria buildable · 2 stacks · no existing S101 · 1 question about the cut, the rest decided by default')],
+      [500, () => line('a', 'Q1 of 1 · AC2 and AC3 both read the export service. One slice or two?  <span class="dim">default: two — different checkpoints</span>')],
+      [900, () => line('u', 'default')],
+      [400, () => line('a', 'Cutting the plan · artifact-s101-authoring …')],
+      [700, () => showCut()]
+    ]);
+  }
+
+  function refused() {
+    seq([
+      [0, () => line('u', '/asimov-spec ' + SLUG)],
+      [400, () => line('a', 'Reading D101-' + SLUG + '.html …')],
+      [500, () => line('a bad', 'Refused. D101-' + SLUG + ' is at <b>Business design</b>: §6 is still open (3 items). The plan needs a D101 at Full design.')],
+      [200, () => line('dim', '  Nothing written. Finish §6 with /d101-feature-design, then run this again.')],
+      [500, () => line('u', '/asimov-spec https://jira.example/browse/OPS-418')],
+      [400, () => line('a', 'Reading OPS-418 and its 2 comments through the Jira connector …')],
+      [500, () => line('a bad', 'Refused. OPS-418 misses two members of the design contract: no <b>approval</b> by a named person in the thread, and no <b>acceptance criteria</b>.')],
+      [200, () => line('dim', '  Nothing written. Add them to the ticket, then name me again with the link.')]
+    ]);
+  }
+
+  function resumed() {
+    seq([
+      [0, () => line('u', '/asimov-spec ' + SLUG)],
+      [400, () => line('a', 'Reading D101-' + SLUG + '.html (Full design v1.2) and documentation/specs/' + SLUG + '/ …')],
+      [600, () => line('dim', '  found S101-' + SLUG + '.md (draft, 2026-10-01) with no S102 · D101 R/NF/AC ids unchanged · no questions this time')],
+      [500, () => showCut('The cut, as left on disk:')]
+    ]);
+  }
+
+  function review() {
+    seq([
+      [0, () => line('u', '/asimov-spec-validate ' + SLUG)],
+      [400, () => line('a', 'Reading documentation/specs/' + SLUG + '/ · S101 + 9 S102s · D101-' + SLUG + '.html v1.2')],
+      [600, () => line('a', 'S102 validation · 9 fresh subagents · blind: true')],
+      [500, () => el('blk dim', '001 clear · 002 clear · 003 clear · 004 clear · 005 clear<br>006 clear · <span style="color:var(--warn)">warn</span> owns 4 non-test files<br>007 clear · 008 <span style="color:var(--warn)">flag</span> check 7: step 3 names no runnable check · 009 clear')],
+      [500, () => line('a', 'S101 validation · full · blind: false')],
+      [400, () => el('blk dim', 'checks 1–10: 9 pass · 1 <span style="color:var(--bad)">fail</span> (F4 / check 6: 008 constraint “no new package” contradicts global constraint 2)')],
+      [400, () => line('a ok', 'Both reports written to S101-' + SLUG + '.review.md. No spec changed, no status moved; git status is clean apart from the gitignored sidecar.')],
+      [200, () => line('dim', '  Asked nothing. Fix 008 by hand or name asimov-spec again; it updates in place while the design\'s items are unchanged.')]
+    ]);
+  }
+
+  function run() {
+    clear(); plan = base(); notes = [];
+    ({ full: fullRun, ticket: ticketRun, refused: refused, resumed: resumed, review: review })[scenario]();
+  }
+
+  document.querySelectorAll('.bar button[data-s]').forEach(b => {
+    b.onclick = () => {
+      document.querySelectorAll('.bar button[data-s]').forEach(x => x.classList.remove('on'));
+      b.classList.add('on'); scenario = b.dataset.s; run();
+    };
+  });
+  document.getElementById('replay').onclick = run;
+  run();
+})();
+</script>
+</body>
+</html>

@@ -1,7 +1,7 @@
 ---
 description: Interview the developer to produce a D101 (feature design) in phases — requirements, then business design, then technical design. Writes a styled HTML file to documentation/features/ at the end of each design phase.
 argument-hint: (optional) feature brief, pasted Jira ticket, or path to an existing D101 to continue — leave empty and I'll ask
-model: claude-opus-4-8
+model: claude-opus-5-5
 effort: xhigh
 ---
 

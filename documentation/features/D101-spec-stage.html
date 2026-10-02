@@ -1,0 +1,1813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D101 — Spec stage — asimov docs</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+:root {
+  --bg:        #0a1424;
+  --bg2:       #122039;
+  --bg3:       #1b2e4d;
+  --bg-card:   #14253f;
+  --border:    #2b4a73;
+  --border-2:  #3b5e8f;
+  --text:      #fff;
+  --text-dim:  #a8b8d0;
+  --text-mute: #6b7a93;
+  --cyan:      #4fc3f7;
+  --teal:      #26c6da;
+  --green:     #66bb6a;
+  --amber:     #ffb74d;
+  --coral:     #ef5350;
+  --gold:      #ffd54f;
+  --violet:    #ab47bc;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; font-size: 15px; line-height: 1.6; overflow-x: hidden; padding-top: 56px; }
+a { color: inherit; text-decoration: none; }
+code, .mono { font-family: 'JetBrains Mono', monospace; font-size: 0.88em; }
+code { background: var(--bg3); padding: 1px 6px; border-radius: 4px; color: var(--cyan); }
+
+.top-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(10,20,36,0.85); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 0.55rem 2rem; display: flex; gap: 1.4rem; align-items: center; font-size: 0.82rem; }
+.top-nav .brand, .top-nav .brand a { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--cyan); letter-spacing: 0.04em; text-decoration: none; }
+.top-nav .brand .sep { color: var(--border); margin: 0 0.5rem; }
+.top-nav a { color: var(--text-dim); font-weight: 500; }
+.top-nav a:hover { color: #fff; }
+.top-nav .spacer { flex: 1; }
+.top-nav .status-chip { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.25rem 0.7rem; border-radius: 999px; background: #ffd54f15; border: 1px solid #ffd54f44; color: var(--gold); font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 700; }
+.top-nav .status-chip::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--gold); }
+.top-nav .phase-chip { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.25rem 0.7rem; border-radius: 999px; background: #4fc3f715; border: 1px solid #4fc3f744; color: var(--cyan); font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 700; }
+.top-nav .phase-chip::before { content: ''; width: 6px; height: 6px; border-radius: 1px; background: var(--cyan); }
+.top-nav .phase-chip.full { background: #66bb6a15; border-color: #66bb6a44; color: var(--green); }
+.top-nav .phase-chip.full::before { background: var(--green); }
+
+.layout-doc { display: grid; grid-template-columns: 200px minmax(0, 1fr); max-width: 1300px; margin: 0 auto; gap: 1.8rem; padding: 0.5rem 1.5rem; }
+.side-nav { position: sticky; top: 76px; align-self: start; max-height: calc(100vh - 90px); overflow-y: auto; padding: 0.7rem 0.5rem 1rem 0.2rem; font-size: 0.85rem; }
+.side-nav .side-head { font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-mute); margin-bottom: 0.7rem; padding-left: 0.6rem; }
+.side-nav ul { list-style: none; padding: 0; margin: 0; }
+.side-nav ul ul { padding-left: 0.9rem; margin-top: 0.1rem; }
+.side-nav li { margin: 0.1rem 0; }
+.side-nav a { display: block; padding: 0.32rem 0.7rem; color: var(--text-dim); border-left: 2px solid transparent; font-size: 0.86rem; line-height: 1.4; border-radius: 0 4px 4px 0; }
+.side-nav a:hover { color: #fff; background: #4fc3f708; border-left-color: var(--border-2); }
+.content { min-width: 0; }
+
+.hero { padding: 1.5rem 2rem 1.5rem; position: relative; overflow: hidden; max-width: 1300px; margin: 0 auto; }
+.hero::before { content: ''; position: absolute; inset: 0; z-index: 0; background: radial-gradient(ellipse at 20% 30%, #4fc3f718 0%, transparent 50%), radial-gradient(ellipse at 80% 60%, #26c6da14 0%, transparent 50%); }
+.hero > * { position: relative; z-index: 1; }
+.kicker { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--cyan); padding: 0.3rem 0.8rem; border-radius: 999px; border: 1px solid #4fc3f744; background: #4fc3f711; margin-bottom: 1rem; }
+.hero h1 { font-size: clamp(2rem, 4.5vw, 3.4rem); font-weight: 900; letter-spacing: -0.03em; line-height: 1.05; background: linear-gradient(135deg, #fff 0%, var(--cyan) 50%, var(--teal) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.hero .tagline { font-size: 1.05rem; color: var(--text-dim); margin-top: 1rem; max-width: 760px; line-height: 1.6; }
+
+.meta-strip { max-width: 1300px; margin: 1rem auto 0; padding: 0 2rem; display: grid; grid-template-columns: repeat(6, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.meta-cell { background: var(--bg-card); padding: 1rem 1.2rem; }
+.meta-cell .label { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-mute); margin-bottom: 0.35rem; }
+.meta-cell .value { font-size: 0.95rem; font-weight: 600; color: var(--text); }
+.meta-cell .value.mono { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; }
+
+section.s { max-width: 1300px; margin: 0 auto; padding: 3rem 2rem 0; }
+.chapter-band + section.s { padding-top: 1.5rem; }
+.section-title { font-size: clamp(1.5rem, 2.6vw, 2rem); font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.7rem; }
+.section-title .sec-ref { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; font-weight: 600; color: var(--text-mute); letter-spacing: 0.04em; margin-right: 0.7rem; vertical-align: middle; padding: 0.2rem 0.5rem; border-radius: 4px; background: var(--bg2); border: 1px solid var(--border); }
+.section-desc { color: var(--text-dim); font-size: 1rem; max-width: 780px; margin-bottom: 1.8rem; line-height: 1.65; }
+.chapter-band { max-width: 1300px; margin: 3.5rem auto 0; padding: 0 2rem; }
+.chapter-band-inner { display: grid; grid-template-columns: auto 1fr; gap: 1.5rem; align-items: center; padding: 1.4rem 1.8rem; border-radius: 12px; background: linear-gradient(135deg, #4fc3f714 0%, #26c6da05 100%); border: 1px solid var(--border); border-left: 4px solid var(--cyan); }
+.chapter-band .ch-num { font-family: 'JetBrains Mono', monospace; font-size: 2.6rem; font-weight: 800; color: var(--cyan); line-height: 1; }
+.chapter-band .ch-name { font-size: 1.35rem; font-weight: 700; color: #fff; letter-spacing: 0.01em; margin-bottom: 0.25rem; }
+.chapter-band .ch-summary { font-size: 0.88rem; color: var(--text-dim); line-height: 1.5; }
+
+.doc-scope { max-width: 1300px; margin: 0.7rem auto 0; padding: 0 2.2rem; font-size: 0.82rem; color: var(--text-mute); line-height: 1.5; }
+.doc-scope strong { color: var(--text-dim); font-weight: 600; }
+
+.principles { display: grid; gap: 0.65rem; }
+.principle { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 0.95rem 1.3rem; display: flex; gap: 1rem; align-items: center; }
+.principle .num { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; font-weight: 700; width: 30px; height: 30px; border-radius: 8px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--cyan), var(--teal)); color: #0a1424; }
+.principle .text { font-size: 0.95rem; }
+.principle .text strong { color: var(--cyan); font-weight: 700; }
+
+ul.bullets { list-style: none; padding: 0; margin: 0.7rem 0 0; }
+ul.bullets li { position: relative; padding: 0.3rem 0 0.3rem 1.5rem; font-size: 0.9rem; color: var(--text-dim); line-height: 1.6; }
+ul.bullets li + li { margin-top: 0.15rem; }
+ul.bullets li::before { content: '→'; position: absolute; left: 0; top: 0.3rem; font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--cyan); }
+ul.bullets li.warn::before { content: '!'; color: var(--amber); }
+ul.bullets li code { font-size: 0.78rem; }
+
+.req-list { display: grid; gap: 0.5rem; margin-bottom: 1.6rem; }
+.req-list:last-child { margin-bottom: 0; }
+.req { display: grid; grid-template-columns: 60px 1fr; gap: 1rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 0.7rem 1rem; align-items: start; }
+.req .id { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; font-weight: 700; color: var(--cyan); padding-top: 2px; }
+.req .body { font-size: 0.9rem; color: var(--text); line-height: 1.55; }
+.req.oos .id, .req-list.nf .req .id { color: var(--amber); }
+
+.flow-wrap { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.8rem; overflow-x: auto; }
+.flow-wrap svg { display: block; margin: 0 auto; max-width: 100%; height: auto; }
+.flow-legend { display: flex; flex-wrap: wrap; gap: 1.2rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); font-size: 0.82rem; color: var(--text-dim); }
+.flow-legend .item { display: inline-flex; align-items: center; gap: 0.4rem; }
+.flow-legend .swatch { width: 14px; height: 4px; border-radius: 2px; }
+
+.mockup-wrap { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 0.5rem; margin: 0.6rem 0 1rem; overflow: hidden; }
+.mockup-frame { display: block; width: 100%; border: none; border-radius: 8px; background: #fff; }
+
+.codemap { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.codemap-row { display: grid; grid-template-columns: 1fr 1.5fr; gap: 1rem; padding: 0.7rem 1.2rem; border-bottom: 1px solid var(--border); font-size: 0.85rem; align-items: center; }
+.codemap-row:last-child { border-bottom: none; }
+.codemap-row:nth-child(odd) { background: rgba(255,255,255,0.015); }
+.codemap-row .what { color: var(--text); }
+.codemap-row .where { color: var(--cyan); font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; word-break: break-all; }
+
+.decisions { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.decisions-head, .decision-row { display: grid; grid-template-columns: 1.2fr 1fr 1.4fr; gap: 1rem; padding: 0.9rem 1.2rem; align-items: start; border-bottom: 1px solid var(--border); }
+.decisions-head { background: var(--bg2); font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); }
+.decision-row { font-size: 0.85rem; }
+.decision-row:last-child { border-bottom: none; }
+.decision-row .decided { color: #fff; font-weight: 600; }
+.decision-row .alt { color: var(--amber); font-style: italic; font-size: 0.82rem; line-height: 1.5; }
+.decision-row .why { color: var(--text-dim); font-size: 0.82rem; line-height: 1.55; }
+
+.data-table { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.data-table .row { display: grid; gap: 1rem; padding: 0.65rem 1.2rem; border-bottom: 1px solid var(--border); font-size: 0.85rem; align-items: start; }
+.data-table .row.head { background: var(--bg2); font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); font-weight: 700; }
+.data-table .row:last-child { border-bottom: none; }
+.data-table .row.cols-2 { grid-template-columns: 1fr 2fr; }
+.data-table .row.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+.data-table .row code { font-size: 0.78rem; }
+.data-table .row .label-cell { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; color: var(--cyan); }
+
+.gps-paths { list-style: none; padding: 0.7rem 0 0; margin: 0; display: grid; gap: 0.4rem; }
+.gps-paths li { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--cyan); background: var(--bg2); border: 1px solid var(--border); border-radius: 6px; padding: 0.45rem 0.8rem; }
+
+.subhead { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-dim); font-weight: 700; margin: 1.5rem 0 0.6rem; }
+.subhead:first-child { margin-top: 0; }
+.subhead[id] { scroll-margin-top: 80px; }
+.subhead .s-ref { color: var(--text-mute); margin-right: 0.45rem; }
+.impl-head { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); font-weight: 700; margin: 1rem 0 0.3rem; }
+
+.tag { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+.tag.reuse { background: #66bb6a22; color: var(--green); border: 1px solid #66bb6a55; }
+.tag.new   { background: #ffb74d22; color: var(--amber); border: 1px solid #ffb74d55; }
+.tag.note  { background: var(--bg2); color: var(--text-mute); border: 1px solid var(--border); }
+.impl-table .row { grid-template-columns: 0.5fr 0.45fr 2.75fr; }
+.impl-table .row ul { list-style: disc; margin: 0; padding-left: 1.05rem; display: grid; gap: 0.35rem; }
+.impl-table .row li { line-height: 1.5; }
+
+.failures { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.failures-head, .failure-row { display: grid; grid-template-columns: 1fr 1fr 80px 1.2fr; gap: 1rem; padding: 0.85rem 1.2rem; align-items: center; border-bottom: 1px solid var(--border); }
+.failures-head { background: var(--bg2); font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); }
+.failure-row { font-size: 0.85rem; }
+.failure-row:last-child { border-bottom: none; }
+.sev { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; font-weight: 700; padding: 0.2rem 0.55rem; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.06em; }
+.sev.med  { background: #ffb74d22; color: var(--amber); border: 1px solid #ffb74d55; }
+.sev.low  { background: #66bb6a22; color: var(--green); border: 1px solid #66bb6a55; }
+.sev.high { background: #ef535022; color: var(--coral); border: 1px solid #ef535055; }
+
+.ac-table { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.ac-head, .ac-row { display: grid; grid-template-columns: 60px 150px 1fr; gap: 1rem; padding: 0.8rem 1.2rem; align-items: start; border-bottom: 1px solid var(--border); }
+.ac-head { background: var(--bg2); font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); }
+.ac-row { font-size: 0.86rem; }
+.ac-row:last-child { border-bottom: none; }
+.ac-row .ac-id { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--cyan); }
+.ac-row .ac-verifies { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+.verify-chip { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; padding: 0.15rem 0.5rem; border-radius: 4px; background: #4fc3f714; border: 1px solid #4fc3f744; color: var(--cyan); }
+
+.q-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 0.7rem; }
+.q-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.2rem; border-left: 3px solid var(--gold); }
+.q-card .q-head { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
+.q-card .q-id { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; color: var(--gold); background: #ffd54f15; padding: 0.15rem 0.5rem; border-radius: 4px; }
+.q-card .q-decider { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--text-mute); }
+.q-card .q-body { font-size: 0.88rem; color: var(--text); line-height: 1.55; }
+
+.accepted { margin-top: 0.5rem; padding: 0.5rem 0.7rem; border-left: 3px solid var(--violet); border-radius: 0 6px 6px 0; background: #ab47bc12; font-size: 0.82rem; color: var(--text-dim); line-height: 1.55; }
+.accepted .accepted-tag { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--violet); background: #ab47bc22; border: 1px solid #ab47bc55; border-radius: 4px; padding: 0.1rem 0.45rem; margin-right: 0.45rem; }
+.accepted .accepted-rule { color: var(--text); font-weight: 600; }
+.accepted .accepted-by { display: block; margin-top: 0.3rem; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--text-mute); }
+.q-card .q-resolution { font-size: 0.82rem; color: var(--text-dim); line-height: 1.5; margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--border); }
+.q-card .q-resolution strong { color: var(--green); }
+.q-card.resolved { border-left-color: var(--green); }
+.q-card.resolved .q-id { color: var(--green); background: #66bb6a15; }
+
+.refs { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+.refs-block { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 1.1rem 1.3rem; }
+.refs-block h4 { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--cyan); margin-bottom: 0.7rem; }
+.refs-block ul { list-style: none; }
+.refs-block li { font-family: 'JetBrains Mono', monospace; font-size: 0.76rem; color: var(--text-dim); padding: 0.2rem 0; line-height: 1.5; word-break: break-all; }
+
+.callout { background: linear-gradient(135deg, #4fc3f712, #26c6da08); border: 1px solid #4fc3f744; border-radius: 10px; padding: 1rem 1.3rem; margin: 1.2rem 0; font-size: 0.9rem; color: var(--text-dim); line-height: 1.6; }
+.callout strong { color: var(--cyan); }
+.callout.warn { background: linear-gradient(135deg, #ffd54f15, #ff890608); border-color: #ffd54f55; }
+.callout.warn strong { color: var(--gold); }
+
+footer.site-footer { max-width: 1300px; margin: 4rem auto 0; padding: 2rem; border-top: 1px solid var(--border); text-align: center; color: var(--text-mute); font-size: 0.82rem; line-height: 1.7; }
+footer.site-footer .mono { color: var(--text-dim); font-family: 'JetBrains Mono', monospace; }
+footer.site-footer a { color: var(--cyan); }
+
+@media (max-width: 1100px) {
+  .meta-strip { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 900px) {
+  .layout-doc { grid-template-columns: 1fr; gap: 1rem; padding: 1rem 1.2rem; }
+  .side-nav { position: static; max-height: none; overflow: visible; border: 1px solid var(--border); border-radius: 8px; padding: 1rem; background: var(--bg-card); }
+}
+@media (max-width: 720px) {
+  .top-nav { overflow-x: auto; padding: 0.55rem 1rem; gap: 1rem; }
+  .top-nav .spacer { display: none; }
+  .hero { padding: 1.2rem 1.2rem 1rem; }
+  section.s { padding: 2.5rem 1.2rem 0; }
+  .meta-strip { grid-template-columns: repeat(2, 1fr); margin: 1rem 1.2rem 0; }
+  .chapter-band { padding: 0 1.2rem; margin-top: 3rem; }
+  .chapter-band-inner { grid-template-columns: 1fr; gap: 0.5rem; padding: 1.2rem 1.4rem; }
+  .chapter-band .ch-num { font-size: 2rem; }
+  .decisions-head, .decision-row { grid-template-columns: 1fr; gap: 0.4rem; }
+  .failures-head, .failure-row { grid-template-columns: 1fr; }
+  .ac-head, .ac-row { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <span class="brand"><a href="../index.html">asimov<span class="sep">/</span>docs</a></span>
+  <a href="../index.html#s1">Architecture</a>
+  <a href="../index.html#s2">Features</a>
+  <a href="../index.html#s3">Environments</a>
+  <a href="../index.html#s4">Conventions</a>
+  <a href="../index.html#s5">Reference</a>
+  <a href="../index.html#s6">Diagrams</a>
+  <span class="spacer"></span>
+  <span class="phase-chip full">Full design</span>
+  <span class="status-chip">Draft v0.16</span>
+</nav>
+
+<div class="layout-doc">
+  <aside class="side-nav">
+    <div class="side-head">On this page</div>
+    <ul>
+      <li><a href="#s2">§2 Why the Spec stage</a></li>
+      <li><a href="#s3">§3 Requirements</a></li>
+      <li><a href="#c4">§4 Business design</a>
+        <ul>
+          <li><a href="#s4-1">§4.1 Principles</a></li>
+          <li><a href="#s4-2">§4.2 Concepts</a></li>
+          <li><a href="#s4-3">§4.3 The Spec workflow</a></li>
+          <li><a href="#s4-4">§4.4 The two artifacts</a></li>
+          <li><a href="#s4-5">§4.5 Rules</a></li>
+          <li><a href="#s4-6">§4.6 Plan lifecycle</a></li>
+          <li><a href="#s4-7">§4.7 Decisions</a></li>
+        </ul>
+      </li>
+      <li><a href="#s5">§5 UI Design</a></li>
+      <li><a href="#c6">§6 Technical design</a>
+        <ul>
+          <li><a href="#s6-1">§6.1 The pieces</a></li>
+          <li><a href="#s6-2">§6.2 asimov-spec</a></li>
+          <li><a href="#s6-3">§6.3 asimov-spec-validate</a></li>
+          <li><a href="#s6-4">§6.4 artifact-s101-authoring</a></li>
+          <li><a href="#s6-5">§6.5 artifact-s102-authoring</a></li>
+          <li><a href="#s6-6">§6.6 artifact-s102-validation</a></li>
+          <li><a href="#s6-7">§6.7 artifact-s101-validation</a></li>
+          <li><a href="#s6-8">§6.8 The specs folder</a></li>
+        </ul>
+      </li>
+      <li><a href="#s7-na">§7 Implementation</a></li>
+      <li><a href="#s8">§8 Acceptance</a></li>
+      <li><a href="#s9">§9 Open questions</a></li>
+      <li><a href="#s10">§10 References</a></li>
+    </ul>
+  </aside>
+
+  <article class="content">
+
+<header class="hero">
+  <div class="kicker">D101 · Feature design · Asimov plugin</div>
+  <h1>Spec stage</h1>
+  <p class="tagline">One design, a D101 at <em>Full design</em> or an approved ticket, becomes one implementation plan (S101) and one task spec per task (S102), written by one asimov-skill with a built-in validation loop, the same file in Claude Code and Codex, so a reviewer who is not the author can approve a plan that fresh builders can build from without asking.</p>
+</header>
+
+<div class="meta-strip">
+  <div class="meta-cell"><div class="label">Owner</div><div class="value">Allan Borup</div></div>
+  <div class="meta-cell"><div class="label">Business approver</div><div class="value">Allan Borup</div></div>
+  <div class="meta-cell"><div class="label">L3 stage</div><div class="value mono">Spec</div></div>
+  <div class="meta-cell"><div class="label">Writes to</div><div class="value mono">documentation/specs/&lt;slug&gt;/</div></div>
+  <div class="meta-cell"><div class="label">Last updated</div><div class="value mono">2026-10-02</div></div>
+  <div class="meta-cell"><div class="label">Status</div><div class="value">Draft v0.15</div></div>
+</div>
+
+<div class="doc-scope">
+  <strong>Scope:</strong> the Spec workflow: the asimov-skills <code>asimov-spec</code> and <code>asimov-spec-validate</code>, four artifact skills and the S101/S102 templates, one file each for Claude Code and Codex, from any design that meets <code>contracts/design.md</code>: a D101 at <em>Full design</em>, or a Jira ticket. The Build workflow (dispatch, ledger, verification, Baley against the spec) is out. §2–§5 are the business agreement (§5 is the chat of one run, the feature's only surface), §6 the technical design; §7 is N/A.
+</div>
+
+<!-- ═════════ §2 ═════════ -->
+<section class="s" id="s2">
+  <h2 class="section-title"><span class="sec-ref">§2</span>Why the Spec stage</h2>
+  <p class="section-desc">A D101 at <em>Full design</em> reaches a builder through chat today: the task cut, the order and the interfaces are decided invisibly, per run.</p>
+  <ul class="bullets">
+    <li><strong>The graph lives in chat.</strong> Order and parallelism are re-decided every run.</li>
+    <li><strong>One long task.</strong> The builder gets the whole feature: L2 with a file attached.</li>
+    <li><strong>Names by guess.</strong> Two builders invent two names for the same thing.</li>
+    <li><strong>§7 as a stopgap.</strong> Build notes live in the D101, where they do not belong.</li>
+    <li><strong>Nothing to review between design and code.</strong> The reviewer sees the diff, never what the agent was told.</li>
+    <li><strong>A bug fix has no design document.</strong> An approved ticket is its whole design, and it reaches a builder the same way: through chat, with no plan a reviewer can read.</li>
+  </ul>
+  <div class="callout">
+    <strong>Audience.</strong> The developer planning a feature, the reviewer who is not the author, the person directing a run, and the build subagents that read an S102 as their brief. In one line: <code>asimov-spec</code> asks at most five questions, decides the rest, shows the cut and waits for a go, writes the task specs and stops once; §3 is the contract behind that line, §5 is what it looks like.
+  </div>
+</section>
+
+<!-- ═════════ §3 ═════════ -->
+<section class="s" id="s3">
+  <h2 class="section-title"><span class="sec-ref">§3</span>Requirements</h2>
+
+  <div class="subhead">Functional — 27</div>
+  <div class="req-list">
+    <div class="req"><div class="id">R1</div><div class="body">From one design, a D101 at <em>Full design</em> or any other design that meets the design contract (<code>contracts/design.md</code>, pointed at by the S101 definition §3.1), <code>asimov-spec</code> writes one S101 and its S102s to <code>documentation/specs/&lt;slug&gt;/</code>; the slug is the D101's, or the ticket key in kebab-case.</div></div>
+    <div class="req"><div class="id">R2</div><div class="body">A D101 not at <em>Full design</em>, or any other design that misses a required member of the design contract (<code>contracts/design.md</code>), is refused, with what is missing stated; the fix goes into the D101 or the ticket, never into a copy.</div></div>
+    <div class="req"><div class="id">R3</div><div class="body">Tasks are cut as vertical slices, one per buildable acceptance criterion of the design; two criteria share a slice only when the author says so (R21). Each slice is one phase in the S101; a criterion verified by review or by hand maps to no task.</div></div>
+    <div class="req"><div class="id">R4</div><div class="body">A slice that crosses stacks becomes one S102 per stack in the same phase.</div></div>
+    <div class="req"><div class="id">R5</div><div class="body">Every S101 opens with a Foundation phase: one skeleton S102 per stack.</div></div>
+    <div class="req"><div class="id">R6</div><div class="body">The skeleton is cut per slice: no two slice tasks that may run in parallel modify the same skeleton file.</div></div>
+    <div class="req"><div class="id">R7</div><div class="body">Every slice phase carries a tester S102 that writes the slice's acceptance test; that test is the phase's checkpoint.</div></div>
+    <div class="req"><div class="id">R8</div><div class="body">Every S102 is written for exactly one builder role.</div></div>
+    <div class="req"><div class="id">R9</div><div class="body">Every S102 is validated blind right after it is written.</div></div>
+    <div class="req"><div class="id">R10</div><div class="body">An S102 that fails validation is rewritten and validated again until it clears the <em>buildable blind</em> bar.</div></div>
+    <div class="req"><div class="id">R11</div><div class="body">An S102 that fails validation three times, or whose finding names a gap in the design rather than in the S102, stops the run; <code>asimov-spec</code> reports instead of rewriting.</div></div>
+    <div class="req"><div class="id">R12</div><div class="body">Once every S102 exists, the plan is validated as a whole against the <em>dispatch-ready</em> bar.</div></div>
+    <div class="req"><div class="id">R13</div><div class="body">A plan-level finding sends the affected S102s back into their own loop.</div></div>
+    <div class="req"><div class="id">R14</div><div class="body"><code>asimov-spec-validate</code> runs both validations on an existing plan and reports without changing any spec file.</div></div>
+    <div class="req"><div class="id">R15</div><div class="body">No asimov-skill records an approval, and none sets <code>ready</code> or any later status.</div></div>
+    <div class="req"><div class="id">R16</div><div class="body">Run against a design that already has an S101 and whose requirements and acceptance criteria are unchanged in content, <code>asimov-spec</code> updates the plan in place and leaves every S102 that already clears its bar untouched.</div></div>
+    <div class="req"><div class="id">R17</div><div class="body">Run against a design whose requirements or acceptance criteria have changed in content since the S101 was written, <code>asimov-spec</code> rewrites the plan: the S101 and every S102 are written anew and S102 files no longer in the graph are deleted. Git carries the previous plan.</div></div>
+    <div class="req"><div class="id">R18</div><div class="body">Validation warns, never refuses, when an S102 exceeds the size thresholds; the thresholds live in the S101 definition.</div></div>
+    <div class="req"><div class="id">R19</div><div class="body"><code>asimov-spec</code> explores the design and the repo before it asks anything.</div></div>
+    <div class="req"><div class="id">R20</div><div class="body"><code>asimov-spec</code> asks at most 5 questions, one at a time, each with a recommended default; the go at the cut (R24) is not one of them.</div></div>
+    <div class="req"><div class="id">R21</div><div class="body">Questions are asked only about the task cut, the phase boundaries and open items in the design that change the breakdown.</div></div>
+    <div class="req"><div class="id">R22</div><div class="body">Everything else <code>asimov-spec</code> decides itself and records as an assumption in the S101.</div></div>
+    <div class="req"><div class="id">R23</div><div class="body"><code>asimov-spec</code> finishes once, when the S101 and every S102 are written and validated, with a findings list in chat; the only wait before that is the go at the cut (R24).</div></div>
+    <div class="req"><div class="id">R24</div><div class="body">Before the first S102 is written, <code>asimov-spec</code> shows the cut (phases with checkpoints, tasks with role, stack, owned files, dependencies and traces, assumptions, graph findings) and waits for the author's go. Free text re-cuts and shows again; an S101 edited by hand is read as the graph, not re-cut; <em>stop</em> ends the run with the S101 on disk and no S102.</div></div>
+    <div class="req"><div class="id">R25</div><div class="body">Run against an S101 that has no S102s (after a stop, or after R11 stopped a run), <code>asimov-spec</code> shows the cut and waits for the go before it writes any S102.</div></div>
+    <div class="req"><div class="id">R26</div><div class="body"><code>asimov-spec</code> takes its target from the words of the message that names it: a D101 slug or path, a Jira link or ticket key, or pasted ticket text. With none, it says what it accepts and finishes. No flags, no argument order.</div></div>
+    <div class="req"><div class="id">R27</div><div class="body">For a ticket, <code>asimov-spec</code> fetches the ticket and its comments where the harness can, otherwise takes the pasted text, and keeps the text as a gitignored cache beside the plan. The S101 links the ticket and carries every design id with the source's wording, so the plan and the ticket link are all a reviewer needs; the cache is for the blind reader and is never a record.</div></div>
+  </div>
+
+  <div class="subhead">Non-functional — 6</div>
+  <div class="req-list nf">
+    <div class="req"><div class="id">NF1</div><div class="body">No product entity in templates or skills (hard rule 7).</div></div>
+    <div class="req"><div class="id">NF2</div><div class="body">Specs are Markdown with YAML frontmatter; the task graph is machine-readable in the S101 frontmatter.</div></div>
+    <div class="req"><div class="id">NF3</div><div class="body">Skills read the definitions and templates by path at run-time, relative to the plugin, in whichever harness runs them (hard rule 3).</div></div>
+    <div class="req"><div class="id">NF4</div><div class="body">The Spec workflow writes only under <code>documentation/specs/&lt;slug&gt;/</code>.</div></div>
+    <div class="req"><div class="id">NF5</div><div class="body">The two asimov-skills start only when a person names them; no harness selects them for the model.</div></div>
+    <div class="req"><div class="id">NF6</div><div class="body">One file per skill serves both Claude Code and Codex; nothing in the Spec workflow exists twice.</div></div>
+  </div>
+
+  <div class="subhead">Out of scope — 6</div>
+  <div class="req-list">
+    <div class="req oos"><div class="id">OOS1</div><div class="body">Dispatch and the ledger — the Build workflow; designed once a real S101 has been run.</div></div>
+    <div class="req oos"><div class="id">OOS2</div><div class="body">Verification, code against S102 acceptance criteria: <code>asimov-build-verify</code> and the <code>role-s102-verifier</code> skill — the Build phase.</div></div>
+    <div class="req oos"><div class="id">OOS3</div><div class="body">Baley reading the S102 (<em>Review vs. Spec</em>) — the Build workflow; needs only the S102 filename, which exists.</div></div>
+    <div class="req oos"><div class="id">OOS4</div><div class="body">Fetching tickets from anything but Jira, and writing back to Jira (ids, status) — pasted text is the baseline for every tracker; observe first.</div></div>
+    <div class="req oos"><div class="id">OOS5</div><div class="body">An ADR form — D101 §4.5 and accepted deviations carry decisions today; observe first.</div></div>
+    <div class="req oos"><div class="id">OOS6</div><div class="body">The estimate in the S101 — D100 Q7; observe where it gets written first.</div></div>
+  </div>
+</section>
+
+<!-- ═════════ §4 ═════════ -->
+<div class="chapter-band" id="c4">
+  <div class="chapter-band-inner">
+    <div class="ch-num">4</div>
+    <div>
+      <div class="ch-name">Business design</div>
+      <div class="ch-summary">Principles, concepts, the Spec workflow and its authoring loop, the two artifacts, the rules, the plan lifecycle, and the decisions.</div>
+    </div>
+  </div>
+</div>
+
+<section class="s" id="s4-1">
+  <h2 class="section-title"><span class="sec-ref">§4.1</span>Principles</h2>
+  <div class="principles">
+    <div class="principle"><div class="num">1</div><div class="text"><strong>The spec is the product.</strong> What gets reviewed is the S101 and the S102s; code is the output.</div></div>
+    <div class="principle"><div class="num">2</div><div class="text"><strong>Plan ≠ ledger.</strong> Run state never lives in a spec.</div></div>
+    <div class="principle"><div class="num">3</div><div class="text"><strong>Cut vertically.</strong> One slice per buildable acceptance criterion; the checkpoint is the criterion met.</div></div>
+    <div class="principle"><div class="num">4</div><div class="text"><strong>Skeleton before bodies.</strong> Phase 0 turns the interfaces into code before anyone builds against them.</div></div>
+    <div class="principle"><div class="num">5</div><div class="text"><strong>Validate blind.</strong> Whoever wrote the S102 does not test it.</div></div>
+    <div class="principle"><div class="num">6</div><div class="text"><strong>Shape checks by a fixed checklist.</strong> The model answers the same numbered checks every run; a script is the fallback if two runs disagree.</div></div>
+    <div class="principle"><div class="num">7</div><div class="text"><strong>Ask only what cannot be discovered.</strong> The design and the repo answer first.</div></div>
+    <div class="principle"><div class="num">8</div><div class="text"><strong>Method in the artifact skills, conversation in the asimov-skill.</strong> One file per skill; Claude Code and Codex read the same files.</div></div>
+    <div class="principle"><div class="num">9</div><div class="text"><strong>Show the cut before the expansion.</strong> The cheapest place to correct a plan is before its task specs exist; the author sees the whole graph and says go.</div></div>
+    <div class="principle"><div class="num">10</div><div class="text"><strong>One mechanism, two sources.</strong> A ticket is planned exactly like a D101; only where the ids come from differs. A one-task ticket gets a one-task plan, never a task spec without a plan.</div></div>
+  </div>
+</section>
+
+<section class="s" id="s4-2">
+  <h2 class="section-title"><span class="sec-ref">§4.2</span>Concepts</h2>
+  <p class="section-desc">The vocabulary the rest of this document and both spec definitions use.</p>
+  <div class="data-table">
+    <div class="row head cols-2"><div>Concept</div><div>What it means</div></div>
+    <div class="row cols-2"><div class="label-cell">Design contract</div><div><code>contracts/design.md</code> in the plugin: what any design must contain for a plan to be cut from it: its members, each grounded in a published model (<code>documentation/research/design-contract-research.md</code>). A design skill's output, a spec skill's input. It names no particular form and none of its readers; a D101's definition says how a D101 meets it, and anything else is normalised into the shape the S101 definition §9 fixes.</div></div>
+    <div class="row cols-2"><div class="label-cell">Design cache</div><div>A design that is not a file in the repo (a ticket thread), normalised into <code>documentation/specs/&lt;slug&gt;/design.md</code> in the shape the S101 definition §9 fixes: the contract's members quoted and numbered, the source verbatim. Gitignored, for the blind reader; the source's tool stays the record; overwritten by every run.</div></div>
+    <div class="row cols-2"><div class="label-cell">S101</div><div>The implementation plan for one design: task graph, phases, interfaces, constraints, escalation.</div></div>
+    <div class="row cols-2"><div class="label-cell">S102</div><div>One task for one builder: the whole brief a fresh agent receives.</div></div>
+    <div class="row cols-2"><div class="label-cell">Slice</div><div>The work that makes one acceptance criterion of the design pass, end to end.</div></div>
+    <div class="row cols-2"><div class="label-cell">Phase</div><div>A slice, or the Foundation, as a unit of the plan: its S102s plus a checkpoint.</div></div>
+    <div class="row cols-2"><div class="label-cell">Checkpoint</div><div>A state a reviewer can verify without reading code; for a slice, its acceptance test green, written at API level against the skeleton's public methods, end-to-end only where the repo's conventions name a runner.</div></div>
+    <div class="row cols-2"><div class="label-cell">Foundation phase</div><div>Phase 0: the skeleton, one S102 per stack, compiling with no bodies.</div></div>
+    <div class="row cols-2"><div class="label-cell">Skeleton</div><div>Classes, interfaces and public methods with summaries, cut per slice; the S101 interfaces as code, and in Angular with minimal templates so a build proves it.</div></div>
+    <div class="row cols-2"><div class="label-cell">Cut</div><div>The S101 before any S102 exists: phases, tasks, interfaces, assumptions. What the author reads and approves at the gate.</div></div>
+    <div class="row cols-2"><div class="label-cell">Gate</div><div>The wait before the first S102: the cut is shown and the author says go, corrects it, or stops. Author's call; not a question in the budget of five.</div></div>
+    <div class="row cols-2"><div class="label-cell">Owned set</div><div>The files an S102 creates, modifies and tests; nothing else is touched.</div></div>
+    <div class="row cols-2"><div class="label-cell">Validation</div><div>The spec check before code: does the plan clear its bars and agree with itself.</div></div>
+    <div class="row cols-2"><div class="label-cell">Verification</div><div>The code check after build: run an S102's acceptance criteria against what was built (Build workflow).</div></div>
+    <div class="row cols-2"><div class="label-cell">Dispatch-ready</div><div>The S101 bar: every task can be handed to a fresh builder in graph order without asking the author.</div></div>
+    <div class="row cols-2"><div class="label-cell">Buildable blind</div><div>The S102 bar: a builder with no conversation history builds it and knows when it is done.</div></div>
+    <div class="row cols-2"><div class="label-cell">Spec workflow</div><div>Design → S101 + S102s → validation → reviewer approval; this document.</div></div>
+    <div class="row cols-2"><div class="label-cell">Build workflow</div><div>Ready S101 → phase by phase → builders → verification → review → checkpoint; out of scope.</div></div>
+    <div class="row cols-2"><div class="label-cell">Asimov-skill</div><div>A skill only a person invokes, by name: it composes the artifact skills and carries the conversation, never a method. <code>/asimov-spec</code> in Claude Code, <code>$asimov-plugin:asimov-spec</code> in Codex.</div></div>
+    <div class="row cols-2"><div class="label-cell">Harness</div><div>The tool that runs a skill: Claude Code or Codex. A skill is one file for both; the manifest, the invocation syntax, the model and the tool budget differ per harness, the method never.</div></div>
+  </div>
+</section>
+
+<section class="s" id="s4-3">
+  <h2 class="section-title"><span class="sec-ref">§4.3</span>The Spec workflow</h2>
+  <p class="section-desc">One design goes in on the left, a D101 or a ticket; one S101 and N S102s come out on the right. The asimov-skills carry the conversation, the artifact skills carry the method, and the same four serve both.</p>
+  <div class="flow-wrap">
+    <svg viewBox="0 0 1200 500" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Overview map. Left: your repository with the D101 at Full design. Middle: the Asimov plugin: the two artifact contracts (S101 and S102 definition plus template) the skills read at run-time, two asimov-skills (asimov-spec writes, asimov-spec-validate reads), four skills underneath (two authoring skills write, two validation skills read; the S102 validation runs in a fresh subagent). Right: your repository's specs folder with the S101 and N S102s: the phase-0 skeleton, one builder task per slice and stack, one tester acceptance-test task per slice.">
+      <style>
+        .sm text { font-family: 'Inter', system-ui, sans-serif; font-size: 13px; fill: #fff; }
+        .sm .mono { font-family: 'JetBrains Mono', ui-monospace, Consolas, monospace; }
+        .sm .sub { font-size: 11px; fill: #a8b8d0; }
+        .sm .lbl { font-size: 10px; letter-spacing: 0.14em; fill: #6b7a93; }
+        .sm .head { font-size: 11px; letter-spacing: 0.08em; font-weight: 700; }
+        .sm .repo { fill: #66bb6a; fill-opacity: 0.08; stroke: #66bb6a; stroke-width: 1.5; }
+        .sm .repohead rect { fill: #66bb6a; fill-opacity: 0.16; }
+        .sm .repohead text { fill: #66bb6a; }
+        .sm .plug { fill: #122039; stroke: #3b5e8f; stroke-width: 1.5; }
+        .sm .plughead rect { fill: #3b5e8f; fill-opacity: 0.25; }
+        .sm .plughead text { fill: #a8b8d0; }
+        .sm .writes rect { fill: #4fc3f7; fill-opacity: 0.16; stroke: #4fc3f7; stroke-width: 1.5; }
+        .sm .writes .head { fill: #4fc3f7; }
+        .sm .reads rect { fill: #ffb74d; fill-opacity: 0.14; stroke: #ffb74d; stroke-width: 1.5; }
+        .sm .reads .head { fill: #ffb74d; }
+        .sm .contract rect { fill: #1b2e4d; stroke: #3b5e8f; stroke-width: 1.5; }
+        .sm .group { fill: none; stroke: #2b4a73; stroke-width: 1; stroke-dasharray: 4 4; }
+        .sm .fresh { fill: none; stroke: #3b5e8f; stroke-width: 1.5; stroke-dasharray: 4 4; }
+        .sm .flow { fill: none; stroke-width: 1.75; }
+        .sm .flow.cyan, .sm #smArrCyan path { stroke: #4fc3f7; fill: #4fc3f7; }
+        .sm .flow.amber, .sm #smArrAmber path { stroke: #ffb74d; fill: #ffb74d; }
+        .sm .flow.cyan, .sm .flow.amber { fill: none; }
+      </style>
+      <defs>
+        <marker id="smArrCyan" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 Z"/></marker>
+        <marker id="smArrAmber" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 Z"/></marker>
+      </defs>
+      <g class="sm">
+        <rect x="0" y="0" width="1200" height="500" fill="#14253f"/>
+
+        <!-- left: your repository, the D101 -->
+        <rect class="repo" x="8" y="40" width="252" height="400" rx="12"/>
+        <g class="repohead">
+          <rect x="8" y="40" width="252" height="34" rx="12"/>
+          <text class="head mono" x="24" y="62">YOUR REPOSITORY</text>
+        </g>
+        <text class="lbl mono" x="28" y="144">documentation/features/ · Jira</text>
+        <g class="writes">
+          <rect x="28" y="156" width="212" height="76" rx="8"/>
+          <text x="44" y="180" style="font-weight:700">a design</text>
+          <text class="sub" x="44" y="200">D101 at Full design · or a ticket</text>
+        </g>
+        
+        <!-- middle: the plugin -->
+        <rect class="plug" x="300" y="40" width="620" height="400" rx="12"/>
+        <g class="plughead">
+          <rect x="300" y="40" width="620" height="34" rx="12"/>
+          <text class="head mono" x="316" y="62">ASIMOV PLUGIN</text>
+                  </g>
+
+        <text class="lbl mono" x="320" y="96">CONTRACT · STANDARDS</text>
+        <g class="contract">
+          <rect x="320" y="104" width="176" height="28" rx="6"/>
+          <text class="mono" x="332" y="123" style="font-size:10px;fill:#a8b8d0"><tspan style="fill:#fff">contracts/design.md</tspan></text>
+        </g>
+        <g class="contract">
+          <rect x="504" y="104" width="196" height="28" rx="6"/>
+          <text class="mono" x="516" y="123" style="font-size:10px;fill:#a8b8d0">S101 · <tspan style="fill:#fff">definition</tspan> + <tspan style="fill:#fff">template</tspan></text>
+        </g>
+        <g class="contract">
+          <rect x="708" y="104" width="192" height="28" rx="6"/>
+          <text class="mono" x="720" y="123" style="font-size:10px;fill:#a8b8d0">S102 · <tspan style="fill:#fff">definition</tspan> + <tspan style="fill:#fff">template</tspan></text>
+        </g>
+
+        <text class="lbl mono" x="320" y="158">ASIMOV-SKILLS</text>
+        <g class="writes">
+          <rect x="320" y="166" width="280" height="64" rx="8"/>
+          <text class="head mono" x="336" y="190">asimov-spec</text>
+          <text class="sub" x="336" y="210">asks · shows the cut · writes · validates</text>
+        </g>
+        <g class="reads">
+          <rect x="620" y="166" width="280" height="64" rx="8"/>
+          <text class="head mono" x="636" y="190">asimov-spec-validate</text>
+          <text class="sub" x="636" y="210">validates · writes nothing</text>
+        </g>
+
+        <text class="lbl mono" x="320" y="284">SKILLS</text>
+        <rect class="group" x="312" y="292" width="296" height="136" rx="10"/>
+        <text class="lbl mono" x="324" y="310" style="fill:#4fc3f7">AUTHORING</text>
+        <g class="writes">
+          <rect x="324" y="320" width="132" height="92" rx="8"/>
+          <text class="head mono" x="336" y="342" style="font-size:10px">artifact-s101-</text>
+          <text class="head mono" x="336" y="356" style="font-size:10px">authoring</text>
+          <text class="sub" x="336" y="378">cuts the plan</text>
+        </g>
+        <g class="writes">
+          <rect x="464" y="320" width="132" height="92" rx="8"/>
+          <text class="head mono" x="476" y="342" style="font-size:10px">artifact-s102-</text>
+          <text class="head mono" x="476" y="356" style="font-size:10px">authoring</text>
+          <text class="sub" x="476" y="378">one task</text>
+        </g>
+
+        <rect class="group" x="616" y="292" width="292" height="136" rx="10"/>
+        <text class="lbl mono" x="628" y="310" style="fill:#ffb74d">VALIDATION</text>
+        <g class="reads">
+          <rect x="628" y="320" width="132" height="92" rx="8"/>
+          <text class="head mono" x="640" y="342" style="font-size:10px">artifact-s102-</text>
+          <text class="head mono" x="640" y="356" style="font-size:10px">validation</text>
+          <text class="sub" x="640" y="378">one task</text>
+          <rect class="fresh" x="636" y="386" width="116" height="18" rx="4"/>
+          <text class="sub" x="694" y="399" text-anchor="middle" style="font-size:9px">in a fresh subagent</text>
+        </g>
+        <g class="reads">
+          <rect x="768" y="320" width="132" height="92" rx="8"/>
+          <text class="head mono" x="780" y="342" style="font-size:10px">artifact-s101-</text>
+          <text class="head mono" x="780" y="356" style="font-size:10px">validation</text>
+          <text class="sub" x="780" y="378">the whole plan</text>
+        </g>
+
+        <!-- right: your repository, the specs -->
+        <rect class="repo" x="960" y="40" width="232" height="400" rx="12"/>
+        <g class="repohead">
+          <rect x="960" y="40" width="232" height="34" rx="12"/>
+          <text class="head mono" x="976" y="62">YOUR REPOSITORY</text>
+        </g>
+        <text class="lbl mono" x="980" y="144">documentation/specs/&lt;slug&gt;/</text>
+        <g class="writes">
+          <rect x="980" y="156" width="192" height="64" rx="8"/>
+          <text x="996" y="180" style="font-weight:700">S101 plan</text>
+          <text class="sub" x="996" y="200">the task graph</text>
+        </g>
+        <text class="lbl mono" x="980" y="252">S102 × N</text>
+        <text class="lbl mono" x="980" y="400">design.md · .review.md</text>
+        <text class="sub" x="980" y="418" style="font-size:9px">gitignored cache + sidecar</text>
+        <!-- a stack of identical task specs: back cards offset, one front card labelled; each card sits on an opaque base so the one behind does not show through -->
+        <rect x="1000" y="274" width="160" height="60" rx="8" fill="#14253f"/>
+        <g class="writes"><rect x="1000" y="274" width="160" height="60" rx="8" style="fill-opacity:0.08"/></g>
+        <rect x="988" y="286" width="160" height="60" rx="8" fill="#14253f"/>
+        <g class="writes"><rect x="988" y="286" width="160" height="60" rx="8" style="fill-opacity:0.10"/></g>
+        <rect x="976" y="298" width="160" height="60" rx="8" fill="#14253f"/>
+        <g class="writes">
+          <rect x="976" y="298" width="160" height="60" rx="8"/>
+          <text x="992" y="322" style="font-weight:700">S102 task</text>
+          <text class="sub" x="992" y="342">one builder</text>
+        </g>
+
+        <!-- flows: an arrow takes the colour of the box it enters; writes and reads target the folder, not one file -->
+        <g class="flow cyan" marker-end="url(#smArrCyan)">
+          <path d="M240 198 H316"/>
+          <path d="M460 230 V288"/>
+          <path d="M460 428 V468 H936 V300 H956"/>
+        </g>
+        <path class="flow cyan" d="M460 262 H700" marker-end="none"/>
+        <g class="flow amber" marker-end="url(#smArrAmber)">
+          <path d="M700 262 V288"/>
+          <path d="M760 230 V288"/>
+          <path d="M960 236 H948 V352 H912"/>
+        </g>
+        <text class="lbl mono" x="278" y="190" text-anchor="middle">READS</text>
+        <text class="lbl mono" x="580" y="256" text-anchor="middle">USES</text>
+        <text class="lbl mono" x="702" y="460" text-anchor="middle" style="fill:#4fc3f7">WRITES</text>
+        <text class="lbl mono" x="940" y="228" text-anchor="end" style="fill:#ffb74d">READS</text>
+      </g>
+    </svg>
+    <div class="flow-legend">
+      <span class="item"><span class="swatch" style="background:var(--green)"></span>Yours: the repository</span>
+      <span class="item"><span class="swatch" style="background:var(--cyan)"></span>Asimov writes</span>
+      <span class="item"><span class="swatch" style="background:var(--amber)"></span>Asimov reads, then validates</span>
+      <span class="item"><span class="swatch" style="background:var(--border-2); border:1px dashed var(--text-mute)"></span>Fresh subagent, no conversation history</span>
+    </div>
+  </div>
+  <ul class="bullets">
+    <li><strong>In:</strong> one design, named in the message: a D101 at <em>Full design</em>, or a Jira ticket that meets the design contract. Anything else is refused (R2, R26).</li>
+    <li><strong>asimov-spec</strong> reads the design and the repo, asks at most 5 questions with defaults, cuts the plan and shows it, waits for the author's go, then uses the authoring skills to write and the validation skills to check, task by task and then the whole (R19–R25).</li>
+    <li><strong>The author</strong> sees the cut before any task spec exists and corrects it in chat or in the file (R24); the reviewer's approval stays where it was, at the end.</li>
+    <li><strong>Out:</strong> one S101 and N S102s in <code>documentation/specs/&lt;slug&gt;/</code>: phase 0 skeleton per stack, then per slice one builder task per stack and one tester acceptance-test task (R1, R3–R7).</li>
+    <li><strong>asimov-spec-validate</strong> runs the same validation skills on an existing plan and writes no spec (R14). The author self-previews; the reviewer ≠ author approves; the author sets <code>ready</code> (R15).</li>
+  </ul>
+
+  <div class="subhead" style="margin-top:2rem">The authoring loop</div>
+  <p class="section-desc" style="margin-bottom:0.8rem">The loop starts at the author's go. Each S102 is validated blind as it is written; the plan is validated once every task exists. A finding at either level sends the affected task back; a third failure, or a finding that points at the D101, stops the run.</p>
+  <div class="flow-wrap">
+    <svg viewBox="0 0 980 296" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Flowchart: the authoring loop inside asimov-spec">
+      <rect x="0" y="0" width="980" height="296" fill="#14253f"/>
+      <defs>
+        <marker id="fc-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 Z" fill="#a8b8d0"/>
+        </marker>
+      </defs>
+      <!-- start -->
+      <rect x="24" y="48" width="136" height="56" rx="28" fill="#66bb6a22" stroke="#66bb6a"/>
+      <text x="92" y="72" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">Author's go</text>
+      <text x="92" y="88" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">the cut shown · on disk</text>
+      <line x1="160" y1="76" x2="198" y2="76" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#fc-arr)"/>
+      <!-- 01 -->
+      <rect x="200" y="48" width="136" height="56" rx="8" fill="#ffb74d1a" stroke="#ffb74d"/>
+      <text x="268" y="72" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">01 · Write S102</text>
+      <text x="268" y="88" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">one task, one role</text>
+      <line x1="336" y1="76" x2="374" y2="76" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#fc-arr)"/>
+      <!-- 02 predefined -->
+      <rect x="376" y="48" width="136" height="56" rx="8" fill="#122039" stroke="#3b5e8f" stroke-dasharray="4 4"/>
+      <line x1="384" y1="48" x2="384" y2="104" stroke="#3b5e8f"/>
+      <line x1="504" y1="48" x2="504" y2="104" stroke="#3b5e8f"/>
+      <text x="444" y="72" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">02 · Validate blind</text>
+      <text x="444" y="88" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">fresh subagent</text>
+      <line x1="512" y1="76" x2="570" y2="76" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#fc-arr)"/>
+      <!-- D1 -->
+      <polygon points="600,48 628,76 600,104 572,76" fill="#66bb6a22" stroke="#66bb6a" stroke-width="1.5"/>
+      <text x="600" y="80" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="9">clears?</text>
+      <!-- D1 [fails] → D4 -->
+      <path d="M600,104 L600,132 A8,8 0 0 1 592,140 L474,140" fill="none" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#fc-arr)"/>
+      <text x="612" y="124" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">[fails]</text>
+      <!-- D4: third failure or design gap? -->
+      <polygon points="444,112 472,140 444,168 416,140" fill="#66bb6a22" stroke="#66bb6a" stroke-width="1.5"/>
+      <text x="444" y="144" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="9">3rd/D101?</text>
+      <!-- D4 [no] → 01 -->
+      <path d="M416,140 L276,140 A8,8 0 0 1 268,132 L268,106" fill="none" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#fc-arr)"/>
+      <text x="340" y="136" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">[no: rewrite]</text>
+      <!-- D4 [yes] → end -->
+      <line x1="444" y1="168" x2="444" y2="190" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#fc-arr)"/>
+      <text x="452" y="184" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">[yes: stop]</text>
+      <!-- D1 [clears] → D2 -->
+      <line x1="628" y1="76" x2="690" y2="76" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#fc-arr)"/>
+      <text x="660" y="66" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">[clears]</text>
+      <!-- D2 -->
+      <polygon points="720,48 748,76 720,104 692,76" fill="#66bb6a22" stroke="#66bb6a" stroke-width="1.5"/>
+      <text x="720" y="80" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="9">more?</text>
+      <!-- D2 [more tasks] → 01 (above) -->
+      <path d="M720,48 L720,32 A8,8 0 0 0 712,24 L276,24 A8,8 0 0 0 268,32 L268,46" fill="none" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#fc-arr)"/>
+      <text x="494" y="20" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">[more tasks]</text>
+      <!-- D2 [all written] → 03 -->
+      <line x1="720" y1="104" x2="720" y2="190" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#fc-arr)"/>
+      <text x="728" y="150" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">[all written]</text>
+      <!-- 03 -->
+      <rect x="652" y="192" width="136" height="56" rx="8" fill="#ffb74d1a" stroke="#ffb74d"/>
+      <text x="720" y="216" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">03 · Validate plan</text>
+      <text x="720" y="232" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">coverage · closure · disjoint</text>
+      <line x1="652" y1="220" x2="610" y2="220" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#fc-arr)"/>
+      <!-- D3 -->
+      <polygon points="580,192 608,220 580,248 552,220" fill="#66bb6a22" stroke="#66bb6a" stroke-width="1.5"/>
+      <text x="580" y="224" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="9">findings?</text>
+      <!-- D3 [findings] → joins the return line to 01 -->
+      <line x1="580" y1="192" x2="580" y2="142" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#fc-arr)"/>
+      <text x="588" y="172" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">[findings]</text>
+      <!-- D3 [none] → end -->
+      <line x1="552" y1="220" x2="510" y2="220" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#fc-arr)"/>
+      <text x="530" y="210" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">[none]</text>
+      <!-- end -->
+      <rect x="372" y="192" width="136" height="56" rx="28" fill="#ef535022" stroke="#ef5350"/>
+      <text x="440" y="216" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">Report · stop</text>
+      <text x="440" y="232" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">findings + assumptions</text>
+    </svg>
+    <div class="flow-legend">
+      <span class="item"><span class="swatch" style="background:var(--green)"></span>Start / decision</span>
+      <span class="item"><span class="swatch" style="background:var(--amber)"></span>Writing or validating</span>
+      <span class="item"><span class="swatch" style="background:var(--border-2); border:1px dashed var(--text-mute)"></span>Delegated to a fresh subagent</span>
+      <span class="item"><span class="swatch" style="background:var(--coral)"></span>Stop</span>
+    </div>
+  </div>
+  <ol class="principles" style="margin-top:1rem">
+    <li class="principle"><div class="num">00</div><div class="text">Before the loop: the cut is on disk and shown, and the author has said go (R24). Free text re-cuts and shows again; an S101 edited by hand is read as the graph; <em>stop</em> ends the run with no S102. The same gate opens a run that finds a cut without S102s (R25).</div></li>
+    <li class="principle"><div class="num">01</div><div class="text">Write one S102 for one builder role from the S101 graph (R8).</div></li>
+    <li class="principle"><div class="num">02</div><div class="text">A fresh read-only subagent validates it against the S102 checks, seeing only the S102, the S101, the design and the repo (R9). Fails → rewrite → 02 again (R10); a third failure, or a finding that names a design gap, stops the run with a report (R11).</div></li>
+    <li class="principle"><div class="num">03</div><div class="text">With every task written, validate the plan against the S101 checks: coverage both ways, interface closure, disjoint parallel sets, no cycle, no contradicted constraint, size warnings (R12, R18). A finding sends the affected tasks back to 01 (R13).</div></li>
+  </ol>
+</section>
+
+<section class="s" id="s4-4">
+  <h2 class="section-title"><span class="sec-ref">§4.4</span>The two artifacts</h2>
+  <p class="section-desc">What the Spec workflow produces: one plan and one brief per task, each with its own bar and its own place in the repo.</p>
+  <div class="data-table">
+    <div class="row head" style="grid-template-columns: 0.6fr 2.2fr 0.8fr 1.4fr;"><div>Artifact</div><div>Carries</div><div>Bar</div><div>Lives at</div></div>
+    <div class="row" style="grid-template-columns: 0.6fr 2.2fr 0.8fr 1.4fr;"><div class="label-cell">S101</div><div>Header · global constraints · task graph (frontmatter) · phases with checkpoints · interfaces · review focus · escalation routing · coverage map · assumptions</div><div>Dispatch-ready</div><div><code>documentation/specs/&lt;slug&gt;/S101-&lt;slug&gt;.md</code></div></div>
+    <div class="row" style="grid-template-columns: 0.6fr 2.2fr 0.8fr 1.4fr;"><div class="label-cell">S102</div><div>Header · intent · files (create / modify / test) · interfaces (consumes / produces) · behaviour as scenarios · constraints · steps, test first · acceptance criteria · out of scope</div><div>Buildable blind</div><div><code>documentation/specs/&lt;slug&gt;/S102-&lt;slug&gt;-NNN-&lt;task&gt;.md</code></div></div>
+  </div>
+
+</section>
+
+<section class="s" id="s4-5">
+  <h2 class="section-title"><span class="sec-ref">§4.5</span>Rules</h2>
+  <p class="section-desc">Each rule with the case where it fires and the adjacent case where it does not.</p>
+  <div class="data-table">
+    <div class="row head cols-3"><div>Rule</div><div>Fires</div><div>Does not fire</div></div>
+    <div class="row cols-3"><div class="label-cell">Only an approved design is planned</div><div>A D101 at Full design → an S101. A ticket that meets every required member of the design contract → an S101, even with one task.</div><div>A D101 at Business design, a ticket missing a required member, or an S101 already at <code>ready</code> or later → refused, no file written; what is missing is said, and is fixed in the D101 or the ticket.</div></div>
+    <div class="row cols-3"><div class="label-cell">Slice = phase</div><div>AC3, single-stack → phase 3 with one builder S102 and one tester S102.</div><div>A shared type two slices need is not a slice; it goes to Foundation.</div></div>
+    <div class="row cols-3"><div class="label-cell">Parallel = disjoint</div><div>Two slices with no common file may run together.</div><div>A common file is a dependency; the plan says which task owns it, and two slices needing the same skeleton file get the skeleton cut so each owns its own, decided at planning time.</div></div>
+    <div class="row cols-3"><div class="label-cell">The loop exits</div><div>A third failed validation, or a finding that names a design gap → the run stops and reports.</div><div>A second failure on an S102 defect → rewrite and validate again.</div></div>
+    <div class="row cols-3"><div class="label-cell">Size warns</div><div>Four owned non-test files → a warning; the plan is still written.</div><div>A cycle in the graph → rejected; that is shape, not size.</div></div>
+    <div class="row cols-3"><div class="label-cell">Ask only about the cut</div><div>Two criteria could be one slice or two → ask.</div><div>Which model tier → decide, record as an assumption.</div></div>
+    <div class="row cols-3"><div class="label-cell">Update or rewrite</div><div>Requirements and criteria unchanged in content → update in place, and an S102 that already clears is left untouched.</div><div>A criterion changed in content → the plan is rewritten and git keeps the old one; a version bump with a wording fix is not a change.</div></div>
+    <div class="row cols-3"><div class="label-cell">Validate blind</div><div>An S102 is validated by a fresh subagent with only the S102, S101, design and repo.</div><div>The plan validation runs inline; it is mechanical and cross-file, not a blind property.</div></div>
+    <div class="row cols-3"><div class="label-cell">No S102 before the go</div><div>The S101 is written and shown → <code>asimov-spec</code> waits; free text re-cuts and nothing expands; <em>stop</em> leaves the S101 alone on disk.</div><div>A resumed run whose S102s exist and clear → they are skipped, but the cut is still shown and the go still asked before the missing ones are written.</div></div>
+  </div>
+</section>
+
+<section class="s" id="s4-6">
+  <h2 class="section-title"><span class="sec-ref">§4.6</span>Plan lifecycle</h2>
+  <p class="section-desc">One status axis on the S101. The Spec workflow moves it as far as <code>ready</code>; the Build workflow moves the rest.</p>
+  <div class="flow-wrap">
+    <svg viewBox="0 0 980 232" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="State machine: S101 status">
+      <rect x="0" y="0" width="980" height="232" fill="#14253f"/>
+      <defs>
+        <marker id="sm-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 Z" fill="#a8b8d0"/>
+        </marker>
+      </defs>
+      <circle cx="48" cy="120" r="8" fill="#66bb6a"/>
+      <line x1="56" y1="120" x2="86" y2="120" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#sm-arr)"/>
+      <!-- draft -->
+      <rect x="88" y="92" width="152" height="56" rx="8" fill="#66bb6a22" stroke="#66bb6a"/>
+      <text x="164" y="116" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">draft</text>
+      <text x="164" y="132" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">asimov-spec writes here</text>
+      <!-- self-loop -->
+      <path d="M140,92 L140,68 A8,8 0 0 1 148,60 L180,60 A8,8 0 0 1 188,68 L188,90" fill="none" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#sm-arr)"/>
+      <text x="164" y="52" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">re-run [same intent]</text>
+      <!-- draft → ready -->
+      <line x1="240" y1="120" x2="302" y2="120" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#sm-arr)"/>
+      <text x="272" y="82" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">reviewer approves</text>
+      <!-- ready -->
+      <rect x="304" y="92" width="152" height="56" rx="8" fill="#ffb74d1a" stroke="#ffb74d"/>
+      <text x="380" y="116" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">ready</text>
+      <text x="380" y="132" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">dispatch-ready</text>
+      <!-- ready → in progress -->
+      <line x1="456" y1="120" x2="518" y2="120" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#sm-arr)"/>
+      <text x="488" y="82" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">first dispatch [Build]</text>
+      <!-- in progress -->
+      <rect x="520" y="92" width="152" height="56" rx="8" fill="#ffb74d1a" stroke="#ffb74d"/>
+      <text x="596" y="116" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">in progress</text>
+      <text x="596" y="132" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">phases running</text>
+      <!-- in progress → done -->
+      <line x1="672" y1="120" x2="734" y2="120" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#sm-arr)"/>
+      <text x="704" y="82" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">all checkpoints met [Build]</text>
+      <!-- done -->
+      <rect x="736" y="92" width="152" height="56" rx="8" fill="#ef535022" stroke="#ef5350"/>
+      <text x="812" y="116" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">done</text>
+      <text x="812" y="132" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">kept as the record</text>
+      <line x1="888" y1="120" x2="926" y2="120" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#sm-arr)"/>
+      <circle cx="940" cy="120" r="12" fill="none" stroke="#ef5350" stroke-width="1.5"/>
+      <circle cx="940" cy="120" r="6" fill="#ef5350"/>
+      <!-- re-plan: any later state → draft (rewritten; git keeps the old plan) -->
+      <path d="M812,148 L812,192 A8,8 0 0 1 804,200 L172,200 A8,8 0 0 1 164,192 L164,150" fill="none" stroke="#a8b8d0" stroke-width="1.5" stroke-dasharray="4 4" marker-end="url(#sm-arr)"/>
+      <text x="488" y="214" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">design intent changed → rewritten as draft [git keeps the old plan]</text>
+    </svg>
+    <div class="flow-legend">
+      <span class="item"><span class="swatch" style="background:var(--green)"></span>Start state</span>
+      <span class="item"><span class="swatch" style="background:var(--amber)"></span>In progress</span>
+      <span class="item"><span class="swatch" style="background:var(--coral)"></span>Terminal</span>
+    </div>
+  </div>
+  <ul class="bullets">
+    <li><strong>asimov-spec</strong> writes and re-writes <code>draft</code>; when the D101's intent changed it rewrites the plan from scratch, and git keeps the old one (R16, R17).</li>
+    <li><strong>The cut</strong> is a <code>draft</code> S101 with no S102 beside it; no status value marks it, the folder does (R24, R25).</li>
+    <li><strong>The author</strong> sets <code>ready</code> after the reviewer's approval; no skill does (R15).</li>
+    <li><strong>The Build workflow</strong> moves <code>ready</code> → <code>in progress</code> → <code>done</code>; out of scope here. <code>done</code> needs every checkpoint met <em>and</em> a reviewer's word on each criterion the coverage map marks <em>verified by review</em>; the ledger records who and when, the plan never does (S101 definition §6).</li>
+  </ul>
+</section>
+
+<section class="s" id="s4-7">
+  <h2 class="section-title"><span class="sec-ref">§4.7</span>Decisions</h2>
+  <p class="section-desc">A decision recorded without its rejected alternative is one that gets re-litigated.</p>
+  <div class="decisions">
+    <div class="decisions-head"><div>Decided</div><div>Alternative considered</div><div>Why rejected</div></div>
+    <div class="decision-row"><div class="decided">One asimov-skill with the loop built in</div><div class="alt">One skill per task</div><div class="why">The graph has to be seen whole; per-task skills re-derive it.</div></div>
+    <div class="decision-row"><div class="decided">Blind validation by a fresh subagent</div><div class="alt">Inline, by the writing model</div><div class="why">The author fills the gaps from memory; <em>buildable blind</em> is a fresh-context property.</div></div>
+    <div class="decision-row"><div class="decided">Skeleton as phase 0</div><div class="alt">Inside each S102, or written during planning</div><div class="why">Inside each task the names are agreed only on paper; during planning the Spec stage would write code.</div></div>
+    <div class="decision-row"><div class="decided">Builder tests inline, a tester per slice</div><div class="alt">Builder only, or tester only</div><div class="why">L3 has no human Test bar: tests are agent-written and the acceptance test must be reviewable before code exists.</div></div>
+    <div class="decision-row"><div class="decided">Shape checks by the model, against a fixed checklist</div><div class="alt">A script for the mechanical checks</div><div class="why">Start without a runtime dependency in product repos; AC15 is the canary, and a script replaces the checklist if two runs on the same plan disagree (Q8).</div></div>
+    <div class="decision-row"><div class="decided">At most 5 front-loaded questions</div><div class="alt">Step-by-step interview, or no questions</div><div class="why">The D101 did the intent work; a per-step interview repeats Kiro's heavy mode, and no questions guesses the cut.</div></div>
+    <div class="decision-row"><div class="decided">One gate before the expansion, one finish at the end</div><div class="alt">No gate (write everything, stop once); a hard stop with a second invocation, as <code>asimov-design</code> does; a gate per artifact</div><div class="why">Without the gate a wrong cut costs every task spec and a review of all of them. A hard stop hands the author a file without the conversation; the soft gate keeps the plan-mode feel: read, correct, go. A gate per artifact is many stops for one reader on one plan.</div></div>
+    <div class="decision-row"><div class="decided">The cut summary is the authoring skill's output; the gate is the asimov-skill's question</div><div class="alt">The asimov-skill renders the graph from the S101 itself</div><div class="why">The asimov-skill would know the S101's shape, and a hand run of the skill alone would show nothing; with the summary in the skill, the skill boundary is the gate in any harness.</div></div>
+    <div class="decision-row"><div class="decided">Soft size warnings</div><div class="alt">A hard size gate</div><div class="why">Evidence is strong on direction and weak on the number, and the number moves every few months.</div></div>
+    <div class="decision-row"><div class="decided">Update in place; rewrite on changed intent</div><div class="alt">Always a full replacement, or a superseded copy kept beside the new plan</div><div class="why">Review findings are the same work refined; a replacement discards the reviewer's reading. A kept copy needs a second file name for the same slug; git already keeps it.</div></div>
+    <div class="decision-row"><div class="decided">Acceptance tests at API level against the skeleton</div><div class="alt">End-to-end per slice</div><div class="why">A bodiless skeleton cannot run an app; end-to-end only where the repo's conventions name a runner.</div></div>
+    <div class="decision-row"><div class="decided">The loop exits after three failures or a design gap</div><div class="alt">Loop until it clears</div><div class="why">An unclear D101 is not fixed by rewriting the S102; the third attempt is the signal.</div></div>
+    <div class="decision-row"><div class="decided">Validation ≠ verification</div><div class="alt">One word for both</div><div class="why">Two checks, two moments, two inputs; one word made the design talk past itself.</div></div>
+    <div class="decision-row"><div class="decided">Asimov-skills, not commands</div><div class="alt">A command file per harness: a Claude Code command and a Codex custom prompt</div><div class="why">Codex retired custom prompts and its plugins read only <code>skills/</code>; a skill a person invokes by name is the one shape both harnesses share, and one file cannot drift from itself.</div></div>
+    <div class="decision-row"><div class="decided">The update check runs in the asimov-skill</div><div class="alt">The authoring skill validates the existing S102s itself</div><div class="why">A skill that calls a skill is a third layer; the loop has one owner, and the authoring skill only receives the list of tasks that already clear.</div></div>
+    <div class="decision-row"><div class="decided">A ticket is a design; Jira stays the record</div><div class="alt">Freeze the ticket as a committed artifact with its own definition and template; or no file at all, the link only</div><div class="why">A committed copy duplicates a record Jira keeps and goes stale. No file at all leaves the blind reader without the text in Codex and in a Claude Code without the Jira connector. So: the S101 links the ticket and carries each id with its wording, and the text is a gitignored cache (R27).</div></div>
+    <div class="decision-row"><div class="decided">One mechanism: a one-task ticket gets a one-task S101</div><div class="alt">A lone S102 without a plan, as the definitions first allowed</div><div class="why">Two paths for one thing, and the lone S102 had to carry the plan's constraints and routing itself; a one-task plan is small and reviewable.</div></div>
+    <div class="decision-row"><div class="decided">The target comes from the words of the message</div><div class="alt">Arguments or flags on the invocation</div><div class="why">Skills are named in a sentence; Codex passes no arguments at all, and a flag is a command habit. What follows the name is read as text (R26).</div></div>
+    <div class="decision-row"><div class="decided">A stage contract in <code>contracts/</code>, naming no form and no reader</div><div class="alt">The bar on the design inside the S101 definition; or a ticket artifact with its own definition and template</div><div class="why">A bar inside the plan\'s definition couples Spec to every design form it will ever read, and a ticket artifact would be a committed copy of a record Jira keeps. One contract, each form says how it meets it; the members are grounded in the models of <code>documentation/research/design-contract-research.md</code>.</div></div>
+  </div>
+</section>
+
+<!-- ═════════ §5 ═════════ -->
+<section class="s" id="s5">
+  <h2 class="section-title"><span class="sec-ref">§5</span>UI Design</h2>
+  <p class="section-desc">The feature's only surface is the chat of one run; the mockup is styled after a terminal transcript, one column, monospace. Four moments in order, and the gate between the second and the third is where the human sits in the loop.</p>
+
+  <div class="subhead">§5.1 The run as a transcript</div>
+  <div class="mockup-wrap">
+    <iframe class="mockup-frame" src="mockups/d101-spec-stage/plan-run.html" style="height:600px" title="plan-run interactive mockup" loading="lazy"></iframe>
+  </div>
+  <ul class="bullets">
+    <li><strong>Questions.</strong> <code>asimov-spec</code> says what it read, then asks at most five, one at a time, each with a default the author can take with one word (R19–R21).</li>
+    <li><strong>The cut.</strong> One summary of the whole plan, in the same shape every run (§5.2), followed by the gate (§5.3). Nothing but the S101 is on disk at this point.</li>
+    <li><strong>The expansion.</strong> One line per task spec written and one per blind validation; a failed check shows as the rewrite it caused. The author reads along but is not asked anything.</li>
+    <li><strong>The findings.</strong> The plan report, the warnings, the assumptions to read, and the next step: self-preview with <code>asimov-spec-validate</code>, ask a reviewer who is not the author, set <code>ready</code> by hand (R15, R23).</li>
+    <li>Scenario tabs in the mockup switch between the full run, a ticket run and the states of §5.4 (the stop after a failed task is described, not shown); <em>Replay</em> restarts the one shown.</li>
+  </ul>
+
+  <div class="subhead">§5.2 The cut</div>
+  <div class="data-table">
+    <div class="row head cols-2"><div>Block</div><div>Shows</div></div>
+    <div class="row cols-2"><div class="label-cell">Per phase</div><div>Number, name, the acceptance criterion it serves, and its checkpoint in one line.</div></div>
+    <div class="row cols-2"><div class="label-cell">Per task</div><div>Id · title · role · stack · owned files (count) · depends on · traces. A size overrun is marked, never hidden (R18).</div></div>
+    <div class="row cols-2"><div class="label-cell">Assumptions</div><div>Every decision taken without a question, with the default taken; the author's corrections join the list so the reviewer sees them later in the S101.</div></div>
+    <div class="row cols-2"><div class="label-cell">Graph checks</div><div>The graph-only checks of §6.7 as pass / warn lines: cycle, orphan, disjoint parallel sets, consumed names produced, coverage both ways.</div></div>
+    <div class="row cols-2"><div class="label-cell">Footer</div><div>Phase and task counts, the S101 path, and the sentence <em>no S102 yet</em>.</div></div>
+  </div>
+
+  <div class="subhead">§5.3 The gate</div>
+  <div class="data-table">
+    <div class="row head cols-3"><div>The author says</div><div><code>asimov-spec</code> does</div><div>On disk afterwards</div></div>
+    <div class="row cols-3"><div class="label-cell">go</div><div>Expands: writes and validates every task spec, then the plan, then finishes (R23).</div><div>S101 + S102 × N, sidecar.</div></div>
+    <div class="row cols-3"><div class="label-cell">free text</div><div>Passes the words to the authoring skill as cut feedback, re-cuts, re-runs the graph checks, shows the cut again. No round limit (R24).</div><div>S101 rewritten in place; no S102.</div></div>
+    <div class="row cols-3"><div class="label-cell">read again</div><div>Re-reads the S101 the author edited by hand, runs the graph checks on it, shows it. No re-cut (R24).</div><div>S101 as the author left it; no S102.</div></div>
+    <div class="row cols-3"><div class="label-cell">stop</div><div>Ends the run and says how to resume. The next run opens at the same gate (R25).</div><div>S101 alone; no S102.</div></div>
+  </div>
+  <ul class="bullets">
+    <li>The go is the author's call that <em>the cut holds</em>; the reviewer's call that the plan is <em>dispatch-ready</em> stays at the end. Two bars, two people, as for the D101 (hard rule 4).</li>
+    <li>The go is recorded nowhere (R15); the expansion is the evidence. It does not count against the five questions (R20).</li>
+  </ul>
+
+  <div class="subhead">§5.4 States</div>
+  <ul class="bullets">
+    <li><strong>Refused.</strong> The D101 is not at <em>Full design</em>, or the ticket misses a required member of the design contract: one line naming what is missing and where to add it; nothing written (R2).</li>
+    <li><strong>Ticket run.</strong> The message names a Jira link or key: the ticket and its comments are fetched where the harness can, or the pasted text is taken; the chat shows the approval found and the ids assigned to the ticket's items, then the run continues as for a D101 (R27).</li>
+    <li><strong>Resumed at the cut.</strong> An S101 without S102s is found: the id comparison is reported, no questions are asked, the cut is shown and the gate waits (R25).</li>
+    <li><strong>Stopped by a failed task.</strong> A third failure or a design gap: the run ends with the task named and the finding quoted; the next run resumes at the gate with the cleared S102s skipped (R11, R16).</li>
+    <li><strong>Review.</strong> <code>asimov-spec-validate</code> prints the two reports and the sidecar path; it asks nothing and changes no spec (R14).</li>
+  </ul>
+</section>
+
+<!-- ═════════ §6 ═════════ -->
+<div class="chapter-band" id="c6">
+  <div class="chapter-band-inner">
+    <div class="ch-num">6</div>
+    <div>
+      <div class="ch-name">Technical design</div>
+      <div class="ch-summary">One subsection per box in §4.3: the pieces, the two asimov-skills, the four artifact skills, the specs folder.</div>
+    </div>
+  </div>
+</div>
+<section class="s" id="s6-1">
+  <h2 class="section-title"><span class="sec-ref">§6.1</span>The pieces</h2>
+  <p class="section-desc">One contract, two definitions, two templates, six skills (four of method, two asimov-skills), one blind subagent, one folder. The definitions set the bars, the templates the shape, the artifact skills the method, the asimov-skills the conversation; each is specified in §6.2–§6.8. Two figures, split at the author's go: the cut, and the expansion.</p>
+  <div class="subhead">The cut · up to the author's go</div>
+  <div class="flow-wrap">
+    <svg viewBox="0 0 980 560" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Sequence diagram, the cut: the author invokes the asimov-skill and answers at most five questions; in a loop until the author says go, the asimov-skill has the authoring skill cut the plan and write the S101 draft, receives the cut summary, runs the graph-only checks itself, shows the cut to the author and gets go, a correction or stop; the author may instead edit the S101 by hand. On stop the S101 stays on disk with no S102; on go the expansion follows.">
+      <rect x="0" y="0" width="980" height="560" fill="#14253f"/>
+      <defs>
+        <marker id="seqA-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 Z" fill="#a8b8d0"/></marker>
+        <marker id="seqA-open" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10" fill="none" stroke="#a8b8d0" stroke-width="1.5"/></marker>
+        <marker id="seqA-acc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 Z" fill="#66bb6a"/></marker>
+      </defs>
+      <g>
+        <rect x="40" y="24" width="168" height="48" rx="8" fill="#66bb6a22" stroke="#66bb6a"/>
+        <text x="124" y="44" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">Author</text>
+        <text x="124" y="60" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">human · owns the go</text>
+      </g>
+      <g>
+        <rect x="284" y="24" width="168" height="48" rx="8" fill="#ffb74d1a" stroke="#ffb74d"/>
+        <text x="368" y="44" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">asimov-spec</text>
+        <text x="368" y="60" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">asimov-skill · the conversation</text>
+      </g>
+      <g>
+        <rect x="528" y="24" width="168" height="48" rx="8" fill="#ffb74d1a" stroke="#ffb74d"/>
+        <text x="612" y="44" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">artifact-s101-authoring</text>
+        <text x="612" y="60" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">skill · cuts, writes, summarises</text>
+      </g>
+      <g>
+        <rect x="772" y="24" width="168" height="48" rx="8" fill="#4fc3f71a" stroke="#4fc3f7"/>
+        <text x="856" y="44" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">specs/&lt;slug&gt;/</text>
+        <text x="856" y="60" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">S101 draft</text>
+      </g>
+      <!-- lifelines -->
+      <line x1="124" y1="72" x2="124" y2="536" stroke="#3b5e8f" stroke-width="1.5" stroke-dasharray="4 4"/>
+      <line x1="368" y1="72" x2="368" y2="536" stroke="#3b5e8f" stroke-width="1.5" stroke-dasharray="4 4"/>
+      <line x1="612" y1="72" x2="612" y2="536" stroke="#3b5e8f" stroke-width="1.5" stroke-dasharray="4 4"/>
+      <line x1="856" y1="72" x2="856" y2="536" stroke="#3b5e8f" stroke-width="1.5" stroke-dasharray="4 4"/>
+      <!-- activation bars -->
+      <rect x="120" y="104" width="8" height="416" fill="#66bb6a22" stroke="#66bb6a"/>
+      <rect x="364" y="104" width="8" height="416" fill="#ffb74d1a" stroke="#ffb74d"/>
+      <rect x="608" y="232" width="8" height="64" fill="#ffb74d1a" stroke="#ffb74d"/>
+      <rect x="852" y="260" width="8" height="16" fill="#4fc3f71a" stroke="#4fc3f7"/>
+      <rect x="852" y="444" width="8" height="16" fill="#4fc3f71a" stroke="#4fc3f7"/>
+      <!-- loop fragment: all four take part -->
+      <rect x="104" y="168" width="772" height="304" fill="none" stroke="#3b5e8f" stroke-width="1.5"/>
+      <rect x="104" y="168" width="64" height="24" fill="#122039" stroke="#3b5e8f"/>
+      <text x="136" y="184" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700">loop</text>
+      <text x="136" y="208" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">[until the author says go]</text>
+      <!-- m1 -->
+      <line x1="128" y1="104" x2="364" y2="104" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#seqA-arr)"/>
+      <text x="246" y="96" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">asimov-spec design</text>
+      <!-- m2 -->
+      <line x1="364" y1="136" x2="130" y2="136" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#seqA-arr)"/>
+      <text x="246" y="128" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">≤5 questions, with defaults</text>
+      <!-- m3 -->
+      <line x1="372" y1="232" x2="608" y2="232" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#seqA-arr)"/>
+      <text x="490" y="224" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">cut: answers · feedback → slices → phases</text>
+      <!-- m4 -->
+      <line x1="616" y1="264" x2="852" y2="264" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#seqA-arr)"/>
+      <text x="740" y="256" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">write S101 draft · graph · interfaces</text>
+      <!-- m5 return -->
+      <line x1="608" y1="296" x2="374" y2="296" stroke="#a8b8d0" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#seqA-open)"/>
+      <text x="490" y="288" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">the cut summary</text>
+      <!-- m6 self -->
+      <polyline points="372,328 420,328 420,352 374,352" fill="none" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#seqA-arr)"/>
+      <text x="432" y="344" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">graph checks · s101-validation · graph-only</text>
+      <!-- m7 accent: the gate -->
+      <line x1="364" y1="384" x2="130" y2="384" stroke="#66bb6a" stroke-width="1.5" marker-end="url(#seqA-acc)"/>
+      <text x="246" y="376" text-anchor="middle" fill="#66bb6a" font-family="JetBrains Mono, monospace" font-size="9">the cut · go, correct, or stop?</text>
+      <!-- m8 accent -->
+      <line x1="128" y1="416" x2="364" y2="416" stroke="#66bb6a" stroke-width="1.5" marker-end="url(#seqA-acc)"/>
+      <text x="246" y="408" text-anchor="middle" fill="#66bb6a" font-family="JetBrains Mono, monospace" font-size="9">go · free text · stop</text>
+      <!-- m9 -->
+      <line x1="128" y1="448" x2="852" y2="448" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#seqA-arr)"/>
+      <text x="508" y="440" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">or: edit the S101 by hand, then “read again”</text>
+      <!-- m10 return -->
+      <line x1="364" y1="504" x2="130" y2="504" stroke="#a8b8d0" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#seqA-open)"/>
+      <text x="246" y="496" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">stop → S101 only · go → the expansion below</text>
+    </svg>
+    <div class="flow-legend">
+      <span class="item"><span class="swatch" style="background:var(--green)"></span>Human · the accented messages are the gate</span>
+      <span class="item"><span class="swatch" style="background:var(--amber)"></span>Asimov-skill and skill</span>
+      <span class="item"><span class="swatch" style="background:var(--cyan)"></span>The specs folder</span>
+    </div>
+  </div>
+  <div class="subhead" style="margin-top:2rem">The expansion · after the go</div>
+  <div class="flow-wrap">
+    <svg viewBox="0 0 980 528" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Sequence diagram, the expansion: after the author's go, for each task the asimov-skill has the authoring skill write one S102 to the specs folder, calls a fresh subagent to validate it blind against the S102, S101 and D101 on disk, and receives the findings; the loop repeats until every task clears. The asimov-skill then validates the whole plan, finalises the S101 and the sidecar, and returns the plan and the findings to the author.">
+      <rect x="0" y="0" width="980" height="528" fill="#14253f"/>
+      <defs>
+        <marker id="seqB-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 Z" fill="#a8b8d0"/></marker>
+        <marker id="seqB-open" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10" fill="none" stroke="#a8b8d0" stroke-width="1.5"/></marker>
+        <marker id="seqB-acc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 Z" fill="#66bb6a"/></marker>
+      </defs>
+      <g>
+        <rect x="24" y="24" width="160" height="48" rx="8" fill="#66bb6a22" stroke="#66bb6a"/>
+        <text x="104" y="44" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">Author</text>
+        <text x="104" y="60" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">human · said go</text>
+      </g>
+      <g>
+        <rect x="216" y="24" width="160" height="48" rx="8" fill="#ffb74d1a" stroke="#ffb74d"/>
+        <text x="296" y="44" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">asimov-spec</text>
+        <text x="296" y="60" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">asimov-skill · the loop</text>
+      </g>
+      <g>
+        <rect x="408" y="24" width="160" height="48" rx="8" fill="#ffb74d1a" stroke="#ffb74d"/>
+        <text x="488" y="44" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">artifact-s102-authoring</text>
+        <text x="488" y="60" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">skill · one task per call</text>
+      </g>
+      <g>
+        <rect x="600" y="24" width="160" height="48" rx="8" fill="#122039" stroke="#3b5e8f" stroke-dasharray="4 4"/>
+        <text x="680" y="44" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">Blind validator</text>
+        <text x="680" y="60" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">fresh subagent · artifact-s102-validation</text>
+      </g>
+      <g>
+        <rect x="792" y="24" width="160" height="48" rx="8" fill="#4fc3f71a" stroke="#4fc3f7"/>
+        <text x="872" y="44" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">specs/&lt;slug&gt;/</text>
+        <text x="872" y="60" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">S101 + S102 × N</text>
+      </g>
+      <!-- lifelines -->
+      <line x1="104" y1="72" x2="104" y2="504" stroke="#3b5e8f" stroke-width="1.5" stroke-dasharray="4 4"/>
+      <line x1="296" y1="72" x2="296" y2="504" stroke="#3b5e8f" stroke-width="1.5" stroke-dasharray="4 4"/>
+      <line x1="488" y1="72" x2="488" y2="504" stroke="#3b5e8f" stroke-width="1.5" stroke-dasharray="4 4"/>
+      <line x1="680" y1="72" x2="680" y2="504" stroke="#3b5e8f" stroke-width="1.5" stroke-dasharray="4 4"/>
+      <line x1="872" y1="72" x2="872" y2="504" stroke="#3b5e8f" stroke-width="1.5" stroke-dasharray="4 4"/>
+      <!-- activation bars -->
+      <rect x="100" y="104" width="8" height="384" fill="#66bb6a22" stroke="#66bb6a"/>
+      <rect x="292" y="104" width="8" height="384" fill="#ffb74d1a" stroke="#ffb74d"/>
+      <rect x="484" y="200" width="8" height="40" fill="#ffb74d1a" stroke="#ffb74d"/>
+      <rect x="676" y="264" width="8" height="72" fill="#122039" stroke="#3b5e8f" stroke-dasharray="4 4"/>
+      <rect x="868" y="228" width="8" height="16" fill="#4fc3f71a" stroke="#4fc3f7"/>
+      <rect x="868" y="292" width="8" height="16" fill="#4fc3f71a" stroke="#4fc3f7"/>
+      <rect x="868" y="444" width="8" height="16" fill="#4fc3f71a" stroke="#4fc3f7"/>
+      <!-- loop fragment: asimov-skill, skill, validator, store -->
+      <rect x="276" y="136" width="616" height="224" fill="none" stroke="#3b5e8f" stroke-width="1.5"/>
+      <rect x="276" y="136" width="64" height="24" fill="#122039" stroke="#3b5e8f"/>
+      <text x="308" y="152" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700">loop</text>
+      <text x="308" y="176" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">[for each task · repeat until it clears the bar]</text>
+      <!-- m0 -->
+      <line x1="108" y1="104" x2="290" y2="104" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#seqB-arr)"/>
+      <text x="200" y="96" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">go · from the cut (above)</text>
+      <!-- m1 -->
+      <line x1="300" y1="200" x2="482" y2="200" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#seqB-arr)"/>
+      <text x="392" y="192" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">write task n</text>
+      <!-- m2 -->
+      <line x1="492" y1="232" x2="866" y2="232" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#seqB-arr)"/>
+      <text x="680" y="224" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">write S102-n · one builder role</text>
+      <!-- m3 accent: the blind call -->
+      <line x1="300" y1="264" x2="674" y2="264" stroke="#66bb6a" stroke-width="1.5" marker-end="url(#seqB-acc)"/>
+      <text x="488" y="256" text-anchor="middle" fill="#66bb6a" font-family="JetBrains Mono, monospace" font-size="9">validate S102-n blind · no conversation</text>
+      <!-- m4 -->
+      <line x1="684" y1="296" x2="866" y2="296" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#seqB-arr)"/>
+      <text x="776" y="288" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">read S102-n · S101 · design</text>
+      <!-- m5 return -->
+      <line x1="676" y1="328" x2="302" y2="328" stroke="#a8b8d0" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#seqB-open)"/>
+      <text x="488" y="320" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">findings per check</text>
+      <!-- m6 self -->
+      <polyline points="300,392 348,392 348,416 302,416" fill="none" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#seqB-arr)"/>
+      <text x="360" y="408" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">validate plan · artifact-s101-validation · full</text>
+      <!-- m7 -->
+      <line x1="300" y1="448" x2="866" y2="448" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#seqB-arr)"/>
+      <text x="584" y="440" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">finalise S101: coverage map · assumptions · sidecar</text>
+      <!-- m8 return -->
+      <line x1="292" y1="480" x2="110" y2="480" stroke="#a8b8d0" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#seqB-open)"/>
+      <text x="200" y="472" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">S101 + S102 × N · findings · finish</text>
+    </svg>
+    <div class="flow-legend">
+      <span class="item"><span class="swatch" style="background:var(--green)"></span>Human · the one accented message is the blind call</span>
+      <span class="item"><span class="swatch" style="background:var(--amber)"></span>Asimov-skill and skill</span>
+      <span class="item"><span class="swatch" style="background:var(--border-2); border:1px dashed var(--text-mute)"></span>Fresh subagent, no conversation history</span>
+      <span class="item"><span class="swatch" style="background:var(--cyan)"></span>The specs folder</span>
+    </div>
+  </div>
+  <ul class="bullets">
+    <li>The author's go is the only thing between the two figures. In a hand run without the asimov-skill the skill boundary is the gate: run the authoring skill, read the summary it returns, call the S102 skill when ready.</li>
+    <li><code>asimov-spec-validate</code> is the second figure without the writes, plus the graph-only checks on a cut (§6.3).</li>
+    <li>A ticket that needs one task gets a one-task S101 by the same run; there is no S102 without a plan (§4.7).</li>
+  </ul>
+
+  <div class="subhead" style="margin-top:2rem">The components</div>
+  <div class="data-table">
+    <div class="row head cols-3"><div>Component</div><div>Kind</div><div>Does</div></div>
+    <div class="row cols-3"><div class="label-cell">s101-implementation-plan-definition.md</div><div>Definition</div><div>The S101 bar (<em>dispatch-ready</em>), required content, checks, thresholds. Exists; the build adds §4.9 Assumptions and the thresholds block, makes phase = slice, drops <code>superseded</code>, splits validation from verification, and points at <code>contracts/design.md</code> for the bar on the design (§3.1) and fixes the cache shape (§9).</div></div>
+    <div class="row cols-3"><div class="label-cell">s102-task-spec-definition.md</div><div>Definition</div><div>The S102 bar (<em>buildable blind</em>), required content, checks. Exists; the build splits validation from verification.</div></div>
+    <div class="row cols-3"><div class="label-cell">contracts/design.md</div><div>Contract</div><div>What a design must contain, and nothing about who reads it or how. New: the first stage contract; <code>contracts/specification.md</code> (what Build needs from a spec) is the next, not written. The D101 definition gains §3.1, how a D101 meets it.</div></div>
+    <div class="row cols-3"><div class="label-cell">s101-implementation-plan-template.md</div><div>Template</div><div>The S101 shape: graph in frontmatter, body by task id.</div></div>
+    <div class="row cols-3"><div class="label-cell">s102-task-spec-template.md</div><div>Template</div><div>The S102 shape: one task, one builder.</div></div>
+    <div class="row cols-3"><div class="label-cell">artifact-s101-authoring</div><div>Skill</div><div>The decomposition; writes the S101 and returns the cut summary.</div></div>
+    <div class="row cols-3"><div class="label-cell">artifact-s102-authoring</div><div>Skill</div><div>One S102 from one graph entry.</div></div>
+    <div class="row cols-3"><div class="label-cell">artifact-s101-validation</div><div>Skill</div><div>The S101 checks as a fixed checklist, in two modes: graph-only on the S101 alone, full with every S102.</div></div>
+    <div class="row cols-3"><div class="label-cell">artifact-s102-validation</div><div>Skill</div><div>The S102 checks for one file; loaded by the blind subagent.</div></div>
+    <div class="row cols-3"><div class="label-cell">asimov-spec</div><div>Asimov-skill</div><div>The conversation, the gate and the loop; finishes once. Invoked only by name (NF5).</div></div>
+    <div class="row cols-3"><div class="label-cell">asimov-spec-validate</div><div>Asimov-skill</div><div>Both validations on an existing plan; reports; writes no spec. Invoked only by name (NF5).</div></div>
+  </div>
+  <div class="subhead" style="margin-top:2rem">Two harnesses, one file</div>
+  <ul class="bullets">
+    <li><strong>Invocation.</strong> <code>/asimov-spec &lt;slug&gt;</code> in Claude Code; <code>$asimov-plugin:asimov-spec</code> with the slug in the same message in Codex, whose skills take no arguments and carry the plugin prefix (D101-codex-support Rule 3). Step 01 resolves the target from the words either way; with no target it lists the candidates and finishes, so the gate stays the run's one wait.</li>
+    <li><strong>Only by name.</strong> Claude Code reads <code>disable-model-invocation</code> in the SKILL.md frontmatter; Codex reads <code>policy.allow_implicit_invocation: false</code> in the skill's <code>agents/openai.yaml</code>. Both files ship with the skill (NF5).</li>
+    <li><strong>Model.</strong> The frontmatter model binds in Claude Code; Codex ignores it and runs the session's model. <code>model-choice.md</code> marks the two rows as Claude Code only.</li>
+    <li><strong>The blind subagent.</strong> Each harness's generic fresh agent, read-only by tool restriction where the harness has one, by prompt otherwise (§6.6). No Asimov name: it is a context boundary, not a role.</li>
+    <li><strong>Jira.</strong> Where the harness has the Atlassian connector, <code>asimov-spec</code> fetches the ticket and its comments itself; where it has not (Codex today), the author pastes the ticket text after the skill's name. Either way the text lands in the cache (§6.8) and the run is the same from there (R27). The connector's read tool is pre-approved in both asimov-skills' <code>allowed-tools</code>, matched by the connector name, so a ticket run has no permission stop; that pattern is the one install-specific literal in the skills, and no Jira write tool is ever listed.</li>
+    <li><strong>Paths.</strong> The skills name the definitions and templates under <code>${CLAUDE_PLUGIN_ROOT}</code>, which Claude Code substitutes. Codex leaves it literal and resolves a <code>..</code> path from the working directory, so in Codex each skill derives the plugin root from its own file path, verifies it by reading its definition, and searches the plugin cache if that fails: the method of <code>D101-codex-support.html</code> §6.2, adopted here on 2026-10-02 (Q11).</li>
+  </ul>
+</section>
+
+<section class="s" id="s6-2">
+  <h2 class="section-title"><span class="sec-ref">§6.2</span><code>asimov-spec</code></h2>
+  <p class="section-desc">One run, lane by lane, in two figures split at the author's go. The asimov-skill owns <em>when</em>: the conversation, the gate and every decision. The skills own <em>what</em> and <em>how</em>: the authoring skills write, the S102 validation runs in a fresh subagent, the S101 validation runs inline. The gate is a <em>when</em>, so no skill knows it exists.</p>
+  <div class="subhead">The cut · up to the author's go</div>
+  <div class="flow-wrap">
+    <svg viewBox="0 0 980 384" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Activity diagram with swimlanes, the cut: the author starts the run; the asimov-skill reads and asks; the authoring skill cuts the plan and writes the S101 draft; the asimov-skill runs the graph-only checks and shows the cut; the author decides: a correction returns to the cut, stop ends the run with the S101 on disk, go continues to the expansion in the next figure.">
+      <rect x="0" y="0" width="980" height="384" fill="#14253f"/>
+      <defs>
+        <marker id="actA-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 Z" fill="#a8b8d0"/></marker>
+      </defs>
+      <!-- lane frame -->
+      <line x1="16" y1="24" x2="964" y2="24" stroke="#2b4a73" stroke-width="1"/>
+      <line x1="16" y1="136" x2="964" y2="136" stroke="#2b4a73" stroke-width="1"/>
+      <line x1="16" y1="248" x2="964" y2="248" stroke="#2b4a73" stroke-width="1"/>
+      <line x1="16" y1="360" x2="964" y2="360" stroke="#2b4a73" stroke-width="1"/>
+      <line x1="136" y1="24" x2="136" y2="360" stroke="#2b4a73" stroke-width="1"/>
+      <!-- lane labels -->
+      <text x="24" y="76" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="10" font-weight="700" letter-spacing="0.08em">AUTHOR</text>
+      <text x="24" y="92" fill="#7d93b2" font-family="Inter, sans-serif" font-size="9">human · reads the cut</text>
+      <text x="24" y="188" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="10" font-weight="700" letter-spacing="0.08em">ASIMOV-SKILL</text>
+      <text x="24" y="204" fill="#7d93b2" font-family="Inter, sans-serif" font-size="9">asimov-spec</text>
+      <text x="24" y="300" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="10" font-weight="700" letter-spacing="0.08em">AUTHORING</text>
+      <text x="24" y="316" fill="#7d93b2" font-family="Inter, sans-serif" font-size="9">artifact-s101-authoring</text>
+      <!-- initial node, author lane -->
+      <circle cx="152" cy="80" r="8" fill="#66bb6a"/>
+      <!-- 01 read · ask (asimov-skill) -->
+      <rect x="176" y="164" width="128" height="56" rx="8" fill="#66bb6a22" stroke="#66bb6a"/>
+      <text x="240" y="188" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">01 · Read · ask</text>
+      <text x="240" y="204" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">design · repo · ≤5 questions</text>
+      <!-- 02 s101-authoring (authoring) -->
+      <rect x="344" y="276" width="128" height="56" rx="8" fill="#ffb74d1a" stroke="#ffb74d"/>
+      <text x="408" y="300" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">02 · s101-authoring</text>
+      <text x="408" y="316" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">cut → S101 draft · summary</text>
+      <!-- 03 show the cut (asimov-skill) -->
+      <rect x="512" y="164" width="128" height="56" rx="8" fill="#66bb6a22" stroke="#66bb6a"/>
+      <text x="576" y="188" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">03 · Show the cut</text>
+      <text x="576" y="204" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">graph-only checks · print</text>
+      <!-- gate: the author's decision -->
+      <polygon points="720,52 748,80 720,108 692,80" fill="#66bb6a22" stroke="#66bb6a" stroke-width="1.5"/>
+      <text x="684" y="124" text-anchor="end" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">go? · correct? · stop?</text>
+      <!-- stop: final node, author lane -->
+      <circle cx="652" cy="80" r="12" fill="none" stroke="#ef5350" stroke-width="1.5"/>
+      <circle cx="652" cy="80" r="6" fill="#ef5350"/>
+      <!-- go: continues in the next figure (asimov-skill lane) -->
+      <rect x="816" y="164" width="128" height="56" rx="8" fill="#122039" stroke="#3b5e8f" stroke-dasharray="4 4"/>
+      <text x="880" y="188" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">→ The expansion</text>
+      <text x="880" y="204" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">next figure · after the go</text>
+      <!-- edges -->
+      <path d="M160,80 H232 A8,8 0 0 1 240,88 V162" fill="none" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#actA-arr)"/>
+      <path d="M304,192 H316 A8,8 0 0 1 324,200 V296 A8,8 0 0 0 332,304 H342" fill="none" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#actA-arr)"/>
+      <path d="M472,304 H568 A8,8 0 0 0 576,296 V222" fill="none" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#actA-arr)"/>
+      <path d="M640,192 H712 A8,8 0 0 0 720,184 V110" fill="none" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#actA-arr)"/>
+      <path d="M720,52 V40 A8,8 0 0 0 712,32 H416 A8,8 0 0 0 408,40 V274" fill="none" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#actA-arr)"/>
+      <text x="560" y="28" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">[correct · free text → re-cut]</text>
+      <path d="M692,80 H666" fill="none" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#actA-arr)"/>
+      <text x="679" y="98" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">[stop]</text>
+      <path d="M748,80 H872 A8,8 0 0 1 880,88 V162" fill="none" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#actA-arr)"/>
+      <text x="800" y="70" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">[go]</text>
+    </svg>
+    <div class="flow-legend">
+      <span class="item"><span class="swatch" style="background:var(--green)"></span>Entry, the asimov-skill's steps and the author's decision</span>
+      <span class="item"><span class="swatch" style="background:var(--amber)"></span>A skill doing method work</span>
+      <span class="item"><span class="swatch" style="background:var(--border-2); border:1px dashed var(--text-mute)"></span>Continues in the next figure</span>
+      <span class="item"><span class="swatch" style="background:var(--coral)"></span>Stop</span>
+    </div>
+  </div>
+  <div class="subhead" style="margin-top:2rem">The expansion · after the go</div>
+  <div class="flow-wrap">
+    <svg viewBox="0 0 980 496" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Activity diagram with swimlanes, the expansion: after the author's go, the authoring skill writes one S102, the fresh subagent validates it blind, the asimov-skill decides whether it clears and whether tasks remain; then the inline validation checks the whole plan, the asimov-skill routes findings back or finishes.">
+      <rect x="0" y="0" width="980" height="496" fill="#14253f"/>
+      <defs>
+        <marker id="actB-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 Z" fill="#a8b8d0"/>
+        </marker>
+      </defs>
+      <!-- lane frame -->
+      <line x1="16" y1="24" x2="964" y2="24" stroke="#2b4a73" stroke-width="1"/>
+      <line x1="16" y1="136" x2="964" y2="136" stroke="#2b4a73" stroke-width="1"/>
+      <line x1="16" y1="248" x2="964" y2="248" stroke="#2b4a73" stroke-width="1"/>
+      <line x1="16" y1="360" x2="964" y2="360" stroke="#2b4a73" stroke-width="1"/>
+      <line x1="16" y1="472" x2="964" y2="472" stroke="#2b4a73" stroke-width="1"/>
+      <line x1="136" y1="24" x2="136" y2="472" stroke="#2b4a73" stroke-width="1"/>
+      <!-- lane labels -->
+      <text x="24" y="76" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="10" font-weight="700" letter-spacing="0.08em">ASIMOV-SKILL</text>
+      <text x="24" y="92" fill="#7d93b2" font-family="Inter, sans-serif" font-size="9">asimov-spec</text>
+      <text x="24" y="188" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="10" font-weight="700" letter-spacing="0.08em">AUTHORING</text>
+      <text x="24" y="204" fill="#7d93b2" font-family="Inter, sans-serif" font-size="9">artifact-s101/s102-authoring</text>
+      <text x="24" y="300" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="10" font-weight="700" letter-spacing="0.08em">FRESH SUBAGENT</text>
+      <text x="24" y="316" fill="#7d93b2" font-family="Inter, sans-serif" font-size="9">no conversation history</text>
+      <text x="24" y="412" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="10" font-weight="700" letter-spacing="0.08em">VALIDATION</text>
+      <text x="24" y="428" fill="#7d93b2" font-family="Inter, sans-serif" font-size="9">inline, in the asimov-skill</text>
+      <!-- initial node: the author's go -->
+      <circle cx="152" cy="80" r="8" fill="#66bb6a"/>
+      <text x="152" y="104" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">[go]</text>
+      <!-- 05 s102-authoring (authoring) -->
+      <rect x="344" y="164" width="128" height="56" rx="8" fill="#ffb74d1a" stroke="#ffb74d"/>
+      <text x="408" y="188" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">05 · s102-authoring</text>
+      <text x="408" y="204" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">one S102 on disk</text>
+      <!-- 06 s102-validation (fresh subagent) -->
+      <rect x="344" y="276" width="128" height="56" rx="8" fill="#122039" stroke="#3b5e8f" stroke-dasharray="4 4"/>
+      <text x="408" y="300" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">06 · s102-validation</text>
+      <text x="408" y="316" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">blind · report only</text>
+      <!-- decision: clears? more? (asimov-skill) -->
+      <polygon points="500,52 528,80 500,108 472,80" fill="#66bb6a22" stroke="#66bb6a" stroke-width="1.5"/>
+      <text x="500" y="44" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">clears? · more tasks?</text>
+      <!-- 07 s101-validation (validation) -->
+      <rect x="560" y="388" width="128" height="56" rx="8" fill="#ffb74d1a" stroke="#ffb74d"/>
+      <text x="624" y="412" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">07 · s101-validation</text>
+      <text x="624" y="428" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">the whole plan</text>
+      <!-- decision: findings? (asimov-skill) -->
+      <polygon points="720,52 748,80 720,108 692,80" fill="#66bb6a22" stroke="#66bb6a" stroke-width="1.5"/>
+      <text x="720" y="124" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">findings?</text>
+      <!-- 08 finish (asimov-skill) -->
+      <rect x="780" y="52" width="128" height="56" rx="8" fill="#4fc3f71a" stroke="#4fc3f7"/>
+      <text x="844" y="76" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">08 · Finish</text>
+      <text x="844" y="92" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">S101 · sidecar · print</text>
+      <!-- final node -->
+      <circle cx="944" cy="80" r="12" fill="none" stroke="#ef5350" stroke-width="1.5"/>
+      <circle cx="944" cy="80" r="6" fill="#ef5350"/>
+      <!-- edges -->
+      <path d="M160,80 H320 A8,8 0 0 1 328,88 V184 A8,8 0 0 0 336,192 H342" fill="none" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#actB-arr)"/>
+      <line x1="408" y1="220" x2="408" y2="274" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#actB-arr)"/>
+      <path d="M472,304 H492 A8,8 0 0 0 500,296 V110" fill="none" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#actB-arr)"/>
+      <path d="M472,80 H464 A8,8 0 0 0 456,88 V162" fill="none" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#actB-arr)"/>
+      <text x="448" y="152" text-anchor="end" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">[fail · next]</text>
+      <path d="M528,80 H616 A8,8 0 0 1 624,88 V386" fill="none" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#actB-arr)"/>
+      <text x="572" y="70" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">[all clear]</text>
+      <path d="M672,388 V88 A8,8 0 0 1 680,80 H690" fill="none" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#actB-arr)"/>
+      <path d="M720,52 V40 A8,8 0 0 0 712,32 H392 A8,8 0 0 0 384,40 V162" fill="none" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#actB-arr)"/>
+      <text x="392" y="140" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">[finding]</text>
+      <line x1="748" y1="80" x2="778" y2="80" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#actB-arr)"/>
+      <text x="763" y="70" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">[none]</text>
+      <line x1="908" y1="80" x2="930" y2="80" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#actB-arr)"/>
+    </svg>
+    <div class="flow-legend">
+      <span class="item"><span class="swatch" style="background:var(--green)"></span>Entry and the asimov-skill's decisions</span>
+      <span class="item"><span class="swatch" style="background:var(--amber)"></span>A skill doing method work</span>
+      <span class="item"><span class="swatch" style="background:var(--border-2); border:1px dashed var(--text-mute)"></span>Delegated to a fresh subagent</span>
+      <span class="item"><span class="swatch" style="background:var(--cyan)"></span>Writes the specs folder</span>
+      <span class="item"><span class="swatch" style="background:var(--coral)"></span>Stop</span>
+    </div>
+  </div>
+  <ol class="principles">
+    <li class="principle"><div class="num">01</div><div class="text"><strong>Asimov-skill.</strong> Read the words of the message: a D101 slug or path, a Jira link or key, pasted ticket text, or nothing, in which case say what is accepted and finish (R26). For a D101: read it, the conventions and the specs folder; refuse unless <em>Full design</em> (R2). For a ticket: fetch it with its comments where the harness can, else take the pasted text (which must carry the link, the contract's reference); check every required member of the design contract and refuse naming the missing one; otherwise write the cache (§6.8) with ids on its items (R, AC, OOS, NF), the ids an existing plan already holds kept, and show them (R27). Existing S101 at <code>ready</code> or later: refused with the reason; the author sets it back to <code>draft</code> first (R15). Existing S101 at <code>draft</code>: the design's R, NF and AC ids against the coverage map; an id missing or added → rewrite (R17); ids equal → one question, default <em>refined</em> → update in place (R16): every existing S102 goes through the blind call (§6.6) first, and the ones that clear are passed to step 02 as untouchable. Then at most five questions with defaults, only about the cut, the phases and open D101 items (R19–R21); an unanswered decision takes its default and becomes an assumption (R22).</div></li>
+    <li class="principle"><div class="num">02</div><div class="text"><strong>artifact-s101-authoring</strong> (§6.4) cuts the plan from the design, the repo, the answers and any cut feedback; writes the S101 draft to disk before any S102, so the subagent and a resumed run read it from the folder; returns the cut summary. On an update it receives the list of S102s that already clear and leaves them byte-identical (R16).</div></li>
+    <li class="principle"><div class="num">03</div><div class="text"><strong>Asimov-skill.</strong> Run <code>artifact-s101-validation</code> in graph-only mode on the S101 (§6.7), print the cut summary and the graph findings (§5.2), and ask: go, correct, or stop (R24). A run that found a cut without S102s enters here (R25).</div></li>
+    <li class="principle"><div class="num">04</div><div class="text"><strong>Author.</strong> <em>go</em> → 05. Free text → 02 with the text as cut feedback. <em>read again</em> after a hand edit → 03 with the S101 on disk as the graph, no re-cut. <em>stop</em> → 08 with the S101 alone on disk. The go is not counted among the five questions (R20) and is recorded nowhere (R15).</div></li>
+    <li class="principle"><div class="num">05</div><div class="text"><strong>artifact-s102-authoring</strong> (§6.5) writes one S102 for one role from one graph entry (R8).</div></li>
+    <li class="principle"><div class="num">06</div><div class="text"><strong>artifact-s102-validation</strong> (§6.6) runs in a fresh subagent and returns a report (R9). The asimov-skill decides: fail → 05 (R10); third failure or design gap → stop (R11); clear → next task.</div></li>
+    <li class="principle"><div class="num">07</div><div class="text"><strong>artifact-s101-validation</strong> (§6.7) runs inline in full mode once every task exists (R12, R18); a finding sends the affected tasks to 05 (R13).</div></li>
+    <li class="principle"><div class="num">08</div><div class="text"><strong>Asimov-skill.</strong> Complete the S101 with Assumptions, write the sidecar (§6.8), print the findings, finish (R23). After a <em>stop</em> at the gate: print how to resume and finish with no sidecar. Only the graph and the reports stay in context; S102s are written and validated from disk.</div></li>
+  </ol>
+</section>
+
+<section class="s" id="s6-3">
+  <h2 class="section-title"><span class="sec-ref">§6.3</span><code>asimov-spec-validate</code></h2>
+  <p class="section-desc">The same two validations on an existing plan; no conversation, no writes to the plan. The author's self-preview and the reviewer's first read.</p>
+  <ul class="bullets">
+    <li><strong>Target.</strong> A slug or an S101 path, from the words after <code>/asimov-spec-validate</code> in Claude Code or beside <code>$asimov-plugin:asimov-spec-validate</code> in Codex; refused with the reason when no S101 is there, and with no target the plans are listed and the run finishes.</li>
+    <li><strong>Runs</strong> <code>artifact-s102-validation</code> per S102 through the same blind call (§6.6), then <code>artifact-s101-validation</code> (§6.7).</li>
+    <li><strong>Prints</strong> both reports and writes only <code>S101-&lt;slug&gt;.review.md</code> (§6.8); no spec changes, no status moves (R14, R15).</li>
+    <li><strong>Asks nothing.</strong> No menu, no questions; both bars apply to a draft as to a ready plan.</li>
+    <li><strong>On a cut</strong> (an S101 with no S102) it runs only the graph-only mode of <code>artifact-s101-validation</code> (§6.7) and says so in the report.</li>
+    <li><strong>Without a subagent</strong>, in a session that cannot spawn one, the S102 validation runs inline and the report carries <code>blind: false</code> (Q3).</li>
+  </ul>
+</section>
+
+<section class="s" id="s6-4">
+  <h2 class="section-title"><span class="sec-ref">§6.4</span><code>artifact-s101-authoring</code></h2>
+  <p class="section-desc">Cuts one design into one S101 draft.</p>
+  <div class="data-table impl-table">
+    <div class="row head"><div>Aspect</div><div>Refs</div><div>Details</div></div>
+    <div class="row">
+      <div class="label-cell">Reads</div>
+      <div><span class="tag note">NF3</span></div>
+      <div><ul>
+        <li>The design: the D101 at <em>Full design</em>, or the design cache with its assigned ids.</li>
+        <li>The repo's <code>conventions/&lt;stack&gt;/</code> folders.</li>
+        <li>The S101 definition and template, by path.</li>
+        <li>The existing S101 and its S102s, on an update.</li>
+        <li>The author's answers and cut feedback, as the asimov-skill passes them; the same channel for both.</li>
+        <li>On an update, the list of existing S102s that already clear, from the asimov-skill (R16).</li>
+      </ul></div>
+    </div>
+    <div class="row">
+      <div class="label-cell">Writes</div>
+      <div><span class="tag note">NF4</span></div>
+      <div><ul>
+        <li><code>S101-&lt;slug&gt;.md</code>, status <code>draft</code>: graph once in frontmatter, body by task id, Assumptions last (§6.8). Rewritten in place at every cut round.</li>
+      </ul></div>
+    </div>
+    <div class="row">
+      <div class="label-cell">Returns</div>
+      <div><span class="tag note">R24</span></div>
+      <div><ul>
+        <li>The cut summary for chat, in the shape of §5.2: per phase its name, criterion and checkpoint; per task id · title · role · stack · owned files · depends on · traces; then the assumptions. Same shape every run, so a reader learns it once.</li>
+      </ul></div>
+    </div>
+    <div class="row">
+      <div class="label-cell">Steps</div>
+      <div><span class="tag note">R3–R8 R22</span></div>
+      <div><ul>
+        <li>Slices: one per acceptance criterion of the design a builder can make pass; a criterion verified by review or by hand maps to no task and is marked <em>verified by review</em> in the coverage map.</li>
+        <li>Stacks and roles: one builder S102 per stack the slice touches, the stack read from the D101 §6 contracts or the ticket's decision and the conventions folders, plus one tester S102 for the acceptance test.</li>
+        <li>Phase 0: the skeleton, one S102 per stack, files cut per slice so no two parallel slices own the same file; every slice task depends on it.</li>
+        <li>Interfaces: every name one task consumes and another produces, by signature or a numbered contract of the design (D101 §6); no consumed name without a producer.</li>
+        <li>Once: global constraints verbatim from the D101 or the conventions, review focus, escalation routing.</li>
+        <li>Coverage map both ways: every design id against its task ids, every task against what it serves; for a ticket, each id carries the source's wording, so the plan stands without the cache.</li>
+        <li>Assumptions: every decision taken without a question, with the options, the default taken and <em>decided by default</em> when the budget was spent.</li>
+        <li>Write from the template.</li>
+      </ul></div>
+    </div>
+    <div class="row">
+      <div class="label-cell">Never</div>
+      <div><span class="tag note">R15</span></div>
+      <div><ul>
+        <li>Writes an S102, or anything outside the specs folder.</li>
+        <li>Sets a status other than <code>draft</code>.</li>
+        <li>Asks a question or waits for a go; the asimov-skill asks (§6.2).</li>
+        <li>Re-cuts an S101 the author edited by hand; the asimov-skill reads that file as the graph and does not call this skill.</li>
+        <li>Validates an S102, or calls any other skill; a skill is a leaf.</li>
+      </ul></div>
+    </div>
+    <div class="row">
+      <div class="label-cell">Used by</div>
+      <div></div>
+      <div><ul>
+        <li><code>asimov-spec</code>, step 02, once per cut round; step 07, with a plan-level finding as cut feedback and every clearing task kept; step 08, in a <em>finalise</em> mode that touches only the coverage map and the assumptions.</li>
+        <li>A hand run without the asimov-skill: the summary it returns is what the person reads before calling <code>artifact-s102-authoring</code>.</li>
+      </ul></div>
+    </div>
+  </div>
+</section>
+
+<section class="s" id="s6-5">
+  <h2 class="section-title"><span class="sec-ref">§6.5</span><code>artifact-s102-authoring</code></h2>
+  <p class="section-desc">Writes one S102 from one graph entry.</p>
+  <div class="data-table impl-table">
+    <div class="row head"><div>Aspect</div><div>Refs</div><div>Details</div></div>
+    <div class="row">
+      <div class="label-cell">Reads</div>
+      <div><span class="tag note">NF3</span></div>
+      <div><ul>
+        <li>The graph entry and the S101 sections it inherits: constraints, interfaces, escalation.</li>
+        <li>The design's sections the entry traces to: the D101's, or the design cache's items by id.</li>
+        <li>The repo code the task links to.</li>
+        <li>The S102 definition and template, by path.</li>
+      </ul></div>
+    </div>
+    <div class="row">
+      <div class="label-cell">Writes</div>
+      <div><span class="tag note">NF4</span></div>
+      <div><ul>
+        <li><code>S102-&lt;slug&gt;-NNN-&lt;task&gt;.md</code>, status <code>draft</code> (§6.8).</li>
+      </ul></div>
+    </div>
+    <div class="row">
+      <div class="label-cell">Steps</div>
+      <div><span class="tag note">R8</span></div>
+      <div><ul>
+        <li>Header from the graph entry: s101, task id, traces, role, tier, depends_on.</li>
+        <li>Intent in the D101's words; files as create, modify, test, which is the owned set.</li>
+        <li>Interfaces consumed and produced, by exact signature, from the S101's interfaces section.</li>
+        <li>Behaviour as Gherkin in fenced blocks, one scenario per behaviour, rules with their counter-example.</li>
+        <li>Constraints specific to this task and its escalation triggers; the global ones by reference.</li>
+        <li>Steps test first, one action each; code inline where the task is transcription, existing code linked by path.</li>
+        <li>Acceptance criteria each checkable by running something; out of scope, one line each.</li>
+      </ul></div>
+    </div>
+    <div class="row">
+      <div class="label-cell">Never</div>
+      <div></div>
+      <div><ul>
+        <li>Pastes existing code, or repeats a global constraint.</li>
+        <li>Writes a placeholder; a step it cannot write is reported to the loop.</li>
+        <li>Touches the S101 or another S102.</li>
+      </ul></div>
+    </div>
+    <div class="row">
+      <div class="label-cell">Used by</div>
+      <div></div>
+      <div><ul>
+        <li><code>asimov-spec</code>, step 05, once per task, only after the author's go.</li>
+        <li>A hand run, one task at a time, after the authoring skill has written the plan.</li>
+      </ul></div>
+    </div>
+  </div>
+</section>
+
+<section class="s" id="s6-6">
+  <h2 class="section-title"><span class="sec-ref">§6.6</span><code>artifact-s102-validation</code></h2>
+  <p class="section-desc">Checks one S102 against its bar, blind.</p>
+  <div class="data-table impl-table">
+    <div class="row head"><div>Aspect</div><div>Refs</div><div>Details</div></div>
+    <div class="row">
+      <div class="label-cell">Reads</div>
+      <div></div>
+      <div><ul>
+        <li>The S102, its S101, the design (the D101, or the design cache), the repo; blind means no conversation, not no repo.</li>
+        <li>The S102 definition and the S101 definition's thresholds, by path.</li>
+      </ul></div>
+    </div>
+    <div class="row">
+      <div class="label-cell">Returns</div>
+      <div></div>
+      <div><ul>
+        <li>The report of §6.8: target, bar <code>buildable-blind</code>, <code>blind</code>, one row per check. Nothing else.</li>
+      </ul></div>
+    </div>
+    <div class="row">
+      <div class="label-cell">Steps</div>
+      <div><span class="tag note">R18</span></div>
+      <div><ul>
+        <li>Shape checklist, fixed order: header fields present; every path exact and existing or declared new; every consumed name produced by a task or by linked code; no placeholder token; owned non-test files, scenarios and steps counted against the thresholds.</li>
+        <li>S102 definition §8, rows 1–10, one row each, Pass / Flag / Fail with one sentence.</li>
+        <li>A size overrun is Warn, never Fail.</li>
+      </ul></div>
+    </div>
+    <div class="row">
+      <div class="label-cell">Never</div>
+      <div><span class="tag note">R9</span></div>
+      <div><ul>
+        <li>Edits, or proposes a fix; the caller decides (§4.3).</li>
+        <li>Receives anything beyond fixed text and three paths: <code>Load the skill `artifact-s102-validation`. Validate &lt;S102 path&gt; against &lt;S101 path&gt; and &lt;design path&gt;. Return the report only. Do not write or edit any file.</code></li>
+      </ul></div>
+    </div>
+    <div class="row">
+      <div class="label-cell">Used by</div>
+      <div><span class="tag note">Q3</span></div>
+      <div><ul>
+        <li><code>asimov-spec</code>, step 06, and <code>asimov-spec-validate</code>: in a fresh subagent, the harness's generic one, read-only by tool restriction where it has one, by prompt otherwise.</li>
+        <li>A hand-edited S102, by skill name.</li>
+        <li>Without a subagent: inline, and the report carries <code>blind: false</code>.</li>
+      </ul></div>
+    </div>
+  </div>
+</section>
+
+<section class="s" id="s6-7">
+  <h2 class="section-title"><span class="sec-ref">§6.7</span><code>artifact-s101-validation</code></h2>
+  <p class="section-desc">Checks the plan against its bar, inline, in two modes: graph-only on the S101 alone, at the gate; full with every S102, at the end.</p>
+  <div class="data-table impl-table">
+    <div class="row head"><div>Aspect</div><div>Refs</div><div>Details</div></div>
+    <div class="row">
+      <div class="label-cell">Reads</div>
+      <div></div>
+      <div><ul>
+        <li>Graph-only: the S101 and the design (the D101, or the design cache).</li>
+        <li>Full: the S101 and every S102 in the folder; the design.</li>
+        <li>The S101 definition and its thresholds, by path.</li>
+      </ul></div>
+    </div>
+    <div class="row">
+      <div class="label-cell">Returns</div>
+      <div></div>
+      <div><ul>
+        <li>The report of §6.8: target, bar <code>dispatch-ready</code>, <code>mode: graph-only | full</code>, <code>blind: false</code>, one row per check. Nothing else.</li>
+      </ul></div>
+    </div>
+    <div class="row">
+      <div class="label-cell">Steps</div>
+      <div><span class="tag note">R12 R18 R24</span></div>
+      <div><ul>
+        <li>Graph-only, fixed order, from the frontmatter alone: no cycle; no orphan task; parallel tasks own disjoint file sets; every consumed name has a producer in the graph; coverage both ways against the design's requirements and criteria; owned-file counts against the thresholds.</li>
+        <li>Full: the graph-only checks again, then across the S102s: every consumed name has a producer in a task body or linked code; no S102 contradicts a global constraint; every S102 header field copied from the graph (role, tier, depends_on, traces, files against <code>owns</code>) equals its graph entry.</li>
+        <li>S101 definition §8, rows 1–10, one row each, Pass / Flag / Fail with one sentence; in graph-only mode a row that needs the S102s is marked <em>not yet</em>, not Pass.</li>
+        <li>A size overrun is Warn, never Fail.</li>
+      </ul></div>
+    </div>
+    <div class="row">
+      <div class="label-cell">Never</div>
+      <div></div>
+      <div><ul>
+        <li>Edits, or proposes a fix; the caller routes findings to the affected tasks (R13).</li>
+        <li>Judges whether the phases are sensible; that is the reviewer's.</li>
+        <li>Runs in a subagent; it needs every file open, and its checks are cross-file, not a blind property.</li>
+      </ul></div>
+    </div>
+    <div class="row">
+      <div class="label-cell">Used by</div>
+      <div></div>
+      <div><ul>
+        <li><code>asimov-spec</code>, step 03 (graph-only) and step 07 (full); <code>asimov-spec-validate</code>, in the mode the folder allows.</li>
+      </ul></div>
+    </div>
+  </div>
+</section>
+
+<section class="s" id="s6-8">
+  <h2 class="section-title"><span class="sec-ref">§6.8</span>The specs folder</h2>
+  <p class="section-desc">The only place the feature writes (NF4): one plan, N task specs, two gitignored siblings (the sidecar and, for a normalised design, the design cache). The two definitions set the content; this is the shape the asimov-skills and the artifact skills rely on.</p>
+  <div class="subhead" style="margin-top:1.5rem">S101 · the implementation plan</div>
+  <div class="data-table impl-table">
+    <div class="row head"><div>Aspect</div><div>Refs</div><div>Details</div></div>
+    <div class="row">
+      <div class="label-cell">Path</div>
+      <div></div>
+      <div><ul>
+        <li><code>documentation/specs/&lt;slug&gt;/S101-&lt;slug&gt;.md</code>; <code>&lt;slug&gt;</code> is the D101's, or the ticket key in kebab-case.</li>
+      </ul></div>
+    </div>
+    <div class="row">
+      <div class="label-cell">Frontmatter</div>
+      <div><span class="tag note">NF2</span></div>
+      <div><ul>
+        <li><code>design</code> (<code>ref</code>: a repo path or a url; <code>version</code> for a repo file, <code>read</code> and <code>cache</code> for a normalised design) · <code>status</code> · <code>execution_mode</code>.</li>
+        <li><code>phases[]</code>: id, name, traces, checkpoint.</li>
+        <li><code>tasks[]</code>: id, file, title, role, tier, phase, depends_on, owns, produces, consumes, traces. The graph lives here and nowhere else.</li>
+      </ul></div>
+    </div>
+    <div class="row">
+      <div class="label-cell">Body</div>
+      <div></div>
+      <div><ul>
+        <li>The S101 definition's sections by task id, never repeating the graph: global constraints, phases and checkpoints, interfaces, review focus, escalation routing, coverage map.</li>
+        <li>Assumptions last: every decision taken without a question, its options and its default.</li>
+      </ul></div>
+    </div>
+    <div class="row">
+      <div class="label-cell">Bar</div>
+      <div></div>
+      <div><ul>
+        <li><em>Dispatch-ready</em> (S101 definition §2): every task can be handed to a fresh builder in graph order without asking the author.</li>
+        <li>The verdict is the reviewer's (≠ author); the plan validation is the preview.</li>
+      </ul></div>
+    </div>
+    <div class="row">
+      <div class="label-cell">Status</div>
+      <div><span class="tag note">R15</span></div>
+      <div><ul>
+        <li><code>draft</code>: written and rewritten by <code>asimov-spec</code>.</li>
+        <li><code>ready</code>: set by the author after the reviewer's approval; never by a skill.</li>
+        <li><code>in progress</code>, <code>done</code>: the Build workflow's, out of scope.</li>
+      </ul></div>
+    </div>
+    <div class="row">
+      <div class="label-cell">Written by</div>
+      <div></div>
+      <div><ul>
+        <li><code>artifact-s101-authoring</code> (§6.4): the draft at every cut round, before any S102, each round starting from the file on disk so a hand edit survives; a re-cut around the clearing tasks when the plan validation finds a plan-level defect; and the coverage map and assumptions completed after the plan validation, nothing else touched. Between the cut and the go, the author may edit it by hand (R24).</li>
+      </ul></div>
+    </div>
+    <div class="row">
+      <div class="label-cell">Read by</div>
+      <div></div>
+      <div><ul>
+        <li><code>artifact-s102-authoring</code> for the entry, the constraints and the interfaces (§6.5).</li>
+        <li>Both validation skills (§6.6, §6.7); the blind subagent reads it from disk.</li>
+        <li>The reviewer, the person directing the run, and the Build workflow as its control document.</li>
+      </ul></div>
+    </div>
+    <div class="row">
+      <div class="label-cell">Rewritten when</div>
+      <div><span class="tag note">R16 R17</span></div>
+      <div><ul>
+        <li>The design's items unchanged and the author answers <em>refined</em>: updated in place, version bumped, cleared S102s untouched.</li>
+        <li>The design's items changed or the author answers <em>changed</em>: rewritten with every S102; git keeps the old plan.</li>
+      </ul></div>
+    </div>
+  </div>
+  <div class="subhead" style="margin-top:1.5rem">S102 · the task spec</div>
+  <div class="data-table impl-table">
+    <div class="row head"><div>Aspect</div><div>Refs</div><div>Details</div></div>
+    <div class="row">
+      <div class="label-cell">Path</div>
+      <div></div>
+      <div><ul>
+        <li><code>documentation/specs/&lt;slug&gt;/S102-&lt;slug&gt;-NNN-&lt;task&gt;.md</code>; <code>NNN</code> counts from 001 inside the folder.</li>
+        <li>For a plan cut from a normalised design the folder is the ticket key in kebab-case.</li>
+      </ul></div>
+    </div>
+    <div class="row">
+      <div class="label-cell">Frontmatter</div>
+      <div><span class="tag note">NF2</span></div>
+      <div><ul>
+        <li><code>s101</code> · <code>task</code> · <code>traces[]</code> (R, NF, §6.x.y, AC; for a ticket the ids the plan assigned) · <code>role</code> · <code>tier</code> · <code>depends_on[]</code> · <code>status</code> · <code>author</code> · <code>date</code>.</li>
+        <li>role, tier, depends_on and traces are copied from the graph entry so the brief stands alone; §6.7 checks they still match.</li>
+      </ul></div>
+    </div>
+    <div class="row">
+      <div class="label-cell">Body</div>
+      <div></div>
+      <div><ul>
+        <li>Intent · files (create, modify, test) · interfaces (consumes, produces) · behaviour as Gherkin in fenced blocks · constraints and escalation triggers · steps, test first · acceptance criteria · out of scope.</li>
+        <li>Code to write inline where the task is transcription; existing code linked by path.</li>
+      </ul></div>
+    </div>
+    <div class="row">
+      <div class="label-cell">Bar</div>
+      <div></div>
+      <div><ul>
+        <li><em>Buildable blind</em> (S102 definition §2): a builder with no conversation history builds it and knows when it is done.</li>
+        <li>Checked blind by §6.6 after every write; the reviewer reads it as part of the S101.</li>
+      </ul></div>
+    </div>
+    <div class="row">
+      <div class="label-cell">Status</div>
+      <div><span class="tag note">R15</span></div>
+      <div><ul>
+        <li><code>draft</code>: the only value a skill writes.</li>
+        <li>Later values follow the S101's; the builder never changes the file.</li>
+      </ul></div>
+    </div>
+    <div class="row">
+      <div class="label-cell">Written by</div>
+      <div></div>
+      <div><ul>
+        <li><code>artifact-s102-authoring</code> (§6.5), once per graph entry, again after a failed validation.</li>
+      </ul></div>
+    </div>
+    <div class="row">
+      <div class="label-cell">Read by</div>
+      <div></div>
+      <div><ul>
+        <li><code>artifact-s102-validation</code> in the fresh subagent (§6.6); <code>artifact-s101-validation</code> for the cross-file checks (§6.7).</li>
+        <li>The reviewer; the builder it is written for, as its whole brief (Build workflow).</li>
+      </ul></div>
+    </div>
+    <div class="row">
+      <div class="label-cell">Rewritten when</div>
+      <div><span class="tag note">R10 R13 R16</span></div>
+      <div><ul>
+        <li>Its own validation fails, or a plan finding names it: rewritten in place by the loop.</li>
+        <li>An update leaves it byte-identical when it still clears; a rewrite of the plan replaces it, and a file outside the new graph is deleted.</li>
+      </ul></div>
+    </div>
+  </div>
+  <div class="subhead" style="margin-top:1.5rem">Validation report · review sidecar</div>
+  <div class="data-table impl-table">
+    <div class="row head"><div>Aspect</div><div>Refs</div><div>Details</div></div>
+    <div class="row">
+      <div class="label-cell">Report</div>
+      <div></div>
+      <div><ul>
+        <li>Returned by both validation skills, never written to the specs: <code>target</code> · <code>bar</code> (<code>buildable-blind</code> or <code>dispatch-ready</code>) · <code>mode</code> (<code>graph-only</code> or <code>full</code>, S101 only) · <code>blind</code> · <code>checks[]</code> with number, Pass / Flag / Fail / Warn, one sentence.</li>
+      </ul></div>
+    </div>
+    <div class="row">
+      <div class="label-cell">Sidecar</div>
+      <div><span class="tag note">Q4</span></div>
+      <div><ul>
+        <li><code>documentation/specs/&lt;slug&gt;/S101-&lt;slug&gt;.review.md</code>, gitignored.</li>
+        <li>A fingerprint (S101 path and version, the design's version or read time, date), every report of the last run, the assumptions decided by default.</li>
+        <li>Written by both asimov-skills at the end of a run, overwritten by the next, read by no skill.</li>
+      </ul></div>
+    </div>
+    <div class="row">
+      <div class="label-cell">Design cache</div>
+      <div><span class="tag note">R27</span></div>
+      <div><ul>
+        <li><code>documentation/specs/&lt;slug&gt;/design.md</code>, gitignored; present only when the design is not a file in the repo.</li>
+        <li>The shape the S101 definition §9 fixes, carrying the members of <code>contracts/design.md</code>: the reference and read time, the approval (who, when, where), then each member's items quoted and numbered (R, AC, OOS; interfaces and non-functional requirements where present), and the source verbatim.</li>
+        <li>Written by <code>asimov-spec</code> at the start of a run, from the fetch or the pasted text; rebuilt by <code>asimov-spec-validate</code> when missing; read by the authoring and validation skills as the design; overwritten by the next run. Never edited by hand: a correction goes into the source and the next run reads it.</li>
+      </ul></div>
+    </div>
+  </div>
+  <ul class="bullets" style="margin-top:1.2rem">
+    <li><code>documentation/specs/&lt;slug&gt;/</code> is a new hard-rule-9 literal, with its two gitignored siblings <code>S101-&lt;slug&gt;.review.md</code> and <code>design.md</code>: both asimov-skills, both authoring skills, <code>.gitignore</code>, <code>CLAUDE.md</code> and D100 §9 move together.</li>
+  </ul>
+</section>
+
+<!-- ═════════ §7 PENDING ═════════ -->
+<section class="s" id="s7-na">
+  <h2 class="section-title"><span class="sec-ref">§7</span>Implementation</h2>
+  <div class="callout">N/A — the feature is prompt files and templates, not code: §6.1 names every file and §6.2–§6.8 say what each must contain. The sync edits the build carries (the contract and the definitions as listed in §6.1, D100 §4.3/§4.5/§9, <code>model-choice.md</code> with its two rows marked Claude Code only, CLAUDE.md hard rule 9, <code>.gitignore</code>) follow hard rules 2 and 6, not a recipe.</div>
+</section>
+
+<!-- ═════════ §8 ═════════ -->
+<section class="s" id="s8">
+  <h2 class="section-title"><span class="sec-ref">§8</span>Acceptance criteria</h2>
+  <div class="ac-table">
+    <div class="ac-head"><div>#</div><div>Verifies</div><div>Description</div></div>
+    <div class="ac-row"><div class="ac-id">AC1</div><div class="ac-verifies"><span class="verify-chip">R1</span><span class="verify-chip">R3</span><span class="verify-chip">R5</span><span class="verify-chip">R7</span></div><div>Run on a Full-design D101 with n acceptance criteria, one S101 and its S102s exist under <code>documentation/specs/&lt;slug&gt;/</code>: one skeleton S102 per stack in phase 0, and per criterion one phase with at least one builder S102 and one tester S102.</div></div>
+    <div class="ac-row"><div class="ac-id">AC2</div><div class="ac-verifies"><span class="verify-chip">R2</span></div><div>Run on a Business-design D101, or on a ticket whose thread misses a required member of the design contract, no spec file is written and the chat names the member.</div></div>
+    <div class="ac-row"><div class="ac-id">AC3</div><div class="ac-verifies"><span class="verify-chip">R4</span></div><div>A slice that needs both .NET and Angular yields one S102 per stack in the same phase, with the interface named in the S101's interfaces section.</div></div>
+    <div class="ac-row"><div class="ac-id">AC4</div><div class="ac-verifies"><span class="verify-chip">R8</span></div><div>Every S102 header names exactly one builder role.</div></div>
+    <div class="ac-row"><div class="ac-id">AC5</div><div class="ac-verifies"><span class="verify-chip">R9</span><span class="verify-chip">R10</span></div><div>A reviewer reading the run transcript sees one fresh subagent per S102, given only the S102, the S101, the design and the repo, and no S102 remains with a failed check (manual step).</div></div>
+    <div class="ac-row"><div class="ac-id">AC6</div><div class="ac-verifies"><span class="verify-chip">R12</span><span class="verify-chip">R13</span></div><div>The plan report lists S101 checks 1–10 with a result; a seeded interface gap (a consumed name with no producer) is reported and the affected S102 rewritten.</div></div>
+    <div class="ac-row"><div class="ac-id">AC7</div><div class="ac-verifies"><span class="verify-chip">R14</span><span class="verify-chip">R15</span></div><div><code>asimov-spec-validate</code> on an existing plan prints both reports and <code>git status</code> is unchanged afterwards.</div></div>
+    <div class="ac-row"><div class="ac-id">AC8</div><div class="ac-verifies"><span class="verify-chip">R16</span><span class="verify-chip">R17</span></div><div>A re-run with requirements and criteria unchanged in content updates the same S101 file with a bumped version and leaves every cleared S102 byte-identical; a re-run after a criterion changed in content rewrites the S101 and every S102, and no S102 file outside the new graph remains.</div></div>
+    <div class="ac-row"><div class="ac-id">AC9</div><div class="ac-verifies"><span class="verify-chip">R18</span></div><div>An S102 with four owned non-test files produces a warning in the report; the plan is still written.</div></div>
+    <div class="ac-row"><div class="ac-id">AC10</div><div class="ac-verifies"><span class="verify-chip">R19</span><span class="verify-chip">R20</span><span class="verify-chip">R21</span><span class="verify-chip">R22</span></div><div>The transcript shows the D101 and repo read before the first question, at most 5 questions, each with a recommended default, none about model tier or file paths, the go at the cut not counted among them, and every self-decided item as an assumption in the S101.</div></div>
+    <div class="ac-row"><div class="ac-id">AC11</div><div class="ac-verifies"><span class="verify-chip">R23</span></div><div><code>asimov-spec</code> finishes exactly once, after the files exist, with a findings list; the only earlier wait in the transcript is the gate.</div></div>
+    <div class="ac-row"><div class="ac-id">AC12</div><div class="ac-verifies"><span class="verify-chip">NF1</span><span class="verify-chip">NF3</span></div><div>A reviewer ≠ author finds no product entity and no inlined definition text in the six skills and two templates.</div></div>
+    <div class="ac-row"><div class="ac-id">AC13</div><div class="ac-verifies"><span class="verify-chip">NF2</span></div><div>The S101 frontmatter parses as YAML and carries the graph: id, dependencies, phase and owned files per task.</div></div>
+    <div class="ac-row"><div class="ac-id">AC14</div><div class="ac-verifies"><span class="verify-chip">NF4</span></div><div>After a run, <code>git status</code> shows changes only under <code>documentation/specs/&lt;slug&gt;/</code>.</div></div>
+    <div class="ac-row"><div class="ac-id">AC15</div><div class="ac-verifies"><span class="verify-chip">§4.1-6</span></div><div>Two runs of the validation on the same unchanged plan report the same shape findings (fields, cycle, orphans, paths, producers, placeholders, sizes).</div></div>
+    <div class="ac-row"><div class="ac-id">AC16</div><div class="ac-verifies"><span class="verify-chip">R6</span></div><div>In an S101 with two slices marked parallel, no skeleton file appears in both slices' owned sets.</div></div>
+    <div class="ac-row"><div class="ac-id">AC17</div><div class="ac-verifies"><span class="verify-chip">R11</span></div><div>An S102 seeded to fail validation three times stops the run with a report naming the task, and no fourth rewrite occurs.</div></div>
+    <div class="ac-row"><div class="ac-id">AC18</div><div class="ac-verifies"><span class="verify-chip">R24</span></div><div>The transcript shows the cut (phases, tasks, assumptions, graph findings) before the first S102 file exists; a free-text correction yields a new cut with still no S102 written; a hand edit of the S101 followed by <em>read again</em> shows the edited graph unchanged; <em>stop</em> leaves the S101 on disk and no S102.</div></div>
+    <div class="ac-row"><div class="ac-id">AC19</div><div class="ac-verifies"><span class="verify-chip">R25</span></div><div>Run against an S101 with no S102s, <code>asimov-spec</code> shows the cut and waits for the go before any S102 file appears.</div></div>
+    <div class="ac-row"><div class="ac-id">AC20</div><div class="ac-verifies"><span class="verify-chip">NF6</span></div><div>The plugin tree holds one <code>SKILL.md</code> per skill and no per-harness copy; installed in Claude Code and in Codex, <code>asimov-spec</code> run on the same D101 writes an S101 with the same task graph in both.</div></div>
+    <div class="ac-row"><div class="ac-id">AC21</div><div class="ac-verifies"><span class="verify-chip">NF5</span></div><div>A message that describes planning a feature without naming the skill starts neither asimov-skill in either harness; naming it does.</div></div>
+    <div class="ac-row"><div class="ac-id">AC22</div><div class="ac-verifies"><span class="verify-chip">R1</span><span class="verify-chip">R27</span></div><div>Named in a message together with the link of a ticket that meets the bar, <code>asimov-spec</code> writes an S101 whose header links the ticket and whose coverage map carries every assigned id with the ticket's wording, plus its S102s; <code>git status</code> afterwards shows the plan and the task specs, and neither the design cache nor the sidecar.</div></div>
+    <div class="ac-row"><div class="ac-id">AC23</div><div class="ac-verifies"><span class="verify-chip">R26</span></div><div>Named in a message with no D101, link, key or ticket text, <code>asimov-spec</code> prints what it accepts and finishes without asking a question; named with the ticket text pasted after it, the run proceeds as with a fetched ticket; named with a link alone in a harness without the Jira connector, it says it cannot reach Jira, asks for the text, and finishes.</div></div>
+    <div class="ac-row"><div class="ac-id">AC24</div><div class="ac-verifies"><span class="verify-chip">§4.1-10</span></div><div>Named with a ticket whose decision needs one task, <code>asimov-spec</code> writes an S101 with one task and one S102; no S102 file exists in the repo without an S101 beside it.</div></div>
+  </div>
+</section>
+
+<!-- ═════════ §9 ═════════ -->
+<section class="s" id="s9">
+  <h2 class="section-title"><span class="sec-ref">§9</span>Open questions</h2>
+  <div class="q-grid">
+    <div class="q-card">
+      <div class="q-head"><span class="q-id">Q12</span><span class="q-decider">Allan Borup</span></div>
+      <div class="q-body">Can the fresh validation subagent reach Jira itself through the Atlassian connector in Claude Code? If so, a Claude Code run needs no design cache, and the cache would be for Codex alone.</div>
+      <div class="q-resolution">Resolution path: the first ticket run in Claude Code; until then the cache is written in both harnesses, because a blind reader without the text cannot check traceability.</div>
+    </div>
+    <div class="q-card">
+      <div class="q-head"><span class="q-id">Q8</span><span class="q-decider">Allan Borup</span></div>
+      <div class="q-body">When does the model-run shape checklist become a script?</div>
+      <div class="q-resolution">Resolution path: the first time AC15 fails, i.e. two runs on an unchanged plan disagree; then a Node script under <code>resources/</code>, Node because Claude Code itself runs on it.</div>
+    </div>
+    <div class="q-card">
+      <div class="q-head"><span class="q-id">Q9</span><span class="q-decider">Allan Borup</span></div>
+      <div class="q-body">Which role writes the acceptance test of an Angular-only slice? Calvin is the .NET tester (R7).</div>
+      <div class="q-resolution">Resolution path: the first Angular slice; either an Angular tester role skill, or Daneel writes it test-first under R7 and the D101-subagents roster says so.</div>
+    </div>
+    <div class="q-card">
+      <div class="q-head"><span class="q-id">Q11</span><span class="q-decider">Resolved 2026-10-02</span></div>
+      <div class="q-body">One spelling of the plugin paths that both harnesses resolve. <code>${CLAUDE_PLUGIN_ROOT}</code> is Claude Code's; Codex substitutes nothing and resolves a relative path from the working directory.</div>
+      <div class="q-resolution">Decision: the derived-root method of <code>D101-codex-support.html</code> §6.2, in every skill that reads a plugin file: the Claude Code variable, and in Codex the root cut from the skill's own path, verified by reading the definition, with a search of the plugin cache as the fallback. A relative path was the rejected alternative. Reopens if the first Codex run (AC20) does not find the definition.</div>
+    </div>
+  </div>
+  <div class="subhead" style="margin-top:1.5rem">Resolved during authoring</div>
+  <div class="q-grid">
+    <div class="q-card resolved">
+      <div class="q-head"><span class="q-id">Q10</span><span class="q-decider">Resolved 2026-10-01</span></div>
+      <div class="q-body">Where is the human between the five questions and the end of the run? A reader of v0.9 could not see the plan before every task spec was written.</div>
+      <div class="q-resolution"><strong>Decision:</strong> a soft gate inside the run (R24, R25): the cut is shown and the author says go, corrects, or stops; §5 shows it, §4.7 records the alternatives. Reopens if authors routinely skip the cut with an immediate go.</div>
+    </div>
+    <div class="q-card resolved">
+      <div class="q-head"><span class="q-id">Q1</span><span class="q-decider">Resolved 2026-09-29</span></div>
+      <div class="q-body">The S101 definition has no home for the assumptions R22 requires.</div>
+      <div class="q-resolution"><strong>Decision:</strong> a §4.9 Assumptions section in the S101 definition and an Assumptions section last in the body (§6.4, §6.8).</div>
+    </div>
+    <div class="q-card resolved">
+      <div class="q-head"><span class="q-id">Q2</span><span class="q-decider">Resolved 2026-09-29</span></div>
+      <div class="q-body">The size thresholds' numbers (3 and 7 files, ~100 lines, ~60 minutes) and their place in the S101 definition.</div>
+      <div class="q-resolution"><strong>Decision:</strong> a thresholds block in the S101 definition, read by both validation skills (§6.6, §6.7); above three owned non-test files warns (AC9), the other numbers are set with the template.</div>
+    </div>
+    <div class="q-card resolved">
+      <div class="q-head"><span class="q-id">Q3</span><span class="q-decider">Resolved 2026-09-29</span></div>
+      <div class="q-body">Blind validation in a session that cannot spawn a subagent.</div>
+      <div class="q-resolution"><strong>Decision:</strong> the skill runs inline and the report carries <code>blind: false</code> (§6.3, §6.6); re-validate from a harness with subagents before review.</div>
+    </div>
+    <div class="q-card resolved">
+      <div class="q-head"><span class="q-id">Q4</span><span class="q-decider">Resolved 2026-09-29</span></div>
+      <div class="q-body">Where a run's findings and assumptions land: chat only, or a sidecar like <code>/d101-review</code>'s <code>.review.md</code>.</div>
+      <div class="q-resolution"><strong>Decision:</strong> assumptions in the S101 body, findings in a gitignored <code>S101-&lt;slug&gt;.review.md</code> (§6.8).</div>
+    </div>
+    <div class="q-card resolved">
+      <div class="q-head"><span class="q-id">Q5</span><span class="q-decider">Resolved 2026-09-29</span></div>
+      <div class="q-body">Who writes the tests of an S102?</div>
+      <div class="q-resolution"><strong>Decision:</strong> the builder writes unit tests inline; a tester role writes the slice's acceptance test as its own S102, which is the phase checkpoint (§4.7). Reopens if a slice's acceptance test cannot be written before its code.</div>
+    </div>
+    <div class="q-card resolved">
+      <div class="q-head"><span class="q-id">Q6</span><span class="q-decider">Resolved 2026-09-29</span></div>
+      <div class="q-body">Where does the code skeleton belong?</div>
+      <div class="q-resolution"><strong>Decision:</strong> phase 0 Foundation, one S102 per stack (§4.7). Reopens if the skeleton tasks turn out to need judgement rather than transcription.</div>
+    </div>
+    <div class="q-card resolved">
+      <div class="q-head"><span class="q-id">Q7</span><span class="q-decider">Resolved 2026-09-29</span></div>
+      <div class="q-body">Interview the developer, or plan from the D101?</div>
+      <div class="q-resolution"><strong>Decision:</strong> plan from the D101 and the repo, ask at most 5 front-loaded questions with defaults, stop once (§4.7). Reopens if runs regularly exhaust the five.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════ §10 ═════════ -->
+<section class="s" id="s10">
+  <h2 class="section-title"><span class="sec-ref">§10</span>References</h2>
+  <div class="refs">
+    <div class="refs-block">
+      <h4>Contracts</h4>
+      <ul>
+        <li>plugins/asimov-plugin/contracts/design.md</li>
+      </ul>
+    </div>
+    <div class="refs-block">
+      <h4>Definitions</h4>
+      <ul>
+        <li>plugins/asimov-plugin/artifacts/documentation/s101-implementation-plan/s101-implementation-plan-definition.md</li>
+        <li>plugins/asimov-plugin/artifacts/documentation/s102-task-spec/s102-task-spec-definition.md</li>
+        <li>plugins/asimov-plugin/artifacts/documentation/d101-feature-design/d101-feature-design-definition.md</li>
+      </ul>
+    </div>
+    <div class="refs-block">
+      <h4>Docs</h4>
+      <ul>
+        <li>documentation/D100-Asimov-architecture.md §3, §7 (the layers: asimov-skills, skills, artifacts; written with the move of the Design-phase skills), §9, §10 Q5</li>
+        <li>documentation/ai-transition-levels-and-zones.md (L3: Spec, Review vs. Spec, Test vs. Spec)</li>
+        <li>documentation/features/D101-d101-feature-design.html</li>
+        <li>documentation/features/D101-subagents.html</li>
+      </ul>
+    </div>
+    <div class="refs-block">
+      <h4>Harness docs</h4>
+      <ul>
+        <li>code.claude.com/docs/en/skills — commands merged into skills; <code>disable-model-invocation</code></li>
+        <li>developers.openai.com/plugins/build/plugins — a Codex plugin reads <code>skills/</code> only</li>
+        <li>learn.chatgpt.com/docs/build-skills — <code>$skill</code> invocation; <code>policy.allow_implicit_invocation</code></li>
+      </ul>
+    </div>
+    <div class="refs-block">
+      <h4>Research</h4>
+      <ul>
+        <li>documentation/research/S101-S102-spec-stage-research.md §5–§9</li>
+        <li>documentation/research/design-contract-research.md</li>
+        <li>documentation/research/L3-spec-format-research.md</li>
+      </ul>
+    </div>
+    <div class="refs-block">
+      <h4>Diagrams</h4>
+      <ul>
+        <li>plugins/asimov-plugin/resources/diagrams/sequence-template.svg</li>
+        <li>plugins/asimov-plugin/resources/diagrams/activity-swimlane-template.svg</li>
+        <li>plugins/asimov-plugin/resources/diagrams/flowchart-template.svg</li>
+        <li>plugins/asimov-plugin/resources/diagrams/state-machine-template.svg</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+  </article>
+</div>
+
+<footer class="site-footer">
+  <div>
+    <a href="../index.html">← Documentation home</a>
+    · <span class="mono">features/D101-spec-stage.html</span>
+  </div>
+  <div style="margin-top: 0.4rem">
+    D101 · Spec stage · Asimov plugin · Draft v0.16 · 2026-10-02
+  </div>
+</footer>
+
+</body>
+</html>

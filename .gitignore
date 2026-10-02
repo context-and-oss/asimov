@@ -25,6 +25,17 @@ documentation/**/images/_raw/
 # artifact; committing it would duplicate a PR's own review thread.
 documentation/features/*.review.md
 
+# Spec-stage validation sidecar — the last run's reports and default-taken
+# assumptions, written by asimov-spec / asimov-spec-validate and overwritten by
+# the next run (s101-implementation-plan-definition §9, D101-spec-stage.html §6.8).
+# A cache, never a record; the assumptions themselves live in the S101.
+documentation/specs/*/S101-*.review.md
+# Design cache — a design that is not a file in the repo (a ticket thread),
+# normalised into the shape the S101 definition §9 fixes, for the blind validation
+# reader. The source's tool is the record; asimov-spec rewrites this on every
+# run (S101 definition §3.1, §9).
+documentation/specs/*/design.md
+
 # Claude Code local state
 .claude/settings.local.json
 

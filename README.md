@@ -50,10 +50,10 @@ codex plugin add asimov-plugin@asimov-marketplace
 ## Status
 
 - Releases: [releases page](../../releases). Major-only versions (`1.0.0`, `2.0.0`, …), any release may change a bar or a template. The marketplace follows the `latest` tag.
-- Built: Design-stage commands, the four subagents (each a `role-*` skill plus a thin shell per harness), the two D101 artifact skills, persona reviews, the `pm-advisor` skill (delivery-model advice).
-- Planned: Spec stage (`/s101-*`; the S101 and S102 definitions exist), `/conventions-check`, S102 validator subagent. See [D100 §9](documentation/D100-Asimov-architecture.md#9-not-yet-built).
+- Built: Design-stage commands, the four subagents (each a `role-*` skill plus a thin shell per harness), the two D101 artifact skills, persona reviews, the `pm-advisor` skill (delivery-model advice), and the Spec stage: `asimov-spec` and `asimov-spec-validate` (user-invoked skills, one file for Claude Code and Codex) over the S101/S102 definitions, templates and four `artifact-s10x-*` skills, planning from a Full-design D101 or from an approved Jira ticket. Untried outside this repo as of 2026-10-02.
+- Planned: `/conventions-check`, the S102 verification subagent, the Build workflow. See [D100 §9](documentation/D100-Asimov-architecture.md#9-not-yet-built).
 - Every artifact carries a maturity level (`assess` / `trial` / `adopt` / `hold`). The producing command tells you if it's not at `adopt`.
-- Requires Claude Code with plugin support and access to the models the commands pin. Map in [model-choice.md](documentation/model-choice.md). Codex with plugin support runs the setup skill (`codex-asimov-init`), which names no model.
+- Requires Claude Code with plugin support and access to the models the commands pin. Map in [model-choice.md](documentation/model-choice.md). Codex with plugin support runs the setup skill (`codex-asimov-init`) and the Spec-stage skills (`$asimov-plugin:asimov-spec`, `$asimov-plugin:asimov-spec-validate`); none of them binds a model in Codex, which runs the session's.
 
 ## Commands
 
@@ -95,7 +95,7 @@ plugins/asimov-plugin/                    the plugin (install scope)
 ├── .codex-plugin/plugin.json             plugin manifest (Codex)
 ├── commands/                             slash commands
 ├── agents/                               subagent shells (Giskard, Daneel, Calvin, Baley) — .md for Claude Code, .toml for Codex
-├── skills/                               role-* (the subagents' methods), artifact-d101-* (D101 authoring + gap review), persona-* (Poseidon, Athena, Hermes), pm-advisor, codex-asimov-init (Codex setup entry point)
+├── skills/                               role-* (the subagents' methods), artifact-d101-* (D101 authoring + gap review), artifact-s101-*/artifact-s102-* (Spec-stage authoring + validation), asimov-spec + asimov-spec-validate (Spec-stage entry points, both harnesses), persona-* (Poseidon, Athena, Hermes), pm-advisor, codex-asimov-init (Codex setup entry point)
 ├── artifacts/                            one folder per artifact the toolkit writes into a product repo, grouped by where it lands
 │   ├── documentation/                    lands in the product repo's documentation/
 │   │   ├── d101-feature-design/          the D101 artifact: definition + template side by side
@@ -116,6 +116,7 @@ plugins/asimov-plugin/                    the plugin (install scope)
 │       └── asimov-md/                    the asimov.md context file (/asimov-init)
 │           ├── asimov-md-definition.md
 │           └── asimov-md-template.md
+├── contracts/                            stage handoffs — design.md: what a design must contain for Spec to plan from it
 ├── resources/                            building blocks shared across artifacts
 │   └── diagrams/                         the 4 standard diagram notations a D101 may use
 │       ├── README.md                     routing table: reader intent → diagram type

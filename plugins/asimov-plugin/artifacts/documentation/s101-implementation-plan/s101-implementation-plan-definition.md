@@ -6,11 +6,11 @@ since: 2026-09-25
 
 # Definition of S101
 
-The written standard an S101 (implementation plan) must meet before any of its tasks is handed to a build subagent. An S101 turns one gap-free D101 into an ordered, dependency-aware set of S102 task specs, and states everything the run needs *once*: constraints, interfaces, checkpoints, escalation routing. It is the Spec stage's **planning** document; the S102 is its **task** document (`s102-task-spec-definition.md`).
+The written standard an S101 (implementation plan) must meet before any of its tasks is handed to a build subagent. An S101 turns one **design**, a D101 at `Full design` or a ticket that meets the bar in §3.1, into an ordered, dependency-aware set of S102 task specs, and states everything the run needs *once*: constraints, interfaces, checkpoints, escalation routing. It is the Spec stage's **planning** document; the S102 is its **task** document (`s102-task-spec-definition.md`).
 
-Read by humans (the author, the reviewer who is not the author, the person directing the run) and by the planned `/s101-implementation-plan` and `/s101-review` commands at run-time. The orchestrator that dispatches S102s reads it as its control document.
+Read by humans (the author, the reviewer who is not the author, the person directing the run) and at run-time by the asimov-skills `asimov-spec` and `asimov-spec-validate` through the artifact skills `artifact-s101-authoring` and `artifact-s101-validation`. The orchestrator that dispatches S102s reads it as its control document.
 
-Design: not yet written; the Spec stage's D101 is pending. Research: `documentation/research/S101-S102-spec-stage-research.md`.
+Design: `documentation/features/D101-spec-stage.html`. Research: `documentation/research/S101-S102-spec-stage-research.md`.
 
 ---
 
@@ -38,48 +38,63 @@ An S101 clears one bar. **Dispatch-ready** means the person or orchestrator runn
 - the interfaces every consumer relies on are named by a producer;
 - the escalation routing names who rules when a builder stops.
 
-**The verdict belongs to a reviewer who is not the author.** Coding does not start until the S101 is approved (the spec-before-code gate, D100 §3). The author runs `/s101-review` as a self-preview; the reviewer's approval is the gate. No command records the approval.
+**The verdict belongs to a reviewer who is not the author.** Coding does not start until the S101 is approved (the spec-before-code gate, D100 §3). The author runs `asimov-spec-validate` as a self-preview; the reviewer's approval is the gate. No skill records the approval.
+
+Two words for two checks. **Validation** is the spec check *before* code: does the S101 clear this bar, does every S102 clear its own, and do they agree with each other (§8, `s102-task-spec-definition.md` §8). **Verification** is the code check *after* build: run the acceptance criteria an S102 names against what was built. This definition covers validation; verification belongs to the Build workflow.
+
+The author sees the plan twice before the reviewer does. Once as the **cut**: the S101 alone, no S102 beside it, shown by `asimov-spec` before any task spec is written; the author says *go*, corrects it, or stops. That go is the author's call that the cut holds, recorded nowhere, and not an approval. Once more at the end, when every S102 exists and the plan has been validated as a whole. The reviewer's verdict comes after both.
 
 ## 3. Relationship to other documents
 
 | Doc | Stage | What it answers |
 |---|---|---|
 | **D101** | Design | What feature, what scope, what rules, what verifiable outcomes; the contracts (§6) |
+| **Any other design** | Design | A ticket thread or a page that meets `contracts/design.md` (§3.1): the whole design of a bug fix or a small change that needs no D101. Its tool stays its record |
 | **S101** | Spec | In what order and by whom the feature is built; what every task must respect |
 | **S102** | Spec | Exactly how one task is built; what a builder receives |
 | Conventions | Cross-cutting | How code is written generally; the S101 links, never copies |
 | Runtime task list / ledger | Execution | Which task is claimed, done, in a fix round; **never part of the S101** |
 
-- **One D101 at `Full design` produces exactly one S101.** A D101 at `Business design` produces none; §6 is open and no task can be cut.
-- **One S101 produces one or more S102s.** Three to eight is typical for a feature; one is legitimate for a small change. A lone bug fix from the board skips the D101 and the S101 and gets a single S102 (`s102-task-spec-definition.md` §3).
+- **One design produces exactly one S101.** A D101 at `Full design`, or any other design that meets the contract (§3.1). A D101 at `Business design` produces none; §6 is open and no task can be cut. A design missing a member of the contract produces none either; what is missing is added to the design, never to a copy.
+- **One S101 produces one or more S102s.** Three to eight is typical for a feature; one is legitimate for a small change. A bug fix from the board skips the D101, not the S101: its ticket is the design, and the plan may have one task. There is no S102 without a plan.
 - **The S101 owns the graph; the S102 owns the recipe.** File paths, signatures, steps and test code live in the S102. The S101 names the task and its edges, and never repeats its body.
 - **The S101 is not the ledger.** Run state (claimed, in progress, fix round, done) lives in a gitignored ledger the orchestrator keeps, as `/d101-review`'s `.review.md` cache does for reviews. Writing state into the plan makes every run a diff on a reviewed document.
+- **The S101 is not the validation report either.** A run's findings and the assumptions it decided by default land in a gitignored sidecar beside the plan (§9); the assumptions themselves are plan content (§4.9), the findings are not.
 - **The D101's §7 Implementation is superseded for a feature that has an S101.** §7 was the interim home for file layout, reuse-vs-new and wiring (`d101-feature-design-definition.md` §4.8). That content is S102 content. A feature with an S101 marks §7 N/A and points at the specs folder.
+
+### 3.1 The bar on the design
+
+What a design must contain for a plan to be cut from it is the contract `contracts/design.md` in the plugin; the S101 reads a design only through its members. A D101 meets the contract at `Full design`, and its definition §3.1 says which section provides which member. A design that is not a file in the repo (a ticket thread, a page elsewhere) is normalised by `asimov-spec` into `documentation/specs/<feature-slug>/design.md`, in the shape §9 fixes, with ids assigned once in reading order; on a re-run the ids the plan's coverage map already holds are kept and a new item takes the next free number (the contract's rule). The coverage map (§4.8) then carries each id with the source's wording, so the plan stands with only the link beside it. A design that misses a required member is refused with what is missing; the fix goes into the design, never into a copy.
 
 ## 4. Required content
 
 ### 4.1 Header
 
-The D101 it plans (path and version), the goal in one sentence, the author, the date, the status (§6), and the execution mode the plan assumes (one builder at a time, subagent-driven with review per task, agent team). The mode is a default the run may override; the graph must be valid for the most parallel mode the plan allows.
+The design it plans, by reference: a repo path and version for a D101, or a url and read time plus the path of the normalised cache (§3.1); the goal in one sentence, the author, the date, the status (§6), and the execution mode the plan assumes (one builder at a time, subagent-driven with review per task, agent team). The mode is a default the run may override; the graph must be valid for the most parallel mode the plan allows.
 
 ### 4.2 Global constraints
 
-Everything every S102 must respect, one line each, values verbatim from the D101 §6 or the conventions: version floors, forbidden dependencies, naming rules, performance budgets, the layers no task may bypass. Every S102 implicitly includes this section. A constraint that applies to one task alone belongs in that S102, not here.
+Everything every S102 must respect, one line each, values verbatim from the design (D101 §6, or the decision and rules of a normalised design) or the conventions: version floors, forbidden dependencies, naming rules, performance budgets, the layers no task may bypass. Every S102 implicitly includes this section. A constraint that applies to one task alone belongs in that S102, not here.
 
 ### 4.3 The task graph
 
-One entry per S102: its id, its title, the S102 file, the builder role it is written for (Giskard, Daneel, Calvin, or a human), the model tier the plan recommends, the tasks it depends on, the phase it belongs to, and the file set it owns. The graph is recorded **once**; the template decides where (frontmatter, so a validator reads it mechanically) and the body refers to tasks by id. Two copies drift.
+One entry per S102: its id, its title, the S102 file, the builder role it is written for (exactly one of the roles the S101 template's leading comment lists: a `role-*` skill such as `dotnet-builder`, `angular-builder` or `dotnet-tester`, or `human`), the model tier the plan recommends, the phase it belongs to, the tasks it depends on, the files it owns in three lists (create, modify, test), the names it produces, the names it consumes, and the D101 ids it traces to. The graph is recorded **once**, in the frontmatter so validation reads it mechanically, and the body refers to tasks by id. Two copies drift.
 
 Rules the graph must satisfy:
 
-- **Acyclic.** A validator rejects a cycle.
-- **Parallel means disjoint.** Two tasks may run together only if their owned file sets do not intersect and neither depends on the other, directly or transitively. A shared file is a dependency, and the plan says which task owns it.
-- **Foundational first.** Work that every task needs (a migration, a shared type, a scaffold) is its own early task, and the tasks that need it depend on it. It is not folded into whichever task happens to run first.
+- **Acyclic.** Validation rejects a cycle.
+- **Parallel means disjoint.** Two tasks may run together only if their owned file sets do not intersect and neither depends on the other, directly or transitively. A shared file is a dependency, and the plan says which task owns it. Two slices that need the same skeleton file get the skeleton cut so each owns its own, decided at planning time.
+- **Foundation first.** The skeleton every slice builds against is phase 0 (§4.4), and every slice task depends on it. Any other work every task needs (a migration, a shared type) joins it; it is never folded into whichever task happens to run first.
 - **Every task reachable, every task traced.** No orphan S102, and every S102 names the D101 requirement or acceptance criterion it serves.
 
 ### 4.4 Phases and checkpoints
 
-Tasks are grouped into phases. Each phase ends in a **checkpoint**: a state a reviewer can verify without reading the code, ideally one of the D101's acceptance criteria met, or a named subset of the §6 contracts live. A phase is the unit a run can stop at cleanly, and the unit a revert targets. The D101's user-facing outcomes give the natural phase boundaries: setup, foundation, one phase per independently verifiable outcome, polish.
+A phase is a **slice**, or the Foundation. A slice is the work that makes one D101 acceptance criterion pass, end to end; the plan has one phase per acceptance criterion a builder can make pass, and a criterion verified by review or by hand maps to no phase, is marked so in the coverage map, and holds `done` back until a reviewer has signed it (§6). Two criteria share a phase only when the author says so.
+
+- **Phase 0, Foundation.** The skeleton: classes, interfaces and public methods with summaries and no bodies, compiling, one S102 per stack. It is the interfaces of §4.5 as code, cut per slice so no two parallel slices own the same skeleton file. Its checkpoint: the solution builds and a reviewer can read the shape before any logic exists.
+- **Phases 1..n, one per slice.** One builder S102 per stack the slice touches, plus one tester S102 that writes the slice's acceptance test. That test is the phase's **checkpoint**: green, written at API level against the skeleton's public methods, end to end only where the repo's conventions name a runner. It compiles against the skeleton before any slice body exists, fails red, and the builder S102s make it pass.
+
+A checkpoint is a state a reviewer can verify without reading the code. A phase is the unit a run can stop at cleanly, and the unit a revert targets. A shared type two slices need is not a slice; it goes to the Foundation.
 
 ### 4.5 Interfaces
 
@@ -87,7 +102,7 @@ What each task **produces** that another task **consumes**: exact names and shap
 
 ### 4.6 Review focus
 
-The handful of inputs or failure modes the D101 implies but no task's tests exercise, most likely to bite first. One line each: the input or condition, and the behaviour a reasonable person expects. Each line is then pinned to the task that owns the code, as a test in that S102. An empty section means the check was run and found nothing, not that it was skipped.
+The handful of inputs or failure modes the design implies but no task's tests exercise, most likely to bite first. One line each: the input or condition, and the behaviour a reasonable person expects. Each line is then pinned to the task that owns the code, as a test in that S102. An empty section means the check was run and found nothing, not that it was skipped.
 
 ### 4.7 Escalation routing
 
@@ -95,20 +110,28 @@ What a builder stops on, and who rules. A builder never resolves a conflict betw
 
 ### 4.8 Coverage map
 
-Every D101 requirement and acceptance criterion in scope, against the S102 ids that deliver it. It is the reviewer's first stop and the check that makes the S101 a plan for *this* D101 and not a plausible plan for a feature like it. A requirement with no task is a gap; a task with no requirement is scope the D101 never asked for.
+Every requirement, contract and acceptance criterion of the design in scope, against the S102 ids that deliver it. It is the reviewer's first stop and the check that makes the S101 a plan for *this* design and not a plausible plan for a feature like it. A requirement with no task is a gap; a task with no requirement is scope the design never asked for. A criterion verified by review or by hand is listed with *verified by review* in place of task ids, so the gap check does not fire on it. For a normalised design, every row also carries the source's wording of the item, one line, because the ids were assigned by the normalisation (§3.1); for a D101 the wording column may be left out. The ids this map traces are also what a re-run compares against the design to decide between an update and a rewrite (§6).
+
+### 4.9 Assumptions
+
+Every decision the plan took without asking the author: the question it would have been, the options, the default taken, and *decided by default* where the question budget was spent before it came up. Written last in the body, in the order taken. The author's corrections at the cut join the list, so the reviewer sees what was decided and what was corrected in one place. A plan with an empty Assumptions section claims the author answered everything; a plan with none hides its guesses.
 
 ## 5. Rules
 
 - **Plan, don't build.** No code, no file-level steps, no test bodies in the S101. Those are the S102's. A plan that carries the recipe is one long task pretending to be a graph.
 - **State it once.** Constraints, interfaces and review focus appear in the S101 and are referenced, not copied, by the S102s. A rule copied into six tasks is six chances to drift.
 - **Link, don't duplicate.** D101 contracts by section number, conventions by path, existing code by path. Never a pasted schema, enum or column list.
-- **Size to the D101, not to a length.** An S101 is as long as its graph. A feature that needs one task gets a one-task plan; that is not a reason to skip it, because the constraints and the escalation routing still have to be written down somewhere the builder reads.
-- **Model tier is a recommendation, per task.** The tiers and their rule (a task whose S102 carries the code is transcription and takes the cheapest tier; a task written as prose takes a mid tier; a design or integration task takes the most capable) follow `documentation/model-choice.md`. The plan names a tier; the run may override it.
+- **Size to the design, not to a length.** An S101 is as long as its graph. A feature that needs one task gets a one-task plan; that is not a reason to skip it, because the constraints and the escalation routing still have to be written down somewhere the builder reads.
+- **Model tier is a recommendation, per task.** Three tiers, named in the template: `low` for a task whose S102 carries the code (transcription: the skeleton, a mechanical change), `mid` for prose steps with a clear check, `high` for judgement or integration. The plan names a tier only; which model a tier means is the toolkit's call (`model-choice.md` in the Asimov repo), and the run may override it. A product repo never needs that file to validate a plan.
 - **No product entity in the toolkit.** Product names, service names and ticket ids belong in the S101 in a product repo and never in this definition or the template (hard rule 7).
 
 ## 6. Lifecycle
 
-One status axis, carried in the header: `draft` → `ready` (dispatch-ready, approved by the reviewer) → `in progress` (first task dispatched) → `done` (every checkpoint met) → `superseded` (the feature was re-planned; the new S101 names this one). The author moves `draft` → `ready` only after the reviewer's approval; the orchestrator moves `ready` → `in progress` → `done`; a human marks `superseded`. A `done` or `superseded` S101 stays in the repo as the record of how the feature was built; it is not deleted.
+One status axis, carried in the header: `draft` → `ready` (dispatch-ready, approved by the reviewer) → `in progress` (first task dispatched) → `done` (every checkpoint met, and every criterion the coverage map marks *verified by review* signed off by a reviewer). `asimov-spec` writes and rewrites `draft` and sets nothing else; the author moves `draft` → `ready` only after the reviewer's approval; the Build workflow moves `ready` → `in progress` → `done`. A `done` S101 stays in the repo as the record of how the feature was built; it is not deleted. A criterion *verified by review* has no checkpoint, so green tests alone leave the plan `in progress`; who signed it and when is run state and lives in the ledger, never in the plan.
+
+The cut is a `draft` S101 with no S102 beside it. No status value marks it; the folder does.
+
+A re-run against a design that already has an S101 takes one of two paths. **Update in place** when the source's items are the ones the coverage map traces (for a D101, the R, NF and AC ids; for a normalised design, the items the map's wording column names, compared with the source as read now) and the author confirms the content is refined, not changed: same file, version bumped, and every S102 that still clears its bar left byte-identical. **Rewrite** when an item is missing or added, or the author says the content changed: the S101 and every S102 written anew, S102 files no longer in the graph deleted. There is no `superseded` status and no kept copy; git carries the previous plan. An S101 at `ready` or later is never rewritten by a skill; the author sets it back to `draft` first.
 
 ## 7. Anti-patterns
 
@@ -118,7 +141,7 @@ One status axis, carried in the header: `draft` → `ready` (dispatch-ready, app
 - **Interfaces by guess.** A consumer that names a method no producer defines. The builder invents one, and the neighbour invents a different one.
 - **State in the plan.** Checkboxes ticked, `passes: true` flipped, fix rounds noted inside the S101. The reviewed document and the run log become one file.
 - **Recipe in the plan.** Test bodies and step lists in the S101. The plan becomes the task and the S102s become stubs.
-- **Silent scope.** A task with no D101 requirement behind it. Either the D101 is missing a requirement or the task is not this feature.
+- **Silent scope.** A task with no design requirement behind it. Either the design is missing a requirement or the task is not this feature.
 
 ## 8. The checks
 
@@ -127,18 +150,107 @@ One canonical list. Every check is asked of the S101 alone, with the D101 and th
 | # | Check | Tests |
 |---|---|---|
 | 1 | Does every S102 the graph names exist and clear its own bar? | Completeness |
-| 2 | Does every D101 requirement and acceptance criterion in scope map to at least one S102, and every S102 to at least one requirement? | Coverage, both ways |
+| 2 | Does every requirement and acceptance criterion of the design in scope map to at least one S102, and every S102 to at least one requirement? | Coverage, both ways |
 | 3 | Is the graph acyclic, and does every task marked parallel own a file set disjoint from every task it can run beside? | Graph validity |
 | 4 | Does every phase end in a checkpoint a reviewer can verify without reading code? | Stoppable phases |
-| 5 | Is every interface an S102 consumes named by an S102 that produces it, or by a D101 §6 contract? | Interface closure |
-| 6 | Are the global constraints stated once, with values verbatim from the D101 or conventions, and does no S102 contradict them? | Constraint consistency |
+| 5 | Is every interface an S102 consumes named by an S102 that produces it, or by a numbered contract of the design (a D101 §6 number)? | Interface closure |
+| 6 | Are the global constraints stated once, with values verbatim from the design or conventions, and does no S102 contradict them? | Constraint consistency |
 | 7 | Does the review focus name the uncovered failure modes, and is each pinned to a task? | Review focus |
 | 8 | Does the escalation routing name what stops a builder and who rules? | Escalation |
 | 9 | Is the S101 free of recipe (code, steps, test bodies) and free of run state? | Separation |
 | 10 | Is every model tier a recommendation consistent with `model-choice.md`? | Model choice |
 
-A validator, when built, is **hard on shape, soft on content**: it rejects a missing header field, a cycle, an orphan task, a broken link, an intersecting parallel pair; it does not judge whether the phases are sensible or the review focus is the right five. That is the reviewer's.
+Validation (`artifact-s101-validation`) is **hard on shape, soft on content**: it fails a missing header field, a cycle, an orphan task, a broken link, an intersecting parallel pair, a consumed name with no producer; it does not judge whether the phases are sensible or the review focus is the right five. That is the reviewer's. It runs in two modes: **graph-only** on the S101 alone, at the cut, where a check that needs the S102s is reported as *not yet*, never as Pass; and **full** once every S102 exists. The shape checks are answered against a fixed, numbered checklist so two runs on an unchanged plan agree; a script replaces the checklist only if they do not.
+
+### 8.1 Size thresholds
+
+Validation warns, never fails, when an S102 exceeds a threshold; the plan is still written. The numbers live here, not in a skill, so they move with the evidence (research §8) and not with a release. Both validation skills read them.
+
+```yaml
+thresholds:                      # per S102; above the number → Warn
+  owned_non_test_files: 3        # create + modify, tests excluded; success falls sharply from 3, to nil at 7
+  scenarios: 3                   # behaviour scenarios; more is usually two tasks
+  steps: 12                      # one action each; more is usually two tasks
+```
+
+A cycle, an orphan or an intersecting parallel pair is shape and fails; size only warns.
 
 ## 9. Placement and naming
 
-An S101 lives in the product repo at `documentation/specs/<feature-slug>/S101-<feature-slug>.md`, beside its S102s (`S102-<feature-slug>-<NNN>-<task-slug>.md`). `<feature-slug>` is the D101's slug, so `documentation/features/D101-permissions.html` plans to `documentation/specs/permissions/S101-permissions.md`. Markdown body with YAML frontmatter, as every spec format in current use (research §2). The specs folder is a shared path convention in the sense of hard rule 7 and joins the lockstep set of hard rule 9 when the first command writes to it.
+An S101 lives in the product repo at `documentation/specs/<feature-slug>/S101-<feature-slug>.md`, beside its S102s (`S102-<feature-slug>-<NNN>-<task-slug>.md`). `<feature-slug>` is the D101's slug, so `documentation/features/D101-permissions.html` plans to `documentation/specs/permissions/S101-permissions.md`; for a ticket it is the ticket key in kebab-case, so `PROJ-123` plans to `documentation/specs/proj-123/S101-proj-123.md`. Markdown body with YAML frontmatter, as every spec format in current use (research §2).
+
+For a plan cut from a design that is not a file in the repo, the normalised design sits beside it as a gitignored cache, `documentation/specs/<feature-slug>/design.md`: the contract's members, quoted from the source and numbered, in this shape:
+
+```markdown
+# Design — <title>
+
+Reference: <url> · read <YYYY-MM-DD HH:MM>
+Approval: <who> · <YYYY-MM-DD> · <where: a comment, a status>
+
+## Problem
+<quoted>
+
+## Decision
+<quoted, as many paragraphs as the source has>
+
+## Rules
+- R1 · <quoted> — does not cover: <quoted>
+(or: none stated)
+
+## Acceptance criteria
+- AC1 · <quoted>
+
+## Out of scope
+- OOS1 · <quoted> — because: <quoted>
+
+## Open questions
+- <quoted> · decides: <who>
+(or: none)
+
+## Assumptions
+- <quoted>
+(or: none stated)
+
+## Interfaces
+- <name> · <shape or number>          (omit when the source names none)
+
+## Non-functional requirements
+- NF1 · <quoted> · <measure>          (omit when none)
+
+## Alternatives
+- <quoted> — not chosen because: <quoted>          (omit when none)
+
+## Risks
+- <quoted>          (omit when none)
+
+## Source
+<the description and every comment, verbatim, with author and date>
+```
+
+`asimov-spec` writes it at the start of a run from the fetch or from pasted text, and `asimov-spec-validate` rewrites it when it is missing; the authoring and validation skills read it as the design. It is never committed and never edited by hand: a correction goes into the source, and the next run reads it.
+
+Beside the plan, both asimov-skills write one gitignored sidecar, `S101-<feature-slug>.review.md`. Overwritten by the next run, read by no skill, never a record; the same role as `/d101-review`'s `D101-<slug>.review.md`. One shape, so a reader learns it once:
+
+```markdown
+# Validation — S101-<feature-slug>
+
+S101: documentation/specs/<feature-slug>/S101-<feature-slug>.md v<version>
+Design: <design.ref> v<design.version> | <design.ref> read <design.read> · cache <design.cache>
+Date: <YYYY-MM-DD>
+Mode: graph-only | full
+Blind: true | false
+
+## Plan report
+<the S101 validation report, verbatim>
+
+## Task reports
+### <task id> · <S102 file>
+<its last S102 validation report, verbatim; one block per S102 in file order>
+
+## Assumptions decided by default
+<the rows of S101 §7 whose How is "decided by default", verbatim; "none" if none>
+```
+
+`Blind` is false when any S102 report was produced inline rather than in a fresh subagent.
+
+The specs folder, with its two gitignored siblings `S101-<feature-slug>.review.md` and `design.md`, is a shared path convention in the sense of hard rule 7 and a lockstep literal in the sense of hard rule 9: both asimov-skills, the four artifact skills, `.gitignore`, `CLAUDE.md` and D100 §5 and §9 move together.

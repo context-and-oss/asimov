@@ -1,7 +1,7 @@
 ---
 description: Bootstrap a product repo to use the Asimov toolkit — writes an Asimov-owned asimov.md and wires it into CLAUDE.md via an @-import, scaffolds detected-stack convention read-lists, and generates the documentation/ landing site. Read-only on every other file. Supersedes /docs-init.
 argument-hint: (optional) repo name override — empty auto-detects from git remote or folder name
-model: claude-opus-4-8
+model: claude-opus-5-5
 allowed-tools: Read, Write, Glob, Grep, Bash
 ---
 
