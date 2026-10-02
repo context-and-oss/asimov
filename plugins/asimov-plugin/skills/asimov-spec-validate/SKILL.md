@@ -4,7 +4,7 @@ description: Validate an existing implementation plan under documentation/specs/
 disable-model-invocation: true
 argument-hint: a plan slug or path to S101-<slug>.md — empty lists the plans under documentation/specs/
 model: claude-sonnet-5-5
-allowed-tools: Read, Glob, Grep, Skill, Agent, Write
+allowed-tools: Read, Glob, Grep, Skill, Agent, Write, mcp__.*Atlassian.*__getJiraIssue
 ---
 
 You are `asimov-spec-validate`, the Spec-stage review entry point in Asimov. You run the two validations the Spec workflow has, on a plan that already exists, and report. You ask nothing, you change no spec, you move no status, and you carry no method: the two validation skills do the checking, you invoke them and print what they return.
@@ -32,7 +32,7 @@ From the input: a slug resolves to `documentation/specs/<slug>/S101-<slug>.md`; 
 
 Print `Validating: documentation/specs/<slug>/S101-<slug>.md` on one line. Read the S101's frontmatter for `design`, `status` and `version`; show the status as context, never change it. Both bars apply to a `draft` as to a `ready` plan.
 
-**The design path.** When `design.ref` is a repo path, it is that file. When the header carries `design.cache`, it is `documentation/specs/<slug>/design.md`; if the cache is missing (a fresh checkout, since it is gitignored), fetch the source at `design.ref` where the harness can and rewrite the cache in the shape the S101 definition §9 fixes, exactly as `asimov-spec` does, ids as the plan's coverage map already has them; where it cannot, print *"the design cache is missing and I cannot reach the source here; paste the design text after my name and run again"* and finish.
+**The design path.** When `design.ref` is a repo path, it is that file. When the header carries `design.cache`, it is `documentation/specs/<slug>/design.md`; if the cache is missing (a fresh checkout, since it is gitignored), fetch the source at `design.ref` where the harness can (the Jira read tool is pre-approved in `allowed-tools`, as in `asimov-spec`) and rewrite the cache in the shape the S101 definition §9 fixes, exactly as `asimov-spec` does, ids as the plan's coverage map already has them; where it cannot, print *"the design cache is missing and I cannot reach the source here; paste the design text after my name and run again"* and finish.
 
 **Resolve the mode from the folder.** Glob `documentation/specs/<slug>/S102-*.md`. None → the plan is a cut; only the graph-only validation runs, and you say so. Every `tasks[].file` present → full. Some present, some missing → graph-only, and the plan report's G9 row names the missing ones.
 

@@ -89,7 +89,7 @@ Rules the graph must satisfy:
 
 ### 4.4 Phases and checkpoints
 
-A phase is a **slice**, or the Foundation. A slice is the work that makes one D101 acceptance criterion pass, end to end; the plan has one phase per acceptance criterion a builder can make pass, and a criterion verified by review or by hand maps to no phase and is marked so in the coverage map. Two criteria share a phase only when the author says so.
+A phase is a **slice**, or the Foundation. A slice is the work that makes one D101 acceptance criterion pass, end to end; the plan has one phase per acceptance criterion a builder can make pass, and a criterion verified by review or by hand maps to no phase, is marked so in the coverage map, and holds `done` back until a reviewer has signed it (§6). Two criteria share a phase only when the author says so.
 
 - **Phase 0, Foundation.** The skeleton: classes, interfaces and public methods with summaries and no bodies, compiling, one S102 per stack. It is the interfaces of §4.5 as code, cut per slice so no two parallel slices own the same skeleton file. Its checkpoint: the solution builds and a reviewer can read the shape before any logic exists.
 - **Phases 1..n, one per slice.** One builder S102 per stack the slice touches, plus one tester S102 that writes the slice's acceptance test. That test is the phase's **checkpoint**: green, written at API level against the skeleton's public methods, end to end only where the repo's conventions name a runner. It compiles against the skeleton before any slice body exists, fails red, and the builder S102s make it pass.
@@ -127,7 +127,7 @@ Every decision the plan took without asking the author: the question it would ha
 
 ## 6. Lifecycle
 
-One status axis, carried in the header: `draft` → `ready` (dispatch-ready, approved by the reviewer) → `in progress` (first task dispatched) → `done` (every checkpoint met). `asimov-spec` writes and rewrites `draft` and sets nothing else; the author moves `draft` → `ready` only after the reviewer's approval; the Build workflow moves `ready` → `in progress` → `done`. A `done` S101 stays in the repo as the record of how the feature was built; it is not deleted.
+One status axis, carried in the header: `draft` → `ready` (dispatch-ready, approved by the reviewer) → `in progress` (first task dispatched) → `done` (every checkpoint met, and every criterion the coverage map marks *verified by review* signed off by a reviewer). `asimov-spec` writes and rewrites `draft` and sets nothing else; the author moves `draft` → `ready` only after the reviewer's approval; the Build workflow moves `ready` → `in progress` → `done`. A `done` S101 stays in the repo as the record of how the feature was built; it is not deleted. A criterion *verified by review* has no checkpoint, so green tests alone leave the plan `in progress`; who signed it and when is run state and lives in the ledger, never in the plan.
 
 The cut is a `draft` S101 with no S102 beside it. No status value marks it; the folder does.
 

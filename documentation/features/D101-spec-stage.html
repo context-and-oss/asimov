@@ -238,7 +238,7 @@ footer.site-footer a { color: var(--cyan); }
   <a href="../index.html#s6">Diagrams</a>
   <span class="spacer"></span>
   <span class="phase-chip full">Full design</span>
-  <span class="status-chip">Draft v0.15</span>
+  <span class="status-chip">Draft v0.16</span>
 </nav>
 
 <div class="layout-doc">
@@ -776,7 +776,7 @@ footer.site-footer a { color: var(--cyan); }
     <li><strong>asimov-spec</strong> writes and re-writes <code>draft</code>; when the D101's intent changed it rewrites the plan from scratch, and git keeps the old one (R16, R17).</li>
     <li><strong>The cut</strong> is a <code>draft</code> S101 with no S102 beside it; no status value marks it, the folder does (R24, R25).</li>
     <li><strong>The author</strong> sets <code>ready</code> after the reviewer's approval; no skill does (R15).</li>
-    <li><strong>The Build workflow</strong> moves <code>ready</code> → <code>in progress</code> → <code>done</code>; out of scope here.</li>
+    <li><strong>The Build workflow</strong> moves <code>ready</code> → <code>in progress</code> → <code>done</code>; out of scope here. <code>done</code> needs every checkpoint met <em>and</em> a reviewer's word on each criterion the coverage map marks <em>verified by review</em>; the ledger records who and when, the plan never does (S101 definition §6).</li>
   </ul>
 </section>
 
@@ -1067,7 +1067,7 @@ footer.site-footer a { color: var(--cyan); }
     <li><strong>Only by name.</strong> Claude Code reads <code>disable-model-invocation</code> in the SKILL.md frontmatter; Codex reads <code>policy.allow_implicit_invocation: false</code> in the skill's <code>agents/openai.yaml</code>. Both files ship with the skill (NF5).</li>
     <li><strong>Model.</strong> The frontmatter model binds in Claude Code; Codex ignores it and runs the session's model. <code>model-choice.md</code> marks the two rows as Claude Code only.</li>
     <li><strong>The blind subagent.</strong> Each harness's generic fresh agent, read-only by tool restriction where the harness has one, by prompt otherwise (§6.6). No Asimov name: it is a context boundary, not a role.</li>
-    <li><strong>Jira.</strong> Where the harness has the Atlassian connector, <code>asimov-spec</code> fetches the ticket and its comments itself; where it has not (Codex today), the author pastes the ticket text after the skill's name. Either way the text lands in the cache (§6.8) and the run is the same from there (R27).</li>
+    <li><strong>Jira.</strong> Where the harness has the Atlassian connector, <code>asimov-spec</code> fetches the ticket and its comments itself; where it has not (Codex today), the author pastes the ticket text after the skill's name. Either way the text lands in the cache (§6.8) and the run is the same from there (R27). The connector's read tool is pre-approved in both asimov-skills' <code>allowed-tools</code>, matched by the connector name, so a ticket run has no permission stop; that pattern is the one install-specific literal in the skills, and no Jira write tool is ever listed.</li>
     <li><strong>Paths.</strong> The skills name the definitions and templates under <code>${CLAUDE_PLUGIN_ROOT}</code>, which Claude Code substitutes. Codex leaves it literal and resolves a <code>..</code> path from the working directory, so in Codex each skill derives the plugin root from its own file path, verifies it by reading its definition, and searches the plugin cache if that fails: the method of <code>D101-codex-support.html</code> §6.2, adopted here on 2026-10-02 (Q11).</li>
   </ul>
 </section>
@@ -1805,7 +1805,7 @@ footer.site-footer a { color: var(--cyan); }
     · <span class="mono">features/D101-spec-stage.html</span>
   </div>
   <div style="margin-top: 0.4rem">
-    D101 · Spec stage · Asimov plugin · Draft v0.15 · 2026-10-02
+    D101 · Spec stage · Asimov plugin · Draft v0.16 · 2026-10-02
   </div>
 </footer>
 
