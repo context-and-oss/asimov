@@ -59,7 +59,7 @@ reference is invisible to the subagent. See D100 §7.2.1.
 | `/asimov-spec-validate` | Spec   | Validate an existing plan; writes only its review sidecar               |
 | `/asimov-init`          | Setup  | Re-run to refresh this file, conventions, and the docs site             |
 
-`/asimov-spec` and `/asimov-spec-validate` are skills you invoke by name (in Codex: `$asimov-spec`), never picked by the model. The plan's `ready` status is set by hand after a reviewer who is not the author approves it.
+`/asimov-spec` and `/asimov-spec-validate` are skills you invoke by name (in Codex: `$asimov-plugin:asimov-spec`, `$asimov-plugin:asimov-spec-validate`), never picked by the model. The plan's `ready` status is set by hand after a reviewer who is not the author approves it.
 
 **Two runs, not one.** `/d101-feature-design` works to two bars. The first run settles requirements and the business design, writes the file with §6 _Technical design_ marked open and a list of what is outstanding, and then stops. Open the file, read it, iterate on §2–§5 — then run the command again against that file to add §6. `/d101-review` reads the phase from the document, then offers and runs the reviews it calls for — the gap check against the matching bar (§8a while §6 is open, §8b once written) plus the persona reads (below).
 

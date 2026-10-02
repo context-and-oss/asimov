@@ -9,7 +9,7 @@ One graph entry in, one task spec out. The S102 is the whole brief a fresh build
 
 ## Read first
 
-Load with the file-read tool. `${CLAUDE_PLUGIN_ROOT}` is the plugin root; where the harness does not set it, resolve the same paths relative to this skill's folder (`../../artifacts/...`). If 1 or 2 cannot be read, stop and report the path.
+Load with the file-read tool. In Claude Code `${CLAUDE_PLUGIN_ROOT}` is the plugin root and is substituted for you. In Codex the variable stays literal and a `..` path resolves from the working directory, so derive the root once: take this skill's file path as Codex shows it, strip everything from `skills/artifact-s102-authoring` onward, and use what remains as `<plugin-root>` in every path below, absolute. Verify it by reading file 1; if that fails, Glob `<home>/.codex/plugins/cache/**/s102-task-spec-definition.md`, take the match whose path shares the longest prefix with the skill path, and if nothing matches stop and report the path you derived and the search you ran (the method of `D101-codex-support.html` §6.2). If 1 or 2 cannot be read either way, stop and report the path.
 
 1. **The S102 definition** — the bar (§2), the required content (§4), the rules (§5, above all *no placeholders* and *inherit, don't repeat*), the anti-patterns (§7), the checks the blind reader will ask (§8):
 
@@ -41,11 +41,11 @@ Load with the file-read tool. `${CLAUDE_PLUGIN_ROOT}` is the plugin root; where 
 
 ## Steps
 
-1. **Header** from the graph entry, copied verbatim: `s101`, `task`, `title`, `traces`, `role`, `tier`, `depends_on`; `status: draft`, author, today's date. A lone task carries `ticket` instead of `s101` + `task`. Never change a copied field to make the body easier; a mismatch is a plan finding, reported to the caller.
+1. **Header** from the graph entry, copied verbatim: `spec: S102`, `s101`, `task`, `title`, `traces`, `role`, `tier`, `depends_on`; `status: draft`, author, today's date. A lone task carries `ticket` instead of `s101` + `task`. Never change a copied field to make the body easier; a mismatch is a plan finding, reported to the caller.
 
 2. **Intent.** One or two sentences in the D101's words: what this task delivers and why the feature needs it. The reason, not the recipe.
 
-3. **Files.** The owned set, split into create / modify / test, exactly the graph entry's `owns`. A modify entry on a large file names the region. Every path exact and repo-relative; a path that neither exists nor is created here is a defect you fix before writing.
+3. **Files.** The three lists, Create / Modify / Test, exactly the graph entry's `owns.create`, `owns.modify` and `owns.test`. A modify entry on a large file names the region. Every path exact and repo-relative; a modify path that does not exist is a plan gap you report (below), not a path you change.
 
 4. **Interfaces.** Consumes: every name from the entry's `consumes`, with the exact signature from the S101 §3 and the producing task id, or the path for existing code. Produces: every name from `produces`, signature fixed here as the S101 spells it. A consumed name the S101 does not spell is a plan gap: stop and report it (below).
 
@@ -65,15 +65,14 @@ Load with the file-read tool. `${CLAUDE_PLUGIN_ROOT}` is the plugin root; where 
 
 ## When you cannot write it
 
-A step, a signature or a scenario you cannot write without guessing is not written. Do not save a file with a gap or a placeholder in it. Return instead:
+A step, a signature or a scenario you cannot write without guessing is not written. Do not save a file with a gap or a placeholder in it. Return instead, with the same source prefix the validation skills use:
 
 ```
-cannot write <task id>: <what is missing>
-  needs: <the D101 section, the S101 interface or the author decision that would settle it>
-  source: D101 | S101 | repo
+cannot write <task id>: D101: <what the design does not settle>
+  needs: <the D101 section or the author decision that would settle it>
 ```
 
-The caller treats a `source: D101` gap as a stop (the D101 is fixed first, not the S102) and a `source: S101` gap as a plan finding. Reporting the gap is the method; filling it from memory is the failure the blind validation exists to catch.
+or `S101:` (a name no task produces, an owned path that does not exist, an entry that cannot hold the task) with the plan section that would settle it. The caller stops on `D101:` (the design is fixed first, not the S102) and routes `S101:` to the plan. Reporting the gap is the method; filling it from memory is the failure the blind validation exists to catch.
 
 ## Never
 

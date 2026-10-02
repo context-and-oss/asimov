@@ -60,7 +60,7 @@ The bar is **validated blind** right after the S102 is written: a fresh subagent
 
 ### 4.1 Header
 
-The S101 it belongs to and its task id in that graph (or the ticket, for a lone S102), the D101 requirements, contracts and acceptance criteria it serves by id, the builder role it is written for (exactly one `role-*` skill, such as `dotnet-builder`, `angular-builder` or `dotnet-tester`, or a human), the model tier recommended, the tasks it depends on, the status (§6), the author and the date. Role, tier, dependencies and traces are copied from the graph entry so the brief stands alone; the plan validation checks they still match.
+The S101 it belongs to and its task id in that graph (or the ticket, for a lone S102), the D101 requirements, contracts and acceptance criteria it serves by id, the builder role it is written for (exactly one of the roles the S101 template's leading comment lists: a `role-*` skill such as `dotnet-builder`, `angular-builder` or `dotnet-tester`, or `human`), the model tier recommended, the tasks it depends on, the status (§6), the author and the date. Role, tier, dependencies and traces are copied from the graph entry so the brief stands alone; the plan validation checks they still match.
 
 ### 4.2 Intent
 

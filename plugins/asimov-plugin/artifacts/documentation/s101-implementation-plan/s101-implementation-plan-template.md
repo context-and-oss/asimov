@@ -15,8 +15,9 @@
   - The first write is the CUT: frontmatter + body with §7 Assumptions, no S102
     beside it. asimov-spec shows the cut and waits for the author's go before any
     S102 is written; the author may edit this file by hand at that point and
-    asimov-spec reads it as the graph. The final write, after the plan
-    validation, completes §6 and §7.
+    asimov-spec reads it as the graph. Every later write starts from the file
+    on disk, so a hand edit survives a re-cut. The final write, after the plan
+    validation, completes §6 and §7 and touches nothing else.
   - Strip THIS comment from the rendered file. Everything the author needs to
     know is in the definition; the plan carries plan content only.
 
@@ -34,15 +35,19 @@
     S102 file: T003 is S102-{{SLUG}}-003-<task-slug>.md. Never renumber a task
     that already has an S102 on disk.
   - role: exactly one builder role, named as its role-* skill without the
-    prefix — dotnet-builder, angular-builder, dotnet-tester — or `human`.
+    prefix — dotnet-builder, angular-builder, dotnet-tester — or `human`. This
+    is the closed list; the definitions and the validation checks point here.
   - tier: low | mid | high. low = transcription (the S102 carries the code);
     mid = prose steps with a clear check; high = judgement or integration.
-    model-choice.md maps the tiers to models; the plan names a tier only.
+    The plan names a tier only; the toolkit's model-choice.md maps tiers to
+    models, and the run picks the model.
   - traces: D101 ids as written there — R3, NF2, §6.4.1, AC5. A phase traces
     to the acceptance criterion it makes pass; a task to everything it serves.
-  - owns: the task's create + modify + test paths, exact, repo-relative. Two
-    tasks that may run in parallel own disjoint sets; a shared file is a
-    dependency, and the skeleton is cut so each slice owns its own file.
+  - owns: the task's paths in three lists, create / modify / test, exact and
+    repo-relative; the S102's §2 Files repeats them list for list. The owned
+    set is the union. Two tasks that may run in parallel own disjoint sets; a
+    shared file is a dependency, and the skeleton is cut so each slice owns
+    its own file. Size counts create + modify only.
   - produces / consumes: interface names, exactly as §3 Interfaces spells them.
     Every consumed name is produced by a task in this graph, or by existing
     code §3 links by path.
@@ -99,7 +104,9 @@ tasks:
     phase: P0
     depends_on: []
     owns:
-      - <repo-relative path>
+      create: [<repo-relative path>, <repo-relative path>]
+      modify: []
+      test: []
     produces:
       - <InterfaceName>
     consumes: []
@@ -112,7 +119,9 @@ tasks:
     phase: P1
     depends_on: [T001]
     owns:
-      - <repo-relative path>
+      create: []
+      modify: [<repo-relative path>]
+      test: [<repo-relative test path>]
     produces: []
     consumes:
       - <InterfaceName>
@@ -125,7 +134,9 @@ tasks:
     phase: P1
     depends_on: [T001]
     owns:
-      - <repo-relative test path>
+      create: []
+      modify: []
+      test: [<repo-relative acceptance-test path>]
     produces: []
     consumes:
       - <InterfaceName>
@@ -194,9 +205,10 @@ Every D101 requirement, contract and acceptance criterion in scope, against the 
 
 ## 7. Assumptions
 
-Every decision taken without asking the author, in the order taken: the question it would have been, the options, the default taken. *Decided by default* marks a decision made after the question budget was spent. The author's corrections at the cut are listed here too, marked *corrected at the cut*.
+Every decision taken without asking the author, in the order taken: the question it would have been, the options, the default taken. *How* is one of three values: `default` (the default was offered and taken without an answer), `decided by default` (decided after the question budget was spent, never offered), `corrected at the cut` (the author changed it at the gate). A gap no default can bridge is listed too, its *Taken* cell beginning `D101:` and naming what the design is missing.
 
 | # | Would have asked | Options | Taken | How |
 |---|---|---|---|---|
 | A1 | <question> | <option a / option b> | <option a> | default |
-| A2 | <question> | <option a / option b> | <option b> | corrected at the cut |
+| A2 | <question> | <option a / option b> | <option b> | decided by default |
+| A3 | <question> | <option a / option b> | <option a> | corrected at the cut |

@@ -1,10 +1,10 @@
 # Codex metadata for the asimov-spec asimov-skill (D101-spec-stage §6.1, NF5, NF6).
-# The method and the conversation live in ../SKILL.md, the same file Claude Code reads.
+# The conversation lives in ../SKILL.md, the same file Claude Code reads.
 # Codex skills take no arguments: the author names the D101 slug in the same message.
 interface:
   display_name: "Asimov · Spec"
-  short_description: "Plan one D101 at Full design into an S101 and its S102s under documentation/specs/<slug>/; shows the cut and waits for your go before any task spec is written."
-  default_prompt: "Use $asimov-spec to plan the D101 <slug> into documentation/specs/<slug>/."
+  short_description: "Plan a D101 into an S101 and its S102s"
+  default_prompt: "Use $asimov-plugin:asimov-spec to plan the D101 <slug> into documentation/specs/<slug>/."
 
 policy:
   # Only a person starts a planning run; the model never selects this skill (NF5).

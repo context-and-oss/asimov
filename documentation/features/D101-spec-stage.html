@@ -238,7 +238,7 @@ footer.site-footer a { color: var(--cyan); }
   <a href="../index.html#s6">Diagrams</a>
   <span class="spacer"></span>
   <span class="phase-chip full">Full design</span>
-  <span class="status-chip">Draft v0.11</span>
+  <span class="status-chip">Draft v0.12</span>
 </nav>
 
 <div class="layout-doc">
@@ -291,8 +291,8 @@ footer.site-footer a { color: var(--cyan); }
   <div class="meta-cell"><div class="label">Business approver</div><div class="value">Allan Borup</div></div>
   <div class="meta-cell"><div class="label">L3 stage</div><div class="value mono">Spec</div></div>
   <div class="meta-cell"><div class="label">Writes to</div><div class="value mono">documentation/specs/&lt;slug&gt;/</div></div>
-  <div class="meta-cell"><div class="label">Last updated</div><div class="value mono">2026-10-01</div></div>
-  <div class="meta-cell"><div class="label">Status</div><div class="value">Draft v0.11</div></div>
+  <div class="meta-cell"><div class="label">Last updated</div><div class="value mono">2026-10-02</div></div>
+  <div class="meta-cell"><div class="label">Status</div><div class="value">Draft v0.12</div></div>
 </div>
 
 <div class="doc-scope">
@@ -416,7 +416,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="row cols-2"><div class="label-cell">Buildable blind</div><div>The S102 bar: a builder with no conversation history builds it and knows when it is done.</div></div>
     <div class="row cols-2"><div class="label-cell">Spec workflow</div><div>D101 → S101 + S102s → validation → reviewer approval; this document.</div></div>
     <div class="row cols-2"><div class="label-cell">Build workflow</div><div>Ready S101 → phase by phase → builders → verification → review → checkpoint; out of scope.</div></div>
-    <div class="row cols-2"><div class="label-cell">Asimov-skill</div><div>A skill only a person invokes, by name: it composes the artifact skills and carries the conversation, never a method. <code>/asimov-spec</code> in Claude Code, <code>$asimov-spec</code> in Codex.</div></div>
+    <div class="row cols-2"><div class="label-cell">Asimov-skill</div><div>A skill only a person invokes, by name: it composes the artifact skills and carries the conversation, never a method. <code>/asimov-spec</code> in Claude Code, <code>$asimov-plugin:asimov-spec</code> in Codex.</div></div>
     <div class="row cols-2"><div class="label-cell">Harness</div><div>The tool that runs a skill: Claude Code or Codex. A skill is one file for both; the manifest, the invocation syntax, the model and the tool budget differ per harness, the method never.</div></div>
   </div>
 </section>
@@ -1045,11 +1045,11 @@ footer.site-footer a { color: var(--cyan); }
   </div>
   <div class="subhead" style="margin-top:2rem">Two harnesses, one file</div>
   <ul class="bullets">
-    <li><strong>Invocation.</strong> <code>/asimov-spec &lt;slug&gt;</code> in Claude Code; <code>$asimov-spec</code> with the slug in the same message in Codex, whose skills take no arguments. Step 01 resolves the target from the words either way.</li>
+    <li><strong>Invocation.</strong> <code>/asimov-spec &lt;slug&gt;</code> in Claude Code; <code>$asimov-plugin:asimov-spec</code> with the slug in the same message in Codex, whose skills take no arguments and carry the plugin prefix (D101-codex-support Rule 3). Step 01 resolves the target from the words either way; with no target it lists the candidates and finishes, so the gate stays the run's one wait.</li>
     <li><strong>Only by name.</strong> Claude Code reads <code>disable-model-invocation</code> in the SKILL.md frontmatter; Codex reads <code>policy.allow_implicit_invocation: false</code> in the skill's <code>agents/openai.yaml</code>. Both files ship with the skill (NF5).</li>
     <li><strong>Model.</strong> The frontmatter model binds in Claude Code; Codex ignores it and runs the session's model. <code>model-choice.md</code> marks the two rows as Claude Code only.</li>
     <li><strong>The blind subagent.</strong> Each harness's generic fresh agent, read-only by tool restriction where the harness has one, by prompt otherwise (§6.6). No Asimov name: it is a context boundary, not a role.</li>
-    <li><strong>Paths.</strong> The skills name the definitions and templates relative to the plugin; <code>${CLAUDE_PLUGIN_ROOT}</code> is Claude Code's spelling and Codex hands a skill its own directory. One spelling that both resolve is Q11.</li>
+    <li><strong>Paths.</strong> The skills name the definitions and templates under <code>${CLAUDE_PLUGIN_ROOT}</code>, which Claude Code substitutes. Codex leaves it literal and resolves a <code>..</code> path from the working directory, so in Codex each skill derives the plugin root from its own file path, verifies it by reading its definition, and searches the plugin cache if that fails: the method of <code>D101-codex-support.html</code> §6.2, adopted here on 2026-10-02 (Q11).</li>
   </ul>
 </section>
 
@@ -1211,7 +1211,7 @@ footer.site-footer a { color: var(--cyan); }
   <h2 class="section-title"><span class="sec-ref">§6.3</span><code>asimov-spec-validate</code></h2>
   <p class="section-desc">The same two validations on an existing plan; no conversation, no writes to the plan. The author's self-preview and the reviewer's first read.</p>
   <ul class="bullets">
-    <li><strong>Target.</strong> A slug or an S101 path, from the words after <code>/asimov-spec-validate</code> in Claude Code or beside <code>$asimov-spec-validate</code> in Codex; refused with the reason when no S101 is there.</li>
+    <li><strong>Target.</strong> A slug or an S101 path, from the words after <code>/asimov-spec-validate</code> in Claude Code or beside <code>$asimov-plugin:asimov-spec-validate</code> in Codex; refused with the reason when no S101 is there, and with no target the plans are listed and the run finishes.</li>
     <li><strong>Runs</strong> <code>artifact-s102-validation</code> per S102 through the same blind call (§6.6), then <code>artifact-s101-validation</code> (§6.7).</li>
     <li><strong>Prints</strong> both reports and writes only <code>S101-&lt;slug&gt;.review.md</code> (§6.8); no spec changes, no status moves (R14, R15).</li>
     <li><strong>Asks nothing.</strong> No menu, no questions; both bars apply to a draft as to a ready plan.</li>
@@ -1280,7 +1280,7 @@ footer.site-footer a { color: var(--cyan); }
       <div class="label-cell">Used by</div>
       <div></div>
       <div><ul>
-        <li><code>asimov-spec</code>, step 02, once per cut round.</li>
+        <li><code>asimov-spec</code>, step 02, once per cut round; step 07, with a plan-level finding as cut feedback and every clearing task kept; step 08, in a <em>finalise</em> mode that touches only the coverage map and the assumptions.</li>
         <li>A hand run without the asimov-skill: the summary it returns is what the person reads before calling <code>artifact-s102-authoring</code>.</li>
       </ul></div>
     </div>
@@ -1492,7 +1492,7 @@ footer.site-footer a { color: var(--cyan); }
       <div class="label-cell">Written by</div>
       <div></div>
       <div><ul>
-        <li><code>artifact-s101-authoring</code> (§6.4): the draft at every cut round, before any S102; the complete file after the plan validation. Between the two, the author may edit it by hand (R24).</li>
+        <li><code>artifact-s101-authoring</code> (§6.4): the draft at every cut round, before any S102, each round starting from the file on disk so a hand edit survives; a re-cut around the clearing tasks when the plan validation finds a plan-level defect; and the coverage map and assumptions completed after the plan validation, nothing else touched. Between the cut and the go, the author may edit it by hand (R24).</li>
       </ul></div>
     </div>
     <div class="row">
@@ -1655,9 +1655,9 @@ footer.site-footer a { color: var(--cyan); }
       <div class="q-resolution">Resolution path: the first Angular slice; either an Angular tester role skill, or Daneel writes it test-first under R7 and the D101-subagents roster says so.</div>
     </div>
     <div class="q-card">
-      <div class="q-head"><span class="q-id">Q11</span><span class="q-decider">Allan Borup</span></div>
-      <div class="q-body">One spelling of the plugin paths that both harnesses resolve. <code>${CLAUDE_PLUGIN_ROOT}</code> is Claude Code's; Codex hands a skill its own directory.</div>
-      <div class="q-resolution">Resolution path: the first Codex install of the plugin; write the paths relative to the skill folder and check that both harnesses open the same definition (NF6, AC20).</div>
+      <div class="q-head"><span class="q-id">Q11</span><span class="q-decider">Resolved 2026-10-02</span></div>
+      <div class="q-body">One spelling of the plugin paths that both harnesses resolve. <code>${CLAUDE_PLUGIN_ROOT}</code> is Claude Code's; Codex substitutes nothing and resolves a relative path from the working directory.</div>
+      <div class="q-resolution">Decision: the derived-root method of <code>D101-codex-support.html</code> §6.2, in every skill that reads a plugin file: the Claude Code variable, and in Codex the root cut from the skill's own path, verified by reading the definition, with a search of the plugin cache as the fallback. A relative path was the rejected alternative. Reopens if the first Codex run (AC20) does not find the definition.</div>
     </div>
   </div>
   <div class="subhead" style="margin-top:1.5rem">Resolved during authoring</div>
@@ -1762,7 +1762,7 @@ footer.site-footer a { color: var(--cyan); }
     · <span class="mono">features/D101-spec-stage.html</span>
   </div>
   <div style="margin-top: 0.4rem">
-    D101 · Spec stage · Asimov plugin · Draft v0.11 · 2026-10-01
+    D101 · Spec stage · Asimov plugin · Draft v0.12 · 2026-10-02
   </div>
 </footer>
 

@@ -1,6 +1,6 @@
 ---
 name: asimov-spec-validate
-description: Validate an existing implementation plan under documentation/specs/<slug>/ without changing it — run the blind check on every S102 in a fresh subagent, then the plan validation (graph-only on a cut, full once every task spec exists) — print both reports and write only the gitignored S101-<slug>.review.md sidecar. The author's self-preview and the reviewer's first read. Invoked by name only ("/asimov-spec-validate <slug>" in Claude Code, "$asimov-spec-validate <slug>" in Codex); never selected by the model. Asks nothing, writes no spec, moves no status.
+description: Validate an existing implementation plan under documentation/specs/<slug>/ without changing it — run the blind check on every S102 in a fresh subagent, then the plan validation (graph-only on a cut, full once every task spec exists) — print both reports and write only the gitignored S101-<slug>.review.md sidecar. The author's self-preview and the reviewer's first read. Invoked by name only ("/asimov-spec-validate <slug>" in Claude Code, "$asimov-plugin:asimov-spec-validate <slug>" in Codex); never selected by the model. Asks nothing, writes no spec, moves no status.
 disable-model-invocation: true
 argument-hint: <slug or path to S101-<slug>.md> — the plan to validate; empty lists the plans under documentation/specs/
 model: claude-sonnet-4-6
@@ -22,23 +22,25 @@ The verdict is the reviewer's (≠ author). You produce the evidence they read f
 
 $ARGUMENTS
 
+If the line above still reads `$ARGUMENTS` literally, the harness substitutes nothing (Codex): the input is whatever the author wrote after the invocation in the same message, or nothing.
+
 ---
 
 # Step 1 — Resolve the plan
 
-From `$ARGUMENTS`: a slug resolves to `documentation/specs/<slug>/S101-<slug>.md`; a path is used as is. Empty: **Glob** `documentation/specs/*/S101-*.md`, list the plans most recent first, ask the author to pick, and wait; this is the only question you ever ask. No S101 at the resolved path → one line (*"no plan under `documentation/specs/<slug>/`; run `/asimov-spec <slug>` to write one"*), stop.
+From the input: a slug resolves to `documentation/specs/<slug>/S101-<slug>.md`; a path is used as is. Empty: **Glob** `documentation/specs/*/S101-*.md`, print the plans most recent first with their status, say *"run `/asimov-spec-validate <slug>` with one of these"*, and finish; you ask nothing. No S101 at the resolved path → one line (*"no plan under `documentation/specs/<slug>/`; run `/asimov-spec <slug>` to write one"*), finish.
 
 Print `Validating: documentation/specs/<slug>/S101-<slug>.md` on one line. Read the S101's frontmatter for `d101.path`, `status` and `version`; show the status as context, never change it. Both bars apply to a `draft` as to a `ready` plan.
 
-**Resolve the mode from the folder.** Glob `documentation/specs/<slug>/S102-*.md`. None → the plan is a cut; only the graph-only validation runs, and you say so. Every `tasks[].file` present → full. Some present, some missing → graph-only, and the plan report's F1 row will name the missing ones.
+**Resolve the mode from the folder.** Glob `documentation/specs/<slug>/S102-*.md`. None → the plan is a cut; only the graph-only validation runs, and you say so. Every `tasks[].file` present → full. Some present, some missing → graph-only, and the plan report's G9 row names the missing ones.
 
 # Step 2 — The blind check per task spec
 
 For every S102 file in the folder (not only those in the graph: an orphan is reported by the plan check, but it is still validated), spawn a **fresh subagent** with this prompt and nothing else:
 
-> Load the skill `artifact-s102-validation`. Validate `documentation/specs/<slug>/S102-<slug>-<NNN>-<task>.md` against `documentation/specs/<slug>/S101-<slug>.md` and `<d101.path>`. Return the report only.
+> Load the skill `artifact-s102-validation`. Validate `documentation/specs/<slug>/S102-<slug>-<NNN>-<task>.md` against `documentation/specs/<slug>/S101-<slug>.md` and `<d101.path>`. Return the report only. Do not write or edit any file.
 
-In Claude Code use the **Agent** tool with the `Explore` type (read-only by tool restriction); in a harness without a tool-restricted agent, its generic subagent with the same text plus one sentence forbidding writes. No conversation history, no paths beyond the three. In a session that cannot spawn a subagent, run the skill inline and carry its `blind: false` in the report; say that the result is a preview and the plan must be re-validated blind before review (Q3).
+In Claude Code use the **Agent** tool with the `Explore` type (read-only by tool restriction); in a harness without a tool-restricted agent, its generic subagent with the same text, whose last sentence is the write ban. No conversation history, no paths beyond the three. In a session that cannot spawn a subagent, run the skill inline and carry its `blind: false` in the report; say that the result is a preview and the plan must be re-validated blind before review (Q3).
 
 Print each report verbatim under `### <task id> · <file>`, in file order. Keep them for Step 3 and Step 4.
 
@@ -48,13 +50,13 @@ Invoke **`artifact-s101-validation`** via the **Skill** tool on the S101, in the
 
 # Step 4 — Write the sidecar, then stop
 
-Write `documentation/specs/<slug>/S101-<slug>.review.md` (gitignored), overwriting one that exists:
+Write `documentation/specs/<slug>/S101-<slug>.review.md` (gitignored), overwriting one that exists, in the shape the S101 definition §9 fixes:
 
 ```markdown
 # Validation — S101-<slug>
 
 S101: documentation/specs/<slug>/S101-<slug>.md v<version>
-D101: <d101.path> v<D101 version, from its status chip>
+D101: <d101.path> v<version, from its status chip>
 Date: <YYYY-MM-DD>
 Mode: graph-only | full
 Blind: true | false
@@ -68,7 +70,7 @@ Blind: true | false
 …
 
 ## Assumptions decided by default
-<the rows of S101 §7 marked "decided by default", verbatim; "none" if none>
+<the rows of S101 §7 whose How is "decided by default", verbatim; "none" if none>
 ```
 
 This is the **one and only path** you write to. Then print the footer and stop:

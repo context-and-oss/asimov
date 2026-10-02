@@ -73,7 +73,7 @@ Everything every S102 must respect, one line each, values verbatim from the D101
 
 ### 4.3 The task graph
 
-One entry per S102: its id, its title, the S102 file, the builder role it is written for (one `role-*` skill, such as `dotnet-builder`, `angular-builder` or `dotnet-tester`, or a human), the model tier the plan recommends, the phase it belongs to, the tasks it depends on, the file set it owns, the names it produces, the names it consumes, and the D101 ids it traces to. The graph is recorded **once**, in the frontmatter so validation reads it mechanically, and the body refers to tasks by id. Two copies drift.
+One entry per S102: its id, its title, the S102 file, the builder role it is written for (exactly one of the roles the S101 template's leading comment lists: a `role-*` skill such as `dotnet-builder`, `angular-builder` or `dotnet-tester`, or `human`), the model tier the plan recommends, the phase it belongs to, the tasks it depends on, the files it owns in three lists (create, modify, test), the names it produces, the names it consumes, and the D101 ids it traces to. The graph is recorded **once**, in the frontmatter so validation reads it mechanically, and the body refers to tasks by id. Two copies drift.
 
 Rules the graph must satisfy:
 
@@ -117,7 +117,7 @@ Every decision the plan took without asking the author: the question it would ha
 - **State it once.** Constraints, interfaces and review focus appear in the S101 and are referenced, not copied, by the S102s. A rule copied into six tasks is six chances to drift.
 - **Link, don't duplicate.** D101 contracts by section number, conventions by path, existing code by path. Never a pasted schema, enum or column list.
 - **Size to the D101, not to a length.** An S101 is as long as its graph. A feature that needs one task gets a one-task plan; that is not a reason to skip it, because the constraints and the escalation routing still have to be written down somewhere the builder reads.
-- **Model tier is a recommendation, per task.** The tiers and their rule (a task whose S102 carries the code is transcription and takes the cheapest tier; a task written as prose takes a mid tier; a design or integration task takes the most capable) follow `documentation/model-choice.md`. The plan names a tier; the run may override it.
+- **Model tier is a recommendation, per task.** Three tiers, named in the template: `low` for a task whose S102 carries the code (transcription: the skeleton, a mechanical change), `mid` for prose steps with a clear check, `high` for judgement or integration. The plan names a tier only; which model a tier means is the toolkit's call (`model-choice.md` in the Asimov repo), and the run may override it. A product repo never needs that file to validate a plan.
 - **No product entity in the toolkit.** Product names, service names and ticket ids belong in the S101 in a product repo and never in this definition or the template (hard rule 7).
 
 ## 6. Lifecycle
@@ -174,6 +174,28 @@ A cycle, an orphan or an intersecting parallel pair is shape and fails; size onl
 
 An S101 lives in the product repo at `documentation/specs/<feature-slug>/S101-<feature-slug>.md`, beside its S102s (`S102-<feature-slug>-<NNN>-<task-slug>.md`). `<feature-slug>` is the D101's slug, so `documentation/features/D101-permissions.html` plans to `documentation/specs/permissions/S101-permissions.md`. Markdown body with YAML frontmatter, as every spec format in current use (research §2).
 
-Beside the plan, both asimov-skills write one gitignored sidecar, `S101-<feature-slug>.review.md`: a fingerprint (S101 path and version, D101 version, date), every validation report of the last run, and the assumptions decided by default. Overwritten by the next run, read by no skill, never a record; the same shape as `/d101-review`'s `D101-<slug>.review.md`.
+Beside the plan, both asimov-skills write one gitignored sidecar, `S101-<feature-slug>.review.md`. Overwritten by the next run, read by no skill, never a record; the same role as `/d101-review`'s `D101-<slug>.review.md`. One shape, so a reader learns it once:
+
+```markdown
+# Validation — S101-<feature-slug>
+
+S101: documentation/specs/<feature-slug>/S101-<feature-slug>.md v<version>
+D101: documentation/features/D101-<feature-slug>.html v<version, from its status chip>
+Date: <YYYY-MM-DD>
+Mode: graph-only | full
+Blind: true | false
+
+## Plan report
+<the S101 validation report, verbatim>
+
+## Task reports
+### <task id> · <S102 file>
+<its last S102 validation report, verbatim; one block per S102 in file order>
+
+## Assumptions decided by default
+<the rows of S101 §7 whose How is "decided by default", verbatim; "none" if none>
+```
+
+`Blind` is false when any S102 report was produced inline rather than in a fresh subagent.
 
 The specs folder is a shared path convention in the sense of hard rule 7 and a lockstep literal in the sense of hard rule 9: both asimov-skills, both authoring skills, `.gitignore`, `CLAUDE.md` and D100 §9 move together.

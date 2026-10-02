@@ -9,7 +9,7 @@ The decomposition: one D101 in, one S101 draft out, plus the cut summary for cha
 
 ## Read first
 
-Load with the file-read tool. `${CLAUDE_PLUGIN_ROOT}` is the plugin root; where the harness does not set it, resolve the same paths relative to this skill's folder (`../../artifacts/...`). If 1 or 2 cannot be read, stop and report the path; never plan from a remembered bar.
+Load with the file-read tool. In Claude Code `${CLAUDE_PLUGIN_ROOT}` is the plugin root and is substituted for you. In Codex the variable stays literal and a `..` path resolves from the working directory, so derive the root once: take this skill's file path as Codex shows it, strip everything from `skills/artifact-s101-authoring` onward, and use what remains as `<plugin-root>` in every path below, absolute. Verify it by reading file 1; if that fails, Glob `<home>/.codex/plugins/cache/**/s101-implementation-plan-definition.md`, take the match whose path shares the longest prefix with the skill path, and if nothing matches stop and report the path you derived and the search you ran (the method of `D101-codex-support.html` §6.2). If 1 or 2 cannot be read either way, stop and report the path; never plan from a remembered bar.
 
 1. **The S101 definition** — the bar (§2), the required content (§4, with §4.3 the graph rules, §4.4 phase = slice, §4.9 assumptions), the rules (§5), the lifecycle and the update-vs-rewrite rule (§6), the thresholds (§8.1):
 
@@ -38,10 +38,10 @@ asimov-spec passes these in its call; a hand run states them in the prompt. Miss
 | Input | Meaning |
 |---|---|
 | `d101` | Path of the D101 to plan. |
-| `mode` | `new`, `update` or `rewrite` (definition §6). asimov-spec decides it; a hand run with an existing S101 states it. [`new` when no S101 exists, else `update`] |
+| `mode` | `new`, `update`, `rewrite` (definition §6) or `finalise` (below). asimov-spec decides it; a hand run with an existing S101 states it. [`new` when no S101 exists, else `update`] |
 | `answers` | The author's answers to the questions asimov-spec asked, and any unanswered question with the default it took. [none] |
-| `cut_feedback` | Free text the author wrote at the gate. The same channel as `answers`; it overrides them where they conflict. [none] |
-| `keep` | On `update`: the S102 files that already clear their bar and must stay byte-identical. [none] |
+| `cut_feedback` | Free text the author wrote at the gate, or a validation row the caller routes to the plan. The same channel as `answers`; it overrides them where they conflict. [none] |
+| `keep` | In any mode: task ids whose S102 is written and clears its bar. Their id, file name, role, tier, phase, dependencies and owned lists do not change, and their S102 files stay byte-identical; the plan is re-cut around them. [none] |
 
 ## Steps
 
@@ -55,7 +55,7 @@ Work in this order; each step feeds the next.
 
 4. **Interfaces.** Every name one task produces and another consumes: exact signature, or the D101 §6 contract number that already states it. Existing code a task consumes is linked by path. No consumed name without a producer in the graph or a path on disk. These names go verbatim into `produces` / `consumes` and into the body's §3 table.
 
-5. **Owned sets.** Per task, the create + modify + test paths, exact and repo-relative. Check every pair of tasks that neither depends on the other, directly or transitively: their sets must be disjoint. A shared file makes one task the owner and the other its dependant; decide it here, not at run time.
+5. **Owned sets.** Per task, three lists, `create`, `modify` and `test`, exact and repo-relative paths; the S102 repeats them list for list. Check every pair of tasks that neither depends on the other, directly or transitively: the unions must be disjoint. A shared file makes one task the owner and the other its dependant; decide it here, not at run time.
 
 6. **Once.** Global constraints verbatim from the D101 §6 or the conventions, each with its source; the review focus (the failure modes no task's test exercises, each pinned to a task); the escalation routing (who rules, from `answers` or the default: the person directing the run).
 
@@ -63,18 +63,19 @@ Work in this order; each step feeds the next.
 
 8. **Tiers.** `low` where the S102 will carry the code (skeleton, transcription), `mid` for prose steps with a clear check, `high` for judgement or integration. Record a non-obvious tier as an assumption.
 
-9. **Assumptions.** Every decision taken without a question, in the order taken: the question it would have been, the options, the default taken; *decided by default* where the budget was spent; *corrected at the cut* for what `cut_feedback` changed. No assumptions section, no plan.
+9. **Assumptions.** Every decision taken without a question, in the order taken: the question it would have been, the options, the default taken; *How* is `default`, `decided by default` (the budget was spent) or `corrected at the cut` (what `cut_feedback` changed). A gap no default can bridge gets a row whose *Taken* cell begins `D101:` and names what the design is missing; the caller shows it at the gate. No assumptions section, no plan.
 
 10. **Write** `documentation/specs/<slug>/S101-<slug>.md` from the template: the graph in the frontmatter, the body by id, Assumptions last, status `draft`. Create the folder if absent. Ids: `P0`, `P1..Pn`; `T001..` in file order, the number being the S102's NNN.
 
-11. **Return the cut summary** (below), then the file path and, on a rewrite, the list of S102 files on disk that are not in the new graph.
+11. **Return the cut summary** (below), then the file path.
 
 ## Modes
 
-- **new.** Write the file; version `0.1`.
-- **update** (D101 ids unchanged, content refined). Read the existing S101 and keep its task ids, file names and owned sets for every task in `keep`; those S102 files stay byte-identical and their graph entries unchanged. Re-cut only around them. Bump the version. A task not in `keep` may be re-cut freely; its old S102 is rewritten by the loop.
-- **rewrite** (an id missing or added, or the content changed). Plan from the D101 alone, as `new`, and bump the version. Return the S102 files on disk that the new graph does not name; the caller deletes them, you never do.
-- **Any cut round after the first** (`cut_feedback` present). Rewrite the S101 in place, same version, and return the summary again. Never read the previous summary as the graph; read the D101 and the feedback.
+- **new.** No S101 exists. Write the file; version `0.1`.
+- **update** (D101 ids unchanged, content refined). Start from the S101 on disk; keep every task in `keep` as it is; re-cut only around them. Bump the version. A task not in `keep` may be re-cut freely; its old S102 is rewritten by the loop.
+- **rewrite** (an id missing or added, or the content changed). Plan from the D101 alone, as `new`, and bump the version. The caller has deleted every old S102 before you are called; `keep` is empty.
+- **finalise** (after the plan validation). Start from the S101 on disk and change only §6 Coverage map and §7 Assumptions, so both agree with the task specs as written: a trace a task gained or lost, an assumption a rewrite resolved. No re-cut, no change to the frontmatter, no version bump; `keep` is every task. Return the path and one line per cell you changed, no summary.
+- **Any cut round after the first** (`cut_feedback` present, mode `new`, `update` or `rewrite`). Start from the S101 **on disk**, which may carry the author's hand edits, apply the feedback to it, rewrite in place with the same version, and return the summary again. Never read the previous summary as the graph.
 
 ## The cut summary
 
@@ -103,7 +104,7 @@ Assumptions · decided without a question
 <n> phases · <m> tasks · S101-<slug>.md written (draft) · no S102 yet
 ```
 
-Stack is derived from the role. An `owns` count above the threshold in definition §8.1 is marked `!` after the count, never hidden. The graph checks are not yours; asimov-spec runs artifact-s101-validation and prints them under the summary.
+Stack is derived from the role. The `owns` count is the union of the three lists; a `create` + `modify` count above the threshold in definition §8.1 is marked `!` after it, never hidden. An assumption row that begins `D101:` is printed as its own line under the assumptions, so the author sees the gap before saying go. The graph checks are not yours; asimov-spec runs artifact-s101-validation and prints them under the summary.
 
 ## Never
 
@@ -112,11 +113,12 @@ Stack is derived from the role. An `owns` count above the threshold in definitio
 - **Ask a question or wait for a go.** The questions were asked before you were called; a decision you lack an answer for takes its default and becomes an assumption.
 - **Re-cut an S101 the author edited by hand.** asimov-spec reads that file as the graph and does not call you for it; if you are called with `cut_feedback` of the form *read again*, return *not mine* and do nothing.
 - **Validate** the plan or an S102, or call any other skill. A skill is a leaf.
-- **Delete** a file. Report orphans; the caller deletes.
-- **Invent** a stack, a runner, a path or a signature the D101, the conventions or the repo do not give you. What you cannot ground becomes an assumption with its options, or, when it is a D101 gap no default can bridge, a line in the summary's assumptions marked *D101 gap: <what is missing>* so the author sees it at the gate.
+- **Delete** a file. The caller deletes.
+- **Invent** a stack, a runner, a path or a signature the D101, the conventions or the repo do not give you. What you cannot ground becomes an assumption with its options, or, when it is a D101 gap no default can bridge, an assumption row whose *Taken* cell begins `D101:`, so the author sees it at the gate.
+- **Touch a task in `keep`**, or anything but §6 and §7 in `finalise`.
 - **Bake a product entity into this skill.** The plan in a product repo names whatever it needs; this method names none.
 
 ## Used by
 
-- asimov-spec, step 02, once per cut round, and again after the plan validation to complete the file.
+- asimov-spec, step 02, once per cut round; step 07, with a plan-level validation row as `cut_feedback` and every clearing task in `keep`; step 08, in mode `finalise`.
 - A hand run without the asimov-skill: the summary you return is what the person reads before calling artifact-s102-authoring per task.
