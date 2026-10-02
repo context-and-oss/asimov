@@ -1,6 +1,6 @@
 ---
 name: asimov-spec
-description: Turn one design, a D101 at Full design or an approved Jira ticket, into its implementation plan (S101) and task specs (S102s) under documentation/specs/<slug>/ — read the design and the repo, ask at most five questions with defaults, show the cut and wait for the author's go, then write and blind-validate every task spec and validate the plan, finishing once with a findings list. Invoked by name only, the target in the same message (a D101 slug or path, a Jira link or key, or pasted ticket text); "/asimov-spec" in Claude Code, "$asimov-plugin:asimov-spec" in Codex; never selected by the model. Refuses a D101 not at Full design and a ticket that misses the design-source bar; never records an approval or sets a status beyond draft.
+description: Turn one design, a D101 at Full design or an approved Jira ticket, into its implementation plan (S101) and task specs (S102s) under documentation/specs/<slug>/ — read the design and the repo, ask at most five questions with defaults, show the cut and wait for the author's go, then write and blind-validate every task spec and validate the plan, finishing once with a findings list. Invoked by name only, the target in the same message (a D101 slug or path, a Jira link or key, or pasted ticket text); "/asimov-spec" in Claude Code, "$asimov-plugin:asimov-spec" in Codex; never selected by the model. Refuses a D101 not at Full design and a ticket that misses a required member of contracts/design.md; never records an approval or sets a status beyond draft.
 disable-model-invocation: true
 argument-hint: a D101 slug or path, a Jira link or key, or the ticket text — empty lists what the skill accepts
 model: claude-opus-4-8
@@ -29,15 +29,15 @@ If the line above still reads `$ARGUMENTS` literally, the harness substitutes no
 
 ---
 
-# Step 00 — Load the contracts
+# Step 00 — Load the standards and the contract
 
 In Claude Code `${CLAUDE_PLUGIN_ROOT}` is the plugin root and is substituted for you. In Codex the variable stays literal and a `..` path resolves from the working directory, so derive the root once: take this skill's file path as Codex shows it, strip everything from `skills/asimov-spec` onward, and use what remains as `<plugin-root>` in every plugin path, absolute. Verify it by reading file 1; if that fails, Glob `<home>/.codex/plugins/cache/**/s101-implementation-plan-definition.md`, take the match whose path shares the longest prefix with the skill path, and if nothing matches stop and report the path you derived and the search you ran (the method of `D101-codex-support.html` §6.2). Read with the file-read tool:
 
-1. `${CLAUDE_PLUGIN_ROOT}/artifacts/documentation/s101-implementation-plan/s101-implementation-plan-definition.md` — §2 (the bar, the cut and the go), §3.1 (the design-source bar for a ticket), §6 (update vs rewrite), §8.1 (thresholds), §9 (the folder, the sidecar and the design cache). You do not apply its checks yourself; you need §2, §3.1 and §6 for the conversation.
+1. `${CLAUDE_PLUGIN_ROOT}/artifacts/documentation/s101-implementation-plan/s101-implementation-plan-definition.md` — §2 (the bar, the cut and the go), §3.1 (the bar on the design), §6 (update vs rewrite), §8.1 (thresholds), §9 (the folder, the sidecar and the design cache). You do not apply its checks yourself; you need §2, §3.1 and §6 for the conversation.
 2. `${CLAUDE_PLUGIN_ROOT}/artifacts/documentation/s102-task-spec/s102-task-spec-definition.md` — §2 only (the blind check and the three-failure rule), for the loop's decisions.
-3. `${CLAUDE_PLUGIN_ROOT}/contracts/design.md` — what a design must contain (§2, the members), the file form a design takes when it is not a file in the repo (§3), and who writes it (§4). You check a design against §2 and write §3; you never plan from a design that misses a member.
+3. `${CLAUDE_PLUGIN_ROOT}/contracts/design.md` — the members a design must have. You check every design against it and never plan from one that misses a member; the shape of a normalised design is the S101 definition §9.
 
-If either cannot be read, stop and report the path. The four artifact skills read the definitions and the templates themselves; you never paste their content into a call.
+If any cannot be read, stop and report the path. The four artifact skills read the definitions and the templates themselves; you never paste their content into a call.
 
 **Maturity notice.** Each definition opens with a YAML block (`artifact`, `maturity`, `since`). Print at most one chat line for the two artifacts together, before the first question, by the same table every producing command uses: `assess` → *"The S101 and S102 are assess-level artifacts: the definitions are untried and may change without notice. Feedback is welcome."*; `trial` → *"… trial-level …: the form holds, but incompatible changes may come with a migration note."*; `adopt` → nothing. Never write the level into a spec.
 
@@ -49,14 +49,14 @@ If either cannot be read, stop and report the path. The four artifact skills rea
 |---|---|---|
 | A D101 slug, or a path under `documentation/features/` | A D101 | `<slug>` is the D101's; the design path is `documentation/features/D101-<slug>.html`. |
 | A Jira link (`…/browse/<KEY>`) or a bare ticket key (`PROJ-123`) | A ticket to fetch | `<slug>` is the key in kebab-case (`proj-123`). Fetch below. |
-| Several lines of prose, a ticket pasted in | A ticket, text given | Take the key from the text if it has one, else ask nothing and derive `<slug>` from the first line's words; say which. |
+| Several lines of prose, a ticket pasted in | A ticket, text given | The text must carry the ticket's link or key (the contract's *Reference*); without one, say so and finish. `<slug>` is the key in kebab-case. |
 | Nothing | No target | Print what you accept (a D101 slug or path, a Jira link or key, or the ticket text pasted after your name), list `documentation/features/D101-*.html` most recent first with their phase chips, and finish. The run has one wait, the gate, and a target pick is not it (R23). |
 
 Never read a flag or an argument order; there are none.
 
 **For a D101: refuse what is not plannable.** Read its `.phase-chip`. Anything but `Full design` → one line with the reason and what to run instead (*"`D101-<slug>` is at Business design; run `/d101-feature-design` to write its technical design first"*), nothing written, finish (R2). A D101 at `Full design` with a `#s6-open` block left in the body is reported the same way: the body decides.
 
-**For a design that is not a file in the repo: fetch, normalise, check the contract** (R27). Fetch the ticket with its comments where the harness has the Atlassian connector (a Jira issue tool that returns description and comments); where it has not, use the pasted text, and with neither say *"I cannot reach Jira here; paste the ticket text, description and comments, after my name and run again"* and finish. Read the thread as a person would and sort it into the members of `contracts/design.md` §2: the **approval** (a comment or status by a named person that the solution holds), the **decision**, the **rules** with their counter-examples, the **acceptance criteria**, the **out of scope**, and the interfaces and open items where the thread names them. Any required member missing → one line naming what is missing and that it belongs in the ticket, write nothing, finish (R2). All present → write the cache `documentation/specs/<slug>/design.md` in the contract's §3 form, gitignored: the reference and read time, the approval line, each member's items quoted and numbered in reading order (R1.., AC1.., OOS1..), and the whole thread verbatim under *Source*. Print one line: *"Design <KEY> · approved by <who> on <date> · R1–Rn · AC1–ACm · OOS1–OOSk · cache written."* The cache is never edited: a correction goes into Jira and the next run reads it.
+**For a design that is not a file in the repo: fetch, normalise, check the contract** (R27). Fetch the ticket with its comments where the harness has the Atlassian connector (a Jira issue tool that returns description and comments); where it has not, use the pasted text, and with neither say *"I cannot reach Jira here; paste the ticket text, description and comments, after my name and run again"* and finish. Read the thread as a person would and sort it into the members of `contracts/design.md`, required and optional, quoting the source. Any required member missing → one line naming the member and that it belongs in the ticket, write nothing, finish (R2). All present → write the cache `documentation/specs/<slug>/design.md` in the shape the S101 definition §9 fixes, gitignored: the reference and read time, the approval line, each member's items quoted and numbered in reading order (R1.., AC1.., OOS1.., NF1..; *none* where the source has none; on a re-run the ids the existing plan's coverage map holds are kept and a new item takes the next free number), and the whole thread verbatim under *Source*. Print one line: *"Design <KEY> · approved by <who> on <date> · R1–Rn · AC1–ACm · OOS1–OOSk · NF1–NFj · cache written."* The cache is never edited: a correction goes into Jira and the next run reads it.
 
 Print the resolved design on one line: `Planning: documentation/features/D101-<slug>.html` or `Planning: <url> (cache documentation/specs/<slug>/design.md)`.
 
@@ -142,7 +142,7 @@ A Fail row names the tasks it is about (G4, F2, F3, F4 name tasks; G5, G6 name i
 # Validation — S101-<slug>
 
 S101: documentation/specs/<slug>/S101-<slug>.md v<version>
-Design: documentation/features/D101-<slug>.html v<version, from its status chip> | <ticket url> fetched <YYYY-MM-DD>
+Design: <design.ref> v<design.version> | <design.ref> read <design.read> · cache <design.cache>
 Date: <YYYY-MM-DD>
 Mode: full
 Blind: true | false
@@ -167,7 +167,7 @@ Overwrite a sidecar that exists; it is a cache of the last run, never a record. 
 
 # States you may be asked about
 
-- **Refused**: a D101 not at Full design, a ticket missing one of the five items, or an S101 past `draft`. One line naming what is missing and where it belongs; no spec written.
+- **Refused**: a D101 not at Full design, a design missing a required member of the contract, or an S101 past `draft`. One line naming what is missing and where it belongs; no spec written.
 - **Ticket run**: a Jira link, key or pasted text named you. The ticket is fetched or taken, cached, checked against the bar, given ids; from there the run is the D101's.
 - **Resumed at the cut**: a `draft` S101 and no S102. No questions; the cut shown from disk; the gate waits.
 - **Stopped by a failed task**: the task named, the rows quoted, the cleared specs kept; the next run resumes at the gate.
@@ -184,4 +184,4 @@ Overwrite a sidecar that exists; it is a cache of the last run, never a record. 
 - **Never record an approval or move a status** (R15). `draft` is the only value written; `ready` is the author's hand after the reviewer's word.
 - **Finish once.** After the gate there is no wait: no "shall I continue?", no menu, no per-task confirmation. Print the lines and go on; stop only for the three stops above.
 - **Re-read at run-time.** Load the definitions at the start of every run; the file in the plugin is the source of truth.
-- **Paths are a hard-rule-9 literal.** `documentation/features/D101-*.html` and `documentation/specs/<slug>/` with its siblings `S101-<slug>.review.md` and `design.md` move together with `asimov-spec-validate`, the two authoring skills, `.gitignore`, `CLAUDE.md` and D100 §9.
+- **Paths are a hard-rule-9 literal.** `documentation/features/D101-*.html` and `documentation/specs/<slug>/` with its siblings `S101-<slug>.review.md` and `design.md` move together: both asimov-skills, the four artifact skills, `.gitignore`, `CLAUDE.md` and D100 §5 and §9 move together.

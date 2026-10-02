@@ -5,7 +5,7 @@ description: How to cut one design that meets contracts/design.md, a D101 at Ful
 
 # S101 authoring
 
-The decomposition: one D101 in, one S101 draft out, plus the cut summary for chat. This skill owns *what the plan says and how it is written*. It does not own the conversation (asimov-spec asks, shows the cut, waits for the go), and it does not validate (artifact-s101-validation does). A skill is a leaf: it reads artifacts and calls no other skill.
+The decomposition: one design in, one S101 draft out, plus the cut summary for chat. This skill owns *what the plan says and how it is written*. It does not own the conversation (asimov-spec asks, shows the cut, waits for the go), and it does not validate (artifact-s101-validation does). A skill is a leaf: it reads artifacts and calls no other skill.
 
 ## Read first
 
@@ -23,9 +23,9 @@ Load with the file-read tool. In Claude Code `${CLAUDE_PLUGIN_ROOT}` is the plug
    ${CLAUDE_PLUGIN_ROOT}/artifacts/documentation/s101-implementation-plan/s101-implementation-plan-template.md
    ```
 
-3. **The design contract**, `${CLAUDE_PLUGIN_ROOT}/contracts/design.md`: the members you read a design through (§2) and the file form of a normalised design (§3).
+3. **The design contract**, `${CLAUDE_PLUGIN_ROOT}/contracts/design.md`: the members you read a design through. The shape of a normalised design is the S101 definition §9.
 
-4. **The design**, whole, through those members. A D101: §3 (R, NF, out of scope), §4.5 rules, §6 (the contracts, by number), §8 (the acceptance criteria), §9 (open questions that change the breakdown), as its definition §3.1 maps them; resolve the phase from its `.phase-chip`, and anything but `Full design` is not yours to plan — return *refused: not at Full design* and write nothing. A normalised design (`documentation/specs/<slug>/design.md`, written by asimov-spec): its Decision, Rules (R..), Acceptance criteria (AC..), Out of scope (OOS..), Interfaces and Open items sections; a cache missing a required member is not yours to plan — return *refused: design incomplete* naming the member, and write nothing.
+4. **The design**, whole, through those members. A D101: §3 (R, NF, out of scope), §4.5 rules, §6 (the contracts, by number), §8 (the acceptance criteria), §9 (open questions that change the breakdown), as its definition §3.1 maps them; resolve the phase from its `.phase-chip`, and anything but `Full design` is not yours to plan — return *refused: not at Full design* and write nothing. A normalised design (`documentation/specs/<slug>/design.md`, written by asimov-spec): its sections, one per member of the contract; a cache missing a required member is not yours to plan — return *refused: design incomplete* naming the member, and write nothing.
 
 5. **The repo's conventions**: `documentation/conventions/<stack>/README.md` for each stack the D101 §6 touches, and every file the README lists (the Read tool does not expand `@`-imports). From them: the build and test commands, the test runner a checkpoint may name, the layering a global constraint repeats verbatim.
 
@@ -61,13 +61,13 @@ Work in this order; each step feeds the next.
 
 6. **Once.** Global constraints verbatim from the design (D101 §6, or the ticket's decision and rules) or the conventions, each with its source; the review focus (the failure modes no task's test exercises, each pinned to a task); the escalation routing (who rules, from `answers` or the default: the person directing the run).
 
-7. **Coverage map, both ways.** Every id of the design in scope (a D101's R, NF, §6.x.y and AC; a normalised design's R, AC and OOS) against task ids; every task against what it serves (its `traces`). For a normalised design, every row carries the source's wording in the *Says* column, one line, so the plan stands with the link alone; for a D101 the column may read —. A requirement with no task is a gap you fix now by adding or widening a task; a task with no requirement is scope you drop.
+7. **Coverage map, both ways.** Every id of the design in scope (a D101's R, NF, §6.x.y and AC; a normalised design's R, NF and AC) against task ids; every task against what it serves (its `traces`). OOS items are trace targets for a task's out-of-scope lines, never coverage rows. For a normalised design, every row carries the source's wording in the *Says* column, one line, so the plan stands with the link alone; for a D101 the column may read —. A requirement with no task is a gap you fix now by adding or widening a task; a task with no requirement is scope you drop.
 
 8. **Tiers.** `low` where the S102 will carry the code (skeleton, transcription), `mid` for prose steps with a clear check, `high` for judgement or integration. Record a non-obvious tier as an assumption.
 
 9. **Assumptions.** Every decision taken without a question, in the order taken: the question it would have been, the options, the default taken; *How* is `default`, `decided by default` (the budget was spent) or `corrected at the cut` (what `cut_feedback` changed). A gap no default can bridge gets a row whose *Taken* cell begins `design:` and names what the design is missing; the caller shows it at the gate. No assumptions section, no plan.
 
-10. **Write** `documentation/specs/<slug>/S101-<slug>.md` from the template: the `design` block as passed (one kind, the other block dropped), the graph in the frontmatter, the body by id with the plan line naming the D101 or the ticket and its approval, Assumptions last, status `draft`. Create the folder if absent. Ids: `P0`, `P1..Pn`; `T001..` in file order, the number being the S102's NNN.
+10. **Write** `documentation/specs/<slug>/S101-<slug>.md` from the template: the `design` block as passed (one `design` block, the template's other one dropped), the graph in the frontmatter, the body by id with the plan line naming the D101 or the ticket and its approval, Assumptions last, status `draft`. Create the folder if absent. Ids: `P0`, `P1..Pn`; `T001..` in file order, the number being the S102's NNN.
 
 11. **Return the cut summary** (below), then the file path.
 
@@ -75,7 +75,7 @@ Work in this order; each step feeds the next.
 
 - **new.** No S101 exists. Write the file; version `0.1`.
 - **update** (the design's items unchanged, content refined). Start from the S101 on disk; keep every task in `keep` as it is; re-cut only around them. Bump the version. A task not in `keep` may be re-cut freely; its old S102 is rewritten by the loop.
-- **rewrite** (an id missing or added, or the content changed). Plan from the D101 alone, as `new`, and bump the version. The caller has deleted every old S102 before you are called; `keep` is empty.
+- **rewrite** (an id missing or added, or the content changed). Plan from the design alone, as `new`, and bump the version. The caller has deleted every old S102 before you are called; `keep` is empty.
 - **finalise** (after the plan validation). Start from the S101 on disk and change only §6 Coverage map and §7 Assumptions, so both agree with the task specs as written: a trace a task gained or lost, an assumption a rewrite resolved. No re-cut, no change to the frontmatter, no version bump; `keep` is every task. Return the path and one line per cell you changed, no summary.
 - **Any cut round after the first** (`cut_feedback` present, mode `new`, `update` or `rewrite`). Start from the S101 **on disk**, which may carry the author's hand edits, apply the feedback to it, rewrite in place with the same version, and return the summary again. Never read the previous summary as the graph.
 

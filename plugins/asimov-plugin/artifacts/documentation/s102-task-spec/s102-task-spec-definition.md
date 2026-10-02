@@ -28,7 +28,7 @@ It answers five questions:
 
 ## 2. The bar: buildable blind
 
-An S102 clears one bar. **Buildable blind** means a competent builder with no conversation history, no access to the author and only the repo, the design (the D101, or the ticket) and this file in front of it, builds the task and knows when it is finished. Concretely:
+An S102 clears one bar. **Buildable blind** means a competent builder with no conversation history, no access to the author and only the repo, the design (the D101, or the design cache) and this file in front of it, builds the task and knows when it is finished. Concretely:
 
 - every file path is exact and exists or is declared new;
 - every name the task consumes is defined by a producer task or by existing code linked by path;
@@ -37,7 +37,7 @@ An S102 clears one bar. **Buildable blind** means a competent builder with no co
 - the escalation triggers name the conditions that stop the builder;
 - nothing is left as a placeholder (§5).
 
-The bar is **validated blind** right after the S102 is written: a fresh subagent with no conversation history, given only the S102, its S101, the D101 and the repo, answers the checks of §8 and reports. Blind means no conversation, not no repo. The model that wrote the S102 has the conversation in context and fills the gaps from memory; a fresh reader finds them. An S102 that fails is rewritten and validated again; a third failure, or a finding that names a gap in the D101 rather than in the S102, stops the run and is reported instead of rewritten. The verdict then belongs to the S101's reviewer as part of the S101 review (`s101-implementation-plan-definition.md` §8 check 1). The builder itself does not judge the bar; it builds or it stops.
+The bar is **validated blind** right after the S102 is written: a fresh subagent with no conversation history, given only the S102, its S101, the design and the repo, answers the checks of §8 and reports. Blind means no conversation, not no repo. The model that wrote the S102 has the conversation in context and fills the gaps from memory; a fresh reader finds them. An S102 that fails is rewritten and validated again; a third failure, or a finding that names a gap in the design rather than in the S102, stops the run and is reported instead of rewritten. The verdict then belongs to the S101's reviewer as part of the S101 review (`s101-implementation-plan-definition.md` §8 check 1). The builder itself does not judge the bar; it builds or it stops.
 
 **Validation** is this check, before code. **Verification** is the Build workflow's check after code: run the acceptance criteria of §4.8 against what was built. Two checks, two moments, two inputs; this definition covers the first and shapes the second.
 

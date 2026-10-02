@@ -64,7 +64,7 @@ The author sees the plan twice before the reviewer does. Once as the **cut**: th
 
 ### 3.1 The bar on the design
 
-What a design must contain for a plan to be cut from it is the contract `contracts/design.md` in the plugin: a reference, an approval by a named person, the decision, rules with their counter-examples, acceptance criteria, out of scope, and stable ids on each item; interfaces and open items where the design has them. The S101 reads a design only through those members. A D101 meets the contract at `Full design`, and its definition says which section provides which member. A design that is not a file in the repo (a ticket thread, a page elsewhere) is normalised by `asimov-spec` into the contract's file form, `documentation/specs/<feature-slug>/design.md` (§9), with ids assigned once in reading order; the coverage map (§4.8) then carries each id with the source's wording, so the plan stands with only the link beside it. A design that misses a member is refused with what is missing; the fix goes into the design, never into a copy.
+What a design must contain for a plan to be cut from it is the contract `contracts/design.md` in the plugin; the S101 reads a design only through its members. A D101 meets the contract at `Full design`, and its definition §3.1 says which section provides which member. A design that is not a file in the repo (a ticket thread, a page elsewhere) is normalised by `asimov-spec` into `documentation/specs/<feature-slug>/design.md`, in the shape §9 fixes, with ids assigned once in reading order; on a re-run the ids the plan's coverage map already holds are kept and a new item takes the next free number (the contract's rule). The coverage map (§4.8) then carries each id with the source's wording, so the plan stands with only the link beside it. A design that misses a required member is refused with what is missing; the fix goes into the design, never into a copy.
 
 ## 4. Required content
 
@@ -74,7 +74,7 @@ The design it plans, by reference: a repo path and version for a D101, or a url 
 
 ### 4.2 Global constraints
 
-Everything every S102 must respect, one line each, values verbatim from the D101 §6 or the conventions: version floors, forbidden dependencies, naming rules, performance budgets, the layers no task may bypass. Every S102 implicitly includes this section. A constraint that applies to one task alone belongs in that S102, not here.
+Everything every S102 must respect, one line each, values verbatim from the design (D101 §6, or the decision and rules of a normalised design) or the conventions: version floors, forbidden dependencies, naming rules, performance budgets, the layers no task may bypass. Every S102 implicitly includes this section. A constraint that applies to one task alone belongs in that S102, not here.
 
 ### 4.3 The task graph
 
@@ -102,7 +102,7 @@ What each task **produces** that another task **consumes**: exact names and shap
 
 ### 4.6 Review focus
 
-The handful of inputs or failure modes the D101 implies but no task's tests exercise, most likely to bite first. One line each: the input or condition, and the behaviour a reasonable person expects. Each line is then pinned to the task that owns the code, as a test in that S102. An empty section means the check was run and found nothing, not that it was skipped.
+The handful of inputs or failure modes the design implies but no task's tests exercise, most likely to bite first. One line each: the input or condition, and the behaviour a reasonable person expects. Each line is then pinned to the task that owns the code, as a test in that S102. An empty section means the check was run and found nothing, not that it was skipped.
 
 ### 4.7 Escalation routing
 
@@ -121,7 +121,7 @@ Every decision the plan took without asking the author: the question it would ha
 - **Plan, don't build.** No code, no file-level steps, no test bodies in the S101. Those are the S102's. A plan that carries the recipe is one long task pretending to be a graph.
 - **State it once.** Constraints, interfaces and review focus appear in the S101 and are referenced, not copied, by the S102s. A rule copied into six tasks is six chances to drift.
 - **Link, don't duplicate.** D101 contracts by section number, conventions by path, existing code by path. Never a pasted schema, enum or column list.
-- **Size to the D101, not to a length.** An S101 is as long as its graph. A feature that needs one task gets a one-task plan; that is not a reason to skip it, because the constraints and the escalation routing still have to be written down somewhere the builder reads.
+- **Size to the design, not to a length.** An S101 is as long as its graph. A feature that needs one task gets a one-task plan; that is not a reason to skip it, because the constraints and the escalation routing still have to be written down somewhere the builder reads.
 - **Model tier is a recommendation, per task.** Three tiers, named in the template: `low` for a task whose S102 carries the code (transcription: the skeleton, a mechanical change), `mid` for prose steps with a clear check, `high` for judgement or integration. The plan names a tier only; which model a tier means is the toolkit's call (`model-choice.md` in the Asimov repo), and the run may override it. A product repo never needs that file to validate a plan.
 - **No product entity in the toolkit.** Product names, service names and ticket ids belong in the S101 in a product repo and never in this definition or the template (hard rule 7).
 
@@ -141,7 +141,7 @@ A re-run against a design that already has an S101 takes one of two paths. **Upd
 - **Interfaces by guess.** A consumer that names a method no producer defines. The builder invents one, and the neighbour invents a different one.
 - **State in the plan.** Checkboxes ticked, `passes: true` flipped, fix rounds noted inside the S101. The reviewed document and the run log become one file.
 - **Recipe in the plan.** Test bodies and step lists in the S101. The plan becomes the task and the S102s become stubs.
-- **Silent scope.** A task with no D101 requirement behind it. Either the D101 is missing a requirement or the task is not this feature.
+- **Silent scope.** A task with no design requirement behind it. Either the design is missing a requirement or the task is not this feature.
 
 ## 8. The checks
 
@@ -153,8 +153,8 @@ One canonical list. Every check is asked of the S101 alone, with the D101 and th
 | 2 | Does every requirement and acceptance criterion of the design in scope map to at least one S102, and every S102 to at least one requirement? | Coverage, both ways |
 | 3 | Is the graph acyclic, and does every task marked parallel own a file set disjoint from every task it can run beside? | Graph validity |
 | 4 | Does every phase end in a checkpoint a reviewer can verify without reading code? | Stoppable phases |
-| 5 | Is every interface an S102 consumes named by an S102 that produces it, or by a D101 §6 contract? | Interface closure |
-| 6 | Are the global constraints stated once, with values verbatim from the D101 or conventions, and does no S102 contradict them? | Constraint consistency |
+| 5 | Is every interface an S102 consumes named by an S102 that produces it, or by a numbered contract of the design (a D101 §6 number)? | Interface closure |
+| 6 | Are the global constraints stated once, with values verbatim from the design or conventions, and does no S102 contradict them? | Constraint consistency |
 | 7 | Does the review focus name the uncovered failure modes, and is each pinned to a task? | Review focus |
 | 8 | Does the escalation routing name what stops a builder and who rules? | Escalation |
 | 9 | Is the S101 free of recipe (code, steps, test bodies) and free of run state? | Separation |
@@ -179,7 +179,55 @@ A cycle, an orphan or an intersecting parallel pair is shape and fails; size onl
 
 An S101 lives in the product repo at `documentation/specs/<feature-slug>/S101-<feature-slug>.md`, beside its S102s (`S102-<feature-slug>-<NNN>-<task-slug>.md`). `<feature-slug>` is the D101's slug, so `documentation/features/D101-permissions.html` plans to `documentation/specs/permissions/S101-permissions.md`; for a ticket it is the ticket key in kebab-case, so `PROJ-123` plans to `documentation/specs/proj-123/S101-proj-123.md`. Markdown body with YAML frontmatter, as every spec format in current use (research §2).
 
-For a plan cut from a design that is not a file in the repo, the normalised design sits beside it as a gitignored cache, `documentation/specs/<feature-slug>/design.md`, in the form `contracts/design.md` §3 fixes: the reference and read time, the approval, each member's items quoted and numbered, the source verbatim. `asimov-spec` writes it at the start of a run from the fetch or from pasted text, and `asimov-spec-validate` rewrites it when it is missing; the authoring and validation skills read it as the design. It is never committed and never edited by hand: a correction goes into the source, and the next run reads it.
+For a plan cut from a design that is not a file in the repo, the normalised design sits beside it as a gitignored cache, `documentation/specs/<feature-slug>/design.md`: the contract's members, quoted from the source and numbered, in this shape:
+
+```markdown
+# Design — <title>
+
+Reference: <url> · read <YYYY-MM-DD HH:MM>
+Approval: <who> · <YYYY-MM-DD> · <where: a comment, a status>
+
+## Problem
+<quoted>
+
+## Decision
+<quoted, as many paragraphs as the source has>
+
+## Rules
+- R1 · <quoted> — does not cover: <quoted>
+(or: none stated)
+
+## Acceptance criteria
+- AC1 · <quoted>
+
+## Out of scope
+- OOS1 · <quoted> — because: <quoted>
+
+## Open questions
+- <quoted> · decides: <who>
+(or: none)
+
+## Assumptions
+- <quoted>
+(or: none stated)
+
+## Interfaces
+- <name> · <shape or number>          (omit when the source names none)
+
+## Non-functional requirements
+- NF1 · <quoted> · <measure>          (omit when none)
+
+## Alternatives
+- <quoted> — not chosen because: <quoted>          (omit when none)
+
+## Risks
+- <quoted>          (omit when none)
+
+## Source
+<the description and every comment, verbatim, with author and date>
+```
+
+`asimov-spec` writes it at the start of a run from the fetch or from pasted text, and `asimov-spec-validate` rewrites it when it is missing; the authoring and validation skills read it as the design. It is never committed and never edited by hand: a correction goes into the source, and the next run reads it.
 
 Beside the plan, both asimov-skills write one gitignored sidecar, `S101-<feature-slug>.review.md`. Overwritten by the next run, read by no skill, never a record; the same role as `/d101-review`'s `D101-<slug>.review.md`. One shape, so a reader learns it once:
 
@@ -187,7 +235,7 @@ Beside the plan, both asimov-skills write one gitignored sidecar, `S101-<feature
 # Validation — S101-<feature-slug>
 
 S101: documentation/specs/<feature-slug>/S101-<feature-slug>.md v<version>
-Design: documentation/features/D101-<feature-slug>.html v<version, from its status chip> | <ticket url> fetched <YYYY-MM-DD>
+Design: <design.ref> v<design.version> | <design.ref> read <design.read> · cache <design.cache>
 Date: <YYYY-MM-DD>
 Mode: graph-only | full
 Blind: true | false
@@ -205,4 +253,4 @@ Blind: true | false
 
 `Blind` is false when any S102 report was produced inline rather than in a fresh subagent.
 
-The specs folder, with its two gitignored siblings `S101-<feature-slug>.review.md` and `design.md`, is a shared path convention in the sense of hard rule 7 and a lockstep literal in the sense of hard rule 9: both asimov-skills, both authoring skills, `.gitignore`, `CLAUDE.md` and D100 §9 move together.
+The specs folder, with its two gitignored siblings `S101-<feature-slug>.review.md` and `design.md`, is a shared path convention in the sense of hard rule 7 and a lockstep literal in the sense of hard rule 9: both asimov-skills, the four artifact skills, `.gitignore`, `CLAUDE.md` and D100 §5 and §9 move together.

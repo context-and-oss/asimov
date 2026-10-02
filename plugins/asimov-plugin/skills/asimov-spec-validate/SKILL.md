@@ -32,7 +32,7 @@ From the input: a slug resolves to `documentation/specs/<slug>/S101-<slug>.md`; 
 
 Print `Validating: documentation/specs/<slug>/S101-<slug>.md` on one line. Read the S101's frontmatter for `design`, `status` and `version`; show the status as context, never change it. Both bars apply to a `draft` as to a `ready` plan.
 
-**The design path.** When `design.ref` is a repo path, it is that file. When the header carries `design.cache`, it is `documentation/specs/<slug>/design.md`; if the cache is missing (a fresh checkout, since it is gitignored), fetch the source at `design.ref` where the harness can and rewrite the cache in the form of `${CLAUDE_PLUGIN_ROOT}/contracts/design.md` §3, exactly as `asimov-spec` does, ids as the plan's coverage map already has them; where it cannot, print *"the design cache is missing and I cannot reach the source here; paste the design text after my name and run again"* and finish.
+**The design path.** When `design.ref` is a repo path, it is that file. When the header carries `design.cache`, it is `documentation/specs/<slug>/design.md`; if the cache is missing (a fresh checkout, since it is gitignored), fetch the source at `design.ref` where the harness can and rewrite the cache in the shape the S101 definition §9 fixes, exactly as `asimov-spec` does, ids as the plan's coverage map already has them; where it cannot, print *"the design cache is missing and I cannot reach the source here; paste the design text after my name and run again"* and finish.
 
 **Resolve the mode from the folder.** Glob `documentation/specs/<slug>/S102-*.md`. None → the plan is a cut; only the graph-only validation runs, and you say so. Every `tasks[].file` present → full. Some present, some missing → graph-only, and the plan report's G9 row names the missing ones.
 
@@ -58,7 +58,7 @@ Write `documentation/specs/<slug>/S101-<slug>.review.md` (gitignored), overwriti
 # Validation — S101-<slug>
 
 S101: documentation/specs/<slug>/S101-<slug>.md v<version>
-Design: <design.path> v<version, from its status chip> | <design.url> fetched <YYYY-MM-DD>
+Design: <design.ref> v<design.version> | <design.ref> read <design.read> · cache <design.cache>
 Date: <YYYY-MM-DD>
 Mode: graph-only | full
 Blind: true | false
@@ -90,4 +90,4 @@ Do not offer to fix, do not summarise into a verdict, do not append next steps b
 - **No verdict, no score.** Reports only. Never "ready", never "n of 10 passed" outside the rows the skills return.
 - **Never move a status** (R15), on the S101 or an S102.
 - **Re-read at run-time**: the skills load the definitions themselves on every call; you never cache a bar.
-- **Paths are a hard-rule-9 literal.** `documentation/specs/<slug>/` with its siblings `S101-<slug>.review.md` and `design.md` move together with `asimov-spec`, the two authoring skills, `.gitignore`, `CLAUDE.md` and D100 §9.
+- **Paths are a hard-rule-9 literal.** `documentation/specs/<slug>/` with its siblings `S101-<slug>.review.md` and `design.md` move together: both asimov-skills, the four artifact skills, `.gitignore`, `CLAUDE.md` and D100 §5 and §9 move together.

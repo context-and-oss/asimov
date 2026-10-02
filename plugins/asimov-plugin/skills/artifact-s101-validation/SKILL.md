@@ -14,7 +14,7 @@ The check of the plan: does it clear its bar, and does it agree with itself and 
 | **graph-only** | At the cut: the S101 exists and no S102 does. Also what a cut gets from asimov-spec-validate. | The S101 and the design. |
 | **full** | Every task in the graph has its S102 on disk. | The S101, every S102 in the folder, the design. |
 
-The design is what the S101 header's `design` block names: a repo file at `design.ref` (a D101), or the normalised cache at `design.cache` (`documentation/specs/<slug>/design.md`, in the form of `${CLAUDE_PLUGIN_ROOT}/contracts/design.md` §3). Read the contract first; you check the design through its members.
+The design is what the S101 header's `design` block names: a repo file at `design.ref` (a D101), or the normalised cache at `design.cache` (`documentation/specs/<slug>/design.md`, in the shape the S101 definition §9 fixes). Read `${CLAUDE_PLUGIN_ROOT}/contracts/design.md` first; you check the design through its members.
 
 The caller states the mode; absent that, the folder decides: no `S102-*.md` → graph-only; every `tasks[].file` present → full; some present, some not → graph-only, and G9 names the missing files. In graph-only mode a check that needs the S102s is reported **not yet**, never Pass.
 
@@ -34,11 +34,11 @@ Load with the file-read tool. In Claude Code `${CLAUDE_PLUGIN_ROOT}` is the plug
    ${CLAUDE_PLUGIN_ROOT}/artifacts/documentation/s101-implementation-plan/s101-implementation-plan-template.md
    ```
 
-3. **The target S101**, whole: parse the frontmatter as YAML before anything else. **The design** it names: a D101's every R, NF and AC id in §3 and §8 and its §6 numbers, or the cache's every R, AC and OOS item. **In full mode**, every S102 the graph names, whole. **The repo**, for paths the interfaces section links.
+3. **The target S101**, whole: parse the frontmatter as YAML before anything else. **The design** it names: a D101's every R, NF and AC id in §3 and §8 and its §6 numbers, or the cache's every R, NF, AC and OOS item. **In full mode**, every S102 the graph names, whole. **The repo**, for paths the interfaces section links.
 
 ## Graph checklist
 
-Run first, in this order, every time, from the frontmatter alone plus the D101's id lists. Each row is answered by enumeration (list the ids, list the pairs, compare the sets), not by judgement, so two runs on an unchanged plan agree. Keep the enumeration to yourself; report the row.
+Run first, in this order, every time, from the frontmatter alone plus the design's id lists. Each row is answered by enumeration (list the ids, list the pairs, compare the sets), not by judgement, so two runs on an unchanged plan agree. Keep the enumeration to yourself; report the row.
 
 | # | Item | Result rule |
 |---|---|---|
@@ -47,7 +47,7 @@ Run first, in this order, every time, from the frontmatter alone plus the D101's
 | G3 | No orphan | Every `depends_on` id exists; every task's `phase` exists; every phase has at least one task; `P0` is named `Foundation` and holds one task per stack the plan touches; every slice phase (`P1..`) holds at least one builder task and one tester task, and every task in it depends on a `P0` task. A missing id or phase, or a slice phase with no tester task → **Fail**, naming it; a slice phase whose tester is a builder task that a §7 Assumptions row names as the slice's tester (no tester role for its stack), or a `P0` without a stack's skeleton → **Flag**. |
 | G4 | Parallel = disjoint | For every pair of tasks where neither depends on the other, directly or transitively: the unions of their `owns` lists intersect → **Fail**, naming the pair and the file. |
 | G5 | Consumed names produced | Every name in a task's `consumes` is in the `produces` of a task it depends on (directly or transitively), or is linked by path in the body's §3 to a file that exists. Otherwise **Fail**, naming it. |
-| G6 | Coverage both ways | Every id of the design (a D101's R, NF and AC in §3 and §8; a normalised design's R, AC and OOS items) appears in the body's §6 coverage map with task ids or *verified by review*; every id in the map exists in the design; every task's `traces` is non-empty and each id exists in the design; every task id appears in the map; for a normalised design, every map row has a non-empty *Says*. A miss → **Fail**, naming the id. |
+| G6 | Coverage both ways | Every requirement and criterion of the design (a D101's R, NF and AC in §3 and §8; a normalised design's R, NF and AC items; never OOS, which is a trace target only) appears in the body's §6 coverage map with task ids or *verified by review*; every id in the map exists in the design; every task's `traces` is non-empty and each id exists in the design; every task id appears in the map; for a normalised design, every map row has a non-empty *Says*. A miss → **Fail**, naming the id. |
 | G7 | Sizes | Per task, count `owns.create` + `owns.modify`; above definition §8.1 → **Warn** with the task and the count. Never Fail. |
 | G8 | Body by id | The body has §1–§7 in the template's order; every task id and phase id mentioned in the body exists in the frontmatter; §7 Assumptions is present and non-empty; no body section repeats a frontmatter field as a list (owned files, dependencies). Otherwise **Fail** or, for a repeated field, **Flag**. |
 | G9 | S102 files on disk | Every `tasks[].file` exists in the folder, and no `S102-*.md` in the folder is outside the graph. In graph-only mode a missing file is expected: the row reads **not yet** and lists them. In full mode a missing file → **Fail**. In either mode an extra file → **Fail**, naming it (a leftover from a rewrite). |

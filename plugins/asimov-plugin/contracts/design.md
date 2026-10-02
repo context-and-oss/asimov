@@ -1,94 +1,41 @@
 # Contract: design
 
-What a design must contain for the Spec stage to plan from it. A design skill produces this; a spec skill consumes it. Neither side needs to know what the other is, as long as both keep to this contract. It names no particular form of design: an artifact's own definition says how that artifact meets it, and anything else is normalised into the file form in §3 by whoever plans from it.
+What a design must contain before anything downstream plans or builds from it. A design is what the Design stage hands over, in whatever form it takes. This contract says what must be in it; not how it is written, where it lives, or who reads it. The members and their weight come from the models surveyed in `documentation/research/design-contract-research.md`.
 
-Read at run-time by the skills that plan and validate (`asimov-spec`, `asimov-spec-validate`, `artifact-s101-authoring`, `artifact-s101-validation`, `artifact-s102-authoring`, `artifact-s102-validation`). A design artifact's definition points here; the S101 definition points here for its bar on the design (`s101-implementation-plan-definition.md` §3.1). Design: `documentation/features/D101-spec-stage.html`.
+## Required members
 
----
-
-## 1. Why a contract
-
-The Spec stage cuts a plan from a design. Before this contract, the only design it could read was a D101, and the plan's requirements, slices and traces were spelled in D101 terms. A bug fix that needs no D101 still has a design, in a ticket thread, and the next form of design will have another home. A plan should not care. This file is the interface: the members every design provides, and the form a design takes when it is not already a file in the repo.
-
-## 2. Members
-
-A design provides these, each findable by a reader who did not write it.
-
-| Member | What it is | Why Spec needs it |
+| Member | Must say | Grounded in |
 |---|---|---|
-| **Reference** | Where the design lives and which version of it: a repo path and a version, or a url and the time it was read. | The plan links it; a re-run compares against it. |
-| **Approval** | That the design may be built, by a named person on a date, and where that is recorded. | Nothing is planned from an unapproved design; the plan records who said go to the design. |
-| **Decision** | What will be built, in prose: the shape of the solution, not the symptom. | The slices, the stacks and the interfaces are read from it. |
-| **Rules** | The business rules the build must respect, each with the case it does not cover. | Each becomes a scenario with its counter-example in a task spec. |
-| **Acceptance criteria** | Observable outcomes, each checkable without reading code. At least one. | One slice per criterion a builder can make pass; the slice's checkpoint is the criterion met. |
-| **Out of scope** | What a builder might reasonably think belongs and does not. | The task specs' out-of-scope lines; the coverage map's edge. |
-| **Ids** | A stable id on every rule, criterion and out-of-scope item, in the forms `R<n>`, `AC<n>`, `OOS<n>`; optionally `NF<n>` for non-functional requirements and `§<n>` for numbered contracts. | Traces and the coverage map hang on them; a re-run compares them. |
+| **Reference** | Where the design lives and which version of it: enough for a reader to open the same text later. | 29148 revision notice; Rust RFC header |
+| **Approval** | That it may be built: a named person, a date, and where that is recorded. | Google design docs; Rust sign-off; MADR status; 29148 owner; Definition of Ready |
+| **Problem** | Why this is wanted: the situation or use case that motivates it, in the author's words. | Shape Up *Problem*; Rust *Motivation*; ADR *Context*; 29148 *Purpose* |
+| **Decision** | What will be built, in prose. The shape of the solution, not the symptom, and not the code. | Nygard "We will…"; MADR *Decision outcome*; Shape Up *Solution* |
+| **Acceptance criteria** | Observable outcomes, each checkable without reading code. At least one. | 29148 *Verifiable*; INVEST *Testable*; Volere *Fit criterion* |
+| **Out of scope** | What a reader might reasonably think belongs, and does not, with the reason. | Shape Up *No-gos*; Google *Non-goals* |
+| **Ids** | A stable id on every rule (`R<n>`), acceptance criterion (`AC<n>`) and out-of-scope item (`OOS<n>`). | 29148 identification: never changed, never reused |
 
-Optional members, used when present:
+## Members that are required when they exist
 
-| Member | What it is |
-|---|---|
-| **Interfaces** | Named contracts between parts (an event, an endpoint, a type), with their shape or a stable number. The skeleton phase is cut from these. |
-| **Open items** | Decisions the design leaves open, each with a decider. The Spec stage asks about those that change the breakdown, and no others. |
+Each is stated, or the design says *none*. Silence is a gap.
 
-A design that lacks a required member is not planned. The gap is named and fixed in the design, never in a copy of it.
+| Member | Must say | Grounded in |
+|---|---|---|
+| **Rules** | Each business rule the build must respect, with the case it does not cover. | Gherkin `Rule` + `Example`; Specification by Example; 29148 abnormal responses |
+| **Open questions** | Each decision the design leaves open, with the person who decides it. | 29148 "no TBD" + *Owner*; Rust *Unresolved questions*; Spec Kit clarification gate |
+| **Assumptions** | What is taken to be true without being checked, so a reader can check it. | 29148 "shall be documented"; Spec Kit; PR/FAQ |
 
-## 3. The file form
+## Optional members
 
-A design that is a file in the repo (a D101) is read where it is; its definition says which section provides which member. A design that is not (a ticket thread, a page elsewhere) is normalised into one gitignored file beside the plan it feeds:
-
-```
-documentation/specs/<slug>/design.md
-```
-
-```markdown
-# Design — <title>
-
-Reference: <url or path> · read <YYYY-MM-DD HH:MM>
-Approval: <who> · <YYYY-MM-DD> · <where: a comment, a status, a signature>
-
-## Decision
-<the solution in prose, quoted from the source; several paragraphs are fine>
+| Member | Must say, when present | Grounded in |
+|---|---|---|
+| **Interfaces** | Named agreements between parts (an event, an endpoint, a type), each with its shape or a stable number (`§<n>`). | 29148 *External interfaces*; Google *APIs* |
+| **Non-functional requirements** | Each with a stable id (`NF<n>`) and a measure. | 29148; Google cross-cutting concerns |
+| **Alternatives** | The options considered and why they were not chosen. | MADR; Rust; Google |
+| **Risks** | What could go wrong in the build, and what is done about it. | Shape Up *Rabbit holes*; Rust *Drawbacks*; ADR *Consequences* |
 
 ## Rules
-- R1 · <the rule, quoted> — does not cover: <the counter-example, quoted or "none stated">
-- R2 · …
 
-## Acceptance criteria
-- AC1 · <the observable outcome, quoted>
-- AC2 · …
-
-## Out of scope
-- OOS1 · <quoted>
-
-## Interfaces
-- <name> · <shape or number>   (omit the section when the source names none)
-
-## Open items
-- <item> · decider: <who>   (omit when none)
-
-## Source
-<the description and every comment, verbatim, with author and date, so a reader can check the quotes above>
-```
-
-Rules for the file form:
-
-- **Quoted, not rewritten.** Every member is the source's words. Normalising means sorting them under the right heading and numbering them, not improving them.
-- **Ids are assigned once**, in reading order, and never renumbered while a plan traces to them. A new item takes the next free number.
-- **Written by the skill that plans**, from a fetch or from pasted text; rewritten by the next run; rebuilt by a validation run that finds it missing. Never edited by hand: a correction goes into the source, and the next run reads it.
-- **A cache, never a record.** It is gitignored. The source stays where it is; the plan links it and carries each id with its wording, so the plan and the link are all a reviewer needs. The file exists for the blind reader, who has no conversation and may have no way to reach the source.
-- **Nothing beyond the source.** No assumptions, no decisions, no plan content. Those belong in the S101.
-
-## 4. Who writes, who reads
-
-| Side | Does |
-|---|---|
-| A design skill (`/d101-feature-design` today) | Produces an artifact whose definition states how it meets §2. |
-| A person, in whatever tool holds the design | Supplies the members in the thread or page: the approval, the decision, the rules, the criteria, the exclusions. |
-| `asimov-spec` | Reads the words of the message to find the design; reads it where it is, or fetches it and writes §3; checks §2 and refuses with what is missing; plans from it. |
-| `asimov-spec-validate` | Reads the design the plan references; rebuilds §3 when it is missing and the source is reachable. |
-| The artifact skills of the Spec stage | Read the design through its members only: a D101 by its definition's mapping, anything else through §3. They never read a source directly. |
-
-## 5. Relationship to other contracts
-
-A plan is to Build what a design is to Spec: the next contract is `contracts/specification.md`, what a spec must contain for the Build stage to run from it (the task graph machine-readable, every acceptance criterion runnable). Not written yet; the S101 and S102 definitions carry its content today.
+- **Complete, or not a design.** A missing required member means nothing is planned or built from it. The gap is fixed in the design, never in a copy of it.
+- **The author's words.** Whoever quotes a member quotes it verbatim; sorting and numbering is allowed, improving is not.
+- **Ids are given once.** They are never renumbered while anything traces to them; a new item takes the next free number.
+- **What, not how.** A design says what will be true; file paths, signatures and steps belong to the specification that follows.

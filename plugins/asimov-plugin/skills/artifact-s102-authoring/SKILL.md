@@ -25,7 +25,7 @@ Load with the file-read tool. In Claude Code `${CLAUDE_PLUGIN_ROOT}` is the plug
 
 3. **The S101**: the task's entry in the frontmatter graph (role, tier, phase, depends_on, owns, produces, consumes, traces) and the body sections it inherits: §1 global constraints, §3 interfaces (the exact signatures), §4 review focus (a line pinned to this task becomes a scenario and a test here), §5 escalation routing.
 
-4. **The design, by the ids in `traces`**, through the members of `${CLAUDE_PLUGIN_ROOT}/contracts/design.md`: in a D101 the requirement wording for the intent, the §6 contract for the shapes, the rule and its counter-example for the scenarios, the acceptance criterion the slice makes pass; in a normalised design (`documentation/specs/<slug>/design.md`, named by the S101 header's `design.cache`) the R, AC and OOS items and the Interfaces section.
+4. **The design, by the ids in `traces`**, through the members of `${CLAUDE_PLUGIN_ROOT}/contracts/design.md`: in a D101 the requirement wording for the intent, the §6 contract for the shapes, the rule and its counter-example for the scenarios, the acceptance criterion the slice makes pass; in a normalised design (`documentation/specs/<slug>/design.md`, named by the S101 header's `design.cache`) the R, NF, AC and OOS items and the Interfaces section.
 
 5. **The repo code the task links to**: every path in `owns` that exists (read the region you will change), every existing type the interfaces section links, the conventions for this stack (`documentation/conventions/<stack>/README.md` and what it lists) for the test command, the test naming and the commit style.
 

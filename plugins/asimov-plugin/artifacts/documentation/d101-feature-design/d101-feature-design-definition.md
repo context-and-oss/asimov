@@ -85,19 +85,24 @@ Until the Spec stage is in use for a feature, the template's Implementation sect
 
 ### 3.1 How a D101 meets `contracts/design.md`
 
-The Spec stage reads any design through the members of the design contract (`plugins/asimov-plugin/contracts/design.md` §2). A D101 at `Full design` provides them here:
+The Spec stage reads any design through the members of the design contract (`plugins/asimov-plugin/contracts/design.md`). A D101 at `Full design` provides them here:
 
 | Member | Where in the D101 |
 |---|---|
-| Reference | The file path and the version in the status chip |
-| Approval | The phase chip at `Full design` (the author's move, after the business approver agreed to §2–§5) and the business approver named in §1. The status chip's `Approved` is the business sign-off on the whole; the Spec stage plans from `Full design` and does not wait for it, because the estimate depends on the plan (§2.3) |
-| Decision | §4 business design and §6 technical design |
-| Rules | §4.5, each with its counter-example (§6.3) |
-| Acceptance criteria | §8, each checkable (§6.1) and rooted in §3/§4 (§6.2) |
-| Out of scope | §3 out-of-scope items, each with its reason |
-| Ids | R, NF and AC numbers as written; §6.x.y for contracts |
+| Reference | The file path and the version in the status chip (template sections are named by number below; this definition's own sections are marked *this definition*) |
+| Approval | Who: the business approver named in §1. When: the *Last updated* date in §1 at the write that set `Full design`. Where: the phase chip, which is the author's move after the business approver agreed to §2–§5 (*this definition* §2.3). The status chip's `Approved` is the business sign-off on the whole; the Spec stage plans from `Full design` and does not wait for it, because the estimate depends on §6 |
+| Problem | §2 Purpose |
+| Decision | §4 Business design and §6 Technical design |
+| Acceptance criteria | §8, each checkable and rooted in §3/§4 (*this definition* §6.1, §6.2) |
+| Out of scope | The out-of-scope rows of §3, each with its reason |
+| Ids | R, NF, AC and OOS numbers as written; §6.x.y for contracts |
+| Rules | The numbered business rules in §4, each with its counter-example (*this definition* §6.3) |
+| Open questions | §9, each with a decider (*this definition* §4.3) |
+| Assumptions | No section of its own: a `TBD — verify` with a named decider (*this definition* §4.3) is one, and the decisions table in §4 names what each choice took for granted |
 | Interfaces | §6 contracts, by number |
-| Open items | §9, each with a decider (§4.3) |
+| Non-functional requirements | The NF rows of §3 |
+| Alternatives | The decisions table in §4: the alternative considered and why it was rejected (*this definition* §4.3) |
+| Risks | Failure handling at design level (*this definition* §4.5) |
 
 A D101 at `Business design` does not meet the contract: §6 is open, so the decision and the interfaces are not there yet.
 

@@ -82,7 +82,7 @@ Human drafts → agent critiques → human decides → agent refines. Per-stage 
 ````markdown
 ---
 spec_id: PERM-014
-d101: features/D101-permissions.md
+d101: features/D101-permissions.md   # superseded 2026-10-02: the S101 header is design: {ref, version}
 status: draft        # draft | ready | implemented | superseded
 slice: "Add 'reefer:export' permission to Operator role"
 estimated_minutes: 90

@@ -1,6 +1,6 @@
 <!--
   S101 IMPLEMENTATION PLAN template — the structural contract every S101 follows.
-  One S101 per D101 at Full design: the task graph, the phases with their
+  One S101 per design (anything that meets contracts/design.md): the task graph, the phases with their
   checkpoints, the interfaces, the constraints stated once, the escalation
   routing, the coverage map and the assumptions. The bar it must clear is
   "dispatch-ready" — see s101-implementation-plan-definition.md §2 in this folder.
@@ -48,7 +48,7 @@
     The plan names a tier only; the toolkit's model-choice.md maps tiers to
     models, and the run picks the model.
   - traces: ids of the design — a D101's R3, NF2, §6.4.1, AC5 as written
-    there, or the R/AC/OOS ids this plan assigned to a ticket's items. A phase
+    there, or the R/AC/OOS/NF ids this plan assigned to a ticket's items. A phase
     traces to the acceptance criterion it makes pass; a task to everything it
     serves.
   - owns: the task's paths in three lists, create / modify / test, exact and
@@ -219,7 +219,7 @@ Every requirement, contract and acceptance criterion of the design in scope, aga
 
 ## 7. Assumptions
 
-Every decision taken without asking the author, in the order taken: the question it would have been, the options, the default taken. *How* is one of three values: `default` (the default was offered and taken without an answer), `decided by default` (decided after the question budget was spent, never offered), `corrected at the cut` (the author changed it at the gate). A gap no default can bridge is listed too, its *Taken* cell beginning `D101:` and naming what the design is missing.
+Every decision taken without asking the author, in the order taken: the question it would have been, the options, the default taken. *How* is one of three values: `default` (the default was offered and taken without an answer), `decided by default` (decided after the question budget was spent, never offered), `corrected at the cut` (the author changed it at the gate). A gap no default can bridge is listed too, its *Taken* cell beginning `design:` and naming what the design is missing.
 
 | # | Would have asked | Options | Taken | How |
 |---|---|---|---|---|

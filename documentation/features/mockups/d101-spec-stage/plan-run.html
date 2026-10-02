@@ -46,6 +46,7 @@ td.w { color:var(--warn); }
 <div class="bar">
   <span class="lbl">Scenario</span>
   <button data-s="full" class="on">Full run</button>
+  <button data-s="ticket">Ticket run</button>
   <button data-s="refused">Not Full design</button>
   <button data-s="resumed">Resumed at the cut</button>
   <button data-s="review">/asimov-spec-validate</button>
@@ -100,7 +101,7 @@ td.w { color:var(--warn); }
     });
     const n = plan.reduce((a, p) => a + p.tasks.length, 0);
     h += '<div class="hd">Assumptions <span class="mute">· decided without a question</span></div>';
-    h += '<div class="dim">· tier: standard for every builder (default)<br>· CSV dialect: RFC 4180, as D101 §6.2 names it<br>· no polish phase: no cross-cutting requirement is left over (default)';
+    h += '<div class="dim">· tier: mid for every builder, low for the skeletons (default)<br>· CSV dialect: RFC 4180, as the design names it<br>· no polish phase: no cross-cutting requirement is left over (default)';
     notes.forEach(x => { h += '<br>· your correction: “' + x + '”'; });
     h += '</div>';
     const warn = plan.flatMap(p => p.tasks).filter(t => t[4] > 3);
@@ -197,11 +198,24 @@ td.w { color:var(--warn); }
   function fullRun() {
     seq([
       [0, () => line('u', '/asimov-spec ' + SLUG)],
-      [400, () => line('a', 'Reading D101-' + SLUG + '.html (Full design, Approved v1.2), conventions/dotnet, conventions/angular, documentation/specs/ …')],
+      [400, () => line('a', 'Reading D101-' + SLUG + '.html (Full design v1.2), conventions/dotnet, conventions/angular, documentation/specs/ …')],
       [700, () => line('dim', '  3 acceptance criteria buildable · 2 stacks · no existing S101 · 2 questions about the cut, the rest decided by default')],
       [500, () => line('a', 'Q1 of 2 · AC2 and AC3 both read the export service. One slice or two?  <span class="dim">default: two — different checkpoints</span>')],
       [900, () => line('u', 'two')],
       [400, () => line('a', 'Q2 of 2 · Should phase 3 (nightly) depend on phase 2 (button), or only on the service?  <span class="dim">default: only on the service — they can run in parallel</span>')],
+      [900, () => line('u', 'default')],
+      [400, () => line('a', 'Cutting the plan · artifact-s101-authoring …')],
+      [700, () => showCut()]
+    ]);
+  }
+
+  function ticketRun() {
+    seq([
+      [0, () => line('u', '/asimov-spec https://jira.example/browse/OPS-412')],
+      [400, () => line('a', 'Reading OPS-412 and its 5 comments through the Jira connector, then conventions/dotnet, conventions/angular, documentation/specs/ …')],
+      [700, () => line('dim', '  Design OPS-412 · approved by the product owner on 2026-10-02 (comment) · R1–R3 · AC1–AC3 · OOS1–OOS2 · no NF · cache documentation/specs/ops-412/design.md written')],
+      [500, () => line('dim', '  3 acceptance criteria buildable · 2 stacks · no existing S101 · 1 question about the cut, the rest decided by default')],
+      [500, () => line('a', 'Q1 of 1 · AC2 and AC3 both read the export service. One slice or two?  <span class="dim">default: two — different checkpoints</span>')],
       [900, () => line('u', 'default')],
       [400, () => line('a', 'Cutting the plan · artifact-s101-authoring …')],
       [700, () => showCut()]
@@ -213,14 +227,18 @@ td.w { color:var(--warn); }
       [0, () => line('u', '/asimov-spec ' + SLUG)],
       [400, () => line('a', 'Reading D101-' + SLUG + '.html …')],
       [500, () => line('a bad', 'Refused. D101-' + SLUG + ' is at <b>Business design</b>: §6 is still open (3 items). The plan needs a D101 at Full design.')],
-      [200, () => line('dim', '  Nothing written. Finish §6 with /d101-feature-design, then run this again.')]
+      [200, () => line('dim', '  Nothing written. Finish §6 with /d101-feature-design, then run this again.')],
+      [500, () => line('u', '/asimov-spec https://jira.example/browse/OPS-418')],
+      [400, () => line('a', 'Reading OPS-418 and its 2 comments through the Jira connector …')],
+      [500, () => line('a bad', 'Refused. OPS-418 misses two members of the design contract: no <b>approval</b> by a named person in the thread, and no <b>acceptance criteria</b>.')],
+      [200, () => line('dim', '  Nothing written. Add them to the ticket, then name me again with the link.')]
     ]);
   }
 
   function resumed() {
     seq([
       [0, () => line('u', '/asimov-spec ' + SLUG)],
-      [400, () => line('a', 'Reading D101-' + SLUG + '.html (Full design, Approved v1.2) and documentation/specs/' + SLUG + '/ …')],
+      [400, () => line('a', 'Reading D101-' + SLUG + '.html (Full design v1.2) and documentation/specs/' + SLUG + '/ …')],
       [600, () => line('dim', '  found S101-' + SLUG + '.md (draft, 2026-10-01) with no S102 · D101 R/NF/AC ids unchanged · no questions this time')],
       [500, () => showCut('The cut, as left on disk:')]
     ]);
@@ -233,15 +251,15 @@ td.w { color:var(--warn); }
       [600, () => line('a', 'S102 validation · 9 fresh subagents · blind: true')],
       [500, () => el('blk dim', '001 clear · 002 clear · 003 clear · 004 clear · 005 clear<br>006 clear · <span style="color:var(--warn)">warn</span> owns 4 non-test files<br>007 clear · 008 <span style="color:var(--warn)">flag</span> check 7: step 3 names no runnable check · 009 clear')],
       [500, () => line('a', 'S101 validation · full · blind: false')],
-      [400, () => el('blk dim', 'checks 1–10: 9 pass · 1 flag (check 6: 008 constraint “no new package” contradicts global constraint 2)')],
+      [400, () => el('blk dim', 'checks 1–10: 9 pass · 1 <span style="color:var(--bad)">fail</span> (F4 / check 6: 008 constraint “no new package” contradicts global constraint 2)')],
       [400, () => line('a ok', 'Both reports written to S101-' + SLUG + '.review.md. No spec changed, no status moved; git status is clean apart from the gitignored sidecar.')],
-      [200, () => line('dim', '  Asked nothing. Fix 008 by hand or re-run asimov-spec; it updates in place while the D101 ids are unchanged.')]
+      [200, () => line('dim', '  Asked nothing. Fix 008 by hand or name asimov-spec again; it updates in place while the design\'s items are unchanged.')]
     ]);
   }
 
   function run() {
     clear(); plan = base(); notes = [];
-    ({ full: fullRun, refused: refused, resumed: resumed, review: review })[scenario]();
+    ({ full: fullRun, ticket: ticketRun, refused: refused, resumed: resumed, review: review })[scenario]();
   }
 
   document.querySelectorAll('.bar button[data-s]').forEach(b => {
