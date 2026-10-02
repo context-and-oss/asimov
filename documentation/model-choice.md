@@ -13,8 +13,6 @@ Canonical mapping from L3 pipeline stage → toolkit component (command, asimov-
 | Design | `asimov-design` asimov-skill *(Claude Code only)* | `claude-opus-5-5` | `xhigh` |
 | Design | `asimov-design-review` asimov-skill *(Claude Code only)* | `claude-sonnet-5-5` | *(default)* |
 | Setup | `/asimov-init` | `claude-opus-5-5` | *(default)* |
-| Design | `/persona-new` | `claude-opus-5-5` | *(default)* |
-| Design | `/persona-list` | `claude-sonnet-5-5` | *(default)* |
 | Code | `giskard-the-dotnet-developer` subagent | `claude-sonnet-5-5` | *(default)* |
 | Code | `daneel-the-angular-developer` subagent | `claude-sonnet-5-5` | *(default)* |
 | Code | `calvin-the-test-author` subagent | `claude-sonnet-5-5` | *(default)* |
