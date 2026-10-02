@@ -1,0 +1,11 @@
+# Codex metadata for the asimov-design asimov-skill (D101-design-stage).
+# The conversation lives in ../SKILL.md, the same file Claude Code reads.
+# Codex skills take no arguments: the author names the feature, the D101 or the legacy .md in the same message.
+interface:
+  display_name: "Asimov · Design"
+  short_description: "Design a feature as a D101: requirements and business design, then the technical design in a second run"
+  default_prompt: "Use $asimov-plugin:asimov-design to design <the feature, or the D101 slug to continue> as a D101 under documentation/features/."
+
+policy:
+  # Only a person starts a design run; the model never selects this skill.
+  allow_implicit_invocation: false

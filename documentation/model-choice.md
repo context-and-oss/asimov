@@ -10,9 +10,8 @@ Canonical mapping from L3 pipeline stage → toolkit component (command, asimov-
 
 | Pipeline stage | Component | Model | Effort |
 |---|---|---|---|
-| Design | `/d101-feature-design` | `claude-opus-5-5` | `xhigh` |
+| Design | `asimov-design` asimov-skill *(Claude Code only)* | `claude-opus-5-5` | `xhigh` |
 | Design | `/d101-review` | `claude-sonnet-5-5` | *(default)* |
-| Design | `/d101-convert-to-html` | `claude-sonnet-5-5` | *(default)* |
 | Setup | `/asimov-init` | `claude-opus-5-5` | *(default)* |
 | Design | `/persona-new` | `claude-opus-5-5` | *(default)* |
 | Design | `/persona-list` | `claude-sonnet-5-5` | *(default)* |
