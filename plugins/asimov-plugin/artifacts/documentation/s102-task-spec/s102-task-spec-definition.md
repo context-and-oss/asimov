@@ -6,11 +6,11 @@ since: 2026-09-25
 
 # Definition of S102
 
-The written standard an S102 (task spec) must meet before a build subagent is dispatched on it. An S102 is one task: the exact brief a fresh builder receives, sized to be built in one sitting without asking a human, and checkable afterwards by a validator that never saw the conversation. It is the Spec stage's **task** document; the S101 (`s101-implementation-plan-definition.md`) is the plan that orders the tasks.
+The written standard an S102 (task spec) must meet before a build subagent is dispatched on it. An S102 is one task: the exact brief a fresh builder receives, sized to be built in one sitting without asking a human, validated blind by a reader that never saw the conversation, and verifiable afterwards against the code it produced. It is the Spec stage's **task** document; the S101 (`s101-implementation-plan-definition.md`) is the plan that orders the tasks.
 
-Read by humans (the author, the reviewer, the person directing the run), by the build subagents (Giskard, Daneel, Calvin) as their instruction, by the planned S102 validator as its acceptance criteria, and by the planned `/s101-implementation-plan` and `/s101-review` commands at run-time.
+Read by humans (the author, the reviewer, the person directing the run), by the build subagents as their whole brief, by the Build workflow's verification as the criteria to run, and at run-time by the asimov-skills `asimov-spec` and `asimov-spec-validate` through the artifact skills `artifact-s102-authoring` and `artifact-s102-validation`.
 
-Design: not yet written; the Spec stage's D101 is pending. Research: `documentation/research/S101-S102-spec-stage-research.md`.
+Design: `documentation/features/D101-spec-stage.html`. Research: `documentation/research/S101-S102-spec-stage-research.md`.
 
 ---
 
@@ -23,7 +23,7 @@ It answers five questions:
 - **What, and why?** The intent, in one sentence, traced to the D101.
 - **Where?** The files it creates, modifies and tests, exactly. This is also the set it owns; nothing else is touched.
 - **Against what?** The interfaces it consumes and produces, by exact name and shape.
-- **Done when?** Acceptance criteria a validator can check.
+- **Done when?** Acceptance criteria verification can run.
 - **Stop when?** The escalation triggers, and the rule that the builder never edits what it does not own.
 
 ## 2. The bar: buildable blind
@@ -37,7 +37,9 @@ An S102 clears one bar. **Buildable blind** means a competent builder with no co
 - the escalation triggers name the conditions that stop the builder;
 - nothing is left as a placeholder (§5).
 
-The bar is checked by the S101's reviewer as part of the S101 review (`s101-implementation-plan-definition.md` §8 check 1), and by the orchestrator before dispatch. A lone S102 (§3) is reviewed on its own by someone other than its author. The builder itself does not judge the bar; it builds or it stops.
+The bar is **validated blind** right after the S102 is written: a fresh subagent with no conversation history, given only the S102, its S101, the D101 and the repo, answers the checks of §8 and reports. Blind means no conversation, not no repo. The model that wrote the S102 has the conversation in context and fills the gaps from memory; a fresh reader finds them. An S102 that fails is rewritten and validated again; a third failure, or a finding that names a gap in the D101 rather than in the S102, stops the run and is reported instead of rewritten. The verdict then belongs to the S101's reviewer as part of the S101 review (`s101-implementation-plan-definition.md` §8 check 1). A lone S102 (§3) is validated the same way and reviewed on its own by someone other than its author. The builder itself does not judge the bar; it builds or it stops.
+
+**Validation** is this check, before code. **Verification** is the Build workflow's check after code: run the acceptance criteria of §4.8 against what was built. Two checks, two moments, two inputs; this definition covers the first and shapes the second.
 
 ## 3. Relationship to other documents
 
@@ -58,7 +60,7 @@ The bar is checked by the S101's reviewer as part of the S101 review (`s101-impl
 
 ### 4.1 Header
 
-The S101 it belongs to (or the ticket, for a lone S102), the D101 requirements and acceptance criteria it serves by id, the builder role it is written for (Giskard, Daneel, Calvin, or a human), the model tier recommended, the tasks it depends on, the status (§6), the author and the date.
+The S101 it belongs to and its task id in that graph (or the ticket, for a lone S102), the D101 requirements, contracts and acceptance criteria it serves by id, the builder role it is written for (exactly one `role-*` skill, such as `dotnet-builder`, `angular-builder` or `dotnet-tester`, or a human), the model tier recommended, the tasks it depends on, the status (§6), the author and the date. Role, tier, dependencies and traces are copied from the graph entry so the brief stands alone; the plan validation checks they still match.
 
 ### 4.2 Intent
 
@@ -74,7 +76,7 @@ Three lists, exact paths: **create**, **modify** (with the region where the chan
 
 ### 4.5 Behaviour
 
-The observable behaviour the task adds, as scenarios a test can be written from: given a state, when an action, then an outcome. Gherkin is the natural form and is welcome; a numbered list of checkable statements is acceptable. Each scenario is one behaviour. Business rules carry their counter-example, as the D101 does (`d101-feature-design-definition.md` §6.3).
+The observable behaviour the task adds, as scenarios a test can be written from: given a state, when an action, then an outcome. Gherkin in fenced code blocks, one scenario per behaviour, so validation can count them and a tester can lift them. Business rules carry their counter-example, as the D101 does (`d101-feature-design-definition.md` §6.3).
 
 ### 4.6 Constraints
 
@@ -91,7 +93,7 @@ The order of work, test first: write the failing test, run it and see it fail, w
 
 ### 4.8 Acceptance criteria
 
-Numbered, each checkable by running something: a named test that passes, a command whose output matches, a file that exists with a named shape. These are what the S102 validator checks the built code against at the Test stage, and what the reviewer reads to decide the task is done. An acceptance criterion the validator cannot run is a wish.
+Numbered, each checkable by running something: a named test that passes, a command whose output matches, a file that exists with a named shape. These are what verification runs the built code against in the Build workflow, and what the reviewer reads to decide the task is done. An acceptance criterion nothing can run is a wish.
 
 ### 4.9 Out of scope
 
@@ -110,7 +112,9 @@ What a builder might reasonably think belongs here and does not: the neighbourin
 
 ## 6. Lifecycle
 
-One status axis in the header: `draft` → `ready` (clears the bar, reviewed) → `done` (acceptance criteria met, validator green) → `superseded` (re-specified; the successor names it). The author moves `draft` → `ready` on the reviewer's verdict; the orchestrator or the human directing the run moves `ready` → `done`; a human marks `superseded`. Claimed, in progress and fix rounds are ledger states, not S102 states. A `done` S102 stays as the record of what the agent was told.
+One status axis in the header: `draft` → `ready` (clears the bar, reviewed) → `done` (acceptance criteria met, verification green). `draft` is the only value a skill writes; the later values follow the S101's (the author moves `draft` → `ready` with the plan, the Build workflow moves `ready` → `done`), and the builder never changes the file. Claimed, in progress and fix rounds are ledger states, not S102 states. A `done` S102 stays as the record of what the agent was told.
+
+There is no `superseded`. An S102 that fails validation, or that a plan-level finding names, is rewritten in place by the loop; an update of the plan leaves an S102 that still clears byte-identical; a rewrite of the plan replaces every S102 and deletes the files outside the new graph. Git carries what was there.
 
 ## 7. Anti-patterns
 
@@ -133,14 +137,14 @@ Asked of the S102 with the S101 and the D101 beside it. The verdict is the S101 
 | 3 | Is every consumed name produced by a named task or by existing code linked by path? | Interface closure |
 | 4 | Is every behaviour a scenario a test can be written from, and does every rule carry a counter-example? | Behaviour |
 | 5 | Are the steps test-first, one action each, with the code inline where the task is transcription? | Steps |
-| 6 | Is every acceptance criterion checkable by running something? | Validator-checkable |
+| 6 | Is every acceptance criterion checkable by running something? | Runnable |
 | 7 | Are the escalation triggers stated, and do they include leaving the owned file set? | Escalation |
 | 8 | Is the S102 free of placeholders, of pasted existing code, and of run state? | Hygiene |
 | 9 | Could a builder finish it in one sitting? | Size |
 | 10 | Does it contradict a global constraint in its S101, or state one that belongs there? | Inheritance |
 
-A validator, when built, is hard on shape and soft on content: it rejects a missing header field, a path that does not resolve, a consumed name with no producer, a placeholder token, an acceptance criterion with no runnable form. It does not judge whether the scenarios are the right ones. That is the reviewer's.
+Validation (`artifact-s102-validation`) is hard on shape and soft on content: it fails a missing header field, a path that does not resolve, a consumed name with no producer, a placeholder token, an acceptance criterion with no runnable form. It does not judge whether the scenarios are the right ones. That is the reviewer's. The shape checks come first and are answered against a fixed, numbered checklist, so two runs on an unchanged file agree; the size check (row 9) counts owned non-test files, scenarios and steps against the thresholds in `s101-implementation-plan-definition.md` §8.1 and warns, never fails. The report is one row per check, Pass / Flag / Fail / Warn with one sentence, and nothing else: the skill edits nothing and proposes no fix.
 
 ## 9. Placement and naming
 
-An S102 lives beside its S101 at `documentation/specs/<feature-slug>/S102-<feature-slug>-<NNN>-<task-slug>.md`, `<NNN>` counting from `001` inside the feature folder. A lone S102 takes the ticket's slug as its feature folder. Markdown body with YAML frontmatter; scenarios in Gherkin code fences where used, so a validator can parse them. The path joins the lockstep set of hard rule 9 when the first command writes to it.
+An S102 lives beside its S101 at `documentation/specs/<feature-slug>/S102-<feature-slug>-<NNN>-<task-slug>.md`, `<NNN>` counting from `001` inside the feature folder. A lone S102 takes the ticket's slug as its feature folder. Markdown body with YAML frontmatter; scenarios in Gherkin code fences, so validation can parse them. The path is a lockstep literal of hard rule 9, moved together with the S101's (`s101-implementation-plan-definition.md` §9).
