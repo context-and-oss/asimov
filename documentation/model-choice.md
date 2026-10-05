@@ -32,8 +32,8 @@ An S101 recommends a **tier** per task, not a model (`s101-implementation-plan-d
 
 | Tier | When | Model |
 |---|---|---|
-| `low` | Transcription — the S102 carries the code (the Foundation skeleton, a mechanical change) | `claude-haiku-4-5` |
-| `mid` | Prose steps with a clear check — most builder and tester tasks | `claude-sonnet-5-5` |
+| `low` | The change is fully determined by the names, the signatures and the check (the Foundation skeleton, a one-line read, a registration); the builder still writes the code | `claude-haiku-4-5` |
+| `mid` | Behaviour in prose with a clear check — most builder and tester tasks | `claude-sonnet-5-5` |
 | `high` | Judgement or integration — a design choice left to the builder, a cross-stack seam | `claude-opus-5-5` |
 
 The tier is a recommendation; the run (the Build workflow) picks the model and may override it. The build subagents' own rows above are their default when no plan names a tier.

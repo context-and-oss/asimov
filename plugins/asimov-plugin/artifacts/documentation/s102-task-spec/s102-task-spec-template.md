@@ -1,77 +1,78 @@
 <!--
-  S102 TASK SPEC template — the structural contract every S102 follows. One
-  S102 is one task for one builder role: the whole brief a fresh agent
-  receives, with no conversation behind it. The bar it must clear is
-  "buildable blind" — see s102-task-spec-definition.md §2 in this folder.
+  S102 TASK SPEC template. One S102 is one task for one builder role: the whole
+  brief a fresh agent receives, with no conversation behind it. It is the task
+  part of a specification as contracts/specification.md defines it. The bar is
+  "buildable blind": s102-task-spec-definition.md §2.
 
-  HOW THE SKILLS USE THIS FILE
-  - Read at run-time by artifact-s102-authoring (writes an S102 from it) and
-    artifact-s102-validation (checks an S102 against it, in a fresh subagent).
-    The file in the plugin is the source of truth (D100 §7.4).
+  WHO READS THIS FILE
+  - The builder, as its brief; the reviewer, to see what the builder was told;
+    artifact-s102-authoring writes it, artifact-s102-validation checks it in a
+    fresh subagent. The file in the plugin is the source of truth (D100 §7.4).
   - Written to documentation/specs/{{SLUG}}/S102-{{SLUG}}-{{NNN}}-{{TASK-SLUG}}.md,
-    beside the S101 whose graph entry it expands. {{NNN}} is the task id's
-    number: T003 → 003. There is no S102 without an S101; a ticket that needs
-    one task has a one-task plan, and {{SLUG}} is then the ticket key in
-    kebab-case.
+    beside the S101 whose task line it expands; {{NNN}} is the task id's
+    number, T003 → 003. There is no S102 without an S101.
   - Strip THIS comment from the rendered file.
 
-  THE HEADER IS COPIED FROM THE GRAPH
-  - role, tier, depends_on and traces are copied verbatim from the task's entry
-    in the S101 frontmatter, so the brief stands alone when a builder reads it
-    with nothing else open. The plan validation checks they still match the
-    graph; the S102 never changes them on its own.
-  - The owned set (§2 Files) equals the graph entry's `owns`, and the names in
-    §3 Interfaces equal its `produces` / `consumes`, spelled as the S101 §3
-    Interfaces table spells them.
+  THE LINE
+  - The spec fixes WHAT: the files, the public names, the behaviour, the check.
+    The builder decides HOW: every method body, every private name, every
+    test's code. No code block in this file holds a body, a test or a step; the
+    only code blocks are Gherkin. A done-when never searches the source for the
+    spec's own text.
 
-  VALUES
-  - role: exactly one — dotnet-builder, angular-builder, dotnet-tester, or human.
-  - tier: low | mid | high, as the S101 (low = transcription: the code is in
-    the steps; mid = prose steps with a clear check; high = judgement).
-  - status: draft is the only value a skill writes; later values follow the
-    S101's (definition §6).
-  - traces: ids of the design — R3, NF2, §6.4.1, AC5 as a D101 writes
-    them, or the ids the plan assigned to a ticket's items.
+  THE HEADER
+  - role, tier, after and traces are copied verbatim from the task's line in
+    the S101 tree. owns, consumes and produces are stated HERE and nowhere
+    else: the S101 reads them for disjointness and interface closure.
+  - owns: exact repo-relative paths in three lists; a new test file goes under
+    test alone. consumes / produces: names only, spelled exactly as the S101 §1
+    Contracts spells them; the signature lives there.
+  - role: dotnet-builder | angular-builder | dotnet-tester | human.
+    tier: low | mid | high, as the S101 defines them (no tier means code here).
+    status: draft is the only value a skill writes.
 
-  WHAT THE BODY MUST DO
-  - Intent in the D101's words. Files exact and complete; the modify list names
-    the region when the file is large. Interfaces by exact signature; existing
-    code by path, never pasted. Behaviour as Gherkin in fenced blocks, one
-    scenario per behaviour, every rule with its counter-example. Constraints
-    only what is specific to this task; the global ones are inherited from the
-    S101 §1 by reference. Steps test first, one action each, the code inline
-    where the task is transcription. Acceptance criteria each runnable. Out of
-    scope one line each.
+  THE BODY, FIVE SECTIONS
+  1 Intent: one or two sentences, the design's words, the reason not the recipe.
+  2 Behaviour: Gherkin, one scenario per behaviour, a rule with its failing
+    case; public names only. A task that adds no behaviour says "none" and
+    names its check instead. Compiling is not a behaviour.
+  3 Done-when: numbered; a named test and its expected state, a build, a
+    command and its output. Described, never written.
+  4 Constraints and stops: must / must not / prefer / stops, only what is
+    specific to this task. The generic stops (a file outside the owned set, a
+    name that does not resolve, a conflict with design, conventions or a
+    neighbour) hold by the definition and are not repeated.
+  5 Out of scope: one line each, with who owns it. "none" if none.
+  No section opens with a sentence from this template; the rendered file holds
+  content only.
 
-  WHAT NEVER GOES HERE
-  - Placeholders: TBD, TODO, "handle edge cases", "add appropriate error
-    handling", "similar to task N", a step that says what without how for code
-    the author could have written. A step the author cannot write is reported
-    to the loop, not papered over.
-  - Pasted existing code, a copied global constraint, run state (passes,
-    claimed, fix notes), an edit to the S101 or another S102.
-  - A product entity in THIS template (hard rule 7).
+  NEVER HERE
+  - A method body, a test body, a step list, a private name, a restated
+    signature, a pasted enum or schema, a copied global constraint.
+  - Placeholders: a missing path, a name no contract defines, a behaviour "to
+    be handled", a done-when that cannot run, "similar to task N".
+  - Run state; an edit to the S101 or another S102; a product entity in THIS
+    template (hard rule 7).
 
   PLACEHOLDERS
-  {{SLUG}}           the feature slug (the D101's, or the ticket key in kebab-case)
-  {{NNN}}            the task number, three digits
-  {{TASK-SLUG}}      kebab-case task name
-  {{TASK-ID}}        the id in the S101 graph, e.g. T003
-  {{TITLE}}          the task title, as the graph entry
-  {{AUTHOR}}         who ran asimov-spec
-  {{YYYY-MM-DD}}     the date of this write
-  Everything inside <angle brackets> is a description of what to write there,
-  replaced in full. Sample rows show the shape; replace them.
+  {{SLUG}} {{NNN}} {{TASK-SLUG}} {{TASK-ID}} {{TITLE}} {{AUTHOR}} {{YYYY-MM-DD}}
+  Everything in <angle brackets> is a description of what to write there.
 -->
 ---
 spec: S102
 s101: documentation/specs/{{SLUG}}/S101-{{SLUG}}.md
 task: "{{TASK-ID}}"
 title: "{{TITLE}}"
-traces: [R1, §6.2.1, AC1]
 role: dotnet-builder
 tier: mid
-depends_on: [T001]
+after: [T002]
+traces: [R1, §6.2.1, AC1]
+owns:
+  create: []
+  modify: [<repo-relative path>]
+  test: []
+consumes: [<ContractName>, <ExistingTypeName>]
+produces: []
 status: draft
 author: "{{AUTHOR}}"
 date: "{{YYYY-MM-DD}}"
@@ -81,30 +82,9 @@ date: "{{YYYY-MM-DD}}"
 
 ## 1. Intent
 
-<One or two sentences: what this task delivers and why the feature needs it, in the D101's words. The reason, not the recipe.>
+<What this task delivers and why the feature needs it, in the design's words.>
 
-## 2. Files
-
-The owned set. Nothing outside it is touched; needing to is an escalation trigger (§5).
-
-- **Create:** `<repo-relative path>`
-- **Modify:** `<repo-relative path>` — <the region, when the file is large>
-- **Test:** `<repo-relative test path>`
-
-## 3. Interfaces
-
-**Consumes** (produced by another task or existing code; the builder stops rather than invent a missing one):
-
-- `<exact signature>` — produced by T001
-- `<exact signature>` — existing code, `<repo-relative path>`
-
-**Produces** (a later task relies on these; the signature is fixed here):
-
-- `<exact signature>`
-
-## 4. Behaviour
-
-One scenario per behaviour, a test can be written from each. A rule carries its counter-example as its own scenario.
+## 2. Behaviour
 
 ```gherkin
 Scenario: <the behaviour>
@@ -112,51 +92,27 @@ Scenario: <the behaviour>
   When <an action>
   Then <an outcome>
 
-Scenario: <the rule's counter-example>
+Scenario: <the rule's failing case>
   Given <a state the rule excludes>
   When <the same action>
   Then <the excluded outcome>
 ```
 
-## 5. Constraints
+## 3. Done-when
 
-Only what is specific to this task. The global constraints of the S101 §1 and its escalation route apply without being repeated.
+1. `<TestClass>` is green under `<test command from the conventions>`.
+2. `<build command>` exits 0.
+3. `<command>` prints `<expected output>`.
 
-- **Must:** <a named abstraction, a logging call, a pattern this task has to use>
+## 4. Constraints and stops
+
+- **Must:** <a named abstraction, a public pattern, a value from the design>
 - **Must not:** <bypass a layer, add a dependency, change a signature it does not own>
-- **Prefer:** <what to reuse, by path>
-- **Escalation triggers:** needing a file outside §2; a consumed name in §3 that does not resolve; a conflict between this spec and the D101, the conventions or a neighbouring task; <task-specific trigger>. On any of these: stop, report to the route in the S101 §5, wait for a ruling.
+- **Prefer:** <what to mirror, by path>
+- **Stops:** <a condition specific to this task on which the builder reports instead of deciding>
 
-## 6. Steps
-
-Test first, one action each. The code is inline where the task is transcription; existing code is linked by path.
-
-1. Write the failing test `<test name>` in `<test path>`:
-
-   ```<language>
-   <the test, in full>
-   ```
-
-2. Run `<test command from the conventions>` and see it fail on `<the assertion>`.
-3. <Write / change> `<path>`:
-
-   ```<language>
-   <the code, in full, where the task is transcription; otherwise what to achieve and what to check>
-   ```
-
-4. Run `<test command>` and see it pass.
-5. Commit: `<commit message, imperative, one line>`.
-
-## 7. Acceptance criteria
-
-Each checkable by running something and reading the result.
-
-1. `<test name>` passes under `<test command>`.
-2. `<command>` prints `<expected output>`.
-3. `<path>` exists and <has a named shape>.
-
-## 8. Out of scope
+## 5. Out of scope
 
 - <the neighbouring task that owns it> — T00n
-- <the follow-up the D101 deferred> — D101 OOSn
+- <the follow-up the design deferred> — OOSn
 - <the refactor that tempts>
