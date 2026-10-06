@@ -34,38 +34,44 @@
 
 <main class="page">
   <h1>S101 — Implementation plan</h1>
-  <p class="lede">One per feature. The task graph a D101 becomes, and what every task must respect, stated once. <span class="chip assess">assess</span></p>
+  <p class="lede">One per feature. The task graph a design becomes, and what every task must respect, stated once. <span class="chip assess">assess</span></p>
 
   <dl class="meta">
     <dt>Produced by</dt><dd><code>/asimov-spec</code>, named in a message with the D101, or with a Jira link for a bug fix that needs no D101. One run: it reads the design and the repo, asks at most five questions, shows you the cut, and expands it on your go.</dd>
     <dt>Validated by</dt><dd><code>/asimov-spec-validate</code>: the graph checks and the plan checks, plus a blind check per task spec. Writes nothing but a sidecar.</dd>
     <dt>Lands in</dt><dd><code>documentation/specs/&lt;feature&gt;/S101-&lt;feature&gt;.md</code>, beside its S102s.</dd>
-    <dt>Source</dt><dd><a href="https://github.com/context-and-oss/asimov/blob/main/plugins/asimov-plugin/artifacts/documentation/s101-implementation-plan/s101-implementation-plan-definition.md">Definition</a> · <a href="https://github.com/context-and-oss/asimov/blob/main/plugins/asimov-plugin/artifacts/documentation/s101-implementation-plan/s101-implementation-plan-template.md">Template</a> · <a href="https://github.com/context-and-oss/asimov/blob/main/documentation/features/D101-spec-stage.html">The Spec-stage D101</a></dd>
-    <dt>Read by</dt><dd>A reviewer who is not the author, the person directing the run, every task spec as it is written, and the build run as its control document.</dd>
+    <dt>Source</dt><dd><a href="https://github.com/context-and-oss/asimov/blob/main/plugins/asimov-plugin/artifacts/documentation/s101-implementation-plan/s101-implementation-plan-definition.md">Definition</a> · <a href="https://github.com/context-and-oss/asimov/blob/main/plugins/asimov-plugin/artifacts/documentation/s101-implementation-plan/s101-implementation-plan-template.md">Template</a> · <a href="https://github.com/context-and-oss/asimov/blob/main/plugins/asimov-plugin/contracts/specification.md">The specification contract</a> · <a href="https://github.com/context-and-oss/asimov/blob/main/documentation/features/D101-spec-stage.html">The Spec-stage D101</a></dd>
+    <dt>Read by</dt><dd>Agents: every task spec as it is written, and the build run as its control document. People never read the file; they read the <strong>plan view</strong> it renders to in chat, at the cut, at the end of a run, and as the reviewer.</dd>
   </dl>
+
+  <h2>The line</h2>
+  <p>The plan is the <strong>plan part</strong> of the <a href="https://github.com/context-and-oss/asimov/blob/main/plugins/asimov-plugin/contracts/specification.md">specification contract</a>: order, coverage, escalation, and the names tasks share, each stated once. No code anywhere in it. Signatures appear once, under Contracts; bodies, private names and tests are the builder's.</p>
 
   <h2>What it holds</h2>
   <ul>
-    <li><strong>The task graph</strong>, once, in the YAML frontmatter: every task with its role, tier, phase, dependencies, owned files, the names it produces and consumes, and the design ids it traces to.</li>
-    <li><strong>Phases with checkpoints</strong>: a state a reviewer can verify without reading code. The unit a run stops at and a revert targets.</li>
-    <li><strong>Interfaces, constraints, review focus</strong>: stated once here, inherited by every task.</li>
-    <li><strong>Escalation routing</strong>: what stops a builder, and who rules.</li>
-    <li><strong>Coverage map</strong>: every requirement and acceptance criterion against the tasks that deliver it, both ways.</li>
-    <li><strong>Assumptions</strong>: every decision taken without asking you, with the default it took.</li>
+    <li><strong>The phase tree</strong>, once, in the YAML frontmatter: phases in build order, a checkpoint on each, and one line per task: id, title, role, tier, what it comes after, the design ids it traces to. Only what orders the work; files and names live in the task specs.</li>
+    <li><strong>Contracts</strong>: every name one task produces and another consumes, with its signature, here and nowhere else.</li>
+    <li><strong>Constraints the design imposes</strong>: one line each, verbatim, with the source. Never the conventions; the builder loads those anyway.</li>
+    <li><strong>Coverage</strong>: every requirement and acceptance criterion against the tasks that deliver it, both ways. An id with no task says why.</li>
+    <li><strong>Escalation</strong>: what stops a builder, and who rules.</li>
+    <li><strong>Review focus</strong>: the failure modes no task's check exercises, each pinned to a task.</li>
+    <li><strong>Assumptions</strong>: every decision taken without asking you, with the default it took. Last.</li>
   </ul>
+  <p>Six sections and a tree. No prose about the phases: the agent has the tree, the person has the view.</p>
 
   <h2>How it is cut</h2>
   <ul>
-    <li><strong>Phase 0 is the skeleton.</strong> One task per stack writes the classes, interfaces and public methods with no bodies, compiling. The interfaces become code before anyone builds against them.</li>
-    <li><strong>One phase per acceptance criterion.</strong> A slice: the work that makes one criterion pass, end to end. One builder task per stack it touches, plus one tester task.</li>
-    <li><strong>The tester's test is the checkpoint.</strong> Written against the skeleton before the slice is built; red first, green when the slice is done.</li>
-    <li><strong>Parallel means disjoint.</strong> Two tasks run together only if they own no common file. The skeleton is cut so each slice owns its own.</li>
+    <li><strong>Phase 0 is the Foundation.</strong> The contracts as code: classes, interfaces and public methods with no bodies, compiling, one task per stack. Plus whatever every slice builds against and no slice should be first to touch. Never a slice's behaviour, however small.</li>
+    <li><strong>One phase per acceptance criterion.</strong> A slice: the work that makes one criterion pass, end to end. One tester task first, then one builder task per stack it touches.</li>
+    <li><strong>The tester's test is the checkpoint.</strong> Written against the Foundation before any body exists; red first, green when the slice is done. Tester before builder, in every slice.</li>
+    <li><strong>A close, when the run needs one.</strong> A phase after the last slice for what ends the run and belongs to no criterion: a release, a flag flipped. Often a human task.</li>
+    <li><strong>Parallel means disjoint.</strong> Two tasks run together only if they own no common file. The Foundation is cut so each slice owns its own.</li>
   </ul>
 
   <h2>The cut, before the expansion</h2>
-  <p>Nothing but this file exists when you first see the plan. <code>/asimov-spec</code> prints the phases, the tasks, the assumptions and the graph checks, and waits.</p>
+  <p>Nothing but this file exists when you first see the plan. <code>/asimov-spec</code> shows the plan view: the phases with their checkpoints, one line per task, the coverage line, the assumptions, the graph checks. Then it waits.</p>
   <ul>
-    <li><strong>go</strong> writes and validates every task spec, then the plan, and finishes once.</li>
+    <li><strong>go</strong> writes and validates every task spec, then the plan, shows the view once more, and finishes.</li>
     <li><strong>Free text</strong> re-cuts and shows the cut again. Edit the file by hand and say <em>read again</em>, and it is read as the graph.</li>
     <li><strong>stop</strong> leaves the plan alone on disk. The next run opens at the same place.</li>
   </ul>
@@ -83,15 +89,15 @@
 
   <h2>What it is not</h2>
   <ul>
-    <li>Not the recipe. File paths, signatures, steps and test code live in the S102s.</li>
+    <li>Not the brief. The files a task owns, its behaviour, its done-when and its own constraints live in the S102s.</li>
     <li>Not the ledger. Which task is claimed or in a fix round lives in a gitignored run log, never in the plan.</li>
-    <li>Not the validation report. Findings go to a gitignored sidecar next to it; only the assumptions are plan content.</li>
+    <li>Not the validation report. Findings go to a gitignored sidecar next to it; only the assumptions are plan content. So does every place a run had to work around the template: a finding for the maintainer, never a line in the plan.</li>
   </ul>
 
   <h2>Where it comes from, where it goes</h2>
   <p>A D101 at full design produces exactly one; so does an approved ticket whose thread meets the design contract: the problem, the decision, acceptance criteria, what is out of scope, and the rules and open questions where there are any. Anything less is refused, and the fix goes into the D101 or the ticket. It produces one or more S102 task specs; a bug fix may get a plan of one. <a href="../../artifacts/documentation/index.html">The document model →</a></p>
 
-  <p>Definition, template and skills exist since 2026-10-02 and have not run outside the Asimov repo. That is what <span class="chip assess">assess</span> means: use it, and expect the shape to move.</p>
+  <p>Definition, template and skills exist since 2026-10-02. The first real run, eleven tasks from a ticket, showed the plan narrating its phases and the task specs carrying code, so the shape was re-cut on the specification contract on 2026-10-05. That is what <span class="chip assess">assess</span> means: use it, and expect the shape to move.</p>
 
 </main>
 <footer class="foot"><div class="in">
