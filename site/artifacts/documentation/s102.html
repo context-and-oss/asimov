@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>S102 — Task spec · Asimov</title>
-<meta name="description" content="S102: one per task; the whole brief a fresh build agent receives, validated blind by a reader that never saw the conversation.">
+<meta name="description" content="S102: one per task; the whole brief a fresh build agent receives, validated blind by a reader that never saw the conversation. Names and checks are the spec's; every body and test is the builder's.">
 <link rel="stylesheet" href="../../site.css">
 </head>
 <body class="has-subnav">
@@ -40,48 +40,53 @@
     <dt>Produced by</dt><dd><code>/asimov-spec</code>, one per task in the plan's graph, after your go at the cut.</dd>
     <dt>Validated by</dt><dd>A fresh subagent with no conversation history, right after each one is written. It sees the task spec, the plan, the design and the repo, and nothing else.</dd>
     <dt>Lands in</dt><dd><code>documentation/specs/&lt;feature&gt;/S102-&lt;feature&gt;-NNN-&lt;task&gt;.md</code></dd>
-    <dt>Source</dt><dd><a href="https://github.com/context-and-oss/asimov/blob/main/plugins/asimov-plugin/artifacts/documentation/s102-task-spec/s102-task-spec-definition.md">Definition</a> · <a href="https://github.com/context-and-oss/asimov/blob/main/plugins/asimov-plugin/artifacts/documentation/s102-task-spec/s102-task-spec-template.md">Template</a> · <a href="https://github.com/context-and-oss/asimov/blob/main/documentation/features/D101-spec-stage.html">The Spec-stage D101</a></dd>
-    <dt>Read by</dt><dd>The builder it is written for, as its whole brief. The reviewer, as part of the plan. The build run, when it verifies the code against it.</dd>
+    <dt>Source</dt><dd><a href="https://github.com/context-and-oss/asimov/blob/main/plugins/asimov-plugin/artifacts/documentation/s102-task-spec/s102-task-spec-definition.md">Definition</a> · <a href="https://github.com/context-and-oss/asimov/blob/main/plugins/asimov-plugin/artifacts/documentation/s102-task-spec/s102-task-spec-template.md">Template</a> · <a href="https://github.com/context-and-oss/asimov/blob/main/plugins/asimov-plugin/contracts/specification.md">The specification contract</a> · <a href="https://github.com/context-and-oss/asimov/blob/main/documentation/features/D101-spec-stage.html">The Spec-stage D101</a></dd>
+    <dt>Read by</dt><dd>The builder it is written for, as its whole brief. The reviewer, as part of the plan. The build run, when it runs the done-when against the code.</dd>
   </dl>
+
+  <h2>The line</h2>
+  <p>The spec fixes <strong>what</strong>: the scope, the public names and signatures, the behaviour and the check. The builder owns <strong>how</strong>: every method body, every private name, every test. A body in a task spec is a transcript, not a brief. That line is the <a href="https://github.com/context-and-oss/asimov/blob/main/plugins/asimov-plugin/contracts/specification.md">specification contract</a>; the S102 is its task part, the S101 its plan part.</p>
 
   <h2>What it holds</h2>
   <ul>
-    <li><strong>A header copied from the plan</strong>: role, tier, dependencies, traces. The brief stands alone; the plan check confirms they still match.</li>
-    <li><strong>Intent</strong>, in the design's words, traced to the requirement it serves.</li>
-    <li><strong>Files</strong> it creates, modifies and tests. Exact paths; also the set it owns. Nothing else is touched.</li>
-    <li><strong>Interfaces</strong> it consumes and produces, by exact signature, so neighbouring tasks agree before either exists.</li>
-    <li><strong>Behaviour</strong> as Gherkin scenarios, one per behaviour, every rule with its counter-example.</li>
-    <li><strong>Constraints</strong> specific to this task: musts, must nots, preferences, escalation triggers. The global ones are inherited, never repeated.</li>
-    <li><strong>Steps</strong>, test first, one action each, with the code inline where the task is transcription.</li>
-    <li><strong>Acceptance criteria</strong> each checkable by running something, and <strong>out of scope</strong>, one line each.</li>
+    <li><strong>A header copied from the plan</strong>: role, tier, what it comes after, the design ids it traces to. Plus three machine-read lists: the files it <code>owns</code>, the names it <code>consumes</code>, the names it <code>produces</code>. Names only; the signatures live once, in the plan.</li>
+    <li><strong>Intent</strong>: one or two sentences, in the design's words. The reason, never the recipe.</li>
+    <li><strong>Behaviour</strong> as Gherkin scenarios a test can be written from, every rule with its failing case. Or one line saying the task adds none, and what its check is instead.</li>
+    <li><strong>Done-when</strong>: a named test that passes, a build that is green, a command and its output. Described, never written.</li>
+    <li><strong>Constraints and stops</strong> specific to this task: musts, must nots, what to mirror, and when the builder stops and reports instead of deciding. The global ones are inherited, never repeated.</li>
+    <li><strong>Out of scope</strong>: what a builder might think belongs here and does not, with the task that owns it.</li>
   </ul>
+  <p>Five sections, no steps, no code block but Gherkin.</p>
 
   <h2>The bar</h2>
-  <p><strong>Buildable blind.</strong> A competent builder with no conversation history, only the repo, the D101 and this file, builds it and knows when it is done. No placeholders. The builder never edits what it does not own; a conflict is a stop and a report, not a fix.</p>
+  <p><strong>Buildable blind.</strong> A competent builder with no conversation history, only the repo, the design, the plan and this file, builds it and knows when it is done. It never makes a decision the spec owns, and makes every decision the builder owns. No placeholders. The builder never edits what it does not own; a conflict is a stop and a report, not a fix.</p>
 
   <h2>Validated blind</h2>
   <p>The model that wrote the spec has the conversation in its head and fills the gaps from memory. So a fresh reader checks it instead.</p>
   <ul>
-    <li><strong>Write, then check.</strong> Each task spec goes to a fresh read-only subagent as soon as it is written. The report is one row per check, no verdict.</li>
+    <li><strong>Write, then check.</strong> Each task spec goes to a fresh read-only subagent as soon as it is written. Ten fixed checks, one row each, no verdict.</li>
     <li><strong>Fail, then rewrite.</strong> A failed check sends the spec back; the rewrite is checked again.</li>
-    <li><strong>Three fails, or a design gap, stop the run.</strong> A spec that fails three times, or a finding that points at the D101 rather than the spec, is reported, not rewritten. The design is fixed first.</li>
+    <li><strong>Three fails, or a design gap, stop the run.</strong> A spec that fails three times, or a finding that points at the design rather than the spec, is reported, not rewritten. The design is fixed first.</li>
+    <li><strong>Hard on shape, soft on content.</strong> A missing path, an unproduced name, a code block that is a body, a done-when that greps the source: fail. Whether the scenarios are the right ones: the reviewer's.</li>
   </ul>
 
   <h2>Rules</h2>
   <ul>
-    <li><strong>No placeholders.</strong> No <em>TBD</em>, no <em>handle edge cases</em>, no <em>similar to task 3</em>. A step the author cannot write is reported, not papered over.</li>
-    <li><strong>Code to write is inline; code that exists is linked.</strong> Never a pasted enum or schema.</li>
+    <li><strong>Names, not bodies.</strong> No method body, no private structure, no test code, no steps. A missing body is not a placeholder; it is the builder's work.</li>
+    <li><strong>The check is described, not written.</strong> Never the test's code, and never a search of the source for the spec's own words.</li>
+    <li><strong>No placeholders.</strong> No <em>TBD</em>, no <em>handle edge cases</em>, no <em>similar to task 3</em>. A decision the spec owns and left open is reported, not papered over.</li>
     <li><strong>Own your files; stop at the edge.</strong> Needing a file outside the owned set is an escalation, not a judgement call.</li>
-    <li><strong>Inherit, don't repeat.</strong> Global constraints and the escalation route live in the plan.</li>
+    <li><strong>Inherit, don't repeat.</strong> Contracts, global constraints and the escalation route live in the plan. A consumed name is spelled as the plan spells it, never restated.</li>
+    <li><strong>Link, don't paste.</strong> Existing types, enums and schemas by path, so the spec does not go stale when they move.</li>
   </ul>
 
   <h2>Never without a plan</h2>
   <p>A bug fix from the board skips the design document, not the plan. Its approved ticket is the design, and its plan may have one task; the task then traces to the ids the plan gave the ticket's items.</p>
 
   <h2>Where it comes from, where it goes</h2>
-  <p>One of several under an S101, or the only one. Giskard, Daneel and Calvin build from it; the planned verification agent runs the code against its acceptance criteria. <a href="../../artifacts/documentation/index.html">The document model →</a></p>
+  <p>One of several under an S101, or the only one. Giskard, Daneel and Calvin build from it; the planned verification agent runs its done-when against the code. <a href="../../artifacts/documentation/index.html">The document model →</a></p>
 
-  <p>Definition, template and skills exist since 2026-10-02 and have not run outside the Asimov repo. That is what <span class="chip assess">assess</span> means: use it, and expect the shape to move.</p>
+  <p>Definition, template and skills exist since 2026-10-02. The first real run showed every task spec carrying method bodies and test classes, so the shape was re-cut on the specification contract on 2026-10-05. That is what <span class="chip assess">assess</span> means: use it, and expect the shape to move.</p>
 
 </main>
 <footer class="foot"><div class="in">

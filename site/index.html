@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Asimov — a Claude Code plugin for designing and building features</title>
-<meta name="description" content="A Claude Code plugin for the AI-assisted part of software delivery: design, build, review, test.">
+<title>Asimov — a Claude Code and Codex plugin for designing and building features</title>
+<meta name="description" content="A Claude Code and Codex plugin for the AI-assisted part of software delivery: design, spec, build, review, test.">
 <link rel="stylesheet" href="site.css">
 </head>
 <body>
@@ -25,7 +25,7 @@
 </div></nav>
 
 <main class="page">
-  <h1>A Claude Code plugin for designing and building features</h1>
+  <h1>A Claude Code and Codex plugin for designing and building features</h1>
   <p class="lede">The design is written and signed by people before agents build from it.</p>
 
   <h2>From L2 to L3</h2>
@@ -149,7 +149,7 @@
       <p class="note">It reports where it stopped reading, and what to cut.</p>
     </div>
     <div class="ex">
-      <div class="cap"><p>Once the design is signed, an agent builds from it. It reads the design and your conventions from your repo.</p></div>
+      <div class="cap"><p>Once the design is signed, <code>/asimov-spec</code> cuts it into task specs. An agent builds each one, reading the spec and your conventions from your repo.</p></div>
       <div class="draw">
         <div class="doc" aria-label="The same design document, now complete and approved">
           <div class="h">Your design document</div>
@@ -163,21 +163,21 @@
         <div class="arrow"><svg viewBox="0 0 44 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h38M30 4l10 8-10 8"/></svg></div>
         <div class="term" aria-label="Giskard building the feature in Claude Code">
           <div class="bar"><i></i><i></i><i></i><span>claude</span></div>
-          <div class="ln you">&gt; Build the invoice export from its D101 as Giskard</div>
-          <div class="ln tool">⏺ Read(documentation/features/D101-self-service-invoice-export.html)</div>
-          <div class="ln res">⎿ Read 212 lines</div>
+          <div class="ln you">&gt; Build task 003 of the invoice export plan as Giskard</div>
+          <div class="ln tool wrap">⏺ Read(documentation/specs/self-service-invoice-export/S102-self-service-invoice-export-003-export-service.md)</div>
+          <div class="ln res">⎿ Read 48 lines</div>
           <div class="ln tool">⏺ Read(documentation/conventions/dotnet/services.md)</div>
           <div class="ln res">⎿ Read 62 lines</div>
           <div class="ln tool">⏺ Write(src/Invoicing/InvoiceExportService.cs)</div>
           <div class="ln res">⎿ Wrote 84 lines</div>
           <div class="ln tool">⏺ Write(src/Invoicing/InvoiceExportController.cs)</div>
           <div class="ln res">⎿ Wrote 31 lines</div>
-          <div class="ln ai wrap">⏺ Done. Stateless service per services.md §2, presets from §6. Nothing in the design needed a question.</div>
+          <div class="ln ai wrap">⏺ Done. InvoiceExportService as the plan names it, stateless per services.md §2. The slice test is green. Nothing in the spec needed a question.</div>
           <div class="input">&gt; <span class="cur"></span></div>
           <div class="hint">? for shortcuts</div>
         </div>
       </div>
-      <p class="note">Calvin writes the tests, Baley reviews, and a person approves the pull request.</p>
+      <p class="note">Calvin wrote the slice test first, Baley reviews, and a person approves the pull request.</p>
     </div>
   </div>
 
