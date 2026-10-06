@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>How it works · Asimov</title>
-<meta name="description" content="One feature through Asimov: you describe it, Asimov writes and builds, people decide three times.">
+<meta name="description" content="One feature through Asimov: you describe it, Asimov writes, plans and builds, people decide four times.">
 <link rel="stylesheet" href="site.css">
 </head>
 <body>
@@ -26,16 +26,16 @@
 
 <main class="page">
   <h1>How it works</h1>
-  <p class="lede">From description to pull request, with three human decisions on the way.</p>
-  <div class="figure"><svg viewBox="0 0 1180 384" style="min-width:760px" role="img" aria-label="Swimlane: you describe the feature; Asimov writes the business design and stops; personas review; your approver signs; Asimov writes the technical design; a reviewer who is not the author checks it; agents build, test and review; a human approves the pull request">
+  <p class="lede">From description to pull request, with four human decisions on the way.</p>
+  <div class="figure"><svg viewBox="0 0 1346 384" style="min-width:860px" role="img" aria-label="Swimlane: you describe the feature; Asimov writes the business design and stops; personas review; your approver signs; Asimov writes the technical design; a reviewer who is not the author checks it is gap-free; Asimov cuts the plan and its task specs; a reviewer who is not the author approves the plan as dispatch-ready; agents build, test and review; a human approves the pull request">
         <defs>
           <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 Z" fill="var(--text-dim,#a8b8d0)"/></marker>
         </defs>
         <!-- lanes -->
-        <line x1="16" y1="24" x2="1164" y2="24" stroke="var(--border,#2b4a73)"/>
-        <line x1="16" y1="136" x2="1164" y2="136" stroke="var(--border,#2b4a73)"/>
-        <line x1="16" y1="248" x2="1164" y2="248" stroke="var(--border,#2b4a73)"/>
-        <line x1="16" y1="360" x2="1164" y2="360" stroke="var(--border,#2b4a73)"/>
+        <line x1="16" y1="24" x2="1330" y2="24" stroke="var(--border,#2b4a73)"/>
+        <line x1="16" y1="136" x2="1330" y2="136" stroke="var(--border,#2b4a73)"/>
+        <line x1="16" y1="248" x2="1330" y2="248" stroke="var(--border,#2b4a73)"/>
+        <line x1="16" y1="360" x2="1330" y2="360" stroke="var(--border,#2b4a73)"/>
         <line x1="136" y1="24" x2="136" y2="360" stroke="var(--border,#2b4a73)"/>
         <g fill="var(--text-dim,#a8b8d0)" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700" text-anchor="middle">
           <text x="76" y="84">YOU</text>
@@ -51,13 +51,16 @@
           <path d="M772 192 H780 a4 4 0 0 1 4 4 V300 a4 4 0 0 0 4 4 H792"/>
           <path d="M816 280 V196 a4 4 0 0 1 4 -4 H864"/>
           <path d="M984 192 H992 a4 4 0 0 1 4 4 V300 a4 4 0 0 0 4 4 H1004"/>
-          <path d="M1052 304 H1088"/>
+          <path d="M1028 280 V196 a4 4 0 0 1 4 -4 H1076"/>
+          <path d="M1196 192 H1204 a4 4 0 0 1 4 4 V300 a4 4 0 0 0 4 4 H1216"/>
+          <path d="M1264 304 H1300"/>
         </g>
         <!-- guards -->
         <g fill="var(--green,#66bb6a)" font-family="JetBrains Mono, monospace" font-size="10">
           <text x="612" y="240">[signed]</text>
           <text x="824" y="240">[gap-free]</text>
-          <text x="1058" y="296">[approved]</text>
+          <text x="1036" y="240">[dispatch-ready]</text>
+          <text x="1270" y="296">[approved]</text>
         </g>
         <!-- activities -->
         <g font-family="Inter, sans-serif" font-size="12" font-weight="600" fill="#fff" text-anchor="middle">
@@ -73,8 +76,11 @@
           <rect x="652" y="164" width="120" height="56" rx="8" fill="var(--bg2,#122039)" stroke="var(--cyan,#4fc3f7)" stroke-width="1.5"/>
           <text x="712" y="188">Write the</text><text x="712" y="204">technical design</text>
 
-          <rect x="864" y="164" width="120" height="56" rx="8" fill="var(--bg2,#122039)" stroke="var(--amber,#ffb74d)" stroke-width="1.5"/>
-          <text x="924" y="188">Agents build,</text><text x="924" y="204">test, review</text>
+          <rect x="864" y="164" width="120" height="56" rx="8" fill="var(--bg2,#122039)" stroke="var(--cyan,#4fc3f7)" stroke-width="1.5"/>
+          <text x="924" y="188">Cut the plan</text><text x="924" y="204">and its task specs</text>
+
+          <rect x="1076" y="164" width="120" height="56" rx="8" fill="var(--bg2,#122039)" stroke="var(--amber,#ffb74d)" stroke-width="1.5"/>
+          <text x="1136" y="188">Agents build,</text><text x="1136" y="204">test, review</text>
         </g>
         <!-- the stop: a small marker on the edge out of the business design -->
         <rect x="420" y="184" width="16" height="16" rx="3" fill="var(--bg,#0a1424)" stroke="var(--cyan,#4fc3f7)" stroke-width="2"/>
@@ -85,16 +91,18 @@
           <polygon points="604,280 628,304 604,328 580,304"/>
           <polygon points="816,280 840,304 816,328 792,304"/>
           <polygon points="1028,280 1052,304 1028,328 1004,304"/>
+          <polygon points="1240,280 1264,304 1240,328 1216,304"/>
         </g>
         <g font-family="Inter, sans-serif" font-size="11.5" font-weight="600" fill="#fff" text-anchor="middle">
           <text x="604" y="346">Business approver</text>
           <text x="816" y="346">Reviewer, not the author</text>
-          <text x="1028" y="346">Pull request</text>
+          <text x="1028" y="346">Reviewer, not the author</text>
+          <text x="1240" y="346">Pull request</text>
         </g>
         <!-- final node -->
-        <circle cx="1100" cy="304" r="11" fill="none" stroke="var(--coral,#ef5350)" stroke-width="1.5"/>
-        <circle cx="1100" cy="304" r="6" fill="var(--coral,#ef5350)"/>
-        <text x="1100" y="346" text-anchor="middle" fill="var(--text-dim,#a8b8d0)" font-family="Inter, sans-serif" font-size="11.5" font-weight="600">Ship</text>
+        <circle cx="1312" cy="304" r="11" fill="none" stroke="var(--coral,#ef5350)" stroke-width="1.5"/>
+        <circle cx="1312" cy="304" r="6" fill="var(--coral,#ef5350)"/>
+        <text x="1312" y="346" text-anchor="middle" fill="var(--text-dim,#a8b8d0)" font-family="Inter, sans-serif" font-size="11.5" font-weight="600">Ship</text>
       </svg>
       <div class="key" aria-label="Swimlane colour key">
         <b>Key</b>
@@ -111,13 +119,16 @@
     <li><strong>Business approver</strong> signs the what and why. No technology chosen yet.</li>
     <li><strong>Asimov</strong> writes the technical half on a second run.</li>
     <li><strong>A reviewer, not the author</strong>, checks it is gap-free: buildable without asking a question.</li>
-    <li><strong>Agents</strong> build, test and review, reading your conventions by path.</li>
+    <li><strong>Asimov</strong> cuts the design into a plan: one task per sitting, the names between tasks fixed once. You say <em>go</em> at the cut; every task spec is then checked blind by a fresh reader.</li>
+    <li><strong>A reviewer, not the author</strong>, approves the plan as dispatch-ready. Coding does not start before it.</li>
+    <li><strong>Agents</strong> build one task spec each, test and review, reading your conventions by path.</li>
     <li><strong>A person</strong> approves the pull request.</li>
   </ul>
-  <p>Where a decision says no, the flow goes back one box. Three people decide, and no command can move any of their decisions.</p>
+  <p>Where a decision says no, the flow goes back one box. People decide four times, and no command can move any of their decisions.</p>
   <h2>What lands in your repo</h2>
   <pre class="mono" style="color:var(--text-dim);line-height:1.7;overflow-x:auto">your-product/
 ├── documentation/features/   D101-*.html   every design, rendered, next to the code
+├── documentation/specs/      &lt;feature&gt;/   the plan and its task specs, one folder per design
 ├── .claude/skills/           persona-*/    your personas, authored by interview
 ├── documentation/conventions/&lt;stack&gt;/      your house style, read by the agents
 ├── asimov.md                               the one file Asimov owns
