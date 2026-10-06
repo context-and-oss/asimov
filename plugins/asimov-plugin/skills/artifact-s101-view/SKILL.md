@@ -34,7 +34,7 @@ Print exactly this layout, in a fenced block so the columns hold. Labels (*Plan 
 ```
 <heading, when given>
 Plan for <slug> · <title>
-<design, short> · approved by <who> <date> · <n> phases, <m> tasks<, k task specs written> · <status> v<version>
+<design, short> · approved by <who> <date> · <n> phases, <m> tasks<, k task specs written, v validated> · <status> v<version> · <plan approved by <by> <date> | plan not approved>
 ──────────────────────────────────────────────────────────────────────
 P0  <phase name>                                           <phase traces>
     ✓ <checkpoint>
@@ -54,7 +54,8 @@ design gap   <the Taken cell of every assumption that begins design:, one line e
 
 Rules of the rendering:
 
-- **Task specs written** appears only when at least one `S102-<slug>-NNN-*.md` exists in the folder: `k` is the number of tasks in the tree with exactly one file.
+- **Task specs written** appears only when at least one `S102-<slug>-NNN-*.md` exists in the folder: `k` is the number of tasks in the tree with exactly one file, `v` the number of those whose header says `status: validated`.
+- **Plan approved by** comes from the header's `approved` line: the name and date when it holds them, *plan not approved* when it is `none` or absent. The view does not check the fingerprint; the caller says whether the approval still holds.
 - **Design, short.** For a repo file: the file name and version (`D101-permissions.html v0.11`). For a normalised design: the key or the last path segment of the url and the read time (`SEC-1733, read 2026-10-05`). *Approved by* comes from the body's first paragraph; omit it when the body does not name one.
 - **Phases** in the order of the tree, each with its id, name and traces (phase `traces` as the file has them, right-aligned; nothing when empty). The checkpoint on its own line under the name, prefixed `✓`, verbatim. Tasks in the order of the tree with `├─` and `└─` on the last.
 - **Role** is the role without its stack prefix (`builder`, `tester`, `human`) when every task of the plan is of one stack; with the stack (`dotnet builder`, `angular builder`) when the plan has more than one. Pad role and tier so the titles align.

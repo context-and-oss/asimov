@@ -53,7 +53,7 @@ codex plugin add asimov-plugin@asimov-marketplace</pre>
 
   <h2>Your first feature</h2>
   <div class="figure">
-    <svg viewBox="0 0 1200 230" style="min-width:860px" role="img" aria-label="Your first feature as a track: wire up, describe, read, signed by the business approver, design the how, checked gap-free by a reviewer who is not the author, plan, approved as dispatch-ready by a reviewer who is not the author, build with the agents, approved by a person on the pull request.">
+    <svg viewBox="0 0 1200 230" style="min-width:860px" role="img" aria-label="Your first feature as a track: wire up, describe, read, signed by the business approver, design the how, checked gap-free by a reviewer who is not the author, plan, approved by you at the cut and checked task by task by the agents, build with the agents, approved by a person on the pull request.">
       <!-- phase bands, drawn first so the track reads on top -->
       <g fill="var(--cyan,#4fc3f7)" fill-opacity="0.10" stroke="var(--cyan,#4fc3f7)" stroke-opacity="0.45" stroke-width="1">
         <rect x="140" y="166" width="200" height="26" rx="6"/>
@@ -115,7 +115,7 @@ codex plugin add asimov-plugin@asimov-marketplace</pre>
       <g fill="var(--text-dim,#a8b8d0)" font-family="JetBrains Mono, monospace" font-size="11" text-anchor="middle">
         <text x="420" y="120">business</text><text x="420" y="134">approver</text>
         <text x="660" y="120">reviewer &#8800; author</text>
-        <text x="900" y="120">reviewer &#8800; author</text>
+        <text x="900" y="120">you, at the cut</text>
         <text x="1140" y="120">a person,<tspan x="1140" dy="14">on the PR</tspan></text>
       </g>
     </svg>
@@ -135,8 +135,8 @@ codex plugin add asimov-plugin@asimov-marketplace</pre>
     <tr><td>Sign</td><td>—</td><td>The business approver signs the what and why. No technology chosen yet.</td><td>Business approver</td></tr>
     <tr><td>Design the how</td><td><code>/asimov-design</code> again</td><td>The technical design in the same file. Phase moves to full design.</td><td>—</td></tr>
     <tr><td>Check it is gap-free</td><td>—</td><td>A gap-free verdict. Status can move to approved now that the estimate holds.</td><td>A reviewer who is not the author; the business approver for status</td></tr>
-    <tr><td>Plan</td><td><code>/asimov-spec &lt;feature&gt;</code></td><td>At most five questions, then the cut as a plan view. Say <em>go</em>, and one task spec per task lands in <code>documentation/specs/&lt;feature&gt;/</code>, each checked blind by a fresh reader</td><td>—</td></tr>
-    <tr><td>Check it is dispatch-ready</td><td><code>/asimov-spec-validate &lt;feature&gt;</code> as a preview</td><td>Every task can go to a fresh builder without a question back. The plan's status moves to ready, by hand.</td><td>A reviewer who is not the author</td></tr>
+    <tr><td>Plan</td><td><code>/asimov-spec &lt;feature&gt;</code></td><td>At most five questions, then the cut as a plan view, checked before you see it. Say <em>go</em> to approve it, and one task spec per task lands in <code>documentation/specs/&lt;feature&gt;/</code></td><td>You, at the cut</td></tr>
+    <tr><td>Check it is dispatch-ready</td><td>—</td><td>Each task spec is checked blind by a fresh agent and marked validated; the plan goes ready by itself when your go still matches it, or asks you again. <code>/asimov-spec-validate &lt;feature&gt;</code> re-checks after a hand edit.</td><td>The agents, per task spec</td></tr>
     <tr><td>Build</td><td>Ask for an agent by name, one task spec at a time: "Use the giskard-the-dotnet-developer subagent on S102-&lt;feature&gt;-003-&lt;task&gt;.md"</td><td>Code and tests in your conventions; Baley's findings in the pull request</td><td>—</td></tr>
     <tr><td>Ship</td><td>—</td><td>A merged pull request</td><td>A person approves it</td></tr>
   </table>

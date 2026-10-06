@@ -8,7 +8,7 @@ since: 2026-09-25
 
 The written standard an S102 (task spec) must meet before a build subagent is dispatched on it. An S102 is one task: the brief a fresh builder receives, sized to be built in one sitting without asking a human, validated blind by a reader that never saw the conversation, and verifiable afterwards against the code it produced. It is the **task** part of a specification as `contracts/specification.md` defines it; the S101 (`s101-implementation-plan-definition.md`) is the **plan** part that orders the tasks.
 
-Read by the build subagents as their whole brief, by the Build workflow's verification as the checks to run, by the reviewer who wants to know what the agent was told, and at run-time by the asimov-skills `asimov-spec` and `asimov-spec-validate` through the artifact skills `artifact-s102-authoring` and `artifact-s102-validation`.
+Read by the build subagents as their whole brief, by the Build workflow's verification as the checks to run, by the person who wants to know what the agent was told, and at run-time by the asimov-skills `asimov-spec` and `asimov-spec-validate` through the artifact skills `artifact-s102-authoring` and `artifact-s102-validation`.
 
 Design: `documentation/features/D101-spec-stage.html`. Research: `documentation/research/S101-S102-spec-stage-research.md`, `documentation/research/specification-contract-research.md`.
 
@@ -39,7 +39,7 @@ An S102 clears one bar. **Buildable blind** means a competent builder with no co
 - the stop conditions name what halts the builder beyond the generic ones;
 - nothing is left as a placeholder, and nothing is pre-written that the builder owns (§5).
 
-The bar is **validated blind** right after the S102 is written: a fresh subagent with no conversation history, given only the S102, its S101, the design and the repo, answers the checks of §8 and reports. Blind means no conversation, not no repo. The model that wrote the S102 has the conversation in context and fills the gaps from memory; a fresh reader finds them. An S102 that fails is rewritten and validated again; a third failure, or a finding that names a gap in the design rather than in the S102, stops the run and is reported instead of rewritten. The verdict then belongs to the S101's reviewer as part of the S101 review (`s101-implementation-plan-definition.md` §8 check 1). The builder itself does not judge the bar; it builds or it stops.
+The bar is **validated blind** right after the S102 is written: a fresh subagent with no conversation history, given only the S102, its S101, the design and the repo, answers the checks of §8 and reports. Blind means no conversation, not no repo. The model that wrote the S102 has the conversation in context and fills the gaps from memory; a fresh reader finds them. An S102 that fails is rewritten and validated again; a third failure, or a finding that names a gap in the design rather than in the S102, stops the run and is reported instead of rewritten. A clean report is the S102's approval: `asimov-spec` marks the file `validated` with the date (§6), no person is asked to approve a task spec, and the S101's check 1 reads those marks. The builder itself does not judge the bar; it builds or it stops.
 
 **Validation** is this check, before code. **Verification** is the Build workflow's check after code: run the done-when of §4.4 against what was built. Two checks, two moments, two inputs; this definition covers the first and shapes the second.
 
@@ -133,7 +133,7 @@ What a builder might reasonably think belongs here and does not: the neighbourin
 
 ## 6. Lifecycle
 
-One status axis in the header: `draft` → `ready` (clears the bar, reviewed) → `done` (done-when met, verification green). `draft` is the only value a skill writes; the later values follow the S101's (the author moves `draft` → `ready` with the plan, the Build workflow moves `ready` → `done`), and the builder never changes the file. Claimed, in progress and fix rounds are ledger states, not S102 states. A `done` S102 stays as the record of what the agent was told.
+One status axis in the header: `draft` → `validated` (the blind check cleared; the date in `validated`) → `done` (done-when met, verification green). The authoring skill writes `draft` with `validated: none`; `asimov-spec` moves `draft` → `validated` on a clean blind report and fills the date, the agent's approval of the task spec; a rewrite after a failed check or a plan finding returns it to `draft`; the Build workflow moves `validated` → `done`. The builder never changes the file, and nobody sets a value by hand. Claimed, in progress and fix rounds are ledger states, not S102 states. A `done` S102 stays as the record of what the agent was told.
 
 There is no `superseded`. An S102 that fails validation, or that a plan-level finding names, is rewritten in place by the loop; an update of the plan leaves an S102 that still clears byte-identical; a rewrite of the plan replaces every S102 and deletes the files outside the new graph. Git carries what was there.
 

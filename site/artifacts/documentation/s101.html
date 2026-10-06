@@ -69,20 +69,20 @@
   </ul>
 
   <h2>The cut, before the expansion</h2>
-  <p>Nothing but this file exists when you first see the plan. <code>/asimov-spec</code> shows the plan view: the phases with their checkpoints, one line per task, the coverage line, the assumptions, the graph checks. Then it waits.</p>
+  <p>Nothing but this file exists when you first see the plan. <code>/asimov-spec</code> shows the plan view: the phases with their checkpoints, one line per task, the coverage line, the assumptions, and what the checks left, one line each; a check it can fix is fixed before you see the cut. Then it waits.</p>
   <ul>
-    <li><strong>go</strong> writes and validates every task spec, then the plan, shows the view once more, and finishes.</li>
+    <li><strong>go</strong> approves the plan: written into its header with your name, the date and a fingerprint of the plan. Then every task spec is written and checked blind, each marked <em>validated</em> when it clears, the plan is checked whole, and the view is shown once more: <em>ready</em>, or what changed since your go and the question to approve again.</li>
     <li><strong>Free text</strong> re-cuts and shows the cut again. Edit the file by hand and say <em>read again</em>, and it is read as the graph.</li>
     <li><strong>stop</strong> leaves the plan alone on disk. The next run opens at the same place.</li>
   </ul>
-  <p>The go is your call that the cut holds. It is not an approval and is recorded nowhere.</p>
+  <p>The go is your approval of the plan, and the only one it gets from a person. A plan changed after it is shown again and approved again; an unchanged plan is not asked twice.</p>
 
   <h2>The bar</h2>
-  <p><strong>Dispatch-ready.</strong> The person or orchestrator running it can hand every task to a fresh builder, in graph order, without going back to the author. A reviewer who is not the author gives the verdict; coding does not start before it. No skill records it: <code>ready</code> is set by hand.</p>
+  <p><strong>Dispatch-ready.</strong> The person or orchestrator running it can hand every task to a fresh builder, in graph order, without going back to the author. You approve the plan at the cut; each task spec is approved by the fresh agent that checks it; <code>ready</code> is set by the skill when your approval still matches the plan and every task spec is validated, and coding does not start before it. Nothing is set by hand.</p>
 
   <h2>Lifecycle</h2>
   <ul>
-    <li><strong>draft</strong> → <strong>ready</strong> → <strong>in progress</strong> → <strong>done</strong>. The skill writes <code>draft</code> only; you set <code>ready</code>; the build run moves the rest.</li>
+    <li><strong>draft</strong> → <strong>ready</strong> → <strong>in progress</strong> → <strong>done</strong>. The skill writes <code>draft</code> and sets <code>ready</code> itself, when your go still matches the plan and every task spec is validated; the build run moves the rest. A change after the go puts it back to <code>draft</code> until you approve again.</li>
     <li><strong>Run it again</strong> after the design was refined, and the plan is updated in place, keeping every task spec that still clears its bar.</li>
     <li><strong>Run it again</strong> after a requirement or criterion changed, and the plan is rewritten with every task spec. Git keeps the old one; no <em>superseded</em> copy.</li>
   </ul>

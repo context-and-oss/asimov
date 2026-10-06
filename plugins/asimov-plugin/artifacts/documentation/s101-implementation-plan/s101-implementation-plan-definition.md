@@ -38,11 +38,11 @@ An S101 clears one bar. **Dispatch-ready** means the person or orchestrator runn
 - every name an S102 consumes is produced by an S102 or linked as existing code;
 - the escalation routing names who rules when a builder stops.
 
-**The verdict belongs to a reviewer who is not the author.** Coding does not start until the S101 is approved (the spec-before-code gate, D100 §3). The author runs `asimov-spec-validate` as a self-preview; the reviewer's approval is the gate. No skill records the approval.
+**The plan is approved by its author; a task spec by the agent that checks it.** Coding does not start until the S101 is `ready` (the spec-before-code gate, D100 §3). The author's *go* at the cut is the approval: `asimov-spec` writes it into the header with the author, the date and a fingerprint of the plan (§6), and sets `ready` once every S102 is validated and the fingerprint still matches. A plan changed after the go is shown again and approved again. No skill approves a plan on its own; no person is asked to approve a task spec; nobody sets a status by hand.
 
 Two words for two checks. **Validation** is the spec check *before* code: does the S101 clear this bar, does every S102 clear its own, and do they agree with each other (§8, `s102-task-spec-definition.md` §8). **Verification** is the code check *after* build: run the done-when of each S102 against what was built. This definition covers validation; verification belongs to the Build workflow.
 
-The author sees the plan twice before the reviewer does. Once as the **cut**: the S101 alone, no S102 beside it, shown by `asimov-spec` before any task spec is written; the author says *go*, corrects it, or stops. That go is the author's call that the cut holds, recorded nowhere, and not an approval. Once more at the end, when every S102 exists and the plan has been validated as a whole. The reviewer's verdict comes after both.
+The author sees the plan twice. Once as the **cut**: the S101 alone, no S102 beside it, checked and then shown by `asimov-spec` before any task spec is written; the author says *go*, corrects it, or stops. That go is the approval. Once more at the end, when every S102 exists and the plan has been validated as a whole: `ready` when the plan on disk is the one approved, or what changed and the question to approve again when it is not. The author reads the plan as the view `artifact-s101-view` prints and the findings as one line each; a raw report never reaches a person.
 
 ## 3. Relationship to other documents
 
@@ -150,11 +150,13 @@ Every decision *about the feature* the plan took without asking the author: the 
 
 ## 6. Lifecycle
 
-One status axis, carried in the header: `draft` → `ready` (dispatch-ready, approved by the reviewer) → `in progress` (first task dispatched) → `done` (every checkpoint met, and every criterion the coverage map marks *verified by review* signed off by a reviewer). `asimov-spec` writes and rewrites `draft` and sets nothing else; the author moves `draft` → `ready` only after the reviewer's approval; the Build workflow moves `ready` → `in progress` → `done`. A `done` S101 stays in the repo as the record of how the feature was built; it is not deleted. A criterion *verified by review* has no checkpoint, so green tests alone leave the plan `in progress`; who signed it and when is run state and lives in the ledger, never in the plan.
+One status axis, carried in the header: `draft` → `ready` (dispatch-ready: approved by the author and every S102 validated) → `in progress` (first task dispatched) → `done` (every checkpoint met, and every criterion the coverage map marks *verified by review* signed off by a reviewer). `asimov-spec` writes and rewrites `draft` through the authoring skill and moves `draft` → `ready` itself, by the rule below; the Build workflow moves `ready` → `in progress` → `done`. Nobody moves a status by hand.
+
+**The approval** sits beside the status in the header: `approved: none` until the author's go at the cut, then `approved: { by: "<name>", date: "<YYYY-MM-DD>", fingerprint: "<hash>" }`, written by `asimov-spec` and by no other skill. The **fingerprint** is the SHA-256 of the file's lines minus every line that begins with `status:`, `version:`, `date:` or `approved:`, first 12 hex characters (`grep -v -E '^(status|version|date|approved):' <file> | sha256sum | cut -c1-12`): the tree and the body, not the bookkeeping. The approval **holds** while the fingerprint matches the file. `ready` is set when the approval holds and every S102 in the tree is `validated` (`s102-task-spec-definition.md` §6). Any change to the S101 after the go, by a re-cut, by the finalise step or by hand, breaks the match: `asimov-spec` shows the plan again with what changed and asks the author to approve it again before `ready`; `asimov-spec-validate` reports the mismatch and moves nothing. An unchanged plan is not asked twice. A `done` S101 stays in the repo as the record of how the feature was built; it is not deleted. A criterion *verified by review* has no checkpoint, so green tests alone leave the plan `in progress`; who signed it and when is run state and lives in the ledger, never in the plan.
 
 The cut is a `draft` S101 with no S102 beside it. No status value marks it; the folder does.
 
-A re-run against a design that already has an S101 takes one of two paths. **Update in place** when the source's items are the ones the coverage map traces (for a D101, the R, NF and AC ids; for a normalised design, the items the map's wording column names, compared with the source as read now) and the author confirms the content is refined, not changed: same file, version bumped, and every S102 that still clears its bar left byte-identical. **Rewrite** when an item is missing or added, or the author says the content changed: the S101 and every S102 written anew, S102 files no longer in the graph deleted. There is no `superseded` status and no kept copy; git carries the previous plan. An S101 at `ready` or later is never rewritten by a skill; the author sets it back to `draft` first.
+A re-run against a design that already has an S101 takes one of two paths. **Update in place** when the source's items are the ones the coverage map traces (for a D101, the R, NF and AC ids; for a normalised design, the items the map's wording column names, compared with the source as read now) and the author confirms the content is refined, not changed: same file, version bumped, and every S102 that still clears its bar left byte-identical. **Rewrite** when an item is missing or added, or the author says the content changed: the S101 and every S102 written anew, S102 files no longer in the graph deleted. There is no `superseded` status and no kept copy; git carries the previous plan. An S101 at `ready` or later is never rewritten by a skill; the author sets it back to `draft` first, the one hand edit of a status this definition allows.
 
 ## 7. Anti-patterns
 
@@ -264,6 +266,7 @@ Design: <design.ref> v<design.version> | <design.ref> read <design.read> · cach
 Date: <YYYY-MM-DD>
 Mode: graph-only | full
 Blind: true | false
+Approval: <by> · <date> · <fingerprint> · holds | superseded | none
 
 ## Plan report
 <the S101 validation report, verbatim>

@@ -54,10 +54,10 @@ reference is invisible to the subagent. See D100 §7.2.1.
 | `/asimov-design-review` | Design | Review hub — the gap check (§8a/§8b) plus the persona reads             |
 | `artifact-persona-authoring` | Design | Show the persona roster, then author a custom persona — a product-specific reader — as a review skill (a skill: ask for it in plain words) |
 | `/asimov-spec`          | Spec   | Plan a Full-design D101 or an approved Jira ticket into `documentation/specs/<slug>/` — shows the cut, waits for your go |
-| `/asimov-spec-validate` | Spec   | Validate an existing plan; writes only its review sidecar               |
+| `/asimov-spec-validate` | Spec   | Re-check an existing plan after a hand edit; says whether your approval still holds; writes only its review sidecar |
 | `/asimov-init`          | Setup  | Re-run to refresh this file, conventions, and the docs site             |
 
-`/asimov-design`, `/asimov-design-review`, `/asimov-spec` and `/asimov-spec-validate` are skills you invoke by name (in Codex: `$asimov-plugin:asimov-design`, and so on), never picked by the model; the feature, the D101, the Jira link or the ticket text goes in the same message. A bug fix needs no D101: a ticket whose thread meets the design contract (an approval, the problem, the decision, acceptance criteria, what is out of scope, and rules and open questions where there are any) is a design, and gets a plan, even of one task. The plan's `ready` status is set by hand after a reviewer who is not the author approves it.
+`/asimov-design`, `/asimov-design-review`, `/asimov-spec` and `/asimov-spec-validate` are skills you invoke by name (in Codex: `$asimov-plugin:asimov-design`, and so on), never picked by the model; the feature, the D101, the Jira link or the ticket text goes in the same message. A bug fix needs no D101: a ticket whose thread meets the design contract (an approval, the problem, the decision, acceptance criteria, what is out of scope, and rules and open questions where there are any) is a design, and gets a plan, even of one task. You approve the plan at the cut with one word, **go**; each task spec is approved by the fresh agent that checks it blind; the plan goes `ready` by itself when both hold, and asks you again if it changed after your go. Nothing is set by hand, and you read the plan as a view with findings in words, never a report.
 
 **Two runs, not one.** `/asimov-design` works to two bars. The first run settles requirements and the business design, writes the file with §6 _Technical design_ marked open and a list of what is outstanding, and then stops. Open the file, read it, iterate on §2–§5 — then run it again against that file to add §6. `/asimov-design-review` reads the phase from the document, then offers and runs the reviews it calls for — the gap check against the matching bar (§8a while §6 is open, §8b once written) plus the persona reads (below).
 
@@ -95,6 +95,6 @@ If `baley` (when run) flags findings, summerize the found fails and flags and as
 
 ## L3 working agreement
 
-- **Reviewer ≠ author** — nobody approves their own design, spec, or code.
+- **Reviewer ≠ author** — nobody approves their own design or code. The plan is the exception: its author approves it at the cut, and each task spec is approved by the fresh agent that checked it blind.
 - **No phase starts until the previous is approved** — above all, coding waits for an approved spec.
 - **A gap found later is a bug earlier** — fix the earlier artifact and re-run the phase.
