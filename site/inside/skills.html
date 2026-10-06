@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Skills · Asimov</title>
+<meta name="description" content="Skills are the method layer of Asimov: one file per procedure, read by Claude Code, by Codex and by you.">
+<link rel="stylesheet" href="../site.css">
+</head>
+<body class="has-subnav">
+<nav class="nav"><div class="in">
+  <a class="brand" href="../index.html">ASIMOV</a>
+  <a href="../index.html">Home</a>
+  <a href="../why.html">Why</a>
+  <a href="../how-it-works.html">How it works</a>
+  <a class="on" href="../inside/index.html">What's inside</a>
+  <span class="sep" aria-hidden="true"></span>
+  <span class="grp">Artifacts:</span>
+  <a href="../artifacts/documentation/index.html">Documentation</a>
+  <a href="../artifacts/project-management/index.html">Project management</a>
+  <a href="../artifacts/general/index.html">General</a>
+  <span class="sep" aria-hidden="true"></span>
+  <a href="../ai-transition.html">AI transition</a>
+  <a class="cta" href="../get-started.html">Get started</a>
+</div></nav>
+<nav class="subnav" aria-label="What's inside"><div class="in">
+  <a href="../inside/index.html">Overview</a>
+  <a href="../inside/commands.html">Commands</a>
+  <a class="on" href="../inside/skills.html">Skills</a>
+  <a href="../inside/personas.html">Personas</a>
+  <a href="../inside/agents.html">Agents</a>
+  <a href="../inside/project-management.html">Project management</a>
+</div></nav>
+
+<main class="page">
+  <h1>Skills</h1>
+  <p class="lede">The method, shared by every tool.</p>
+
+  <p>A skill is one file, <code>SKILL.md</code>, that holds one procedure: how to cut a plan, how to review a design as a given reader, how a .NET builder works. Claude Code and Codex read the same file. So do you, when you do the step by hand. Nothing above a skill carries a method: a command composes skills, an agent is a shell around one.</p>
+
+  <div style="overflow-x:auto">
+  <table>
+    <tr><th>Family</th><th>What it carries</th><th>Today</th><th>Who invokes it</th></tr>
+    <tr><td><code>asimov-*</code></td><td>The conversation of one run: which file, which questions, where it waits, what it prints. No method.</td><td><code>asimov-design</code> · <code>asimov-design-review</code> · <code>asimov-spec</code> · <code>asimov-spec-validate</code></td><td>You, by name, in either tool. <a href="../inside/commands.html">Commands →</a></td></tr>
+    <tr><td><code>artifact-*</code></td><td>How to write one artifact and how to check it: the D101, the S101, the S102, a persona skill.</td><td><code>artifact-d101-authoring</code> · <code>-gap-review</code><br><code>artifact-s101-authoring</code> · <code>-validation</code> · <code>-view</code><br><code>artifact-s102-authoring</code> · <code>-validation</code><br><code>artifact-persona-authoring</code></td><td>An asimov-skill, or you when you edit the file by hand. <a href="../artifacts/documentation/index.html">Documentation →</a></td></tr>
+    <tr><td><code>role-*</code></td><td>How a role works: builder, tester or reviewer, reading your conventions by path.</td><td><code>role-dotnet-builder</code> · <code>role-angular-builder</code> · <code>role-dotnet-tester</code> · <code>role-code-reviewer</code></td><td>An agent, as its body; or a session with no agent at all. <a href="../inside/agents.html">Agents →</a></td></tr>
+    <tr><td><code>persona-*</code></td><td>One reader, and how they read a design: where they stop, what they cut.</td><td><code>persona-poseidon</code> · <code>persona-athena</code> · <code>persona-hermes</code>, plus yours</td><td><code>/asimov-design-review</code>, or "review this as Athena". <a href="../inside/personas.html">Personas →</a></td></tr>
+    <tr><td><code>pm-*</code></td><td>Advice from the delivery model: which approach, which discipline, what the model says.</td><td><code>pm-advisor</code></td><td>A plain question. <a href="../inside/project-management.html">Project management →</a></td></tr>
+    <tr><td><code>codex-*</code></td><td>An entry point only Codex runs.</td><td><code>codex-asimov-init</code></td><td><code>$asimov-plugin:codex-asimov-init</code>. <a href="../get-started.html">Get started →</a></td></tr>
+  </table>
+  </div>
+
+  <ul>
+    <li><strong>One home per method.</strong> A procedure lives in one skill. The command that uses it names it and never restates it, so a hand edit and a run follow the same rules.</li>
+    <li><strong>Two levels, never three.</strong> An asimov-skill calls skills and carries no method. A skill reads artifacts and calls no skill.</li>
+    <li><strong>Same file in both tools.</strong> What you type is <code>/asimov-spec</code> in Claude Code and <code>$asimov-plugin:asimov-spec</code> in Codex; the file underneath is one. Codex ignores the model a skill pins and runs the session's.</li>
+    <li><strong>Reads by path, never a copy.</strong> A skill reads the definition, the template and the contract from the plugin, and your conventions from your repo. There is no copy to drift.</li>
+    <li><strong>Yours live in your repo.</strong> A custom persona is a skill under <code>.claude/skills/persona-&lt;slug&gt;/</code>. The plugin ships the form and the standard readers; the concrete reader stays yours.</li>
+  </ul>
+
+  <p>A skill is an authored file, not a running service. Walk away and you keep the method.</p>
+
+</main>
+
+<footer class="foot"><div class="in">
+  <span>Asimov · by <a href="https://contextand.com">Context&amp;</a></span>
+  <a href="https://github.com/context-and-oss/asimov">GitHub</a>
+  <a href="https://github.com/context-and-oss/asimov/blob/main/CONTRIBUTING.md">Contributing</a>
+  <a href="https://github.com/context-and-oss/asimov/blob/main/LICENSE">MIT licence</a>
+</div></footer>
+</body>
+</html>
