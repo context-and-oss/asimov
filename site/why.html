@@ -29,7 +29,7 @@
 <p class="lede">Code arrives faster than it can be reviewed, and the reasons behind it get lost.</p>
 
 <div class="figure">
-<svg viewBox="0 0 900 300" style="min-width:640px" role="img" aria-label="At L2 decisions live in a chat that fades; at L3 they live in a design document in the repository, signed three times by people and read by the agents that build, test and review.">
+<svg viewBox="0 0 900 300" style="min-width:640px" role="img" aria-label="At L2 decisions live in a chat that fades; at L3 they live in a design document in the repository, signed four times by people and read by the agents that build, test and review.">
   <defs>
     <clipPath id="whyChatClip"><rect x="2" y="38" width="416" height="200" rx="8"/></clipPath>
   </defs>
@@ -88,16 +88,18 @@
     <rect x="616" y="122" width="48" height="4" rx="2"/>
   </g>
 
-  <!-- the three signatures -->
+  <!-- the four signatures -->
   <g fill="var(--green)" fill-opacity="0.18" stroke="var(--green)" stroke-width="1.5">
-    <rect x="693" y="55" width="14" height="14" rx="2" transform="rotate(45 700 62)"/>
-    <rect x="693" y="89" width="14" height="14" rx="2" transform="rotate(45 700 96)"/>
-    <rect x="693" y="123" width="14" height="14" rx="2" transform="rotate(45 700 130)"/>
+    <rect x="693" y="49" width="14" height="14" rx="2" transform="rotate(45 700 56)"/>
+    <rect x="693" y="73" width="14" height="14" rx="2" transform="rotate(45 700 80)"/>
+    <rect x="693" y="97" width="14" height="14" rx="2" transform="rotate(45 700 104)"/>
+    <rect x="693" y="121" width="14" height="14" rx="2" transform="rotate(45 700 128)"/>
   </g>
   <g font-family="JetBrains Mono, ui-monospace, monospace" font-size="11" letter-spacing="0.08em" fill="var(--text-mute)">
-    <text x="718" y="66">SIGNED</text>
-    <text x="718" y="100">GAP-FREE</text>
-    <text x="718" y="134">APPROVED</text>
+    <text x="718" y="60">SIGNED</text>
+    <text x="718" y="84">GAP-FREE</text>
+    <text x="718" y="108">DISPATCH-READY</text>
+    <text x="718" y="132">APPROVED</text>
   </g>
 
   <!-- read by the agents -->
@@ -187,7 +189,7 @@
   <li><strong>No technology before the business signs.</strong> The design command stops after the business design.</li>
   <li><strong>The reviewer is never the author.</strong> The gap-free verdict is a person's, and not the writer's.</li>
   <li><strong>Agents read your rules, they do not carry a copy.</strong> Conventions are read from your repo at run time.</li>
-  <li><strong>No command approves anything.</strong> Approvals stay with people, three times.</li>
+  <li><strong>No command approves anything.</strong> Approvals stay with people, four times: the design twice, the plan, the pull request.</li>
 </ul>
 
 <h2>What you keep</h2>
