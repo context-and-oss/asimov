@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Commands · Asimov</title>
-<meta name="description" content="The slash commands you type in Claude Code, and what each one does.">
+<meta name="description" content="The commands you type in Claude Code or Codex, and what each one does.">
 <link rel="stylesheet" href="../site.css">
 </head>
 <body class="has-subnav">
@@ -33,17 +33,19 @@
 
 <main class="page">
   <h1>Commands</h1>
-  <p class="lede">What you type in Claude Code.</p>
+  <p class="lede">What you type, in Claude Code or Codex.</p>
 
-  <p>Each command reads the repo's definitions and conventions at run time. There is no copy inside the plugin to drift.</p>
+  <p>Each one reads the repo's definitions and conventions at run time. There is no copy inside the plugin to drift. The same name works in both tools: <code>/asimov-spec</code> in Claude Code is <code>$asimov-plugin:asimov-spec</code> in Codex, one file underneath.</p>
 
   <div style="overflow-x:auto">
   <table>
     <tr><th>Command</th><th>Stage</th><th>What it does</th></tr>
-    <tr><td><code>/asimov-init</code></td><td>Setup</td><td>Writes <code>asimov.md</code>, imports it from <code>CLAUDE.md</code>, scaffolds convention read-lists, generates the docs landing page.</td></tr>
+    <tr><td><code>/asimov-init</code></td><td>Setup</td><td>Writes <code>asimov.md</code>, imports it from <code>CLAUDE.md</code>, scaffolds convention read-lists, generates the docs landing page. Claude Code only; in Codex, <code>codex-asimov-init</code> does the same into an <code>AGENTS.md</code> region.</td></tr>
     <tr><td><code>/asimov-design</code></td><td>Design</td><td>Interview → D101 as HTML. Stops after the business design; run again for the technical design. Name a legacy markdown D101 and it renders it to HTML instead.</td></tr>
     <tr><td><code>/asimov-design-review</code></td><td>Design</td><td>Gap check against the bar plus persona reads. Never edits, never approves.</td></tr>
-    <tr><td><code>artifact-persona-authoring</code></td><td>Design</td><td>Shows the persona roster, then interview → a custom persona skill in your repo. A skill, both tools.</td></tr>
+    <tr><td><code>artifact-persona-authoring</code></td><td>Design</td><td>Shows the persona roster, then interview → a custom persona skill in your repo.</td></tr>
+    <tr><td><code>/asimov-spec</code></td><td>Spec</td><td>Reads a full-design D101, or an approved ticket, and the repo. At most five questions, then the cut as a plan view; on your <em>go</em>, one task spec per task, each checked blind, then the plan as a whole.</td></tr>
+    <tr><td><code>/asimov-spec-validate</code></td><td>Spec</td><td>Shows the plan view, runs the blind check on every task spec and the plan checks. Writes nothing but a gitignored sidecar. The author's preview and the reviewer's first read.</td></tr>
   </table>
   </div>
 
