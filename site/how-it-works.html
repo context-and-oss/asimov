@@ -27,7 +27,7 @@
 <main class="page">
   <h1>How it works</h1>
   <p class="lede">From description to pull request, with four human decisions on the way.</p>
-  <div class="figure"><svg viewBox="0 0 1346 384" style="min-width:860px" role="img" aria-label="Swimlane: you describe the feature; Asimov writes the business design and stops; personas review; your approver signs; Asimov writes the technical design; a reviewer who is not the author checks it is gap-free; Asimov cuts the plan and its task specs; a reviewer who is not the author approves the plan as dispatch-ready; agents build, test and review; a human approves the pull request">
+  <div class="figure"><svg viewBox="0 0 1346 384" style="min-width:860px" role="img" aria-label="Swimlane: you describe the feature; Asimov writes the business design and stops; personas review; your approver signs; Asimov writes the technical design; a reviewer who is not the author checks it is gap-free; Asimov cuts the plan and its task specs; you approve the plan at the cut and the agents approve each task spec they check; agents build, test and review; a human approves the pull request">
         <defs>
           <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 Z" fill="var(--text-dim,#a8b8d0)"/></marker>
         </defs>
@@ -96,7 +96,7 @@
         <g font-family="Inter, sans-serif" font-size="11.5" font-weight="600" fill="#fff" text-anchor="middle">
           <text x="604" y="346">Business approver</text>
           <text x="816" y="346">Reviewer, not the author</text>
-          <text x="1028" y="346">Reviewer, not the author</text>
+          <text x="1028" y="346">You, at the cut</text>
           <text x="1240" y="346">Pull request</text>
         </g>
         <!-- final node -->
@@ -119,8 +119,8 @@
     <li><strong>Business approver</strong> signs the what and why. No technology chosen yet.</li>
     <li><strong>Asimov</strong> writes the technical half on a second run.</li>
     <li><strong>A reviewer, not the author</strong>, checks it is gap-free: buildable without asking a question.</li>
-    <li><strong>Asimov</strong> cuts the design into a plan: one task per sitting, the names between tasks fixed once. You say <em>go</em> at the cut; every task spec is then checked blind by a fresh reader.</li>
-    <li><strong>A reviewer, not the author</strong>, approves the plan as dispatch-ready. Coding does not start before it.</li>
+    <li><strong>Asimov</strong> cuts the design into a plan: one task per sitting, the names between tasks fixed once, checked before you see it.</li>
+    <li><strong>You</strong> approve the plan at the cut with one word. Every task spec is then written and checked blind by a fresh agent, whose clean check is its approval; the plan goes ready by itself, and asks you again if it changed after your go. Coding does not start before that.</li>
     <li><strong>Agents</strong> build one task spec each, test and review, reading your conventions by path.</li>
     <li><strong>A person</strong> approves the pull request.</li>
   </ul>

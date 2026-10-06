@@ -40,7 +40,7 @@ Load with the file-read tool. In Claude Code `${CLAUDE_PLUGIN_ROOT}` is the plug
 
 ## Steps
 
-1. **Header.** From the task line, copied verbatim: `task`, `title`, `role`, `tier`, `after`, `traces`; `spec: S102`, `s101`, `status: draft`, author, today's date. Never change a copied field to make the body easier; a mismatch is a plan finding, reported to the caller. Then the three members only this file states:
+1. **Header.** From the task line, copied verbatim: `task`, `title`, `role`, `tier`, `after`, `traces`; `spec: S102`, `s101`, `status: draft`, `validated: none`, author, today's date (a rewrite resets both: the file is unvalidated until its next blind check). Never change a copied field to make the body easier; a mismatch is a plan finding, reported to the caller. Then the three members only this file states:
    - `owns`: the exact repo-relative paths the task creates, modifies and tests, read from the repo and the contracts. A new test file goes under `test` alone. A modified file must exist on disk or be created by a task this one comes after. Keep the set disjoint from every task that may run beside this one (step 6 of *Read first*); where it cannot be, report it (below) rather than widen or overlap.
    - `consumes`: every name from the S101 §1 whose *Consumed by* names this task, spelled exactly as the table spells it. Names only; never the signature.
    - `produces`: every name from the S101 §1 whose *Produced by* names this task, spelled the same way.
@@ -83,7 +83,7 @@ A missing method body is not a gap. The builder writes it.
 - **Open a section with the template's sentence.**
 - **Touch the S101 or another S102.** A mismatch between the task line and what the body needs is reported, never patched on either side.
 - **Validate** your own output or call any other skill.
-- **Set a status other than `draft`**, or change a header field copied from the task line.
+- **Set a status other than `draft` or a date in `validated`**; asimov-spec does, on a clean blind report. Never change a header field copied from the task line.
 - **Bake a product entity into this skill.**
 
 ## Used by

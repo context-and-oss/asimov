@@ -7,7 +7,7 @@ description: Validate one S102 task spec against its bar, buildable blind — a 
 
 The blind check of one task spec. *Buildable blind* is a fresh-context property: the model that wrote the S102 has the conversation in context and fills the gaps from memory, so this skill is meant to be loaded by a reader that has none. Blind means no conversation, not no repo: you read the S102, its S101, the design (the D101, or the design cache), the headers of the neighbouring S102s and the code they link, and nothing else.
 
-The verdict is not yours. You report rows; the loop that called you decides what to do with them, and the reviewer who is not the author decides the bar.
+The verdict is not yours to print. You report rows; the loop that called you decides what to do with them, and a report with no Fail row is what it records as the task spec's approval (`validated`). Your rows are the only check a task spec gets; no person reads them.
 
 ## The call
 
@@ -51,9 +51,9 @@ Run first, in this order, every time, from the file's text and the file system. 
 
 | # | Item | Result rule |
 |---|---|---|
-| S1 | Header fields | Every key of the template header present (`spec`, `s101`, `task`, `title`, `role`, `tier`, `after`, `traces`, `owns` with `create`, `modify`, `test` lists, `consumes`, `produces`, `status`, `author`, `date`); `role` and `tier` each hold one of the values the S101 template's leading comment lists; `status` is `draft`, `ready` or `done`. Missing or extra value → **Fail**. |
+| S1 | Header fields | Every key of the template header present (`spec`, `s101`, `task`, `title`, `role`, `tier`, `after`, `traces`, `owns` with `create`, `modify`, `test` lists, `consumes`, `produces`, `status`, `validated`, `author`, `date`); `role` and `tier` each hold one of the values the S101 template's leading comment lists; `status` is `draft`, `validated` or `done`, and `validated` is `none` or a date (a date with `status: draft` is a leftover and → **Flag**). Missing or extra value → **Fail**. |
 | S2 | Header equals task line | `title`, `role`, `tier`, `after`, `traces` equal the S101 tree's line for `task`, lists as sets. Any difference → **Fail**, naming the field. |
-| S3 | Paths resolve | Every path in `owns.modify` exists on disk, or is in the `owns.create` of an S102 whose task this one comes after (directly or transitively); every path in `owns.test` exists, or is new (a test file may be created under `test` alone); every path in `owns.create` does not exist while `status` is `draft` (on `ready` or `done` the file may already be built, and this part reads **n/a**); no path appears in two of the three lists. Otherwise **Fail**, naming the path. A path in the body that is neither owned nor existing → **Fail**. |
+| S3 | Paths resolve | Every path in `owns.modify` exists on disk, or is in the `owns.create` of an S102 whose task this one comes after (directly or transitively); every path in `owns.test` exists, or is new (a test file may be created under `test` alone); every path in `owns.create` does not exist while `status` is `draft` or `validated` (on `done` the file may already be built, and this part reads **n/a**); no path appears in two of the three lists. Otherwise **Fail**, naming the path. A path in the body that is neither owned nor existing → **Fail**. |
 | S4 | Names in the contracts | Every name in `consumes` is a row of the S101 §1 whose *Consumed by* names this task and whose *Produced by* is a task this one comes after or *existing code* with a path that exists; every name in `produces` is a row whose *Produced by* names this task. Otherwise **Fail**, naming the name. |
 | S5 | Placeholders | None of: `TBD`, `TODO`, `FIXME`, `XXX`, `similar to T0`, `handle edge cases`, `appropriate error handling`, `as needed`, `to be decided`, an empty fenced block, a `{{PLACEHOLDER}}`, or a template description left in prose: an angle-bracket phrase of two or more words outside a code span or fence (a generic such as `Task<Result>` is code and is not one). Any → **Fail**, quoting it. |
 | S6 | Sections | §1–§5 present in the template's order; §2 holds at least one fenced `gherkin` block with at least one `Scenario:`, or one line beginning `none:` that names the check; §3 holds at least one numbered item; no section opens with a sentence of the template's. Otherwise **Fail** (a template sentence → **Flag**). |
@@ -121,7 +121,7 @@ One sentence per reason. No summary line, no verdict, no suggestion of a fix, no
 - **Read the conversation**, a previous report, or a note from the author; if any reaches you, ignore it and say so under `blind`.
 - **Soften a Fail** because the intent is clear to you. The builder will not have your context either.
 - **Fail a task for not carrying the code.** The body is the builder's; a spec that carries it fails S7.
-- **Judge whether the scenarios are the right ones**, or the phase sensible. That is the reviewer's.
+- **Judge whether the scenarios are the right ones**, or the phase sensible. That is the author's, at the cut.
 - **Fail on size.** Row S8 and row 9 warn.
 - **Return anything but the report** and the template findings.
 

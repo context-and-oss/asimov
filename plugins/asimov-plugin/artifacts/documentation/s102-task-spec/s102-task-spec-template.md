@@ -5,7 +5,7 @@
   "buildable blind": s102-task-spec-definition.md §2.
 
   WHO READS THIS FILE
-  - The builder, as its brief; the reviewer, to see what the builder was told;
+  - The builder, as its brief; the author, to see what the builder will be told;
     artifact-s102-authoring writes it, artifact-s102-validation checks it in a
     fresh subagent. The file in the plugin is the source of truth (D100 §7.4).
   - Written to documentation/specs/{{SLUG}}/S102-{{SLUG}}-{{NNN}}-{{TASK-SLUG}}.md,
@@ -29,7 +29,9 @@
     Contracts spells them; the signature lives there.
   - role: dotnet-builder | angular-builder | dotnet-tester | human.
     tier: low | mid | high, as the S101 defines them (no tier means code here).
-    status: draft is the only value a skill writes.
+    status: draft when written; asimov-spec sets validated, with the date in
+    validated, once the blind check clears (definition §6). The authoring
+    skill never sets either.
 
   THE BODY, FIVE SECTIONS
   1 Intent: one or two sentences, the design's words, the reason not the recipe.
@@ -74,6 +76,7 @@ owns:
 consumes: [<ContractName>, <ExistingTypeName>]
 produces: []
 status: draft
+validated: none
 author: "{{AUTHOR}}"
 date: "{{YYYY-MM-DD}}"
 ---

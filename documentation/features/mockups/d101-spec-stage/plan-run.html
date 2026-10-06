@@ -63,20 +63,22 @@ td.w { color:var(--warn); }
 
   // Sample plan for a generic feature; no product entity.
   const SLUG = 'csv-export';
+  const WHO = 'the author';
+  const DATE = '2026-10-06';
   const base = () => ([
     { id:'0', name:'Foundation', ac:'—', cp:'both skeletons compile, no bodies', tasks:[
       ['001','skeleton-dotnet','dotnet-builder','.NET',3,'—','§6.1 §6.2'],
       ['002','skeleton-angular','angular-builder','Angular',2,'—','§6.3'] ]},
     { id:'1', name:'Export a filtered list as CSV', ac:'AC1', cp:'AC1 acceptance test green (API level)', tasks:[
-      ['003','export-service','dotnet-builder','.NET',2,'001','AC1 R1 R2'],
-      ['004','export-acceptance-test','dotnet-tester','.NET',1,'001','AC1'] ]},
+      ['003','export-acceptance-test','dotnet-tester','.NET',1,'001','AC1'],
+      ['004','export-service','dotnet-builder','.NET',2,'003','AC1 R1 R2'] ]},
     { id:'2', name:'Export button downloads the file', ac:'AC2', cp:'AC2 acceptance test green', tasks:[
-      ['005','export-endpoint','dotnet-builder','.NET',2,'003','AC2 R3'],
-      ['006','export-button','angular-builder','Angular',4,'002 005','AC2 R3'],
-      ['007','button-acceptance-test','dotnet-tester','.NET',1,'005','AC2'] ]},
+      ['005','button-acceptance-test','dotnet-tester','.NET',1,'004','AC2'],
+      ['006','export-endpoint','dotnet-builder','.NET',2,'005','AC2 R3'],
+      ['007','export-button','angular-builder','Angular',4,'002 006','AC2 R3'] ]},
     { id:'3', name:'Nightly export', ac:'AC3', cp:'AC3 acceptance test green', tasks:[
-      ['008','nightly-scheduler','dotnet-builder','.NET',2,'003','AC3 R4 R5'],
-      ['009','nightly-acceptance-test','dotnet-tester','.NET',1,'003','AC3'] ]}
+      ['008','nightly-acceptance-test','dotnet-tester','.NET',1,'004','AC3'],
+      ['009','nightly-scheduler','dotnet-builder','.NET',2,'008','AC3 R4 R5'] ]}
   ]);
   let plan = base();
   let notes = [];
@@ -86,44 +88,48 @@ td.w { color:var(--warn); }
   function line(cls, html) { return el('line ' + cls, html); }
   function later(ms, fn) { const t = setTimeout(fn, ms); timers.push(t); return t; }
   function seq(steps) { let t = 0; steps.forEach(([ms, fn]) => { t += ms; later(t, fn); }); return t; }
+  const ntasks = () => plan.reduce((a, p) => a + p.tasks.length, 0);
+  const warnTasks = () => plan.flatMap(p => p.tasks).filter(t => t[4] > 3);
 
-  function cutTable() {
+  // The plan view, as artifact-s101-view prints it (the mockup draws it as a table).
+  function view(status, validated) {
     let h = '<div class="blk">';
+    h += '<div class="mute">Plan for ' + SLUG + ' · CSV export · D101-' + SLUG + '.html v1.2 · ' + plan.length + ' phases, ' + ntasks() + ' tasks' +
+      (validated ? ', ' + validated + ' task specs written, ' + validated + ' validated' : '') + ' · ' + status + '</div>';
     plan.forEach(p => {
-      h += '<div class="hd">Phase ' + p.id + ' · ' + p.name + ' <span class="mute">· ' + p.ac + '</span></div>';
-      h += '<div class="dim">checkpoint: ' + p.cp + '</div>';
-      h += '<table><tr><th>task</th><th>title</th><th>role</th><th>stack</th><th>owns</th><th>depends on</th><th>traces</th></tr>';
-      p.tasks.forEach(t => {
-        const w = t[4] > 3 ? ' class="w"' : '';
-        h += '<tr><td>' + t[0] + '</td><td>' + t[1] + '</td><td>' + t[2] + '</td><td>' + t[3] + '</td><td' + w + '>' + t[4] + ' file' + (t[4] === 1 ? '' : 's') + '</td><td>' + t[5] + '</td><td>' + t[6] + '</td></tr>';
-      });
+      h += '<div class="hd">P' + p.id + ' · ' + p.name + ' <span class="mute">· ' + p.ac + '</span></div>';
+      h += '<div class="dim">✓ ' + p.cp + '</div>';
+      h += '<table><tr><th>task</th><th>role</th><th>tier</th><th>title</th></tr>';
+      p.tasks.forEach(t => { h += '<tr><td>T' + t[0] + '</td><td>' + t[2] + '</td><td>' + (t[0] < '003' ? 'low' : (t[2].endsWith('tester') ? 'mid' : 'mid')) + '</td><td>' + t[1] + '</td></tr>'; });
       h += '</table>';
     });
-    const n = plan.reduce((a, p) => a + p.tasks.length, 0);
-    h += '<div class="hd">Assumptions <span class="mute">· decided without a question</span></div>';
-    h += '<div class="dim">· tier: mid for every builder, low for the skeletons (default)<br>· CSV dialect: RFC 4180, as the design names it<br>· no polish phase: no cross-cutting requirement is left over (default)';
+    h += '<div class="hd">Coverage <span class="mute">· AC1–AC3 delivered · R1–R5 · NF1–NF2 verified by review</span></div>';
+    h += '<div class="hd">Assumptions <span class="mute">· ' + (3 + notes.length) + ', of which ' + notes.length + ' corrected at the cut</span></div>';
+    h += '<div class="dim">· tier: mid for every builder, low for the skeletons (default)<br>· CSV dialect: RFC 4180, as the design names it<br>· no close phase: nothing ends the run beyond the last slice (default)';
     notes.forEach(x => { h += '<br>· your correction: “' + x + '”'; });
-    h += '</div>';
-    const warn = plan.flatMap(p => p.tasks).filter(t => t[4] > 3);
-    h += '<div class="hd">Graph checks <span class="mute">· artifact-s101-validation · graph-only</span></div>';
-    h += '<div class="dim">pass · no cycle<br>pass · no orphan task<br>pass · parallel phases own disjoint files' + (plan.length === 4 ? ' (phase 1 ∥ phase 3)' : '') + '<br>pass · every consumed name has a producer (4/4)<br>pass · coverage both ways: R1–R5, NF1–NF2, AC1–AC3';
-    warn.forEach(t => { h += '<br><span style="color:var(--warn)">warn</span> · ' + t[0] + ' owns ' + t[4] + ' non-test files (threshold 3)'; });
-    h += '</div><div class="mute" style="margin-top:0.4rem">' + plan.length + ' phases · ' + n + ' tasks · S101-' + SLUG + '.md written (draft) · no S102 yet</div></div>';
+    h += '</div></div>';
     return h;
+  }
+
+  function remains() {
+    let h = '<div class="blk dim"><div class="hd">What the checks left</div>';
+    const w = warnTasks();
+    if (!w.length) h += 'nothing: every check passed';
+    w.forEach(t => { h += '<span style="color:var(--warn)">Warn</span> · T' + t[0] + ' ' + t[1] + ' · owns ' + t[4] + ' non-test files, above the threshold of 3; the plan is written as is.'; });
+    return h + '</div>';
   }
 
   function gate() {
     const g = document.createElement('div');
     g.className = 'gate';
-    const n = plan.reduce((a, p) => a + p.tasks.length, 0);
-    g.innerHTML = '<div class="q">Expand this cut into ' + n + ' task specs, or correct it first?</div>' +
+    g.innerHTML = '<div class="q">Say <b>go</b> to approve this plan and have its ' + ntasks() + ' task specs written, or correct it first.</div>' +
       '<div class="row">' +
         '<button class="go">Go</button>' +
         '<input type="text" placeholder="correct the cut in your own words — e.g. “merge phase 2 and 3”">' +
         '<button class="send">Correct</button>' +
         '<button class="stop">Stop</button>' +
       '</div>' +
-      '<div class="hint">You can also edit S101-' + SLUG + '.md by hand and say “read again”. The go is not one of the five questions.</div>';
+      '<div class="hint">The go is your approval of the plan: it is written into S101-' + SLUG + '.md with your name, the date and a fingerprint of the plan. You can also edit the file by hand and say “read again”. The go is not one of the five questions.</div>';
     term.appendChild(g); term.scrollTop = term.scrollHeight;
     const input = g.querySelector('input');
     const done = () => { g.querySelectorAll('button,input').forEach(b => b.disabled = true); g.style.opacity = 0.6; };
@@ -135,20 +141,29 @@ td.w { color:var(--warn); }
     input.focus();
   }
 
-  function showCut(prefix) {
-    seq([
-      [0, () => line('a', prefix || 'The cut:')],
-      [250, () => el('', cutTable())],
-      [250, gate]
-    ]);
+  // Cut in a writer subagent, check in a validator subagent; a Fail is re-cut unseen.
+  function cutAndCheck(heading, withFail) {
+    const steps = [
+      [0, () => line('dim', '  cut    ' + plan.length + ' phases · ' + ntasks() + ' tasks · S101-' + SLUG + '.md written (draft)')]
+    ];
+    if (withFail) {
+      steps.push([500, () => line('dim', '  check  1 fail · re-cutting (1/3)')]);
+      steps.push([600, () => line('dim', '  cut    ' + plan.length + ' phases · ' + ntasks() + ' tasks · S101-' + SLUG + '.md rewritten (draft)')]);
+    }
+    steps.push([500, () => line('dim', '  check  clean · 0 flag · ' + warnTasks().length + ' warn')]);
+    steps.push([300, () => line('a', heading)]);
+    steps.push([250, () => el('', view('draft · not approved'))]);
+    steps.push([200, () => el('', remains())]);
+    steps.push([250, gate]);
+    seq(steps);
   }
 
   function correct(text) {
     const t = text.toLowerCase();
     if (/read again|læs igen/.test(t)) {
       seq([
-        [300, () => line('a', 'Reading S101-' + SLUG + '.md as the graph — no re-cut.')],
-        [300, () => showCut('The cut, as edited:')]
+        [300, () => line('a', 'Checking S101-' + SLUG + '.md as you edited it …')],
+        [300, () => cutAndCheck('The cut, as edited:', false)]
       ]);
       return;
     }
@@ -158,67 +173,92 @@ td.w { color:var(--warn); }
     } else if (/split|del op|separate|two phases/.test(t) && plan.length === 3) {
       plan = base();
     } else {
-      const sched = plan.flatMap(p => p.tasks).find(x => x[0] === '008');
-      if (sched) sched[5] = '003';
+      const sched = plan.flatMap(p => p.tasks).find(x => x[0] === '009');
+      if (sched) sched[5] = '004';
       notes.push(text);
     }
     seq([
-      [300, () => line('a', 're-cutting with your correction …')],
-      [500, () => showCut('The cut, re-cut:')]
+      [300, () => line('a', 'Re-cutting with your correction, then checking it …')],
+      [500, () => cutAndCheck('The cut, re-cut:', false)]
     ]);
   }
 
   function stopAtCut() {
     seq([
-      [300, () => line('a ok', 'Stopped at the cut. S101-' + SLUG + '.md is on disk (draft), no S102 written.')],
-      [200, () => line('dim', '  Run /asimov-spec ' + SLUG + ' again to expand; the cut is shown first.')]
+      [300, () => line('a ok', 'Stopped at the cut. S101-' + SLUG + '.md is on disk (draft, not approved), no S102 written.')],
+      [200, () => line('dim', '  Run /asimov-spec ' + SLUG + ' again to continue; the cut is shown first.')]
     ]);
   }
 
+  function approveGate() {
+    const g = document.createElement('div');
+    g.className = 'gate';
+    g.innerHTML = '<div class="q">Say <b>approve</b> to approve the plan as it now stands and set it ready, or <b>stop</b> to leave it draft.</div>' +
+      '<div class="row"><button class="go">Approve</button><button class="stop">Stop</button></div>';
+    term.appendChild(g); term.scrollTop = term.scrollHeight;
+    const done = () => { g.querySelectorAll('button').forEach(b => b.disabled = true); g.style.opacity = 0.6; };
+    g.querySelector('.go').onclick = () => { done(); line('u', 'approve'); seq([
+      [300, () => line('dim', '  approved  by ' + WHO + ' · ' + DATE + ' · 7c41e09b2d5a · status: ready')],
+      [300, () => line('a ok', 'Ready: ' + ntasks() + ' task specs validated, plan approved by ' + WHO + ' on ' + DATE + '. The Build workflow takes it from here; /asimov-spec-validate ' + SLUG + ' re-checks it after a hand edit.')]
+    ]); };
+    g.querySelector('.stop').onclick = () => { done(); line('u', 'stop'); seq([
+      [300, () => line('a', 'Left at draft with the previous approval superseded. Run /asimov-spec ' + SLUG + ' to review and approve it; the cut is shown first.')]
+    ]); };
+  }
+
+  // After the go: a writer subagent and a validator subagent per task, one line each.
   function expand() {
     const tasks = plan.flatMap(p => p.tasks);
-    const steps = [[300, () => line('a', 'Expanding ' + tasks.length + ' tasks · each S102 validated blind in a fresh subagent …')]];
+    const steps = [
+      [300, () => line('dim', '  approved  by ' + WHO + ' · ' + DATE + ' · 3f9c2a1b7e4d')],
+      [200, () => line('a', 'Writing ' + tasks.length + ' task specs; each is checked blind and marked validated when it clears. Nothing is asked until the end.')]
+    ];
     tasks.forEach(t => {
-      steps.push([260, () => line('dim', '  write  S102-' + SLUG + '-' + t[0] + '-' + t[1] + '.md · ' + t[2])]);
-      if (t[0] === '006') {
-        steps.push([420, () => line('dim', '  blind  ' + t[0] + ' · <span style="color:var(--bad)">fail</span> · check 4: consumed name ExportRequest not produced by a task or linked code')]);
-        steps.push([300, () => line('dim', '  rewrite ' + t[0] + ' · interface taken from S101 §interfaces')]);
-        steps.push([420, () => line('dim', '  blind  ' + t[0] + ' · <span style="color:var(--ok)">clear</span> · <span style="color:var(--warn)">warn</span> owns 4 non-test files')]);
+      steps.push([260, () => line('dim', '  write  T' + t[0] + '  S102-' + SLUG + '-' + t[0] + '-' + t[1] + '.md')]);
+      if (t[0] === '007') {
+        steps.push([420, () => line('dim', '  check  T' + t[0] + '  <span style="color:var(--bad)">failed</span> · rewriting (1/3)')]);
+        steps.push([300, () => line('dim', '  write  T' + t[0] + '  S102-' + SLUG + '-' + t[0] + '-' + t[1] + '.md')]);
+        steps.push([420, () => line('dim', '  check  T' + t[0] + '  <span style="color:var(--ok)">validated</span> · 0 flag · <span style="color:var(--warn)">1 warn</span>')]);
       } else {
-        steps.push([380, () => line('dim', '  blind  ' + t[0] + ' · <span style="color:var(--ok)">clear</span>')]);
+        steps.push([380, () => line('dim', '  check  T' + t[0] + '  <span style="color:var(--ok)">validated</span> · 0 flag · 0 warn')]);
       }
     });
-    steps.push([500, () => line('a', 'Plan validation · artifact-s101-validation · full · blind: false')]);
-    steps.push([400, () => line('dim', '  checks 1–10: 9 pass · 1 warn (size, 006) · 0 fail')]);
-    steps.push([400, () => line('a ok', 'Done. S101-' + SLUG + '.md (draft, v0.1) + ' + tasks.length + ' S102s under documentation/specs/' + SLUG + '/ · sidecar S101-' + SLUG + '.review.md written.')]);
-    steps.push([300, () => el('blk dim', 'Findings<br>· warn · 006 export-button owns 4 non-test files; the plan is written as is<br>· note · 3 assumptions recorded in the S101; read them before you ask for review<br><br>Next: /asimov-spec-validate ' + SLUG + ' to self-preview, then ask a reviewer who is not you. Set status: ready by hand after their approval — no command does.')]);
+    steps.push([500, () => line('dim', '  plan   10 pass · 0 flag · 0 fail · 1 warn')]);
+    steps.push([400, () => line('dim', '  finalise  §1 +1 row · §3 unchanged · §6 +1')]);
+    steps.push([400, () => line('a', 'The plan changed after your go, so it needs your approval again. Sidecar S101-' + SLUG + '.review.md written.')]);
+    steps.push([250, () => el('', view('draft · approved by ' + WHO + ' ' + DATE + ', superseded', tasks.length))]);
+    steps.push([200, () => el('blk dim', '<div class="hd">What changed since your go</div>· finalise: §1 Contracts +1 row, ExportRequest consumed by T007 (its rewrite took the name from the contracts table)<br>· finalise: §6 Assumptions +1, the interface taken from §1 rather than restated')]);
+    steps.push([200, () => el('', remains())]);
+    steps.push([250, approveGate]);
     seq(steps);
   }
 
   function fullRun() {
     seq([
       [0, () => line('u', '/asimov-spec ' + SLUG)],
+      [300, () => line('a', 'Planning D101-' + SLUG + '.html into documentation/specs/' + SLUG + '/: I\'ll read the design and the repo, ask at most five questions, check the cut and show it, and wait for your go, which approves the plan, before any task spec is written.')],
       [400, () => line('a', 'Reading D101-' + SLUG + '.html (Full design v1.2), conventions/dotnet, conventions/angular, documentation/specs/ …')],
       [700, () => line('dim', '  3 acceptance criteria buildable · 2 stacks · no existing S101 · 2 questions about the cut, the rest decided by default')],
       [500, () => line('a', 'Q1 of 2 · AC2 and AC3 both read the export service. One slice or two?  <span class="dim">default: two — different checkpoints</span>')],
       [900, () => line('u', 'two')],
       [400, () => line('a', 'Q2 of 2 · Should phase 3 (nightly) depend on phase 2 (button), or only on the service?  <span class="dim">default: only on the service — they can run in parallel</span>')],
       [900, () => line('u', 'default')],
-      [400, () => line('a', 'Cutting the plan · artifact-s101-authoring …')],
-      [700, () => showCut()]
+      [400, () => line('a', 'Cutting the plan and checking it; you see it once it is clean …')],
+      [600, () => cutAndCheck('The cut:', true)]
     ]);
   }
 
   function ticketRun() {
     seq([
       [0, () => line('u', '/asimov-spec https://jira.example/browse/OPS-412')],
+      [300, () => line('a', 'Planning OPS-412 into documentation/specs/ops-412/: I\'ll read the ticket and the repo, ask at most five questions, check the cut and show it, and wait for your go, which approves the plan, before any task spec is written.')],
       [400, () => line('a', 'Reading OPS-412 and its 5 comments through the Jira connector, then conventions/dotnet, conventions/angular, documentation/specs/ …')],
       [700, () => line('dim', '  Design OPS-412 · approved by the product owner on 2026-10-02 (comment) · R1–R3 · AC1–AC3 · OOS1–OOS2 · no NF · cache documentation/specs/ops-412/design.md written')],
       [500, () => line('dim', '  3 acceptance criteria buildable · 2 stacks · no existing S101 · 1 question about the cut, the rest decided by default')],
       [500, () => line('a', 'Q1 of 1 · AC2 and AC3 both read the export service. One slice or two?  <span class="dim">default: two — different checkpoints</span>')],
       [900, () => line('u', 'default')],
-      [400, () => line('a', 'Cutting the plan · artifact-s101-authoring …')],
-      [700, () => showCut()]
+      [400, () => line('a', 'Cutting the plan and checking it; you see it once it is clean …')],
+      [600, () => cutAndCheck('The cut:', false)]
     ]);
   }
 
@@ -239,21 +279,24 @@ td.w { color:var(--warn); }
     seq([
       [0, () => line('u', '/asimov-spec ' + SLUG)],
       [400, () => line('a', 'Reading D101-' + SLUG + '.html (Full design v1.2) and documentation/specs/' + SLUG + '/ …')],
-      [600, () => line('dim', '  found S101-' + SLUG + '.md (draft, 2026-10-01) with no S102 · D101 R/NF/AC ids unchanged · no questions this time')],
-      [500, () => showCut('The cut, as left on disk:')]
+      [600, () => line('dim', '  found S101-' + SLUG + '.md (draft, not approved, 2026-10-01) with no S102 · D101 R/NF/AC ids unchanged · no questions this time')],
+      [400, () => line('a', 'Checking the cut as left on disk …')],
+      [500, () => cutAndCheck('The cut, as left on disk:', false)]
     ]);
   }
 
   function review() {
     seq([
       [0, () => line('u', '/asimov-spec-validate ' + SLUG)],
-      [400, () => line('a', 'Reading documentation/specs/' + SLUG + '/ · S101 + 9 S102s · D101-' + SLUG + '.html v1.2')],
-      [600, () => line('a', 'S102 validation · 9 fresh subagents · blind: true')],
-      [500, () => el('blk dim', '001 clear · 002 clear · 003 clear · 004 clear · 005 clear<br>006 clear · <span style="color:var(--warn)">warn</span> owns 4 non-test files<br>007 clear · 008 <span style="color:var(--warn)">flag</span> check 7: step 3 names no runnable check · 009 clear')],
-      [500, () => line('a', 'S101 validation · full · blind: false')],
-      [400, () => el('blk dim', 'checks 1–10: 9 pass · 1 <span style="color:var(--bad)">fail</span> (F4 / check 6: 008 constraint “no new package” contradicts global constraint 2)')],
-      [400, () => line('a ok', 'Both reports written to S101-' + SLUG + '.review.md. No spec changed, no status moved; git status is clean apart from the gitignored sidecar.')],
-      [200, () => line('dim', '  Asked nothing. Fix 008 by hand or name asimov-spec again; it updates in place while the design\'s items are unchanged.')]
+      [300, () => line('a', 'Re-checking the plan under documentation/specs/' + SLUG + '/: the plan view, a blind check per task spec, then the plan checks, each in a fresh subagent. Nothing in the folder changes except the review sidecar.')],
+      [400, () => line('a', 'Re-checking: documentation/specs/' + SLUG + '/S101-' + SLUG + '.md · ready v0.2 · approved by ' + WHO + ' ' + DATE + ' · 9 S102s · D101-' + SLUG + '.html v1.2')],
+      [400, () => line('a', 'The plan, re-checked:')],
+      [250, () => el('', view('ready · plan approved by ' + WHO + ' ' + DATE, 9))],
+      [500, () => el('blk dim', '  check  T001 clears · T002 clears · T003 clears · T004 clears · T005 clears · T006 clears<br>  check  T007 clears · <span style="color:var(--warn)">1 warn</span><br>  check  T009 <span style="color:var(--bad)">fails</span> · 1 flag · <span style="color:var(--bad)">no longer clears</span><br>  check  T008 clears')],
+      [500, () => line('dim', '  plan   9 pass · 0 flag · 1 fail · 1 warn')],
+      [400, () => el('blk dim', '<div class="hd">What the checks found</div><span style="color:var(--bad)">Fail</span> · T009 nightly-scheduler · its §4 line “no new package” contradicts S101 §2 constraint 2, which names the scheduler package the design imposes.<br><span style="color:var(--bad)">Fail</span> · T009 · done-when 3 names no runnable check.<br><span style="color:var(--warn)">Warn</span> · T007 export-button · owns 4 non-test files, above the threshold of 3.')],
+      [400, () => line('a', 'Changed since ' + WHO + ' approved it on ' + DATE + '; the approval no longer holds. Run /asimov-spec ' + SLUG + ' to review and approve it again.')],
+      [300, () => line('a ok', 'Findings above, in words; the full reports are in S101-' + SLUG + '.review.md. To fix: /asimov-spec ' + SLUG + ' (it keeps the task specs that clear and shows the cut first), or edit by hand and run this again.')]
     ]);
   }
 

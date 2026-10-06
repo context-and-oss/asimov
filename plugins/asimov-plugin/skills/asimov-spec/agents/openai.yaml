@@ -3,7 +3,7 @@
 # Codex skills take no arguments: the author names the D101 slug in the same message.
 interface:
   display_name: "Asimov · Spec"
-  short_description: "Plan a D101 into an S101 and its S102s"
+  short_description: "Plan a D101 or a ticket into an S101 and its S102s; your go approves the plan"
   default_prompt: "Use $asimov-plugin:asimov-spec to plan the D101 <slug> into documentation/specs/<slug>/."
 
 policy:

@@ -10,8 +10,8 @@
   - Agents. artifact-s101-authoring writes it, artifact-s101-validation checks
     it, the orchestrator reads it as its control document. A person sees the
     plan through the view asimov-spec prints at the cut and at the end, and
-    asimov-spec-validate prints for the reviewer; nobody is meant to review
-    the raw file. Keep it exact, keep it short.
+    asimov-spec-validate prints on a re-check; nobody is meant to read the
+    raw file. Keep it exact, keep it short.
   - Written to documentation/specs/{{SLUG}}/S101-{{SLUG}}.md in the product
     repo. {{SLUG}} is the D101's slug or the ticket key in kebab-case.
   - The first write is the CUT: this file alone, no S102 beside it. The author
@@ -47,7 +47,11 @@
     slice owns its own skeleton file.
   - execution_mode: one-at-a-time | subagent-per-task | agent-team. A default
     the run may override; the graph must hold for the most parallel mode.
-  - status: draft is the only value a skill writes (definition §6).
+  - status: draft until asimov-spec sets ready, when the approval holds and
+    every S102 is validated (definition §6). Never set by hand.
+  - approved: none until the author's go at the cut; then
+    { by, date, fingerprint }, written by asimov-spec and by no other skill.
+    The fingerprint rule is in definition §6; a changed plan is approved again.
 
   THE BODY
   - Only what the graph cannot carry: the plan members of the contract.
@@ -70,6 +74,7 @@ title: "{{TITLE}}"
 design: { ref: documentation/features/D101-{{SLUG}}.html, version: "{{D101-VERSION}}" }
 # design: { ref: "{{DESIGN-URL}}", read: "{{READ}}", cache: documentation/specs/{{SLUG}}/design.md }
 status: draft
+approved: none
 version: 0.1
 author: "{{AUTHOR}}"
 date: "{{YYYY-MM-DD}}"

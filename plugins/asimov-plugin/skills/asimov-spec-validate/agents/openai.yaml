@@ -3,9 +3,9 @@
 # Codex skills take no arguments: the author names the slug in the same message.
 interface:
   display_name: "Asimov · Spec validate"
-  short_description: "Validate a spec plan; writes only its sidecar"
+  short_description: "Re-check a spec plan after a hand edit; writes only its sidecar"
   default_prompt: "Use $asimov-plugin:asimov-spec-validate on the plan <slug> under documentation/specs/<slug>/."
 
 policy:
-  # Only a person starts a validation run; the model never selects this skill (NF5).
+  # Only a person starts a re-check; the model never selects this skill (NF5).
   allow_implicit_invocation: false
