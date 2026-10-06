@@ -36,7 +36,7 @@
   <p class="lede">Commands, artifacts, personas, agents, and the model an engagement runs on. Click any box to read about it.</p>
 
   <div class="figure">
-<svg class="insidemap" viewBox="0 0 1200 400" style="min-width:900px" role="img" aria-label="Map of what is inside the plugin. Project management frames everything: the engagement around the work, Proposal, Scoping, Development, Operations. Inside the frame, from left to right: you describe a feature; a command writes artifacts into your repository, a D101 design, convention read-lists and asimov.md; personas read the design as the people who sign and report where they stopped; agents read your conventions and return code, tests and findings. Every box opens its page.">
+<svg class="insidemap" viewBox="0 0 1200 400" style="min-width:900px" role="img" aria-label="Map of what is inside the plugin. Project management frames everything: the engagement around the work, Proposal, Scoping, Development, Operations. Inside the frame, from left to right: you describe a feature; a command writes artifacts into your repository, a D101 design, an S101 plan with its S102 task specs, convention read-lists and asimov.md; personas read the design as the people who sign and report where they stopped; agents read your conventions and return code, tests and findings. Every box opens its page.">
   <style>
     .insidemap { font-family: 'Inter', system-ui, sans-serif; }
     .insidemap text { font-size: 13px; fill: var(--text, #fff); }
@@ -104,14 +104,15 @@
 
   <!-- ─── commands ─── -->
   <a class="writes" href="../inside/commands.html">
-    <title>Open Commands — what you type in Claude Code</title>
+    <title>Open Commands — what you type, in either tool</title>
     <rect x="204" y="140" width="230" height="184" rx="10"/>
     <text class="head mono" x="220" y="166">COMMANDS<tspan class="go" dx="8">→</tspan></text>
-    <text class="sub" x="220" y="186">what you type in Claude Code</text>
-    <text class="mono" x="220" y="220" style="font-size:12px">/asimov-design</text>
-    <text class="mono" x="220" y="244" style="font-size:12px">/asimov-design-review</text>
-    <text class="mono" x="220" y="268" style="font-size:12px">/asimov-init</text>
-    <text class="sub" x="220" y="296">interview first, then write</text>
+    <text class="sub" x="220" y="186">what you type, in either tool</text>
+    <text class="mono" x="220" y="212" style="font-size:12px">/asimov-design</text>
+    <text class="mono" x="220" y="234" style="font-size:12px">/asimov-design-review</text>
+    <text class="mono" x="220" y="256" style="font-size:12px">/asimov-spec</text>
+    <text class="mono" x="220" y="278" style="font-size:12px">/asimov-spec-validate</text>
+    <text class="mono" x="220" y="300" style="font-size:12px">/asimov-init</text>
   </a>
 
   <!-- ─── your repository, with the artifacts inside ─── -->
@@ -121,26 +122,33 @@
     <text class="head mono" x="500" y="118">YOUR REPOSITORY</text>
   </g>
   <text class="lbl mono" x="504" y="152">ARTIFACTS</text>
+  <a class="writes" href="../artifacts/documentation/d101.html">
+    <title>Open D101 — the feature design</title>
+    <rect x="504" y="160" width="240" height="44" rx="8"/>
+    <text x="520" y="178" style="font-weight:700">D101 design</text>
+    <text class="sub" x="520" y="195">one per feature, two bars</text>
+    <text class="go" x="730" y="195" text-anchor="end">→</text>
+  </a>
   <a class="writes" href="../artifacts/documentation/index.html">
-    <title>Open Documentation — the documents a feature passes through</title>
-    <rect x="504" y="162" width="240" height="52" rx="8"/>
-    <text x="520" y="184" style="font-weight:700">D101 design</text>
-    <text class="sub" x="520" y="203">one per feature, two bars</text>
-    <text class="go" x="730" y="203" text-anchor="end">→</text>
+    <title>Open Documentation — the plan and its task specs</title>
+    <rect x="504" y="210" width="240" height="44" rx="8"/>
+    <text x="520" y="228" style="font-weight:700">S101 plan, S102 task specs</text>
+    <text class="sub" x="520" y="245">one plan per design, one spec per task</text>
+    <text class="go" x="730" y="245" text-anchor="end">→</text>
   </a>
   <a class="writes" href="../artifacts/general/conventions.html">
     <title>Open Conventions read-list</title>
-    <rect x="504" y="224" width="240" height="52" rx="8"/>
-    <text x="520" y="246" style="font-weight:700">conventions/</text>
-    <text class="sub" x="520" y="265">what the agents read</text>
-    <text class="go" x="730" y="265" text-anchor="end">→</text>
+    <rect x="504" y="260" width="240" height="44" rx="8"/>
+    <text x="520" y="278" style="font-weight:700">conventions/</text>
+    <text class="sub" x="520" y="295">what the agents read</text>
+    <text class="go" x="730" y="295" text-anchor="end">→</text>
   </a>
   <a class="writes" href="../artifacts/general/asimov-md.html">
     <title>Open asimov.md — the one file Asimov owns</title>
-    <rect x="504" y="286" width="240" height="52" rx="8"/>
-    <text x="520" y="308" style="font-weight:700">asimov.md</text>
-    <text class="sub" x="520" y="327">the one file Asimov owns</text>
-    <text class="go" x="730" y="327" text-anchor="end">→</text>
+    <rect x="504" y="310" width="240" height="44" rx="8"/>
+    <text x="520" y="328" style="font-weight:700">asimov.md</text>
+    <text class="sub" x="520" y="345">the one file Asimov owns</text>
+    <text class="go" x="730" y="345" text-anchor="end">→</text>
   </a>
 
   <!-- ─── personas ─── -->
@@ -193,7 +201,7 @@
   <p>Asimov-skills and agents on top: the conversation and the identity, nothing else. Skills in the middle: every method, one family per column. At the bottom, what each skill works on: role skills on your code, artifact skills on your documents, both in your repository; the advisor on the delivery model. Personas have nothing of their own; they read the artifacts the artifact skills write. The same skill works whichever tool runs it, and when you do the step by hand.</p>
 
   <div class="figure">
-<svg class="insidemap layers" viewBox="0 0 1200 520" style="min-width:900px" role="img" aria-label="Layer diagram, three bands. Top band, what you use: agents (Giskard, Daneel, Calvin, Baley), the asimov-skills you type (/asimov-design, /asimov-design-review, /asimov-init), and plain questions to a persona or the delivery model. Middle band, skills: role skills for the agents, artifact skills for writing and reviewing a D101, the standard persona skills, the pm-advisor. Bottom band, what each skill works on: your code under the role skills and your artifacts under the artifact skills, both inside your repository; the delivery model under the advisor; the personas read your artifacts too. Every box opens its page.">
+<svg class="insidemap layers" viewBox="0 0 1200 520" style="min-width:900px" role="img" aria-label="Layer diagram, three bands. Top band, what you use: agents (Giskard, Daneel, Calvin, Baley), the asimov-skills you type (/asimov-design, /asimov-design-review, /asimov-spec, /asimov-spec-validate, /asimov-init), and plain questions to a persona or the delivery model. Middle band, skills: role skills for the agents, artifact skills for writing and checking a D101, an S101 and an S102, the standard persona skills, the pm-advisor. Bottom band, what each skill works on: your code under the role skills and your artifacts under the artifact skills, both inside your repository; the delivery model under the advisor; the personas read your artifacts too. Every box opens its page.">
   <style>
     .layers .skill rect { fill: var(--violet, #ab47bc); fill-opacity: 0.14; stroke: var(--violet, #ab47bc); stroke-width: 1.5; }
     .layers .skill .go, .layers .skill .head { fill: var(--violet, #ab47bc); }
@@ -240,19 +248,20 @@
     <title>Open Commands — the asimov-skills you type</title>
     <rect x="316" y="44" width="270" height="100" rx="10"/>
     <text class="head mono" x="332" y="68">ASIMOV-*<tspan class="go" dx="8">→</tspan></text>
-    <text class="mono" x="332" y="88" style="font-size:12px">/asimov-design</text>
-    <text class="mono" x="332" y="104" style="font-size:12px">/asimov-design-review</text>
+    <text class="mono" x="332" y="88" style="font-size:12px">/asimov-design · -design-review</text>
+    <text class="mono" x="332" y="104" style="font-size:12px">/asimov-spec · -spec-validate</text>
     <text class="mono" x="332" y="120" style="font-size:12px">/asimov-init</text>
     <text class="sub" x="332" y="138">they compose skills, never carry one</text>
   </a>
-  <a class="skill" href="../artifacts/documentation/d101.html">
-    <title>Open D101 — the artifact the skills author and review</title>
+  <a class="skill" href="../artifacts/documentation/index.html">
+    <title>Open Documentation — the artifacts the skills write and check</title>
     <rect x="316" y="196" width="270" height="128" rx="10"/>
     <text class="head mono" x="332" y="222">ARTIFACT-*</text>
-    <text class="sub" x="332" y="242">how to write one and how to review one</text>
-    <text class="mono" x="332" y="264" style="font-size:12px">artifact-d101-authoring</text>
-    <text class="mono" x="332" y="282" style="font-size:12px">artifact-d101-gap-review</text>
-    <text class="sub" x="332" y="310">also when you edit the file by hand</text>
+    <text class="sub" x="332" y="242">how to write each one and how to check it</text>
+    <text class="mono" x="332" y="262" style="font-size:11px">artifact-d101-authoring · gap-review</text>
+    <text class="mono" x="332" y="278" style="font-size:11px">artifact-s101-authoring · validation</text>
+    <text class="mono" x="332" y="294" style="font-size:11px">artifact-s102-authoring · validation</text>
+    <text class="mono" x="332" y="310" style="font-size:11px">artifact-s101-view</text>
   </a>
 
   <!-- ─── column 3: you ask → persona-* ─── -->
@@ -356,7 +365,7 @@
   <p>Design, specification, build. Each phase is one asimov-skill that writes and one that checks, standing on its own skills and its own piece of your repository. One D101 becomes one S101 and its S102s, and those become code.</p>
 
   <div class="figure">
-<svg class="insidemap phases" viewBox="0 0 1200 876" style="min-width:900px" role="img" aria-label="Phase diagram, three columns and four bands. Top band, what you type: asimov-design and asimov-design-review; asimov-spec and asimov-spec-validate; asimov-build and asimov-build-verify. Second band, who runs it: you in your own session for design; you plus a fresh blind subagent per S102 for specification; the named agents Giskard, Daneel, Calvin and Baley for build. Third band, skills: the artifact and persona skills for design, the four S101 and S102 skills for specification, the role skills for build. Bottom band, your repository: the D101 under documentation/features, the S101 and S102s under documentation/specs, and your code and tests under src and test. A chain under it reads: one D101 becomes one S101 and N S102s becomes code, tests and findings. Around the phases: asimov-init and pm-advisor.">
+<svg class="insidemap phases" viewBox="0 0 1200 876" style="min-width:900px" role="img" aria-label="Phase diagram, three columns and four bands. Top band, what you type: asimov-design and asimov-design-review; asimov-spec and asimov-spec-validate; asimov-build and asimov-build-verify. Second band, who runs it: you in your own session for design; you plus a fresh blind subagent per S102 for specification; the named agents Giskard, Daneel, Calvin and Baley for build. Third band, skills: the artifact and persona skills for design, the five S101 and S102 skills for specification, the role skills for build. Bottom band, your repository: the D101 under documentation/features, the S101 and S102s under documentation/specs, and your code and tests under src and test. A chain under it reads: one D101 becomes one S101 and N S102s becomes code, tests and findings. Around the phases: asimov-init and pm-advisor.">
   <style>
     .phases .skill rect { fill: var(--violet, #ab47bc); fill-opacity: 0.14; stroke: var(--violet, #ab47bc); stroke-width: 1.5; }
     .phases .skill .go, .phases .skill .head { fill: var(--violet, #ab47bc); }
@@ -388,7 +397,7 @@
     <rect x="420" y="44" width="360" height="120" rx="10"/>
     <text class="head mono" x="436" y="70">SPECIFICATION<tspan class="go" dx="8">→</tspan></text>
     <text class="mono" x="436" y="94" style="font-size:12px">asimov-spec</text>
-    <text class="mono" x="436" y="112" style="font-size:12px">asimov-spec-validate <tspan class="planned">PLANNED</tspan></text>
+    <text class="mono" x="436" y="112" style="font-size:12px">asimov-spec-validate</text>
     <text class="sub" x="436" y="138">five questions, the cut, your go, then the loop</text>
     <text class="sub" x="436" y="154">that writes and validates every task</text>
   </a>
@@ -451,9 +460,9 @@
     <text class="mono" x="436" y="422" style="font-size:12px">artifact-s102-authoring</text>
     <text class="mono" x="436" y="440" style="font-size:12px">artifact-s101-validation</text>
     <text class="mono" x="436" y="458" style="font-size:12px">artifact-s102-validation</text>
-    <text class="sub" x="436" y="492">the two that write and the two that check;</text>
-    <text class="sub" x="436" y="508">a task is validated blind right after it is written</text>
-    <text class="planned mono" x="436" y="526">ALL FOUR PLANNED</text>
+    <text class="mono" x="436" y="476" style="font-size:12px">artifact-s101-view</text>
+    <text class="sub" x="436" y="508">two write, two check, one shows the plan in chat;</text>
+    <text class="sub" x="436" y="524">a task is validated blind right after it is written</text>
   </a>
   <a class="skill" href="../inside/agents.html">
     <title>Open Agents — the role skills</title>
