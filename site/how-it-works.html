@@ -80,7 +80,7 @@
           <text x="924" y="188">Cut the plan</text><text x="924" y="204">and its task specs</text>
 
           <rect x="1076" y="164" width="120" height="56" rx="8" fill="var(--bg2,#122039)" stroke="var(--amber,#ffb74d)" stroke-width="1.5"/>
-          <text x="1136" y="188">Agents build,</text><text x="1136" y="204">test, review</text>
+          <text x="1136" y="188">Agents build,</text><text x="1136" y="204">review, verify</text>
         </g>
         <!-- the stop: a small marker on the edge out of the business design -->
         <rect x="420" y="184" width="16" height="16" rx="3" fill="var(--bg,#0a1424)" stroke="var(--cyan,#4fc3f7)" stroke-width="2"/>
@@ -121,7 +121,7 @@
     <li><strong>A reviewer, not the author</strong>, checks it is gap-free: buildable without asking a question.</li>
     <li><strong>Asimov</strong> cuts the design into a plan: one task per sitting, the names between tasks fixed once, checked before you see it.</li>
     <li><strong>You</strong> approve the plan at the cut with one word. Every task spec is then written and checked blind by a fresh agent, whose clean check is its approval; the plan goes ready by itself, and asks you again if it changed after your go. Coding does not start before that.</li>
-    <li><strong>Agents</strong> build one task spec each, test and review, reading your conventions by path.</li>
+    <li><strong>Agents</strong> build one task spec each inside <code>/asimov-build</code>, reading your conventions by path; per phase Baley reviews the diff against the task specs and Powell runs every done-when, and your go commits it with the ledger.</li>
     <li><strong>A person</strong> approves the pull request.</li>
   </ul>
   <p>Where a decision says no, the flow goes back one box. People decide four times, and no command can move any of their decisions.</p>

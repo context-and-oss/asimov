@@ -22,7 +22,7 @@ Every command and subagent in Asimov has a design document (a D101) before it ha
 
 1. Read [`CLAUDE.md`](CLAUDE.md): the conventions, the "How to add" recipes and the hard rules. They are enforcement rules, not style preferences.
 2. Read [`documentation/D100-Asimov-architecture.md`](documentation/D100-Asimov-architecture.md) for where your change sits.
-3. For a new command or subagent, author the D101 with `asimov-design` and clear the business-complete bar (§8a) before writing the technical design. The definition is [`d101-feature-design-definition.md`](plugins/asimov-plugin/artifacts/documentationasimov-designasimov-design-definition.md).
+3. For a new command or subagent, author the D101 with `asimov-design` and clear the business-complete bar (§8a) before writing the technical design. The definition is [`d101-feature-design-definition.md`](plugins/asimov-plugin/artifacts/documentation/d101-feature-design/d101-feature-design-definition.md).
 4. Author the change. Keep the D100 rows, the `model-choice.md` row and the frontmatter in sync in the same commit (hard rules 2, 6 and 10).
 5. Test it locally in a product repo (below).
 6. Open a pull request against `main`.

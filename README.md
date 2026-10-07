@@ -50,7 +50,7 @@ codex plugin add asimov-plugin@asimov-marketplace
 ## Status
 
 - Releases: [releases page](../../releases). Major-only versions (`1.0.0`, `2.0.0`, …), any release may change a bar or a template. The marketplace follows the `latest` tag.
-- Built: the Design stage (`asimov-design` and `asimov-design-review`, user-invoked skills for both harnesses), the four subagents (each a `role-*` skill plus a thin shell per harness), the two D101 artifact skills, persona reviews, the `pm-advisor` skill (delivery-model advice), the Spec stage: `asimov-spec` (a user-invoked skill, one file for Claude Code and Codex) over the S101/S102 definitions, templates and four `artifact-s10x-*` skills, planning from a Full-design D101 or from an approved Jira ticket. Untried outside this repo as of 2026-10-02.
+- Built: the Design stage (`asimov-design` and `asimov-design-review`, user-invoked skills for both harnesses), the five subagents (each a `role-*` skill plus a thin shell per harness), the two D101 artifact skills, persona reviews, the `pm-advisor` skill (delivery-model advice), the Spec stage: `asimov-spec` (a user-invoked skill, one file for Claude Code and Codex) over the S101/S102 definitions, templates and four `artifact-s10x-*` skills, planning from a Full-design D101 or from an approved Jira ticket. Untried outside this repo as of 2026-10-02.
 - Planned: `/conventions-check`. See [D100 §9](documentation/D100-Asimov-architecture.md#9-not-yet-built).
 - Every artifact carries a maturity level (`assess` / `trial` / `adopt` / `hold`). The producing skill or command tells you if it's not at `adopt`.
 - Requires Claude Code with plugin support and access to the models the skills and commands pin. Map in [model-choice.md](documentation/model-choice.md). Codex with plugin support runs the setup skill (`codex-asimov-init`) and the Design- and Spec-stage skills (`$asimov-plugin:asimov-design`, `$asimov-plugin:asimov-design-review`, `$asimov-plugin:asimov-spec`, `$asimov-plugin:asimov-build`); none of them binds a model in Codex, which runs the session's.
@@ -136,8 +136,8 @@ documentation/                            repo docs (not inside install scope)
 
 - [Website](https://asimov-plugin.netlify.app) – what Asimov is, for someone who has never used it
 - [D100 – Architecture](documentation/D100-Asimov-architecture.md) – why, components, distribution, patterns
-- [D101 definition](plugins/asimov-plugin/artifacts/documentationasimov-designasimov-design-definition.md) – the two bars, phase vs status
-- [D101 template](plugins/asimov-plugin/artifacts/documentationasimov-designasimov-design-template.html) – structure + ground rules in the leading comment
+- [D101 definition](plugins/asimov-plugin/artifacts/documentation/d101-feature-design/d101-feature-design-definition.md) – the two bars, phase vs status
+- [D101 template](plugins/asimov-plugin/artifacts/documentation/d101-feature-design/d101-feature-design-template.html) – structure + ground rules in the leading comment
 - [Diagram templates](plugins/asimov-plugin/resources/diagrams/README.md) – the four notations and when to use which
 - [Levels & Zones](documentation/ai-transition-levels-and-zones.md) – what L3, "L3 on Zone 2" and the pipeline stages mean
 - [CLAUDE.md](CLAUDE.md) – working *on* the toolkit: conventions, how to add things, hard rules

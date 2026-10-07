@@ -236,7 +236,13 @@ a.cmd-tile:hover { transform: translateY(-2px); border-color: var(--border-2); }
       <div class="cmd-mark">/</div>
       <div class="cmd-name">/asimov-spec</div>
       <div class="cmd-stage">Spec</div>
-      <div class="cmd-desc">Plans a Full-design D101, or an approved Jira ticket, into an S101 and its S102s; shows the cut and waits for your go before any task spec is written.</div>
+      <div class="cmd-desc">Plans a Full-design D101, or an approved Jira ticket, into an S101 and its S102s; shows the cut and waits for your go before any task spec is written. Named again on a ready plan, it re-checks it.</div>
+    </a>
+    <a class="cmd-tile spec" href="features/D101-build-stage.html">
+      <div class="cmd-mark">/</div>
+      <div class="cmd-name">/asimov-build</div>
+      <div class="cmd-stage">Build</div>
+      <div class="cmd-desc">Builds a ready plan phase by phase with the agents; Baley then Powell check each phase, your go commits it with the ledger. Never a pull request.</div>
     </a>
     <div class="cmd-tile planned">
       <div class="cmd-mark">/</div>
