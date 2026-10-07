@@ -8,7 +8,7 @@ since: 2026-09-25
 
 The written standard an S102 (task spec) must meet before a build subagent is dispatched on it. An S102 is one task: the brief a fresh builder receives, sized to be built in one sitting without asking a human, validated blind by a reader that never saw the conversation, and verifiable afterwards against the code it produced. It is the **task** part of a specification as `contracts/specification.md` defines it; the S101 (`s101-implementation-plan-definition.md`) is the **plan** part that orders the tasks.
 
-Read by the build subagents as their whole brief, by the Build workflow's verification as the checks to run, by the person who wants to know what the agent was told, and at run-time by the asimov-skills `asimov-spec` and `asimov-spec-validate` through the artifact skills `artifact-s102-authoring` and `artifact-s102-validation`.
+Read by the build subagents as their whole brief, by Powell, the verifier, as the checks to run, by the person who wants to know what the agent was told, and at run-time by the asimov-skills `asimov-spec` and `asimov-spec (re-check)` through the artifact skills `artifact-s102-authoring` and `artifact-s102-validation`.
 
 Design: `documentation/features/D101-spec-stage.html`. Research: `documentation/research/S101-S102-spec-stage-research.md`, `documentation/research/specification-contract-research.md`.
 

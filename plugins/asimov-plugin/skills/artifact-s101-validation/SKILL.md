@@ -1,6 +1,6 @@
 ---
 name: artifact-s101-validation
-description: Validate an S101 implementation plan against its bar, dispatch-ready, in one of two modes — graph-only on the S101 alone (frontmatter parses as the phase tree, no cycle, tester before builder in every slice, every slice task after the Foundation, contracts table consistent, coverage both ways against the design), used at the cut before any S102 exists; or full with every S102 in the folder (the graph checks again, then disjoint owned sets and interface closure from the S102 headers, no contradicted constraint, every S102 header equal to its task line) — then the ten checks of the S101 definition §8, one row each, Pass / Flag / Fail / Warn / not yet with one sentence. Use when asked to "validate this plan", "run the graph checks on the cut", "is this S101 dispatch-ready", or inside asimov-spec (steps 03 and 07) and asimov-spec-validate. Runs read-only in a fresh subagent; it edits nothing, proposes no fix, moves no status.
+description: Validate an S101 implementation plan against its bar, dispatch-ready, in one of two modes — graph-only on the S101 alone (frontmatter parses as the phase tree, no cycle, tester before builder in every slice, every slice task after the Foundation, contracts table consistent, coverage both ways against the design), used at the cut before any S102 exists; or full with every S102 in the folder (the graph checks again, then disjoint owned sets and interface closure from the S102 headers, no contradicted constraint, every S102 header equal to its task line) — then the ten checks of the S101 definition §8, one row each, Pass / Flag / Fail / Warn / not yet with one sentence. Use when asked to "validate this plan", "run the graph checks on the cut", "is this S101 dispatch-ready", or inside asimov-spec (steps 03 and 07, and the re-check of a ready plan). Runs read-only in a fresh subagent; it edits nothing, proposes no fix, moves no status.
 ---
 
 # S101 validation
@@ -11,7 +11,7 @@ The check of the plan: does it clear its bar, and does it agree with itself and 
 
 | Mode | When | Reads |
 |---|---|---|
-| **graph-only** | At the cut: the S101 exists and no S102 does. Also what a cut gets from asimov-spec-validate. | The S101 and the design. |
+| **graph-only** | At the cut: the S101 exists and no S102 does. Also what a cut gets on a re-check. | The S101 and the design. |
 | **full** | Every task in the tree has its S102 on disk. | The S101, every S102 in the folder, the design. |
 
 The design is what the S101 header's `design` line names: a repo file at `design.ref` (a D101), or the normalised cache at `design.cache` (`documentation/specs/<slug>/design.md`, in the shape the S101 definition §9 fixes). Read `${CLAUDE_PLUGIN_ROOT}/contracts/design.md` first; you check the design through its members.
@@ -44,7 +44,7 @@ Run first, in this order, every time, from the frontmatter alone plus the design
 
 | # | Item | Result rule |
 |---|---|---|
-| G1 | Frontmatter | Parses as YAML; every template key present (`spec`, `slug`, `title`, `design` with `ref` and `version` for a repo file or `read` + `cache` for a normalised design, `status`, `approved` (`none`, or `by`, `date` and `fingerprint`), `version`, `author`, `date`, `execution_mode`, `phases[]`); every phase carries `id`, `name`, `checkpoint`, `tasks[]`, and every slice carries `traces` (absent or empty on `P0` and on a close phase); every task carries `id`, `title`, `role`, `tier`, `after`, `traces`; `role` and `tier` hold one of the values the template's leading comment lists; task ids are `T001..` in order of appearance with no gap. A task carrying `owns`, `produces`, `consumes`, `file` or `phase` → **Flag** (the field belongs to the S102 header). Otherwise **Fail**. |
+| G1 | Frontmatter | Parses as YAML; every template key present (`spec`, `slug`, `title`, `design` with `ref` and `version` for a repo file or `read` + `cache` for a normalised design, `status`, `approved` (`none`, or `by`, `date` and `fingerprint`), `version`, `author`, `date`, `phases[]`); every phase carries `id`, `name`, `checkpoint`, `tasks[]`, and every slice carries `traces` (absent or empty on `P0` and on a close phase); every task carries `id`, `title`, `role`, `tier`, `after`, `traces`; `role` and `tier` hold one of the values the template's leading comment lists; task ids are `T001..` in order of appearance with no gap. A task carrying `owns`, `produces`, `consumes`, `file` or `phase` → **Flag** (the field belongs to the S102 header). Otherwise **Fail**. |
 | G2 | No cycle | Follow `after` from every task; a task that reaches itself → **Fail**, naming the cycle. Every `after` id exists → else **Fail**. |
 | G3 | Phases | `P0` is first and named `Foundation`; every phase holds at least one task; every phase after `P0` whose `traces` is non-empty (a slice) holds one tester task and at least one builder task, every builder task in it comes after the tester task (directly or transitively), and every task in it comes after a `P0` task; a phase after the last slice with empty `traces` (the close) holds at least one task that comes after a slice task. A builder beside or ahead of its tester, a slice with no tester, a slice task with no path from `P0` → **Fail**, naming it; a slice whose tester is a builder task that a §6 Assumptions row names as the slice's tester (no tester role for its stack) → **Flag**. |
 | G4 | Parallel = disjoint | Full mode: for every pair of tasks where neither comes after the other, directly or transitively, the unions of their S102 `owns` lists intersect → **Fail**, naming the pair and the file. Graph-only: **not yet**, with the pairs that may run together listed in the sentence so the author can see them. |
@@ -110,7 +110,7 @@ One sentence per reason, naming the task, pair, file or id it is about, so the c
 
 ## Never
 
-- **Edit** or **propose a fix**. The caller routes a finding to the affected tasks (asimov-spec, R13) or prints it (asimov-spec-validate).
+- **Edit** or **propose a fix**. The caller routes a finding to the affected tasks (asimov-spec, R13) or prints it (the re-check).
 - **Judge whether the phases are sensible**, the cut too fine or too coarse, or the review focus the right five. That is the author's, at the cut.
 - **Run inside the caller's conversation** when a subagent is available; the caller spawns you fresh and you read every file from disk. Your checks are not blind, but your output is not for the person.
 - **Mark a row Pass in graph-only mode when it needs the S102s.** *not yet* is the honest value.
@@ -121,5 +121,5 @@ One sentence per reason, naming the task, pair, file or id it is about, so the c
 ## Used by
 
 - asimov-spec, step 03 (graph-only, before the cut is shown; a Fail is re-cut unseen) and step 07 (full, once every task is validated), each in a fresh validator subagent.
-- asimov-spec-validate, in the mode the folder allows, after the per-S102 blind calls.
-- By hand, on an S101 someone edited, before running asimov-spec-validate.
+- asimov-spec in mode recheck, after the per-S102 blind calls.
+- By hand, on an S101 someone edited, before running asimov-spec again.

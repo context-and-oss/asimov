@@ -136,8 +136,8 @@ codex plugin add asimov-plugin@asimov-marketplace</pre>
     <tr><td>Design the how</td><td><code>/asimov-design</code> again</td><td>The technical design in the same file. Phase moves to full design.</td><td>—</td></tr>
     <tr><td>Check it is gap-free</td><td>—</td><td>A gap-free verdict. Status can move to approved now that the estimate holds.</td><td>A reviewer who is not the author; the business approver for status</td></tr>
     <tr><td>Plan</td><td><code>/asimov-spec &lt;feature&gt;</code></td><td>At most five questions, then the cut as a plan view, checked before you see it. Say <em>go</em> to approve it, and one task spec per task lands in <code>documentation/specs/&lt;feature&gt;/</code></td><td>You, at the cut</td></tr>
-    <tr><td>Check it is dispatch-ready</td><td>—</td><td>Each task spec is checked blind by a fresh agent and marked validated; the plan goes ready by itself when your go still matches it, or asks you again. <code>/asimov-spec-validate &lt;feature&gt;</code> re-checks after a hand edit.</td><td>The agents, per task spec</td></tr>
-    <tr><td>Build</td><td>Ask for an agent by name, one task spec at a time: "Use the giskard-the-dotnet-developer subagent on S102-&lt;feature&gt;-003-&lt;task&gt;.md"</td><td>Code and tests in your conventions; Baley's findings in the pull request</td><td>—</td></tr>
+    <tr><td>Check it is dispatch-ready</td><td>—</td><td>Each task spec is checked blind by a fresh agent and marked validated; the plan goes ready by itself when your go still matches it, or asks you again. Name the plan again after a hand edit and it re-checks it.</td><td>The agents, per task spec</td></tr>
+    <tr><td>Build</td><td><code>/asimov-build &lt;feature&gt;</code></td><td>Each task to its agent with its task spec, on a feature branch. Once a phase is built, Baley reviews it against the task specs and Powell runs every done-when; your <em>go</em> commits the phase with the ledger. No pull request opened.</td><td>You, after each phase</td></tr>
     <tr><td>Ship</td><td>—</td><td>A merged pull request</td><td>A person approves it</td></tr>
   </table>
   </div>

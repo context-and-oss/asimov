@@ -1,6 +1,6 @@
 ---
 name: artifact-s102-validation
-description: Validate one S102 task spec against its bar, buildable blind — a fixed shape checklist first (header fields against the task line in the S101 tree, owned paths exact and existing or created upstream, consumed and produced names in the S101 contracts, no placeholder, no code block but Gherkin, no done-when that greps the source, counts against the size thresholds), then the ten checks of the S102 definition §8, one row each, Pass / Flag / Fail / Warn with one sentence — and return the report only. Meant to run in a fresh subagent that has no conversation history. Use when asked to "validate this S102", "does task T003 clear buildable blind", "check this task spec", when invoked as the blind call inside asimov-spec and asimov-spec-validate, or on a hand-edited S102. Read-only; it edits nothing, proposes no fix, decides nothing.
+description: Validate one S102 task spec against its bar, buildable blind — a fixed shape checklist first (header fields against the task line in the S101 tree, owned paths exact and existing or created upstream, consumed and produced names in the S101 contracts, no placeholder, no code block but Gherkin, no done-when that greps the source, counts against the size thresholds), then the ten checks of the S102 definition §8, one row each, Pass / Flag / Fail / Warn with one sentence — and return the report only. Meant to run in a fresh subagent that has no conversation history. Use when asked to "validate this S102", "does task T003 clear buildable blind", "check this task spec", when invoked as the blind call inside asimov-spec (after every write, and on every task spec in a re-check), or on a hand-edited S102. Read-only; it edits nothing, proposes no fix, decides nothing.
 ---
 
 # S102 validation
@@ -127,6 +127,6 @@ One sentence per reason. No summary line, no verdict, no suggestion of a fix, no
 
 ## Used by
 
-- asimov-spec, step 06, in a fresh read-only subagent, after every S102 write; asimov-spec-validate, the same call per S102 in the folder.
+- asimov-spec, step 06, in a fresh read-only subagent, after every S102 write; asimov-spec in mode recheck, the same call per S102 in the folder.
 - A hand-edited S102, by skill name, before it goes to review.
 - Inline, in a session that cannot spawn a subagent: the same method, `blind: false`, to be re-run blind before review.

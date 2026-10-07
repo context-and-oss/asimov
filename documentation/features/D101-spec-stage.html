@@ -238,7 +238,7 @@ footer.site-footer a { color: var(--cyan); }
   <a href="../index.html#s6">Diagrams</a>
   <span class="spacer"></span>
   <span class="phase-chip full">Full design</span>
-  <span class="status-chip">Draft v0.17</span>
+  <span class="status-chip">Draft v0.18</span>
 </nav>
 
 <div class="layout-doc">
@@ -263,7 +263,7 @@ footer.site-footer a { color: var(--cyan); }
         <ul>
           <li><a href="#s6-1">§6.1 The pieces</a></li>
           <li><a href="#s6-2">§6.2 asimov-spec</a></li>
-          <li><a href="#s6-3">§6.3 asimov-spec-validate</a></li>
+          <li><a href="#s6-3">§6.3 The re-check</a></li>
           <li><a href="#s6-4">§6.4 artifact-s101-authoring</a></li>
           <li><a href="#s6-5">§6.5 artifact-s102-authoring</a></li>
           <li><a href="#s6-6">§6.6 artifact-s102-validation</a></li>
@@ -291,12 +291,12 @@ footer.site-footer a { color: var(--cyan); }
   <div class="meta-cell"><div class="label">Business approver</div><div class="value">Allan Borup</div></div>
   <div class="meta-cell"><div class="label">L3 stage</div><div class="value mono">Spec</div></div>
   <div class="meta-cell"><div class="label">Writes to</div><div class="value mono">documentation/specs/&lt;slug&gt;/</div></div>
-  <div class="meta-cell"><div class="label">Last updated</div><div class="value mono">2026-10-06</div></div>
-  <div class="meta-cell"><div class="label">Status</div><div class="value">Draft v0.17</div></div>
+  <div class="meta-cell"><div class="label">Last updated</div><div class="value mono">2026-10-07</div></div>
+  <div class="meta-cell"><div class="label">Status</div><div class="value">Draft v0.18</div></div>
 </div>
 
 <div class="doc-scope">
-  <strong>Scope:</strong> the Spec workflow: the asimov-skills <code>asimov-spec</code> and <code>asimov-spec-validate</code>, four artifact skills and the S101/S102 templates, one file each for Claude Code and Codex, from any design that meets <code>contracts/design.md</code>: a D101 at <em>Full design</em>, or a Jira ticket. The Build workflow (dispatch, ledger, verification, Baley against the spec) is out. §2–§5 are the business agreement (§5 is the chat of one run, the feature's only surface), §6 the technical design; §7 is N/A.
+  <strong>Scope:</strong> the Spec workflow: the asimov-skill <code>asimov-spec</code> (with the re-check of a ready plan as a path of it, since 2026-10-07), four artifact skills and the S101/S102 templates, one file each for Claude Code and Codex, from any design that meets <code>contracts/design.md</code>: a D101 at <em>Full design</em>, or a Jira ticket. The Build workflow (dispatch, ledger, verification, Baley against the spec) is out. §2–§5 are the business agreement (§5 is the chat of one run, the feature's only surface), §6 the technical design; §7 is N/A.
 </div>
 
 <!-- ═════════ §2 ═════════ -->
@@ -335,7 +335,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="req"><div class="id">R11</div><div class="body">An S102 that fails validation three times, or whose finding names a gap in the design rather than in the S102, stops the run; <code>asimov-spec</code> reports instead of rewriting.</div></div>
     <div class="req"><div class="id">R12</div><div class="body">Once every S102 exists, the plan is validated as a whole against the <em>dispatch-ready</em> bar.</div></div>
     <div class="req"><div class="id">R13</div><div class="body">A plan-level finding sends the affected S102s back into their own loop.</div></div>
-    <div class="req"><div class="id">R14</div><div class="body"><code>asimov-spec-validate</code> runs both validations on an existing plan and reports without changing any spec file.</div></div>
+    <div class="req"><div class="id">R14</div><div class="body"><code>asimov-spec</code> named on a <code>ready</code> plan re-checks it: intact, it offers the blind re-check; edited by hand, it re-validates every task spec and the plan and asks for the approval again.</div></div>
     <div class="req"><div class="id">R15</div><div class="body">A plan is approved by a person, a task spec by an agent. <code>asimov-spec</code> records the author's go at the cut as the S101's approval (who, date, a fingerprint of the plan's content), marks an S102 <code>validated</code> when its blind check clears, and sets <code>ready</code> only when the approval still matches the S101 and every S102 is validated. No skill approves a plan on its own; no person is asked to approve a task spec; no status is set by hand.</div></div>
     <div class="req"><div class="id">R16</div><div class="body">Run against a design that already has an S101 and whose requirements and acceptance criteria are unchanged in content, <code>asimov-spec</code> updates the plan in place and leaves every S102 that already clears its bar untouched.</div></div>
     <div class="req"><div class="id">R17</div><div class="body">Run against a design whose requirements or acceptance criteria have changed in content since the S101 was written, <code>asimov-spec</code> rewrites the plan: the S101 and every S102 are written anew and S102 files no longer in the graph are deleted. Git carries the previous plan.</div></div>
@@ -434,7 +434,7 @@ footer.site-footer a { color: var(--cyan); }
   <h2 class="section-title"><span class="sec-ref">§4.3</span>The Spec workflow</h2>
   <p class="section-desc">One design goes in on the left, a D101 or a ticket; one S101 and N S102s come out on the right. The asimov-skills carry the conversation, the artifact skills carry the method, and the same four serve both.</p>
   <div class="flow-wrap">
-    <svg viewBox="0 0 1200 500" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Overview map. Left: your repository with the D101 at Full design. Middle: the Asimov plugin: the two artifact contracts (S101 and S102 definition plus template) the skills read at run-time, two asimov-skills (asimov-spec writes, asimov-spec-validate reads), four skills underneath (two authoring skills write, two validation skills read; every call runs in a fresh subagent). Right: your repository's specs folder with the S101 and N S102s: the phase-0 skeleton, one builder task per slice and stack, one tester acceptance-test task per slice.">
+    <svg viewBox="0 0 1200 500" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Overview map. Left: your repository with the D101 at Full design. Middle: the Asimov plugin: the two artifact contracts (S101 and S102 definition plus template) the skills read at run-time, one asimov-skill (asimov-spec writes, and re-checks), four skills underneath (two authoring skills write, two validation skills read; every call runs in a fresh subagent). Right: your repository's specs folder with the S101 and N S102s: the phase-0 skeleton, one builder task per slice and stack, one tester acceptance-test task per slice.">
       <style>
         .sm text { font-family: 'Inter', system-ui, sans-serif; font-size: 13px; fill: #fff; }
         .sm .mono { font-family: 'JetBrains Mono', ui-monospace, Consolas, monospace; }
@@ -508,7 +508,7 @@ footer.site-footer a { color: var(--cyan); }
         </g>
         <g class="reads">
           <rect x="620" y="166" width="280" height="64" rx="8"/>
-          <text class="head mono" x="636" y="190">asimov-spec-validate</text>
+          <text class="head mono" x="636" y="190">asimov-spec · re-check</text>
           <text class="sub" x="636" y="210">validates · writes nothing</text>
         </g>
 
@@ -602,7 +602,7 @@ footer.site-footer a { color: var(--cyan); }
     <li><strong>asimov-spec</strong> reads the design and the repo, asks at most 5 questions with defaults, cuts the plan and shows it, waits for the author's go, then uses the authoring skills to write and the validation skills to check, task by task and then the whole (R19–R25).</li>
     <li><strong>The author</strong> sees the cut before any task spec exists, after the checks have had their rounds (R29), corrects it in chat or in the file, and approves it with the go (R24, R15). A plan changed after the go is approved again (R28).</li>
     <li><strong>Out:</strong> one S101 and N S102s in <code>documentation/specs/&lt;slug&gt;/</code>: phase 0 skeleton per stack, then per slice one builder task per stack and one tester acceptance-test task (R1, R3–R7).</li>
-    <li><strong>asimov-spec-validate</strong> runs the same validation skills on an existing plan, writes no spec and moves no status (R14, R15): the re-check after a hand edit or a fresh checkout, which also says whether the approval still holds (R28).</li>
+    <li><strong>The re-check</strong> is <code>asimov-spec</code> named on a <code>ready</code> plan (R14): the same validation skills on every task spec and the plan, after a hand edit or a fresh checkout; a broken approval ends in the question to approve again (R28). It was a skill of its own, <code>asimov-spec-validate</code>, until 2026-10-07.</li>
   </ul>
 
   <div class="subhead" style="margin-top:2rem">The authoring loop</div>
@@ -870,7 +870,7 @@ footer.site-footer a { color: var(--cyan); }
     <li><strong>Resumed at the cut.</strong> An S101 without S102s is found: the id comparison is reported, no questions are asked, the cut is shown and the gate waits (R25).</li>
     <li><strong>Stopped by a failed task.</strong> A third failure or a design gap: the run ends with the task named and the finding quoted; the next run resumes at the gate with the cleared S102s skipped (R11, R16).</li>
     <li><strong>Approve again.</strong> The finalise changed the S101: the plan view, what changed in up to five lines, and the question; <em>approve</em> → the new approval is written and the plan is <code>ready</code> (R28).</li>
-    <li><strong>Re-check.</strong> <code>asimov-spec-validate</code> prints the plan view, the findings as one line each, whether the approval still matches the S101, and the sidecar path; it asks nothing and changes no spec (R14, R28).</li>
+    <li><strong>Re-check.</strong> <code>asimov-spec</code> on a <code>ready</code> plan: intact, one line and the offer of a blind re-check; edited by hand, every task spec checked again, failing ones rewritten, then the plan view, what changed and the question to approve again (R14, R28).</li>
   </ul>
 </section>
 
@@ -1086,7 +1086,7 @@ footer.site-footer a { color: var(--cyan); }
   </div>
   <ul class="bullets">
     <li>The author's go is the only thing between the two figures. In a hand run without the asimov-skill the skill boundary is the gate: run the authoring skill, read the summary it returns, call the S102 skill when ready.</li>
-    <li><code>asimov-spec-validate</code> is the second figure without the writes, plus the graph-only checks on a cut (§6.3).</li>
+    <li>The re-check is the second figure entered at the blind checks, with a rewrite only for a task spec that fails (§6.3).</li>
     <li>A ticket that needs one task gets a one-task S101 by the same run; there is no S102 without a plan (§4.7).</li>
   </ul>
 
@@ -1103,8 +1103,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="row cols-3"><div class="label-cell">artifact-s101-validation</div><div>Skill</div><div>The S101 checks as a fixed checklist, in two modes: graph-only on the S101 alone, full with every S102.</div></div>
     <div class="row cols-3"><div class="label-cell">artifact-s102-validation</div><div>Skill</div><div>The S102 checks for one file; loaded by the blind subagent.</div></div>
     <div class="row cols-3"><div class="label-cell">asimov-spec</div><div>Asimov-skill</div><div>The conversation, the gate and the loop; finishes once. Invoked only by name (NF5).</div></div>
-    <div class="row cols-3"><div class="label-cell">asimov-spec-validate</div><div>Asimov-skill</div><div>Both validations on an existing plan; reports; writes no spec. Invoked only by name (NF5).</div></div>
-  </div>
+      </div>
   <div class="subhead" style="margin-top:2rem">Two harnesses, one file</div>
   <ul class="bullets">
     <li><strong>Invocation.</strong> <code>/asimov-spec &lt;slug&gt;</code> in Claude Code; <code>$asimov-plugin:asimov-spec</code> with the slug in the same message in Codex, whose skills take no arguments and carry the plugin prefix (D101-codex-support Rule 3). Step 01 resolves the target from the words either way; with no target it lists the candidates and finishes, so the gate stays the run's one wait.</li>
@@ -1293,14 +1292,13 @@ footer.site-footer a { color: var(--cyan); }
 </section>
 
 <section class="s" id="s6-3">
-  <h2 class="section-title"><span class="sec-ref">§6.3</span><code>asimov-spec-validate</code></h2>
-  <p class="section-desc">The same two validations on an existing plan; no conversation, no writes to the plan. The re-check after a hand edit or a fresh checkout.</p>
+  <h2 class="section-title"><span class="sec-ref">§6.3</span>The re-check</h2>
+  <p class="section-desc">A path of <code>asimov-spec</code>, mode <code>recheck</code>: the same two validations on a plan that is already <code>ready</code>, after a hand edit or a fresh checkout. Folded in from <code>asimov-spec-validate</code> on 2026-10-07, so each stage has one entry point.</p>
   <ul class="bullets">
-    <li><strong>Target.</strong> A slug or an S101 path, from the words after <code>/asimov-spec-validate</code> in Claude Code or beside <code>$asimov-plugin:asimov-spec-validate</code> in Codex; refused with the reason when no S101 is there, and with no target the plans are listed and the run finishes.</li>
-    <li><strong>Runs</strong> <code>artifact-s102-validation</code> per S102 through the same blind call (§6.6), then <code>artifact-s101-validation</code> (§6.7), each in a fresh subagent (R30).</li>
-    <li><strong>Prints</strong> the plan view, then the findings as one line each in words, then whether the approval still matches the S101 (R28); the reports go only to <code>S101-&lt;slug&gt;.review.md</code> (§6.8). No spec changes, no status moves (R14, R15).</li>
-    <li><strong>Asks nothing.</strong> No menu, no questions; both bars apply to a draft as to a ready plan.</li>
-    <li><strong>On a cut</strong> (an S101 with no S102) it runs only the graph-only mode of <code>artifact-s101-validation</code> (§6.7) and says so in the report.</li>
+    <li><strong>Entered</strong> when the named plan is <code>ready</code>: with the approval intact, after one question (re-check or stop); with the fingerprint broken, at once, since the approval no longer holds (R28).</li>
+    <li><strong>Runs</strong> <code>artifact-s102-validation</code> on every S102 in the folder through the same blind call (§6.6), rewrites a task spec that fails as an update run would, then <code>artifact-s101-validation</code> (§6.7), each in a fresh subagent (R30); a missing design cache is rebuilt first.</li>
+    <li><strong>Ends</strong> as every run does (§6.2 step 08): the plan view, what changed, the findings as one line each, the reports in <code>S101-&lt;slug&gt;.review.md</code> (§6.8); an unchanged plan whose task specs clear returns to <code>ready</code>, a changed one asks for the approval again.</li>
+    <li><strong>Asks</strong> only the one question on an intact plan; never the five.</li>
     <li><strong>Without a subagent</strong>, in a session that cannot spawn one, the S102 validation runs inline and the report carries <code>blind: false</code> (Q3).</li>
   </ul>
 </section>
@@ -1468,7 +1466,7 @@ footer.site-footer a { color: var(--cyan); }
       <div class="label-cell">Used by</div>
       <div><span class="tag note">Q3</span></div>
       <div><ul>
-        <li><code>asimov-spec</code>, step 06, and <code>asimov-spec-validate</code>: in a fresh subagent, the harness's generic one, read-only by tool restriction where it has one, by prompt otherwise.</li>
+        <li><code>asimov-spec</code>, step 06 and the re-check: in a fresh subagent, the harness's generic one, read-only by tool restriction where it has one, by prompt otherwise.</li>
         <li>A hand-edited S102, by skill name.</li>
         <li>Without a subagent: inline, and the report carries <code>blind: false</code>.</li>
       </ul></div>
@@ -1520,7 +1518,7 @@ footer.site-footer a { color: var(--cyan); }
       <div class="label-cell">Used by</div>
       <div></div>
       <div><ul>
-        <li><code>asimov-spec</code>, step 03 (graph-only, before the cut is shown; a Fail is re-cut unseen, R29) and step 07 (full); <code>asimov-spec-validate</code>, in the mode the folder allows.</li>
+        <li><code>asimov-spec</code>, step 03 (graph-only, before the cut is shown; a Fail is re-cut unseen, R29) and step 07 (full), the re-check included.</li>
       </ul></div>
     </div>
   </div>
@@ -1690,7 +1688,7 @@ footer.site-footer a { color: var(--cyan); }
       <div><ul>
         <li><code>documentation/specs/&lt;slug&gt;/design.md</code>, gitignored; present only when the design is not a file in the repo.</li>
         <li>The shape the S101 definition §9 fixes, carrying the members of <code>contracts/design.md</code>: the reference and read time, the approval (who, when, where), then each member's items quoted and numbered (R, AC, OOS; interfaces and non-functional requirements where present), and the source verbatim.</li>
-        <li>Written by <code>asimov-spec</code> at the start of a run, from the fetch or the pasted text; rebuilt by <code>asimov-spec-validate</code> when missing; read by the authoring and validation skills as the design; overwritten by the next run. Never edited by hand: a correction goes into the source and the next run reads it.</li>
+        <li>Written by <code>asimov-spec</code> at the start of a run, from the fetch or the pasted text; rebuilt by the re-check when missing; read by the authoring and validation skills as the design; overwritten by the next run. Never edited by hand: a correction goes into the source and the next run reads it.</li>
       </ul></div>
     </div>
   </div>
@@ -1716,7 +1714,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="ac-row"><div class="ac-id">AC4</div><div class="ac-verifies"><span class="verify-chip">R8</span></div><div>Every S102 header names exactly one builder role.</div></div>
     <div class="ac-row"><div class="ac-id">AC5</div><div class="ac-verifies"><span class="verify-chip">R9</span><span class="verify-chip">R10</span></div><div>The run transcript shows one fresh writer subagent per S102 write and one fresh validator per check, the validator given only the S102, the S101, the design and the repo, and no S102 remains with a failed check (manual step).</div></div>
     <div class="ac-row"><div class="ac-id">AC6</div><div class="ac-verifies"><span class="verify-chip">R12</span><span class="verify-chip">R13</span></div><div>The plan report lists S101 checks 1–10 with a result; a seeded interface gap (a consumed name with no producer) is reported and the affected S102 rewritten.</div></div>
-    <div class="ac-row"><div class="ac-id">AC7</div><div class="ac-verifies"><span class="verify-chip">R14</span><span class="verify-chip">R15</span></div><div><code>asimov-spec-validate</code> on an existing plan prints the plan view, the findings as lines and whether the approval holds, no report row, and <code>git status</code> shows no spec change afterwards.</div></div>
+    <div class="ac-row"><div class="ac-id">AC7</div><div class="ac-verifies"><span class="verify-chip">R14</span><span class="verify-chip">R15</span></div><div><code>asimov-spec</code> on a <code>ready</code> plan edited by hand prints the plan view, the findings as lines and the question to approve again, no report row; on an intact plan declined, <code>git status</code> shows no spec change afterwards.</div></div>
     <div class="ac-row"><div class="ac-id">AC8</div><div class="ac-verifies"><span class="verify-chip">R16</span><span class="verify-chip">R17</span></div><div>A re-run with requirements and criteria unchanged in content updates the same S101 file with a bumped version and leaves every cleared S102 byte-identical; a re-run after a criterion changed in content rewrites the S101 and every S102, and no S102 file outside the new graph remains.</div></div>
     <div class="ac-row"><div class="ac-id">AC9</div><div class="ac-verifies"><span class="verify-chip">R18</span></div><div>An S102 with four owned non-test files produces a warning in the report; the plan is still written.</div></div>
     <div class="ac-row"><div class="ac-id">AC10</div><div class="ac-verifies"><span class="verify-chip">R19</span><span class="verify-chip">R20</span><span class="verify-chip">R21</span><span class="verify-chip">R22</span></div><div>The transcript shows the D101 and repo read before the first question, at most 5 questions, each with a recommended default, none about model tier or file paths, the go at the cut not counted among them, and every self-decided item as an assumption in the S101.</div></div>
@@ -1829,7 +1827,7 @@ footer.site-footer a { color: var(--cyan); }
       <ul>
         <li>plugins/asimov-plugin/artifacts/documentation/s101-implementation-plan/s101-implementation-plan-definition.md</li>
         <li>plugins/asimov-plugin/artifacts/documentation/s102-task-spec/s102-task-spec-definition.md</li>
-        <li>plugins/asimov-plugin/artifacts/documentationasimov-designasimov-design-definition.md</li>
+        <li>plugins/asimov-plugin/artifacts/documentation/d101-feature-design/d101-feature-design-definition.md</li>
       </ul>
     </div>
     <div class="refs-block">
@@ -1878,7 +1876,7 @@ footer.site-footer a { color: var(--cyan); }
     · <span class="mono">features/D101-spec-stage.html</span>
   </div>
   <div style="margin-top: 0.4rem">
-    D101 · Spec stage · Asimov plugin · Draft v0.17 · 2026-10-06
+    D101 · Spec stage · Asimov plugin · Draft v0.18 · 2026-10-07
   </div>
 </footer>
 

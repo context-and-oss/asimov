@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mockup — one run of /asimov-build</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap');
+:root { --bg:#1b1b1f; --bg2:#232329; --line:#34343c; --fg:#e6e6e6; --dim:#9a9aa6; --mute:#6c6c78; --user:#d7ba7d; --ok:#8fd18f; --warn:#f0b35a; --bad:#f28b82; --acc:#7cc4ff; }
+* { box-sizing:border-box; margin:0; padding:0; }
+html, body { height:100%; }
+body { background:var(--bg); color:var(--fg); font-family:'JetBrains Mono', ui-monospace, Consolas, monospace; font-size:12.5px; line-height:1.55; display:flex; flex-direction:column; }
+.bar { display:flex; gap:0.4rem; align-items:center; padding:0.5rem 0.8rem; background:var(--bg2); border-bottom:1px solid var(--line); flex-wrap:wrap; }
+.bar .lbl { color:var(--mute); font-size:11px; margin-right:0.3rem; }
+.bar button { font:inherit; font-size:11px; color:var(--dim); background:transparent; border:1px solid var(--line); border-radius:6px; padding:0.25rem 0.6rem; cursor:pointer; }
+.bar button.on { color:var(--fg); border-color:var(--acc); background:#7cc4ff14; }
+.bar .spacer { flex:1; }
+.term { flex:1; overflow:auto; padding:0.9rem 1rem 1.2rem; }
+.line { white-space:pre-wrap; word-break:break-word; margin:0 0 0.15rem; }
+.u { color:var(--user); }
+.u::before { content:'❯ '; color:var(--mute); }
+.a::before { content:'● '; color:var(--acc); }
+.a.ok::before { color:var(--ok); }
+.a.warn::before { color:var(--warn); }
+.a.bad::before { color:var(--bad); }
+.dim { color:var(--dim); }
+.mute { color:var(--mute); }
+.ok { color:var(--ok); } .bad { color:var(--bad); } .warn { color:var(--warn); }
+.gate { margin:0.6rem 0 0.4rem 1.2rem; padding:0.6rem 0.8rem; border:1px solid var(--line); border-radius:8px; background:var(--bg2); }
+.gate .q { color:var(--fg); margin-bottom:0.45rem; }
+.gate .row { display:flex; gap:0.45rem; flex-wrap:wrap; align-items:center; }
+.gate button { font:inherit; font-size:12px; color:var(--fg); background:#2d2d35; border:1px solid var(--line); border-radius:6px; padding:0.3rem 0.7rem; cursor:pointer; }
+.gate button.go { border-color:var(--ok); color:var(--ok); }
+.gate button.stop { border-color:var(--bad); color:var(--bad); }
+.gate .hint { color:var(--mute); font-size:11px; margin-top:0.4rem; }
+</style>
+</head>
+<body>
+<div class="bar">
+  <span class="lbl">Scenario</span>
+  <button data-s="full" class="on">Full run</button>
+  <button data-s="stopped">Stopped by a task</button>
+  <button data-s="resumed">Resumed</button>
+  <button data-s="refused">Refused</button>
+  <span class="spacer"></span>
+  <button id="replay">Replay</button>
+</div>
+<div class="term" id="term"></div>
+
+<script>
+(function () {
+  const term = document.getElementById('term');
+  let scenario = 'full';
+  let timers = [];
+
+  // The same sample plan as the Spec-stage mockup; no product entity.
+  const SLUG = 'csv-export';
+  const WHO = 'the author';
+  const PLAN = [
+    { id:'0', name:'Foundation', cp:'both skeletons compile, no bodies', tasks:[
+      ['001','skeleton-dotnet','giskard','haiku'], ['002','skeleton-angular','daneel','haiku'] ] },
+    { id:'1', name:'Export a filtered list as CSV', cp:'AC1 acceptance test green', tasks:[
+      ['003','export-acceptance-test','calvin','sonnet'], ['004','export-service','giskard','sonnet'] ] },
+    { id:'2', name:'Export button downloads the file', cp:'AC2 acceptance test green', tasks:[
+      ['005','button-acceptance-test','calvin','sonnet'], ['006','export-endpoint','giskard','sonnet'], ['007','export-button','daneel','opus'] ] },
+    { id:'3', name:'Nightly export', cp:'AC3 acceptance test green', tasks:[
+      ['008','nightly-acceptance-test','calvin','sonnet'], ['009','nightly-scheduler','giskard','sonnet'] ] }
+  ];
+  const NT = PLAN.reduce((a, p) => a + p.tasks.length, 0);
+
+  function clear() { timers.forEach(clearTimeout); timers = []; term.innerHTML = ''; }
+  function el(cls, html) { const d = document.createElement('div'); d.className = cls; d.innerHTML = html; term.appendChild(d); term.scrollTop = term.scrollHeight; return d; }
+  function line(cls, html) { return el('line ' + cls, html); }
+  function seq(steps) { let t = 0; steps.forEach(([ms, fn]) => { t += ms; timers.push(setTimeout(fn, t)); }); }
+
+  const intro = () => [
+    [0, () => line('u', '/asimov-build ' + SLUG)],
+    [300, () => line('a', 'Building documentation/specs/' + SLUG + '/S101-' + SLUG + '.md: ready, approved by ' + WHO + ' on 2026-10-06, ' + PLAN.length + ' phases, ' + NT + ' tasks. Each task goes to its agent with its task spec; once a phase is built, Baley reviews its diff and Powell runs its done-whens and checkpoint. I stop after every phase; nothing is committed before your go.')]
+  ];
+
+  // One phase: build lines per task, then one verify and one review for the phase, then the gate.
+  function phase(p, opts, next) {
+    opts = opts || {};
+    const steps = [[300, () => line('a', 'P' + p.id + ' · ' + p.name + ' · ' + p.tasks.length + ' tasks')]];
+    const tag = t => 'T' + t[0] + ' ' + t[1];
+    p.tasks.forEach(t => {
+      if (opts.done && opts.done.includes(t[0])) { steps.push([200, () => line('dim', '  done    ' + tag(t) + ' <span class="mute">· built, from the ledger</span>')]); return; }
+      steps.push([300, () => line('dim', '  build   ' + tag(t) + ' <span class="mute">· ' + t[2] + ' · ' + t[3] + '</span>')]);
+    });
+    const reviewPass = () => line('dim', '  review  P' + p.id + ' <span class="ok">pass</span> · 0 findings');
+    const verifyPass = () => line('dim', '  verify  P' + p.id + ' <span class="ok">pass</span> · ' + p.tasks.map(t => 'T' + t[0]).join(' ') + ' · checkpoint: ' + p.cp);
+    if (opts.fail) {
+      const f = p.tasks.find(t => t[0] === opts.fail.id);
+      for (let i = 1; i <= opts.fail.times; i++) {
+        steps.push([400, reviewPass]);
+        steps.push([500, () => line('dim', '  verify  P' + p.id + ' <span class="bad">fail</span> · T' + opts.fail.id + ' · ' + opts.fail.text)]);
+        if (i < opts.fail.times || !opts.fail.stop) steps.push([300, () => line('dim', '  build   ' + tag(f) + ' <span class="mute">· ' + f[2] + ' · attempt ' + (i + 1) + ' · with the finding</span>')]);
+      }
+      if (opts.fail.stop) {
+        steps.push([400, () => line('a bad', 'Stopped at T' + opts.fail.id + ' after 3 attempts. The three findings are in S101-' + SLUG + '.ledger.md; P' + p.id + ' is in the working tree, uncommitted.')]);
+        steps.push([250, () => stopGate(p)]);
+        seq(steps); return;
+      }
+    }
+    steps.push([400, reviewPass]);
+    steps.push([450, verifyPass]);
+    steps.push([250, () => goGate(p, next)]);
+    seq(steps);
+  }
+
+  function goGate(p, next) {
+    const g = document.createElement('div');
+    g.className = 'gate';
+    g.innerHTML = '<div class="q">Say <b>go</b> to commit P' + p.id + (next ? ' and start P' + next.id : ' and finish') + ', or stop here.</div>' +
+      '<div class="row"><button class="go">Go</button><button class="stop">Stop</button></div>' +
+      '<div class="hint">The go commits this phase\'s files and the ledger as one commit. A stop leaves them in the working tree; the next run resumes here.</div>';
+    term.appendChild(g); term.scrollTop = term.scrollHeight;
+    const done = () => { g.querySelectorAll('button').forEach(b => b.disabled = true); g.style.opacity = 0.6; };
+    g.querySelector('.go').onclick = () => { done(); line('u', 'go'); seq([
+      [300, () => line('dim', '  commit  ' + hash(p.id) + '  P' + p.id + ' ' + p.name + ' · ' + (p.tasks.length * 3) + ' files · ledger')],
+      [300, () => next ? phase(next, {}, PLAN[PLAN.indexOf(next) + 1]) : finish()]
+    ]); };
+    g.querySelector('.stop').onclick = () => { done(); line('u', 'stop'); seq([
+      [300, () => line('a', 'Stopped after P' + p.id + '. Its work is in the working tree, uncommitted; the ledger says so. Run /asimov-build ' + SLUG + ' to resume at this gate.')]
+    ]); };
+  }
+
+  function stopGate(p) {
+    const g = document.createElement('div');
+    g.className = 'gate';
+    g.innerHTML = '<div class="q">Resume T004 with a note, discard P' + p.id + ', or stop.</div>' +
+      '<div class="row"><button class="go">Resume</button><input type="text" placeholder="a note for the builder — e.g. “the filter is applied before paging”" style="font:inherit;font-size:12px;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:0.3rem 0.6rem;min-width:260px;flex:1"><button class="stop">Discard phase</button><button>Stop</button></div>' +
+      '<div class="hint">Your ruling is written to the ledger. Resume gives T004 three new attempts with your note; discard resets P' + p.id + '\'s files to the last commit and leaves the plan in progress.</div>';
+    term.appendChild(g); term.scrollTop = term.scrollHeight;
+    const done = () => { g.querySelectorAll('button,input').forEach(b => b.disabled = true); g.style.opacity = 0.6; };
+    g.querySelector('.go').onclick = () => { done(); line('u', 'resume: the filter is applied before paging'); seq([
+      [300, () => line('dim', '  ledger  ruling by ' + WHO + ' · T004 resumed with a note')],
+      [300, () => line('dim', '  build   T004 export-service <span class="mute">· giskard · sonnet · attempt 4 · with your note</span>')],
+      [400, () => line('dim', '  review  P1 <span class="ok">pass</span> · 0 findings')],
+      [500, () => line('dim', '  verify  P1 <span class="ok">pass</span> · T003 T004 · checkpoint: ' + p.cp)],
+      [250, () => goGate(p, PLAN[2])]
+    ]); };
+    g.querySelector('.stop').onclick = () => { done(); line('u', 'discard phase'); seq([
+      [300, () => line('dim', '  ledger  ruling by ' + WHO + ' · P1 discarded')],
+      [300, () => line('a', 'P1 files reset to ' + hash('0') + '. The plan stays in progress; fix the task spec with /asimov-spec ' + SLUG + ' or run /asimov-build ' + SLUG + ' to try P1 again.')]
+    ]); };
+  }
+
+  function finish() {
+    seq([
+      [300, () => line('dim', '  status  S101-' + SLUG + '.md · done')],
+      [300, () => line('a ok', 'Done: ' + PLAN.length + ' phases, ' + NT + ' tasks, ' + PLAN.length + ' commits on this branch. The ledger holds every verification and review. Open the PR when you want the human review; I open none.')]
+    ]);
+  }
+
+  function hash(id) { return ['a1b2c3d', '4e5f6a7', 'b8c9d0e', 'f1a2b3c'][+id]; }
+
+  function fullRun() {
+    seq([...intro(), [500, () => line('dim', '  ledger  S101-' + SLUG + '.ledger.md created · status: in progress')],
+      [300, () => phase(PLAN[0], {}, PLAN[1])]]);
+  }
+
+  function stoppedRun() {
+    seq([...intro(), [500, () => line('dim', '  ledger  S101-' + SLUG + '.ledger.md created · status: in progress')],
+      [300, () => phase(PLAN[0], {}, { id:'1', name:PLAN[1].name, cp:PLAN[1].cp, tasks:PLAN[1].tasks, failing:true })]]);
+  }
+
+  function resumedRun() {
+    seq([
+      [0, () => line('u', '/asimov-build ' + SLUG)],
+      [300, () => line('a', 'Resuming documentation/specs/' + SLUG + '/: the ledger says P0 is committed and P1 is in progress with T003 built. The plan is unchanged since its approval. I continue at T004 and stop after P1.')],
+      [400, () => phase(PLAN[1], { done:['003'] }, PLAN[2])]
+    ]);
+  }
+
+  function refusedRun() {
+    seq([
+      [0, () => line('u', '/asimov-build ' + SLUG)],
+      [400, () => line('a', 'Reading documentation/specs/' + SLUG + '/S101-' + SLUG + '.md …')],
+      [500, () => line('a bad', 'Refused. The plan is <b>draft</b>: 2 task specs are not validated and the approval is <b>none</b>. I build only a ready plan.')],
+      [200, () => line('dim', '  Nothing written. Run /asimov-spec ' + SLUG + ' to finish and approve it.')],
+      [600, () => line('u', '/asimov-build ' + SLUG)],
+      [400, () => line('a', 'Reading documentation/specs/' + SLUG + '/S101-' + SLUG + '.md …')],
+      [500, () => line('a bad', 'Refused. The plan changed after ' + WHO + ' approved it on 2026-10-06: the fingerprint no longer matches. Approve it again with /asimov-spec ' + SLUG + ', then run this again.')],
+      [200, () => line('dim', '  Nothing written.')]
+    ]);
+  }
+
+  // Wrap phase() so the Full run shows one retry and the Stopped run three.
+  const basePhase = phase;
+  phase = function (p, opts, next) {
+    if (p.id === '1' && scenario === 'full' && !(opts && opts.done)) opts = { fail: { id:'004', times:1, text:'ExportService_Exports_FilteredRows: expected 3 rows, got 0' } };
+    if (p.failing) opts = { fail: { id:'004', times:3, stop:true, text:'ExportService_Exports_FilteredRows: expected 3 rows, got 0' } };
+    basePhase(p, opts, next);
+  };
+
+  function run() {
+    clear();
+    ({ full: fullRun, stopped: stoppedRun, resumed: resumedRun, refused: refusedRun })[scenario]();
+  }
+  document.querySelectorAll('.bar button[data-s]').forEach(b => {
+    b.onclick = () => { document.querySelectorAll('.bar button[data-s]').forEach(x => x.classList.remove('on')); b.classList.add('on'); scenario = b.dataset.s; run(); };
+  });
+  document.getElementById('replay').onclick = run;
+  run();
+})();
+</script>
+</body>
+</html>

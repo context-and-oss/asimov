@@ -49,7 +49,7 @@ td.w { color:var(--warn); }
   <button data-s="ticket">Ticket run</button>
   <button data-s="refused">Not Full design</button>
   <button data-s="resumed">Resumed at the cut</button>
-  <button data-s="review">/asimov-spec-validate</button>
+  <button data-s="review">Re-check a ready plan</button>
   <span class="spacer"></span>
   <button id="replay">Replay</button>
 </div>
@@ -199,7 +199,7 @@ td.w { color:var(--warn); }
     const done = () => { g.querySelectorAll('button').forEach(b => b.disabled = true); g.style.opacity = 0.6; };
     g.querySelector('.go').onclick = () => { done(); line('u', 'approve'); seq([
       [300, () => line('dim', '  approved  by ' + WHO + ' · ' + DATE + ' · 7c41e09b2d5a · status: ready')],
-      [300, () => line('a ok', 'Ready: ' + ntasks() + ' task specs validated, plan approved by ' + WHO + ' on ' + DATE + '. The Build workflow takes it from here; /asimov-spec-validate ' + SLUG + ' re-checks it after a hand edit.')]
+      [300, () => line('a ok', 'Ready: ' + ntasks() + ' task specs validated, plan approved by ' + WHO + ' on ' + DATE + '. /asimov-build ' + SLUG + ' builds it; name me again after a hand edit and I re-check it.')]
     ]); };
     g.querySelector('.stop').onclick = () => { done(); line('u', 'stop'); seq([
       [300, () => line('a', 'Left at draft with the previous approval superseded. Run /asimov-spec ' + SLUG + ' to review and approve it; the cut is shown first.')]
@@ -287,16 +287,18 @@ td.w { color:var(--warn); }
 
   function review() {
     seq([
-      [0, () => line('u', '/asimov-spec-validate ' + SLUG)],
-      [300, () => line('a', 'Re-checking the plan under documentation/specs/' + SLUG + '/: the plan view, a blind check per task spec, then the plan checks, each in a fresh subagent. Nothing in the folder changes except the review sidecar.')],
+      [0, () => line('u', '/asimov-spec ' + SLUG)],
+      [300, () => line('a', 'The plan under documentation/specs/' + SLUG + '/ is ready, but it changed after ' + WHO + ' approved it on ' + DATE + ': re-checking every task spec and the plan, each in a fresh subagent; a task spec that fails is rewritten, and you approve the plan again at the end.')],
       [400, () => line('a', 'Re-checking: documentation/specs/' + SLUG + '/S101-' + SLUG + '.md · ready v0.2 · approved by ' + WHO + ' ' + DATE + ' · 9 S102s · D101-' + SLUG + '.html v1.2')],
       [400, () => line('a', 'The plan, re-checked:')],
       [250, () => el('', view('ready · plan approved by ' + WHO + ' ' + DATE, 9))],
       [500, () => el('blk dim', '  check  T001 clears · T002 clears · T003 clears · T004 clears · T005 clears · T006 clears<br>  check  T007 clears · <span style="color:var(--warn)">1 warn</span><br>  check  T009 <span style="color:var(--bad)">fails</span> · 1 flag · <span style="color:var(--bad)">no longer clears</span><br>  check  T008 clears')],
       [500, () => line('dim', '  plan   9 pass · 0 flag · 1 fail · 1 warn')],
       [400, () => el('blk dim', '<div class="hd">What the checks found</div><span style="color:var(--bad)">Fail</span> · T009 nightly-scheduler · its §4 line “no new package” contradicts S101 §2 constraint 2, which names the scheduler package the design imposes.<br><span style="color:var(--bad)">Fail</span> · T009 · done-when 3 names no runnable check.<br><span style="color:var(--warn)">Warn</span> · T007 export-button · owns 4 non-test files, above the threshold of 3.')],
-      [400, () => line('a', 'Changed since ' + WHO + ' approved it on ' + DATE + '; the approval no longer holds. Run /asimov-spec ' + SLUG + ' to review and approve it again.')],
-      [300, () => line('a ok', 'Findings above, in words; the full reports are in S101-' + SLUG + '.review.md. To fix: /asimov-spec ' + SLUG + ' (it keeps the task specs that clear and shows the cut first), or edit by hand and run this again.')]
+      [400, () => line('dim', '  write  T009  S102-' + SLUG + '-009-nightly-scheduler.md · rewritten with the findings')],
+      [400, () => line('dim', '  check  T009  <span style="color:var(--ok)">validated</span> · 0 flag · 0 warn')],
+      [400, () => line('a', 'Every task spec clears again; the plan changed since your go, so it needs your approval again. Sidecar S101-' + SLUG + '.review.md written.')],
+      [250, approveGate]
     ]);
   }
 

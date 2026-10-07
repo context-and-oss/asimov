@@ -26,7 +26,7 @@ documentation/**/images/_raw/
 documentation/features/*.review.md
 
 # Spec-stage validation sidecar — the last run's reports and default-taken
-# assumptions, written by asimov-spec / asimov-spec-validate and overwritten by
+# assumptions, written by asimov-spec and overwritten by
 # the next run (s101-implementation-plan-definition §9, D101-spec-stage.html §6.8).
 # A cache, never a record; the assumptions themselves live in the S101.
 documentation/specs/*/S101-*.review.md

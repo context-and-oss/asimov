@@ -10,7 +10,7 @@
   - Agents. artifact-s101-authoring writes it, artifact-s101-validation checks
     it, the orchestrator reads it as its control document. A person sees the
     plan through the view asimov-spec prints at the cut and at the end, and
-    asimov-spec-validate prints on a re-check; nobody is meant to read the
+    asimov-spec prints on a re-check; nobody is meant to read the
     raw file. Keep it exact, keep it short.
   - Written to documentation/specs/{{SLUG}}/S101-{{SLUG}}.md in the product
     repo. {{SLUG}} is the D101's slug or the ticket key in kebab-case.
@@ -45,8 +45,6 @@
     and interface closure from the S102 headers and §1 below. Two tasks that
     may run together own disjoint file sets; the Foundation is cut so each
     slice owns its own skeleton file.
-  - execution_mode: one-at-a-time | subagent-per-task | agent-team. A default
-    the run may override; the graph must hold for the most parallel mode.
   - status: draft until asimov-spec sets ready, when the approval holds and
     every S102 is validated (definition §6). Never set by hand.
   - approved: none until the author's go at the cut; then
@@ -78,7 +76,6 @@ approved: none
 version: 0.1
 author: "{{AUTHOR}}"
 date: "{{YYYY-MM-DD}}"
-execution_mode: subagent-per-task
 phases:
   - id: P0
     name: Foundation

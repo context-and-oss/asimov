@@ -38,7 +38,8 @@
 
   <dl class="meta">
     <dt>Produced by</dt><dd><code>/asimov-spec</code>, named in a message with the D101, or with a Jira link for a bug fix that needs no D101. One run: it reads the design and the repo, asks at most five questions, shows you the cut, and expands it on your go.</dd>
-    <dt>Validated by</dt><dd><code>/asimov-spec-validate</code>: the graph checks and the plan checks, plus a blind check per task spec. Writes nothing but a sidecar.</dd>
+    <dt>Validated by</dt><dd>The same run: a blind check per task spec and the plan checks, before it is <em>ready</em>. Name a ready plan again and it is re-checked; one edited by hand is approved again.</dd>
+    <dt>Built by</dt><dd><code>/asimov-build</code>: phase by phase, each task to its agent with its task spec; Baley then Powell check the phase; your go commits it with the <a href="#ledger">ledger</a>.</dd>
     <dt>Lands in</dt><dd><code>documentation/specs/&lt;feature&gt;/S101-&lt;feature&gt;.md</code>, beside its S102s.</dd>
     <dt>Source</dt><dd><a href="https://github.com/context-and-oss/asimov/blob/main/plugins/asimov-plugin/artifacts/documentation/s101-implementation-plan/s101-implementation-plan-definition.md">Definition</a> · <a href="https://github.com/context-and-oss/asimov/blob/main/plugins/asimov-plugin/artifacts/documentation/s101-implementation-plan/s101-implementation-plan-template.md">Template</a> · <a href="https://github.com/context-and-oss/asimov/blob/main/plugins/asimov-plugin/contracts/specification.md">The specification contract</a> · <a href="https://github.com/context-and-oss/asimov/blob/main/documentation/features/D101-spec-stage.html">The Spec-stage D101</a></dd>
     <dt>Read by</dt><dd>Agents: every task spec as it is written, and the build run as its control document. People never read the file; they read the <strong>plan view</strong> it renders to in chat, at the cut, at the end of a run, and as the reviewer.</dd>
@@ -90,8 +91,16 @@
   <h2>What it is not</h2>
   <ul>
     <li>Not the brief. The files a task owns, its behaviour, its done-when and its own constraints live in the S102s.</li>
-    <li>Not the ledger. Which task is claimed or in a fix round lives in a gitignored run log, never in the plan.</li>
+    <li>Not the ledger. Which task is built, what Baley and Powell found and what you ruled lives in the <a href="#ledger">ledger</a> beside it, never in the plan.</li>
     <li>Not the validation report. Findings go to a gitignored sidecar next to it; only the assumptions are plan content. So does every place a run had to work around the template: a finding for the maintainer, never a line in the plan.</li>
+  </ul>
+
+  <h2 id="ledger">The ledger</h2>
+  <p><code>S101-&lt;feature&gt;.ledger.md</code>, beside the plan, written only by the build run. <span class="chip assess">assess</span></p>
+  <ul>
+    <li><strong>Machine state in the frontmatter:</strong> the approval it was started from, a status per phase and per task, the attempts, the agent and model of each.</li>
+    <li><strong>The record in the body:</strong> every attempt's summary, Baley's and Powell's reports, every ruling you gave at a stop, every commit. Appended, never rewritten.</li>
+    <li><strong>Committed with each phase,</strong> so a run resumes on another machine and the pull request carries what was verified. The plan itself never changes under a build, except its status line.</li>
   </ul>
 
   <h2>Where it comes from, where it goes</h2>

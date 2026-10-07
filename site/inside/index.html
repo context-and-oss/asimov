@@ -37,7 +37,7 @@
   <p class="lede">Commands, skills, artifacts, personas, agents, and the model an engagement runs on. Click any box to read about it.</p>
 
   <div class="figure">
-<svg class="insidemap" viewBox="0 0 1200 400" style="min-width:900px" role="img" aria-label="Map of what is inside the plugin. Project management frames everything: the engagement around the work, Proposal, Scoping, Development, Operations. Inside the frame, from left to right: you describe a feature; a command writes artifacts into your repository, a D101 design, an S101 plan with its S102 task specs, convention read-lists and asimov.md; personas read the design as the people who sign and report where they stopped; agents read your conventions and return code, tests and findings. Every box opens its page.">
+<svg class="insidemap" viewBox="0 0 1200 400" style="min-width:900px" role="img" aria-label="Map of what is inside the plugin. Project management frames everything: the engagement around the work, Proposal, Scoping, Development, Operations. Inside the frame, from left to right: you describe a feature; a command writes artifacts into your repository, a D101 design, an S101 plan with its S102 task specs, convention read-lists and asimov.md; personas read the design as the people who sign and report where they stopped; agents read your conventions and return code, tests, findings and the ledger. Every box opens its page.">
   <style>
     .insidemap { font-family: 'Inter', system-ui, sans-serif; }
     .insidemap text { font-size: 13px; fill: var(--text, #fff); }
@@ -112,7 +112,7 @@
     <text class="mono" x="220" y="212" style="font-size:12px">/asimov-design</text>
     <text class="mono" x="220" y="234" style="font-size:12px">/asimov-design-review</text>
     <text class="mono" x="220" y="256" style="font-size:12px">/asimov-spec</text>
-    <text class="mono" x="220" y="278" style="font-size:12px">/asimov-spec-validate</text>
+    <text class="mono" x="220" y="278" style="font-size:12px">/asimov-build</text>
     <text class="mono" x="220" y="300" style="font-size:12px">/asimov-init</text>
   </a>
 
@@ -202,7 +202,7 @@
   <p>Asimov-skills and agents on top: the conversation and the identity, nothing else. Skills in the middle: every method, one family per column. At the bottom, what each skill works on: role skills on your code, artifact skills on your documents, both in your repository; the advisor on the delivery model. Personas have nothing of their own; they read the artifacts the artifact skills write. The same skill works whichever tool runs it, and when you do the step by hand. <a href="../inside/skills.html">What a skill is, family by family →</a></p>
 
   <div class="figure">
-<svg class="insidemap layers" viewBox="0 0 1200 520" style="min-width:900px" role="img" aria-label="Layer diagram, three bands. Top band, what you use: agents (Giskard, Daneel, Calvin, Baley), the asimov-skills you type (/asimov-design, /asimov-design-review, /asimov-spec, /asimov-spec-validate, /asimov-init), and plain questions to a persona or the delivery model. Middle band, skills: role skills for the agents, artifact skills for writing and checking a D101, an S101 and an S102, the standard persona skills, the pm-advisor. Bottom band, what each skill works on: your code under the role skills and your artifacts under the artifact skills, both inside your repository; the delivery model under the advisor; the personas read your artifacts too. Every box opens its page.">
+<svg class="insidemap layers" viewBox="0 0 1200 520" style="min-width:900px" role="img" aria-label="Layer diagram, three bands. Top band, what you use: agents (Giskard, Daneel, Calvin, Baley, Powell), the asimov-skills you type (/asimov-design, /asimov-design-review, /asimov-spec, /asimov-build, /asimov-init), and plain questions to a persona or the delivery model. Middle band, skills: role skills for the agents, artifact skills for writing and checking a D101, an S101, an S102 and the build ledger, the standard persona skills, the pm-advisor. Bottom band, what each skill works on: your code under the role skills and your artifacts under the artifact skills, both inside your repository; the delivery model under the advisor; the personas read your artifacts too. Every box opens its page.">
   <style>
     .layers .skill rect { fill: var(--violet, #ab47bc); fill-opacity: 0.14; stroke: var(--violet, #ab47bc); stroke-width: 1.5; }
     .layers .skill .go, .layers .skill .head { fill: var(--violet, #ab47bc); }
@@ -230,18 +230,20 @@
     <title>Open Agents</title>
     <rect x="24" y="44" width="270" height="100" rx="10"/>
     <text class="head mono" x="40" y="70">AGENTS<tspan class="go" dx="8">→</tspan></text>
-    <text class="mono" x="40" y="94" style="font-size:12px">Giskard · Daneel · Calvin · Baley</text>
-    <text class="sub" x="40" y="118">a thin shell per tool: name, model, tools</text>
+    <text class="mono" x="40" y="90" style="font-size:12px">Giskard · Daneel · Calvin</text>
+    <text class="mono" x="40" y="106" style="font-size:12px">Baley · Powell</text>
+    <text class="sub" x="40" y="126">a thin shell per tool: name, model, tools</text>
   </a>
   <a class="skill" href="../inside/agents.html">
     <title>Open Agents — the role skills</title>
     <rect x="24" y="196" width="270" height="128" rx="10"/>
     <text class="head mono" x="40" y="222">ROLE-*</text>
     <text class="sub" x="40" y="242">how each role works, reading your conventions</text>
-    <text class="mono" x="40" y="264" style="font-size:12px">role-dotnet-builder</text>
-    <text class="mono" x="40" y="282" style="font-size:12px">role-angular-builder</text>
-    <text class="mono" x="40" y="300" style="font-size:12px">role-dotnet-tester</text>
-    <text class="mono" x="40" y="318" style="font-size:12px">role-code-reviewer</text>
+    <text class="mono" x="40" y="258" style="font-size:11px">role-dotnet-builder</text>
+    <text class="mono" x="40" y="273" style="font-size:11px">role-angular-builder</text>
+    <text class="mono" x="40" y="288" style="font-size:11px">role-dotnet-tester</text>
+    <text class="mono" x="40" y="303" style="font-size:11px">role-code-reviewer</text>
+    <text class="mono" x="40" y="318" style="font-size:11px">role-s102-verifier</text>
   </a>
 
   <!-- ─── column 2: asimov-* → artifact-* ─── -->
@@ -250,7 +252,7 @@
     <rect x="316" y="44" width="270" height="100" rx="10"/>
     <text class="head mono" x="332" y="68">ASIMOV-*<tspan class="go" dx="8">→</tspan></text>
     <text class="mono" x="332" y="88" style="font-size:12px">/asimov-design · -design-review</text>
-    <text class="mono" x="332" y="104" style="font-size:12px">/asimov-spec · -spec-validate</text>
+    <text class="mono" x="332" y="104" style="font-size:12px">/asimov-spec · /asimov-build</text>
     <text class="mono" x="332" y="120" style="font-size:12px">/asimov-init</text>
     <text class="sub" x="332" y="138">they compose skills, never carry one</text>
   </a>
@@ -262,7 +264,7 @@
     <text class="mono" x="332" y="262" style="font-size:11px">artifact-d101-authoring · gap-review</text>
     <text class="mono" x="332" y="278" style="font-size:11px">artifact-s101-authoring · validation</text>
     <text class="mono" x="332" y="294" style="font-size:11px">artifact-s102-authoring · validation</text>
-    <text class="mono" x="332" y="310" style="font-size:11px">artifact-s101-view</text>
+    <text class="mono" x="332" y="310" style="font-size:11px">artifact-s101-view · -s101-ledger</text>
   </a>
 
   <!-- ─── column 3: you ask → persona-* ─── -->
@@ -317,7 +319,7 @@
     <title>Open Documentation — the artifacts a feature passes through</title>
     <rect x="316" y="416" width="254" height="66" rx="8"/>
     <text x="332" y="436" style="font-weight:700">Your artifacts</text>
-    <text class="sub mono" x="332" y="455">D101 · S101 · S102</text>
+    <text class="sub mono" x="332" y="455">D101 · S101 · S102 · ledger</text>
     <text class="sub mono" x="332" y="471">conventions · asimov.md</text>
     <text class="go" x="556" y="436" text-anchor="end">→</text>
   </a>
@@ -366,7 +368,7 @@
   <p>Design, specification, build. Each phase is one asimov-skill that writes and one that checks, standing on its own skills and its own piece of your repository. One D101 becomes one S101 and its S102s, and those become code.</p>
 
   <div class="figure">
-<svg class="insidemap phases" viewBox="0 0 1200 876" style="min-width:900px" role="img" aria-label="Phase diagram, three columns and four bands. Top band, what you type: asimov-design and asimov-design-review; asimov-spec and asimov-spec-validate; asimov-build and asimov-build-verify. Second band, who runs it: you in your own session for design; you plus a fresh blind subagent per S102 for specification; the named agents Giskard, Daneel, Calvin and Baley for build. Third band, skills: the artifact and persona skills for design, the five S101 and S102 skills for specification, the role skills for build. Bottom band, your repository: the D101 under documentation/features, the S101 and S102s under documentation/specs, and your code and tests under src and test. A chain under it reads: one D101 becomes one S101 and N S102s becomes code, tests and findings. Around the phases: asimov-init and pm-advisor.">
+<svg class="insidemap phases" viewBox="0 0 1200 876" style="min-width:900px" role="img" aria-label="Phase diagram, three columns and four bands. Top band, what you type: asimov-design and asimov-design-review; asimov-spec; asimov-build. Second band, who runs it: you in your own session for design; you plus a fresh blind subagent per S102 for specification; the named agents Giskard, Daneel, Calvin, Baley and Powell for build. Third band, skills: the artifact and persona skills for design, the five S101 and S102 skills for specification, the role skills for build. Bottom band, your repository: the D101 under documentation/features, the S101, S102s and ledger under documentation/specs, and your code and tests under src and test. A chain under it reads: one D101 becomes one S101 and N S102s becomes code, tests and the ledger. Around the phases: asimov-init and pm-advisor.">
   <style>
     .phases .skill rect { fill: var(--violet, #ab47bc); fill-opacity: 0.14; stroke: var(--violet, #ab47bc); stroke-width: 1.5; }
     .phases .skill .go, .phases .skill .head { fill: var(--violet, #ab47bc); }
@@ -398,18 +400,18 @@
     <rect x="420" y="44" width="360" height="120" rx="10"/>
     <text class="head mono" x="436" y="70">SPECIFICATION<tspan class="go" dx="8">→</tspan></text>
     <text class="mono" x="436" y="94" style="font-size:12px">asimov-spec</text>
-    <text class="mono" x="436" y="112" style="font-size:12px">asimov-spec-validate</text>
-    <text class="sub" x="436" y="138">five questions, the cut, your go, then the loop</text>
-    <text class="sub" x="436" y="154">that writes and validates every task</text>
+    <text class="sub" x="436" y="118">five questions, the cut, your go, then the loop</text>
+    <text class="sub" x="436" y="134">that writes and validates every task;</text>
+    <text class="sub" x="436" y="154">named again on a ready plan, it re-checks it</text>
   </a>
   <a class="writes" href="../inside/agents.html">
     <title>Open Agents — the build phase</title>
     <rect x="816" y="44" width="360" height="120" rx="10"/>
     <text class="head mono" x="832" y="70">BUILD<tspan class="go" dx="8">→</tspan></text>
-    <text class="mono" x="832" y="94" style="font-size:12px">asimov-build <tspan class="planned">PLANNED</tspan></text>
-    <text class="mono" x="832" y="112" style="font-size:12px">asimov-build-verify <tspan class="planned">PLANNED</tspan></text>
-    <text class="sub" x="832" y="138">dispatch, the ledger, and verification of the code</text>
-    <text class="sub" x="832" y="154">against the S102 it was built from</text>
+    <text class="mono" x="832" y="94" style="font-size:12px">asimov-build</text>
+    <text class="sub" x="832" y="118">each task to its agent with its task spec; per phase</text>
+    <text class="sub" x="832" y="134">Baley reviews, Powell verifies, you say go;</text>
+    <text class="sub" x="832" y="154">the ledger beside the plan is the record</text>
   </a>
 
   <!-- ─── band 2: who runs it ─── -->
@@ -433,8 +435,8 @@
   <a class="reads" href="../inside/agents.html">
     <title>Open Agents</title>
     <rect x="816" y="216" width="360" height="90" rx="10"/>
-    <text class="mono" x="832" y="242" style="font-size:12px">Giskard · Daneel · Calvin · Baley</text>
-    <text class="sub" x="832" y="264">and a verifier, planned; named: they work without you</text>
+    <text class="mono" x="832" y="242" style="font-size:12px">Giskard · Daneel · Calvin · Baley · Powell</text>
+    <text class="sub" x="832" y="264">named, fresh per call: they work without you</text>
     <text class="sub" x="832" y="280">a thin shell per tool: name, model, tools</text>
   </a>
 
@@ -473,7 +475,7 @@
     <text class="mono" x="832" y="422" style="font-size:12px">role-angular-builder</text>
     <text class="mono" x="832" y="440" style="font-size:12px">role-dotnet-tester</text>
     <text class="mono" x="832" y="458" style="font-size:12px">role-code-reviewer</text>
-    <text class="mono" x="832" y="476" style="font-size:12px">role-s102-verifier <tspan class="planned">PLANNED</tspan></text>
+    <text class="mono" x="832" y="476" style="font-size:12px">role-s102-verifier</text>
     <text class="sub" x="832" y="508">how each role works, reading your conventions;</text>
     <text class="sub" x="832" y="524">one skill per role, shared by every tool</text>
   </a>
@@ -497,7 +499,7 @@
   <a class="writes" href="../artifacts/documentation/index.html">
     <title>Open Documentation — the specs folder</title>
     <rect x="436" y="630" width="328" height="56" rx="8"/>
-    <text x="452" y="652" style="font-weight:700">One S101, N S102s</text>
+    <text x="452" y="652" style="font-weight:700">One S101, N S102s, one ledger</text>
     <text class="sub mono" x="452" y="672">documentation/specs/&lt;slug&gt;/</text>
     <text class="go" x="748" y="652" text-anchor="end">→</text>
   </a>
@@ -512,7 +514,7 @@
   <!-- ─── the chain ─── -->
   <text class="chain" x="204" y="734" text-anchor="middle">one D101</text>
   <text class="chain" x="600" y="734" text-anchor="middle">one S101 + N S102s</text>
-  <text class="chain" x="996" y="734" text-anchor="middle">code, tests, findings</text>
+  <text class="chain" x="996" y="734" text-anchor="middle">code, tests, the ledger</text>
   <g class="flow chain-arrow" marker-end="url(#phArrowDim)">
     <path d="M250 730 H520"/>
     <path d="M684 730 H912"/>

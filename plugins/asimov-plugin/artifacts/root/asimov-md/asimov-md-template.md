@@ -54,10 +54,10 @@ reference is invisible to the subagent. See D100 §7.2.1.
 | `/asimov-design-review` | Design | Review hub — the gap check (§8a/§8b) plus the persona reads             |
 | `artifact-persona-authoring` | Design | Show the persona roster, then author a custom persona — a product-specific reader — as a review skill (a skill: ask for it in plain words) |
 | `/asimov-spec`          | Spec   | Plan a Full-design D101 or an approved Jira ticket into `documentation/specs/<slug>/` — shows the cut, waits for your go |
-| `/asimov-spec-validate` | Spec   | Re-check an existing plan after a hand edit; says whether your approval still holds; writes only its review sidecar |
+| `/asimov-build`         | Build  | Build a `ready` plan phase by phase with the subagents — Baley then Powell check each phase, your go commits it; the ledger beside the plan is the record |
 | `/asimov-init`          | Setup  | Re-run to refresh this file, conventions, and the docs site             |
 
-`/asimov-design`, `/asimov-design-review`, `/asimov-spec` and `/asimov-spec-validate` are skills you invoke by name (in Codex: `$asimov-plugin:asimov-design`, and so on), never picked by the model; the feature, the D101, the Jira link or the ticket text goes in the same message. A bug fix needs no D101: a ticket whose thread meets the design contract (an approval, the problem, the decision, acceptance criteria, what is out of scope, and rules and open questions where there are any) is a design, and gets a plan, even of one task. You approve the plan at the cut with one word, **go**; each task spec is approved by the fresh agent that checks it blind; the plan goes `ready` by itself when both hold, and asks you again if it changed after your go. Nothing is set by hand, and you read the plan as a view with findings in words, never a report.
+`/asimov-design`, `/asimov-design-review`, `/asimov-spec` and `/asimov-build` are skills you invoke by name (in Codex: `$asimov-plugin:asimov-design`, and so on), never picked by the model; the feature, the D101, the Jira link or the ticket text goes in the same message. A bug fix needs no D101: a ticket whose thread meets the design contract (an approval, the problem, the decision, acceptance criteria, what is out of scope, and rules and open questions where there are any) is a design, and gets a plan, even of one task. You approve the plan at the cut with one word, **go**; each task spec is approved by the fresh agent that checks it blind; the plan goes `ready` by itself when both hold, and asks you again if it changed after your go; name a ready plan again and it re-checks it. Nothing is set by hand, and you read the plan as a view with findings in words, never a report. `/asimov-build` then builds the ready plan on a feature branch: each task goes to its subagent with its task spec as the only brief; once a phase is built, Baley reviews its diff against the task specs and Powell runs every done-when and the checkpoint; you say **go** after each phase, which commits it with the ledger (`documentation/specs/<slug>/S101-<slug>.ledger.md`); every stop is yours to rule on. It opens no PR.
 
 **Two runs, not one.** `/asimov-design` works to two bars. The first run settles requirements and the business design, writes the file with §6 _Technical design_ marked open and a list of what is outstanding, and then stops. Open the file, read it, iterate on §2–§5 — then run it again against that file to add §6. `/asimov-design-review` reads the phase from the document, then offers and runs the reviews it calls for — the gap check against the matching bar (§8a while §6 is open, §8b once written) plus the persona reads (below).
 
@@ -74,11 +74,12 @@ Always delegate to the appropriate subagent when writing or modifying code — d
 | `giskard-the-dotnet-developer` | Builder (.NET)       | Any `.cs` file under `src/`                    |
 | `daneel-the-angular-developer` | Builder (Angular)    | Any `.ts` / `.html` / `.css` file under `src/` |
 | `calvin-the-test-author`       | Tester               | Any file under `tests/`                        |
-| `baley-the-code-reviewer`      | Reviewer (read-only) | Code review — never edits files                |
+| `baley-the-code-reviewer`      | Reviewer (read-only) | Code review — never edits files; against the task specs inside `/asimov-build` |
+| `powell-the-verifier`          | Verifier (read-only) | Runs a built phase's done-whens and checkpoint inside `/asimov-build` — never edits files |
 
 ### Delegation flow — Build → Test → Review
 
-This flow applies to **prompt-driven tasks** — the user asks the orchestrator directly to do something (bugfix, small feature, other change), with no specification files involved. When the user instead hands the orchestrator specification files to follow, a separate spec-driven delegation flow applies (not yet written).
+This flow applies to **prompt-driven tasks** — the user asks the orchestrator directly to do something (bugfix, small feature, other change), with no specification files involved. When the work has a `ready` plan under `documentation/specs/<slug>/`, use `/asimov-build` instead: it runs the spec-driven flow in the L3 order (build, review vs. spec, test vs. spec) with your go after each phase.
 
 Delegating only the build step is **not** automatically task completion — the orchestrator must still run the post-build test-impact check below, and consider whether to ask about a fuller test pass or a review.
 
