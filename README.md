@@ -51,7 +51,7 @@ codex plugin add asimov-plugin@asimov-marketplace
 
 - Releases: [releases page](../../releases). Major-only versions (`1.0.0`, `2.0.0`, …), any release may change a bar or a template. The marketplace follows the `latest` tag.
 - Built: the Design stage (`asimov-design` and `asimov-design-review`, user-invoked skills for both harnesses), the four subagents (each a `role-*` skill plus a thin shell per harness), the two D101 artifact skills, persona reviews, the `pm-advisor` skill (delivery-model advice), and the Spec stage: `asimov-spec` and `asimov-spec-validate` (user-invoked skills, one file for Claude Code and Codex) over the S101/S102 definitions, templates and four `artifact-s10x-*` skills, planning from a Full-design D101 or from an approved Jira ticket. Untried outside this repo as of 2026-10-02.
-- Planned: `/conventions-check`, the S102 verification subagent, the Build workflow. See [D100 §9](documentation/D100-Asimov-architecture.md#9-not-yet-built).
+- Planned: `/conventions-check`. See [D100 §9](documentation/D100-Asimov-architecture.md#9-not-yet-built).
 - Every artifact carries a maturity level (`assess` / `trial` / `adopt` / `hold`). The producing skill or command tells you if it's not at `adopt`.
 - Requires Claude Code with plugin support and access to the models the skills and commands pin. Map in [model-choice.md](documentation/model-choice.md). Codex with plugin support runs the setup skill (`codex-asimov-init`) and the Design- and Spec-stage skills (`$asimov-plugin:asimov-design`, `$asimov-plugin:asimov-design-review`, `$asimov-plugin:asimov-spec`, `$asimov-plugin:asimov-spec-validate`); none of them binds a model in Codex, which runs the session's.
 

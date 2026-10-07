@@ -270,7 +270,7 @@ footer.site-footer a { color: var(--cyan); }
   <a href="../index.html#s6">Diagrams</a>
   <span class="spacer"></span>
   <span class="phase-chip full">Full design</span>
-  <span class="status-chip draft">Draft v0.3</span>
+  <span class="status-chip draft">Draft v0.4</span>
 </nav>
 
 <div class="layout-doc">
@@ -318,7 +318,7 @@ footer.site-footer a { color: var(--cyan); }
   <div class="meta-cell"><div class="label">Business approver</div><div class="value">Allan Borup</div></div>
   <div class="meta-cell"><div class="label">Subagents</div><div class="value mono">4 · 2 reserved</div></div>
   <div class="meta-cell"><div class="label">Harnesses</div><div class="value mono">Claude Code · Codex</div></div>
-  <div class="meta-cell"><div class="label">Last updated</div><div class="value mono">2026-10-02</div></div>
+  <div class="meta-cell"><div class="label">Last updated</div><div class="value mono">2026-10-07</div></div>
   <div class="meta-cell"><div class="label">Model</div><div class="value">Sonnet 5.5</div></div>
 </div>
 
@@ -408,7 +408,8 @@ footer.site-footer a { color: var(--cyan); }
     <div class="row" style="grid-template-columns: 0.9fr 0.6fr 1fr 1.2fr 1.4fr;"><div class="label-cell">Giskard</div><div>Builder</div><div><code>role-dotnet-builder</code></div><div><code>conventions/dotnet/</code></div><div>Backend production code.</div></div>
     <div class="row" style="grid-template-columns: 0.9fr 0.6fr 1fr 1.2fr 1.4fr;"><div class="label-cell">Daneel</div><div>Builder</div><div><code>role-angular-builder</code></div><div><code>conventions/angular/</code></div><div>Frontend production code.</div></div>
     <div class="row" style="grid-template-columns: 0.9fr 0.6fr 1fr 1.2fr 1.4fr;"><div class="label-cell">Calvin</div><div>Tester</div><div><code>role-dotnet-tester</code></div><div><code>conventions/test/</code></div><div>Tests for the diff; flags hard-to-test code.</div></div>
-    <div class="row" style="grid-template-columns: 0.9fr 0.6fr 1fr 1.2fr 1.4fr;"><div class="label-cell">Baley</div><div>Reviewer</div><div><code>role-code-reviewer</code></div><div>Stacks the diff touches</div><div>Read-only; findings, no verdict.</div></div>
+    <div class="row" style="grid-template-columns: 0.9fr 0.6fr 1fr 1.2fr 1.4fr;"><div class="label-cell">Baley</div><div>Reviewer</div><div><code>role-code-reviewer</code></div><div>Stacks the diff touches</div><div>Read-only; findings, no verdict. Given task specs, a third axis: against the spec.</div></div>
+    <div class="row" style="grid-template-columns: 0.9fr 0.6fr 1fr 1.2fr 1.4fr;"><div class="label-cell">Powell</div><div>Tester (Test stage)</div><div><code>role-s102-verifier</code></div><div>—</div><div>Runs a built phase's done-whens and checkpoint as written; read-only, a shell only for the checks; no verdict. Design: <code>D101-build-stage.html</code>.</div></div>
     <div class="row" style="grid-template-columns: 0.9fr 0.6fr 1fr 1.2fr 1.4fr;"><div class="label-cell">Hari · Dornick</div><div>Planner</div><div>—</div><div>—</div><div>Reserved, not built.</div></div>
   </div>
 </section>
@@ -596,7 +597,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="q-card">
       <div class="q-head"><span class="q-id">Q2</span><span class="q-decider">Allan Borup</span></div>
       <div class="q-body">Does the S102 validator coexist with Baley or subsume it?</div>
-      <div class="q-resolution">Resolution path: while specifying the validator.</div>
+      <div class="q-resolution"><strong>Decision:</strong> coexist, in the L3 order. Baley reviews the diff against the task specs, then Powell runs their done-whens; neither subsumes the other (<code>D101-build-stage.html</code> §4.5, 2026-10-07).</div>
     </div>
     <div class="q-card">
       <div class="q-head"><span class="q-id">Q3</span><span class="q-decider">Allan Borup</span></div>
@@ -635,7 +636,7 @@ footer.site-footer a { color: var(--cyan); }
     · <span class="mono">features/D101-subagents.html</span>
   </div>
   <div style="margin-top: 0.4rem">
-    D101 · Subagents · asimov-plugin · Draft v0.3 · 2026-10-02
+    D101 · Subagents · asimov-plugin · Draft v0.4 · 2026-10-07
   </div>
 </footer>
 

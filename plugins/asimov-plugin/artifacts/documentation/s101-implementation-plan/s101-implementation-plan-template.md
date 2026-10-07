@@ -45,8 +45,6 @@
     and interface closure from the S102 headers and §1 below. Two tasks that
     may run together own disjoint file sets; the Foundation is cut so each
     slice owns its own skeleton file.
-  - execution_mode: one-at-a-time | subagent-per-task | agent-team. A default
-    the run may override; the graph must hold for the most parallel mode.
   - status: draft until asimov-spec sets ready, when the approval holds and
     every S102 is validated (definition §6). Never set by hand.
   - approved: none until the author's go at the cut; then
@@ -78,7 +76,6 @@ approved: none
 version: 0.1
 author: "{{AUTHOR}}"
 date: "{{YYYY-MM-DD}}"
-execution_mode: subagent-per-task
 phases:
   - id: P0
     name: Foundation
