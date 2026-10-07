@@ -162,4 +162,4 @@ A `close` that reports phases not committed (a discarded phase) says so instead:
 - **Reports are verbatim in the ledger, one line in chat.** Never print a report table; never summarise one into the ledger.
 - **Every message ends with what is next.**
 - **Re-read at run-time.** Load the definitions at the start of every run; the file in the plugin is the source of truth.
-- **Paths are a hard-rule-9 literal.** `documentation/specs/<slug>/` with `S101-<slug>.md`, `S102-<slug>-NNN-<task>.md` and `S101-<slug>.ledger.md` move together across `asimov-spec`, `asimov-spec-validate`, this skill, the artifact skills, `.gitignore`, `CLAUDE.md` and D100.
+- **Paths are a hard-rule-9 literal.** `documentation/specs/<slug>/` with `S101-<slug>.md`, `S102-<slug>-NNN-<task>.md` and `S101-<slug>.ledger.md` move together across `asimov-spec`, this skill, the artifact skills, `.gitignore`, `CLAUDE.md` and D100.

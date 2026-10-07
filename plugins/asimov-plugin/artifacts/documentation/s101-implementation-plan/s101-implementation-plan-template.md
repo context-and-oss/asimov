@@ -10,7 +10,7 @@
   - Agents. artifact-s101-authoring writes it, artifact-s101-validation checks
     it, the orchestrator reads it as its control document. A person sees the
     plan through the view asimov-spec prints at the cut and at the end, and
-    asimov-spec-validate prints on a re-check; nobody is meant to read the
+    asimov-spec prints on a re-check; nobody is meant to read the
     raw file. Keep it exact, keep it short.
   - Written to documentation/specs/{{SLUG}}/S101-{{SLUG}}.md in the product
     repo. {{SLUG}} is the D101's slug or the ticket key in kebab-case.
