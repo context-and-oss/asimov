@@ -67,7 +67,7 @@ Developer-driven entry points. A slash command is a markdown file under `plugins
 | `asimov-design` asimov-skill (writes via `artifact-d101-authoring`; a named legacy `.md` is rendered the same way) | Design | Opus 5.5 xhigh *(Claude Code only)* | [`D101-design-stage.html`](features/D101-design-stage.html) |
 | `asimov-design-review` asimov-skill (gap review via `artifact-d101-gap-review`, persona reads via `persona-*`) | Design | Sonnet 5.5 *(Claude Code only)* | [`D101-design-stage.html`](features/D101-design-stage.html) |
 | `/asimov-init` | Setup (ad-hoc) | Opus 5.5 | [`D101-asimov-init.html`](features/D101-asimov-init.html) |
-| `asimov-spec` (asimov-skill; cuts via `artifact-s101-authoring`, shows the plan via `artifact-s101-view`, writes via `artifact-s102-authoring`, validates via `artifact-s101-validation` and the blind `artifact-s102-validation`) | Spec | Opus 5.5 xhigh (Claude Code only) | [`D101-spec-stage.html`](features/D101-spec-stage.html) |
+| `asimov-spec` (asimov-skill; cuts via `artifact-s101-authoring`, shows the plan via `artifact-s101-view`, writes via `artifact-s102-authoring`, checks the plan through `scripts/validate-s101.ps1` and every task spec through `scripts/validate-s102.ps1`, both scripts run inline; the plan writer runs on Opus 5.5 at high effort, the task writers on Sonnet 5.5, passed on each Agent call) | Spec | Sonnet 5.5 (Claude Code only; the one Opus call is the cut, `model-choice.md` §1.2) | [`D101-spec-stage.html`](features/D101-spec-stage.html) |
 | `asimov-build` (asimov-skill; dispatches each task to its Asimov agent, Baley then Powell per phase, the ledger via `artifact-s101-ledger`, the person's go commits each phase) | Code + Review + Test | Sonnet 5.5 (Claude Code only) | [`D101-build-stage.html`](features/D101-build-stage.html) |
 | `/conventions-check` *(planned)* | Review + Test | Sonnet 5.5 or Haiku 4.5 | — |
 
@@ -207,7 +207,7 @@ asimov/
 │       │   ├── artifact-s101-view/SKILL.md       ← the plan view a person reads in chat
 │       │   ├── artifact-s102-authoring/SKILL.md  ← one S102 from one task line; never code
 │       │   ├── artifact-s101-validation/SKILL.md ← the plan checks, graph-only or full
-│       │   ├── artifact-s102-validation/SKILL.md ← the blind S102 check (fresh subagent)
+│       │   ├── artifact-s102-validation/SKILL.md ← the S102 shape check; the method is scripts/validate-s102.ps1, run inline
 │       │   ├── artifact-s101-ledger/SKILL.md     ← the build ledger: start, position, record, close
 │       │   ├── persona-poseidon/SKILL.md
 │       │   ├── persona-athena/SKILL.md
@@ -380,7 +380,7 @@ Planned components that slot into the structure above when added:
 
 **The D101 §7 boundary is settled by the S102 definition.** §7 Implementation was the *interim* home for code-grounded build-readiness notes (project layout, reuse-vs-new, method-level wiring). That is S102 content (`s102-task-spec-definition.md` §3): a feature that has an S101 marks §7 N/A and points at its `documentation/specs/<feature-slug>/` folder. §7 stays in the template for repos and features not yet on the Spec stage (`d101-feature-design-definition.md` §4.8). Research and decisions: `documentation/research/S101-S102-spec-stage-research.md`.
 
-**The specs folder is a lockstep literal.** `documentation/specs/<slug>/`, with `S101-<slug>.md`, `S102-<slug>-NNN-<task>.md`, the committed `S101-<slug>.ledger.md` and the two gitignored siblings `S101-<slug>.review.md` and `design.md`, is written by `asimov-spec` and `asimov-build` and read by the five `artifact-s10x-*` skills and `artifact-s101-ledger`; `.gitignore` and `CLAUDE.md` hard rule 9 name it too. A fork that moves it changes all of them (hard rule 9).
+**The specs folder is a lockstep literal.** `documentation/specs/<slug>/`, with `S101-<slug>.md`, `S102-<slug>-NNN-<task>.md`, the committed `S101-<slug>.ledger.md` and the three gitignored siblings `S101-<slug>.review.md`, `design.md` and `repo-notes.md` (what the cut learned about the repo, so the task-spec writers do not re-learn it), is written by `asimov-spec` and `asimov-build` and read by the five `artifact-s10x-*` skills and `artifact-s101-ledger`; `.gitignore`, both init entry points (which write the gitignore patterns into a product repo) and `CLAUDE.md` hard rule 9 name it too. A fork that moves it changes all of them (hard rule 9).
 
 **The Build workflow was built from `D101-build-stage.html`** (2026-10-07), the first D101 written after the Spec stage's first real run, as that run's OOS1–OOS3 asked. Untried on a real plan.
 

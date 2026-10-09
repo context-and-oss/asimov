@@ -17,7 +17,7 @@ Canonical mapping from L3 pipeline stage → toolkit component (command, asimov-
 | Code | `daneel-the-angular-developer` subagent | `claude-sonnet-5-5` | *(default)* |
 | Code | `calvin-the-test-author` subagent | `claude-sonnet-5-5` | *(default)* |
 | Review | `baley-the-code-reviewer` subagent | `claude-sonnet-5-5` | *(default)* |
-| Spec | `asimov-spec` asimov-skill *(Claude Code only)* | `claude-opus-5-5` | `xhigh` |
+| Spec | `asimov-spec` asimov-skill *(Claude Code only)* | `claude-sonnet-5-5` | *(default)* |
 | Code + Review + Test | `asimov-build` asimov-skill *(Claude Code only)* | `claude-sonnet-5-5` | *(default)* |
 | Test | `powell-the-verifier` subagent | `claude-sonnet-5-5` | *(default)* |
 | Review + Test | `/conventions-check` *(planned)* | `claude-sonnet-5-5` *or* `claude-haiku-4-5` | *(default)* |
@@ -36,19 +36,32 @@ An S101 recommends a **tier** per task, not a model (`s101-implementation-plan-d
 | `mid` | Behaviour in prose with a clear check — most builder and tester tasks | `claude-sonnet-5-5` |
 | `high` | Judgement or integration — a design choice left to the builder, a cross-stack seam | `claude-opus-5-5` |
 
-The tier is a recommendation; `asimov-build` maps it to the model through the Agent tool's `model` field (`haiku` / `sonnet` / `opus`) in Claude Code, and this table is the one its Step 00 mirrors; Codex runs the session's model. The build subagents' own rows above are their default when no plan names a tier.
+The tier is a recommendation; `asimov-build` maps it to the model through the Agent tool's `model` field (`haiku` / `sonnet` / `opus`) in Claude Code, and this table is the one its Step 00 mirrors; Codex runs the session's model.
+
+### 1.2 Subagents an asimov-skill spawns without a shell
+
+`asimov-spec` runs its writer skills in fresh subagents of the harness's generic `general-purpose` type, which has no frontmatter of its own and inherits the session's model unless the Agent tool's `model` field says otherwise, so the skill passes `model` (and for the cut `effort`) on every call. Two writers, two scripts:
+
+| Call | Does | Model · effort |
+|---|---|---|
+| **plan writer** (`general-purpose`): `artifact-s101-authoring`, and on a small plan `artifact-s102-authoring` in the same call | cuts the plan: the one judgement-heavy step of the run | `claude-opus-5-5` (`model: opus`), `effort: high` |
+| **task writer** (`general-purpose`): `artifact-s102-authoring` | writes a task spec from the plan, the notes and the template; its bar is a script | `claude-sonnet-5-5` (`model: sonnet`) |
+| **plan check**: `artifact-s101-validation` | a script, `scripts/validate-s101.ps1`, run inline through Bash | no model: one tool call |
+| **task-spec check**: `artifact-s102-validation` | a script, `scripts/validate-s102.ps1`, run inline through Bash | no model: one tool call |
+
+Added 2026-10-07 and reshaped 2026-10-08. The first shape (writers inheriting Opus at xhigh, two LLM validators on Sonnet) came after a two-task run spent a quarter of its tokens on four shape checks that walked the codebase like a builder. The second came after the same ticket's third run still took thirty minutes and 690k tokens with the checks already scripted: the time was in xhigh thinking across sixty tool calls and in two more validator cold starts, and the developer's table showed the writers on the session's model, not the pinned one, so no `model` had reached the Agent call. Now only the plan is cut on Opus, at high rather than xhigh (the bar is a script and the author reads the cut; xhigh bought nothing the script could measure), the task specs are written on Sonnet, both checks are scripts, and `asimov-spec` itself runs on Sonnet since it carries a conversation and reads reports. The validation skills name this table as the one the calls mirror; a change here changes `asimov-spec`'s spawn text in the same commit (the shape of hard rule 2). The build subagents' own rows above are their default when no plan names a tier.
 
 ## 2. Selection criteria
 
 Why each model lands where it does:
 
-- **Opus 5.5 xhigh — used for Design and Spec drafting.** These are open-ended generative tasks with many edges: a thin brief becomes a multi-section design, or a gap-free design becomes a full implementation spec. Reasoning depth and judgment dominate; throughput and cost are secondary because runs are infrequent and the cost of a weak design or spec is high (rework rippling through Code and Review). Opus 5.5 is the current Opus: the same 1M context and `xhigh` effort as 4.8 at a lower price per token. Its API default effort is `medium`, one level below 4.8's, so the drafting entry points pin `xhigh` explicitly rather than rely on the default.
+- **Opus 5.5 xhigh — used for Design drafting; Opus 5.5 high for the Spec stage's cut.** These are open-ended generative tasks with many edges: a thin brief becomes a multi-section design, or a design becomes a phase tree with its contracts and coverage. Reasoning depth and judgment dominate; throughput and cost are secondary because runs are infrequent and the cost of a weak design is high (rework rippling through Code and Review). Opus 5.5 is the current Opus: the same 1M context and `xhigh` effort as 4.8 at a lower price per token. Its API default effort is `medium`, one level below 4.8's, so `asimov-design` pins `xhigh` explicitly. The cut (§1.2) runs at `high`: its bar is enforced by a script and read by the author at the gate, and at `xhigh` a sixty-call cut spent most of its eleven minutes thinking between tool calls.
 
 - **Opus 5.5 (default effort) — used for repo bootstrap.** `/asimov-init` authors orienting `asimov.md` prose, judges stack detection from ambiguous markers, and merges safely into existing files — broader judgment than mechanical scaffolding, though it doesn't need `xhigh`. Runs are once-per-repo, so cost is secondary.
 
-- **Sonnet 5.5 — used for review, code generation, validation and verification.** These tasks have a tighter, more contractual shape: check an artifact against a definition, implement from a spec, run acceptance criteria. The contract bounds the work; Sonnet's reasoning is sufficient, and Sonnet 5.5 is the current Sonnet, cheaper per token than 4.6 with the same 1M context. Throughput matters more here — the build subagents (Giskard, Daneel, Calvin), the reviewer (Baley), the Spec-stage blind validation subagents, the verifier (Powell) and the build orchestrator `asimov-build`, which dispatches and reads reports rather than drafting, run often.
+- **Sonnet 5.5 — used for review, code generation, task-spec writing (§1.2), verification and both orchestrators.** These tasks have a tighter, more contractual shape: implement from a spec, write a task spec from a plan and a template whose bar is a script, run acceptance criteria, dispatch and read reports. The contract bounds the work; Sonnet's reasoning is sufficient, and Sonnet 5.5 is the current Sonnet, cheaper per token than 4.6 with the same 1M context. Throughput matters more here — the build subagents (Giskard, Daneel, Calvin), the reviewer (Baley), the Spec-stage task writers, the verifier (Powell) and the two orchestrators `asimov-spec` and `asimov-build`, which carry a conversation and read reports rather than drafting, run often. Validation at the Spec stage is no model at all: two scripts (§1.2).
 
-- **Fable 5.1 — considered, not pinned.** The most capable model, at about twice Opus 5.5's price per token. Raised for `asimov-spec` in the review of the Spec stage (2026-10-02). It is not pinned until a real planning run shows Opus 5.5 at `xhigh` falling short, and access to it differs per subscription; the blind validation subagents would stay on Sonnet either way.
+- **Fable 5.1 — considered, not pinned.** The most capable model, at about twice Opus 5.5's price per token. Raised for `asimov-spec` in the review of the Spec stage (2026-10-02). It is not pinned until a real planning run shows Opus 5.5 at `high` falling short on the cut, and access to it differs per subscription; a developer's run whose session model was Fable showed the writers inheriting it, which is why every writer call now passes `model` explicitly.
 
 - **Haiku 4.5 — acceptable as a fallback for `/conventions-check`.** Convention checks are mechanical pattern-matching at their core. When latency or cost is a concern (e.g. running on every commit), Haiku can carry them. Sonnet remains the safer default; Haiku is a tunable choice per invocation.
 

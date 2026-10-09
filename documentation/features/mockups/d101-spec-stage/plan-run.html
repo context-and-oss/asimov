@@ -198,8 +198,8 @@ td.w { color:var(--warn); }
     term.appendChild(g); term.scrollTop = term.scrollHeight;
     const done = () => { g.querySelectorAll('button').forEach(b => b.disabled = true); g.style.opacity = 0.6; };
     g.querySelector('.go').onclick = () => { done(); line('u', 'approve'); seq([
-      [300, () => line('dim', '  approved  by ' + WHO + ' · ' + DATE + ' · 7c41e09b2d5a · status: ready')],
-      [300, () => line('a ok', 'Ready: ' + ntasks() + ' task specs validated, plan approved by ' + WHO + ' on ' + DATE + '. /asimov-build ' + SLUG + ' builds it; name me again after a hand edit and I re-check it.')]
+      [300, () => line('dim', '  approved  v0.2 by ' + WHO + ' · ' + DATE + ' · status: ready')],
+      [300, () => line('a ok', 'Ready: ' + ntasks() + ' task specs validated, plan v0.2 approved by ' + WHO + ' on ' + DATE + '. /asimov-build ' + SLUG + ' builds it; name me again after a hand edit and I re-check it.')]
     ]); };
     g.querySelector('.stop').onclick = () => { done(); line('u', 'stop'); seq([
       [300, () => line('a', 'Left at draft with the previous approval superseded. Run /asimov-spec ' + SLUG + ' to review and approve it; the cut is shown first.')]
@@ -210,7 +210,7 @@ td.w { color:var(--warn); }
   function expand() {
     const tasks = plan.flatMap(p => p.tasks);
     const steps = [
-      [300, () => line('dim', '  approved  by ' + WHO + ' · ' + DATE + ' · 3f9c2a1b7e4d')],
+      [300, () => line('dim', '  approved  v0.1 by ' + WHO + ' · ' + DATE)],
       [200, () => line('a', 'Writing ' + tasks.length + ' task specs; each is checked blind and marked validated when it clears. Nothing is asked until the end.')]
     ];
     tasks.forEach(t => {
@@ -224,8 +224,8 @@ td.w { color:var(--warn); }
       }
     });
     steps.push([500, () => line('dim', '  plan   10 pass · 0 flag · 0 fail · 1 warn')]);
-    steps.push([400, () => line('dim', '  finalise  §1 +1 row · §3 unchanged · §6 +1')]);
-    steps.push([400, () => line('a', 'The plan changed after your go, so it needs your approval again. Sidecar S101-' + SLUG + '.review.md written.')]);
+    steps.push([400, () => line('dim', '  finalise  §1 +1 row · §3 unchanged · §6 +1 · v0.2')]);
+    steps.push([400, () => line('a', 'The plan changed after your go (T007 was rewritten, and the finalise settled §1 and §6), so it needs your approval again as v0.2. Sidecar S101-' + SLUG + '.review.md written.')]);
     steps.push([250, () => el('', view('draft · approved by ' + WHO + ' ' + DATE + ', superseded', tasks.length))]);
     steps.push([200, () => el('blk dim', '<div class="hd">What changed since your go</div>· finalise: §1 Contracts +1 row, ExportRequest consumed by T007 (its rewrite took the name from the contracts table)<br>· finalise: §6 Assumptions +1, the interface taken from §1 rather than restated')]);
     steps.push([200, () => el('', remains())]);
