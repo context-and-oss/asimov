@@ -35,6 +35,12 @@ documentation/specs/*/S101-*.review.md
 # reader. The source's tool is the record; asimov-spec rewrites this on every
 # run (S101 definition §3.1, §9).
 documentation/specs/*/design.md
+# Repo notes — what the cut learned about the repo (files, names with paths,
+# package types, the test fixture and runner, the commands), written by
+# artifact-s101-authoring beside the S101 so the task-spec writers start from it
+# instead of exploring the repo from nothing (S101 definition §9). A cache,
+# refreshed at every cut; never a plan, never a record.
+documentation/specs/*/repo-notes.md
 
 # Claude Code local state
 .claude/settings.local.json

@@ -11,7 +11,7 @@ What a specification must contain before anything is built from it. A specificat
 | **Coverage** | plan | Every id of the design in scope against the tasks that deliver it, and every task against the ids it serves. An id with no task says why. | ISO 29148, IEEE 1016, Spec Kit, superpowers |
 | **Escalation** | plan | What stops a builder, and who rules. | Beads, Shape Up, Anthropic, Scrum |
 | **Intent** | task | What the task delivers and why, traced to the design's ids. | IEEE 1016, Spec Kit, Kiro, Volere |
-| **Scope** | task | The files the task may create, modify and test. Nothing else is touched. | superpowers, Spec Kit, Claude Code, Google |
+| **Scope** | task | The files the task may create, modify and test, and the files a build or a generator rewrites as a consequence of those edits, which nobody touches by hand. Nothing else is touched. | superpowers, Spec Kit, Claude Code, Google |
 | **Done-when** | task | How done is observed: a named test that passes, a build, a command and its expected result. Each checkable by running it. | Scrum, SMART tasks, Volere, ISO 29148, IEEE 829, SWE-bench, Claude Code |
 
 ## Members that are required when they exist
