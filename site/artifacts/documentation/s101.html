@@ -50,7 +50,7 @@
 
   <h2>What it holds</h2>
   <ul>
-    <li><strong>The phase tree</strong>, once, in the YAML frontmatter: phases in build order, a checkpoint on each, and one line per task: id, title, role, tier, what it comes after, the design ids it traces to. Only what orders the work; files and names live in the task specs.</li>
+    <li><strong>The phase tree</strong>, once, in the YAML frontmatter: phases in build order, each with a one-sentence checkpoint a person reads and the check command that proves it, and one line per task: a short title, role, tier, what it comes after, the design ids it traces to. Only what orders the work; files and names live in the task specs.</li>
     <li><strong>Contracts</strong>: every name one task produces and another consumes, with its signature, here and nowhere else.</li>
     <li><strong>Constraints the design imposes</strong>: one line each, verbatim, with the source. Never the conventions; the builder loads those anyway.</li>
     <li><strong>Coverage</strong>: every requirement and acceptance criterion against the tasks that deliver it, both ways. An id with no task says why.</li>
@@ -62,17 +62,18 @@
 
   <h2>How it is cut</h2>
   <ul>
-    <li><strong>Phase 0 is the Foundation.</strong> The contracts as code: classes, interfaces and public methods with no bodies, compiling, one task per stack. Plus whatever every slice builds against and no slice should be first to touch. Never a slice's behaviour, however small.</li>
-    <li><strong>One phase per acceptance criterion.</strong> A slice: the work that makes one criterion pass, end to end. One tester task first, then one builder task per stack it touches.</li>
-    <li><strong>The tester's test is the checkpoint.</strong> Written against the Foundation before any body exists; red first, green when the slice is done. Tester before builder, in every slice.</li>
+    <li><strong>Phase 0 is the Foundation, when the plan needs one.</strong> The contracts as code: classes, interfaces and public methods with no bodies, compiling, one task per stack. Plus whatever every slice builds against and no slice should be first to touch. Never a slice's behaviour, however small. A bug fix in existing files has nothing to found and starts at the first slice: the floor is two tasks, a tester and a builder.</li>
+    <li><strong>One phase per acceptance criterion.</strong> A slice: the work that makes one criterion pass, end to end. One tester task first, then one builder task per stack it touches. Two criteria that pass in the same files share a slice.</li>
+    <li><strong>The tester's test is the checkpoint.</strong> Written against the Foundation, or against the existing code, before any body exists; red first, green when the slice is done. Tester before builder, in every slice. Maintenance work extends the existing test class rather than adding one per slice.</li>
     <li><strong>A close, when the run needs one.</strong> A phase after the last slice for what ends the run and belongs to no criterion: a release, a flag flipped. Often a human task.</li>
-    <li><strong>Parallel means disjoint.</strong> Two tasks run together only if they own no common file. The Foundation is cut so each slice owns its own.</li>
+    <li><strong>Parallel means disjoint.</strong> Two tasks run together only if they own no common file. The Foundation is cut so each slice owns its own; two slices that touch one file run one after the other, and the plan says so.</li>
+    <li><strong>Contracts are between tasks, not with the codebase.</strong> §1 lists the names one task produces for another. Existing code is linked by path in the task spec that uses it, and the checks resolve it on disk.</li>
   </ul>
 
   <h2>The cut, before the expansion</h2>
   <p>Nothing but this file exists when you first see the plan. <code>/asimov-spec</code> shows the plan view: the phases with their checkpoints, one line per task, the coverage line, the assumptions, and what the checks left, one line each; a check it can fix is fixed before you see the cut. Then it waits.</p>
   <ul>
-    <li><strong>go</strong> approves the plan: written into its header with your name, the date and a fingerprint of the plan. Then every task spec is written and checked blind, each marked <em>validated</em> when it clears, the plan is checked whole, and the view is shown once more: <em>ready</em>, or what changed since your go and the question to approve again.</li>
+    <li><strong>go</strong> approves the plan: written into its header with your name, the date and the version you saw. Then every task spec is written and checked blind, each marked <em>validated</em> when it clears, the plan is checked whole, and the view is shown once more: <em>ready</em>, or what changed since your go and the question to approve the new version.</li>
     <li><strong>Free text</strong> re-cuts and shows the cut again. Edit the file by hand and say <em>read again</em>, and it is read as the graph.</li>
     <li><strong>stop</strong> leaves the plan alone on disk. The next run opens at the same place.</li>
   </ul>
