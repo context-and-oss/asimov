@@ -27,14 +27,23 @@
     has none and starts at P1). P1..Pn are the slices, one per acceptance
     criterion a builder can make pass; a phase after the last slice may hold
     the work that closes the run (a release, a reference restored) and has a
-    checkpoint like any other. The floor is one slice: a tester, then a builder.
+    checkpoint like any other. A slice that adds behaviour is a tester, then a
+    builder; a maintenance slice (every file exists, the tests extend an
+    existing class) is one test-first builder per stack, named test-first in a
+    §6 row. The floor is one slice of one task.
   - name: what the phase delivers, two to five words ("FT step OK handling",
-    not a sentence). checkpoint: ONE plain sentence a person reads in the plan
-    view, saying what is true when the phase is done ("the status tests are
-    green, including the FT step OK and step 2300 cases"); never a command,
+    not a sentence). delivers: ONE sentence in the product's words saying what
+    the phase adds and why the next phase needs it ("Adds the internal role
+    set and the check for whether a caller is staff; every list below filters
+    through it"); the first line a person reads under the phase name, never a
+    test result. checkpoint: ONE plain sentence saying what is true in the
+    product when the phase is done, with the tests as the proof ("external
+    users no longer see internal roles in the user list, and the user service
+    tests prove it, including the mixed-account case"); never a command,
     never a test filter. check: the command that proves the sentence, from the
     conventions ("dotnet test --filter FullyQualifiedName~X"); run by the
-    verifier at the Build stage, never shown in the view. Both on every phase.
+    verifier at the Build stage, never shown in the view. All three on every
+    phase.
   - One task per line, YAML flow form: { id, title, role, tier, after, traces }.
     Validation parses it as YAML; quote a title that holds a colon.
   - title: a short name for the task, three to seven words, under 60
@@ -52,7 +61,11 @@
     high = judgement or integration. A recommendation; the run picks the model.
   - after: the task ids this task depends on. Acyclic. In a slice the builder
     task comes after the tester task, so the test is red before the body is
-    written. Every slice task comes after a Foundation task when there is one;
+    written; a stack with no tester role (angular today), and a maintenance
+    slice of any stack whose §6 row names the builder as test-first, take the
+    builder test-first, so that slice has no tester task, the builder owns its
+    test file under test, and the plan check accepts it. Every slice task comes
+    after a Foundation task when there is one;
     a slice that extends a file an earlier slice owns comes after that slice's
     builder, and §6 names the file.
   - traces: ids of the design (R3, NF2, §6.4.1, AC5). A phase traces to the
@@ -78,8 +91,10 @@
   THE BODY
   - Only what the graph cannot carry: the plan members of the contract.
     §1 Contracts, §2 Constraints, §3 Coverage, §4 Escalation, §5 Review focus,
-    §6 Assumptions. No phase prose: the checkpoint is on the phase, the how is
-    in the S102.
+    §6 Assumptions. No phase prose beyond the phase's own delivers and
+    checkpoint sentences: the how is in the S102.
+  - The sentence under each heading in the body below is guidance for the
+    writer, stripped from the rendered file: a section holds content only.
   - §2 Constraints is read in the view, so each line is as short as its value
     allows: the value verbatim, the source, nothing explanatory.
   - Never here: code, steps, test bodies (the S102's, and even there names
@@ -107,6 +122,7 @@ date: "{{YYYY-MM-DD}}"
 phases:
   - id: P0
     name: Foundation
+    delivers: "<one sentence, the product's words: what this phase adds and why the slices need it>"
     checkpoint: "<one sentence: the skeleton compiles with every public name in place and no bodies>"
     check: "<the build command, from the conventions>"
     tasks:
@@ -114,7 +130,8 @@ phases:
   - id: P1
     name: "<what the slice delivers, two to five words>"
     traces: [AC1]
-    checkpoint: "<one sentence: which tests are green, including the cases this slice adds>"
+    delivers: "<one sentence, the product's words: what this phase adds and why the next needs it>"
+    checkpoint: "<one sentence: what is true in the product when the phase is done, and which tests prove it, including the cases this slice adds>"
     check: "<the test command filtered to the slice's test class, from the conventions>"
     tasks:
       - { id: T002, title: "<the slice's acceptance tests, three to seven words>", role: dotnet-tester, tier: mid, after: [T001], traces: [AC1] }
@@ -142,7 +159,7 @@ What the design imposes on every task, and where this plan departs from the conv
 
 ## 3. Coverage
 
-Every requirement, contract and acceptance criterion of the design in scope, against the tasks that deliver it. An id with no task says why (*verified by review*, *out of scope here, per OOSn*). *Says* is the source's wording in one line: required for a normalised design, optional for a D101.
+Every requirement, contract and acceptance criterion of the design in scope, against the tasks that deliver it. An id with no task says why (*verified by review*, *out of scope here, per OOSn*). An out-of-scope id that bounds a task (a split it forces, a line a builder must not cross) may have a row, *Delivered by* that task; none is required. *Says* is the source's wording in one line: required for a normalised design, optional for a D101.
 
 | Id | Says | Delivered by |
 |---|---|---|

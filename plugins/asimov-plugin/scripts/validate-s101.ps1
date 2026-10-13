@@ -55,7 +55,13 @@ $ErrorActionPreference = 'Stop'
 try { [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 } catch { }
 
 if ($PluginRoot -eq '') { $PluginRoot = Split-Path -Parent $PSScriptRoot }
-if ($RepoRoot -eq '') { $RepoRoot = (Get-Location).Path }
+if ($RepoRoot -eq '') {
+  # The plan lives at <repo>/documentation/specs/<slug>/S101-<slug>.md, so the repo root is three folders
+  # above it; derived from the S101 path so the script gives the same answer from any working directory.
+  $probe = $S101; if (-not [System.IO.Path]::IsPathRooted($probe)) { $probe = Join-Path (Get-Location).Path $probe }
+  $mRoot = [regex]::Match($probe.Replace('\', '/'), '^(.*)/documentation/specs/[^/]+/[^/]+$')
+  if ($mRoot.Success) { $RepoRoot = $mRoot.Groups[1].Value } else { $RepoRoot = (Get-Location).Path }
+}
 
 $Sym = [string][char]0xA7       # the section sign
 $EmDash = [string][char]0x2014  # the dash before a constraint's source
@@ -157,7 +163,7 @@ function Parse-Tree([string[]]$Front) {
     if ($raw -match '^[A-Za-z_]') { $inPhases = $false; continue }
     $m = [regex]::Match($raw, '^\s*-\s*id:\s*(P\d+)\s*$')
     if ($m.Success) {
-      $cur = [pscustomobject]@{ Id = $m.Groups[1].Value; Name = ''; Checkpoint = ''; Check = ''; Traces = @(); HasTraces = $false; Keys = @('id'); Tasks = (New-Object System.Collections.Generic.List[object]) }
+      $cur = [pscustomobject]@{ Id = $m.Groups[1].Value; Name = ''; Delivers = ''; Checkpoint = ''; Check = ''; Traces = @(); HasTraces = $false; Keys = @('id'); Tasks = (New-Object System.Collections.Generic.List[object]) }
       $phases.Add($cur); continue
     }
     if ($null -eq $cur) { continue }
@@ -175,12 +181,13 @@ function Parse-Tree([string[]]$Front) {
       $mTr = [regex]::Match($body, '\btraces:\s*\[([^\]]*)\]'); if ($mTr.Success) { $t.Traces = (Parse-FlowList $mTr.Groups[1].Value) }
       $cur.Tasks.Add($t); continue
     }
-    $mk = [regex]::Match($raw, '^\s+(name|checkpoint|check|traces|tasks):\s*(.*)$')
+    $mk = [regex]::Match($raw, '^\s+(name|delivers|checkpoint|check|traces|tasks):\s*(.*)$')
     if ($mk.Success) {
       $v = $mk.Groups[2].Value.Trim()
       $cur.Keys += $mk.Groups[1].Value
       switch ($mk.Groups[1].Value) {
         'name' { $cur.Name = (Strip-Quotes $v) }
+        'delivers' { $cur.Delivers = (Strip-Quotes $v) }
         'checkpoint' { $cur.Checkpoint = (Strip-Quotes $v) }
         'check' { $cur.Check = (Strip-Quotes $v) }
         'traces' { $cur.Traces = (Parse-FlowList $v); $cur.HasTraces = $true }
@@ -474,7 +481,7 @@ if ($H.ContainsKey('approved')) {
 if ($H.ContainsKey('status') -and @('draft', 'ready', 'in progress', 'done') -notcontains [string]$H['status']) { $res += 'Fail'; $why += "status '$($H['status'])'" }
 $expected = 1
 foreach ($ph in $Phases) {
-  foreach ($pk in 'name', 'checkpoint', 'check', 'tasks') { if ($ph.Keys -notcontains $pk) { $res += 'Fail'; $why += "$($ph.Id) has no $pk" } }
+  foreach ($pk in 'name', 'delivers', 'checkpoint', 'check', 'tasks') { if ($ph.Keys -notcontains $pk) { $res += 'Fail'; $why += "$($ph.Id) has no $pk" } }
   if ($ph.Name -ne '' -and $ph.Name.Length -gt 40) { $res += 'Flag'; $why += "$($ph.Id) name is $($ph.Name.Length) characters (40)" }
   foreach ($t in $ph.Tasks) {
     foreach ($tk in 'id', 'title', 'role', 'tier', 'after', 'traces') { if ($t.Keys -notcontains $tk) { $res += 'Fail'; $why += "task '$($t.Id)' in $($ph.Id) has no $tk" } }
@@ -512,6 +519,12 @@ for ($i = 0; $i -lt $Phases.Count; $i++) { if ($Phases[$i].Id -ne 'P0' -and $Pha
 $SliceTaskIds = @()
 for ($i = 0; $i -lt $Phases.Count; $i++) { if ($Phases[$i].Id -ne 'P0' -and $Phases[$i].Traces.Count -gt 0) { $SliceTaskIds += @($Phases[$i].Tasks | ForEach-Object { $_.Id }) } }
 $SeqPairs = @()
+$TestFirstBuilders = @()
+function Test-TestFirstStack([string]$BuilderRole) {
+  # true when the closed role list holds no tester for the builder's stack (angular-builder today: no angular-tester)
+  if ($BuilderRole -notmatch '^([a-z]+)-builder$') { return $false }
+  return (-not ($Roles -contains ($Matches[1] + '-tester')))
+}
 for ($i = 0; $i -lt $Phases.Count; $i++) {
   $ph = $Phases[$i]
   if ($ph.Tasks.Count -eq 0) { $res += 'Fail'; $why += "$($ph.Id) holds no task"; continue }
@@ -527,10 +540,21 @@ for ($i = 0; $i -lt $Phases.Count; $i++) {
     $testers = @($ph.Tasks | Where-Object { $_.Role -match 'tester' })
     $builders = @($ph.Tasks | Where-Object { $_.Role -match 'builder' })
     if ($testers.Count -eq 0) {
-      $named = $false
-      foreach ($b in $builders) { if ($text6 -match ("\b" + [regex]::Escape($b.Id) + "\b") -and $text6 -match '(?i)tester|test-first') { $named = $true } }
-      if ($named) { $res += 'Flag'; $why += "$($ph.Id) has no tester task; a $Sym" + "6 row names its builder as the slice's tester" }
-      else { $res += 'Fail'; $why += "$($ph.Id) is a slice with no tester task" }
+      # A slice with no tester task is test-first when every builder in it is: of a stack with no tester role
+      # (authoring step 2), or named test-first on one line of section 6 (a maintenance slice, definition section 3
+      # and 4.4). In full mode each such builder's S102 must own a test file.
+      $testFirst = ($builders.Count -gt 0)
+      foreach ($b in $builders) {
+        $idRx = [regex]::Escape($b.Id)
+        $namedTestFirst = ($text6 -match ("(?i)\b" + $idRx + "\b[^\n]*test-first|test-first[^\n]*\b" + $idRx + "\b"))
+        if (-not (Test-TestFirstStack $b.Role) -and -not $namedTestFirst) { $testFirst = $false }
+      }
+      if ($testFirst) {
+        $TestFirstBuilders += @($builders | ForEach-Object { $_.Id })
+        if ($Full) { foreach ($b in $builders) { if (@(Spec-Owns $b.Id 'test').Count -eq 0) { $res += 'Fail'; $why += "$($b.Id) is a test-first builder and its S102 owns no test file" } } }
+      } else {
+        $res += 'Fail'; $why += "$($ph.Id) is a slice with no tester task, and no $Sym" + "6 row names its builder(s) test-first"
+      }
     } else {
       if ($builders.Count -eq 0) { $res += 'Fail'; $why += "$($ph.Id) is a slice with no builder task" }
       foreach ($b in $builders) {
@@ -556,7 +580,9 @@ if ($SeqPairs.Count -gt 0) {
   if ($pathInA6) { $why += "sequenced across slices ($($SeqPairs -join ', ')); a $Sym" + "6 row names a shared file" }
   else { $res += 'Flag'; $why += "sequenced across slices ($($SeqPairs -join ', ')) and no $Sym" + "6 row names the shared file" }
 }
-Finish-Row 'G3' 'Phases' $res $why 'Every slice has its tester before its builders; every phase holds a task.'
+$g3Pass = 'Every slice has its tester before its builders; every phase holds a task.'
+if ($TestFirstBuilders.Count -gt 0) { $g3Pass = 'Every slice has its tester before its builders, or a test-first builder (' + ($TestFirstBuilders -join ', ') + '); every phase holds a task.' }
+Finish-Row 'G3' 'Phases' $res $why $g3Pass
 
 # ---------------------------------------------------------------- G4 parallel = disjoint
 
@@ -692,11 +718,14 @@ foreach ($l in $Body) {
 }
 if ($FenceCount -gt 0) { $res += 'Fail'; $why += "$FenceCount code fence(s) in the body; a plan carries no code" }
 if ($StepLists -gt 0) { $res += 'Flag'; $why += "$StepLists numbered line(s) outside a table; a plan carries no step list" }
-# a signature outside section 1: a parenthesised parameter list with a type-looking token
+# a signature outside section 1: "Type Name(Type param", the paren glued to the name as code writes it and prose
+# does not ("says why (" has a space). A line the template itself carries is guidance, never a signature.
+$TplBodyLines = @($tplFm.Body | ForEach-Object { ($_ -replace '\s+', ' ').Trim() } | Where-Object { $_ -ne '' })
 foreach ($sec in $Sections) {
   if ($sec.Num -eq 1) { continue }
   foreach ($l in $sec.Lines) {
-    if ($l -match '\b[A-Z]\w+(?:<[\w, ]+>)?\s+\w+\s*\([^)]*\b[A-Z]\w*\s+\w+') { $res += 'Flag'; $why += "a signature outside $Sym" + "1 in $Sym$($sec.Num): $($l.Trim())"; break }
+    if ($TplBodyLines -contains (($l -replace '\s+', ' ').Trim())) { continue }
+    if ($l -match '\b[A-Z]\w*(?:<[^()]*>)?\s+\w+\((?:[^)]*\b[A-Z]\w*\s+\w+)') { $res += 'Flag'; $why += "a signature outside $Sym" + "1 in $Sym$($sec.Num): $($l.Trim())"; break }
   }
 }
 Finish-Row 'G8' 'Body' $res $why ("$Sym" + '1-' + "$Sym" + '6 in order; no code, no step list; every id named exists.')
@@ -819,7 +848,7 @@ if (-not $H.ContainsKey('design')) { $res += 'Fail'; $why += 'no design line' }
 $preamble = @(); foreach ($l in $Body) { if ($l -match '^##\s') { break }; if ($l.Trim() -ne '' -and $l -notmatch '^#\s') { $preamble += $l } }
 if ($preamble.Count -eq 0) { $res += 'Fail'; $why += 'no first paragraph naming the design and its approval' }
 elseif (($preamble -join ' ') -notmatch '(?i)approved') { $res += 'Flag'; $why += 'the first paragraph does not name the approval' }
-foreach ($ph in $Phases) { if ($ph.Checkpoint -eq '') { $res += 'Fail'; $why += "$($ph.Id) has an empty checkpoint" }; if ($ph.Check -eq '') { $res += 'Fail'; $why += "$($ph.Id) has an empty check" } }
+foreach ($ph in $Phases) { if ($ph.Delivers -eq '') { $res += 'Fail'; $why += "$($ph.Id) has an empty delivers" }; if ($ph.Checkpoint -eq '') { $res += 'Fail'; $why += "$($ph.Id) has an empty checkpoint" }; if ($ph.Check -eq '') { $res += 'Fail'; $why += "$($ph.Id) has an empty check" } }
 foreach ($n in 3, 4) { if ($null -eq (Get-Section $Sections $n)) { $res += 'Fail'; $why += "$Sym$n missing" } }
 foreach ($n in 1, 2, 6) { $sec = Get-Section $Sections $n; if ($null -ne $sec -and (($sec.Lines -join "`n").Trim() -eq '')) { $res += 'Fail'; $why += "$Sym$n is empty (write *none* when there is nothing)" } }
 if ($Full) {
@@ -843,6 +872,12 @@ foreach ($ph in $Phases) {
   $cp = $ph.Checkpoint; $ck = $ph.Check
   if ($cp -match '(?i)\b(code exists|implemented|is implemented|done)\b\s*$' -or $cp -match '(?i)^\s*(implemented|code exists)') { $res += 'Fail'; $why += "$($ph.Id) checkpoint reads as a claim, not a state: '$cp'" }
   if ($cp -match '`|\b(dotnet|npm|ng|pwsh|powershell|bash|make|yarn|pnpm)\b|--\w|[\w.-]+/[\w.-]+\.\w+') { $res += 'Flag'; $why += "$($ph.Id) checkpoint carries a command or a path; it belongs in check" }
+  $dl = $ph.Delivers
+  if ($dl -match '`|\b(dotnet|npm|ng|pwsh|powershell|bash|make|yarn|pnpm)\b|--\w|[\w.-]+/[\w.-]+\.\w+') { $res += 'Flag'; $why += "$($ph.Id) delivers carries a command or a path; it says what the phase adds, in the product's words" }
+  if ($dl -match '(?i)\btests?\b[^.]*\b(green|red|pass|passes|passing)\b') { $res += 'Flag'; $why += "$($ph.Id) delivers reads as a test result; the checkpoint carries that, delivers says what the phase adds" }
+  $dl = $ph.Delivers
+  if ($dl -match '`|\b(dotnet|npm|ng|pwsh|powershell|bash|make|yarn|pnpm)\b|--\w|[\w.-]+/[\w.-]+\.\w+') { $res += 'Flag'; $why += "$($ph.Id) delivers carries a command or a path; it says what the phase adds, in the product's words" }
+  if ($dl -match '(?i)\btests?\b[^.]*\b(green|red|pass|passes|passing)\b') { $res += 'Flag'; $why += "$($ph.Id) delivers reads as a test result; the checkpoint carries that, delivers says what the phase adds" }
   if ($ck.Trim() -eq '') { $res += 'Fail'; $why += "$($ph.Id) check is empty" }
   elseif ($ck -match '(?i)\b(grep|rg|Select-String|findstr)\b') { $res += 'Fail'; $why += "$($ph.Id) check searches the source: '$ck'" }
   elseif ($ck -notmatch '\S+\s+\S+' -and $ck -notmatch '\.(ps1|sh|cmd)$') { $res += 'Fail'; $why += "$($ph.Id) check has no runnable form: '$ck'" }

@@ -44,8 +44,8 @@ The tier is a recommendation; `asimov-build` maps it to the model through the Ag
 
 | Call | Does | Model · effort |
 |---|---|---|
-| **plan writer** (`general-purpose`): `artifact-s101-authoring`, and on a small plan `artifact-s102-authoring` in the same call | cuts the plan: the one judgement-heavy step of the run | `claude-opus-5-5` (`model: opus`), `effort: high` |
-| **task writer** (`general-purpose`): `artifact-s102-authoring` | writes a task spec from the plan, the notes and the template; its bar is a script | `claude-sonnet-5-5` (`model: sonnet`) |
+| **plan writer** (`general-purpose`): `artifact-s101-authoring`, and on a small plan `artifact-s102-authoring` in the same call | cuts the plan and runs the graph check on it: the one judgement-heavy step of the run | `claude-opus-5-5` (`model: opus`), `effort: high` |
+| **task writer** (`general-purpose`): `artifact-s102-authoring` | writes the task specs of one phase (the tester first) from the plan, the notes and the template; its bar is a script, which it runs on its own output | `claude-sonnet-5-5` (`model: sonnet`) |
 | **plan check**: `artifact-s101-validation` | a script, `scripts/validate-s101.ps1`, run inline through Bash | no model: one tool call |
 | **task-spec check**: `artifact-s102-validation` | a script, `scripts/validate-s102.ps1`, run inline through Bash | no model: one tool call |
 

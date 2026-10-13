@@ -1,6 +1,6 @@
 ---
 name: artifact-s101-view
-description: Render one S101 implementation plan (documentation/specs/<slug>/S101-<slug>.md) as the fixed plan view a person reads in chat — the phase tree with its checkpoints and one line per task, the coverage line, the assumptions line, the design gaps — in the language of the conversation. Use when a person must see a plan: the cut and the end of a run inside asimov-spec, the re-check of a ready plan, a run's position inside asimov-build, or when asked to "show me the plan", "what does the cut look like". Reads the S101 and, when present, the S102 headers; prints text; writes nothing and judges nothing.
+description: Render one S101 implementation plan (documentation/specs/<slug>/S101-<slug>.md) as the fixed plan view a person reads in chat — the phase tree with what each phase delivers, its checkpoint and one line per task, the coverage line, the assumptions line, the design gaps — in the language of the conversation. Use when a person must see a plan: the cut and the end of a run inside asimov-spec, the re-check of a ready plan, a run's position inside asimov-build, or when asked to "show me the plan", "what does the cut look like". Reads the S101 and, when present, the S102 headers; prints text; writes nothing and judges nothing.
 ---
 
 # S101 view
@@ -37,12 +37,14 @@ Plan for <slug> · <title>
 <design, short> · approved by <who> <date> · <n> phases, <m> tasks<, k task specs written, v validated> · <status> v<version> · <plan approved by <by> <date> | plan not approved>
 ──────────────────────────────────────────────────────────────────────
 P0  <phase name>                                           <phase traces>
+    <delivers>
     ✓ <checkpoint>
     ├─ T001  <role>  <tier>  <title>
     ├─ T002  <role>  <tier>  <title>
     └─ T003  <role>  <tier>  <title>
 ──────────────────────────────────────────────────────────────────────
 P1  <phase name>                                           <phase traces>
+    <delivers>
     ✓ <checkpoint>
     ├─ T004  <role>  <tier>  <title>
     └─ T005  <role>  <tier>  <title>
@@ -58,7 +60,7 @@ Rules of the rendering:
 - **Task specs written** appears only when at least one `S102-<slug>-NNN-*.md` exists in the folder: `k` is the number of tasks in the tree with exactly one file, `v` the number of those whose header says `status: validated`.
 - **Plan approved by** comes from the header's `approved` line: the name and date when it holds them, *plan not approved* when it is `none` or absent. The view does not check the fingerprint; the caller says whether the approval still holds.
 - **Design, short.** For a repo file: the file name and version (`D101-permissions.html v0.11`). For a normalised design: the key or the last path segment of the url and the read time (`SEC-1733, read 2026-10-05`). *Approved by* comes from the body's first paragraph; omit it when the body does not name one. When the header's `design` line says `approval: unverified`, the approval reads `approved by <who> <date> (unverified: pasted text)`, so the person sees that nobody checked it.
-- **Phases** in the order of the tree, each with its id, name and traces (phase `traces` as the file has them, right-aligned; nothing when empty). The `checkpoint` sentence on its own line under the name, prefixed `✓`, verbatim; never the `check` command, which is the verifier's. Tasks in the order of the tree with `├─` and `└─` on the last.
+- **Phases** in the order of the tree, each with its id, name and traces (phase `traces` as the file has them, right-aligned; nothing when empty). The `delivers` sentence on its own line directly under the name, verbatim and unprefixed: it is what the phase adds, the first thing a reader learns about it; omit the line only when the file has no `delivers` key (a plan cut before the field existed). Then the `checkpoint` sentence on its own line, prefixed `✓`, verbatim; never the `check` command, which is the verifier's. Tasks in the order of the tree with `├─` and `└─` on the last.
 - **Role** is the role without its stack prefix (`builder`, `tester`, `human`) when every task of the plan is of one stack; with the stack (`dotnet builder`, `angular builder`) when the plan has more than one. Pad role and tier so the titles align.
 - **Title** verbatim from the task line. Never add the dependencies, the files or the traces of a task: the order top to bottom is the order, and the rest is the agent's.
 - **Constraints** prints every line of §2 as written, because the author approves them with the go: the approval's fingerprint covers the tree, §2, §3 and §6, and the view shows exactly those parts (definition §6). The first line carries the label; the rest are indented under it.

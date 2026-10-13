@@ -50,7 +50,13 @@ $ErrorActionPreference = 'Stop'
 try { [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 } catch { }
 
 if ($PluginRoot -eq '') { $PluginRoot = Split-Path -Parent $PSScriptRoot }
-if ($RepoRoot -eq '') { $RepoRoot = (Get-Location).Path }
+if ($RepoRoot -eq '') {
+  # The plan lives at <repo>/documentation/specs/<slug>/S101-<slug>.md, so the repo root is three folders
+  # above it; derived from the S101 path so the script gives the same answer from any working directory.
+  $probe = $S101; if (-not [System.IO.Path]::IsPathRooted($probe)) { $probe = Join-Path (Get-Location).Path $probe }
+  $mRoot = [regex]::Match($probe.Replace('\', '/'), '^(.*)/documentation/specs/[^/]+/[^/]+$')
+  if ($mRoot.Success) { $RepoRoot = $mRoot.Groups[1].Value } else { $RepoRoot = (Get-Location).Path }
+}
 
 $Sym = [string][char]0xA7       # the section sign
 $EmDash = [string][char]0x2014  # the dash before a constraint's source
@@ -580,6 +586,7 @@ for ($i = 0; $i -lt $Body.Count - 1; $i++) { if ($Body[$i] -match '(?i)^\s*(#+\s
 foreach ($sl in $ScenarioLines) { if ($sl -match "(?:[\w.-]+/)+[\w.-]+$SrcExt") { $res += 'Fail'; $why += "a Scenario names a path: $($sl.Trim())" } }
 foreach ($d in $DoneItems) { if ($d -match '(?i)\b(grep|rg|Select-String|findstr)\b') { $res += 'Fail'; $why += "a done-when searches the source: $($d.Trim())" } }
 # identifiers in gherkin against section 1, consumes, produces, design, consumed paths
+$OwnedOnDisk = @(@($Modify) + @($TestFiles) | Where-Object { -not (Test-IsGlob $_) -and (Test-Path -LiteralPath (Resolve-RepoPath $_)) })
 $known = @($Contracts.Keys) + @($ConsumedNames) + @($Produces)
 $knownShort = @($known | ForEach-Object { ($_ -split '\.')[-1] })
 $unknown = @()
@@ -589,8 +596,9 @@ foreach ($g in $Gherkin) {
       $idn = $m.Value; $short = ($idn -split '\.')[-1]
       if ($knownShort -contains $short) { continue }
       if ($designText -ne '' -and $designText -match ("\b" + [regex]::Escape($short) + "\b")) { continue }
+      if ($short -match 'Exception$') { continue }   # a framework exception in a Then line is behaviour, not a contract
       $found = $false
-      foreach ($cp in $ConsumedPaths) { if (Test-NameDeclared $short $cp) { $found = $true; break } }
+      foreach ($cp in ($ConsumedPaths + $OwnedOnDisk)) { if (Test-NameDeclared $short $cp) { $found = $true; break } }
       if (-not $found) { $unknown += $idn }
     }
   }
@@ -599,12 +607,21 @@ $unknown = @($unknown | Select-Object -Unique)
 if ($unknown.Count -gt 0) { $res += 'Flag'; $why += "identifiers in scenarios found in no ${Sym}1 row, header entry, design or consumed path: $($unknown -join ', ')" }
 if ($res.Count -eq 0) { Add-Row 'S7' 'Boundary tokens' 'Pass' 'Gherkin only; no steps list; no path in a scenario; no search in a done-when.' } else { Add-Row 'S7' 'Boundary tokens' (Worst $res) (($why | Select-Object -Unique) -join '; ') }
 
+# the slice's tester of this builder's own stack (dotnet-builder after dotnet-tester). A builder with none in its
+# phase that owns a test file is test-first (an angular builder today): it carries the slice's scenarios itself.
+$SameStackTesters = @()
+if ($IsBuilder -and $null -ne $Task) {
+  $stack = ($Role -split '-')[0]
+  $SameStackTesters = @($Task.After | Where-Object { $TaskById.ContainsKey($_) -and $TaskById[$_].Role -match 'tester' -and $TaskById[$_].Phase -eq $Task.Phase -and ($TaskById[$_].Role -split '-')[0] -eq $stack })
+}
+$IsTestFirstBuilder = ($IsBuilder -and $SameStackTesters.Count -eq 0 -and @($TestFiles).Count -gt 0)
+
 # ---------------------------------------------------------------- S8 sizes
 
 $res = @(); $why = @()
 $fileCount = @($Create).Count + @($Modify).Count
 if ($fileCount -gt $thrFiles) { $res += 'Warn'; $why += "$fileCount owned non-test files, threshold $thrFiles" }
-$scenThr = $thrScen; if ($IsTester) { $scenThr = $thrScenTester }
+$scenThr = $thrScen; if ($IsTester -or $IsTestFirstBuilder) { $scenThr = $thrScenTester }
 if ($OwnScenarioCount -gt $scenThr) { $res += 'Warn'; $why += "$OwnScenarioCount own scenarios, threshold $scenThr" }
 $sizeSentence = "$fileCount owned non-test files (threshold $thrFiles); $OwnScenarioCount own scenarios (threshold $scenThr); $ReviewFocusCount review-focus."
 if ($res.Count -eq 0) { Add-Row 'S8' 'Sizes' 'Pass' $sizeSentence } else { Add-Row 'S8' 'Sizes' 'Warn' ($why -join '; ') }
@@ -689,7 +706,9 @@ foreach ($d in $DoneItems) {
   if (-not $hasCode -or -not $hasResult) { $res += 'Fail'; $why += "no name/command in a code span with a result word: $($d.Trim())" }
 }
 if ($IsBuilder -and $null -ne $Task) {
-  $testers = @($Task.After | Where-Object { $TaskById.ContainsKey($_) -and $TaskById[$_].Role -match 'tester' -and $TaskById[$_].Phase -eq $Task.Phase })
+  # the tester of the builder's own stack (computed before S8); a builder of another stack in the same phase
+  # (an angular builder, test-first beside a .NET tester) names its own test file instead
+  $testers = $SameStackTesters
   if ($testers.Count -gt 0) {
     $testerNames = @()
     foreach ($tid in $testers) {
@@ -698,8 +717,8 @@ if ($IsBuilder -and $null -ne $Task) {
         if ($null -ne $ts3) { foreach ($l in $ts3.Lines) { foreach ($m in [regex]::Matches($l, '`([^`]+)`')) { $testerNames += $m.Groups[1].Value } } }
       }
     }
-    $testerNames = @($testerNames | Select-Object -Unique)
-    $builderNames = @(); foreach ($d in $DoneItems) { foreach ($m in [regex]::Matches($d, '`([^`]+)`')) { $builderNames += $m.Groups[1].Value } }
+    $testerNames = @($testerNames | Where-Object { $_ -notmatch '\s' } | Select-Object -Unique)   # names, never commands
+    $builderNames = @(); foreach ($d in $DoneItems) { foreach ($m in [regex]::Matches($d, '`([^`]+)`')) { if ($m.Groups[1].Value -notmatch '\s') { $builderNames += $m.Groups[1].Value } } }
     $shared = @($builderNames | Where-Object { $testerNames -contains $_ })
     if ($testerNames.Count -gt 0 -and $shared.Count -eq 0) { $res += 'Fail'; $why += "no done-when names a test the tester ($($testers -join ', ')) lists in its ${Sym}3" }
     elseif ($testerNames.Count -eq 0 -and -not (($DoneItems -join ' ') -match ($testers -join '|'))) { $res += 'Flag'; $why += "the tester's ${Sym}3 lists no code-span name to match, and the builder's done-when does not name the tester task" }

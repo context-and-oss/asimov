@@ -14,8 +14,8 @@
     kebab-case, never the whole title. There is no S102 without an S101.
   - Before reading the repo from nothing, read repo-notes.md beside the S101
     when it exists (the cut's notes: files, names with their paths, package
-    types, the test fixture and runner, the commands); verify every path you
-    take from it.
+    types, the test fixture and runner, the commands); take its paths and
+    names as given, the shape check looks each one up.
   - Strip THIS comment from the rendered file.
 
   THE LINE
@@ -31,8 +31,9 @@
     else: the S101 reads them for disjointness and interface closure.
   - owns: repo-relative paths, or globs for a folder the task owns whole
     (src/Services/Export/**), in four lists. test holds every test file the
-    task creates or modifies; create and modify hold non-test files the
-    builder edits by hand. regenerates holds the files a build, a restore
+    task creates or modifies (a tester's; or a test-first builder's, in a
+    maintenance slice or where its stack has no tester role); create and
+    modify hold non-test files the builder edits by hand. regenerates holds the files a build, a restore
     or a generator rewrites as a consequence of those edits and that nobody
     edits by hand (lock files, generated clients, snapshots): globs allowed,
     not counted toward size, not part of disjointness; the builder runs the
@@ -64,18 +65,23 @@
   2 Behaviour: Gherkin, one scenario per behaviour, a rule with its failing
     case; public names only. A scenario pinned from the S101 review focus
     carries the tag @review-focus and does not count toward the size
-    threshold; in a slice the pin names the tester, never the builder. In a
+    threshold; the pin names the task that carries the scenarios: the tester,
+    or the test-first builder of a maintenance slice, never a builder that has
+    a tester. In a
     slice the TESTER task carries the slice's scenarios; the
     builder task of the same slice does not restate them: its §2 is one line,
     "as T00n: the scenarios of this slice's tester task", plus only a scenario
-    the tester does not carry (normally none). A task that adds no behaviour
+    the tester does not carry (normally none). A test-first builder (no tester
+    of its stack in its phase) carries the slice's scenarios itself. A task
+    that adds no behaviour
     says "none" and names its check instead. Compiling is not a behaviour.
   3 Done-when: numbered; a named test and its expected state, a build, a
     command and its output. Described, never written. A test is named by its
     class (a code span) and its scenario title, never by a method name: the
     methods are the builder's. A tester's done-when lists one test per
     scenario of its §2 by title; a builder's names its tester's task id and
-    test class and says those tests are green.
+    test class and says those tests are green; a test-first builder's names
+    its own test file or class and the tests it adds.
   4 Constraints and stops: must / must not / prefer / stops, only what is
     specific to this task. The generic stops (a file outside the owned set, a
     name that does not resolve, a conflict with design, conventions or a
@@ -83,6 +89,29 @@
   5 Out of scope: one line each, with who owns it. "none" if none.
   No section opens with a sentence from this template; the rendered file holds
   content only.
+
+  THE SHAPE CHECK (scripts/validate-s102.ps1): what it needs beyond the above
+  - Header: every key of this template, owns with its four lists (regenerates:
+    [] when nothing is regenerated); after and traces equal to the task line.
+  - 2 Behaviour: one scenario tagged @review-focus (the tag on the line above
+    Scenario:) for every S101 §5 line pinned to this task; every scenario has
+    Given, When and Then; every CamelCase or dotted name in a scenario is a §1
+    row, a header entry, a word of the design, or declared in a file the header
+    names (a consumed path, an owned file); a framework exception is fine.
+  - 3 Done-when: every numbered item holds a code span (a class, a file, a
+    command) AND a result word: green, red, passes, fails, exits, prints,
+    returns, is, are, equals, contains, met. A builder with a tester of its
+    stack in its phase names, in a code span, a test class the tester's §3
+    names in a code span (copy it from there; a command both share does not
+    count); a test-first builder names its own test file or class. Never grep,
+    rg, Select-String or findstr.
+  - 4 Constraints: a Must's code span is never a call (name(args)) and never a
+    loop or an algorithm; no code span anywhere reads as a signature
+    (Type Name(Type param)).
+  - Sizes, Warn only: 3 non-test owned files; 3 own scenarios for a builder,
+    5 for a tester or a test-first builder; @review-focus scenarios not counted.
+  - No placeholder (TBD, TODO, "handle edge cases", "similar to T00n", a
+    <description> left from this template), no empty fence, no run state.
 
   NEVER HERE
   - A method body, a test body, a step list, a private name, a restated
