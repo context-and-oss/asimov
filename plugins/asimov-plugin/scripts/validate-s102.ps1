@@ -488,7 +488,15 @@ for ($i = 0; $i -lt $Body.Count; $i++) {
     foreach ($o in $Owned) { if (Test-PathMatches $o $bp) { $ok = $true; break } }
     if (-not $ok -and (Test-Path -LiteralPath (Resolve-RepoPath $bp))) { $ok = $true }
     if (-not $ok -and (Created-Upstream $bp)) { $ok = $true }
-    if (-not $ok) { $res += 'Fail'; $why += "body path '$bp' is neither owned nor existing" }
+    if (-not $ok) {
+      # a path inside a command may be relative to the folder the command runs from (--prefix, -C, cd)
+      foreach ($md in [regex]::Matches($l, '(?:--prefix|-C|\bcd)\s+"?([\w./-]+)"?')) { if (Test-Path -LiteralPath (Resolve-RepoPath (Join-Path $md.Groups[1].Value $bp))) { $ok = $true; break } }
+    }
+    if (-not $ok) {
+      $inSpan = (([regex]::Matches($l.Substring(0, $m.Index), '`').Count % 2) -eq 1)
+      if ($inSpan) { $res += 'Flag'; $why += "path '$bp' in a command does not resolve from the repo root; the builder runs it from its folder" }
+      else { $res += 'Fail'; $why += "body path '$bp' is neither owned nor existing" }
+    }
   }
 }
 if ($res.Count -eq 0) { Add-Row 'S3' 'Paths resolve' 'Pass' 'Every owned path exists, is created upstream, or is new under test.' } else { Add-Row 'S3' 'Paths resolve' (Worst $res) (($why | Select-Object -Unique) -join '; ') }

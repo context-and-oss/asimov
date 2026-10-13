@@ -520,6 +520,7 @@ $SliceTaskIds = @()
 for ($i = 0; $i -lt $Phases.Count; $i++) { if ($Phases[$i].Id -ne 'P0' -and $Phases[$i].Traces.Count -gt 0) { $SliceTaskIds += @($Phases[$i].Tasks | ForEach-Object { $_.Id }) } }
 $SeqPairs = @()
 $TestFirstBuilders = @()
+function Stack-Of([string]$Role) { return ($Role -split '-')[0] }
 function Test-TestFirstStack([string]$BuilderRole) {
   # true when the closed role list holds no tester for the builder's stack (angular-builder today: no angular-tester)
   if ($BuilderRole -notmatch '^([a-z]+)-builder$') { return $false }
@@ -532,35 +533,31 @@ for ($i = 0; $i -lt $Phases.Count; $i++) {
   if ($ph.Id -eq 'P0') { continue }
   if ($HasP0) {
     foreach ($t in $ph.Tasks) {
-      $viaP0 = $false; foreach ($p0 in $P0Ids) { if (Comes-After $t.Id $p0) { $viaP0 = $true; break } }
-      if (-not $viaP0) { $res += 'Fail'; $why += "$($t.Id) in $($ph.Id) has no path from a P0 task" }
+      # a slice task builds on the Foundation of its own stack; a stack the Foundation does not touch owes it nothing
+      $p0Same = @($Phases[0].Tasks | Where-Object { (Stack-Of $_.Role) -eq (Stack-Of $t.Role) } | ForEach-Object { $_.Id })
+      if ($p0Same.Count -eq 0) { continue }
+      $viaP0 = $false; foreach ($p0 in $p0Same) { if (Comes-After $t.Id $p0) { $viaP0 = $true; break } }
+      if (-not $viaP0) { $res += 'Fail'; $why += "$($t.Id) in $($ph.Id) has no path from the P0 task of its stack ($($p0Same -join ', '))" }
     }
   }
   if ($isSlice) {
     $testers = @($ph.Tasks | Where-Object { $_.Role -match 'tester' })
     $builders = @($ph.Tasks | Where-Object { $_.Role -match 'builder' })
-    if ($testers.Count -eq 0) {
-      # A slice with no tester task is test-first when every builder in it is: of a stack with no tester role
-      # (authoring step 2), or named test-first on one line of section 6 (a maintenance slice, definition section 3
-      # and 4.4). In full mode each such builder's S102 must own a test file.
-      $testFirst = ($builders.Count -gt 0)
-      foreach ($b in $builders) {
-        $idRx = [regex]::Escape($b.Id)
-        $namedTestFirst = ($text6 -match ("(?i)\b" + $idRx + "\b[^\n]*test-first|test-first[^\n]*\b" + $idRx + "\b"))
-        if (-not (Test-TestFirstStack $b.Role) -and -not $namedTestFirst) { $testFirst = $false }
+    if ($builders.Count -eq 0) { $res += 'Fail'; $why += "$($ph.Id) is a slice with no builder task" }
+    # A builder comes after a tester of its own stack. A builder whose stack has no tester in the phase is
+    # test-first (a ticket's slice, a maintenance slice, a stack with no tester role: definition section 3 and
+    # 4.4) and, in full mode, its S102 must own a test file. A slice of test-first builders alone is a slice.
+    foreach ($b in $builders) {
+      $sameStack = @($testers | Where-Object { (Stack-Of $_.Role) -eq (Stack-Of $b.Role) })
+      if ($sameStack.Count -eq 0) {
+        $TestFirstBuilders += $b.Id
+        if ($Full -and @(Spec-Owns $b.Id 'test').Count -eq 0) { $res += 'Fail'; $why += "$($b.Id) has no tester of its stack in $($ph.Id) and its S102 owns no test file" }
+        continue
       }
-      if ($testFirst) {
-        $TestFirstBuilders += @($builders | ForEach-Object { $_.Id })
-        if ($Full) { foreach ($b in $builders) { if (@(Spec-Owns $b.Id 'test').Count -eq 0) { $res += 'Fail'; $why += "$($b.Id) is a test-first builder and its S102 owns no test file" } } }
-      } else {
-        $res += 'Fail'; $why += "$($ph.Id) is a slice with no tester task, and no $Sym" + "6 row names its builder(s) test-first"
-      }
-    } else {
-      if ($builders.Count -eq 0) { $res += 'Fail'; $why += "$($ph.Id) is a slice with no builder task" }
-      foreach ($b in $builders) {
-        $afterTester = $false; foreach ($tt in $testers) { if (Comes-After $b.Id $tt.Id) { $afterTester = $true; break } }
-        if (-not $afterTester) { $res += 'Fail'; $why += "$($b.Id) does not come after a tester of $($ph.Id)" }
-      }
+      $afterTester = $false; foreach ($tt in $sameStack) { if (Comes-After $b.Id $tt.Id) { $afterTester = $true; break } }
+      if (-not $afterTester) { $res += 'Fail'; $why += "$($b.Id) does not come after the tester of its stack in $($ph.Id)" }
+    }
+    {
       foreach ($tt in $testers) {
         foreach ($u in $UpstreamOf[$tt.Id]) {
           if ($TaskById.ContainsKey($u) -and $TaskById[$u].Role -match 'builder' -and $SliceTaskIds -contains $u -and $TaskById[$u].Phase -ne $ph.Id) { $SeqPairs += "$($tt.Id) after $u" }

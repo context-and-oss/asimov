@@ -184,7 +184,7 @@ The failure modes the design implies that no task's check exercises. One line ea
 
 ## 6. Assumptions
 
-Every decision about the feature taken without asking the author, in the order taken. *How* is `default`, `decided by default` or `corrected at the cut`. A workaround of this template's own rules is not an assumption; it is a finding for the sidecar. A gap no default can bridge begins its *Taken* cell with `design:`.
+Every decision about the feature taken without asking the author, in the order taken. *How* is `default`, `decided by default` or `corrected at the cut`, with `, behaviour` appended when the decision changes what a user sees or gets (the view prints those rows). A workaround of this template's own rules is not an assumption; it is a finding for the sidecar. A gap no default can bridge begins its *Taken* cell with `design:`.
 
 | # | Would have asked | Options | Taken | How |
 |---|---|---|---|---|

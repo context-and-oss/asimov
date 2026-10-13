@@ -29,7 +29,7 @@ Load with the file-read tool. In Claude Code `${CLAUDE_PLUGIN_ROOT}` is the plug
 
 ## The view
 
-Print exactly this layout, in a fenced block so the columns hold. Labels (*Plan for*, *phases*, *tasks*, *Constraints*, *Coverage*, *Assumptions*, *corrected at the cut*, *design gap*) in the caller's language; titles, names and checkpoint sentences as the file has them. The rule in the horizontal line is as wide as the widest line, never wider than 80 characters: a terminal wraps anything longer, and the view is read in ten seconds. The plan is written to fit (short titles, a one-sentence checkpoint, one-line constraints); a line that does not fit is printed as it is, not reworded, and is the plan's defect to report, not yours to hide.
+Print exactly this layout, in a fenced block so the columns hold. Labels (*Plan for*, *phases*, *tasks*, *Constraints*, *Coverage*, *Assumptions*, *corrected at the cut*, *behaviour*, *design gap*) in the caller's language; titles, names and checkpoint sentences as the file has them. The rule in the horizontal line is as wide as the widest line, never wider than 80 characters: a terminal wraps anything longer, and the view is read in ten seconds. The plan is written to fit (short titles, a one-sentence checkpoint, one-line constraints); a line that does not fit is printed as it is, not reworded, and is the plan's defect to report, not yours to hide.
 
 ```
 <heading, when given>
@@ -52,6 +52,7 @@ P1  <phase name>                                           <phase traces>
 Constraints  <each §2 line, verbatim, one per line; "none" when the section is empty>
 Coverage     <what the coverage map says, one line>
 Assumptions  <k>, of which <c> corrected at the cut
+behaviour    <id> · <the Taken cell of every §6 row whose How carries "behaviour", one line each; omit when none>
 design gap   <the Taken cell of every assumption that begins design:, one line each; omit the line when none>
 ```
 
@@ -65,7 +66,7 @@ Rules of the rendering:
 - **Title** verbatim from the task line. Never add the dependencies, the files or the traces of a task: the order top to bottom is the order, and the rest is the agent's.
 - **Constraints** prints every line of §2 as written, because the author approves them with the go: the approval's fingerprint covers the tree, §2, §3 and §6, and the view shows exactly those parts (definition §6). The first line carries the label; the rest are indented under it.
 - **Coverage** is one line from §3: the acceptance criteria delivered (`AC1–AC5 delivered`), then every id whose *Delivered by* is not a task list, with its reason as written (`R1–R4 Frontend, per OOS1`, `AC6 verified by review`). Collapse consecutive ids into a range.
-- **Assumptions** counts the rows of §6 and the ones whose *How* is `corrected at the cut`. Every row whose *Taken* begins `design:` is printed in full on its own `design gap` line, because the author must see it before saying go.
+- **Assumptions** counts the rows of §6 and the ones whose *How* begins `corrected at the cut`. Every row whose *How* carries `behaviour` is printed on its own `behaviour` line, id and *Taken* cell, because it changes what a user sees or gets and the author must see it before saying go. Every row whose *Taken* begins `design:` is printed in full on its own `design gap` line, for the same reason.
 - **Nothing else.** No validation rows, no verdict, no file sizes, no commentary. The caller adds what it has under the block.
 
 Return the block as chat text and nothing before or after it.
