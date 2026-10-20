@@ -5,7 +5,7 @@ description: How to cut one design that meets contracts/design.md, a D101 at Ful
 
 # S101 authoring
 
-One design in, one S101 draft out. This skill owns what the plan says and how it is written. asimov-spec owns the conversation, `scripts/validate-s101.ps1` the bar, artifact-s101-view the rendering. A skill is a leaf: it reads artifacts and calls no other skill.
+One design in, one S101 draft out. This skill owns what the plan says and how it is written. asimov-spec owns the conversation, `skills/artifact-s101-validation/scripts/validate-s101.ps1` the bar, artifact-s101-view the rendering. A skill is a leaf: it reads artifacts and calls no other skill.
 
 ## Read first
 
@@ -64,7 +64,7 @@ Missing inputs take the default in brackets.
 13. **Check your own graph.** Through Bash:
 
    ```
-   pwsh -NoProfile -File "${CLAUDE_PLUGIN_ROOT}/scripts/validate-s101.ps1" -S101 <the S101> -Mode graph-only
+   pwsh -NoProfile -File "${CLAUDE_PLUGIN_ROOT}/skills/artifact-s101-validation/scripts/validate-s101.ps1" -S101 <the S101> -Mode graph-only
    ```
 
    (`powershell -NoProfile -ExecutionPolicy Bypass -File …` with only Windows PowerShell; `-PluginRoot <plugin-root>` in Codex.) Fix every Fail the plan can fix (a builder not after its tester, a cross-slice `after`, a coverage row missing or naming an id the design lacks, a command in a `checkpoint`, a title over the length) and run it again, at most twice. A `design:` row is not yours to fix: it becomes a `design:` assumption. Flags and Warns are left. With no PowerShell, skip and say so in the return line. The caller's run is the record.

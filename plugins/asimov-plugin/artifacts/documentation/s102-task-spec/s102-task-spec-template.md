@@ -90,7 +90,7 @@
   No section opens with a sentence from this template; the rendered file holds
   content only.
 
-  THE SHAPE CHECK (scripts/validate-s102.ps1): what it needs beyond the above
+  THE SHAPE CHECK (skills/artifact-s102-validation/scripts/validate-s102.ps1): what it needs beyond the above
   - Header: every key of this template, owns with its four lists (regenerates:
     [] when nothing is regenerated); after and traces equal to the task line.
   - 2 Behaviour: one scenario tagged @review-focus (the tag on the line above

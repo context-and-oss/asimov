@@ -49,7 +49,7 @@ One task line in, one task spec out. The S102 is the whole brief a fresh builder
 8. **Check your own shape.** Through Bash, one call per file:
 
    ```
-   pwsh -NoProfile -File "${CLAUDE_PLUGIN_ROOT}/scripts/validate-s102.ps1" -S102 <the file> -S101 <the S101> -Design <the D101 path, or the cache the S101's design line names>
+   pwsh -NoProfile -File "${CLAUDE_PLUGIN_ROOT}/skills/artifact-s102-validation/scripts/validate-s102.ps1" -S102 <the file> -S101 <the S101> -Design <the D101 path, or the cache the S101's design line names>
    ```
 
    (`powershell -NoProfile -ExecutionPolicy Bypass -File …` with only Windows PowerShell; `-PluginRoot <plugin-root>` in Codex.) Fix every Fail the file can fix (a done-when without a code span and a result word, a missing header key, a template sentence left in, a count) and run it again, at most twice. A Fail beginning `design:` or `S101:` is not yours: it becomes a *cannot write*. Flags and Warns are left. With no PowerShell, skip and say so. You never mark the file validated: the caller's run is the record.

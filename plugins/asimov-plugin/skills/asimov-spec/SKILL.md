@@ -13,8 +13,8 @@ You are `asimov-spec`, the Spec-stage asimov-skill. You carry the **conversation
 |---|---|---|
 | `artifact-s101-authoring` | the cut, every re-cut, the finalise; on a small plan the same call then runs `artifact-s102-authoring` for every task | a fresh **plan writer** subagent, Opus, `effort: high` |
 | `artifact-s102-authoring` | the task specs of one phase in one call, tester first; the `low` tasks of the plan in one call; one rewrite after a failed check | a fresh **task writer** subagent, Sonnet |
-| `artifact-s101-validation` | the graph check at the cut, the full check at the end | `scripts/validate-s101.ps1`, inline through Bash |
-| `artifact-s102-validation` | the shape check of each S102 | `scripts/validate-s102.ps1`, inline through Bash |
+| `artifact-s101-validation` | the graph check at the cut, the full check at the end | `skills/artifact-s101-validation/scripts/validate-s101.ps1`, inline through Bash |
+| `artifact-s102-validation` | the shape check of each S102 | `skills/artifact-s102-validation/scripts/validate-s102.ps1`, inline through Bash |
 | `artifact-s101-view` | the plan as a person reads it | inline, via the Skill tool |
 
 The models are passed on every Agent call (`model: opus` + `effort: high` for the plan writer, `model: sonnet` for a task writer); a subagent otherwise inherits the session's model (`documentation/model-choice.md` §1.2). Both scripts read files and look names, paths and ids up; they run nothing and judge nothing. Where no PowerShell exists, say so once, load the validation skill in a fresh `Explore` subagent with `model: sonnet` and its fixed call, and note `engine: llm` in the sidecar.
@@ -108,7 +108,7 @@ In Codex add: *The plugin root is `<plugin-root>`; the skills' paths resolve und
 Run the plan check yourself, silently (R29):
 
 ```
-pwsh -NoProfile -File "${CLAUDE_PLUGIN_ROOT}/scripts/validate-s101.ps1" -S101 documentation/specs/<slug>/S101-<slug>.md -Mode graph-only
+pwsh -NoProfile -File "${CLAUDE_PLUGIN_ROOT}/skills/artifact-s101-validation/scripts/validate-s101.ps1" -S101 documentation/specs/<slug>/S101-<slug>.md -Mode graph-only
 ```
 
 (`powershell -NoProfile -ExecutionPolicy Bypass -File …` with only Windows PowerShell.) The script takes the design from the S101's `design` line; pass `-Design <path>` only when that would not resolve.
@@ -168,7 +168,7 @@ Print `[k/n] write  T003  S102-<slug>-003-<task>.md · <time>` per task (a phase
 One call per task spec, in tree order:
 
 ```
-pwsh -NoProfile -File "${CLAUDE_PLUGIN_ROOT}/scripts/validate-s102.ps1" -S102 documentation/specs/<slug>/S102-<slug>-<NNN>-<task>.md -S101 documentation/specs/<slug>/S101-<slug>.md -Design <the D101 path, or the cache>
+pwsh -NoProfile -File "${CLAUDE_PLUGIN_ROOT}/skills/artifact-s102-validation/scripts/validate-s102.ps1" -S102 documentation/specs/<slug>/S102-<slug>-<NNN>-<task>.md -S101 documentation/specs/<slug>/S101-<slug>.md -Design <the D101 path, or the cache>
 ```
 
 Read every report, keep it for the sidecar, print one line per task, decide per task:
@@ -181,14 +181,14 @@ Read every report, keep it for the sidecar, print one line per task, decide per 
 | Any other Fail, first or second time | Step 05 for it with the Fail rows as `findings` (R10). Print `[k/n→n'] check  T003  failed · <reason in words> · rewriting (<r>/3) · <time>`. |
 | A Fail, third time | Step 08 as a stop, the task and rows in words (R11). |
 
-**Mark every task that cleared, in one call per round** (R15): `pwsh -NoProfile -File "${CLAUDE_PLUGIN_ROOT}/scripts/mark-spec.ps1" -S102 <path>,<path>,… -Validated <YYYY-MM-DD>` (it reads nothing of the plugin, so Codex needs no `-PluginRoot`; **Edit** each header where no PowerShell exists). Never one call per task.
+**Mark every task that cleared, in one call per round** (R15): `pwsh -NoProfile -File "${CLAUDE_PLUGIN_ROOT}/skills/asimov-spec/scripts/mark-spec.ps1" -S102 <path>,<path>,… -Validated <YYYY-MM-DD>` (it reads nothing of the plugin, so Codex needs no `-PluginRoot`; **Edit** each header where no PowerShell exists). Never one call per task.
 
 A round's rewrites are spawned at once, then their checks, then the table again; a round that rewrites nothing ends the step. Count failures per task across the whole run.
 
 # Step 07 — Validate the plan, the script once
 
 ```
-pwsh -NoProfile -File "${CLAUDE_PLUGIN_ROOT}/scripts/validate-s101.ps1" -S101 documentation/specs/<slug>/S101-<slug>.md -Mode full
+pwsh -NoProfile -File "${CLAUDE_PLUGIN_ROOT}/skills/artifact-s101-validation/scripts/validate-s101.ps1" -S101 documentation/specs/<slug>/S101-<slug>.md -Mode full
 ```
 
 Its F5 row reads every S102's `validated` status; you pass no reports. Keep the report for the sidecar; print `[k/n] plan  <k> pass · <f> flag · <x> fail · <w> warn · <time>`.
@@ -207,7 +207,7 @@ Print it as `[k/n] finalise  <line>`; a change in §3 or §6 is a change to an a
 
 **Settle the status.** You are the only writer of the S101 after the go, so you know whether an approved part changed (a Step 07 re-cut, or a finalise that changed §3 or §6); no hash is compared here.
 
-- **Unchanged:** set `ready` in one call, `pwsh -NoProfile -File "${CLAUDE_PLUGIN_ROOT}/scripts/mark-spec.ps1" -S101 documentation/specs/<slug>/S101-<slug>.md -Status ready` (**Edit** where no PowerShell exists). Print the view with heading *The plan, ready*, then **What remains**: every Warn and plan-level Flag as one line each, the task-level Flags as one count line (`<n> task-level flags, in S101-<slug>.review.md`), the assumptions the author should read by id, and *"Ready: <m> task specs validated, plan v<version> approved by <name> on <date>. `/asimov-build <slug>` builds it; run me again after a hand edit and I re-check it."* Finish.
+- **Unchanged:** set `ready` in one call, `pwsh -NoProfile -File "${CLAUDE_PLUGIN_ROOT}/skills/asimov-spec/scripts/mark-spec.ps1" -S101 documentation/specs/<slug>/S101-<slug>.md -Status ready` (**Edit** where no PowerShell exists). Print the view with heading *The plan, ready*, then **What remains**: every Warn and plan-level Flag as one line each, the task-level Flags as one count line (`<n> task-level flags, in S101-<slug>.review.md`), the assumptions the author should read by id, and *"Ready: <m> task specs validated, plan v<version> approved by <name> on <date>. `/asimov-build <slug>` builds it; run me again after a hand edit and I re-check it."* Finish.
 - **Changed:** leave `draft`. Print the view with heading *The plan, as written*, then **What changed since your go** (the writer lines returned after the go, at most five) and **What remains**. Ask: *"Say **approve** to approve the plan as it now stands (v<version>) and set it ready, or **stop** to leave it draft."* **Wait.** *approve* → the approval as in Step 04, `ready` as above, `approved  v<version> by <name> · <date>` and the closing line. Anything else → *"Left at draft with the previous approval superseded. Run `/asimov-spec <slug>` to review and approve it; the cut is shown first."* Finish.
 
 **After a stop in the loop** (third failure, or a `design:` row): print the task and the rows in words, write the sidecar with what exists, and say: *"The task specs that validated stay on disk and keep their mark. Fix `<what>` in the D101 / the ticket and name me again with it; the cut is shown first and the validated specs are kept."* Finish. The next run finds a `draft` S101 with S102s and enters Step 01's update path.
