@@ -12,10 +12,6 @@
     beside the S101 whose task line it expands; {{NNN}} is the task id's
     number, T003 → 003; {{TASK-SLUG}} is three to five words of the title in
     kebab-case, never the whole title. There is no S102 without an S101.
-  - Before reading the repo from nothing, read repo-notes.md beside the S101
-    when it exists (the cut's notes: files, names with their paths, package
-    types, the test fixture and runner, the commands); take its paths and
-    names as given, the shape check looks each one up.
   - Strip THIS comment from the rendered file.
 
   THE LINE

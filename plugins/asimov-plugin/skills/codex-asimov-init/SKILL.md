@@ -141,7 +141,7 @@ Inspect what already exists so the write plan can label each target. Use **Read*
 - **Each detected stack `README.md`** → `NEW` (scaffold from template) if absent; `MERGE` if present **with** an `<!-- asimov:start -->`…`<!-- asimov:end -->` region (refresh only that region); `ASK` if present **without** markers (do not modify until the developer agrees to inserting a region).
 - **`index.html`** → `NEW` if absent, `OVERWRITE` if present.
 - **`_chrome.css`** → `NEW` if absent; `SKIP` if present and byte-identical to the template; `ASK` (overwrite/keep/diff) if present and different.
-- **`.gitignore`** → the four Asimov patterns below: `NEW` if the file is absent; `APPEND` if it exists and any pattern is missing (only the missing ones are added, under one comment line); `SKIP` if every pattern is already there.
+- **`.gitignore`** → the three Asimov patterns below: `NEW` if the file is absent; `APPEND` if it exists and any pattern is missing (only the missing ones are added, under one comment line); `SKIP` if every pattern is already there.
 
 # Step 6 — Confirm
 
@@ -198,7 +198,6 @@ Only after confirmation. Apply each target's rule:
    documentation/features/*.review.md
    documentation/specs/*/S101-*.review.md
    documentation/specs/*/design.md
-   documentation/specs/*/repo-notes.md
    ```
 
 If `documentation/` does not exist, create it as part of writing the site files. Don't pre-create empty `features/`, `reference/`, etc.

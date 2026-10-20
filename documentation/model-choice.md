@@ -40,12 +40,11 @@ The tier is a recommendation; `asimov-build` maps it to the model through the Ag
 
 ### 1.2 Subagents an asimov-skill spawns without a shell
 
-`asimov-spec` runs its writer skills in fresh subagents of the harness's generic `general-purpose` type, which has no frontmatter of its own and inherits the session's model unless the Agent tool's `model` field says otherwise, so the skill passes `model` (and for the cut `effort`) on every call. Two writers, two scripts:
+`asimov-spec` runs its writer skills in one subagent of the harness's generic `general-purpose` type, spawned at the first cut with `model: opus` and `effort: high` and continued by message (`SendMessage`) for every later call of the run; a subagent otherwise inherits the session's model. One writer, three scripts:
 
 | Call | Does | Model · effort |
 |---|---|---|
-| **plan writer** (`general-purpose`): `artifact-s101-authoring`, and on a small plan `artifact-s102-authoring` in the same call | cuts the plan and runs the graph check on it: the one judgement-heavy step of the run | `claude-opus-5-5` (`model: opus`), `effort: high` |
-| **task writer** (`general-purpose`): `artifact-s102-authoring` | writes the task specs of one phase (the tester first) from the plan, the notes and the template; its bar is a script, which it runs on its own output | `claude-sonnet-5-5` (`model: sonnet`) |
+| **plan writer** (`general-purpose`): `artifact-s101-authoring`, then `artifact-s102-authoring` for every task by message after the go | cuts the plan and runs the graph check on it, the one judgement-heavy step of the run, then writes the task specs phase by phase with the cut's reads still in context; a second writer only when the first is full | `claude-opus-5-5` (`model: opus`), `effort: high` |
 | **plan check**: `artifact-s101-validation` | a script, `skills/artifact-s101-validation/scripts/validate-s101.ps1`, run inline through Bash | no model: one tool call |
 | **task-spec check**: `artifact-s102-validation` | a script, `skills/artifact-s102-validation/scripts/validate-s102.ps1`, run inline through Bash | no model: one tool call |
 | **ledger** (`asimov-build`): `artifact-s101-ledger` | a script, `skills/artifact-s101-ledger/scripts/ledger.ps1`, one call per operation, run inline through Bash | no model: one tool call |

@@ -219,30 +219,6 @@ A cycle, an orphan or an intersecting parallel pair is shape and fails; size onl
 
 An S101 lives in the product repo at `documentation/specs/<feature-slug>/S101-<feature-slug>.md`, beside its S102s (`S102-<feature-slug>-<NNN>-<task-slug>.md`, the task slug three to five words of the title). `<feature-slug>` is the D101's slug, so `documentation/features/D101-permissions.html` plans to `documentation/specs/permissions/S101-permissions.md`; for a ticket it is the ticket key in kebab-case, so `PROJ-123` plans to `documentation/specs/proj-123/S101-proj-123.md`. Markdown body with YAML frontmatter, as every spec format in current use (research §2).
 
-**The repo notes.** The cut reads the repo once; the task-spec writers that follow should not read it again from nothing. So the authoring skill writes what it learned beside the plan as a gitignored cache, `documentation/specs/<feature-slug>/repo-notes.md`, and refreshes it at every cut, on the path where fresh writers follow the cut (a plan whose task specs are written per phase); a small plan, whose task specs the cutting session drafts itself with the repo already in its context, writes none, and a stale one from an earlier run is deleted before the cut: the files the plan touches with one line on what each holds, the existing types, methods and values the tasks will name with the path that declares each, the types that come from a package with the package id and the project that references it, the test project, fixture and runner in use, the build and test commands as the conventions give them, and anything the cut had to look up twice. Facts with paths, never a plan, never a decision, never code. The task-spec writers read it first and take its paths and names as given (the shape check looks each one up for free; a wrong line is a template finding, not a reason to re-walk the repo); a validator may read it only as a list of where to look, and answers every row against the code on disk, never against the notes. The notes hold what the cut read and nothing looked up for their sake: the cut opens the files the design names, the test class of what a slice changes, the owned project file and one declaring file per name a task must use, and no more; a sparse notes file is correct. A missing file (a fresh checkout) costs nothing but the re-reading; nothing refuses on it.
-
-```markdown
-# Repo notes — <feature-slug>
-
-Written: <YYYY-MM-DD> · by the cut of S101-<feature-slug>.md v<version>
-
-## Files the plan touches
-- <repo-relative path> — <what it holds, one line>
-
-## Existing names the tasks will use
-- <Name> (<repo-relative path>) — <one line: what it is>
-- <Name> (package <PackageId>, referenced by <project file>) — <one line>
-
-## Tests
-- project: <path> · fixture: <name (path)> · runner: <the test command from the conventions>
-
-## Commands
-- build: <command> · test: <command> · filter form: <how the runner filters to one class>
-
-## Looked up twice
-- <anything the cut had to find more than once, with where it is>
-```
-
 For a plan cut from a design that is not a file in the repo, the normalised design sits beside it as a gitignored cache, `documentation/specs/<feature-slug>/design.md`: the contract's members, quoted from the source and numbered, in this shape:
 
 ```markdown

@@ -50,7 +50,7 @@ Load with the file-read tool. In Claude Code `${CLAUDE_PLUGIN_ROOT}` is the plug
    ${CLAUDE_PLUGIN_ROOT}/artifacts/documentation/s101-implementation-plan/s101-implementation-plan-template.md
    ```
 
-3. **The target S101**, whole: parse the frontmatter as YAML before anything else. **The design** it names: a D101's every R, NF and AC id in §3 and §8 and its §6 numbers, or the cache's every R, NF, AC and OOS item. **In full mode**, every S102 in the folder, whole; their headers carry `owns`, `consumes` and `produces`. **The repo**, for paths the contracts table links. **`repo-notes.md`** beside the S101, when present, only as a map of where a name or a package reference lives; every row is answered against the code on disk.
+3. **The target S101**, whole: parse the frontmatter as YAML before anything else. **The design** it names: a D101's every R, NF and AC id in §3 and §8 and its §6 numbers, or the cache's every R, NF, AC and OOS item. **In full mode**, every S102 in the folder, whole; their headers carry `owns`, `consumes` and `produces`. **The repo**, for paths the contracts table links. Every row is answered against the code on disk.
 
 ## Graph checklist
 

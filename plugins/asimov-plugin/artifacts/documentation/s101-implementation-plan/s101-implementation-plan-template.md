@@ -99,9 +99,7 @@
     allows: the value verbatim, the source, nothing explanatory.
   - Never here: code, steps, test bodies (the S102's, and even there names
     only); run state (the ledger's); validation findings (the sidecar
-    S101-{{SLUG}}.review.md); what the cut learned about the repo (the
-    gitignored repo-notes.md beside this file, definition §9); a product
-    entity in THIS template (hard rule 7).
+    S101-{{SLUG}}.review.md); a product entity in THIS template (hard rule 7).
 
   PLACEHOLDERS
   {{SLUG}} {{TITLE}} {{D101-VERSION}} {{DESIGN-URL}} {{READ}} {{AUTHOR}} {{YYYY-MM-DD}} {{GOAL}}
