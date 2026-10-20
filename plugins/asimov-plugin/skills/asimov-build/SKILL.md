@@ -69,7 +69,10 @@ If any cannot be read, stop and report the path. Pass `<plugin-root>` to every a
 | The approval does not hold | the S101 definition §6's fingerprint (`awk '/^phases:/{p=1} p&&/^---$/{p=0} /^## /{s=0} /^## (2\|3\|6)\./{s=1} p\|\|s' <s101> \| sha256sum \| cut -c1-12`, run silently and never printed; it carries no `$`-token because the harness substitutes `$0`, `$1`… in this text) ≠ the `fingerprint` in `approved:` | *"The plan changed after <by> approved it on <date>; approve it again with `/asimov-spec <slug>`, then run this again."* |
 | The default branch is checked out | `git rev-parse --abbrev-ref HEAD` equals the remote's HEAD branch (`git remote show origin`), or `main` / `master` when there is no remote | *"On the default branch; check out a feature branch and run this again. A build never lands on <branch> unreviewed."* |
 | The working tree is dirty beyond the specs folder | `git status --porcelain` lists a path outside `documentation/specs/<slug>/` | *"Uncommitted changes outside the specs folder; commit or stash them first."* |
+| The baseline does not build (first run only, before `start`) | the first phase's `check` command from the S101 tree, run as written on HEAD through Bash, exits non-zero | *"The baseline does not build before any task is built: `<the command>` → `<its last line>`. Fix that first; a builder cannot tell its own failure from the repo's."* |
 | An agent cannot be spawned here | the harness has no Agent tool, or Codex has no `.codex/agents/` shells | *"This session cannot spawn <agent>; in Codex run `$asimov-plugin:codex-asimov-init` first, and start the run in a session that can spawn agents."* |
+
+**Warn, do not refuse**, on a stale branch: `git rev-list --count HEAD..origin/<default branch>` above 50 prints one line, *"This branch is <n> commits behind <default>; a build on it may not merge. Rebase first, or say go on."*, and the run waits for the word.
 
 **Position.** Invoke `artifact-s101-ledger` with `position` when `S101-<slug>.ledger.md` exists; a refusal from it (a check L1–L5 failed) is relayed in one line and the run finishes. Otherwise invoke it with `start` (`by` = `git config user.name`), **Edit** the S101 header to `status: in progress`, and print its line. Print the resolved target: `Building: documentation/specs/<slug>/S101-<slug>.md · <n> phases, <m> tasks · approved by <by> <date>`, adding `· design approval unverified (pasted text)` when the S101's `design` line says `approval: unverified` (not a refusal; the person building should know nobody checked who approved the design), and, on a resume, *"Resuming: P0–P<k> committed; P<k+1> <building | built | passed> with <what each task is>."* Then say what happens next: *"Building P<n>, <t> tasks; I stop after it."*
 
@@ -83,18 +86,18 @@ The phase is the first in the plan's order whose ledger status is not `committed
    > Build task `<id>` of `documentation/specs/<slug>/`. Read `<S102 path>` first; it is your whole brief. Then read `S101-<slug>.md` §1 Contracts and §2 Constraints, and the conventions your skill names. Change by hand only the files the task spec's `owns.create`, `owns.modify` and `owns.test` list; what `owns.regenerates` lists you never open: run the command that regenerates it (the restore, the build, the generator) and report if the result is not what the task implies. Stop and report instead of deciding on the conditions of the S102 definition §5 and the S101 §4 Escalation. <On a retry: `Your previous attempt failed: <the rows, verbatim>.`> End with the summary your skill defines, and nothing else.
 
    (In Codex, add: *The plugin root is `<plugin-root>`.* Spawn the shell by its name from `.codex/agents/`; where Codex runs agents one at a time, the batch runs in order.)
-3. **Read each summary.** A flag of kind *conflict* or *gap*, or any sentence that says it stopped, is a **stop** (Step 05). Otherwise invoke `artifact-s101-ledger` with `attempt` (the summary verbatim).
+3. **Read each summary.** Its first word says what happened: `stopped` (a conflict with a convention or the design, a file outside the brief, a write the harness refused, a decision the builder could not take) is a **stop** (Step 05); `built` is a built task, whatever flags follow. A *gap* flag (no convention covered a choice) is a note that goes into the ledger with the summary, never a stop. A summary with neither word is read for a sentence that says it stopped; absent that, it is `built`. A summary whose first line is not `Conventions read:` naming at least the stack's README is returned once to the same agent with one line, *begin with the conventions you read, then the summary*; that return is not a counted attempt. Then invoke `artifact-s101-ledger` with `attempt` (the summary verbatim).
 4. **Next batch**, until every task of the phase is `built`. Then Step 03.
 
 # Step 03 — Review the phase, in a reviewer subagent
 
 Collect the owned files of every task of the phase (the three `owns` lists of their S102s). Print `review  P<n> …` and spawn a **fresh `baley-the-code-reviewer` subagent** with:
 
-> Review these files, uncommitted, against the task specs they were built from. Files: <the hand-edited owned files, one per line>. Regenerated: <the files matching the tasks' `owns.regenerates`, one per line, or none>. Task specs: <the S102 paths>. Review focus: <S101 §5 Review focus, verbatim>. Base: HEAD. Return your report only; do not edit any file.
+> Before you read the diff, load `documentation/conventions/<stack>/README.md` and every file it lists, for each stack these files touch; begin your report with the `Conventions read:` line naming them. Review these files, uncommitted, against the task specs they were built from. Files: <the hand-edited owned files, one per line>. Regenerated: <the files matching the tasks' `owns.regenerates`, one per line, or none>. Task specs: <the S102 paths>. Review focus: <S101 §5 Review focus, verbatim>. Base: HEAD. Return your report only; do not edit any file.
 
 The regenerated files are listed by expanding each task's `owns.regenerates` globs against `git status --porcelain`; Baley checks only that each changed in the way the hand edits imply and that nothing outside both lists changed.
 
-Read the report yourself; invoke `artifact-s101-ledger` with `review` (verbatim). Then:
+Read the report yourself. A report whose first line is not `Conventions read:` naming at least one convention file per stack the files touch is returned once to the same agent with one line, *load the conventions your skill names, then review*; it is not recorded. Then invoke `artifact-s101-ledger` with `review` (verbatim). Then:
 
 | The report holds | Do |
 |---|---|
@@ -125,7 +128,7 @@ A stop ends the run as soon as the tasks already running have returned; nothing 
 
 **Wait.** On the answer, invoke `artifact-s101-ledger` with `ruling` (`by` = `git config user.name`, the choice, the note), print its line, then:
 
-- **resume** → the stopped task is `pending` again with three new attempts; its next builder prompt carries the note after the findings. Step 02.
+- **resume** → the stopped task is `pending` again with three new attempts. The note goes to whichever agent runs next for this phase, not only the builder: the builder's prompt carries it after the findings, and Baley's and Powell's prompts for the phase carry it as `Ruling by <by>: <note>`, so a substitute command for a check that cannot run, or an accepted deviation, reaches the one it concerns. Step 02.
 - **discard** → `git checkout -- <every modified owned file of the phase, and every changed file matching its regenerates globs>` and `rm` of every `owns.create` file of the phase that exists; the ledger marks the phase `discarded`. Print *"P<n> files reset to <hash>. The plan stays in progress; fix the task spec with `/asimov-spec <slug>` or run `/asimov-build <slug>` to try P<n> again."* Finish.
 - **stop**, or any other words → *"Stopped. P<n>'s work is in the working tree; the next `/asimov-build <slug>` resumes here."* Finish.
 
