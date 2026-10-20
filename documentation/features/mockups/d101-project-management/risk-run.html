@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mockup — what /asimov-risk prints</title>
+<style>
+/* Styled after the plan-view transcript of the Spec stage (mockups/d101-spec-stage/plan-run.html). */
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap');
+:root { --bg:#1b1b1f; --bg2:#232329; --line:#34343c; --fg:#e6e6e6; --dim:#9a9aa6; --mute:#6c6c78; --user:#d7ba7d; --ok:#8fd18f; --warn:#f0b35a; --bad:#f28b82; --acc:#7cc4ff; --vio:#c58af9; }
+* { box-sizing:border-box; margin:0; padding:0; }
+html, body { height:100%; }
+body { background:var(--bg); color:var(--fg); font-family:'JetBrains Mono', ui-monospace, Consolas, monospace; font-size:12.5px; line-height:1.55; display:flex; flex-direction:column; }
+.bar { display:flex; gap:0.4rem; align-items:center; padding:0.5rem 0.8rem; background:var(--bg2); border-bottom:1px solid var(--line); flex-wrap:wrap; }
+.bar .lbl { color:var(--mute); font-size:11px; margin-right:0.3rem; }
+.bar button { font:inherit; font-size:11px; color:var(--dim); background:transparent; border:1px solid var(--line); border-radius:6px; padding:0.25rem 0.6rem; cursor:pointer; }
+.bar button.on { color:var(--fg); border-color:var(--acc); background:#7cc4ff14; }
+.term { flex:1; overflow:auto; padding:0.9rem 1rem 1.2rem; }
+.line { white-space:pre-wrap; word-break:break-word; margin:0 0 0.15rem; }
+.u { color:var(--user); }
+.u::before { content:'❯ '; color:var(--mute); }
+.a::before { content:'● '; color:var(--acc); }
+.a.ok::before { color:var(--ok); }
+.a.warn::before { color:var(--warn); }
+.a.bad::before { color:var(--bad); }
+.dim { color:var(--dim); }
+.mute { color:var(--mute); }
+pre.view { margin:0.4rem 0 0.6rem 1.2rem; padding:0.6rem 0.8rem; border-left:2px solid var(--line); color:var(--fg); white-space:pre; overflow-x:auto; font:inherit; }
+pre.view .h { color:var(--fg); font-weight:700; }
+pre.view .m { color:var(--mute); }
+pre.view .s-Active { color:var(--warn); }
+pre.view .s-Mitigated { color:var(--acc); }
+pre.view .s-Accepted { color:var(--vio); }
+pre.view .s-Resolved { color:var(--ok); }
+.diff { margin:0.3rem 0 0.5rem 1.2rem; }
+.diff .b { color:var(--bad); }
+.diff .f { color:var(--ok); }
+.gate { margin:0.6rem 0 0.4rem 1.2rem; padding:0.6rem 0.8rem; border:1px solid var(--line); border-radius:8px; background:var(--bg2); }
+.gate .q { color:var(--fg); margin-bottom:0.45rem; }
+.gate .row { display:flex; gap:0.45rem; flex-wrap:wrap; }
+.gate button { font:inherit; font-size:12px; color:var(--fg); background:#2d2d35; border:1px solid var(--line); border-radius:6px; padding:0.3rem 0.7rem; cursor:pointer; }
+.gate button.go { border-color:var(--ok); color:var(--ok); }
+.gate button:disabled { opacity:0.45; cursor:default; }
+</style>
+</head>
+<body>
+<div class="bar">
+  <span class="lbl">Scenario</span>
+  <button data-s="review" class="on">Weekly review</button>
+  <button data-s="add">Register a risk</button>
+  <button data-s="accept">Decide a state</button>
+  <button data-s="none">No register yet</button>
+  <button data-s="optout">Opt-out stands</button>
+  <button data-s="repair">Unreadable register</button>
+</div>
+<div class="term" id="term"></div>
+
+<script>
+(function () {
+  const term = document.getElementById('term');
+  const MATURITY = 'The risk log is an assess-level artifact: the definition is untried and may change without notice. Feedback is welcome.';
+  const RISKS = [
+    ['RISK-005',16,'Unclear specifications slow the build agents','Sara Nygaard','2026-10-12','Active'],
+    ['RISK-001',12,'Sponsor changes mid-engagement','Maja Holm','2026-10-06','Active'],
+    ['RISK-002',12,'Customer test environment arrives late','Jonas Berg','2026-09-09','Active'],
+    ['RISK-003',10,'Key developer leaves before handover','Maja Holm','2026-09-23','Mitigated'],
+    ['RISK-004', 6,'Third-party API pricing changes','Jonas Berg','2026-09-30','Accepted'],
+    ['RISK-006', 8,'Data migration exceeds the cut-over window','Jonas Berg','2026-10-06','Resolved']
+  ];
+  const ORDER = ['Active','Mitigated','Accepted','Resolved'];
+  const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  const cut = (s, n) => s.length > n ? s.slice(0, n - 1) + '…' : s.padEnd(n);
+
+  // The fixed view, as artifact-risk-log-view prints it: 80 columns, state groups, score descending.
+  function view(risks, updated) {
+    const n = s => risks.filter(r => r[5] === s).length;
+    let h = '<span class="h">Risk log · documentation/project/risk-log.html</span>\n';
+    h += '<span class="m">Updated ' + updated + ' · ' + risks.length + ' risks: ' + ORDER.map(s => n(s) + ' ' + s).join(' · ') + '</span>\n';
+    ORDER.forEach(s => {
+      const rows = risks.filter(r => r[5] === s);
+      if (!rows.length) return;
+      h += '\n<span class="s-' + s + '">' + s + (s === 'Resolved' ? ' (' + rows.length + ')' : '') + '</span>\n';
+      if (s === 'Resolved') return;
+      rows.forEach(r => { h += '  ' + r[0] + '  ' + String(r[1]).padStart(2) + '  ' + esc(cut(r[2], 34)) + ' ' + cut(r[3], 13) + ' ' + r[4] + '\n'; });
+    });
+    return '<pre class="view">' + h + '</pre>';
+  }
+
+  function clear() { term.innerHTML = ''; }
+  function add(html) { const d = document.createElement('div'); d.innerHTML = html; while (d.firstChild) term.appendChild(d.firstChild); term.scrollTop = term.scrollHeight; }
+  const u = t => '<div class="line u">' + esc(t) + '</div>';
+  const a = (t, c) => '<div class="line a ' + (c || '') + '">' + t + '</div>';
+  const dim = t => '<div class="line dim" style="margin-left:1.2rem">' + t + '</div>';
+
+  function gate(q, buttons) {
+    const g = document.createElement('div'); g.className = 'gate';
+    g.innerHTML = '<div class="q">' + q + '</div><div class="row"></div>';
+    const row = g.querySelector('.row');
+    buttons.forEach(([label, cls, fn]) => {
+      const b = document.createElement('button'); b.textContent = label; if (cls) b.className = cls;
+      b.addEventListener('click', () => { row.querySelectorAll('button').forEach(x => x.disabled = true); add(u(label)); fn(); });
+      row.appendChild(b);
+    });
+    term.appendChild(g);
+  }
+
+  const S = {
+    review() {
+      add(u('/asimov-risk'));
+      add(a('Showing the risk log; I ask at the end whether to mark it reviewed.'));
+      add(a(MATURITY, 'warn'));
+      add(view(RISKS, '2026-10-06'));
+      gate('Mark the register as reviewed today?', [
+        ['Yes', 'go', () => add(a('Register reviewed 2026-10-13 by Maja Holm. No risk changed.', 'ok'))],
+        ['No', '', () => add(a('Nothing written.'))]
+      ]);
+    },
+    add() {
+      add(u('/asimov-risk add the customer may not free up testers for the acceptance test'));
+      add(a('Registering a new risk in documentation/project/risk-log.html.'));
+      add(a(MATURITY, 'warn'));
+      add(a('Name, as an event: <span class="dim">“Customer testers unavailable for acceptance testing”</span>. Right?'));
+      add(u('ja, og ejeren er Jonas'));
+      add(a('Owner: Jonas Berg? Impact and probability, 1–5 each (anchors: impact 1 = absorbed within the week, 5 = threatens the goal; probability 1 = would surprise us, 5 = expected unless we act).'));
+      add(u('impact 4, sandsynlighed 3, område Schedule, ingen mitigation endnu'));
+      gate('Write RISK-007 · Customer testers unavailable for acceptance testing · Jonas Berg · I4 P3 (score 12) · Schedule · Active?', [
+        ['Write it', 'go', () => {
+          add(a('RISK-007 written, Active, score 12. History: 2026-10-13 · Maja Holm · Created.', 'ok'));
+          add(dim('Kept in English, the project language; you wrote in Danish.'));
+        }],
+        ['Change something', '', () => add(a('What changes?'))]
+      ]);
+    },
+    accept() {
+      add(u('/asimov-risk accept RISK-004'));
+      add(a('Setting RISK-004 Third-party API pricing changes from Active to Accepted.'));
+      add(a(MATURITY, 'warn'));
+      add(a('Accepted needs a reason and the person who decided. Why is it lived with, and who decided?'));
+      add(u('we live with it'));
+      add(a('Who decided to live with it? Without a name it is not set.', 'warn'));
+      add(u('Erik Lund, the customer carries API costs under the contract'));
+      gate('Set RISK-004 Accepted · reason: the customer carries API costs under the contract · decided by Erik Lund?', [
+        ['Set it', 'go', () => add(a('RISK-004 Accepted. History: 2026-10-13 · Maja Holm · Active → Accepted: the customer carries API costs under the contract. Decided by Erik Lund.', 'ok'))],
+        ['Cancel', '', () => add(a('Nothing written.'))]
+      ]);
+    },
+    none() {
+      add(u('/asimov-risk'));
+      add(a('Looking for documentation/project/risk-log.html.'));
+      add(a(MATURITY, 'warn'));
+      add(a('No risk register and no opt-out in this repo yet.', 'warn'));
+      gate('Start a register with its first risk, or record that no register is kept here?', [
+        ['Register a risk', 'go', () => add(a('Which language is the project kept in? <span class="dim">(suggested: English, the language of this conversation)</span>'))],
+        ['Record an opt-out', '', () => add(a('Why: handled elsewhere (say where), or risks are not worked with on this engagement? And who decided?'))]
+      ]);
+    },
+    optout() {
+      add(u('/asimov-risk'));
+      add(a('Showing the risk log.'));
+      add(a(MATURITY, 'warn'));
+      add('<pre class="view"><span class="h">Risk log · documentation/project/risk-log.html</span>\n<span class="s-Accepted">No register kept here</span> · handled elsewhere: the customer’s project tool, PMO board\n<span class="m">Decided by Erik Lund · 2026-09-30</span></pre>');
+      add(a('Registering a risk replaces the opt-out with a register; say <span class="dim">add</span> to start.'));
+    },
+    repair() {
+      add(u('/asimov-risk'));
+      add(a('Reading documentation/project/risk-log.html.'));
+      add(a(MATURITY, 'warn'));
+      add(a('The register cannot be read in full, so I will not write to it. Proposed repair:', 'bad'));
+      add('<div class="diff">' +
+        '<div class="line">RISK-005 impact      <span class="b">(missing)</span> → <span class="f">asked: what is it?</span></div>' +
+        '<div class="line">RISK-002 history     <span class="b">line without a date</span> → <span class="f">kept as written; asked: which date?</span></div>' +
+        '</div>');
+      add(u('impact 4, and the history line is from 2026-09-09'));
+      gate('Write the repair? Every risk and history line is kept; the register gains a “Repaired” line.', [
+        ['Write the repair', 'go', () => { add(a('Register repaired. History: 2026-10-13 · Maja Holm · Repaired: RISK-005 impact (missing) → 4; RISK-002 history line dated 2026-09-09.', 'ok')); add(view(RISKS, '2026-10-13')); }],
+        ['Not now', '', () => add(a('Nothing written. The register stays unreadable until it is repaired, here or by hand.'))]
+      ]);
+    }
+  };
+
+  function run(s) { clear(); S[s](); }
+  document.querySelectorAll('.bar button').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('.bar button').forEach(x => x.classList.toggle('on', x === b));
+    run(b.dataset.s);
+  }));
+  run('review');
+})();
+</script>
+</body>
+</html>
