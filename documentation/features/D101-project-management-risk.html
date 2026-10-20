@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>D101 — Project management — asimov docs</title>
+<title>D101 — Project management: risk log — asimov docs</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
@@ -270,7 +270,7 @@ footer.site-footer a { color: var(--cyan); }
   <a href="../index.html#s6">Diagrams</a>
   <span class="spacer"></span>
   <span class="phase-chip">Business design</span>
-  <span class="status-chip draft">Draft v0.1</span>
+  <span class="status-chip draft">Draft v0.2</span>
 </nav>
 
 <div class="layout-doc">
@@ -300,22 +300,22 @@ footer.site-footer a { color: var(--cyan); }
   <article class="content">
 
 <header class="hero">
-  <div class="kicker">D101 · Feature design · asimov-plugin</div>
-  <h1>Project management</h1>
-  <p class="tagline">The documentation that runs an engagement, as a family of artifacts, starting with the risk log: one register per product repo, kept in the project's language, where every state beyond Active is a decision with a name on it and every change leaves a dated line.</p>
+  <div class="kicker">D101 · Feature design · project management</div>
+  <h1>Risk log</h1>
+  <p class="tagline">The first artifact of the project-management family, the documentation that runs an engagement: one register per product repo, kept in the project's language, where every state beyond Active is a decision with a name on it and every change leaves a dated line.</p>
 </header>
 
 <div class="meta-strip">
   <div class="meta-cell"><div class="label">Owner</div><div class="value">Simon Vilandt</div></div>
   <div class="meta-cell"><div class="label">Business approver</div><div class="value">Allan Borup</div></div>
-  <div class="meta-cell"><div class="label">Members</div><div class="value mono">1 · risk log</div></div>
+  <div class="meta-cell"><div class="label">Family</div><div class="value mono">project management</div></div>
   <div class="meta-cell"><div class="label">Pieces</div><div class="value mono">1 asimov-skill · 2 skills</div></div>
   <div class="meta-cell"><div class="label">Last updated</div><div class="value mono">2026-10-20</div></div>
   <div class="meta-cell"><div class="label">Lands in</div><div class="value mono">documentation/project/</div></div>
 </div>
 
 <div class="doc-scope">
-  <strong>Scope:</strong> the project-management family of artifacts and its first member, the risk log: the register, the entry point and the two skills that maintain and show it, the <em>Project</em> section on a product's documentation site, and the family's pages on the Asimov website. Later members (closure report, project setup, status report and their kin) join this document rather than getting one each. §2–§5 are the business agreement; §6 is open — see §6.
+  <strong>Scope:</strong> the risk log, first member of the project-management family: the register, the entry point and the two skills that maintain and show it, the <em>Project</em> section on a product's documentation site, and the family's pages on the Asimov website. It also sets what every member of the family shares (R1–R3); each later member (closure report, project setup, status report and their kin) gets its own D101 in the <code>D101-project-management-*</code> series. §2–§5 are the business agreement; §6 is open — see §6.
 </div>
 
 <!-- ═════════════════════ §2 ═════════════════════ -->
@@ -379,7 +379,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="req oos"><div class="id">OOS2</div><div class="body">Project setup, the place a project's information such as its language is decided — a later member of this family; until it exists the register asks for the language itself (RL16, Q2).</div></div>
     <div class="req oos"><div class="id">OOS3</div><div class="body">Showing the register's state on the product's documentation site beyond its card — the site must then always match the current risks, and how is not settled (Q1).</div></div>
     <div class="req oos"><div class="id">OOS4</div><div class="body">A risk detector that notices risk-shaped talk and proposes entries — it is designed once the register's shape has settled, and it defers to the register's own entry point.</div></div>
-    <div class="req oos"><div class="id">OOS5</div><div class="body">The other project artifacts the delivery model names (project plan, status report, change log, clarification log) — each joins this document when it is designed.</div></div>
+    <div class="req oos"><div class="id">OOS5</div><div class="body">The other project artifacts the delivery model names (project plan, status report, change log, clarification log) — each gets its own D101 in the same series when it is designed.</div></div>
     <div class="req oos"><div class="id">OOS6</div><div class="body">Drafting the difficult conversation or deciding what to escalate — the discipline keeps that human (P5).</div></div>
     <div class="req oos"><div class="id">OOS7</div><div class="body">Deleting a risk — resolving is how a risk leaves the active view; the entry and its history stay.</div></div>
     <div class="req oos"><div class="id">OOS8</div><div class="body">A fixed or suggested set of areas — what counts as an area differs too much between engagements for a default to be anything but noise.</div></div>
@@ -440,7 +440,7 @@ footer.site-footer a { color: var(--cyan); }
   <p class="section-desc">What a member of the family consists of, and the six things a person does with the risk log.</p>
 
   <div class="subhead">The family</div>
-  <p class="section-desc" style="margin-bottom:0.4rem">Every member lands under <code>documentation/project/</code>, is listed under <em>Project</em> on the product's documentation site, is maintained through one named entry point in both tools, and joins this document.</p>
+  <p class="section-desc" style="margin-bottom:0.4rem">Every member lands under <code>documentation/project/</code>, is listed under <em>Project</em> on the product's documentation site, is maintained through one named entry point in both tools, and is designed in its own D101 in the <code>D101-project-management-*</code> series.</p>
   <ul class="bullets">
     <li>The risk log is the first member; the closure report and project setup are the next two this document already names (OOS1, OOS2).</li>
     <li>A member that is engagement state, like the register, hands nothing to a next stage and so has no stage contract (OOS9).</li>
@@ -624,7 +624,7 @@ footer.site-footer a { color: var(--cyan); }
   <p class="section-desc">A decision recorded without its rejected alternative is one that gets re-litigated.</p>
   <div class="decisions">
     <div class="decisions-head"><div>Decided</div><div>Alternative considered</div><div>Why rejected</div></div>
-    <div class="decision-row"><div class="decided">One family document for every project artifact</div><div class="alt">One D101 per artifact</div><div class="why">The Design and Spec stages set the family precedent, and the members share where they land, how they are listed and how they are maintained.</div></div>
+    <div class="decision-row"><div class="decided">One D101 per project artifact, named <code>D101-project-management-&lt;member&gt;</code></div><div class="alt">One family D101 that every member joins, as the Design and Spec stages have</div><div class="why">The members are separate artifacts with little in common beyond where they land, and a reader looks up one of them; the shared prefix keeps the series together.</div></div>
     <div class="decision-row"><div class="decided">An entry point invoked by name in both tools</div><div class="alt">A slash command</div><div class="why">A command runs in Claude Code only, and nothing about a register is specific to one tool.</div></div>
     <div class="decision-row"><div class="decided">The register is one HTML page holding data, view and history</div><div class="alt">A Markdown file, or a data file rendered into a page</div><div class="why">One page matches the rest of the documentation site and leaves no second store to drift.</div></div>
     <div class="decision-row"><div class="decided">The score is never stored</div><div class="alt">A stored score column</div><div class="why">A derived value kept in a second place drifts from the values it is derived from.</div></div>
@@ -651,7 +651,7 @@ footer.site-footer a { color: var(--cyan); }
 
   <div class="subhead">S1 · The register page</div>
   <div class="mockup-wrap">
-    <iframe class="mockup-frame" src="mockups/d101-project-management/risk-log-page.html" style="height: 640px" title="risk-log-page interactive mockup" loading="lazy"></iframe>
+    <iframe class="mockup-frame" src="mockups/d101-project-management-risk/risk-log-page.html" style="height: 640px" title="risk-log-page interactive mockup" loading="lazy"></iframe>
   </div>
   <ul class="bullets">
     <li>From the top: title, last-updated date with its ⓘ, the count per state; the scoring anchors folded; the summary table; the risks grouped by state.</li>
@@ -664,7 +664,7 @@ footer.site-footer a { color: var(--cyan); }
 
   <div class="subhead">S2 · What the entry point prints</div>
   <div class="mockup-wrap">
-    <iframe class="mockup-frame" src="mockups/d101-project-management/risk-run.html" style="height: 600px" title="risk-run interactive mockup" loading="lazy"></iframe>
+    <iframe class="mockup-frame" src="mockups/d101-project-management-risk/risk-run.html" style="height: 600px" title="risk-run interactive mockup" loading="lazy"></iframe>
   </div>
   <ul class="bullets">
     <li>One fixed text layout, 80 columns: the header line, then the risks by state with identifier, score, name, owner and changed date, then the closing question.</li>
@@ -682,7 +682,7 @@ footer.site-footer a { color: var(--cyan); }
 
   <div class="subhead">S4 · The family's pages on the Asimov website</div>
   <div class="mockup-wrap">
-    <iframe class="mockup-frame" src="mockups/d101-project-management/site-project-management.html" style="height: 600px" title="site-project-management interactive mockup" loading="lazy"></iframe>
+    <iframe class="mockup-frame" src="mockups/d101-project-management-risk/site-project-management.html" style="height: 600px" title="site-project-management interactive mockup" loading="lazy"></iframe>
   </div>
   <ul class="bullets">
     <li><em>What's inside → Project management</em> replaces "Nothing yet" with what lands in a repo: the risk log, how to start it, and what it keeps.</li>
@@ -695,7 +695,7 @@ footer.site-footer a { color: var(--cyan); }
 <section class="s" id="s6-open">
   <h2 class="section-title"><span class="sec-ref">§6</span>Still to write</h2>
   <div class="callout warn">
-    <strong>⚠ This document is not gap-free.</strong> §2–§5 settle what the family is, what the risk log keeps, how its states and dates behave and what a person sees; how any of it is built is not settled, and no task spec can be written from this document until the items below are.
+    <strong>⚠ This document is not gap-free.</strong> §2–§5 settle what the family's members share, what the risk log keeps, how its states and dates behave and what a person sees; how any of it is built is not settled, and no task spec can be written from this document until the items below are.
   </div>
   <ul class="bullets">
     <li>How a confirmed review and the person behind it are kept in the register without touching any risk, so a review never moves a risk's changed date.</li>
@@ -771,7 +771,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="q-card">
       <div class="q-head"><span class="q-id">Q2</span><span class="q-decider">Simon Vilandt</span></div>
       <div class="q-body">When project setup exists, the register reads the project's language from it rather than asking: what happens to a register that already holds its own?</div>
-      <div class="q-resolution">Resolution path: settled in the design of project setup, which joins this document (OOS2).</div>
+      <div class="q-resolution">Resolution path: settled in the design of project setup, its own D101 in the <code>D101-project-management-*</code> series (OOS2).</div>
     </div>
   </div>
 
@@ -848,10 +848,10 @@ footer.site-footer a { color: var(--cyan); }
 <footer class="site-footer">
   <div>
     <a href="../index.html">← Documentation home</a>
-    · <span class="mono">features/D101-project-management.html</span>
+    · <span class="mono">features/D101-project-management-risk.html</span>
   </div>
   <div style="margin-top: 0.4rem">
-    D101 · Project management · asimov-plugin · Draft v0.1 · 2026-10-20
+    D101 · Project management: risk log · asimov-plugin · Draft v0.2 · 2026-10-20
   </div>
 </footer>
 
