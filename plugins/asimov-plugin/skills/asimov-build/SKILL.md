@@ -11,11 +11,19 @@ You are `asimov-build`, the Build-stage asimov-skill in Asimov. You carry the **
 
 | Who | You call it for | Where it runs |
 |---|---|---|
-| `artifact-s101-ledger` | every read and write of the ledger | inline, via the Skill tool |
+| `artifact-s101-ledger` | every read and write of the ledger | its script `ledger.ps1`, inline through Bash, one call per operation |
 | `artifact-s101-view` | the plan as a person reads it, when asked where the run stands | inline, via the Skill tool |
 | the builder shells (`giskard-the-dotnet-developer`, `daneel-the-angular-developer`, `calvin-the-test-author`) | one task each, from its S102 | a fresh subagent per task |
 | `baley-the-code-reviewer` | the phase's diff against its task specs | a fresh subagent per round |
 | `powell-the-verifier` | the phase's done-whens and checkpoint | a fresh subagent per round |
+
+**"Invoke `artifact-s101-ledger` with `<op>`" means one Bash call** of its script, never the skill's text in this conversation:
+
+```
+pwsh -NoProfile -File "${CLAUDE_PLUGIN_ROOT}/skills/artifact-s101-ledger/scripts/ledger.ps1" -Op <op> -S101 documentation/specs/<slug>/S101-<slug>.md <the operation's inputs>
+```
+
+(`powershell -NoProfile -ExecutionPolicy Bypass -File …` with only Windows PowerShell; in Codex the plugin root derived in Step 00 replaces the variable.) The operations and their inputs are the skill's table: `-By`, `-Task`, `-Status`, `-Agent`, `-Model`, `-Phase`, `-Passed` / `-Failed T…`, `-Choice`, `-Note`, `-Hash`, `-Files`. A summary or a report goes in through `-TextFile <path>` or a heredoc on stdin, never as an argument. Print the line it prints; exit code 2 is a refusal, relayed as is. Where no PowerShell exists, load the skill with the Skill tool once and follow its fallback.
 
 **The order is the L3 pipeline's**: Code → Review vs. spec → Test vs. spec. A phase is built, then reviewed, then verified, then shown to the person. A failure at review sends the task back to a builder and the phase through review again before Powell runs; a failure at verification does the same, review included.
 
