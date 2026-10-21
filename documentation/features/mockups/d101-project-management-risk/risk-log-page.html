@@ -50,6 +50,7 @@ h2 { font-size:1.25rem; font-weight:700; margin:2rem 0 0.7rem; padding-bottom:0.
 .chip.Active { color:var(--amber); border-color:#ffb74d55; background:#ffb74d14; }
 .chip.Mitigated { color:var(--cyan); border-color:#4fc3f755; background:#4fc3f714; }
 .chip.Accepted { color:var(--violet); border-color:#ab47bc66; background:#ab47bc18; }
+.chip.Occurred { color:var(--coral); border-color:#ef535055; background:#ef535014; }
 .chip.Resolved { color:var(--green); border-color:#66bb6a55; background:#66bb6a14; }
 .anchors { margin-top:1.2rem; background:var(--bg-card); border:1px solid var(--border); border-radius:10px; }
 .anchors summary { cursor:pointer; padding:0.6rem 1rem; font-size:0.85rem; color:var(--text-dim); }
@@ -109,8 +110,8 @@ details.resolved-group > summary { cursor:pointer; color:var(--text-dim); font-s
     { id:'RISK-001', name:'Sponsor changes mid-engagement', owner:'Maja Holm', area:'Governance', i:4, p:3, state:'Active', created:'2026-09-02', changed:'2026-10-06',
       desc:'The sponsor has announced a reorganisation; a new sponsor may reopen scope.', mit:'Brief the deputy sponsor on every steering decision so the context survives a change.',
       hist:[['2026-09-02','Maja Holm','Created. Impact 3, Probability 3 (score 9).'],['2026-10-06','Maja Holm','Impact 3 → 4: reorganisation confirmed for Q1.']] },
-    { id:'RISK-002', name:'Customer test environment arrives late', owner:'Jonas Berg', area:'Schedule', i:3, p:4, state:'Active', created:'2026-09-09', changed:'2026-09-09',
-      desc:'', mit:'', hist:[['2026-09-09','Jonas Berg','Created. Impact 3, Probability 4 (score 12).']] },
+    { id:'RISK-002', name:'Customer test environment arrives late', owner:'Jonas Berg', area:'Schedule', i:3, p:4, state:'Occurred', created:'2026-09-09', changed:'2026-10-13',
+      desc:'', mit:'', hist:[['2026-09-09','Jonas Berg','Created. Impact 3, Probability 4 (score 12).'],['2026-10-13','Jonas Berg','Active → Occurred: the environment arrived 2026-10-13, three weeks late; re-planned in the weekly plan.']] },
     { id:'RISK-003', name:'Key developer leaves before handover', owner:'Maja Holm', area:'Resources', i:5, p:2, state:'Mitigated', created:'2026-09-02', changed:'2026-09-23',
       desc:'', mit:'Pair on every module; handover notes written weekly, not at the end.',
       hist:[['2026-09-02','Maja Holm','Created. Impact 5, Probability 2 (score 10).'],['2026-09-16','Maja Holm','Mitigation written.'],['2026-09-23','Maja Holm','Active → Mitigated: pairing in place on all three modules.']] },
@@ -125,14 +126,15 @@ details.resolved-group > summary { cursor:pointer; color:var(--text-dim); font-s
       hist:[['2026-09-02','Jonas Berg','Created. Impact 4, Probability 2 (score 8).'],['2026-09-20','Jonas Berg','Mitigation written.'],['2026-10-06','Jonas Berg','Active → Resolved: rehearsal finished in 3 h of a 6 h window.']] }
   ];
   const REG_HISTORY = [
-    ['2026-10-13','Maja Holm','Reviewed, no change.'],
+    ['2026-10-13','Maja Holm','Reviewed, with Erik Lund, Jonas Berg.'],
+    ['2026-10-13','Jonas Berg','RISK-002 occurred.'],
     ['2026-10-12','Sara Nygaard','RISK-005 changed.'],
     ['2026-10-06','Jonas Berg','RISK-006 resolved.'],
     ['2026-10-06','Maja Holm','RISK-001 changed.'],
     ['2026-09-30','Erik Lund','RISK-004 accepted.'],
     ['2026-09-02','Maja Holm','Register created. Project language: English.']
   ];
-  const ORDER = ['Active','Mitigated','Accepted','Resolved'];
+  const ORDER = ['Active','Mitigated','Accepted','Occurred','Resolved'];
   const score = r => r.i * r.p;
   const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
   const sorted = list => list.slice().sort((a,b) => ORDER.indexOf(a.state)-ORDER.indexOf(b.state) || score(b)-score(a) || a.id.localeCompare(b.id));

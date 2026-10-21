@@ -270,7 +270,7 @@ footer.site-footer a { color: var(--cyan); }
   <a href="../index.html#s6">Diagrams</a>
   <span class="spacer"></span>
   <span class="phase-chip">Business design</span>
-  <span class="status-chip draft">Draft v0.2</span>
+  <span class="status-chip draft">Draft v0.5</span>
 </nav>
 
 <div class="layout-doc">
@@ -283,7 +283,7 @@ footer.site-footer a { color: var(--cyan); }
         <ul>
           <li><a href="#s4-1">§4.1 Principles</a></li>
           <li><a href="#s4-2">§4.2 Concepts</a></li>
-          <li><a href="#s4-3">§4.3 The pieces and the flows</a></li>
+          <li><a href="#s4-3">§4.3 What a person does</a></li>
           <li><a href="#s4-4">§4.4 Rules</a></li>
           <li><a href="#s4-5">§4.5 Decisions</a></li>
         </ul>
@@ -310,7 +310,7 @@ footer.site-footer a { color: var(--cyan); }
   <div class="meta-cell"><div class="label">Business approver</div><div class="value">Allan Borup</div></div>
   <div class="meta-cell"><div class="label">Family</div><div class="value mono">project management</div></div>
   <div class="meta-cell"><div class="label">Pieces</div><div class="value mono">1 asimov-skill · 2 skills</div></div>
-  <div class="meta-cell"><div class="label">Last updated</div><div class="value mono">2026-10-20</div></div>
+  <div class="meta-cell"><div class="label">Last updated</div><div class="value mono">2026-10-21</div></div>
   <div class="meta-cell"><div class="label">Lands in</div><div class="value mono">documentation/project/</div></div>
 </div>
 
@@ -324,21 +324,30 @@ footer.site-footer a { color: var(--cyan); }
   <p class="section-desc">The delivery model asks for a risk register reviewed every week, and Asimov can produce every document a solution needs but none of the documents that run the engagement.</p>
   <ul class="bullets">
     <li><strong>Nothing covers the engagement.</strong> Every artifact the toolkit ships describes the solution; what could derail the work, who owns it and what changed since last week has no home.</li>
-    <li><strong>The register that is written once.</strong> The risk-management discipline names it as worse than none: opened at kick-off, never reopened, discovered at closure.</li>
+    <li><strong>Seen on our own projects: a register never reopened.</strong> A register was opened at kick-off and not opened again.</li>
+    <li><strong>Seen on our own projects: a risk raised too late.</strong> A risk was raised only after it had happened, when it could no longer be mitigated, only reported.</li>
+  </ul>
+  <p class="section-desc" style="margin:1.2rem 0 0.4rem">The delivery model's risk discipline names the failures a register must prevent; their cost on our projects has not been measured.</p>
+  <ul class="bullets">
+    <li><strong>The register that is written once.</strong> Opened at kick-off, never reopened, discovered at closure, and worse than none.</li>
     <li><strong>Mitigations with no owner.</strong> A plan nobody is answerable for reads as management while nothing is being done.</li>
     <li><strong>Accepting by default.</strong> A risk left standing with no decision looks the same as one the team chose to live with.</li>
-    <li><strong>A plan read as a result.</strong> A register that shows a risk as mitigated because a plan was written gives the false comfort the discipline warns against.</li>
+    <li><strong>A plan read as a result.</strong> A register that shows a risk as mitigated because a plan was written gives false comfort.</li>
   </ul>
   <div class="callout">
-    <strong>Audience.</strong> The project lead who keeps the register, the risk owners, the customer and steering readers of the rendered page, and the maintainers who add the next project artifacts to this family.
+    <strong>Audience.</strong> The project lead who keeps the register, the risk owners, the customer and steering readers who read it on the product's documentation site under <em>Project</em>, and the maintainers who add the next project artifacts to this family.
+  </div>
+  <div class="callout">
+    <strong>Success.</strong> One engagement's register has been maintained five times, by a write or a confirmed review, by someone other than its author; that is also the evidence that moves the risk log from <em>assess</em> to <em>trial</em>.
   </div>
 </section>
 
 <!-- ═════════════════════ §3 ═════════════════════ -->
 <section class="s" id="s3">
   <h2 class="section-title"><span class="sec-ref">§3</span>Requirements</h2>
+  <p class="section-desc">Everything here ships in the first slice: a register is trusted only if its history, its decisions and its integrity hold from the first week, and a register that later changes how it records who and when carries a history that means two things.</p>
 
-  <div class="subhead">Functional — 25</div>
+  <div class="subhead">Functional — 30</div>
   <div class="req-list">
     <div class="req"><div class="id">R1</div><div class="body">A project artifact lands in the product repo under <code>documentation/project/</code>.</div></div>
     <div class="req"><div class="id">R2</div><div class="body">A project artifact is listed on the product's documentation site, under a <em>Project</em> section, from the day it exists.</div></div>
@@ -352,8 +361,8 @@ footer.site-footer a { color: var(--cyan); }
     <div class="req"><div class="id">R10</div><div class="body">A risk becomes <em>Mitigated</em> only when a person sets it, and only while a mitigation is written.</div></div>
     <div class="req"><div class="id">R11</div><div class="body">A risk becomes <em>Accepted</em> only when a person sets it, with a reason and the named person who decided.</div></div>
     <div class="req"><div class="id">R12</div><div class="body">A risk becomes <em>Resolved</em> only when a person sets it, with a reason.</div></div>
-    <div class="req"><div class="id">R13</div><div class="body">A Mitigated, Accepted or Resolved risk can be set back to <em>Active</em> under the same identifier.</div></div>
-    <div class="req"><div class="id">R14</div><div class="body">Every change to a risk adds a dated line to that risk's history, and no line is ever removed.</div></div>
+    <div class="req"><div class="id">R13</div><div class="body">A Mitigated, Accepted, Occurred or Resolved risk can be set back to <em>Active</em> under the same identifier.</div></div>
+    <div class="req"><div class="id">R14</div><div class="body">Every change to a risk adds a dated line to that risk's history.</div></div>
     <div class="req"><div class="id">R15</div><div class="body">A risk is never deleted.</div></div>
     <div class="req"><div class="id">R16</div><div class="body">Every risk shows the date it was created.</div></div>
     <div class="req"><div class="id">R17</div><div class="body">Every risk shows the date it was last changed.</div></div>
@@ -365,27 +374,34 @@ footer.site-footer a { color: var(--cyan); }
     <div class="req"><div class="id">R23</div><div class="body">Registering a risk after an opt-out replaces the opt-out with a register.</div></div>
     <div class="req"><div class="id">R24</div><div class="body">The register keeps a history of every update, including confirmed reviews, each with its date and the person who made it.</div></div>
     <div class="req"><div class="id">R25</div><div class="body">Every line of a risk's history names the person who made the change.</div></div>
+    <div class="req"><div class="id">R26</div><div class="body">No line in a risk's history is ever removed or rewritten.</div></div>
+    <div class="req"><div class="id">R27</div><div class="body">A risk becomes <em>Occurred</em> only when a person sets it, with a reason.</div></div>
+    <div class="req"><div class="id">R28</div><div class="body">All open risks of one owner can be given to another named person in one step.</div></div>
+    <div class="req"><div class="id">R29</div><div class="body">Any field of a risk can be changed in any state without changing the state.</div></div>
+    <div class="req"><div class="id">R30</div><div class="body">The review shows every open risk with its area, description and mitigation, and marks an empty one as <em>none written</em>.</div></div>
   </div>
 
-  <div class="subhead">Non-functional — 2</div>
+  <div class="subhead">Non-functional — 3</div>
   <div class="req-list nf">
     <div class="req"><div class="id">NF1</div><div class="body">The register is one readable page in the documentation site's look, with no script.</div></div>
-    <div class="req"><div class="id">NF2</div><div class="body">Scoring anchors let two people score the same risk alike, and the page states that the score ranks risks and does not decide what to do.</div></div>
+    <div class="req"><div class="id">NF2</div><div class="body">The page shows what 1 and 5 mean on both the impact and the probability axis.</div></div>
+    <div class="req"><div class="id">NF3</div><div class="body">The page states that the score ranks risks and does not decide what to do.</div></div>
   </div>
 
-  <div class="subhead">Out of scope — 11</div>
+  <div class="subhead">Out of scope — 12</div>
   <div class="req-list">
     <div class="req oos"><div class="id">OOS1</div><div class="body">Closing the register at handover — it belongs to the closure report, a later member of this family; RL14 states what that report must honour.</div></div>
     <div class="req oos"><div class="id">OOS2</div><div class="body">Project setup, the place a project's information such as its language is decided — a later member of this family; until it exists the register asks for the language itself (RL16, Q2).</div></div>
     <div class="req oos"><div class="id">OOS3</div><div class="body">Showing the register's state on the product's documentation site beyond its card — the site must then always match the current risks, and how is not settled (Q1).</div></div>
     <div class="req oos"><div class="id">OOS4</div><div class="body">A risk detector that notices risk-shaped talk and proposes entries — it is designed once the register's shape has settled, and it defers to the register's own entry point.</div></div>
-    <div class="req oos"><div class="id">OOS5</div><div class="body">The other project artifacts the delivery model names (project plan, status report, change log, clarification log) — each gets its own D101 in the same series when it is designed.</div></div>
+    <div class="req oos"><div class="id">OOS5</div><div class="body">The other project artifacts the delivery model names (project plan, status report, change log, clarification log, issue log) — each gets its own D101 in the same series when it is designed; an Occurred risk will point to the issue log once it exists.</div></div>
     <div class="req oos"><div class="id">OOS6</div><div class="body">Drafting the difficult conversation or deciding what to escalate — the discipline keeps that human (P5).</div></div>
     <div class="req oos"><div class="id">OOS7</div><div class="body">Deleting a risk — resolving is how a risk leaves the active view; the entry and its history stay.</div></div>
     <div class="req oos"><div class="id">OOS8</div><div class="body">A fixed or suggested set of areas — what counts as an area differs too much between engagements for a default to be anything but noise.</div></div>
     <div class="req oos"><div class="id">OOS9</div><div class="body">A stage contract under <code>contracts/</code> — the register is engagement state across all four phases and hands nothing to a next stage.</div></div>
     <div class="req oos"><div class="id">OOS10</div><div class="body">Listing the Spec stage's plans on the product's documentation site — the same gap, but it belongs to the Spec stage, and a spec is a folder where the site expects one document per card.</div></div>
     <div class="req oos"><div class="id">OOS11</div><div class="body">Editing the delivery-model corpus — it is a generated export; the register's divergence from it is recorded in the risk-log definition instead.</div></div>
+    <div class="req oos"><div class="id">OOS12</div><div class="body">Publishing the product's documentation site to the customer — it is the team's choice of hosting; Asimov only generates the pages.</div></div>
   </div>
 </section>
 
@@ -395,7 +411,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="ch-num">4</div>
     <div>
       <div class="ch-name">Business design</div>
-      <div class="ch-summary">The principles the family holds to, the vocabulary of the risk log, its pieces and flows, the rules with their counter-examples, and the decisions with the alternatives they ruled out.</div>
+      <div class="ch-summary">The principles the family holds to, the vocabulary of the risk log, what a person does with it, the rules with their counter-examples, and the decisions with the alternatives they ruled out.</div>
     </div>
   </div>
 </div>
@@ -405,7 +421,7 @@ footer.site-footer a { color: var(--cyan); }
   <div class="principles">
     <div class="principle"><div class="num">1</div><div class="text"><strong>Engagement state, not solution documentation.</strong> A project artifact is maintained and re-read for the life of the engagement, not approved once and then read.</div></div>
     <div class="principle"><div class="num">2</div><div class="text"><strong>The page is the register.</strong> Data, view and history live on one page in the repo; there is no second store to fall out of step with it.</div></div>
-    <div class="principle"><div class="num">3</div><div class="text"><strong>Nothing derived is stored twice.</strong> The score is computed from impact and probability every time it is shown.</div></div>
+    <div class="principle"><div class="num">3</div><div class="text"><strong>Nothing derived is read back.</strong> The score is shown on the page, but it is always recomputed from impact and probability, never taken from what the page shows.</div></div>
     <div class="principle"><div class="num">4</div><div class="text"><strong>Every decision is explicit and signed.</strong> Anything beyond Active is set by a person with a reason, and "nobody decided" is never a state.</div></div>
     <div class="principle"><div class="num">5</div><div class="text"><strong>The tool keeps the register; people hold the conversation.</strong> Asimov maintains the entries and never writes the message or chooses what to escalate.</div></div>
     <div class="principle"><div class="num">6</div><div class="text"><strong>One fixed view, learned once.</strong> The register always reads the same way, so the weekly review reads it top-down without relearning it.</div></div>
@@ -427,17 +443,20 @@ footer.site-footer a { color: var(--cyan); }
     <div class="row cols-2"><div class="label-cell">Probability</div><div>How likely it is to happen, judged from 1 to 5 against the anchors on the page.</div></div>
     <div class="row cols-2"><div class="label-cell">Score</div><div>Impact times probability, from 1 to 25; it ranks risks against each other and does not say what to do.</div></div>
     <div class="row cols-2"><div class="label-cell">Mitigation</div><div>The plan to avoid the risk or reduce its impact; written, it is a plan, not a result.</div></div>
-    <div class="row cols-2"><div class="label-cell">State</div><div>One of <em>Active</em>, <em>Mitigated</em>, <em>Accepted</em> or <em>Resolved</em>; every state but Active is a person's decision.</div></div>
+    <div class="row cols-2"><div class="label-cell">State</div><div>One of <em>Active</em>, <em>Mitigated</em>, <em>Accepted</em>, <em>Occurred</em> or <em>Resolved</em>; every state but Active is a person's decision.</div></div>
+    <div class="row cols-2"><div class="label-cell">Occurred</div><div>The risk happened: it is no longer uncertain, it is a problem, and it is not the same as a risk that was dealt with.</div></div>
+    <div class="row cols-2"><div class="label-cell">Open risk</div><div>A risk in any state but Resolved.</div></div>
     <div class="row cols-2"><div class="label-cell">History</div><div>The dated, signed lines that record every change to one risk, or every update to the register, and only ever grow.</div></div>
     <div class="row cols-2"><div class="label-cell">Dates</div><div>A risk has <em>created</em> and <em>changed</em>; the register has <em>last updated</em>.</div></div>
     <div class="row cols-2"><div class="label-cell">Review</div><div>A person has read the register and confirmed it, which updates the register without changing any risk.</div></div>
+    <div class="row cols-2"><div class="label-cell">Reviewed by</div><div>The person who confirmed the review, which does not mean they reviewed alone; who else took part may be named with it.</div></div>
     <div class="row cols-2"><div class="label-cell">Project language</div><div>The language the register's content is kept in, which may differ from the language a person writes in.</div></div>
   </div>
 </section>
 
 <section class="s" id="s4-3">
-  <h2 class="section-title"><span class="sec-ref">§4.3</span>The pieces and the flows</h2>
-  <p class="section-desc">What a member of the family consists of, and the six things a person does with the risk log.</p>
+  <h2 class="section-title"><span class="sec-ref">§4.3</span>What a person does</h2>
+  <p class="section-desc">What every member of the family has in common, and the seven things a person does with the risk log.</p>
 
   <div class="subhead">The family</div>
   <p class="section-desc" style="margin-bottom:0.4rem">Every member lands under <code>documentation/project/</code>, is listed under <em>Project</em> on the product's documentation site, is maintained through one named entry point in both tools, and is designed in its own D101 in the <code>D101-project-management-*</code> series.</p>
@@ -446,14 +465,12 @@ footer.site-footer a { color: var(--cyan); }
     <li>A member that is engagement state, like the register, hands nothing to a next stage and so has no stage contract (OOS9).</li>
   </ul>
 
-  <div class="subhead">The pieces of the risk log</div>
+  <div class="subhead">What a person can do with the risk log</div>
   <ul class="bullets">
-    <li><strong>The register page</strong> holds the risks, their history and the register's own history.</li>
-    <li><strong>The entry point</strong> (<code>asimov-risk</code>) carries the conversation: which verb, which risk, which questions, where it waits.</li>
-    <li><strong>The writer</strong> (<code>artifact-risk-log-authoring</code>) makes every change to the register and nothing else.</li>
-    <li><strong>The view</strong> (<code>artifact-risk-log-view</code>) shows the register to a person in one fixed layout, writes nothing and judges nothing.</li>
-    <li><strong>The <em>Project</em> section</strong> on the product's documentation site lists the register, or its opt-out, as a card.</li>
-    <li><strong>The family's pages</strong> on the Asimov website say the family exists and what its first member does.</li>
+    <li><strong>Keep it by asking.</strong> Register, change, decide and hand over risks by asking for them by name (<code>asimov-risk</code>), in Claude Code or Codex.</li>
+    <li><strong>Read it as a page.</strong> The register is a page on the product's documentation site, under <em>Project</em>, that the team and the customer read.</li>
+    <li><strong>See it in the chat.</strong> The same view every time, so the weekly review reads it top-down.</li>
+    <li><strong>Find the family on the Asimov website.</strong> Its pages say the family exists and what the risk log does.</li>
   </ul>
 
   <div class="subhead">F1 · Register a risk</div>
@@ -462,6 +479,7 @@ footer.site-footer a { color: var(--cyan); }
     <li>Outcome: a new risk, Active, with the next identifier, the history line <em>Created</em>, created and changed set to today, and the register updated today.</li>
     <li>When no register exists yet, this first risk creates it, and the project language is asked for once (RL16).</li>
     <li>When an opt-out stands, the register replaces it and its first history line names the opt-out it replaced (R23).</li>
+    <li>Told in another language than the project's, the risk is shown as it will be stored, in the project's language, and written only once the person confirms or corrects it (RL16).</li>
     <li class="warn">A required field still missing after the questions: nothing is written, and the person is told which field is missing.</li>
   </ul>
 
@@ -469,20 +487,22 @@ footer.site-footer a { color: var(--cyan); }
   <p class="section-desc" style="margin-bottom:0.4rem"><em>"Its impact went up."</em> — the person names an identifier, sees the current values and says what changes.</p>
   <ul class="bullets">
     <li>Outcome: the fields changed, one history line naming each field with its old and new value, and the risk's changed date moved to today.</li>
+    <li>Any field can be changed in any state, a Resolved risk included, and the state stays as it is (R29).</li>
     <li class="warn">An identifier that does not exist: nothing is written, and the register is shown so the person can find the right one.</li>
+    <li class="warn">Emptying the mitigation of a Mitigated risk: refused; the person first sets the risk back to Active with a reason (RL6).</li>
   </ul>
 
   <div class="subhead">F3 · Decide a risk's state</div>
-  <p class="section-desc" style="margin-bottom:0.4rem"><em>"We have dealt with it."</em> — the person sets Mitigated, Accepted, Resolved or back to Active, with a reason.</p>
+  <p class="section-desc" style="margin-bottom:0.4rem"><em>"We have dealt with it."</em> or <em>"It happened."</em> — the person sets Mitigated, Accepted, Occurred, Resolved or back to Active, with a reason.</p>
   <ul class="bullets">
     <li>Outcome: the new state, a history line with the reason and the person, and the risk's changed date moved to today.</li>
     <li class="warn">A state whose requirements are not met (no mitigation written, no decider named, no reason): the state is not set, and the person is told what is missing.</li>
   </ul>
 
   <div class="subhead">F4 · Review the register</div>
-  <p class="section-desc" style="margin-bottom:0.4rem"><em>"Where do we stand?"</em> — the default when the entry point is called with nothing else; the view is shown, then the person is asked whether to mark the register as reviewed today.</p>
+  <p class="section-desc" style="margin-bottom:0.4rem"><em>"Where do we stand?"</em> — the default when the entry point is called with nothing else; the view is shown with every open risk in full (R30), then the person is asked whether to mark the register as reviewed today.</p>
   <ul class="bullets">
-    <li>Yes: the register's last-updated date moves to today and its history gains a <em>Reviewed</em> line with the person; no risk changes.</li>
+    <li>Yes: one optional question follows, <em>"Who took part?"</em>, which the person may skip; the register's last-updated date moves to today and its history gains a <em>Reviewed</em> line with the person and any participants; no risk changes.</li>
     <li>No: nothing is written.</li>
     <li class="warn">No register and no opt-out: the person is told so and offered F1 or F5.</li>
   </ul>
@@ -490,7 +510,7 @@ footer.site-footer a { color: var(--cyan); }
   <div class="subhead">F5 · Opt out</div>
   <p class="section-desc" style="margin-bottom:0.4rem"><em>"We don't keep a risk register here."</em> — the person gives the reason, the place when it is handled elsewhere, and who decided.</p>
   <ul class="bullets">
-    <li>Outcome: the register's place holds the opt-out, with its reason, decider and date, and the site's card shows it.</li>
+    <li>Outcome: the register's place holds the opt-out, with its reason, decider and date, and the site lists it as an ordinary card titled <em>No risk register kept here</em>, described by its reason.</li>
     <li class="warn">An opt-out with a reason missing, a decider missing, or "handled elsewhere" without the place: nothing is written.</li>
   </ul>
 
@@ -499,6 +519,14 @@ footer.site-footer a { color: var(--cyan); }
   <ul class="bullets">
     <li>Outcome: a repair proposal listing each change as before and after; once confirmed, the register is readable again, nothing it held is lost, and its history gains a <em>Repaired</em> line.</li>
     <li class="warn">The repair declined: nothing is written, and the register stays unreadable until it is repaired, by the tool or by hand.</li>
+  </ul>
+
+  <div class="subhead">F7 · Hand risks to a new owner</div>
+  <p class="section-desc" style="margin-bottom:0.4rem"><em>"Jonas rolls off at the end of the month."</em> — the person names the leaving owner and the named person who takes over.</p>
+  <ul class="bullets">
+    <li>Outcome: every open risk of that owner has the new owner, each with a history line naming the handover, and each risk's changed date moved to today.</li>
+    <li>Resolved risks keep the owner they had when they were resolved.</li>
+    <li class="warn">A new owner given as a role, or an owner with no open risks: nothing is written, and the person is told why.</li>
   </ul>
 </section>
 
@@ -528,9 +556,10 @@ footer.site-footer a { color: var(--cyan); }
   </ul>
 
   <div class="subhead">RL4 · Duplicates are renumbered by the tool</div>
-  <p class="section-desc" style="margin-bottom:0.4rem">When two risks share an identifier, the next write gives the later-created one the highest identifier plus one, with its history and a <em>Renumbered from</em> line; created the same day, the one further down the page is renumbered.</p>
+  <p class="section-desc" style="margin-bottom:0.4rem">When two risks share an identifier, the next write first gives the later-created one the highest identifier plus one, with its history and a <em>Renumbered from</em> line, and only then makes its own change; created the same day, the one further down the page is renumbered.</p>
   <ul class="bullets">
     <li>Two branches each added RISK-007 and both were merged, RISK-008 exists: the later one becomes RISK-009.</li>
+    <li>The same register, and the next write adds a risk: the duplicate becomes RISK-009 first, and the new risk RISK-010.</li>
     <li>No identifier is shared: nothing is renumbered, and a gap in the series is never closed.</li>
   </ul>
 
@@ -546,6 +575,7 @@ footer.site-footer a { color: var(--cyan); }
   <ul class="bullets">
     <li>Mitigation written, person sets Mitigated: set.</li>
     <li>Mitigation empty: the person is asked for it, and without one the risk stays where it was.</li>
+    <li>The mitigation of a Mitigated risk is emptied: refused; the risk is first set back to Active with a reason.</li>
   </ul>
 
   <div class="subhead">RL7 · Accepted needs a reason and a decider</div>
@@ -565,7 +595,7 @@ footer.site-footer a { color: var(--cyan); }
   <div class="subhead">RL9 · The register's date</div>
   <p class="section-desc" style="margin-bottom:0.4rem">The register's last-updated date moves on every write and on every confirmed review, and each move adds a line, with the person, to the register's history.</p>
   <ul class="bullets">
-    <li>"Yes, mark it reviewed": last updated is today, and the register's history gains a <em>Reviewed</em> line.</li>
+    <li>"Yes, mark it reviewed", with Erik Lund and Jonas Berg taking part: last updated is today, and the register's history gains <em>Reviewed by Maja Holm with Erik Lund, Jonas Berg</em>.</li>
     <li>The register shown and the question answered no: nothing moves.</li>
   </ul>
 
@@ -573,7 +603,7 @@ footer.site-footer a { color: var(--cyan); }
   <p class="section-desc" style="margin-bottom:0.4rem">Every change adds a dated line naming the person, and no action removes or rewrites a line.</p>
   <ul class="bullets">
     <li>Resolving a risk adds a line; the lines before it stand.</li>
-    <li>Renumbering and repairing also add lines; neither removes one.</li>
+    <li>A typo in a risk's name is corrected: a new line records the correction, and the earlier lines still show the old name; the history is never tidied, even when a line is wrong.</li>
   </ul>
 
   <div class="subhead">RL11 · An unreadable register is repaired, never overwritten</div>
@@ -584,23 +614,23 @@ footer.site-footer a { color: var(--cyan); }
   </ul>
 
   <div class="subhead">RL12 · How the register is ordered</div>
-  <p class="section-desc" style="margin-bottom:0.4rem">Risks are grouped by state in the order Active, Mitigated, Accepted, Resolved, and within a state by score, highest first, then by identifier.</p>
+  <p class="section-desc" style="margin-bottom:0.4rem">Risks are grouped by state in the order Active, Mitigated, Accepted, Occurred, Resolved, and within a state by score, highest first, then by identifier.</p>
   <ul class="bullets">
     <li>Two Active risks at 12: RISK-003 before RISK-009.</li>
     <li>An Active risk at 20 comes before one at 12, even when the one at 12 changed more recently: the order never follows dates.</li>
   </ul>
 
   <div class="subhead">RL13 · An area is the person's word</div>
-  <p class="section-desc" style="margin-bottom:0.4rem">An area is free text, and the tool never proposes one.</p>
+  <p class="section-desc" style="margin-bottom:0.4rem">An area is free text and the tool never proposes one; only when the area given is nearly the same as one already used does it ask once, and the person's answer stands.</p>
   <ul class="bullets">
-    <li>"Supplier": kept as written.</li>
-    <li>No area given: none is suggested, and the risk is still complete.</li>
+    <li>"schedule" given, "Schedule" already used: the tool asks "Did you mean Schedule?" and keeps what the person answers.</li>
+    <li>No area given, or "Supplier" when no area resembles it: nothing is asked, and the area is kept as written or left empty.</li>
   </ul>
 
   <div class="subhead">RL14 · What the closure report must honour (family rule)</div>
   <p class="section-desc" style="margin-bottom:0.4rem">When the engagement closes, the register is reviewed first and the risks no longer relevant are resolved; every risk not Resolved then carries into the closure report.</p>
   <ul class="bullets">
-    <li>An Accepted risk at closure: carried into the report, since it transfers with the solution.</li>
+    <li>An Accepted or Occurred risk at closure: carried into the report, since it transfers with the solution.</li>
     <li>A Resolved risk: not carried.</li>
   </ul>
 
@@ -612,10 +642,19 @@ footer.site-footer a { color: var(--cyan); }
   </ul>
 
   <div class="subhead">RL16 · Content is kept in the project's language</div>
-  <p class="section-desc" style="margin-bottom:0.4rem">The register's content is written in the project's language whatever language the person writes in; the language is asked for when the register or an opt-out is first written.</p>
+  <p class="section-desc" style="margin-bottom:0.4rem">Content is kept in the project's language; when a person writes in another language, the tool shows the translation it will store and writes it only once the person has confirmed it or corrected it in the project's language.</p>
   <ul class="bullets">
-    <li>An English project, a risk told in Danish: kept in English.</li>
-    <li>Names of people and systems are never translated.</li>
+    <li>An English project, "kunden når ikke at frigive testere før uge 48": shown as "The customer cannot release testers before week 48. Correct?" and written only after the answer.</li>
+    <li>Written in the project's language: no translation step, and the words are stored as written.</li>
+    <li>It covers the text the person writes (name, description, mitigation, reasons); history lines the tool phrases itself are written straight in the project's language, and names of people and systems are never translated.</li>
+    <li>The language is asked for when the register or an opt-out is first written.</li>
+  </ul>
+
+  <div class="subhead">RL17 · Occurred needs what happened and where it is handled</div>
+  <p class="section-desc" style="margin-bottom:0.4rem">A risk can be set Occurred only with a reason saying what happened and where it is handled now.</p>
+  <ul class="bullets">
+    <li>The customer's test environment arrives three weeks late: set Occurred, "arrived 2026-11-17, three weeks late; re-planned in the weekly plan".</li>
+    <li>A risk that did not happen because the mitigation worked: Resolved, not Occurred.</li>
   </ul>
 </section>
 
@@ -627,17 +666,28 @@ footer.site-footer a { color: var(--cyan); }
     <div class="decision-row"><div class="decided">One D101 per project artifact, named <code>D101-project-management-&lt;member&gt;</code></div><div class="alt">One family D101 that every member joins, as the Design and Spec stages have</div><div class="why">The members are separate artifacts with little in common beyond where they land, and a reader looks up one of them; the shared prefix keeps the series together.</div></div>
     <div class="decision-row"><div class="decided">An entry point invoked by name in both tools</div><div class="alt">A slash command</div><div class="why">A command runs in Claude Code only, and nothing about a register is specific to one tool.</div></div>
     <div class="decision-row"><div class="decided">The register is one HTML page holding data, view and history</div><div class="alt">A Markdown file, or a data file rendered into a page</div><div class="why">One page matches the rest of the documentation site and leaves no second store to drift.</div></div>
-    <div class="decision-row"><div class="decided">The score is never stored</div><div class="alt">A stored score column</div><div class="why">A derived value kept in a second place drifts from the values it is derived from.</div></div>
+    <div class="decision-row"><div class="decided">The score is shown but never read back</div><div class="alt">A stored score the tool reads back</div><div class="why">A derived value read from a second place drifts from the values it is derived from.</div></div>
     <div class="decision-row"><div class="decided">Every state beyond Active is set by a person</div><div class="alt">Mitigated derived from a filled mitigation field</div><div class="why">A written plan is not a done mitigation, and a register that says otherwise gives false comfort.</div></div>
     <div class="decision-row"><div class="decided">Accepted is a state of its own</div><div class="alt">No accept at all, or Resolved with a reason</div><div class="why">The discipline asks for avoid, reduce or accept as a deliberate choice, and names accepting by default as a failure.</div></div>
+    <div class="decision-row"><div class="decided">Occurred is a state of its own</div><div class="alt">Resolved with a reason "occurred", or out of scope until an issue log exists</div><div class="why">A risk that happened is not solved, and the register must tell "we avoided it" from "it happened".</div></div>
+    <div class="decision-row"><div class="decided">Any field can be changed in any state</div><div class="alt">A Resolved risk is locked and must be reopened to be changed</div><div class="why">The history records every change anyway, and reopening to fix a typo costs more than it protects.</div></div>
+    <div class="decision-row"><div class="decided">Emptying the mitigation of a Mitigated risk is refused</div><div class="alt">Emptying it sets the risk back to Active</div><div class="why">That would be a change of state nobody decided.</div></div>
     <div class="decision-row"><div class="decided">Identifiers are <code>RISK-NNN</code></div><div class="alt"><code>R-NNN</code></div><div class="why">It collides with the requirement numbers R1, R2 that designs and plans trace by.</div></div>
     <div class="decision-row"><div class="decided">Duplicate identifiers are renumbered by the tool</div><div class="alt">Stop and let the person renumber</div><div class="why">The series must stay continuous with no duplicate, and the person should not have to do bookkeeping.</div></div>
+    <div class="decision-row"><div class="decided">Duplicates are renumbered before the write's own change</div><div class="alt">The write's change first, then the renumbering</div><div class="why">The register is put in order before anything new is added, so the series follows creation order.</div></div>
     <div class="decision-row"><div class="decided">One register per product repo</div><div class="alt">One register per engagement across repos</div><div class="why">One fixed place is what the site and the tool can both find; an engagement over several repos keeps its register in one.</div></div>
     <div class="decision-row"><div class="decided">An opt-out is recorded in the register's place</div><div class="alt">An opt-out is simply the register's absence</div><div class="why">Absence cannot tell "decided not to" from "never thought about it".</div></div>
+    <div class="decision-row"><div class="decided">The chat view shows every open risk in full: area, description and mitigation</div><div class="alt">One line per risk, or a summary with details on request</div><div class="why">A review cannot judge whether a mitigation still holds without reading it, and a detail step on request gets skipped.</div></div>
     <div class="decision-row"><div class="decided">A review counts only when confirmed</div><div class="alt">Every view of the register counts as a review</div><div class="why">A glance is not a review, and a date that moves on every glance says nothing.</div></div>
+    <div class="decision-row"><div class="decided">A review is recorded under the person who confirms it, with participants optional</div><div class="alt">Only the confirming person, or participants required</div><div class="why">The record must not claim someone reviewed alone, and a required list would be skipped or invented.</div></div>
+    <div class="decision-row"><div class="decided">An owner's open risks can be handed over in one step; noticing a leaving owner is open (Q3)</div><div class="alt">Flag owners whose risks have not changed in N weeks</div><div class="why">The tool does not know the team, and a threshold flags owners of stable risks as falsely as leaving ones.</div></div>
     <div class="decision-row"><div class="decided">Who and when sit behind the register's date, one step away</div><div class="alt">A visible column of reviewers and editors</div><div class="why">The weekly read needs the risks; who touched them is needed for trust, not at a glance.</div></div>
     <div class="decision-row"><div class="decided">The project language is asked for once and kept in the register</div><div class="alt">Read from project setup</div><div class="why">Project setup does not exist yet; Q2 moves the source when it does.</div></div>
+    <div class="decision-row"><div class="decided">A translation is shown and confirmed before it is stored; the original is not kept</div><div class="alt">Store the original beside the translation, or the original as the record</div><div class="why">What is stored is what the person approved, a mistranslation is caught before it becomes history, and the register stays in one language.</div></div>
     <div class="decision-row"><div class="decided">No register state on the product's site beyond the card, for now</div><div class="alt">A generated band of figures on the landing page</div><div class="why">A generated band goes stale between generator runs, and figures that may be old are worse than none.</div></div>
+    <div class="decision-row"><div class="decided">An opt-out is an ordinary card on the site</div><div class="alt">A fixed marker the site generator reads to show an opt-out card</div><div class="why">The opt-out page carries its own title and description, so the site needs to know nothing of the register's inside.</div></div>
+    <div class="decision-row"><div class="decided">The website's project-management pages change in the same slice</div><div class="alt">Wait until the risk log reaches trial</div><div class="why">The pages say "Nothing yet" and "planned" the day the risk log ships, and a public page that contradicts the plugin is worse than none.</div></div>
+    <div class="decision-row"><div class="decided">Everything ships in the first slice</div><div class="alt">A first slice and a later one (website, opt-out, register history, repair, renumbering, translation)</div><div class="why">The register is trusted only if its history and integrity hold from the first week.</div></div>
     <div class="decision-row"><div class="decided">No fixed set of areas</div><div class="alt">The discipline's five areas</div><div class="why">Areas differ too much between engagements for a default to help.</div></div>
     <div class="decision-row"><div class="decided">The divergence from the discipline is recorded in the risk-log definition</div><div class="alt">Edit the discipline in the corpus</div><div class="why">The corpus is a generated export and is not edited in this repo.</div></div>
     <div class="decision-row"><div class="decided">The risk log's definition and template sit with the other documentation artifacts, by where they land</div><div class="alt">A separate project-management folder in the plugin</div><div class="why">The plugin's folders mirror where an artifact lands in a product repo, and the register lands under documentation; the planned empty folder is removed so nobody uses it.</div></div>
@@ -657,7 +707,7 @@ footer.site-footer a { color: var(--cyan); }
     <li>From the top: title, last-updated date with its ⓘ, the count per state; the scoring anchors folded; the summary table; the risks grouped by state.</li>
     <li>Each summary row links to its risk; each risk shows its fields, created and changed dates, and its history with who made each change.</li>
     <li>The ⓘ beside the last-updated date unfolds the register's own history: every update and every confirmed review, with date and person.</li>
-    <li>Resolved risks sit last and folded.</li>
+    <li>Occurred risks have their own group, after Accepted; Resolved risks sit last and folded.</li>
     <li>Headings and labels follow the template; the content is in the project's language (RL16).</li>
     <li>Switch the state at the top of the mockup: a register with risks, a register where every risk is resolved, and an opt-out.</li>
   </ul>
@@ -667,16 +717,17 @@ footer.site-footer a { color: var(--cyan); }
     <iframe class="mockup-frame" src="mockups/d101-project-management-risk/risk-run.html" style="height: 600px" title="risk-run interactive mockup" loading="lazy"></iframe>
   </div>
   <ul class="bullets">
-    <li>One fixed text layout, 80 columns: the header line, then the risks by state with identifier, score, name, owner and changed date, then the closing question.</li>
+    <li>One fixed text layout, 80 columns: the header line, then the risks by state, each open risk in full (identifier, score and name; owner, area, impact, probability and changed date; description; mitigation), each risk closed by a horizontal rule so the risks are easy to tell apart, then the closing question.</li>
+    <li>An empty description or mitigation shows as <em>none written</em>, so a risk without a plan stands out in the review; Resolved risks show only as a count.</li>
     <li>The chat's own words follow the conversation's language; a risk's content is shown as it is kept.</li>
-    <li>Scenarios: a review confirmed, a risk registered, a state decided, no register yet, an opt-out, and an unreadable register with its repair shown as before and after.</li>
+    <li>Scenarios: a review confirmed with its participants, a risk registered in Danish and confirmed in English, a state decided, risks handed to a new owner, no register yet, an opt-out, and an unreadable register with its repair shown as before and after.</li>
     <li class="warn">The view never prints a verdict; anything the entry point says about the register comes after the view and is its own line.</li>
   </ul>
 
   <div class="subhead">S3 · The card on the product's documentation site</div>
   <ul class="bullets">
     <li>A <em>Project</em> section joins the site's catalogue; the register is one card in it, in the same form as every other document card: title, one-line description, HTML badge.</li>
-    <li>An opt-out shows as a card too, titled as the opt-out and described by its reason.</li>
+    <li>An opt-out is an ordinary card too: the site reads its title and description as it does for every page, and the opt-out page is titled <em>No risk register kept here</em> with its reason as description; the site does not know it is an opt-out.</li>
     <li>The card shows no figures from the register (OOS3, Q1).</li>
   </ul>
 
@@ -701,9 +752,11 @@ footer.site-footer a { color: var(--cyan); }
     <li>How a confirmed review and the person behind it are kept in the register without touching any risk, so a review never moves a risk's changed date.</li>
     <li>How the tool knows which person is making a change, so every history line can name them without asking every time.</li>
     <li>How the tool tells a register it can read in full from one it cannot, and builds a repair from what it can read without dropping a line of text.</li>
-    <li>How a git conflict in the register, after two branches both wrote to it, is resolved before the renumbering of RL4 can run.</li>
+    <li>How a git conflict in the register, after two branches both wrote to it, is resolved before the renumbering of RL4 can run; if it cannot be made cheap, the answer becomes a business rule and returns to §4.</li>
     <li>How the whole register is rewritten on every change while staying safe against a write that fails halfway.</li>
-    <li>How an opt-out is marked in the register's place so that both the site generator and the tool recognise it as an opt-out.</li>
+    <li>How an opt-out is marked in the register's place so that the tool recognises it as an opt-out, while the site reads only its title and description.</li>
+    <li>How every write is checked, by a script rather than by the writer's own care, to keep every earlier history line intact and every risk the register held, so that a rewrite which drops or alters a line is refused before it is saved.</li>
+    <li>How the work divides between the part that holds the conversation, the part that writes the register and the part that shows it, so the view can be called by later members of the family without writing.</li>
     <li>How the two site generators (<code>/asimov-init</code> and <code>codex-asimov-init</code>) find and list the <em>Project</em> section, and the five places that must change in lockstep.</li>
     <li>How the project language is kept in the register now, and how it moves to project setup when that exists.</li>
     <li>How the ⓘ beside the register's date unfolds its history on a page that carries no script.</li>
@@ -733,29 +786,33 @@ footer.site-footer a { color: var(--cyan); }
     <div class="ac-row"><div class="ac-id">AC6</div><div class="ac-verifies"><span class="verify-chip">RL1</span></div><div>Manual step: given "the project lead" as owner, the entry point asks for a person's name before writing.</div></div>
     <div class="ac-row"><div class="ac-id">AC7</div><div class="ac-verifies"><span class="verify-chip">R6</span></div><div>A risk with no description, area or mitigation is written and shown without those fields.</div></div>
     <div class="ac-row"><div class="ac-id">AC8</div><div class="ac-verifies"><span class="verify-chip">R7</span><span class="verify-chip">RL3</span></div><div>In a register holding RISK-001 to RISK-007 with RISK-004 and RISK-007 resolved, a new risk is RISK-008.</div></div>
-    <div class="ac-row"><div class="ac-id">AC9</div><div class="ac-verifies"><span class="verify-chip">RL4</span></div><div>A register holding two RISK-007 and one RISK-008 is, after the next write, left with RISK-007, RISK-008 and RISK-009, where RISK-009 is the later-created duplicate (the lower one on the page when created the same day) and its history ends with <em>Renumbered from RISK-007</em>.</div></div>
-    <div class="ac-row"><div class="ac-id">AC10</div><div class="ac-verifies"><span class="verify-chip">R8</span><span class="verify-chip">RL2</span></div><div>Page and view show impact times probability as the score; the page source holds impact and probability and no score value; "score it 15" writes nothing.</div></div>
+    <div class="ac-row"><div class="ac-id">AC9</div><div class="ac-verifies"><span class="verify-chip">RL4</span></div><div>A register holding two RISK-007 and one RISK-008 is, after the next write, left with RISK-007, RISK-008 and RISK-009, where RISK-009 is the later-created duplicate (the lower one on the page when created the same day) and its history ends with <em>Renumbered from RISK-007</em>; when that write adds a risk, the new risk is RISK-010.</div></div>
+    <div class="ac-row"><div class="ac-id">AC10</div><div class="ac-verifies"><span class="verify-chip">R8</span><span class="verify-chip">RL2</span></div><div>A register whose page shows a wrong score for a risk (edited by hand) shows the correct score after the next write, computed from that risk's impact and probability; "score it 15" writes nothing.</div></div>
     <div class="ac-row"><div class="ac-id">AC11</div><div class="ac-verifies"><span class="verify-chip">R9</span></div><div>A newly registered risk shows the state Active.</div></div>
-    <div class="ac-row"><div class="ac-id">AC12</div><div class="ac-verifies"><span class="verify-chip">R10</span><span class="verify-chip">RL6</span></div><div>Setting Mitigated on a risk with an empty mitigation asks for one; declined, the risk keeps its state and the file is unchanged.</div></div>
+    <div class="ac-row"><div class="ac-id">AC12</div><div class="ac-verifies"><span class="verify-chip">R10</span><span class="verify-chip">RL6</span></div><div>Setting Mitigated on a risk with an empty mitigation asks for one; declined, the risk keeps its state and the file is unchanged; emptying the mitigation of a Mitigated risk is refused and writes nothing.</div></div>
     <div class="ac-row"><div class="ac-id">AC13</div><div class="ac-verifies"><span class="verify-chip">R11</span><span class="verify-chip">RL7</span></div><div>Accepted with no decider is not set; with a reason and a name it is set, and the history line holds both.</div></div>
     <div class="ac-row"><div class="ac-id">AC14</div><div class="ac-verifies"><span class="verify-chip">R12</span></div><div>Resolved with no reason is not set; with a reason it is set, and the history line holds it.</div></div>
-    <div class="ac-row"><div class="ac-id">AC15</div><div class="ac-verifies"><span class="verify-chip">R13</span><span class="verify-chip">RL5</span></div><div>From each of Mitigated, Accepted and Resolved, setting Active with a reason gives Active under the same identifier; setting it with no reason, or setting Active on an Active risk, writes nothing.</div></div>
-    <div class="ac-row"><div class="ac-id">AC16</div><div class="ac-verifies"><span class="verify-chip">R14</span><span class="verify-chip">RL10</span></div><div>A risk registered, then changed, then resolved has three dated history lines, and the first is unchanged after the third is written.</div></div>
+    <div class="ac-row"><div class="ac-id">AC15</div><div class="ac-verifies"><span class="verify-chip">R13</span><span class="verify-chip">RL5</span></div><div>From each of Mitigated, Accepted, Occurred and Resolved, setting Active with a reason gives Active under the same identifier; setting it with no reason, or setting Active on an Active risk, writes nothing.</div></div>
+    <div class="ac-row"><div class="ac-id">AC16</div><div class="ac-verifies"><span class="verify-chip">R14</span><span class="verify-chip">R26</span><span class="verify-chip">RL10</span></div><div>A risk registered, then changed, then resolved has three dated history lines, and the first is unchanged after the third is written.</div></div>
     <div class="ac-row"><div class="ac-id">AC17</div><div class="ac-verifies"><span class="verify-chip">R15</span></div><div>The entry point offers no way to delete a risk, and asked to delete one it offers resolving instead.</div></div>
     <div class="ac-row"><div class="ac-id">AC18</div><div class="ac-verifies"><span class="verify-chip">R16</span><span class="verify-chip">R17</span><span class="verify-chip">RL8</span></div><div>A change to a risk moves its changed date to today and leaves its created date as it was.</div></div>
     <div class="ac-row"><div class="ac-id">AC19</div><div class="ac-verifies"><span class="verify-chip">R18</span><span class="verify-chip">R19</span><span class="verify-chip">RL9</span></div><div>A confirmed review with no changes moves the register's last-updated date to today and no risk's changed date; a declined review leaves the file byte-identical.</div></div>
-    <div class="ac-row"><div class="ac-id">AC20</div><div class="ac-verifies"><span class="verify-chip">R20</span><span class="verify-chip">RL12</span></div><div>Page and view list risks by state (Active, Mitigated, Accepted, Resolved), then by score descending, then by identifier; Resolved is last and folded on the page.</div></div>
+    <div class="ac-row"><div class="ac-id">AC20</div><div class="ac-verifies"><span class="verify-chip">R20</span><span class="verify-chip">RL12</span></div><div>Page and view list risks by state (Active, Mitigated, Accepted, Occurred, Resolved), then by score descending, then by identifier; Resolved is last and folded on the page.</div></div>
     <div class="ac-row"><div class="ac-id">AC21</div><div class="ac-verifies"><span class="verify-chip">R21</span><span class="verify-chip">RL15</span></div><div>An opt-out "handled elsewhere" without the place is not written; with the place and a decider the register's page states the opt-out, its reason, decider and date.</div></div>
     <div class="ac-row"><div class="ac-id">AC22</div><div class="ac-verifies"><span class="verify-chip">R22</span></div><div>An opt-out with no decider is not written.</div></div>
     <div class="ac-row"><div class="ac-id">AC23</div><div class="ac-verifies"><span class="verify-chip">R23</span></div><div>Registering a risk where an opt-out stands produces a register whose first history line names the opt-out it replaced.</div></div>
     <div class="ac-row"><div class="ac-id">AC24</div><div class="ac-verifies"><span class="verify-chip">RL11</span></div><div>A register with a risk missing its impact is not written to; the repair proposal lists each change as before and after; confirmed, the register reads in full, every risk and history line it held is still there, and its history ends with <em>Repaired</em>.</div></div>
-    <div class="ac-row"><div class="ac-id">AC25</div><div class="ac-verifies"><span class="verify-chip">RL13</span></div><div>Manual step: registering a risk with no area never prompts with a suggested area.</div></div>
+    <div class="ac-row"><div class="ac-id">AC25</div><div class="ac-verifies"><span class="verify-chip">RL13</span></div><div>Manual step: registering a risk with no area, or with an area unlike any used, prompts for nothing; giving "schedule" where "Schedule" is used asks once, and the answer is kept.</div></div>
     <div class="ac-row"><div class="ac-id">AC26</div><div class="ac-verifies"><span class="verify-chip">RL14</span></div><div>The risk-log definition states that the register is reviewed at closure and that every risk not Resolved carries into the closure report.</div></div>
-    <div class="ac-row"><div class="ac-id">AC27</div><div class="ac-verifies"><span class="verify-chip">RL16</span></div><div>In a register whose project language is English, a risk told in Danish is kept in English, with people's names as given.</div></div>
+    <div class="ac-row"><div class="ac-id">AC27</div><div class="ac-verifies"><span class="verify-chip">RL16</span></div><div>Told in Danish in an English project, the risk is not written until the shown English text is confirmed or corrected; a correction is stored as written, and people's names as given.</div></div>
     <div class="ac-row"><div class="ac-id">AC28</div><div class="ac-verifies"><span class="verify-chip">NF1</span></div><div>The register page contains no <code>&lt;script&gt;</code> and links the site's shared chrome stylesheet.</div></div>
-    <div class="ac-row"><div class="ac-id">AC29</div><div class="ac-verifies"><span class="verify-chip">NF2</span></div><div>The register page states what 1 and 5 mean on both axes and the sentence that the score ranks risks and does not decide what to do.</div></div>
-    <div class="ac-row"><div class="ac-id">AC30</div><div class="ac-verifies"><span class="verify-chip">R24</span></div><div>After a registration and a confirmed review, the register's history, reached from its last-updated date, holds two lines, each with date and person.</div></div>
+    <div class="ac-row"><div class="ac-id">AC29</div><div class="ac-verifies"><span class="verify-chip">NF2</span><span class="verify-chip">NF3</span></div><div>The register page states what 1 and 5 mean on both axes and the sentence that the score ranks risks and does not decide what to do.</div></div>
+    <div class="ac-row"><div class="ac-id">AC30</div><div class="ac-verifies"><span class="verify-chip">R24</span></div><div>After a registration and a confirmed review, the register's history, reached from its last-updated date, holds two lines, each with date and person; a review confirmed with participants names them in its line, and one with the question skipped names only the person.</div></div>
     <div class="ac-row"><div class="ac-id">AC31</div><div class="ac-verifies"><span class="verify-chip">R25</span></div><div>Every history line on every risk names a person.</div></div>
+    <div class="ac-row"><div class="ac-id">AC32</div><div class="ac-verifies"><span class="verify-chip">R27</span><span class="verify-chip">RL17</span></div><div>Occurred with no reason is not set; with a reason it is set, the history line holds it, and page and view show the risk in the Occurred group.</div></div>
+    <div class="ac-row"><div class="ac-id">AC33</div><div class="ac-verifies"><span class="verify-chip">R28</span></div><div>Handing an owner's risks to a named person changes the owner on each of that owner's open risks, each with its own history line, and leaves the owner of that owner's Resolved risks as it was.</div></div>
+    <div class="ac-row"><div class="ac-id">AC34</div><div class="ac-verifies"><span class="verify-chip">R29</span></div><div>Changing the name of a Resolved risk writes the new name and a history line, and the risk is still Resolved.</div></div>
+    <div class="ac-row"><div class="ac-id">AC35</div><div class="ac-verifies"><span class="verify-chip">R30</span></div><div>The review shows, for every risk that is not Resolved, its area, description and mitigation; a risk with no mitigation shows <em>none written</em> in its place, and Resolved risks appear only as a count.</div></div>
   </div>
 </section>
 
@@ -773,27 +830,37 @@ footer.site-footer a { color: var(--cyan); }
       <div class="q-body">When project setup exists, the register reads the project's language from it rather than asking: what happens to a register that already holds its own?</div>
       <div class="q-resolution">Resolution path: settled in the design of project setup, its own D101 in the <code>D101-project-management-*</code> series (OOS2).</div>
     </div>
+    <div class="q-card">
+      <div class="q-head"><span class="q-id">Q3</span><span class="q-decider">Simon Vilandt</span></div>
+      <div class="q-body">How does a register notice an owner who has left the engagement, so their open risks do not sit with nobody?</div>
+      <div class="q-resolution">Resolution path: after use on a real engagement, or when project setup (OOS2) knows the team; until then the handover (F7, R28) is done when a person knows.</div>
+    </div>
+    <div class="q-card">
+      <div class="q-head"><span class="q-id">Q4</span><span class="q-decider">Simon Vilandt</span></div>
+      <div class="q-body">Has the register met its success measure: maintained five times by someone other than its author (§2)?</div>
+      <div class="q-resolution">Resolution path: checked once the first engagement has used the register; a yes is the evidence for moving the risk log from assess to trial.</div>
+    </div>
   </div>
 
   <div class="subhead">Resolved during authoring</div>
   <div class="q-grid">
     <div class="q-card resolved">
-      <div class="q-head"><span class="q-id">Q3</span><span class="q-decider">Resolved 2026-10-19</span></div>
+      <div class="q-head"><span class="q-id">Q5</span><span class="q-decider">Resolved 2026-10-19</span></div>
       <div class="q-body">Does a written mitigation make a risk Mitigated, as the brief proposed?</div>
       <div class="q-resolution"><strong>Decision:</strong> no; Mitigated is set by a person, only while a mitigation is written (R10, RL6). Reopened only if the register's readers find the extra step is skipped in practice.</div>
     </div>
     <div class="q-card resolved">
-      <div class="q-head"><span class="q-id">Q4</span><span class="q-decider">Resolved 2026-10-19</span></div>
+      <div class="q-head"><span class="q-id">Q6</span><span class="q-decider">Resolved 2026-10-19</span></div>
       <div class="q-body">Can the register express a deliberate acceptance?</div>
       <div class="q-resolution"><strong>Decision:</strong> yes, as the state Accepted with a reason and a named decider (R11, RL7).</div>
     </div>
     <div class="q-card resolved">
-      <div class="q-head"><span class="q-id">Q5</span><span class="q-decider">Resolved 2026-10-19</span></div>
+      <div class="q-head"><span class="q-id">Q7</span><span class="q-decider">Resolved 2026-10-19</span></div>
       <div class="q-body">Is a live band of register figures above the site's catalogue still wanted, or is the card the answer?</div>
       <div class="q-resolution"><strong>Decision:</strong> the card ships now; any figures wait until the site can show them always current (Q1, OOS3).</div>
     </div>
     <div class="q-card resolved">
-      <div class="q-head"><span class="q-id">Q6</span><span class="q-decider">Resolved 2026-10-19</span></div>
+      <div class="q-head"><span class="q-id">Q8</span><span class="q-decider">Resolved 2026-10-19</span></div>
       <div class="q-body">Does every view of the register count as a review?</div>
       <div class="q-resolution"><strong>Decision:</strong> no; the person confirms the review, and only then does the register's date move (R19, RL9).</div>
     </div>
@@ -805,9 +872,8 @@ footer.site-footer a { color: var(--cyan); }
   <h2 class="section-title"><span class="sec-ref">§10</span>References</h2>
   <div class="refs">
     <div class="refs-block">
-      <h4>Brief and discipline</h4>
+      <h4>Discipline</h4>
       <ul>
-        <li><a href="../../docs/superpowers/specs/2026-09-16-risk-log-design.md">docs/superpowers/specs/2026-09-16-risk-log-design.md</a></li>
         <li><a href="../../plugins/asimov-plugin/processes/disciplines/risk-management.md">plugins/asimov-plugin/processes/disciplines/risk-management.md</a></li>
       </ul>
     </div>
@@ -851,7 +917,7 @@ footer.site-footer a { color: var(--cyan); }
     · <span class="mono">features/D101-project-management-risk.html</span>
   </div>
   <div style="margin-top: 0.4rem">
-    D101 · Project management: risk log · asimov-plugin · Draft v0.2 · 2026-10-20
+    D101 · Project management: risk log · asimov-plugin · Draft v0.5 · 2026-10-21
   </div>
 </footer>
 

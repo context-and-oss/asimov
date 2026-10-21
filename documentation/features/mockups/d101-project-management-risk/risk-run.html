@@ -31,6 +31,7 @@ pre.view .m { color:var(--mute); }
 pre.view .s-Active { color:var(--warn); }
 pre.view .s-Mitigated { color:var(--acc); }
 pre.view .s-Accepted { color:var(--vio); }
+pre.view .s-Occurred { color:var(--bad); }
 pre.view .s-Resolved { color:var(--ok); }
 .diff { margin:0.3rem 0 0.5rem 1.2rem; }
 .diff .b { color:var(--bad); }
@@ -49,6 +50,7 @@ pre.view .s-Resolved { color:var(--ok); }
   <button data-s="review" class="on">Weekly review</button>
   <button data-s="add">Register a risk</button>
   <button data-s="accept">Decide a state</button>
+  <button data-s="handover">Hand over risks</button>
   <button data-s="none">No register yet</button>
   <button data-s="optout">Opt-out stands</button>
   <button data-s="repair">Unreadable register</button>
@@ -59,31 +61,58 @@ pre.view .s-Resolved { color:var(--ok); }
 (function () {
   const term = document.getElementById('term');
   const MATURITY = 'The risk log is an assess-level artifact: the definition is untried and may change without notice. Feedback is welcome.';
+  // [id, score, name, owner, changed, state, area, impact, probability, description, mitigation]
   const RISKS = [
-    ['RISK-005',16,'Unclear specifications slow the build agents','Sara Nygaard','2026-10-12','Active'],
-    ['RISK-001',12,'Sponsor changes mid-engagement','Maja Holm','2026-10-06','Active'],
-    ['RISK-002',12,'Customer test environment arrives late','Jonas Berg','2026-09-09','Active'],
-    ['RISK-003',10,'Key developer leaves before handover','Maja Holm','2026-09-23','Mitigated'],
-    ['RISK-004', 6,'Third-party API pricing changes','Jonas Berg','2026-09-30','Accepted'],
-    ['RISK-006', 8,'Data migration exceeds the cut-over window','Jonas Berg','2026-10-06','Resolved']
+    ['RISK-005',16,'Unclear specifications slow the build agents','Sara Nygaard','2026-10-12','Active','Quality',4,4,
+      'Two features reached the build with open questions the design had not closed.',
+      'Gap-review every design before planning; no plan from a design with open business questions.'],
+    ['RISK-001',12,'Sponsor changes mid-engagement','Maja Holm','2026-10-06','Active','Governance',4,3,
+      'The sponsor has announced a reorganisation; a new sponsor may reopen scope.',
+      'Brief the deputy sponsor on every steering decision so the context survives a change.'],
+    ['RISK-003',10,'Key developer leaves before handover','Maja Holm','2026-09-23','Mitigated','Resources',5,2,
+      '',
+      'Pair on every module; handover notes written weekly, not at the end.'],
+    ['RISK-004', 6,'Third-party API pricing changes','Jonas Berg','2026-09-30','Accepted','Cost',2,3,
+      'The vendor has signalled a new price model from next year.',
+      ''],
+    ['RISK-002',12,'Customer test environment arrives late','Jonas Berg','2026-10-13','Occurred','Schedule',3,4,
+      '',
+      ''],
+    ['RISK-006', 8,'Data migration exceeds the cut-over window','Jonas Berg','2026-10-06','Resolved','Schedule',4,2,'','']
   ];
-  const ORDER = ['Active','Mitigated','Accepted','Resolved'];
+  const ORDER = ['Active','Mitigated','Accepted','Occurred','Resolved'];
   const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
-  const cut = (s, n) => s.length > n ? s.slice(0, n - 1) + '…' : s.padEnd(n);
+  const IND = ' '.repeat(16);
+  // Wrap text to 80 columns, every line after the first indented to the text column.
+  function wrap(text, first) {
+    const words = text.split(' '); const lines = []; let line = first;
+    words.forEach(w => { if ((line + w).length > 80) { lines.push(line.replace(/\s+$/, '')); line = IND; } line += w + ' '; });
+    lines.push(line.replace(/\s+$/, ''));
+    return lines.map(esc).join('\n') + '\n';
+  }
 
-  // The fixed view, as artifact-risk-log-view prints it: 80 columns, state groups, score descending.
+  // The fixed view, as artifact-risk-log-view prints it: 80 columns, state groups, score descending,
+  // every open risk in full (R30), Resolved only as a count.
   function view(risks, updated) {
     const n = s => risks.filter(r => r[5] === s).length;
     let h = '<span class="h">Risk log · documentation/project/risk-log.html</span>\n';
-    h += '<span class="m">Updated ' + updated + ' · ' + risks.length + ' risks: ' + ORDER.map(s => n(s) + ' ' + s).join(' · ') + '</span>\n';
+    h += '<span class="m">Updated ' + updated + ' · ' + risks.length + ' risks</span>\n';
+    h += '<span class="m">' + ORDER.map(s => n(s) + ' ' + s).join(' · ') + '</span>\n\n';
     ORDER.forEach(s => {
       const rows = risks.filter(r => r[5] === s);
       if (!rows.length) return;
-      h += '\n<span class="s-' + s + '">' + s + (s === 'Resolved' ? ' (' + rows.length + ')' : '') + '</span>\n';
+      h += '<span class="s-' + s + '">' + s + (s === 'Resolved' ? ' (' + rows.length + ')' : '') + '</span>\n';
       if (s === 'Resolved') return;
-      rows.forEach(r => { h += '  ' + r[0] + '  ' + String(r[1]).padStart(2) + '  ' + esc(cut(r[2], 34)) + ' ' + cut(r[3], 13) + ' ' + r[4] + '\n'; });
+      rows.forEach(r => {
+        h += '  ' + r[0] + '  ' + String(r[1]).padStart(2) + '  ' + esc(r[2]) + '\n';
+        h += IND + '<span class="m">' + esc(r[3] + ' · ' + r[6] + ' · I' + r[7] + ' P' + r[8] + ' · changed ' + r[4]) + '</span>\n';
+        h += r[9] ? wrap(r[9], IND) : IND + '<span class="m">Description: none written</span>\n';
+        h += r[10] ? wrap(r[10], '     Mitigation ') : '     Mitigation <span style="color:var(--warn)">none written</span>\n';
+        h += '<span class="m">  ' + '─'.repeat(78) + '</span>\n';
+      });
+      h += '\n';
     });
-    return '<pre class="view">' + h + '</pre>';
+    return '<pre class="view">' + h.replace(/\n\n$/, '\n') + '</pre>';
   }
 
   function clear() { term.innerHTML = ''; }
@@ -111,24 +140,38 @@ pre.view .s-Resolved { color:var(--ok); }
       add(a(MATURITY, 'warn'));
       add(view(RISKS, '2026-10-06'));
       gate('Mark the register as reviewed today?', [
-        ['Yes', 'go', () => add(a('Register reviewed 2026-10-13 by Maja Holm. No risk changed.', 'ok'))],
+        ['Yes', 'go', () => gate('Who took part? (skip to record only you)', [
+          ['Erik Lund, Jonas Berg', 'go', () => add(a('Register reviewed 2026-10-13 by Maja Holm with Erik Lund, Jonas Berg. No risk changed.', 'ok'))],
+          ['Skip', '', () => add(a('Register reviewed 2026-10-13 by Maja Holm. No risk changed.', 'ok'))]
+        ])],
         ['No', '', () => add(a('Nothing written.'))]
       ]);
     },
     add() {
-      add(u('/asimov-risk add the customer may not free up testers for the acceptance test'));
-      add(a('Registering a new risk in documentation/project/risk-log.html.'));
+      add(u('/asimov-risk tilføj: kunden når ikke at frigive testere før uge 48'));
+      add(a('Jeg registrerer en ny risiko i documentation/project/risk-log.html. Projektets sprog er engelsk, så jeg viser den engelske tekst, før noget gemmes.'));
+      add(a('The risk log is an assess-level artifact: the definition is untried and may change without notice. Feedback is welcome.', 'warn'));
+      add(a('Hvem ejer risikoen? Og konsekvens og sandsynlighed, 1–5 hver (konsekvens 1 = klares inden for ugen, 5 = truer målet; sandsynlighed 1 = ville overraske os, 5 = forventet, medmindre vi handler).'));
+      add(u('Jonas, konsekvens 4, sandsynlighed 3, område Schedule, ingen mitigation endnu'));
+      add(a('Ejer: Jonas Berg? Sådan gemmes den, på engelsk:'));
+      add(dim('Name   The customer cannot release testers before week 48<br>Owner  Jonas Berg · Impact 4 · Probability 3 (score 12) · Area Schedule · Active'));
+      gate('Gem RISK-007 sådan, eller ret den engelske tekst?', [
+        ['Gem den', 'go', () => add(a('RISK-007 gemt, Active, score 12. Historik: 2026-10-13 · Maja Holm · Created.', 'ok'))],
+        ['Ret teksten', '', () => {
+          add(a('Skriv navnet, som det skal stå på engelsk:'));
+          add(u('Customer testers not released before week 48'));
+          add(a('RISK-007 gemt med dit navn: “Customer testers not released before week 48”. Active, score 12.', 'ok'));
+        }]
+      ]);
+    },
+    handover() {
+      add(u('/asimov-risk Jonas Berg leaves at the end of the month, give his risks to Sara Nygaard'));
+      add(a('Handing Jonas Berg\'s open risks to Sara Nygaard.'));
       add(a(MATURITY, 'warn'));
-      add(a('Name, as an event: <span class="dim">“Customer testers unavailable for acceptance testing”</span>. Right?'));
-      add(u('ja, og ejeren er Jonas'));
-      add(a('Owner: Jonas Berg? Impact and probability, 1–5 each (anchors: impact 1 = absorbed within the week, 5 = threatens the goal; probability 1 = would surprise us, 5 = expected unless we act).'));
-      add(u('impact 4, sandsynlighed 3, område Schedule, ingen mitigation endnu'));
-      gate('Write RISK-007 · Customer testers unavailable for acceptance testing · Jonas Berg · I4 P3 (score 12) · Schedule · Active?', [
-        ['Write it', 'go', () => {
-          add(a('RISK-007 written, Active, score 12. History: 2026-10-13 · Maja Holm · Created.', 'ok'));
-          add(dim('Kept in English, the project language; you wrote in Danish.'));
-        }],
-        ['Change something', '', () => add(a('What changes?'))]
+      add(a('Jonas Berg owns three open risks: RISK-002 (Occurred), RISK-004 (Accepted), RISK-007 (Active). RISK-006 is Resolved and keeps its owner.'));
+      gate('Give RISK-002, RISK-004 and RISK-007 to Sara Nygaard?', [
+        ['Yes', 'go', () => add(a('Three risks now owned by Sara Nygaard, each with the history line “Owner: Jonas Berg → Sara Nygaard (handover)”.', 'ok'))],
+        ['No', '', () => add(a('Nothing written.'))]
       ]);
     },
     accept() {
@@ -158,7 +201,7 @@ pre.view .s-Resolved { color:var(--ok); }
       add(u('/asimov-risk'));
       add(a('Showing the risk log.'));
       add(a(MATURITY, 'warn'));
-      add('<pre class="view"><span class="h">Risk log · documentation/project/risk-log.html</span>\n<span class="s-Accepted">No register kept here</span> · handled elsewhere: the customer’s project tool, PMO board\n<span class="m">Decided by Erik Lund · 2026-09-30</span></pre>');
+      add('<pre class="view"><span class="h">Risk log · documentation/project/risk-log.html</span>\n<span class="s-Accepted">No register kept here</span>\nHandled elsewhere: the customer’s project tool, PMO board\n<span class="m">Decided by Erik Lund · 2026-09-30</span></pre>');
       add(a('Registering a risk replaces the opt-out with a register; say <span class="dim">add</span> to start.'));
     },
     repair() {
