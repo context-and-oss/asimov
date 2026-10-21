@@ -270,7 +270,7 @@ footer.site-footer a { color: var(--cyan); }
   <a href="../index.html#s6">Diagrams</a>
   <span class="spacer"></span>
   <span class="phase-chip full">Full design</span>
-  <span class="status-chip draft">Draft v0.6</span>
+  <span class="status-chip draft">Draft v0.7</span>
 </nav>
 
 <div class="layout-doc">
@@ -305,6 +305,7 @@ footer.site-footer a { color: var(--cyan); }
         <ul>
           <li><a href="#s7-1">§7.1 New vs. reuse</a></li>
           <li><a href="#s7-2">§7.2 The files</a></li>
+          <li><a href="#s7-4">§7.4 Each part</a></li>
           <li><a href="#s7-5">§7.5 Wiring</a></li>
         </ul>
       </li>
@@ -398,11 +399,13 @@ footer.site-footer a { color: var(--cyan); }
     <div class="req"><div class="id">R30</div><div class="body">The review shows every open risk with its area, description and mitigation, and marks an empty one as <em>none written</em>.</div></div>
   </div>
 
-  <div class="subhead">Non-functional — 3</div>
+  <div class="subhead">Non-functional — 5</div>
   <div class="req-list nf">
     <div class="req"><div class="id">NF1</div><div class="body">The register is one readable page in the documentation site's look, with no script.</div></div>
     <div class="req"><div class="id">NF2</div><div class="body">The page shows what 1 and 5 mean on both the impact and the probability axis.</div></div>
     <div class="req"><div class="id">NF3</div><div class="body">The page states that the score ranks risks and does not decide what to do.</div></div>
+    <div class="req"><div class="id">NF4</div><div class="body">An interrupted write leaves the register as it was.</div></div>
+    <div class="req"><div class="id">NF5</div><div class="body">A leftover from an interrupted write is never committed.</div></div>
   </div>
 
   <div class="subhead">Out of scope — 12</div>
@@ -774,7 +777,7 @@ footer.site-footer a { color: var(--cyan); }
 <section class="s" id="s6-1">
   <h2 class="section-title"><span class="sec-ref">§6.1</span>Platform</h2>
   <p style="color: var(--text-dim); font-size: 0.95rem; line-height: 1.65;">
-    Everything ships in the plugin and runs in Claude Code and Codex alike: one asimov-skill (<code>asimov-risk</code>), two artifact skills (<code>artifact-risk-log-authoring</code>, <code>artifact-risk-log-view</code>), one script (<code>scripts/risk-log.ps1</code>, Windows PowerShell 5.1 and PowerShell 7), and the artifact's definition and template under <code>artifacts/documentation/risk-log/</code>. In a product repo it writes one file, <code>documentation/project/risk-log.html</code>, and while a write is in flight its sibling <code>risk-log.html.new</code>. The script owns reading, rendering and checking the page; the skills own the conversation and the decision of what changes. No service, no store beyond the page, no network.
+    Everything ships in the plugin and runs in Claude Code and Codex alike: one asimov-skill (<code>asimov-risk</code>), two artifact skills (<code>artifact-risk-log-authoring</code>, <code>artifact-risk-log-view</code>), one script (<code>scripts/risk-log.ps1</code>, Windows PowerShell 5.1 and PowerShell 7), and the artifact's definition and template under <code>artifacts/documentation/risk-log/</code>. In a product repo it writes one file, <code>documentation/project/risk-log.html</code>, and while a write is in flight its sibling <code>risk-log.html.new</code>. The script reads, renders and checks the page and compares areas; the skills hold the conversation and decide what changes. There is no service, no store beside the page and no network call.
   </p>
   <div class="callout warn">
     <strong>⚠ Lockstep gates.</strong> The <em>Project</em> bucket changes five files that must move together (hard rule 9), the <code>documentation/project/*.new</code> pattern joins the <code>.gitignore</code> block written by both init entry points and appended by <code>asimov-risk</code>, and the artifact's <code>assess</code> level is mirrored in D100 §4.5 in the same commit (hard rule 10).
@@ -787,6 +790,8 @@ footer.site-footer a { color: var(--cyan); }
     <div class="decision-row"><div class="decided">A write goes to <code>risk-log.html.new</code>, is checked, then replaces the page by one rename</div><div class="alt">Write the page in place</div><div class="why">A write that dies halfway would leave a broken register; a rename is all or nothing.</div></div>
     <div class="decision-row"><div class="decided">"Who" is <code>git config user.name</code>, asked once per run when unset</div><div class="alt">Ask the person on every write</div><div class="why">The Build stage's ledger already names people this way, and asking every time is friction with no gain.</div></div>
     <div class="decision-row"><div class="decided">The script also renders the chat view</div><div class="alt">The view skill formats the view from the data model</div><div class="why">A fixed view (P6) held by a model drifts in width and order; held by a script it cannot.</div></div>
+    <div class="decision-row"><div class="decided">The script decides which areas are nearly the same (RL13)</div><div class="alt">The authoring skill judges it</div><div class="why">The same two areas must give the same answer on every run.</div></div>
+    <div class="decision-row"><div class="decided">The rules the script implements are written in the two artifact skills, which are also the fallback without PowerShell</div><div class="alt">A separate specification document</div><div class="why">The Spec stage's validation skills are their scripts' specifications already; one home per rule.</div></div>
     <div class="decision-row"><div class="decided">A conflicted register is a repair: both sides merged by identifier, conflicting fields chosen by the person</div><div class="alt">A git merge driver, or one writer per engagement</div><div class="why">The repair (RL11) and renumbering (RL4) already cover it, so no new rule and no repository setting is needed.</div></div>
   </div>
 </section>
@@ -961,6 +966,13 @@ footer.site-footer a { color: var(--cyan); }
     <div class="row cols-2"><div class="label-cell">ol.risk-history</div><div>One <code>li</code> per change, with <code>data-date</code>, <code>data-by</code> and <code>data-kind</code> (<code>created</code>, <code>change</code>, <code>state</code>, <code>renumber</code>, <code>repair</code>, <code>handover</code>); only ever appended to.</div></div>
   </div>
 
+  <div class="subhead">Areas nearly the same (RL13)</div>
+  <p class="section-desc" style="margin-bottom:0.4rem">Two areas are nearly the same when they are equal after ignoring case, spaces, hyphens and punctuation, or, for words of four letters or more, when they differ by one letter.</p>
+  <ul class="bullets">
+    <li><code>schedule</code>, <code>Schedule</code> and <code>sched-ule</code> are nearly the same; so are <code>Schedul</code> and <code>Schedule</code>.</li>
+    <li><code>Cost</code> and <code>Costs</code> are nearly the same; <code>QA</code> and <code>QC</code> are not, being shorter than four letters.</li>
+  </ul>
+
   <div class="subhead">The change file -Apply takes</div>
   <ul class="gps-paths">
     <li>verb: add | change | state | handover | review | optout | repair</li>
@@ -976,7 +988,7 @@ footer.site-footer a { color: var(--cyan); }
 <section class="s" id="s6-5">
   <h2 class="section-title"><span class="sec-ref">§6.5</span>APIs &amp; contracts</h2>
   <div class="callout">
-    One script, <code>risk-log.ps1 -Path documentation/project/risk-log.html</code> plus one action: <code>-Read</code> (data model and problems as JSON), <code>-View</code> (the fixed 80-column text), <code>-Apply -Change &lt;file&gt;</code> (write, check, rename), <code>-Repair</code> (a proposal as JSON, from problems or conflict markers) and <code>-Finish</code> (an interrupted write). Exit codes: <code>0</code> done, <code>1</code> refused by a rule (the rule on stdout), <code>2</code> an input could not be read, <code>3</code> no person (<code>git config user.name</code> unset and no <code>-By</code>). <code>-PluginRoot</code> defaults to the parent of the script's folder, so Codex needs nothing extra. No other interface changes.
+    One script, <code>risk-log.ps1 -Path documentation/project/risk-log.html</code> plus one action: <code>-Read</code> (data model, the areas in use and problems as JSON; with <code>-Area &lt;text&gt;</code> also the areas in use that are nearly the same), <code>-View</code> (the fixed 80-column text), <code>-Apply -Change &lt;file&gt;</code> (write, check, rename), <code>-Repair</code> (a proposal as JSON, from problems or conflict markers) and <code>-Finish</code> (an interrupted write). Exit codes: <code>0</code> done, <code>1</code> refused by a rule (the rule on stdout), <code>2</code> an input could not be read, <code>3</code> no person (<code>git config user.name</code> unset and no <code>-By</code>). <code>-PluginRoot</code> defaults to the parent of the script's folder. No other interface changes.
   </div>
 </section>
 
@@ -1003,7 +1015,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="failure-row"><div>The page cannot be read in full (a hand edit)</div><div>No write</div><div><span class="sev med">Med</span></div><div><code>-Repair</code> proposes each change as before and after; confirmed, it is applied like any write (RL11).</div></div>
     <div class="failure-row"><div>Git conflict markers after a merge</div><div>No write</div><div><span class="sev med">Med</span></div><div>The repair merges both sides by identifier, renumbers true duplicates (RL4) and asks the person for each field changed differently on both sides.</div></div>
     <div class="failure-row"><div>No person (<code>user.name</code> unset)</div><div>The script stops with exit 3</div><div><span class="sev low">Low</span></div><div><code>asimov-risk</code> asks for the name once and passes it as <code>-By</code> for the rest of the run.</div></div>
-    <div class="failure-row"><div>No PowerShell on the machine</div><div>The script cannot run</div><div><span class="sev med">Med</span></div><div>The skills follow the script's specification by hand, as the Spec stage's validators fall back, and say plainly that the check was not run by a script.</div></div>
+    <div class="failure-row"><div>No PowerShell on the machine</div><div>The script cannot run</div><div><span class="sev med">Med</span></div><div>The skills apply the rules the script implements, which live in <code>artifact-risk-log-authoring</code> (read, apply, check, areas) and <code>artifact-risk-log-view</code> (the view's layout), and say plainly that no script ran the check.</div></div>
     <div class="failure-row"><div>A translation is wrong</div><div>Caught before it is stored</div><div><span class="sev low">Low</span></div><div>The confirmation shows it; the person corrects it in the project's language (RL16).</div></div>
   </div>
 </section>
@@ -1068,6 +1080,44 @@ footer.site-footer a { color: var(--cyan); }
   </div>
 </section>
 
+<!-- §7.4 Per-unit build notes -->
+<section class="s" id="s7-4">
+  <h2 class="section-title"><span class="sec-ref">§7.4</span>Each part</h2>
+  <p class="section-desc">Build notes per part, keyed to §6: where its input comes from, what bounds it, and what it enforces rather than leaves to review.</p>
+
+  <div class="subhead" id="s7-4-1"><span class="s-ref">§7.4.1</span><code>risk-log.ps1</code> · contract <a href="#s6-5">§6.5</a>, <a href="#s6-4">§6.4</a></div>
+  <div class="data-table impl-table">
+    <div class="row head"><div>Aspect</div><div>Build</div><div>Details</div></div>
+    <div class="row"><div class="label-cell">Source</div><div><span class="tag new">new</span></div><div><ul><li>Parses the page's attributes and lists; renders from <code>risk-log-template.html</code>, which is its schema, as the S102 template is <code>validate-s102.ps1</code>'s.</li></ul></div></div>
+    <div class="row"><div class="label-cell">Bound</div><div><span class="tag note">note</span></div><div><ul><li>Reads and writes one page and its <code>.new</code>; runs <code>git config user.name</code> and, in a repair after a merge, <code>git show :2:</code> and <code>:3:</code>; nothing else.</li></ul></div></div>
+    <div class="row"><div class="label-cell">Enforce</div><div><span class="tag new">new</span></div><div><ul><li>Old history lines and risks kept, required fields valid, Mitigated only with a mitigation, no duplicate identifier, the RL12 order, the score from impact and probability; any miss refuses the write with exit 1.</li></ul></div></div>
+  </div>
+
+  <div class="subhead" id="s7-4-2"><span class="s-ref">§7.4.2</span><code>asimov-risk</code> · contract <a href="#s6-2">§6.2</a></div>
+  <div class="data-table impl-table">
+    <div class="row head"><div>Aspect</div><div>Build</div><div>Details</div></div>
+    <div class="row"><div class="label-cell">Source</div><div><span class="tag reuse">reuse</span></div><div><ul><li>The frame of <code>asimov-spec</code>: narrate, <code>$ARGUMENTS</code>, the derived root, the maturity line, the <code>.gitignore</code> append, scripts through Bash.</li></ul></div></div>
+    <div class="row"><div class="label-cell">Bound</div><div><span class="tag note">note</span></div><div><ul><li>Writes only <code>.gitignore</code> lines; every register change goes through the authoring skill and the script.</li></ul></div></div>
+    <div class="row"><div class="label-cell">Enforce</div><div><span class="tag new">new</span></div><div><ul><li><code>-Finish</code> before any verb; the confirmation shows the stored text before every write.</li></ul></div></div>
+  </div>
+
+  <div class="subhead" id="s7-4-3"><span class="s-ref">§7.4.3</span><code>artifact-risk-log-authoring</code> · contract <a href="#s6-4">§6.4</a></div>
+  <div class="data-table impl-table">
+    <div class="row head"><div>Aspect</div><div>Build</div><div>Details</div></div>
+    <div class="row"><div class="label-cell">Source</div><div><span class="tag reuse">reuse</span></div><div><ul><li>The frame of <code>artifact-s101-ledger</code>: read first, the only writer, never another file.</li></ul></div></div>
+    <div class="row"><div class="label-cell">Bound</div><div><span class="tag note">note</span></div><div><ul><li>Produces one change file per write; holds the rules the script implements, as its specification and the fallback.</li></ul></div></div>
+    <div class="row"><div class="label-cell">Enforce</div><div><span class="tag new">new</span></div><div><ul><li>Free text in the project's language before it reaches the change file; a decider and a reason where the target state needs them.</li></ul></div></div>
+  </div>
+
+  <div class="subhead" id="s7-4-4"><span class="s-ref">§7.4.4</span><code>artifact-risk-log-view</code> · contract <a href="#s6-5">§6.5</a></div>
+  <div class="data-table impl-table">
+    <div class="row head"><div>Aspect</div><div>Build</div><div>Details</div></div>
+    <div class="row"><div class="label-cell">Source</div><div><span class="tag reuse">reuse</span></div><div><ul><li>The frame of <code>artifact-s101-view</code>: prints, writes nothing, judges nothing.</li></ul></div></div>
+    <div class="row"><div class="label-cell">Bound</div><div><span class="tag note">note</span></div><div><ul><li>Calls <code>-View</code> and prints its text unchanged; holds the view's layout as the specification and the fallback.</li></ul></div></div>
+    <div class="row"><div class="label-cell">Enforce</div><div><span class="tag new">new</span></div><div><ul><li>Nothing written, ever, including the review date; the confirmation is <code>asimov-risk</code>'s.</li></ul></div></div>
+  </div>
+</section>
+
 <!-- §7.5 Cross-cutting -->
 <section class="s" id="s7-5">
   <h2 class="section-title"><span class="sec-ref">§7.5</span>Cross-cutting — the wiring that moves with it</h2>
@@ -1121,6 +1171,8 @@ footer.site-footer a { color: var(--cyan); }
     <div class="ac-row"><div class="ac-id">AC33</div><div class="ac-verifies"><span class="verify-chip">R28</span></div><div>Handing an owner's risks to a named person changes the owner on each of that owner's open risks, each with its own history line, and leaves the owner of that owner's Resolved risks as it was.</div></div>
     <div class="ac-row"><div class="ac-id">AC34</div><div class="ac-verifies"><span class="verify-chip">R29</span></div><div>Changing the name of a Resolved risk writes the new name and a history line, and the risk is still Resolved.</div></div>
     <div class="ac-row"><div class="ac-id">AC35</div><div class="ac-verifies"><span class="verify-chip">R30</span></div><div>The review shows, for every risk that is not Resolved, its area, description and mitigation; a risk with no mitigation shows <em>none written</em> in its place, and Resolved risks appear only as a count.</div></div>
+    <div class="ac-row"><div class="ac-id">AC36</div><div class="ac-verifies"><span class="verify-chip">NF4</span></div><div>With a <code>risk-log.html.new</code> left beside an unchanged register, the next run shows what it changes and renames it into place if it passes the check, else deletes it and says so; until then the register is byte-identical.</div></div>
+    <div class="ac-row"><div class="ac-id">AC37</div><div class="ac-verifies"><span class="verify-chip">NF5</span></div><div>After the first run of <code>asimov-risk</code> in a repo, its <code>.gitignore</code> holds <code>documentation/project/*.new</code>, and a second run adds it no second time.</div></div>
   </div>
 </section>
 
@@ -1239,7 +1291,7 @@ footer.site-footer a { color: var(--cyan); }
     · <span class="mono">features/D101-project-management-risk.html</span>
   </div>
   <div style="margin-top: 0.4rem">
-    D101 · Project management: risk log · asimov-plugin · Draft v0.6 · 2026-10-21
+    D101 · Project management: risk log · asimov-plugin · Draft v0.7 · 2026-10-21
   </div>
 </footer>
 
