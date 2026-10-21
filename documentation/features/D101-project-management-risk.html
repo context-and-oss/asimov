@@ -269,8 +269,8 @@ footer.site-footer a { color: var(--cyan); }
   <a href="../index.html#s5">Reference</a>
   <a href="../index.html#s6">Diagrams</a>
   <span class="spacer"></span>
-  <span class="phase-chip">Business design</span>
-  <span class="status-chip draft">Draft v0.5</span>
+  <span class="phase-chip full">Full design</span>
+  <span class="status-chip draft">Draft v0.6</span>
 </nav>
 
 <div class="layout-doc">
@@ -289,8 +289,25 @@ footer.site-footer a { color: var(--cyan); }
         </ul>
       </li>
       <li><a href="#s5">§5 UI Design</a></li>
-      <li><a href="#s6-open">§6 Still to write</a></li>
-      <li><a href="#s7-pending">§7 Implementation</a></li>
+      <li><a href="#c6">§6 Technical design</a>
+        <ul>
+          <li><a href="#s6-1">§6.1 Platform</a></li>
+          <li><a href="#s6-2">§6.2 Data flow</a></li>
+          <li><a href="#s6-3">§6.3 Code map</a></li>
+          <li><a href="#s6-4">§6.4 Shapes</a></li>
+          <li><a href="#s6-5">§6.5 APIs &amp; contracts</a></li>
+          <li><a href="#s6-6">§6.6 Configuration</a></li>
+          <li><a href="#s6-7">§6.7 Failure handling</a></li>
+          <li><a href="#s6-8">§6.8 Gotchas</a></li>
+        </ul>
+      </li>
+      <li><a href="#c7">§7 Implementation</a>
+        <ul>
+          <li><a href="#s7-1">§7.1 New vs. reuse</a></li>
+          <li><a href="#s7-2">§7.2 The files</a></li>
+          <li><a href="#s7-5">§7.5 Wiring</a></li>
+        </ul>
+      </li>
       <li><a href="#s8">§8 Acceptance</a></li>
       <li><a href="#s9">§9 Open questions</a></li>
       <li><a href="#s10">§10 References</a></li>
@@ -309,13 +326,13 @@ footer.site-footer a { color: var(--cyan); }
   <div class="meta-cell"><div class="label">Owner</div><div class="value">Simon Vilandt</div></div>
   <div class="meta-cell"><div class="label">Business approver</div><div class="value">Allan Borup</div></div>
   <div class="meta-cell"><div class="label">Family</div><div class="value mono">project management</div></div>
-  <div class="meta-cell"><div class="label">Pieces</div><div class="value mono">1 asimov-skill · 2 skills</div></div>
+  <div class="meta-cell"><div class="label">Pieces</div><div class="value mono">1 asimov-skill · 2 skills · 1 script</div></div>
   <div class="meta-cell"><div class="label">Last updated</div><div class="value mono">2026-10-21</div></div>
   <div class="meta-cell"><div class="label">Lands in</div><div class="value mono">documentation/project/</div></div>
 </div>
 
 <div class="doc-scope">
-  <strong>Scope:</strong> the risk log, first member of the project-management family: the register, the entry point and the two skills that maintain and show it, the <em>Project</em> section on a product's documentation site, and the family's pages on the Asimov website. It also sets what every member of the family shares (R1–R3); each later member (closure report, project setup, status report and their kin) gets its own D101 in the <code>D101-project-management-*</code> series. §2–§5 are the business agreement; §6 is open — see §6.
+  <strong>Scope:</strong> the risk log, first member of the project-management family: the register, the entry point, the two skills and the script that maintain and show it, the <em>Project</em> section on a product's documentation site, and the family's pages on the Asimov website. It also sets what every member of the family shares (R1–R3); each later member (closure report, project setup, status report and their kin) gets its own D101 in the <code>D101-project-management-*</code> series. §2–§5 are the business agreement, §6 the technical design, §7 the build notes until the Spec stage plans it.
 </div>
 
 <!-- ═════════════════════ §2 ═════════════════════ -->
@@ -742,35 +759,326 @@ footer.site-footer a { color: var(--cyan); }
   </ul>
 </section>
 
-<!-- ═════════════════════ §6 OPEN ═════════════════════ -->
-<section class="s" id="s6-open">
-  <h2 class="section-title"><span class="sec-ref">§6</span>Still to write</h2>
-  <div class="callout warn">
-    <strong>⚠ This document is not gap-free.</strong> §2–§5 settle what the family's members share, what the risk log keeps, how its states and dates behave and what a person sees; how any of it is built is not settled, and no task spec can be written from this document until the items below are.
+<!-- ═════════════════════ §6 — Chapter band ═════════════════════ -->
+<div class="chapter-band" id="c6">
+  <div class="chapter-band-inner">
+    <div class="ch-num">6</div>
+    <div>
+      <div class="ch-name">Technical design</div>
+      <div class="ch-summary">Where the risk log lives, how one write flows from the conversation through a script to the page, the files, the page's data shape, the script's interface, the few settings, the failures and their recovery, and the gotchas.</div>
+    </div>
   </div>
-  <ul class="bullets">
-    <li>How a confirmed review and the person behind it are kept in the register without touching any risk, so a review never moves a risk's changed date.</li>
-    <li>How the tool knows which person is making a change, so every history line can name them without asking every time.</li>
-    <li>How the tool tells a register it can read in full from one it cannot, and builds a repair from what it can read without dropping a line of text.</li>
-    <li>How a git conflict in the register, after two branches both wrote to it, is resolved before the renumbering of RL4 can run; if it cannot be made cheap, the answer becomes a business rule and returns to §4.</li>
-    <li>How the whole register is rewritten on every change while staying safe against a write that fails halfway.</li>
-    <li>How an opt-out is marked in the register's place so that the tool recognises it as an opt-out, while the site reads only its title and description.</li>
-    <li>How every write is checked, by a script rather than by the writer's own care, to keep every earlier history line intact and every risk the register held, so that a rewrite which drops or alters a line is refused before it is saved.</li>
-    <li>How the work divides between the part that holds the conversation, the part that writes the register and the part that shows it, so the view can be called by later members of the family without writing.</li>
-    <li>How the two site generators (<code>/asimov-init</code> and <code>codex-asimov-init</code>) find and list the <em>Project</em> section, and the five places that must change in lockstep.</li>
-    <li>How the project language is kept in the register now, and how it moves to project setup when that exists.</li>
-    <li>How the ⓘ beside the register's date unfolds its history on a page that carries no script.</li>
-    <li>How the entry point and its two skills find the plugin's own files in Codex as well as in Claude Code.</li>
-    <li>Which model and effort the entry point runs on, given that its interview is bounded and its rules are tight.</li>
+</div>
+
+<!-- §6.1 Platform -->
+<section class="s" id="s6-1">
+  <h2 class="section-title"><span class="sec-ref">§6.1</span>Platform</h2>
+  <p style="color: var(--text-dim); font-size: 0.95rem; line-height: 1.65;">
+    Everything ships in the plugin and runs in Claude Code and Codex alike: one asimov-skill (<code>asimov-risk</code>), two artifact skills (<code>artifact-risk-log-authoring</code>, <code>artifact-risk-log-view</code>), one script (<code>scripts/risk-log.ps1</code>, Windows PowerShell 5.1 and PowerShell 7), and the artifact's definition and template under <code>artifacts/documentation/risk-log/</code>. In a product repo it writes one file, <code>documentation/project/risk-log.html</code>, and while a write is in flight its sibling <code>risk-log.html.new</code>. The script owns reading, rendering and checking the page; the skills own the conversation and the decision of what changes. No service, no store beyond the page, no network.
+  </p>
+  <div class="callout warn">
+    <strong>⚠ Lockstep gates.</strong> The <em>Project</em> bucket changes five files that must move together (hard rule 9), the <code>documentation/project/*.new</code> pattern joins the <code>.gitignore</code> block written by both init entry points and appended by <code>asimov-risk</code>, and the artifact's <code>assess</code> level is mirrored in D100 §4.5 in the same commit (hard rule 10).
+  </div>
+
+  <div class="subhead">Technical decisions</div>
+  <div class="decisions">
+    <div class="decisions-head"><div>Decided</div><div>Alternative considered</div><div>Why rejected</div></div>
+    <div class="decision-row"><div class="decided">A script reads, renders and checks the page; the model decides only the change</div><div class="alt">The model rewrites the whole HTML on every change and a script checks it afterwards</div><div class="why">The register's promises (R26, RL10, RL12, P3) are bookkeeping a script keeps the same every time, and a model only nearly the same.</div></div>
+    <div class="decision-row"><div class="decided">A write goes to <code>risk-log.html.new</code>, is checked, then replaces the page by one rename</div><div class="alt">Write the page in place</div><div class="why">A write that dies halfway would leave a broken register; a rename is all or nothing.</div></div>
+    <div class="decision-row"><div class="decided">"Who" is <code>git config user.name</code>, asked once per run when unset</div><div class="alt">Ask the person on every write</div><div class="why">The Build stage's ledger already names people this way, and asking every time is friction with no gain.</div></div>
+    <div class="decision-row"><div class="decided">The script also renders the chat view</div><div class="alt">The view skill formats the view from the data model</div><div class="why">A fixed view (P6) held by a model drifts in width and order; held by a script it cannot.</div></div>
+    <div class="decision-row"><div class="decided">A conflicted register is a repair: both sides merged by identifier, conflicting fields chosen by the person</div><div class="alt">A git merge driver, or one writer per engagement</div><div class="why">The repair (RL11) and renumbering (RL4) already cover it, so no new rule and no repository setting is needed.</div></div>
+  </div>
+</section>
+
+<!-- §6.2 Data flow -->
+<section class="s" id="s6-2">
+  <h2 class="section-title"><span class="sec-ref">§6.2</span>Data flow</h2>
+  <p class="section-desc">One write, registering a risk: the conversation decides the change, the script turns it into a checked page, and the page is replaced only when the check passes.</p>
+  <div class="flow-wrap">
+    <svg viewBox="0 0 980 712" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="UML sequence diagram: a person asks asimov-risk to register a risk; asimov-risk has the script read the register, decides the change with the authoring skill, has the person confirm it, then has the script apply it; the script writes a new page, checks it and renames it into place, or deletes it when the check fails.">
+      <rect x="0" y="0" width="980" height="712" fill="#14253f"/>
+      <defs>
+        <marker id="seq-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 Z" fill="#a8b8d0"/>
+        </marker>
+        <marker id="seq-arr-accent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 Z" fill="#66bb6a"/>
+        </marker>
+        <marker id="seq-arr-open" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10" fill="none" stroke="#a8b8d0" stroke-width="1.4"/>
+        </marker>
+      </defs>
+
+      <!-- Heads -->
+      <g>
+        <rect x="40" y="24" width="168" height="48" rx="8" fill="#66bb6a22" stroke="#66bb6a"/>
+        <text x="124" y="44" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">Person</text>
+        <text x="124" y="60" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">project lead · entry</text>
+      </g>
+      <g>
+        <rect x="284" y="24" width="168" height="48" rx="8" fill="#ffb74d1a" stroke="#ffb74d"/>
+        <text x="368" y="44" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">asimov-risk</text>
+        <text x="368" y="60" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">conversation + authoring</text>
+      </g>
+      <g>
+        <rect x="528" y="24" width="168" height="48" rx="8" fill="#ffb74d1a" stroke="#ffb74d"/>
+        <text x="612" y="44" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">risk-log.ps1</text>
+        <text x="612" y="60" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">read · render · check</text>
+      </g>
+      <g>
+        <rect x="772" y="24" width="168" height="48" rx="8" fill="#4fc3f71a" stroke="#4fc3f7"/>
+        <text x="856" y="44" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">risk-log.html</text>
+        <text x="856" y="60" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">the register page</text>
+      </g>
+
+      <!-- Lifelines -->
+      <line x1="124" y1="72" x2="124" y2="688" stroke="#3b5e8f" stroke-width="1.5" stroke-dasharray="4 4"/>
+      <line x1="368" y1="72" x2="368" y2="688" stroke="#3b5e8f" stroke-width="1.5" stroke-dasharray="4 4"/>
+      <line x1="612" y1="72" x2="612" y2="688" stroke="#3b5e8f" stroke-width="1.5" stroke-dasharray="4 4"/>
+      <line x1="856" y1="72" x2="856" y2="688" stroke="#3b5e8f" stroke-width="1.5" stroke-dasharray="4 4"/>
+
+      <!-- Activation bars -->
+      <rect x="120" y="112" width="8" height="552" fill="#66bb6a22" stroke="#66bb6a"/>
+      <rect x="364" y="112" width="8" height="552" fill="#ffb74d1a" stroke="#ffb74d"/>
+      <rect x="608" y="152" width="8" height="64" fill="#ffb74d1a" stroke="#ffb74d"/>
+      <rect x="608" y="392" width="8" height="240" fill="#ffb74d1a" stroke="#ffb74d"/>
+      <rect x="852" y="184" width="8" height="24" fill="#4fc3f71a" stroke="#4fc3f7"/>
+      <rect x="852" y="480" width="8" height="24" fill="#4fc3f71a" stroke="#4fc3f7"/>
+
+      <!-- Combined fragment (alt): the script and the page take part, the conversation does not -->
+      <rect x="592" y="424" width="284" height="176" fill="none" stroke="#3b5e8f" stroke-width="1.5"/>
+      <rect x="592" y="424" width="64" height="24" fill="#122039" stroke="#3b5e8f"/>
+      <text x="624" y="440" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700">alt</text>
+      <text x="624" y="464" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">[check passes]</text>
+      <line x1="592" y1="520" x2="876" y2="520" stroke="#3b5e8f" stroke-width="1.5" stroke-dasharray="4 4"/>
+      <text x="624" y="544" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">[check fails]</text>
+
+      <!-- m1: the request, accented -->
+      <line x1="128" y1="112" x2="364" y2="112" stroke="#66bb6a" stroke-width="1.5" marker-end="url(#seq-arr-accent)"/>
+      <text x="246" y="104" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">/asimov-risk add …</text>
+
+      <!-- m2: read -->
+      <line x1="372" y1="152" x2="608" y2="152" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#seq-arr)"/>
+      <text x="490" y="144" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">-Read</text>
+
+      <!-- m3: the script reads the page -->
+      <line x1="616" y1="184" x2="852" y2="184" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#seq-arr)"/>
+      <text x="734" y="176" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">parse the page</text>
+
+      <!-- m4: return -->
+      <line x1="608" y1="216" x2="372" y2="216" stroke="#a8b8d0" stroke-width="1.5" stroke-dasharray="4 4" marker-end="url(#seq-arr-open)"/>
+      <text x="490" y="208" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">model · problems</text>
+
+      <!-- m5: self-message, the authoring skill inline -->
+      <polyline points="372,256 420,256 420,280 372,280" fill="none" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#seq-arr)"/>
+      <text x="432" y="272" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">authoring: the change</text>
+
+      <!-- m6: confirmation -->
+      <line x1="364" y1="320" x2="128" y2="320" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#seq-arr)"/>
+      <text x="246" y="312" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">confirm (as stored)</text>
+
+      <!-- m7: answer -->
+      <line x1="128" y1="352" x2="364" y2="352" stroke="#a8b8d0" stroke-width="1.5" stroke-dasharray="4 4" marker-end="url(#seq-arr-open)"/>
+      <text x="246" y="344" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">yes · or corrected text</text>
+
+      <!-- m8: apply -->
+      <line x1="372" y1="392" x2="608" y2="392" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#seq-arr)"/>
+      <text x="490" y="384" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">-Apply change.json</text>
+
+      <!-- m9: first region, write and rename -->
+      <line x1="616" y1="480" x2="852" y2="480" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#seq-arr)"/>
+      <text x="734" y="472" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">.new · check · rename</text>
+
+      <!-- m10: second region, self-message -->
+      <polyline points="616,568 664,568 664,592 616,592" fill="none" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#seq-arr)"/>
+      <text x="676" y="584" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">delete .new</text>
+
+      <!-- m11: result -->
+      <line x1="608" y1="632" x2="372" y2="632" stroke="#a8b8d0" stroke-width="1.5" stroke-dasharray="4 4" marker-end="url(#seq-arr-open)"/>
+      <text x="490" y="624" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">written · or refused rule</text>
+
+      <!-- m12: report -->
+      <line x1="364" y1="664" x2="128" y2="664" stroke="#a8b8d0" stroke-width="1.5" stroke-dasharray="4 4" marker-end="url(#seq-arr-open)"/>
+      <text x="246" y="656" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">RISK-007 written</text>
+    </svg>
+    <div class="flow-legend">
+      <span class="item"><span class="swatch" style="background:var(--green)"></span>Person, the entry</span>
+      <span class="item"><span class="swatch" style="background:var(--amber)"></span>Processing: the skills, the script</span>
+      <span class="item"><span class="swatch" style="background:var(--cyan)"></span>The register page</span>
+    </div>
+  </div>
+  <div class="principles" style="margin-top:1rem">
+    <div class="principle"><div class="num">1</div><div class="text"><strong>Start.</strong> <code>asimov-risk</code> prints the maturity line, adds the four cache patterns and <code>documentation/project/*.new</code> to <code>.gitignore</code> when missing, and runs <code>-Finish</code> if a <code>.new</code> is left from an earlier run.</div></div>
+    <div class="principle"><div class="num">2</div><div class="text"><strong>Read.</strong> <code>-Read</code> parses the page into a data model and a list of problems; any problem, conflict markers included, turns the run into a repair (<code>-Repair</code>, RL11) before anything else.</div></div>
+    <div class="principle"><div class="num">3</div><div class="text"><strong>Decide.</strong> <code>artifact-risk-log-authoring</code> turns what the person said into one change file: the fields, the state change with its reason and decider, and every free text already in the project's language.</div></div>
+    <div class="principle"><div class="num">4</div><div class="text"><strong>Confirm.</strong> <code>asimov-risk</code> shows the change as it will be stored, translation included; a correction replaces the proposed text as written.</div></div>
+    <div class="principle"><div class="num">5</div><div class="text"><strong>Apply.</strong> <code>-Apply</code> renumbers duplicates first, applies the change, appends the history lines with the person from <code>git config user.name</code>, renders the page from the template to <code>risk-log.html.new</code>, checks it against the current page, and renames it into place.</div></div>
+    <div class="principle"><div class="num">6</div><div class="text"><strong>Refuse.</strong> A failed check deletes the <code>.new</code>, leaves the page as it was, and returns the rule that refused it.</div></div>
+    <div class="principle"><div class="num">7</div><div class="text"><strong>Review.</strong> <code>-View</code> prints the fixed view; a confirmed review is an <code>-Apply</code> whose change adds one register-history line and touches no risk.</div></div>
+  </div>
+</section>
+
+<!-- §6.3 Code map -->
+<section class="s" id="s6-3">
+  <h2 class="section-title"><span class="sec-ref">§6.3</span>Code map</h2>
+  <div class="codemap">
+    <div class="codemap-row"><div class="what">The conversation: verbs, questions, confirmations, the leftover-write check, the <code>.gitignore</code> patterns</div><div class="where">plugins/asimov-plugin/skills/asimov-risk/SKILL.md + agents/openai.yaml</div></div>
+    <div class="codemap-row"><div class="what">The method: from what was said to one change file</div><div class="where">plugins/asimov-plugin/skills/artifact-risk-log-authoring/SKILL.md</div></div>
+    <div class="codemap-row"><div class="what">The read: prints the fixed view, writes nothing</div><div class="where">plugins/asimov-plugin/skills/artifact-risk-log-view/SKILL.md</div></div>
+    <div class="codemap-row"><div class="what">Read, render, check, view, repair, finish</div><div class="where">plugins/asimov-plugin/scripts/risk-log.ps1</div></div>
+    <div class="codemap-row"><div class="what">The contract: fields, states, rules, the bar, the divergence from the discipline</div><div class="where">plugins/asimov-plugin/artifacts/documentation/risk-log/risk-log-definition.md</div></div>
+    <div class="codemap-row"><div class="what">The shape the script renders</div><div class="where">plugins/asimov-plugin/artifacts/documentation/risk-log/risk-log-template.html</div></div>
+    <div class="codemap-row"><div class="what">The <em>Project</em> bucket, twice</div><div class="where">plugins/asimov-plugin/commands/asimov-init.md · plugins/asimov-plugin/skills/codex-asimov-init/SKILL.md</div></div>
+    <div class="codemap-row"><div class="what">The site's taxonomy, section, nav anchor and badge</div><div class="where">plugins/asimov-plugin/artifacts/documentation/site/site-definition.md · site-template.html</div></div>
+    <div class="codemap-row"><div class="what">The family's pages on the website</div><div class="where">site/inside/project-management.html · site/artifacts/project-management/index.html</div></div>
+    <div class="codemap-row"><div class="what">The register, in a product repo</div><div class="where">documentation/project/risk-log.html</div></div>
+  </div>
+</section>
+
+<!-- §6.4 Shapes -->
+<section class="s" id="s6-4">
+  <h2 class="section-title"><span class="sec-ref">§6.4</span>Shapes</h2>
+  <p class="section-desc">The page is the record: everything the script reads back is in attributes and lists; everything derived (the score, the summary table, the counts) is rendered text and never read.</p>
+
+  <div class="subhead">The page</div>
+  <div class="data-table">
+    <div class="row head cols-2"><div>Element</div><div>Carries</div></div>
+    <div class="row cols-2"><div class="label-cell">&lt;html lang&gt;</div><div>The project language (RL16, Q2).</div></div>
+    <div class="row cols-2"><div class="label-cell">&lt;body&gt;</div><div><code>data-artifact="risk-log"</code>, <code>data-schema="1"</code>, <code>data-register</code> (<code>kept</code> or <code>opt-out</code>) and <code>data-updated</code> (the register's last-updated date).</div></div>
+    <div class="row cols-2"><div class="label-cell">h1 + first paragraph</div><div>The title and one-sentence description the site's card reads (R2, S3).</div></div>
+    <div class="row cols-2"><div class="label-cell">ol.register-history</div><div>One <code>li</code> per update, with <code>data-date</code>, <code>data-by</code>, <code>data-kind</code> (<code>created</code>, <code>write</code>, <code>review</code>, <code>repair</code>, <code>finish</code>) and, for a review, <code>data-with</code>; inside the ⓘ's <code>&lt;details&gt;</code>.</div></div>
+    <div class="row cols-2"><div class="label-cell">table.summary</div><div>Rendered from the articles on every write in the RL12 order; never read.</div></div>
+    <div class="row cols-2"><div class="label-cell">section.opt-out</div><div>On an opt-out page only: <code>data-reason</code> (<code>elsewhere</code> or <code>not-worked</code>), <code>data-where</code>, <code>data-by</code>, <code>data-date</code>.</div></div>
+  </div>
+
+  <div class="subhead">One risk</div>
+  <div class="data-table">
+    <div class="row head cols-2"><div>Element</div><div>Carries</div></div>
+    <div class="row cols-2"><div class="label-cell">article.risk</div><div><code>id</code> (<code>RISK-NNN</code>), <code>data-state</code>, <code>data-impact</code>, <code>data-probability</code>, <code>data-owner</code>, <code>data-area</code>, <code>data-created</code>, <code>data-changed</code>.</div></div>
+    <div class="row cols-2"><div class="label-cell">h3</div><div>The name; the score beside it is rendered from impact and probability.</div></div>
+    <div class="row cols-2"><div class="label-cell">.risk-desc · .risk-mitigation</div><div>The description and the mitigation as text; absent when empty.</div></div>
+    <div class="row cols-2"><div class="label-cell">ol.risk-history</div><div>One <code>li</code> per change, with <code>data-date</code>, <code>data-by</code> and <code>data-kind</code> (<code>created</code>, <code>change</code>, <code>state</code>, <code>renumber</code>, <code>repair</code>, <code>handover</code>); only ever appended to.</div></div>
+  </div>
+
+  <div class="subhead">The change file -Apply takes</div>
+  <ul class="gps-paths">
+    <li>verb: add | change | state | handover | review | optout | repair</li>
+    <li>target: RISK-NNN (or the leaving owner, for handover)</li>
+    <li>fields: name · owner · impact · probability · area · description · mitigation</li>
+    <li>state: { to, reason, decider }</li>
+    <li>with: [participants] (review) · to: new owner (handover) · opt-out: { reason, where, decider }</li>
+    <li>language: the project language, on the first write only</li>
   </ul>
 </section>
 
-<!-- ═════════════════════ §7 PENDING ═════════════════════ -->
-<section class="s" id="s7-pending">
-  <h2 class="section-title"><span class="sec-ref">§7</span>Implementation</h2>
-  <div class="callout warn">
-    <strong>⚠ Pending the technical design.</strong> The build recipe is written once §6 is settled; while this document is in the <em>Business design</em> phase the outstanding technical work is listed under §6 <a href="#s6-open">Still to write</a>.
+<!-- §6.5 APIs -->
+<section class="s" id="s6-5">
+  <h2 class="section-title"><span class="sec-ref">§6.5</span>APIs &amp; contracts</h2>
+  <div class="callout">
+    One script, <code>risk-log.ps1 -Path documentation/project/risk-log.html</code> plus one action: <code>-Read</code> (data model and problems as JSON), <code>-View</code> (the fixed 80-column text), <code>-Apply -Change &lt;file&gt;</code> (write, check, rename), <code>-Repair</code> (a proposal as JSON, from problems or conflict markers) and <code>-Finish</code> (an interrupted write). Exit codes: <code>0</code> done, <code>1</code> refused by a rule (the rule on stdout), <code>2</code> an input could not be read, <code>3</code> no person (<code>git config user.name</code> unset and no <code>-By</code>). <code>-PluginRoot</code> defaults to the parent of the script's folder, so Codex needs nothing extra. No other interface changes.
   </div>
+</section>
+
+<!-- §6.6 Configuration -->
+<section class="s" id="s6-6">
+  <h2 class="section-title"><span class="sec-ref">§6.6</span>Configuration &amp; secrets</h2>
+  <p class="section-desc">Nothing is configured in the plugin; the few values live in the repo or the page.</p>
+  <div class="data-table">
+    <div class="row head cols-3"><div>Setting</div><div>Default</div><div>Justification</div></div>
+    <div class="row cols-3"><div class="label-cell">Project language</div><div><code>lang</code> on the page, asked at the first write</div><div>Kept with the record until project setup exists (Q2).</div></div>
+    <div class="row cols-3"><div class="label-cell">Person</div><div><code>git config user.name</code></div><div>As the ledger; asked once per run when unset, never guessed.</div></div>
+    <div class="row cols-3"><div class="label-cell">Ignore pattern</div><div><code>documentation/project/*.new</code></div><div>An interrupted write is never committed.</div></div>
+    <div class="row cols-3"><div class="label-cell">View width</div><div><code>80</code> columns</div><div>The fixed view (P6); not a setting a person changes.</div></div>
+  </div>
+</section>
+
+<!-- §6.7 Failure handling -->
+<section class="s" id="s6-7">
+  <h2 class="section-title"><span class="sec-ref">§6.7</span>Failure handling</h2>
+  <div class="failures">
+    <div class="failures-head"><div>Failure</div><div>Effect</div><div>Severity</div><div>Recovery</div></div>
+    <div class="failure-row"><div>A write dies before the rename</div><div>A <code>.new</code> is left; the page is unchanged</div><div><span class="sev low">Low</span></div><div>The next run's <code>-Finish</code> renames it after showing it, if it passes the check, else deletes it and says so.</div></div>
+    <div class="failure-row"><div>The check refuses a write</div><div>Nothing written</div><div><span class="sev med">Med</span></div><div>The <code>.new</code> is deleted and the refusing rule is reported; the person changes the request.</div></div>
+    <div class="failure-row"><div>The page cannot be read in full (a hand edit)</div><div>No write</div><div><span class="sev med">Med</span></div><div><code>-Repair</code> proposes each change as before and after; confirmed, it is applied like any write (RL11).</div></div>
+    <div class="failure-row"><div>Git conflict markers after a merge</div><div>No write</div><div><span class="sev med">Med</span></div><div>The repair merges both sides by identifier, renumbers true duplicates (RL4) and asks the person for each field changed differently on both sides.</div></div>
+    <div class="failure-row"><div>No person (<code>user.name</code> unset)</div><div>The script stops with exit 3</div><div><span class="sev low">Low</span></div><div><code>asimov-risk</code> asks for the name once and passes it as <code>-By</code> for the rest of the run.</div></div>
+    <div class="failure-row"><div>No PowerShell on the machine</div><div>The script cannot run</div><div><span class="sev med">Med</span></div><div>The skills follow the script's specification by hand, as the Spec stage's validators fall back, and say plainly that the check was not run by a script.</div></div>
+    <div class="failure-row"><div>A translation is wrong</div><div>Caught before it is stored</div><div><span class="sev low">Low</span></div><div>The confirmation shows it; the person corrects it in the project's language (RL16).</div></div>
+  </div>
+</section>
+
+<!-- §6.8 Gotchas -->
+<section class="s" id="s6-8">
+  <h2 class="section-title"><span class="sec-ref">§6.8</span>Known constraints &amp; gotchas</h2>
+  <div class="callout warn">
+    <strong>Encoding.</strong> Windows PowerShell 5.1 reads a BOM-less script as ANSI, so the script is pure ASCII like the validators, and it writes the page as UTF-8 explicitly, since names and content are rarely ASCII.
+  </div>
+  <div class="callout warn">
+    <strong>The rename is atomic only on one volume.</strong> The <code>.new</code> sits beside the page, never in a temp folder, so the replace stays one rename.
+  </div>
+  <div class="callout">
+    <strong>Hand edits to rendered text are overwritten.</strong> A changed score, summary row or count is rendered anew on the next write (P3, AC10); a hand edit to a field or a history line is a repair.
+  </div>
+  <div class="callout">
+    <strong>Line endings.</strong> The check compares the parsed data, not bytes, so a checkout that turns LF into CRLF never fails a write; only a declined review is promised byte-identical, and it writes nothing.
+  </div>
+</section>
+
+<!-- ═════════════════════ §7 — Chapter band (Implementation) ═════════════════════ -->
+<div class="chapter-band" id="c7">
+  <div class="chapter-band-inner">
+    <div class="ch-num">7</div>
+    <div>
+      <div class="ch-name">Implementation</div>
+      <div class="ch-summary">What is new and what is reused, where the new files sit, and the wiring that moves with them. The build itself is planned by the Spec stage.</div>
+    </div>
+  </div>
+</div>
+
+<!-- §7.1 New vs. reuse -->
+<section class="s" id="s7-1">
+  <h2 class="section-title"><span class="sec-ref">§7.1</span>What is genuinely new to build</h2>
+  <p class="section-desc">Everything not listed here is reuse of a pattern the plugin already has.</p>
+  <div class="callout">
+    <strong>These notes are code-grounded design.</strong> Each pattern named was checked against the plugin on 2026-10-21; the task-level detail is the S101's and the S102s' once <code>asimov-spec</code> cuts this design, and §7 then points at <code>documentation/specs/project-management-risk/</code>.
+  </div>
+  <div class="data-table">
+    <div class="row head" style="grid-template-columns: 1.2fr 0.4fr 2fr;"><div>Item</div><div>Build</div><div>Pattern</div></div>
+    <div class="row" style="grid-template-columns: 1.2fr 0.4fr 2fr;"><div class="label-cell">risk-log.ps1</div><div><span class="tag new">new</span></div><div>Shape of <code>scripts/validate-s102.ps1</code>: comment-based help, pure ASCII, 5.1 and 7, template as schema, exit codes.</div></div>
+    <div class="row" style="grid-template-columns: 1.2fr 0.4fr 2fr;"><div class="label-cell">risk-log definition + template</div><div><span class="tag new">new</span></div><div>Shape of <code>artifacts/documentation/s101-ledger/</code>: maturity block, bar, required content, append-only rules.</div></div>
+    <div class="row" style="grid-template-columns: 1.2fr 0.4fr 2fr;"><div class="label-cell">asimov-risk</div><div><span class="tag new">new</span></div><div>Shape of <code>skills/asimov-spec/SKILL.md</code>: narrate first, <code>$ARGUMENTS</code>, derived root, maturity line, <code>.gitignore</code> append, script calls through Bash.</div></div>
+    <div class="row" style="grid-template-columns: 1.2fr 0.4fr 2fr;"><div class="label-cell">artifact-risk-log-authoring</div><div><span class="tag new">new</span></div><div>Shape of <code>skills/artifact-s101-ledger/SKILL.md</code>: the only writer, read first, never writes elsewhere.</div></div>
+    <div class="row" style="grid-template-columns: 1.2fr 0.4fr 2fr;"><div class="label-cell">artifact-risk-log-view</div><div><span class="tag new">new</span></div><div>Shape of <code>skills/artifact-s101-view/SKILL.md</code>: prints, writes nothing, judges nothing.</div></div>
+    <div class="row" style="grid-template-columns: 1.2fr 0.4fr 2fr;"><div class="label-cell">The Project bucket</div><div><span class="tag reuse">reuse</span></div><div>A seventh row in an existing table, in both generators; a section, nav anchor and badge in the site template.</div></div>
+    <div class="row" style="grid-template-columns: 1.2fr 0.4fr 2fr;"><div class="label-cell">Identity</div><div><span class="tag reuse">reuse</span></div><div>The ledger's <code>git config user.name</code>.</div></div>
+  </div>
+</section>
+
+<!-- §7.2 Layout -->
+<section class="s" id="s7-2">
+  <h2 class="section-title"><span class="sec-ref">§7.2</span>The files</h2>
+  <p class="section-desc" style="margin-bottom:0.9rem">Where the new files sit in the plugin.</p>
+  <div class="data-table">
+    <div class="row head" style="grid-template-columns: 0.9fr 2fr;"><div>Folder</div><div>What it holds</div></div>
+    <div class="row" style="grid-template-columns: 0.9fr 2fr;"><div class="label-cell">artifacts/documentation/risk-log/</div><div>risk-log-definition.md · risk-log-template.html</div></div>
+    <div class="row" style="grid-template-columns: 0.9fr 2fr;"><div class="label-cell">skills/asimov-risk/</div><div>SKILL.md · agents/openai.yaml</div></div>
+    <div class="row" style="grid-template-columns: 0.9fr 2fr;"><div class="label-cell">skills/artifact-risk-log-*/</div><div>authoring/SKILL.md · view/SKILL.md</div></div>
+    <div class="row" style="grid-template-columns: 0.9fr 2fr;"><div class="label-cell">scripts/</div><div>risk-log.ps1</div></div>
+  </div>
+</section>
+
+<!-- §7.5 Cross-cutting -->
+<section class="s" id="s7-5">
+  <h2 class="section-title"><span class="sec-ref">§7.5</span>Cross-cutting — the wiring that moves with it</h2>
+  <ul class="bullets">
+    <li><span class="em">model-choice.md.</span> An <code>asimov-risk</code> row, stage <em>Project management</em>, <code>claude-sonnet-5-5</code>, <em>Claude Code only</em>, in the same commit as the frontmatter (hard rule 2), and the opening sentence widened from "L3 pipeline stage" to "stage or area".</li>
+    <li><span class="em">D100.</span> §4.3 the asimov-skill, §4.5 the definition and template with <code>assess</code> (hard rule 10), §4.6 the two skills, §5 the tree.</li>
+    <li><span class="em">CLAUDE.md.</span> The quick map (and the planned <code>artifacts/project-management/</code> line removed, as in D100 §5), hard rule 9 with <code>documentation/project/</code> and the <code>*.new</code> pattern, and the current state.</li>
+    <li><span class="em">.gitignore block.</span> <code>documentation/project/*.new</code> joins the patterns both init entry points write and <code>asimov-risk</code> appends.</li>
+    <li><span class="em">Website.</span> The two family pages, and AC6 of <code>D101-website.html</code> changed in the same commit.</li>
+    <li class="warn"><span class="em">No manifest change.</span> Skills auto-discover, so neither plugin manifest is touched and hard rule 11 does not fire.</li>
+  </ul>
 </section>
 
 <!-- ═════════════════════ §8 ═════════════════════ -->
@@ -903,6 +1211,20 @@ footer.site-footer a { color: var(--cyan); }
         <li><a href="../../site/inside/project-management.html">site/inside/project-management.html</a></li>
         <li><a href="../../site/artifacts/project-management/index.html">site/artifacts/project-management/index.html</a></li>
         <li><a href="../../plugins/asimov-plugin/artifacts/documentation/site/site-template.html">plugins/asimov-plugin/artifacts/documentation/site/site-template.html</a></li>
+        <li><a href="../../plugins/asimov-plugin/artifacts/documentation/site/site-definition.md">plugins/asimov-plugin/artifacts/documentation/site/site-definition.md</a></li>
+        <li><a href="../../plugins/asimov-plugin/commands/asimov-init.md">plugins/asimov-plugin/commands/asimov-init.md</a></li>
+        <li><a href="../../plugins/asimov-plugin/skills/codex-asimov-init/SKILL.md">plugins/asimov-plugin/skills/codex-asimov-init/SKILL.md</a></li>
+      </ul>
+    </div>
+    <div class="refs-block">
+      <h4>Patterns reused</h4>
+      <ul>
+        <li><a href="../../plugins/asimov-plugin/scripts/validate-s102.ps1">plugins/asimov-plugin/scripts/validate-s102.ps1</a> (script shape)</li>
+        <li><a href="../../plugins/asimov-plugin/artifacts/documentation/s101-ledger/s101-ledger-definition.md">s101-ledger-definition.md</a> (append-only state, git identity)</li>
+        <li><a href="../../plugins/asimov-plugin/skills/artifact-s101-view/SKILL.md">plugins/asimov-plugin/skills/artifact-s101-view/SKILL.md</a> (the fixed view)</li>
+        <li><a href="../../plugins/asimov-plugin/skills/asimov-spec/SKILL.md">plugins/asimov-plugin/skills/asimov-spec/SKILL.md</a> (scripts through Bash, the .gitignore append)</li>
+        <li><a href="../model-choice.md">documentation/model-choice.md</a></li>
+        <li><a href="../../plugins/asimov-plugin/resources/diagrams/README.md">resources/diagrams/README.md</a> (§6.2 notation)</li>
       </ul>
     </div>
   </div>
@@ -917,7 +1239,7 @@ footer.site-footer a { color: var(--cyan); }
     · <span class="mono">features/D101-project-management-risk.html</span>
   </div>
   <div style="margin-top: 0.4rem">
-    D101 · Project management: risk log · asimov-plugin · Draft v0.5 · 2026-10-21
+    D101 · Project management: risk log · asimov-plugin · Draft v0.6 · 2026-10-21
   </div>
 </footer>
 
