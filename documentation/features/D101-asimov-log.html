@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D101 — Asimov run log — asimov docs</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+:root {
+  --bg:        #0a1424;
+  --bg2:       #122039;
+  --bg3:       #1b2e4d;
+  --bg-card:   #14253f;
+  --border:    #2b4a73;
+  --border-2:  #3b5e8f;
+  --text:      #fff;
+  --text-dim:  #a8b8d0;
+  --text-mute: #6b7a93;
+  --cyan:      #4fc3f7;
+  --teal:      #26c6da;
+  --green:     #66bb6a;
+  --amber:     #ffb74d;
+  --coral:     #ef5350;
+  --gold:      #ffd54f;
+  --violet:    #ab47bc;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; font-size: 15px; line-height: 1.6; overflow-x: hidden; padding-top: 56px; }
+a { color: inherit; text-decoration: none; }
+code, .mono { font-family: 'JetBrains Mono', monospace; font-size: 0.88em; }
+code { background: var(--bg3); padding: 1px 6px; border-radius: 4px; color: var(--cyan); }
+
+/* Top nav (site-wide — every D101 links to documentation home + chapter sections of the index) */
+.top-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(10,20,36,0.85); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 0.55rem 2rem; display: flex; gap: 1.4rem; align-items: center; font-size: 0.82rem; }
+.top-nav .brand, .top-nav .brand a { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--cyan); letter-spacing: 0.04em; text-decoration: none; }
+.top-nav .brand .sep { color: var(--border); margin: 0 0.5rem; }
+.top-nav a { color: var(--text-dim); font-weight: 500; }
+.top-nav a:hover { color: #fff; }
+.top-nav .spacer { flex: 1; }
+.top-nav .status-chip { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.25rem 0.7rem; border-radius: 999px; background: #ffd54f15; border: 1px solid #ffd54f44; color: var(--gold); font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 700; }
+.top-nav .status-chip::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--gold); }
+/* Phase chip — the authoring axis, deliberately NOT the status axis (see ground rule 12).
+   Square marker + cyan so the two chips never read as one control. */
+.top-nav .phase-chip { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.25rem 0.7rem; border-radius: 999px; background: #4fc3f715; border: 1px solid #4fc3f744; color: var(--cyan); font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 700; }
+.top-nav .phase-chip::before { content: ''; width: 6px; height: 6px; border-radius: 1px; background: var(--cyan); }
+.top-nav .phase-chip.full { background: #66bb6a15; border-color: #66bb6a44; color: var(--green); }
+.top-nav .phase-chip.full::before { background: var(--green); }
+
+/* Layout with left sidebar (per-page TOC) + content column */
+.layout-doc { display: grid; grid-template-columns: 200px minmax(0, 1fr); max-width: 1300px; margin: 0 auto; gap: 1.8rem; padding: 0.5rem 1.5rem; }
+.side-nav { position: sticky; top: 76px; align-self: start; max-height: calc(100vh - 90px); overflow-y: auto; padding: 0.7rem 0.5rem 1rem 0.2rem; font-size: 0.85rem; }
+.side-nav .side-head { font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-mute); margin-bottom: 0.7rem; padding-left: 0.6rem; }
+.side-nav ul { list-style: none; padding: 0; margin: 0; }
+.side-nav ul ul { padding-left: 0.9rem; margin-top: 0.1rem; }
+.side-nav li { margin: 0.1rem 0; }
+.side-nav a { display: block; padding: 0.32rem 0.7rem; color: var(--text-dim); border-left: 2px solid transparent; font-size: 0.86rem; line-height: 1.4; border-radius: 0 4px 4px 0; }
+.side-nav a:hover { color: #fff; background: #4fc3f708; border-left-color: var(--border-2); }
+.content { min-width: 0; }
+
+/* Hero (compact — top-nav already provides separation from page chrome) */
+.hero { padding: 1.5rem 2rem 1.5rem; position: relative; overflow: hidden; max-width: 1300px; margin: 0 auto; }
+.hero::before { content: ''; position: absolute; inset: 0; z-index: 0; background: radial-gradient(ellipse at 20% 30%, #4fc3f718 0%, transparent 50%), radial-gradient(ellipse at 80% 60%, #26c6da14 0%, transparent 50%); }
+.hero > * { position: relative; z-index: 1; }
+.kicker { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--cyan); padding: 0.3rem 0.8rem; border-radius: 999px; border: 1px solid #4fc3f744; background: #4fc3f711; margin-bottom: 1rem; }
+.hero h1 { font-size: clamp(2rem, 4.5vw, 3.4rem); font-weight: 900; letter-spacing: -0.03em; line-height: 1.05; background: linear-gradient(135deg, #fff 0%, var(--cyan) 50%, var(--teal) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.hero .tagline { font-size: 1.05rem; color: var(--text-dim); margin-top: 1rem; max-width: 760px; line-height: 1.6; }
+
+/* Metadata strip */
+.meta-strip { max-width: 1300px; margin: 1rem auto 0; padding: 0 2rem; display: grid; grid-template-columns: repeat(6, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.meta-cell { background: var(--bg-card); padding: 1rem 1.2rem; }
+.meta-cell .label { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-mute); margin-bottom: 0.35rem; }
+.meta-cell .value { font-size: 0.95rem; font-weight: 600; color: var(--text); }
+.meta-cell .value.mono { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; }
+
+/* Sections + chapter bands */
+section.s { max-width: 1300px; margin: 0 auto; padding: 3rem 2rem 0; }
+.chapter-band + section.s { padding-top: 1.5rem; }
+.section-title { font-size: clamp(1.5rem, 2.6vw, 2rem); font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.7rem; }
+.section-title .sec-ref { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; font-weight: 600; color: var(--text-mute); letter-spacing: 0.04em; margin-right: 0.7rem; vertical-align: middle; padding: 0.2rem 0.5rem; border-radius: 4px; background: var(--bg2); border: 1px solid var(--border); }
+.section-desc { color: var(--text-dim); font-size: 1rem; max-width: 780px; margin-bottom: 1.8rem; line-height: 1.65; }
+.chapter-band { max-width: 1300px; margin: 3.5rem auto 0; padding: 0 2rem; }
+.chapter-band-inner { display: grid; grid-template-columns: auto 1fr; gap: 1.5rem; align-items: center; padding: 1.4rem 1.8rem; border-radius: 12px; background: linear-gradient(135deg, #4fc3f714 0%, #26c6da05 100%); border: 1px solid var(--border); border-left: 4px solid var(--cyan); }
+.chapter-band .ch-num { font-family: 'JetBrains Mono', monospace; font-size: 2.6rem; font-weight: 800; color: var(--cyan); line-height: 1; }
+.chapter-band .ch-name { font-size: 1.35rem; font-weight: 700; color: #fff; letter-spacing: 0.01em; margin-bottom: 0.25rem; }
+.chapter-band .ch-summary { font-size: 0.88rem; color: var(--text-dim); line-height: 1.5; }
+
+/* Doc-scope line below metadata strip */
+.doc-scope { max-width: 1300px; margin: 0.7rem auto 0; padding: 0 2.2rem; font-size: 0.82rem; color: var(--text-mute); line-height: 1.5; }
+.doc-scope strong { color: var(--text-dim); font-weight: 600; }
+
+/* Principles */
+.principles { display: grid; gap: 0.65rem; }
+.principle { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 0.95rem 1.3rem; display: flex; gap: 1rem; align-items: center; }
+.principle .num { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; font-weight: 700; width: 30px; height: 30px; border-radius: 8px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--cyan), var(--teal)); color: #0a1424; }
+.principle .text { font-size: 0.95rem; }
+.principle .text strong { color: var(--cyan); font-weight: 700; }
+
+/* Generic bullet list — used anywhere with → / ⚠ items */
+ul.bullets { list-style: none; padding: 0; margin: 0.7rem 0 0; }
+ul.bullets li { position: relative; padding: 0.3rem 0 0.3rem 1.5rem; font-size: 0.9rem; color: var(--text-dim); line-height: 1.6; }
+ul.bullets li + li { margin-top: 0.15rem; }
+ul.bullets li::before { content: '→'; position: absolute; left: 0; top: 0.3rem; font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--cyan); }
+ul.bullets li.warn::before { content: '!'; color: var(--amber); }
+ul.bullets li code { font-size: 0.78rem; }
+
+/* Requirements — flat lists (Functional / Non-functional / Out of scope), all visible, no tabs */
+.req-list { display: grid; gap: 0.5rem; margin-bottom: 1.6rem; }
+.req-list:last-child { margin-bottom: 0; }
+.req { display: grid; grid-template-columns: 60px 1fr; gap: 1rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 0.7rem 1rem; align-items: start; }
+.req .id { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; font-weight: 700; color: var(--cyan); padding-top: 2px; }
+.req .body { font-size: 0.9rem; color: var(--text); line-height: 1.55; }
+.req.oos .id, .req-list.nf .req .id { color: var(--amber); }
+
+/* Data flow SVG diagram */
+.flow-wrap { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.8rem; overflow-x: auto; }
+.flow-wrap svg { display: block; margin: 0 auto; max-width: 100%; height: auto; }
+.flow-legend { display: flex; flex-wrap: wrap; gap: 1.2rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); font-size: 0.82rem; color: var(--text-dim); }
+.flow-legend .item { display: inline-flex; align-items: center; gap: 0.4rem; }
+.flow-legend .swatch { width: 14px; height: 4px; border-radius: 2px; }
+
+/* Interactive UI mockup (embedded via iframe; the mockup file is separate + self-contained) */
+.mockup-wrap { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 0.5rem; margin: 0.6rem 0 1rem; overflow: hidden; }
+.mockup-frame { display: block; width: 100%; border: none; border-radius: 8px; background: #fff; }
+
+/* Code map */
+.codemap { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.codemap-row { display: grid; grid-template-columns: 1fr 1.5fr; gap: 1rem; padding: 0.7rem 1.2rem; border-bottom: 1px solid var(--border); font-size: 0.85rem; align-items: center; }
+.codemap-row:last-child { border-bottom: none; }
+.codemap-row:nth-child(odd) { background: rgba(255,255,255,0.015); }
+.codemap-row .what { color: var(--text); }
+.codemap-row .where { color: var(--cyan); font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; word-break: break-all; }
+
+/* Decisions matrix */
+.decisions { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.decisions-head, .decision-row { display: grid; grid-template-columns: 1.2fr 1fr 1.4fr; gap: 1rem; padding: 0.9rem 1.2rem; align-items: start; border-bottom: 1px solid var(--border); }
+.decisions-head { background: var(--bg2); font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); }
+.decision-row { font-size: 0.85rem; }
+.decision-row:last-child { border-bottom: none; }
+.decision-row .decided { color: #fff; font-weight: 600; }
+.decision-row .alt { color: var(--amber); font-style: italic; font-size: 0.82rem; line-height: 1.5; }
+.decision-row .why { color: var(--text-dim); font-size: 0.82rem; line-height: 1.55; }
+
+/* Generic data table (Shapes §6.4, Configuration §6.6) */
+.data-table { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.data-table .row { display: grid; gap: 1rem; padding: 0.65rem 1.2rem; border-bottom: 1px solid var(--border); font-size: 0.85rem; align-items: start; }
+.data-table .row.head { background: var(--bg2); font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); font-weight: 700; }
+.data-table .row:last-child { border-bottom: none; }
+.data-table .row.cols-2 { grid-template-columns: 1fr 2fr; }
+.data-table .row.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+.data-table .row code { font-size: 0.78rem; }
+.data-table .row .label-cell { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; color: var(--cyan); }
+
+/* Inline-path list (Shapes §6.4) */
+.gps-paths { list-style: none; padding: 0.7rem 0 0; margin: 0; display: grid; gap: 0.4rem; }
+.gps-paths li { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--cyan); background: var(--bg2); border: 1px solid var(--border); border-radius: 6px; padding: 0.45rem 0.8rem; }
+
+/* Sub-section heading (Shapes has multiple sub-blocks) */
+.subhead { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-dim); font-weight: 700; margin: 1.5rem 0 0.6rem; }
+.subhead:first-child { margin-top: 0; }
+/* Anchored subhead (§7 per-unit blocks key to §6 contracts by number) — scroll-margin clears the fixed nav */
+.subhead[id] { scroll-margin-top: 80px; }
+.subhead .s-ref { color: var(--text-mute); margin-right: 0.45rem; }
+/* Implementation label under a §6 contract (§7 build notes) — lighter sibling of .subhead */
+.impl-head { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); font-weight: 700; margin: 1rem 0 0.3rem; }
+
+/* Build-status chip on §7 implementation rows (reuse / new / note) */
+.tag { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+.tag.reuse { background: #66bb6a22; color: var(--green); border: 1px solid #66bb6a55; }
+.tag.new   { background: #ffb74d22; color: var(--amber); border: 1px solid #ffb74d55; }
+.tag.note  { background: var(--bg2); color: var(--text-mute); border: 1px solid var(--border); }
+/* Per-unit build-notes table (§7.x) — a .data-table variant: Aspect | Build tag | Details-with-bullets */
+.impl-table .row { grid-template-columns: 0.5fr 0.45fr 2.75fr; }
+.impl-table .row ul { list-style: disc; margin: 0; padding-left: 1.05rem; display: grid; gap: 0.35rem; }
+.impl-table .row li { line-height: 1.5; }
+
+/* Failure handling */
+.failures { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.failures-head, .failure-row { display: grid; grid-template-columns: 1fr 1fr 80px 1.2fr; gap: 1rem; padding: 0.85rem 1.2rem; align-items: center; border-bottom: 1px solid var(--border); }
+.failures-head { background: var(--bg2); font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); }
+.failure-row { font-size: 0.85rem; }
+.failure-row:last-child { border-bottom: none; }
+.sev { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; font-weight: 700; padding: 0.2rem 0.55rem; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.06em; }
+.sev.med  { background: #ffb74d22; color: var(--amber); border: 1px solid #ffb74d55; }
+.sev.low  { background: #66bb6a22; color: var(--green); border: 1px solid #66bb6a55; }
+.sev.high { background: #ef535022; color: var(--coral); border: 1px solid #ef535055; }
+
+/* Acceptance criteria */
+.ac-table { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.ac-head, .ac-row { display: grid; grid-template-columns: 60px 150px 1fr; gap: 1rem; padding: 0.8rem 1.2rem; align-items: start; border-bottom: 1px solid var(--border); }
+.ac-head { background: var(--bg2); font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); }
+.ac-row { font-size: 0.86rem; }
+.ac-row:last-child { border-bottom: none; }
+.ac-row .ac-id { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--cyan); }
+.ac-row .ac-verifies { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+.verify-chip { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; padding: 0.15rem 0.5rem; border-radius: 4px; background: #4fc3f714; border: 1px solid #4fc3f744; color: var(--cyan); }
+
+/* Open questions — auto-fit */
+.q-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 0.7rem; }
+.q-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.2rem; border-left: 3px solid var(--gold); }
+.q-card .q-head { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
+.q-card .q-id { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; color: var(--gold); background: #ffd54f15; padding: 0.15rem 0.5rem; border-radius: 4px; }
+.q-card .q-decider { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--text-mute); }
+.q-card .q-body { font-size: 0.88rem; color: var(--text); line-height: 1.55; }
+
+/* Accepted deviation (d101-feature-design-definition §4.9) — a rule deliberately not met, recorded next to the
+   thing it excuses. Sits INSIDE the element it annotates (.req, .ac-row, after a .subhead).
+   Violet, so it reads as neither a warning (amber) nor a pass (green): a deliberate third state. */
+.accepted { margin-top: 0.5rem; padding: 0.5rem 0.7rem; border-left: 3px solid var(--violet); border-radius: 0 6px 6px 0; background: #ab47bc12; font-size: 0.82rem; color: var(--text-dim); line-height: 1.55; }
+.accepted .accepted-tag { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--violet); background: #ab47bc22; border: 1px solid #ab47bc55; border-radius: 4px; padding: 0.1rem 0.45rem; margin-right: 0.45rem; }
+.accepted .accepted-rule { color: var(--text); font-weight: 600; }
+.accepted .accepted-by { display: block; margin-top: 0.3rem; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--text-mute); }
+/* Resolution path (required by d101-feature-design-definition §4.3 — every open question names a decider AND a
+   resolution path) and the resolved variant, for questions closed during authoring. */
+.q-card .q-resolution { font-size: 0.82rem; color: var(--text-dim); line-height: 1.5; margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--border); }
+.q-card .q-resolution strong { color: var(--green); }
+.q-card.resolved { border-left-color: var(--green); }
+.q-card.resolved .q-id { color: var(--green); background: #66bb6a15; }
+
+/* References — auto-fit */
+.refs { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+.refs-block { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 1.1rem 1.3rem; }
+.refs-block h4 { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--cyan); margin-bottom: 0.7rem; }
+.refs-block ul { list-style: none; }
+.refs-block li { font-family: 'JetBrains Mono', monospace; font-size: 0.76rem; color: var(--text-dim); padding: 0.2rem 0; line-height: 1.5; word-break: break-all; }
+
+/* Callouts */
+.callout { background: linear-gradient(135deg, #4fc3f712, #26c6da08); border: 1px solid #4fc3f744; border-radius: 10px; padding: 1rem 1.3rem; margin: 1.2rem 0; font-size: 0.9rem; color: var(--text-dim); line-height: 1.6; }
+.callout strong { color: var(--cyan); }
+.callout.warn { background: linear-gradient(135deg, #ffd54f15, #ff890608); border-color: #ffd54f55; }
+.callout.warn strong { color: var(--gold); }
+
+footer.site-footer { max-width: 1300px; margin: 4rem auto 0; padding: 2rem; border-top: 1px solid var(--border); text-align: center; color: var(--text-mute); font-size: 0.82rem; line-height: 1.7; }
+footer.site-footer .mono { color: var(--text-dim); font-family: 'JetBrains Mono', monospace; }
+footer.site-footer a { color: var(--cyan); }
+
+@media (max-width: 1100px) {
+  .meta-strip { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 900px) {
+  .layout-doc { grid-template-columns: 1fr; gap: 1rem; padding: 1rem 1.2rem; }
+  .side-nav { position: static; max-height: none; overflow: visible; border: 1px solid var(--border); border-radius: 8px; padding: 1rem; background: var(--bg-card); }
+}
+@media (max-width: 720px) {
+  .top-nav { overflow-x: auto; padding: 0.55rem 1rem; gap: 1rem; }
+  .top-nav .spacer { display: none; }
+  .hero { padding: 1.2rem 1.2rem 1rem; }
+  section.s { padding: 2.5rem 1.2rem 0; }
+  .meta-strip { grid-template-columns: repeat(2, 1fr); margin: 1rem 1.2rem 0; }
+  .chapter-band { padding: 0 1.2rem; margin-top: 3rem; }
+  .chapter-band-inner { grid-template-columns: 1fr; gap: 0.5rem; padding: 1.2rem 1.4rem; }
+  .chapter-band .ch-num { font-size: 2rem; }
+  .decisions-head, .decision-row { grid-template-columns: 1fr; gap: 0.4rem; }
+  .failures-head, .failure-row { grid-template-columns: 1fr; }
+  .ac-head, .ac-row { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <span class="brand"><a href="../index.html">asimov<span class="sep">/</span>docs</a></span>
+  <a href="../index.html#s1">Architecture</a>
+  <a href="../index.html#s2">Features</a>
+  <a href="../index.html#s3">Environments</a>
+  <a href="../index.html#s4">Conventions</a>
+  <a href="../index.html#s5">Reference</a>
+  <a href="../index.html#s6">Diagrams</a>
+  <span class="spacer"></span>
+  <span class="phase-chip full">Full design</span>
+  <span class="status-chip draft">Draft v0.8</span>
+</nav>
+
+<div class="layout-doc">
+  <aside class="side-nav">
+    <div class="side-head">On this page</div>
+    <ul>
+      <li><a href="#s2">§2 Why</a></li>
+      <li><a href="#s3">§3 Requirements</a></li>
+      <li><a href="#c4">§4 Business design</a>
+        <ul>
+          <li><a href="#s4-1">§4.1 Data model</a></li>
+          <li><a href="#s4-2">§4.2 Hooks</a></li>
+          <li><a href="#s4-3">§4.3 Data flow</a></li>
+        </ul>
+      </li>
+      <li><a href="#s5">§5 UI Design</a></li>
+      <li><a href="#c6">§6 Technical design</a>
+        <ul>
+          <li><a href="#s6-1">§6.1 Platform</a></li>
+          <li><a href="#s6-3">§6.3 Code map</a></li>
+          <li><a href="#s6-4">§6.4 Payload to line</a></li>
+          <li><a href="#s6-7">§6.7 Failure handling</a></li>
+        </ul>
+      </li>
+      <li><a href="#s7">§7 Implementation</a></li>
+      <li><a href="#s8">§8 Acceptance</a></li>
+      <li><a href="#s9">§9 Open questions</a></li>
+      <li><a href="#s10">§10 References</a></li>
+    </ul>
+  </aside>
+
+  <article class="content">
+
+<header class="hero">
+  <div class="kicker">D101 · Feature design · Asimov plugin</div>
+  <h1>Asimov run log</h1>
+  <p class="tagline">One text line per harness event, written by the plugin's hooks into the product repo, never by a model.</p>
+</header>
+
+<div class="meta-strip">
+  <div class="meta-cell"><div class="label">Owner</div><div class="value">Allan Borup</div></div>
+  <div class="meta-cell"><div class="label">Business approver</div><div class="value">Allan Borup</div></div>
+  <div class="meta-cell"><div class="label">Stages</div><div class="value mono">Design · Spec · Build</div></div>
+  <div class="meta-cell"><div class="label">Harnesses</div><div class="value mono">Claude Code · Codex</div></div>
+  <div class="meta-cell"><div class="label">Last updated</div><div class="value mono">2026-10-22</div></div>
+  <div class="meta-cell"><div class="label">Writes</div><div class="value">one gitignored log file per session</div></div>
+</div>
+
+<div class="doc-scope">
+  <strong>Scope:</strong> the log file, the hooks that write it, and what a line carries. §7 is N/A.
+</div>
+
+<!-- ═══════ §2 ═══════ -->
+<section class="s" id="s2">
+  <h2 class="section-title"><span class="sec-ref">§2</span>Why</h2>
+  <p class="section-desc">Nothing records what Asimov did while it ran, so every feedback note is reconstructed from transcripts by hand.</p>
+</section>
+
+<!-- ═══════ §3 ═══════ -->
+<section class="s" id="s3">
+  <h2 class="section-title"><span class="sec-ref">§3</span>Requirements</h2>
+
+  <div class="subhead">Functional — 7</div>
+  <div class="req-list">
+    <div class="req"><div class="id">R1</div><div class="body">The plugin's hooks write one line per event in §4.2.</div></div>
+    <div class="req"><div class="id">R2</div><div class="body">A line is <code>time  stage  feature  who  sentence</code>.</div></div>
+    <div class="req"><div class="id">R3</div><div class="body">Lines land in <code>.asimov/log/&lt;date&gt;-&lt;session&gt;.log</code> under the repo root.</div></div>
+    <div class="req"><div class="id">R4</div><div class="body">A line never carries prompt, code or diff text.</div></div>
+    <div class="req"><div class="id">R5</div><div class="body">No skill and no agent writes to the log.</div></div>
+    <div class="req"><div class="id">R6</div><div class="body">A failing hook never blocks a run.</div></div>
+    <div class="req"><div class="id">R7</div><div class="body">Codex writes the same file with the same events.</div></div>
+  </div>
+
+  <div class="subhead">Non-functional — 1</div>
+  <div class="req-list nf">
+    <div class="req"><div class="id">NF1</div><div class="body">A line costs no model tokens.</div></div>
+  </div>
+
+  <div class="subhead">Out of scope — 4</div>
+  <div class="req-list">
+    <div class="req oos"><div class="id">OOS1</div><div class="body">Why an agent stopped, review findings, rulings — the ledger has them; a hook sees only start and stop.</div></div>
+    <div class="req oos"><div class="id">OOS2</div><div class="body">Tokens and cost — the harness measures them (OTel, <code>/usage</code>).</div></div>
+    <div class="req oos"><div class="id">OOS3</div><div class="body">Committing the log — working state; the ledger is the record.</div></div>
+    <div class="req oos"><div class="id">OOS4</div><div class="body">Rotation — cleanup is the user's.</div></div>
+  </div>
+</section>
+
+<!-- ═══════ §4 ═══════ -->
+<div class="chapter-band" id="c4">
+  <div class="chapter-band-inner">
+    <div class="ch-num">4</div>
+    <div>
+      <div class="ch-name">Business design</div>
+      <div class="ch-summary">The file and the line, the five hooks, the flow of one session.</div>
+    </div>
+  </div>
+</div>
+
+<section class="s" id="s4-1">
+  <h2 class="section-title"><span class="sec-ref">§4.1</span>Data model</h2>
+  <div class="data-table">
+    <div class="row head cols-2"><div>Thing</div><div>Shape</div></div>
+    <div class="row cols-2"><div class="label-cell">Log file</div><div><code>.asimov/log/&lt;YYYY-MM-DD&gt;-&lt;id8&gt;.log</code>; one per session; append only; gitignored.</div></div>
+    <div class="row cols-2"><div class="label-cell">Line</div><div><code>YYYY-MM-DD HH:MM  &lt;stage&gt;  &lt;feature&gt;  &lt;who&gt;  &lt;sentence&gt;</code>; local clock; two or more spaces between fields.</div></div>
+    <div class="row cols-2"><div class="label-cell">stage</div><div><code>session</code>, <code>init</code>, <code>design</code>, <code>spec</code> or <code>build</code>, from the last asimov-skill invoked.</div></div>
+    <div class="row cols-2"><div class="label-cell">feature</div><div>The word after the asimov-skill's name at its invocation; <code>-</code> before any invocation; unchanged when the input was more than one word.</div></div>
+    <div class="row cols-2"><div class="label-cell">who</div><div><code>session</code>, <code>skill</code>, or the agent's shell name.</div></div>
+    <div class="row cols-2"><div class="label-cell">State file</div><div><code>.asimov/log/.&lt;id8&gt;.state</code>: stage, feature, log file name, one line per running agent (id, start time, shell); deleted at session end, or swept by the next session start once twelve hours old.</div></div>
+  </div>
+  <ul class="gps-paths" style="margin-top:0.9rem; white-space:pre">
+    <li>2026-10-19 14:01  session  -         session   started (claude-code)</li>
+    <li>2026-10-19 14:01  build    sec-1823  skill     asimov-build invoked: sec-1823</li>
+    <li>2026-10-19 14:02  build    sec-1823  giskard-the-dotnet-developer  started</li>
+    <li>2026-10-19 14:06  build    sec-1823  giskard-the-dotnet-developer  stopped after 240 s</li>
+    <li>2026-10-19 16:20  build    sec-1823  session   ended (prompt_input_exit)</li>
+  </ul>
+</section>
+
+<section class="s" id="s4-2">
+  <h2 class="section-title"><span class="sec-ref">§4.2</span>Hooks</h2>
+  <p class="section-desc">Five harness events, one line each; the list is closed. Only a harness event makes a line; a hook always exits 0, never writes to chat, and writes the state file under a lock, since hooks run in parallel.</p>
+  <div class="data-table">
+    <div class="row head cols-3"><div>Event</div><div>who</div><div>Sentence</div></div>
+    <div class="row cols-3"><div class="label-cell">SessionStart</div><div>session</div><div><code>started (&lt;harness&gt;)</code>; <code>started (&lt;harness&gt;, &lt;source&gt;)</code> on a resume, clear or compact</div></div>
+    <div class="row cols-3"><div class="label-cell">UserPromptExpansion · asimov-* (typed); PreToolUse · Skill (called)</div><div>skill</div><div><code>&lt;skill&gt; invoked: &lt;word&gt;</code>; multi-word input → <code>(text, &lt;n&gt; chars)</code></div></div>
+    <div class="row cols-3"><div class="label-cell">SubagentStart</div><div>shell</div><div><code>started</code></div></div>
+    <div class="row cols-3"><div class="label-cell">SubagentStop</div><div>shell</div><div><code>stopped after &lt;s&gt; s</code>; <code>stopped</code> when no start was seen</div></div>
+    <div class="row cols-3"><div class="label-cell">SessionEnd</div><div>session</div><div><code>ended (&lt;reason&gt;)</code></div></div>
+  </div>
+</section>
+
+<section class="s" id="s4-3">
+  <h2 class="section-title"><span class="sec-ref">§4.3</span>Data flow</h2>
+  <div class="flow-wrap">
+    <svg viewBox="0 0 980 512" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="UML sequence diagram: one task's log lines, written by hooks">
+      <rect x="0" y="0" width="980" height="512" fill="#14253f"/>
+      <defs>
+        <marker id="seq-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 Z" fill="#a8b8d0"/>
+        </marker>
+        <marker id="seq-arr-accent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 Z" fill="#66bb6a"/>
+        </marker>
+        <marker id="seq-arr-open" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10" fill="none" stroke="#a8b8d0" stroke-width="1.4"/>
+        </marker>
+      </defs>
+      <g>
+        <rect x="40" y="24" width="168" height="48" rx="8" fill="#66bb6a22" stroke="#66bb6a"/>
+        <text x="124" y="44" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">Person</text>
+        <text x="124" y="60" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">human · entry point</text>
+      </g>
+      <g>
+        <rect x="284" y="24" width="168" height="48" rx="8" fill="#122039" stroke="#3b5e8f" stroke-dasharray="4 4"/>
+        <text x="368" y="44" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">asimov-build</text>
+        <text x="368" y="60" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">the skill · never writes the log</text>
+      </g>
+      <g>
+        <rect x="528" y="24" width="168" height="48" rx="8" fill="#ffb74d1a" stroke="#ffb74d"/>
+        <text x="612" y="44" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">Harness · hook</text>
+        <text x="612" y="60" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">fires asimov-log.ps1 per event</text>
+      </g>
+      <g>
+        <rect x="772" y="24" width="168" height="48" rx="8" fill="#4fc3f71a" stroke="#4fc3f7"/>
+        <text x="856" y="44" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">.asimov/log/&lt;file&gt;</text>
+        <text x="856" y="60" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">the log file + state file</text>
+      </g>
+      <line x1="124" y1="72" x2="124" y2="488" stroke="#3b5e8f" stroke-width="1.5" stroke-dasharray="4 4"/>
+      <line x1="368" y1="72" x2="368" y2="488" stroke="#3b5e8f" stroke-width="1.5" stroke-dasharray="4 4"/>
+      <line x1="612" y1="72" x2="612" y2="488" stroke="#3b5e8f" stroke-width="1.5" stroke-dasharray="4 4"/>
+      <line x1="856" y1="72" x2="856" y2="488" stroke="#3b5e8f" stroke-width="1.5" stroke-dasharray="4 4"/>
+      <rect x="120" y="112" width="8" height="352" fill="#66bb6a22" stroke="#66bb6a"/>
+      <rect x="364" y="152" width="8" height="280" fill="#122039" stroke="#3b5e8f" stroke-dasharray="4 4"/>
+      <rect x="608" y="112" width="8" height="24" fill="#ffb74d1a" stroke="#ffb74d"/>
+      <rect x="608" y="184" width="8" height="24" fill="#ffb74d1a" stroke="#ffb74d"/>
+      <rect x="608" y="256" width="8" height="24" fill="#ffb74d1a" stroke="#ffb74d"/>
+      <rect x="608" y="368" width="8" height="24" fill="#ffb74d1a" stroke="#ffb74d"/>
+      <rect x="852" y="120" width="8" height="16" fill="#4fc3f71a" stroke="#4fc3f7"/>
+      <rect x="852" y="192" width="8" height="16" fill="#4fc3f71a" stroke="#4fc3f7"/>
+      <rect x="852" y="264" width="8" height="16" fill="#4fc3f71a" stroke="#4fc3f7"/>
+      <rect x="852" y="376" width="8" height="16" fill="#4fc3f71a" stroke="#4fc3f7"/>
+      <line x1="616" y1="112" x2="852" y2="112" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#seq-arr)"/>
+      <text x="734" y="104" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">session started (claude-code)</text>
+      <line x1="128" y1="152" x2="364" y2="152" stroke="#66bb6a" stroke-width="1.5" marker-end="url(#seq-arr-accent)"/>
+      <text x="246" y="144" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">/asimov-build sec-1823</text>
+      <line x1="372" y1="184" x2="608" y2="184" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#seq-arr)"/>
+      <text x="490" y="176" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">PreToolUse: Skill asimov-build sec-1823</text>
+      <line x1="616" y1="200" x2="852" y2="200" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#seq-arr)"/>
+      <text x="734" y="192" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">invoked: sec-1823 · state set</text>
+      <line x1="372" y1="256" x2="608" y2="256" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#seq-arr)"/>
+      <text x="490" y="248" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">SubagentStart: giskard… · agent_id</text>
+      <line x1="616" y1="272" x2="852" y2="272" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#seq-arr)"/>
+      <text x="734" y="264" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">giskard… started · id + time kept</text>
+      <polyline points="372,304 420,304 420,328 372,328" fill="none" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#seq-arr)"/>
+      <text x="432" y="320" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">the builder works; nothing is logged</text>
+      <line x1="372" y1="368" x2="608" y2="368" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#seq-arr)"/>
+      <text x="490" y="360" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">SubagentStop: giskard… · agent_id</text>
+      <line x1="616" y1="384" x2="852" y2="384" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#seq-arr)"/>
+      <text x="734" y="376" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">giskard… stopped after 240 s</text>
+      <line x1="364" y1="432" x2="128" y2="432" stroke="#a8b8d0" stroke-width="1.5" stroke-dasharray="4 4" marker-end="url(#seq-arr-open)"/>
+      <text x="246" y="424" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">gate shown · ruling → ledger, not log</text>
+    </svg>
+    <div class="flow-legend">
+      <span class="item"><span class="swatch" style="background:var(--green)"></span>The person</span>
+      <span class="item"><span class="swatch" style="background:var(--amber)"></span>The harness firing the hook</span>
+      <span class="item"><span class="swatch" style="background:var(--cyan)"></span>The log and state files</span>
+      <span class="item"><span class="swatch" style="background:#3b5e8f"></span>The skill and its agents, outside the log</span>
+    </div>
+  </div>
+  <div class="principles" style="margin-top:1rem">
+    <div class="principle"><div class="num">1</div><div class="text"><strong>Session start.</strong> Create the folder if missing, write the session line, start the state file with <code>-</code>.</div></div>
+    <div class="principle"><div class="num">2</div><div class="text"><strong>Invocation.</strong> Map the skill name to a stage, take the first word as the feature, update the state, write the line.</div></div>
+    <div class="principle"><div class="num">3</div><div class="text"><strong>Agent start.</strong> Record id, time and shell in the state; write the line.</div></div>
+    <div class="principle"><div class="num">4</div><div class="text"><strong>Agent stop.</strong> Look up the start by id, write the line with seconds, drop the id.</div></div>
+    <div class="principle"><div class="num">5</div><div class="text"><strong>Session end.</strong> Write the line, delete the state file.</div></div>
+  </div>
+  <ul class="bullets">
+    <li>A session past midnight keeps writing to the file named in its state; an agent still running at session end gets no stop line.</li>
+    <li>Two sessions in one repo write two files; a session resuming a build starts its own file, and the invocation line names the feature.</li>
+    <li>A state file a session end could not delete is swept by the next session start once it is twelve hours old.</li>
+  </ul>
+</section>
+
+<!-- ═══════ §5 ═══════ -->
+<section class="s" id="s5">
+  <h2 class="section-title"><span class="sec-ref">§5</span>UI Design</h2>
+  <div class="callout">N/A — a text file, read as text.</div>
+</section>
+
+<!-- ═══════ §6 ═══════ -->
+<div class="chapter-band" id="c6">
+  <div class="chapter-band-inner">
+    <div class="ch-num">6</div>
+    <div>
+      <div class="ch-name">Technical design</div>
+      <div class="ch-summary">Platform, code map, payload mapping, failures. The data flow is §4.3; §6.5, §6.6 and §6.8 do not apply.</div>
+    </div>
+  </div>
+</div>
+
+<section class="s" id="s6-1">
+  <h2 class="section-title"><span class="sec-ref">§6.1</span>Platform</h2>
+  <p style="color: var(--text-dim); font-size: 0.95rem; line-height: 1.65;">
+    <code>hooks/hooks.json</code> at the plugin root registers one PowerShell command, <code>hooks/scripts/asimov-log.ps1</code>, for the five events (six registrations: a typed <code>/asimov-*</code> and a Skill call are two harness events), async on all but SessionEnd; the script reads the event's JSON from stdin and appends one line. The command is a <code>pwsh … || powershell …</code> chain, so the hook shell must be Git Bash or PowerShell 7. Codex reads the same manifest; it does not substitute <code>${CLAUDE_PLUGIN_ROOT}</code> but exports it as an environment alias, which the shell expands. <code>ASIMOV_LOG_RAW=1</code> adds a raw payload dump, <code>raw-&lt;id8&gt;.jsonl</code> beside the log, off by default because it carries prompt text. No escalation gate: nothing outside the log folder is written.
+  </p>
+</section>
+
+<section class="s" id="s6-3">
+  <h2 class="section-title"><span class="sec-ref">§6.3</span>Code map</h2>
+  <div class="codemap">
+    <div class="codemap-row"><div class="what">Hook manifest: six registrations, one async command</div><div class="where">plugins/asimov-plugin/hooks/hooks.json</div></div>
+    <div class="codemap-row"><div class="what">Hook script: payload in, line out, state file</div><div class="where">plugins/asimov-plugin/hooks/scripts/asimov-log.ps1</div></div>
+    <div class="codemap-row"><div class="what">The log's definition (§4.1–§4.2 as the standard)</div><div class="where">plugins/asimov-plugin/artifacts/dot-asimov/asimov-log/asimov-log-definition.md</div></div>
+    <div class="codemap-row"><div class="what"><code>.asimov/</code> in the gitignore block</div><div class="where">commands/asimov-init.md · skills/codex-asimov-init/SKILL.md · skills/asimov-spec/SKILL.md</div></div>
+    <div class="codemap-row"><div class="what">Path literal and maturity mirror</div><div class="where">CLAUDE.md (hard rule 9) · D100 §4.5</div></div>
+  </div>
+</section>
+
+<section class="s" id="s6-4">
+  <h2 class="section-title"><span class="sec-ref">§6.4</span>Payload to line</h2>
+  <div class="data-table">
+    <div class="row head cols-2"><div>Field</div><div>Source</div></div>
+    <div class="row cols-2"><div class="label-cell">repo root</div><div>The payload's <code>cwd</code> (a worktree's own root; never <code>CLAUDE_PROJECT_DIR</code>).</div></div>
+    <div class="row cols-2"><div class="label-cell">session id</div><div>The payload's <code>session_id</code>, first eight characters.</div></div>
+    <div class="row cols-2"><div class="label-cell">harness</div><div><code>claude-code</code> when <code>CLAUDECODE</code> is set, <code>codex</code> when <code>PLUGIN_ROOT</code> is set without it, else <code>unknown</code>.</div></div>
+    <div class="row cols-2"><div class="label-cell">skill, word</div><div><code>command_name</code> and <code>command_args</code> on a typed invocation, <code>tool_input.skill</code> and <code>tool_input.args</code> on a called one; the plugin prefix stripped, the first whitespace-separated token the word.</div></div>
+    <div class="row cols-2"><div class="label-cell">shell, id</div><div><code>agent_type</code> with the plugin prefix stripped; <code>agent_id</code>.</div></div>
+    <div class="row cols-2"><div class="label-cell">reason</div><div><code>reason</code> on <code>SessionEnd</code>.</div></div>
+  </div>
+  <ul class="bullets">
+    <li class="warn">Codex: whether a skill call is matchable and whether <code>agent_type</code> is present is unverified (Q2); an agent line may read <code>agent</code> until then.</li>
+  </ul>
+</section>
+
+<section class="s" id="s6-7">
+  <h2 class="section-title"><span class="sec-ref">§6.7</span>Failure handling</h2>
+  <div class="failures">
+    <div class="failures-head"><div>Failure</div><div>Effect</div><div>Severity</div><div>Recovery</div></div>
+    <div class="failure-row"><div>Folder or file not writable</div><div>The session's lines are lost</div><div><span class="sev low">Low</span></div><div>None; exit 0, silent</div></div>
+    <div class="failure-row"><div>State file missing at an event</div><div>Stage and feature read <code>-</code>; no seconds on stop</div><div><span class="sev low">Low</span></div><div>Recreate it from the event and continue</div></div>
+    <div class="failure-row"><div>No PowerShell, or the hook shell is Windows PowerShell (no Git Bash, no <code>pwsh</code>)</div><div>No lines at all</div><div><span class="sev med">Med</span></div><div>Install <code>pwsh</code> or Git Bash; a documented requirement</div></div>
+    <div class="failure-row"><div>SessionEnd exceeds the harness's 1.5 s budget (a cold PowerShell start is 1–2 s)</div><div>No <code>ended</code> line; the state file stays</div><div><span class="sev low">Low</span></div><div>The next session start sweeps it after twelve hours</div></div>
+    <div class="failure-row"><div>Two hooks at once (a batch of agents)</div><div>A lost start would mean a stop without seconds</div><div><span class="sev low">Low</span></div><div>A named mutex per session serialises the state write</div></div>
+  </div>
+</section>
+
+<!-- ═══════ §7 ═══════ -->
+<section class="s" id="s7">
+  <h2 class="section-title"><span class="sec-ref">§7</span>Implementation</h2>
+  <div class="callout">N/A — one manifest, one script, one definition; the Spec stage cuts them.</div>
+</section>
+
+<!-- ═══════ §8 ═══════ -->
+<section class="s" id="s8">
+  <h2 class="section-title"><span class="sec-ref">§8</span>Acceptance criteria</h2>
+  <div class="ac-table">
+    <div class="ac-head"><div>#</div><div>Verifies</div><div>Description</div></div>
+    <div class="ac-row"><div class="ac-id">AC1</div><div class="ac-verifies"><span class="verify-chip">R1</span><span class="verify-chip">R3</span></div><div>After a build run, the session's file holds a session line, the invocation line, and a started and stopped pair for every agent spawned.</div></div>
+    <div class="ac-row"><div class="ac-id">AC2</div><div class="ac-verifies"><span class="verify-chip">R2</span></div><div>Every line matches the prefix; every stopped line with a started line carries seconds.</div></div>
+    <div class="ac-row"><div class="ac-id">AC3</div><div class="ac-verifies"><span class="verify-chip">R4</span></div><div>An <code>asimov-spec</code> invocation on pasted text logs <code>(text, &lt;n&gt; chars)</code> and none of the text.</div></div>
+    <div class="ac-row"><div class="ac-id">AC4</div><div class="ac-verifies"><span class="verify-chip">R5</span><span class="verify-chip">NF1</span></div><div>No file under <code>skills/</code>, <code>agents/</code> or <code>commands/</code> mentions the log folder except the gitignore block, and the transcript shows no tool call writing to it.</div></div>
+    <div class="ac-row"><div class="ac-id">AC5</div><div class="ac-verifies"><span class="verify-chip">R6</span></div><div>With <code>.asimov/log/</code> read-only, the run completes and the chat shows no hook error.</div></div>
+    <div class="ac-row"><div class="ac-id">AC6</div><div class="ac-verifies"><span class="verify-chip">R7</span></div><div>The same run in Codex yields a file with the same five events; checked at the first Codex run.</div></div>
+    <div class="ac-row"><div class="ac-id">AC7</div><div class="ac-verifies"><span class="verify-chip">§4.1</span></div><div>After init, <code>.gitignore</code> contains <code>.asimov/</code> and <code>git status</code> after a run shows nothing under it.</div></div>
+  </div>
+</section>
+
+<!-- ═══════ §9 ═══════ -->
+<section class="s" id="s9">
+  <h2 class="section-title"><span class="sec-ref">§9</span>Open questions</h2>
+  <div class="q-grid">
+    <div class="q-card">
+      <div class="q-head"><span class="q-id">Q1</span><span class="q-decider">Allan Borup</span></div>
+      <div class="q-body"><code>SubagentStop</code> hands over <code>agent_transcript_path</code> and no token field; may the hook sum tokens from that transcript, and is that worth the time it costs?</div>
+      <div class="q-resolution">Resolution path: read the payload with <code>ASIMOV_LOG_RAW=1</code> on the first run.</div>
+    </div>
+    <div class="q-card">
+      <div class="q-head"><span class="q-id">Q2</span><span class="q-decider">Allan Borup</span></div>
+      <div class="q-body">In Codex, which has no <code>UserPromptExpansion</code>, is a typed <code>$asimov-plugin:…</code> or a skill call matchable, and is <code>agent_type</code> present? Until then a Codex session logs no invocation line and its stage stays <code>session</code>.</div>
+      <div class="q-resolution">Resolution path: the first Codex run with the hooks installed.</div>
+    </div>
+    <div class="q-card">
+      <div class="q-head"><span class="q-id">Q3</span><span class="q-decider">Allan Borup</span></div>
+      <div class="q-body">Should the feedback note become a skill that reads the log and the ledger?</div>
+      <div class="q-resolution">Resolution path: after the first run with the log.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ §10 ═══════ -->
+<section class="s" id="s10">
+  <h2 class="section-title"><span class="sec-ref">§10</span>References</h2>
+  <div class="refs">
+    <div class="refs-block">
+      <h4>Research</h4>
+      <ul><li>../research/asimov-log-research.md — §2 Claude Code hooks, §3 Codex hooks</li></ul>
+    </div>
+    <div class="refs-block">
+      <h4>Sibling designs</h4>
+      <ul>
+        <li>D101-build-stage.html — the ledger</li>
+        <li>D101-codex-support.html — plugin root variables, Codex manifest</li>
+        <li>commands/asimov-init.md · skills/codex-asimov-init/SKILL.md — the gitignore block</li>
+      </ul>
+    </div>
+    <div class="refs-block">
+      <h4>Rules</h4>
+      <ul>
+        <li>CLAUDE.md hard rule 9</li>
+        <li>../D100-Asimov-architecture.md</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+  </article>
+</div>
+
+<footer class="site-footer">
+  <div>
+    <a href="../index.html">← Documentation home</a>
+    · <span class="mono">features/D101-asimov-log.html</span>
+  </div>
+  <div style="margin-top: 0.4rem">
+    D101 · Asimov run log · Asimov plugin · Draft v0.8 · 2026-10-22
+  </div>
+</footer>
+
+</body>
+</html>
