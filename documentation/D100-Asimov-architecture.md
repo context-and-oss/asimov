@@ -113,7 +113,7 @@ Subagent shells follow the pattern `plugins/asimov-plugin/agents/<subagent-name>
 
 Documents humans read; also read by slash commands and subagents at runtime. They are the cross-cutting **standards** the rest of the toolkit aligns to (the stage handoffs, what one stage's output must contain for the next stage to consume it, are a separate kind and live in `plugins/asimov-plugin/contracts/`; `contracts/design.md` is the first, read by the Spec-stage skills by path) — not features. Treated like a product repo's `documentation/conventions/` directory rather than like features.
 
-They are laid out **per artifact, not per file kind**: an *artifact* is something the toolkit writes into a product repo, and its folder `artifacts/<landing-place>/<artifact-slug>/` holds the definition and the template side by side, grouped by where the artifact lands (a D101 lands in the product repo's `documentation/`, so its folder is `artifacts/documentation/d101-feature-design/`). Building blocks that several artifacts draw on but that are not artifacts themselves — the diagram notations — live in `resources/`. A persona review skill lands in the product repo's `.claude/skills/`, so its pair sits in `artifacts/skills/persona-review/`; the `/asimov-init` outputs sit under `artifacts/documentation/site/`, `artifacts/documentation/conventions/` and `artifacts/root/asimov-md/` by the same rule. `model-choice.md` is the one exception: no command reads it at run-time, it is a standard for the people maintaining the toolkit, so it lives outside install scope in `documentation/` next to this file.
+They are laid out **per artifact, not per file kind**: an *artifact* is something the toolkit writes into a product repo, and its folder `artifacts/<landing-place>/<artifact-slug>/` holds the definition and the template side by side, grouped by where the artifact lands (a D101 lands in the product repo's `documentation/`, so its folder is `artifacts/documentation/d101-feature-design/`); an artifact that is a schema rather than a text, the run log, holds its definition alone. The landing place is the last segment of the folder the artifact lands in, a leading dot spelled `dot-` (`.claude/skills/` → `skills/`, `.asimov/` → `dot-asimov/`). Building blocks that several artifacts draw on but that are not artifacts themselves — the diagram notations — live in `resources/`. A persona review skill lands in the product repo's `.claude/skills/`, so its pair sits in `artifacts/skills/persona-review/`; the `/asimov-init` outputs sit under `artifacts/documentation/site/`, `artifacts/documentation/conventions/` and `artifacts/root/asimov-md/` by the same rule. `model-choice.md` is the one exception: no command reads it at run-time, it is a standard for the people maintaining the toolkit, so it lives outside install scope in `documentation/` next to this file.
 
 | Standard | Location | Purpose | Maturity |
 |---|---|---|---|
@@ -136,6 +136,7 @@ They are laid out **per artifact, not per file kind**: an *artifact* is somethin
 | S102 template | `plugins/asimov-plugin/artifacts/documentation/s102-task-spec/s102-task-spec-template.md` | Structure every S102 follows: header copied from the task line plus `owns` / `consumes` / `produces`, then five sections: intent, behaviour, done-when, constraints and stops, out of scope; the only code blocks are Gherkin | assess |
 | Definition of S101 ledger | `plugins/asimov-plugin/artifacts/documentation/s101-ledger/s101-ledger-definition.md` | Written standard for the Build stage's **run state** — one ledger per plan, beside it, committed with each phase: the approval's fingerprint, a status per phase and task written before the next step, the reports and rulings verbatim in an append-only body. One bar, *resumable*; five checks a resume runs; the only writer is `artifact-s101-ledger`. Plan ≠ ledger | assess |
 | S101 ledger template | `plugins/asimov-plugin/artifacts/documentation/s101-ledger/s101-ledger-template.md` | Structure every ledger follows: frontmatter as machine state (phases and tasks with their statuses, attempts, agent, model), body as the record (one heading per attempt, review, verify, ruling and commit) | assess |
+| Definition of Asimov run log | `plugins/asimov-plugin/artifacts/dot-asimov/asimov-log/asimov-log-definition.md` | Written standard for the **run log** — one text line per harness event (`time  stage  feature  who  sentence`), appended by the plugin's hooks to the gitignored `.asimov/log/<date>-<session>.log` in the product repo; written by no skill, no agent and no model; the *why* stays in the ledger. Design: `features/D101-asimov-log.html` | assess |
 
 **Stage contracts are a separate kind.** A definition sets the bar for one artifact; a contract under `plugins/asimov-plugin/contracts/` says what one stage's output must contain for the next stage to consume it, whatever form that output takes, and names neither its producers nor its readers. `contracts/design.md` is the first (what a design must contain before Spec plans from it; the D101 definition §3.1 says how a D101 meets it, the S101 definition §3.1/§9 how any other design is read), grounded in `documentation/research/design-contract-research.md`. `contracts/specification.md` (2026-10-05) is the second: what a specification, one plan and one or more tasks, must contain before Build runs from it, and the line between what the spec fixes (scope, public names and signatures, behaviour, the check) and what the builder decides (every body, every private name, every test); the S101 definition §3.2 and the S102 definition §3.2 say how the two forms meet it. Grounded in `documentation/research/specification-contract-research.md`. Contracts carry no maturity block; the D101 that introduces them covers them.
 
@@ -165,6 +166,10 @@ A `SKILL.md` under `plugins/asimov-plugin/skills/<name>/`, discovered automatica
 
 The `processes/` corpus `pm-advisor` reads is exported from the Learn/Engineer/Deliver vault, not maintained here: `processes/README.md` is its meta-entry and carries the draft-status caveat; `processes/delivery-model-framework.md` is its map. It ships in install scope so the skill can resolve it under `${CLAUDE_PLUGIN_ROOT}/processes/`. That variable is a Claude Code substitution, so the three skills that use it — `artifact-d101-authoring`, `artifact-d101-gap-review`, `pm-advisor` — find their files only in Claude Code (§7.4).
 
+### 4.7 Hooks
+
+The plugin ships one hook manifest, `plugins/asimov-plugin/hooks/hooks.json`, read by both harnesses, and one script it fires, `hooks/asimov-log.ps1`. Together they are the **run log** (§4.5): on SessionStart, the invocation of an `asimov-*` skill (a typed `/asimov-*` is a `UserPromptExpansion` event, a Skill call a `PreToolUse` one), SubagentStart, SubagentStop and SessionEnd, the script reads the payload from stdin and appends one line to `.asimov/log/<date>-<session>.log` under the repo the payload names. It runs async, prints nothing and exits 0 whatever happens, so a hook can never block a run or reach the chat; it keeps a small state file beside the log for the stage, the feature and the running agents, deleted at session end. The hooks are the only mechanical observer of a run: a skill that wants something recorded writes the ledger, never the log. Codex has no `UserPromptExpansion` event, so a Codex session logs no invocation line until the first Codex run says what it does send (D101 Q2); the manifest names `${CLAUDE_PLUGIN_ROOT}`, which Codex does not substitute but exports as an environment alias, so the shell expands it. The hooks need Git Bash or PowerShell 7 as the hook shell: the command is a `pwsh … || powershell …` chain. Design: `features/D101-asimov-log.html`.
+
 ## 5. Repo layout
 
 ```
@@ -180,6 +185,9 @@ asimov/
 │       │   └── plugin.json               ← Claude Code plugin manifest (§4.2)
 │       ├── .codex-plugin/
 │       │   └── plugin.json               ← Codex plugin manifest (§4.2)
+│       ├── hooks/                        ← harness hooks, both tools (§4.7)
+│       │   ├── hooks.json                ← six registrations, one async command: the run log
+│       │   └── asimov-log.ps1            ← the log writer; never a skill or a model
 │       ├── commands/                     ← slash commands (§4.3); Claude Code only
 │       │   ├── asimov-init.md
 │       │   └── conventions-check.md       ← not built yet
@@ -247,6 +255,9 @@ asimov/
 │       │   │   └── asimov-md/            ← the asimov.md context file (/asimov-init)
 │       │   │       ├── asimov-md-definition.md
 │       │   │       └── asimov-md-template.md
+│       │   ├── dot-asimov/               ← artifacts that land in the product repo's .asimov/ (gitignored)
+│       │   │   └── asimov-log/           ← the run log (§4.7): one line per harness event
+│       │   │       └── asimov-log-definition.md
 │       │   └── project-management/       ← project-management artifacts (planned; empty until the first lands)
 │       ├── contracts/                    ← stage handoffs (§4.5): what one stage's output must contain for the next to consume it
 │       │   └── design.md                 ← what a design must contain; nothing about its readers

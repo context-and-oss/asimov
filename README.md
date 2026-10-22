@@ -91,6 +91,7 @@ A persona review reads a D101 as one of its intended readers and reports where t
 plugins/asimov-plugin/                    the plugin (install scope)
 ├── .claude-plugin/plugin.json            plugin manifest (Claude Code)
 ├── .codex-plugin/plugin.json             plugin manifest (Codex)
+├── hooks/                               hooks.json + asimov-log.ps1 — the run log, one line per harness event (both harnesses)
 ├── commands/                             slash commands (asimov-init; Claude Code only)
 ├── agents/                               subagent shells (Giskard, Daneel, Calvin, Baley) — .md for Claude Code, .toml for Codex
 ├── skills/                               role-* (the subagents' methods), artifact-d101-* (D101 authoring + gap review), artifact-persona-authoring (custom persona authoring), artifact-s101-*/artifact-s102-* (Spec-stage authoring + validation), asimov-design + asimov-design-review (Design-stage entry points, both harnesses), asimov-spec (Spec-stage entry point, both harnesses), asimov-build (Build-stage entry point), persona-* (Poseidon, Athena, Hermes), pm-advisor, codex-asimov-init (Codex setup entry point)
@@ -110,6 +111,7 @@ plugins/asimov-plugin/                    the plugin (install scope)
 │   │   └── persona-review/               the persona review skill artifact (artifact-persona-authoring)
 │   │       ├── persona-review-definition.md
 │   │       └── persona-review-template.md       SKILL.md skeleton for a persona review skill
+│   ├── dot-asimov/                       lands in the product repo's .asimov/ — the run log's definition
 │   └── root/                             lands at the product repo's root
 │       └── asimov-md/                    the asimov.md context file (/asimov-init)
 │           ├── asimov-md-definition.md
