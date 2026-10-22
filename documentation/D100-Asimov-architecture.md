@@ -168,7 +168,7 @@ The `processes/` corpus `pm-advisor` reads is exported from the Learn/Engineer/D
 
 ### 4.7 Hooks
 
-The plugin ships one hook manifest, `plugins/asimov-plugin/hooks/hooks.json`, read by both harnesses, and one script it fires, `hooks/asimov-log.ps1`. Together they are the **run log** (§4.5): on SessionStart, the invocation of an `asimov-*` skill (a typed `/asimov-*` is a `UserPromptExpansion` event, a Skill call a `PreToolUse` one), SubagentStart, SubagentStop and SessionEnd, the script reads the payload from stdin and appends one line to `.asimov/log/<date>-<session>.log` under the repo the payload names. It runs async, prints nothing and exits 0 whatever happens, so a hook can never block a run or reach the chat; it keeps a small state file beside the log for the stage, the feature and the running agents, deleted at session end. The hooks are the only mechanical observer of a run: a skill that wants something recorded writes the ledger, never the log. Codex has no `UserPromptExpansion` event, so a Codex session logs no invocation line until the first Codex run says what it does send (D101 Q2); the manifest names `${CLAUDE_PLUGIN_ROOT}`, which Codex does not substitute but exports as an environment alias, so the shell expands it. The hooks need Git Bash or PowerShell 7 as the hook shell: the command is a `pwsh … || powershell …` chain. Design: `features/D101-asimov-log.html`.
+The plugin ships one hook manifest, `plugins/asimov-plugin/hooks/hooks.json`, read by both harnesses, and one script it fires, `hooks/scripts/asimov-log.ps1`. Together they are the **run log** (§4.5): on SessionStart, the invocation of an `asimov-*` skill (a typed `/asimov-*` is a `UserPromptExpansion` event, a Skill call a `PreToolUse` one), SubagentStart, SubagentStop and SessionEnd, the script reads the payload from stdin and appends one line to `.asimov/log/<date>-<session>.log` under the repo the payload names. It runs async, prints nothing and exits 0 whatever happens, so a hook can never block a run or reach the chat; it keeps a small state file beside the log for the stage, the feature and the running agents, deleted at session end. The hooks are the only mechanical observer of a run: a skill that wants something recorded writes the ledger, never the log. Codex has no `UserPromptExpansion` event, so a Codex session logs no invocation line until the first Codex run says what it does send (D101 Q2); the manifest names `${CLAUDE_PLUGIN_ROOT}`, which Codex does not substitute but exports as an environment alias, so the shell expands it. The hooks need Git Bash or PowerShell 7 as the hook shell: the command is a `pwsh … || powershell …` chain. Design: `features/D101-asimov-log.html`.
 
 ## 5. Repo layout
 
@@ -187,7 +187,7 @@ asimov/
 │       │   └── plugin.json               ← Codex plugin manifest (§4.2)
 │       ├── hooks/                        ← harness hooks, both tools (§4.7)
 │       │   ├── hooks.json                ← six registrations, one async command: the run log
-│       │   └── asimov-log.ps1            ← the log writer; never a skill or a model
+│       │   └── scripts/asimov-log.ps1    ← the log writer; never a skill or a model
 │       ├── commands/                     ← slash commands (§4.3); Claude Code only
 │       │   ├── asimov-init.md
 │       │   └── conventions-check.md       ← not built yet

@@ -514,7 +514,7 @@ footer.site-footer a { color: var(--cyan); }
 <section class="s" id="s6-1">
   <h2 class="section-title"><span class="sec-ref">§6.1</span>Platform</h2>
   <p style="color: var(--text-dim); font-size: 0.95rem; line-height: 1.65;">
-    <code>hooks/hooks.json</code> at the plugin root registers one PowerShell command, <code>hooks/asimov-log.ps1</code>, for the five events (six registrations: a typed <code>/asimov-*</code> and a Skill call are two harness events), async on all but SessionEnd; the script reads the event's JSON from stdin and appends one line. The command is a <code>pwsh … || powershell …</code> chain, so the hook shell must be Git Bash or PowerShell 7. Codex reads the same manifest; it does not substitute <code>${CLAUDE_PLUGIN_ROOT}</code> but exports it as an environment alias, which the shell expands. <code>ASIMOV_LOG_RAW=1</code> adds a raw payload dump, <code>raw-&lt;id8&gt;.jsonl</code> beside the log, off by default because it carries prompt text. No escalation gate: nothing outside the log folder is written.
+    <code>hooks/hooks.json</code> at the plugin root registers one PowerShell command, <code>hooks/scripts/asimov-log.ps1</code>, for the five events (six registrations: a typed <code>/asimov-*</code> and a Skill call are two harness events), async on all but SessionEnd; the script reads the event's JSON from stdin and appends one line. The command is a <code>pwsh … || powershell …</code> chain, so the hook shell must be Git Bash or PowerShell 7. Codex reads the same manifest; it does not substitute <code>${CLAUDE_PLUGIN_ROOT}</code> but exports it as an environment alias, which the shell expands. <code>ASIMOV_LOG_RAW=1</code> adds a raw payload dump, <code>raw-&lt;id8&gt;.jsonl</code> beside the log, off by default because it carries prompt text. No escalation gate: nothing outside the log folder is written.
   </p>
 </section>
 
@@ -522,7 +522,7 @@ footer.site-footer a { color: var(--cyan); }
   <h2 class="section-title"><span class="sec-ref">§6.3</span>Code map</h2>
   <div class="codemap">
     <div class="codemap-row"><div class="what">Hook manifest: six registrations, one async command</div><div class="where">plugins/asimov-plugin/hooks/hooks.json</div></div>
-    <div class="codemap-row"><div class="what">Hook script: payload in, line out, state file</div><div class="where">plugins/asimov-plugin/hooks/asimov-log.ps1</div></div>
+    <div class="codemap-row"><div class="what">Hook script: payload in, line out, state file</div><div class="where">plugins/asimov-plugin/hooks/scripts/asimov-log.ps1</div></div>
     <div class="codemap-row"><div class="what">The log's definition (§4.1–§4.2 as the standard)</div><div class="where">plugins/asimov-plugin/artifacts/dot-asimov/asimov-log/asimov-log-definition.md</div></div>
     <div class="codemap-row"><div class="what"><code>.asimov/</code> in the gitignore block</div><div class="where">commands/asimov-init.md · skills/codex-asimov-init/SKILL.md · skills/asimov-spec/SKILL.md</div></div>
     <div class="codemap-row"><div class="what">Path literal and maturity mirror</div><div class="where">CLAUDE.md (hard rule 9) · D100 §4.5</div></div>

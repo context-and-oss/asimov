@@ -8,7 +8,7 @@ since: 2026-10-22
 
 One text line per harness event, written into the product repo by the plugin's hooks and by nothing else. It exists so that what Asimov did during a run can be read afterwards without reconstructing it from transcripts.
 
-Written by: `hooks/asimov-log.ps1`, fired by `hooks/hooks.json` in both harnesses. Read by: a person, by eye, after a run. No skill, no agent and no model writes a line (D101 R5); the *why* of a run lives in the ledger (`s101-ledger-definition.md`), never here.
+Written by: `hooks/scripts/asimov-log.ps1`, fired by `hooks/hooks.json` in both harnesses. Read by: a person, by eye, after a run. No skill, no agent and no model writes a line (D101 R5); the *why* of a run lives in the ledger (`s101-ledger-definition.md`), never here.
 
 Design: `documentation/features/D101-asimov-log.html`.
 
