@@ -1,6 +1,6 @@
 ---
 name: asimov-spec
-description: Turn one design, a D101 at Full design or an approved Jira ticket, into its implementation plan (S101) and task specs (S102s) under documentation/specs/<slug>/ — read the design and the repo, ask at most five questions with defaults, cut and check the plan in one writer subagent that stays alive for the whole run, show the cut as the plan view with what the checks left and wait for the author's go, which approves the plan; then have the same writer write the task specs phase by phase, the tester first, check each one's shape with the validate-s102 script run inline, check the plan with the validate-s101 script run inline, one line in chat per call, mark every clean task spec validated, and set the plan ready when the approval still matches it; on a ready plan edited by hand it re-checks every task spec and the plan and asks for the approval again. Invoked by name only, the target in the same message (a D101 slug or path, a Jira link or key, or pasted ticket text); "/asimov-spec" in Claude Code, "$asimov-plugin:asimov-spec" in Codex; never selected by the model. Refuses a D101 not at Full design and a ticket that misses a required member of contracts/design.md; never prints a report row; never approves a plan on its own.
+description: Turn one design, a D101 at Full design or an approved Jira ticket, into its implementation plan (S101) and task specs (S102s) under specs/<slug>/ — read the design and the repo, ask at most five questions with defaults, cut and check the plan in one writer subagent that stays alive for the whole run, show the cut as the plan view with what the checks left and wait for the author's go, which approves the plan; then have the same writer write the task specs phase by phase, the tester first, check each one's shape with the validate-s102 script run inline, check the plan with the validate-s101 script run inline, one line in chat per call, mark every clean task spec validated, and set the plan ready when the approval still matches it; on a ready plan edited by hand it re-checks every task spec and the plan and asks for the approval again. Invoked by name only, the target in the same message (a D101 slug or path, a Jira link or key, or pasted ticket text); "/asimov-spec" in Claude Code, "$asimov-plugin:asimov-spec" in Codex; never selected by the model. Refuses a D101 not at Full design and a ticket that misses a required member of contracts/design.md; never prints a report row; never approves a plan on its own.
 disable-model-invocation: true
 argument-hint: a D101 slug or path, a Jira link or key, or the ticket text — empty lists what the skill accepts
 model: claude-sonnet-5-5
@@ -23,7 +23,7 @@ The model is passed on the Agent call that spawns the writer (`model: opus`, `ef
 
 **The person sees the view, one line per finding, and what happens next.** Reports go to the sidecar; a Fail the skills can fix is fixed before the author sees anything; every message ends with the next step or the author's choice.
 
-**Before any tool call, narrate** in one sentence: *"Planning `<design>` into `documentation/specs/<slug>/`: I'll read the design and the repo, ask at most five questions, check the cut and show it, and wait for your go, which approves the plan, before any task spec is checked and marked."*
+**Before any tool call, narrate** in one sentence: *"Planning `<design>` into `specs/<slug>/`: I'll read the design and the repo, ask at most five questions, check the cut and show it, and wait for your go, which approves the plan, before any task spec is checked and marked."*
 
 `$ARGUMENTS` (may be empty):
 
@@ -62,13 +62,13 @@ If any cannot be read, stop and report the path. Never paste their content into 
 
 **Say what you could verify.** A fetched approval comment is `approval: verified`. Pasted text is `approval: unverified`: write it in the S101's `design` line, in the cache's approval line as `<who> · <date> · <where> · unverified: pasted text`, and in every line that prints the approval. A proxy approval is recorded as `<who> for <whom>`, verified or not by the same rule, and named as a proxy wherever printed.
 
-**The caches stay out of git.** Before the first write under `documentation/specs/<slug>/`, read the repo's `.gitignore` and append, under one comment line `# Asimov caches (asimov-spec)`, each of the four patterns it lacks: `documentation/features/*.review.md`, `documentation/specs/*/S101-*.review.md`, `documentation/specs/*/design.md`, `.asimov/` (the hooks' run log). A repo with no `.gitignore` gets one. Say *"`.gitignore`: added <n> Asimov cache patterns."* when you added any.
+**The caches stay out of git.** Before the first write under `specs/<slug>/`, read the repo's `.gitignore` and append, under one comment line `# Asimov caches (asimov-spec)`, each of the four patterns it lacks: `documentation/features/*.review.md`, `specs/*/S101-*.review.md`, `specs/*/design.md`, `.asimov/` (the hooks' run log). A repo with no `.gitignore` gets one. Say *"`.gitignore`: added <n> Asimov cache patterns."* when you added any.
 
-**Write the cache** `documentation/specs/<slug>/design.md` (S101 definition §9): reference and read time, the approval line with its mark, every member's items quoted and numbered in reading order (R1.., AC1.., OOS1.., NF1..; *none stated* where the source has none; on a re-run the ids the existing plan's coverage map holds are kept and a new item takes the next free number), the whole thread verbatim under *Source*. Print *"Design <KEY> · approved by <who> on <date><, unverified: pasted text> · R1–Rn · AC1–ACm · OOS1–OOSk · NF1–NFj · cache written."* The cache is never edited: a correction goes into Jira and the next run reads it.
+**Write the cache** `specs/<slug>/design.md` (S101 definition §9): reference and read time, the approval line with its mark, every member's items quoted and numbered in reading order (R1.., AC1.., OOS1.., NF1..; *none stated* where the source has none; on a re-run the ids the existing plan's coverage map holds are kept and a new item takes the next free number), the whole thread verbatim under *Source*. Print *"Design <KEY> · approved by <who> on <date><, unverified: pasted text> · R1–Rn · AC1–ACm · OOS1–OOSk · NF1–NFj · cache written."* The cache is never edited: a correction goes into Jira and the next run reads it.
 
-Print `Planning: documentation/features/D101-<slug>.html` or `Planning: <url> (cache documentation/specs/<slug>/design.md)`.
+Print `Planning: documentation/features/D101-<slug>.html` or `Planning: <url> (cache specs/<slug>/design.md)`.
 
-**Read before asking** (R19), in **one message** as parallel tool calls: the design whole (a D101's §3, §4.5, §6, §8, §9; or the cache member by member), `documentation/conventions/<stack>/README.md` for every stack folder present and what each lists, and the existing `documentation/specs/<slug>/` folder. Then one line: *"n acceptance criteria, of which k are buildable · stacks: … · existing S101: none | draft v0.3, not approved | draft v0.4, approved 2026-10-05 | ready · small plan: yes | no."*
+**Read before asking** (R19), in **one message** as parallel tool calls: the design whole (a D101's §3, §4.5, §6, §8, §9; or the cache member by member), `documentation/conventions/<stack>/README.md` for every stack folder present and what each lists, and the existing `specs/<slug>/` folder. Then one line: *"n acceptance criteria, of which k are buildable · stacks: … · existing S101: none | draft v0.3, not approved | draft v0.4, approved 2026-10-05 | ready · small plan: yes | no."*
 
 **One writer, the whole run.** The plan writer that cuts the plan (Step 02) also writes every task spec after the go (Step 05), every rewrite and the finalise, by message: it has the design, the conventions and the repo in context from the cut, and nothing is read twice. Nothing but the S101 is written before the go.
 
@@ -91,11 +91,11 @@ An existing approval is reported, never trusted across a re-cut: every path that
 
 # Step 02 — Cut, in a writer subagent
 
-On a `rewrite`, first delete every `S102-*.md` in `documentation/specs/<slug>/` (Bash `rm`, or `git rm` where tracked) and any `repo-notes.md` an earlier plugin version left; say which (R17). You are the only one who deletes.
+On a `rewrite`, first delete every `S102-*.md` in `specs/<slug>/` (Bash `rm`, or `git rm` where tracked) and any `repo-notes.md` an earlier plugin version left; say which (R17). You are the only one who deletes.
 
 **On the first cut of the run**, spawn the **plan writer** (`general-purpose`, `model: opus`, `effort: high`) and keep the agent id the spawn returns; **on every later cut round** send the same text to that agent with `SendMessage` instead, `cut_feedback` filled in: it has the S101 on disk and everything it read in context. The text:
 
-> Load the skill `artifact-s101-authoring` and run it with these inputs. `design`: <the `design` line for the S101 header: `ref` the D101 path or the url; `version` for a repo file or `read` for a fetched one; `cache` and `approval: verified | unverified` when a `design.md` was written>. `mode`: <new | update | rewrite>. `answers`: <every question, with the answer or the default taken>. `slice`: <test-first | pair on a normalised design, else none>. `cut_feedback`: <the author's words, or the validation rows, or none>. `keep`: <the task ids whose S102 is written and clears, or none>. Write `documentation/specs/<slug>/S101-<slug>.md`. Return only what the skill returns: the path, its one line, and any template findings. Print nothing else.
+> Load the skill `artifact-s101-authoring` and run it with these inputs. `design`: <the `design` line for the S101 header: `ref` the D101 path or the url; `version` for a repo file or `read` for a fetched one; `cache` and `approval: verified | unverified` when a `design.md` was written>. `mode`: <new | update | rewrite>. `answers`: <every question, with the answer or the default taken>. `slice`: <test-first | pair on a normalised design, else none>. `cut_feedback`: <the author's words, or the validation rows, or none>. `keep`: <the task ids whose S102 is written and clears, or none>. Write `specs/<slug>/S101-<slug>.md`. Return only what the skill returns: the path, its one line, and any template findings. Print nothing else.
 
 In Codex add: *The plugin root is `<plugin-root>`; the skills' paths resolve under it.* The writer starts from the S101 on disk when one exists, runs the graph script on its own cut before returning, and refuses a D101 not at Full design, a cache without ids, or an S101 past `draft`; relay a refusal as is. Print its line as `cut  <line>`. Keep template findings and the `self-check:` line for the sidecar; route a `cannot write` as Step 05 does.
 
@@ -104,7 +104,7 @@ In Codex add: *The plugin root is `<plugin-root>`; the skills' paths resolve und
 Run the plan check yourself, silently (R29):
 
 ```
-pwsh -NoProfile -File "${CLAUDE_PLUGIN_ROOT}/skills/artifact-s101-validation/scripts/validate-s101.ps1" -S101 documentation/specs/<slug>/S101-<slug>.md -Mode graph-only
+pwsh -NoProfile -File "${CLAUDE_PLUGIN_ROOT}/skills/artifact-s101-validation/scripts/validate-s101.ps1" -S101 specs/<slug>/S101-<slug>.md -Mode graph-only
 ```
 
 (`powershell -NoProfile -ExecutionPolicy Bypass -File …` with only Windows PowerShell.) The script takes the design from the S101's `design` line; pass `-Design <path>` only when that would not resolve.
@@ -132,7 +132,7 @@ The round count is per cut; a free-text correction at the gate starts a new coun
 **The fingerprint** (S101 definition §6): the `phases:` block and §2, §3, §6, SHA-256, first 12 hex. Bash, described as *record the plan's approval*:
 
 ```
-awk '/^phases:/{p=1} p&&/^---$/{p=0} /^## /{s=0} /^## (2|3|6)\./{s=1} p||s' documentation/specs/<slug>/S101-<slug>.md | sha256sum | cut -c1-12
+awk '/^phases:/{p=1} p&&/^---$/{p=0} /^## /{s=0} /^## (2|3|6)\./{s=1} p||s' specs/<slug>/S101-<slug>.md | sha256sum | cut -c1-12
 ```
 
 Run it exactly as written: it carries no `$`-prefixed token because the harness substitutes `$0`, `$1`… into this file. If it differs from the definition §6's, the definition is right. Never print the command, the hash or the word fingerprint; the version is what a person reads. Compute it once per approval, here and at Step 08's re-approval; never compare it inside a run.
@@ -143,13 +143,13 @@ Run it exactly as written: it carries no `$`-prefixed token because the harness 
 
 Send the plan writer one message per phase, in tree order, one after the other, skipping every task in `keep`:
 
-> Load the skill `artifact-s102-authoring` and run it for tasks `<the phase's ids, in tree order>` of `documentation/specs/<slug>/S101-<slug>.md`, writing one S102 per task beside the S101, the tester first so its builders are written with the tester's file in hand, a `low` task in the light form (S102 definition §4.7). What you read for the cut is in your context; read the repo only for what a task needs beyond it. Return only what the skill returns: one line per task with its path and its `self-check:` line, any task it could not write with the reason, and any template findings. Print nothing else.
+> Load the skill `artifact-s102-authoring` and run it for tasks `<the phase's ids, in tree order>` of `specs/<slug>/S101-<slug>.md`, writing one S102 per task beside the S101, the tester first so its builders are written with the tester's file in hand, a `low` task in the light form (S102 definition §4.7). What you read for the cut is in your context; read the repo only for what a task needs beyond it. Return only what the skill returns: one line per task with its path and its `self-check:` line, any task it could not write with the reason, and any template findings. Print nothing else.
 
 A `low` task the writer reports as needing behaviour in prose is a wrong tier: an `S101:` finding (Step 07's rule), not a rewrite.
 
 **A rewrite** (a task Step 06 or 07 sends back) is one message to the same writer:
 
-> Load the skill `artifact-s102-authoring` and run it for task `<id>` of `documentation/specs/<slug>/S101-<slug>.md`, with these findings from its last validation: <the Fail rows, number, check, reason>. Write the S102 beside the S101. Return only what the skill returns: the path, its lines on what changed, its `header:` line, its `self-check:` line, and any template findings. Print nothing else.
+> Load the skill `artifact-s102-authoring` and run it for task `<id>` of `specs/<slug>/S101-<slug>.md`, with these findings from its last validation: <the Fail rows, number, check, reason>. Write the S102 beside the S101. Return only what the skill returns: the path, its lines on what changed, its `header:` line, its `self-check:` line, and any template findings. Print nothing else.
 
 **A full writer rolls over.** The harness reports the writer's tokens after every message; above 150,000, or when the writer says its context is nearly full, spawn a second plan writer (same type, model and effort) for the next phase and continue with it. Its first message is the phase text above plus one sentence: *The S101 and the S102s already written are on disk; read them, then the repo for what the phase needs.* The old writer is left; nothing else is re-read.
 
@@ -160,7 +160,7 @@ Print `[k/n] write  T003  S102-<slug>-003-<task>.md · <time>` per task (a phase
 One call per task spec, in tree order:
 
 ```
-pwsh -NoProfile -File "${CLAUDE_PLUGIN_ROOT}/skills/artifact-s102-validation/scripts/validate-s102.ps1" -S102 documentation/specs/<slug>/S102-<slug>-<NNN>-<task>.md -S101 documentation/specs/<slug>/S101-<slug>.md -Design <the D101 path, or the cache>
+pwsh -NoProfile -File "${CLAUDE_PLUGIN_ROOT}/skills/artifact-s102-validation/scripts/validate-s102.ps1" -S102 specs/<slug>/S102-<slug>-<NNN>-<task>.md -S101 specs/<slug>/S101-<slug>.md -Design <the D101 path, or the cache>
 ```
 
 Read every report, keep it for the sidecar, print one line per task, decide per task:
@@ -180,7 +180,7 @@ A round's rewrites go to the writer one after the other, then their checks, then
 # Step 07 — Validate the plan, the script once
 
 ```
-pwsh -NoProfile -File "${CLAUDE_PLUGIN_ROOT}/skills/artifact-s101-validation/scripts/validate-s101.ps1" -S101 documentation/specs/<slug>/S101-<slug>.md -Mode full
+pwsh -NoProfile -File "${CLAUDE_PLUGIN_ROOT}/skills/artifact-s101-validation/scripts/validate-s101.ps1" -S101 specs/<slug>/S101-<slug>.md -Mode full
 ```
 
 Its F5 row reads every S102's `validated` status; you pass no reports. Keep the report for the sidecar; print `[k/n] plan  <k> pass · <f> flag · <x> fail · <w> warn · <time>`.
@@ -191,22 +191,22 @@ A Fail naming tasks (G4, F2, F3, F4; G5 and G6 by id through the tree and §1) s
 
 **Finalise only when there is something to settle**: a rewrite returned `header: changed`, or the full report left a Flag or Fail naming §1, §3 or §6. Then one more message to the plan writer:
 
-> Load the skill `artifact-s101-authoring` and run it in mode `finalise` on `documentation/specs/<slug>/S101-<slug>.md` with `keep`: <every task id>. Return only what the skill returns: the path, its one line saying what it changed in §1, §3 and §6, and any template findings. Print nothing else.
+> Load the skill `artifact-s101-authoring` and run it in mode `finalise` on `specs/<slug>/S101-<slug>.md` with `keep`: <every task id>. Return only what the skill returns: the path, its one line saying what it changed in §1, §3 and §6, and any template findings. Print nothing else.
 
 Print it as `[k/n] finalise  <line>`; a change in §3 or §6 is a change to an approved part, a change in §1 alone is not. Otherwise print `finalise  skipped · no header changed, no plan finding`.
 
-**Write the sidecar** `documentation/specs/<slug>/S101-<slug>.review.md` in the shape the S101 definition §9 fixes (header lines, the plan report and every task's last report verbatim, the assumptions decided by default, the template findings and `self-check:` lines; `Engine: script | llm`). Overwrite an existing one: it is a cache, never a record.
+**Write the sidecar** `specs/<slug>/S101-<slug>.review.md` in the shape the S101 definition §9 fixes (header lines, the plan report and every task's last report verbatim, the assumptions decided by default, the template findings and `self-check:` lines; `Engine: script | llm`). Overwrite an existing one: it is a cache, never a record.
 
 **Settle the status.** You are the only writer of the S101 after the go, so you know whether an approved part changed (a Step 07 re-cut, or a finalise that changed §3 or §6); no hash is compared here.
 
-- **Unchanged:** set `ready` in one call, `pwsh -NoProfile -File "${CLAUDE_PLUGIN_ROOT}/skills/asimov-spec/scripts/mark-spec.ps1" -S101 documentation/specs/<slug>/S101-<slug>.md -Status ready` (**Edit** where no PowerShell exists). Print the view with heading *The plan, ready*, then **What remains**: every Warn and plan-level Flag as one line each, the task-level Flags as one count line (`<n> task-level flags, in S101-<slug>.review.md`), the assumptions the author should read by id, and *"Ready: <m> task specs validated, plan v<version> approved by <name> on <date>. `/asimov-build <slug>` builds it; run me again after a hand edit and I re-check it."* Finish.
+- **Unchanged:** set `ready` in one call, `pwsh -NoProfile -File "${CLAUDE_PLUGIN_ROOT}/skills/asimov-spec/scripts/mark-spec.ps1" -S101 specs/<slug>/S101-<slug>.md -Status ready` (**Edit** where no PowerShell exists). Print the view with heading *The plan, ready*, then **What remains**: every Warn and plan-level Flag as one line each, the task-level Flags as one count line (`<n> task-level flags, in S101-<slug>.review.md`), the assumptions the author should read by id, and *"Ready: <m> task specs validated, plan v<version> approved by <name> on <date>. `/asimov-build <slug>` builds it; run me again after a hand edit and I re-check it."* Finish.
 - **Changed:** leave `draft`. Print the view with heading *The plan, as written*, then **What changed since your go** (the writer lines returned after the go, at most five) and **What remains**. Ask: *"Say **approve** to approve the plan as it now stands (v<version>) and set it ready, or **stop** to leave it draft."* **Wait.** *approve* → the approval as in Step 04, `ready` as above, `approved  v<version> by <name> · <date>` and the closing line. Anything else → *"Left at draft with the previous approval superseded. Run `/asimov-spec <slug>` to review and approve it; the cut is shown first."* Finish.
 
 **After a stop in the loop** (third failure, or a `design:` row): print the task and the rows in words, write the sidecar with what exists, and say: *"The task specs that validated stay on disk and keep their mark. Fix `<what>` in the D101 / the ticket and name me again with it; the cut is shown first and the validated specs are kept."* Finish. The next run finds a `draft` S101 with S102s and enters Step 01's update path.
 
 # Hard rules
 
-- **Write only under `documentation/specs/<slug>/`** (NF4) plus the `.gitignore` block: through the writers, the cache, the sidecar, the approval edit, the `mark-spec.ps1` calls, the deletions of Step 02 and 04, and the two `date +%s` calls. Never the D101, never Jira, never the conventions.
+- **Write only under `specs/<slug>/`** (NF4) plus the `.gitignore` block: through the writers, the cache, the sidecar, the approval edit, the `mark-spec.ps1` calls, the deletions of Step 02 and 04, and the two `date +%s` calls. Never the D101, never Jira, never the conventions.
 - **Jira is the record.** You read the ticket, never comment on it, change its status or edit the cache. The one Jira tool in `allowed-tools` is the read, matched by the connector name `Atlassian`; no write tool is ever added.
 - **No S102 before the go.** Nothing but the S101 is written before the author's go; the writer waits with the rest in context. Hold the gate even when asked to "just write everything".
 - **People approve plans, agents approve task specs** (R15, R28). The approval is the author's go, `validated` is a clean report, `ready` is both together.
@@ -214,4 +214,4 @@ Print it as `[k/n] finalise  <line>`; a change in §3 or §6 is a change to an a
 - **One writer per run, continued by message, on its model; both checks as scripts, inline.** Spawn the plan writer once, at the first cut, and send every later call to it; a fresh writer only where the harness cannot continue one, or when the first is full (Step 05). Never load an authoring skill into this conversation; never paste a definition, a template or a method into a prompt; never judge a plan or an S102 yourself or change a script's row. Never add to a check what the author meant or the previous report; never drop the run ban from an `Explore` fallback call.
 - **Finish once.** After the gate the only wait is Step 08's re-approval.
 - **Re-read at run-time.** The files in the plugin are the source of truth.
-- **Paths are a hard-rule-9 literal**: `documentation/features/D101-*.html` and `documentation/specs/<slug>/` with `S101-<slug>.review.md`, `design.md` and `S101-<slug>.ledger.md`, and the `.asimov/` log folder, move together across this skill, `asimov-build`, the artifact skills, `.gitignore`, `CLAUDE.md` and D100 §5 and §9.
+- **Paths are a hard-rule-9 literal**: `documentation/features/D101-*.html` and `specs/<slug>/` with `S101-<slug>.review.md`, `design.md` and `S101-<slug>.ledger.md`, and the `.asimov/` log folder, move together across this skill, `asimov-build`, the artifact skills, `.gitignore`, `CLAUDE.md` and D100 §5 and §9.

@@ -196,8 +196,8 @@ Only after confirmation. Apply each target's rule:
    ```
    # Asimov run caches and log — written by the asimov-* skills and the plugin's hooks, never a record (see AGENTS.md)
    documentation/features/*.review.md
-   documentation/specs/*/S101-*.review.md
-   documentation/specs/*/design.md
+   specs/*/S101-*.review.md
+   specs/*/design.md
    .asimov/
    ```
 

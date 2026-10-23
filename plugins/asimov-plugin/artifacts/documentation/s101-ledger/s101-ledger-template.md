@@ -6,7 +6,7 @@
   WHO READS THIS FILE
   - asimov-build, through artifact-s101-ledger, to resume and to record.
   - The PR reviewer, for what was verified and reviewed in each phase.
-  - Written to documentation/specs/{{SLUG}}/S101-{{SLUG}}.ledger.md, beside the
+  - Written to specs/{{SLUG}}/S101-{{SLUG}}.ledger.md, beside the
     plan; committed with each phase's go.
   - Strip THIS comment from the rendered file.
 
@@ -30,7 +30,7 @@
 ---
 ledger: S101
 slug: "{{SLUG}}"
-s101: documentation/specs/{{SLUG}}/S101-{{SLUG}}.md
+s101: specs/{{SLUG}}/S101-{{SLUG}}.md
 fingerprint: "{{FINGERPRINT}}"
 started: { by: "{{BY}}", date: "{{YYYY-MM-DD}}" }
 phases:

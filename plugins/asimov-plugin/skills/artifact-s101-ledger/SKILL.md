@@ -1,6 +1,6 @@
 ---
 name: artifact-s101-ledger
-description: Read and write the run state of one build — the ledger documentation/specs/<slug>/S101-<slug>.ledger.md beside a ready S101 — so a run can start, record every attempt, report and ruling, resume where it stopped, and refuse when the plan changed. Use inside asimov-build for every ledger operation (start, position, record, discard, close), and by hand when asked "where did the build stop", "what did Powell say about P1", "resume the build". Its method is the script scripts/ledger.ps1 beside this file, run inline through Bash, one call per operation; the table here is the script's specification and the fallback where no PowerShell exists. The only writer of the ledger; never writes a spec, never runs an agent, never commits.
+description: Read and write the run state of one build — the ledger specs/<slug>/S101-<slug>.ledger.md beside a ready S101 — so a run can start, record every attempt, report and ruling, resume where it stopped, and refuse when the plan changed. Use inside asimov-build for every ledger operation (start, position, record, discard, close), and by hand when asked "where did the build stop", "what did Powell say about P1", "resume the build". Its method is the script scripts/ledger.ps1 beside this file, run inline through Bash, one call per operation; the table here is the script's specification and the fallback where no PowerShell exists. The only writer of the ledger; never writes a spec, never runs an agent, never commits.
 ---
 
 # S101 ledger
@@ -12,10 +12,10 @@ The method for the one file that holds a build's run state. `asimov-build` calls
 ## The call
 
 ```
-pwsh -NoProfile -File "${CLAUDE_PLUGIN_ROOT}/skills/artifact-s101-ledger/scripts/ledger.ps1" -Op <operation> -S101 documentation/specs/<slug>/S101-<slug>.md [the operation's inputs]
+pwsh -NoProfile -File "${CLAUDE_PLUGIN_ROOT}/skills/artifact-s101-ledger/scripts/ledger.ps1" -Op <operation> -S101 specs/<slug>/S101-<slug>.md [the operation's inputs]
 ```
 
-`pwsh` (PowerShell 7) or `powershell` (Windows PowerShell 5.1; add `-ExecutionPolicy Bypass`), whichever the machine has; the script runs on both. The ledger's path is derived from the S101's (`S101-<slug>.ledger.md` beside it) and the repo root from the folder above `documentation/specs/`, so the script runs from any working directory. In Codex, where `${CLAUDE_PLUGIN_ROOT}` is not substituted, derive the plugin root from this skill's own path (strip everything from `skills/artifact-s101-ledger` onward) and use it in the path; the script itself reads nothing of the plugin.
+`pwsh` (PowerShell 7) or `powershell` (Windows PowerShell 5.1; add `-ExecutionPolicy Bypass`), whichever the machine has; the script runs on both. The ledger's path is derived from the S101's (`S101-<slug>.ledger.md` beside it) and the repo root from the folder above `specs/`, so the script runs from any working directory. In Codex, where `${CLAUDE_PLUGIN_ROOT}` is not substituted, derive the plugin root from this skill's own path (strip everything from `skills/artifact-s101-ledger` onward) and use it in the path; the script itself reads nothing of the plugin.
 
 **Text goes in through a file or stdin, never as an argument.** A builder's summary or a report is multi-line: write it to a file and pass `-TextFile <path>`, or pipe it on stdin with a heredoc (`… -Op review -S101 … -Phase P1 <<'EOF'` … `EOF`). `-Text` is for a one-liner.
 

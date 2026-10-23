@@ -1,6 +1,6 @@
 ---
 name: artifact-s102-authoring
-description: How to write one S102 task spec (documentation/specs/<slug>/S102-<slug>-NNN-<task>.md) for one builder role from one task line in an S101 tree — the task part of a specification under contracts/specification.md: header copied from the task line plus the owned files and the contract names it consumes and produces, intent, behaviour as Gherkin or an explicit none, done-when as named tests and commands, task-specific constraints and stops, out of scope — so that a builder with no conversation history can build it and decide every line of code itself. Use when asked to "write the S102 for task T003", "write a task spec for this ticket", "rewrite this S102 against these findings", or inside asimov-spec at every task. Writes one S102; never the S101, never another S102, never a method body, a test body or a step, never a placeholder.
+description: How to write one S102 task spec (specs/<slug>/S102-<slug>-NNN-<task>.md) for one builder role from one task line in an S101 tree — the task part of a specification under contracts/specification.md: header copied from the task line plus the owned files and the contract names it consumes and produces, intent, behaviour as Gherkin or an explicit none, done-when as named tests and commands, task-specific constraints and stops, out of scope — so that a builder with no conversation history can build it and decide every line of code itself. Use when asked to "write the S102 for task T003", "write a task spec for this ticket", "rewrite this S102 against these findings", or inside asimov-spec at every task. Writes one S102; never the S101, never another S102, never a method body, a test body or a step, never a placeholder.
 ---
 
 # S102 authoring
@@ -44,7 +44,7 @@ One task line in, one task spec out. The S102 is the whole brief a fresh builder
 
 6. **Out of scope.** The neighbouring task that owns the adjacent thing (by id), the follow-up the design deferred (by OOS number), the refactor that tempts. One line each; *none* if none.
 
-7. **Write** `documentation/specs/<slug>/S102-<slug>-<NNN>-<task-slug>.md` from the template: `<NNN>` the task number, `<task-slug>` three to five words of the title in kebab-case, never the whole title. No section opens with a template sentence. A rewrite goes to the same path, in place.
+7. **Write** `specs/<slug>/S102-<slug>-<NNN>-<task-slug>.md` from the template: `<NNN>` the task number, `<task-slug>` three to five words of the title in kebab-case, never the whole title. No section opens with a template sentence. A rewrite goes to the same path, in place.
 
 8. **Check your own shape.** Through Bash, one call per file:
 
