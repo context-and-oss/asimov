@@ -51,10 +51,10 @@ try { [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 } catch { }
 
 if ($PluginRoot -eq '') { $PluginRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $PSScriptRoot)) }  # skills/<skill>/scripts/ -> the plugin root
 if ($RepoRoot -eq '') {
-  # The plan lives at <repo>/documentation/specs/<slug>/S101-<slug>.md, so the repo root is three folders
+  # The plan lives at <repo>/specs/<slug>/S101-<slug>.md, so the repo root is two folders
   # above it; derived from the S101 path so the script gives the same answer from any working directory.
   $probe = $S101; if (-not [System.IO.Path]::IsPathRooted($probe)) { $probe = Join-Path (Get-Location).Path $probe }
-  $mRoot = [regex]::Match($probe.Replace('\', '/'), '^(.*)/documentation/specs/[^/]+/[^/]+$')
+  $mRoot = [regex]::Match($probe.Replace('\', '/'), '^(.*)/specs/[^/]+/[^/]+$')
   if ($mRoot.Success) { $RepoRoot = $mRoot.Groups[1].Value } else { $RepoRoot = (Get-Location).Path }
 }
 

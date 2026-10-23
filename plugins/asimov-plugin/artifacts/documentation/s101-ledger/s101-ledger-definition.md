@@ -84,6 +84,6 @@ Run by `artifact-s101-ledger` before every resume; a Fail refuses the run.
 
 ## 7. Placement and naming
 
-`documentation/specs/<feature-slug>/S101-<feature-slug>.ledger.md`, beside the plan it belongs to. The suffix form, not a new document code, because a ledger is run state and not a reviewed artifact; the same form as the gitignored `S101-<feature-slug>.review.md`, but committed. One ledger per plan; a plan built again after `done` starts from `draft` through `asimov-spec`, and the old ledger goes with the old plan in git.
+`specs/<feature-slug>/S101-<feature-slug>.ledger.md`, beside the plan it belongs to. The suffix form, not a new document code, because a ledger is run state and not a reviewed artifact; the same form as the gitignored `S101-<feature-slug>.review.md`, but committed. One ledger per plan; a plan built again after `done` starts from `draft` through `asimov-spec`, and the old ledger goes with the old plan in git.
 
 The path is a lockstep literal with the specs folder (`CLAUDE.md` hard rule 9).

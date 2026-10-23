@@ -1,6 +1,6 @@
 ---
 name: role-s102-verifier
-description: The verifier method, the Test stage's "agent vs. spec" — run every done-when of a phase's task specs (documentation/specs/<slug>/S102-*.md) and the phase's checkpoint exactly as written, change nothing, and report per task pass or fail with the command and its last line. Use when a phase has been built and reviewed and must be verified against the specs it was built from, when asked to "verify this phase", "run the done-whens", "check the build against the task specs", or as the method of the Powell shell. Read-only on the code; a shell is granted only to run the checks.
+description: The verifier method, the Test stage's "agent vs. spec" — run every done-when of a phase's task specs (specs/<slug>/S102-*.md) and the phase's checkpoint exactly as written, change nothing, and report per task pass or fail with the command and its last line. Use when a phase has been built and reviewed and must be verified against the specs it was built from, when asked to "verify this phase", "run the done-whens", "check the build against the task specs", or as the method of the Powell shell. Read-only on the code; a shell is granted only to run the checks.
 ---
 
 # Verifier

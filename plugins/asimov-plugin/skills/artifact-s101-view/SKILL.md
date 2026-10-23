@@ -1,6 +1,6 @@
 ---
 name: artifact-s101-view
-description: Render one S101 implementation plan (documentation/specs/<slug>/S101-<slug>.md) as the fixed plan view a person reads in chat — the phase tree with what each phase delivers, its checkpoint and one line per task, the coverage line, the assumptions line, the design gaps — in the language of the conversation. Use when a person must see a plan: the cut and the end of a run inside asimov-spec, the re-check of a ready plan, a run's position inside asimov-build, or when asked to "show me the plan", "what does the cut look like". Reads the S101 and, when present, the S102 headers; prints text; writes nothing and judges nothing.
+description: Render one S101 implementation plan (specs/<slug>/S101-<slug>.md) as the fixed plan view a person reads in chat — the phase tree with what each phase delivers, its checkpoint and one line per task, the coverage line, the assumptions line, the design gaps — in the language of the conversation. Use when a person must see a plan: the cut and the end of a run inside asimov-spec, the re-check of a ready plan, a run's position inside asimov-build, or when asked to "show me the plan", "what does the cut look like". Reads the S101 and, when present, the S102 headers; prints text; writes nothing and judges nothing.
 ---
 
 # S101 view
@@ -84,4 +84,4 @@ Return the block as chat text and nothing before or after it.
 - asimov-spec, Step 03 (heading *The cut*) and Step 08 (heading *The plan, as written*).
 - asimov-spec in mode recheck, Step 08 (heading *The plan, as written*).
 - asimov-build, when the person directing a run asks where it stands (heading *The plan, in progress*).
-- By hand: "show me the plan under `documentation/specs/<slug>/`".
+- By hand: "show me the plan under `specs/<slug>/`".

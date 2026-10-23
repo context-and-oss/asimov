@@ -4,7 +4,7 @@
 interface:
   display_name: "Asimov · Spec"
   short_description: "Plan a D101 or a ticket into an S101 and its S102s; your go approves the plan"
-  default_prompt: "Use $asimov-plugin:asimov-spec to plan the D101 <slug> into documentation/specs/<slug>/."
+  default_prompt: "Use $asimov-plugin:asimov-spec to plan the D101 <slug> into specs/<slug>/."
 
 policy:
   # Only a person starts a planning run; the model never selects this skill (NF5).

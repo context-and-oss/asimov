@@ -170,8 +170,8 @@ Only after confirmation. Apply each target's rule:
    ```
    # Asimov run caches and log — written by the asimov-* skills and the plugin's hooks, never a record (see asimov.md)
    documentation/features/*.review.md
-   documentation/specs/*/S101-*.review.md
-   documentation/specs/*/design.md
+   specs/*/S101-*.review.md
+   specs/*/design.md
    .asimov/
    ```
 
@@ -202,4 +202,4 @@ After writing, report:
 
 # Repo handling
 
-The `documentation/` taxonomy (Step 4), the `asimov.md` root location, the `<stack>` slugs and the four `.gitignore` patterns (Step 7, item 6: the `documentation/features/*.review.md` and `documentation/specs/*/…` caches and the `.asimov/` log folder) are the conventions shared with `asimov-design`, `asimov-design-review`, `asimov-spec`, `asimov-build` and the `artifact-*` skills. If the active repo uses a different layout, fork the patterns here and in those skills together — they share the path convention and must stay in lockstep (D100 hard rule 9).
+The `documentation/` taxonomy (Step 4), the `asimov.md` root location, the `<stack>` slugs and the four `.gitignore` patterns (Step 7, item 6: the `documentation/features/*.review.md` and `specs/*/…` caches and the `.asimov/` log folder) are the conventions shared with `asimov-design`, `asimov-design-review`, `asimov-spec`, `asimov-build` and the `artifact-*` skills. If the active repo uses a different layout, fork the patterns here and in those skills together — they share the path convention and must stay in lockstep (D100 hard rule 9).

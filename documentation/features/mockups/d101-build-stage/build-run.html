@@ -75,7 +75,7 @@ body { background:var(--bg); color:var(--fg); font-family:'JetBrains Mono', ui-m
 
   const intro = () => [
     [0, () => line('u', '/asimov-build ' + SLUG)],
-    [300, () => line('a', 'Building documentation/specs/' + SLUG + '/S101-' + SLUG + '.md: ready, approved by ' + WHO + ' on 2026-10-06, ' + PLAN.length + ' phases, ' + NT + ' tasks. Each task goes to its agent with its task spec; once a phase is built, Baley reviews its diff and Powell runs its done-whens and checkpoint. I stop after every phase; nothing is committed before your go.')]
+    [300, () => line('a', 'Building specs/' + SLUG + '/S101-' + SLUG + '.md: ready, approved by ' + WHO + ' on 2026-10-06, ' + PLAN.length + ' phases, ' + NT + ' tasks. Each task goes to its agent with its task spec; once a phase is built, Baley reviews its diff and Powell runs its done-whens and checkpoint. I stop after every phase; nothing is committed before your go.')]
   ];
 
   // One phase: build lines per task, then one verify and one review for the phase, then the gate.
@@ -168,7 +168,7 @@ body { background:var(--bg); color:var(--fg); font-family:'JetBrains Mono', ui-m
   function resumedRun() {
     seq([
       [0, () => line('u', '/asimov-build ' + SLUG)],
-      [300, () => line('a', 'Resuming documentation/specs/' + SLUG + '/: the ledger says P0 is committed and P1 is in progress with T003 built. The plan is unchanged since its approval. I continue at T004 and stop after P1.')],
+      [300, () => line('a', 'Resuming specs/' + SLUG + '/: the ledger says P0 is committed and P1 is in progress with T003 built. The plan is unchanged since its approval. I continue at T004 and stop after P1.')],
       [400, () => phase(PLAN[1], { done:['003'] }, PLAN[2])]
     ]);
   }
@@ -176,11 +176,11 @@ body { background:var(--bg); color:var(--fg); font-family:'JetBrains Mono', ui-m
   function refusedRun() {
     seq([
       [0, () => line('u', '/asimov-build ' + SLUG)],
-      [400, () => line('a', 'Reading documentation/specs/' + SLUG + '/S101-' + SLUG + '.md …')],
+      [400, () => line('a', 'Reading specs/' + SLUG + '/S101-' + SLUG + '.md …')],
       [500, () => line('a bad', 'Refused. The plan is <b>draft</b>: 2 task specs are not validated and the approval is <b>none</b>. I build only a ready plan.')],
       [200, () => line('dim', '  Nothing written. Run /asimov-spec ' + SLUG + ' to finish and approve it.')],
       [600, () => line('u', '/asimov-build ' + SLUG)],
-      [400, () => line('a', 'Reading documentation/specs/' + SLUG + '/S101-' + SLUG + '.md …')],
+      [400, () => line('a', 'Reading specs/' + SLUG + '/S101-' + SLUG + '.md …')],
       [500, () => line('a bad', 'Refused. The plan changed after ' + WHO + ' approved it on 2026-10-06: the fingerprint no longer matches. Approve it again with /asimov-spec ' + SLUG + ', then run this again.')],
       [200, () => line('dim', '  Nothing written.')]
     ]);
