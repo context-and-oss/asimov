@@ -14,8 +14,8 @@ You are `asimov-build`, the Build-stage asimov-skill in Asimov. You carry the **
 | `artifact-s101-ledger` | every read and write of the ledger | its script `ledger.ps1`, inline through Bash, one call per operation |
 | `artifact-s101-view` | the plan as a person reads it, when asked where the run stands | inline, via the Skill tool |
 | the builder shells (`giskard-the-dotnet-developer`, `daneel-the-angular-developer`, `calvin-the-test-author`) | one task each, from its S102 | a subagent per task, fresh at the first attempt, continued by message on a retry or a resume in the same session |
-| `baley-the-code-reviewer` | the phase's diff against its task specs | one subagent per run, continued by message every round, so the conventions are loaded once |
-| `powell-the-verifier` | the phase's done-whens and checkpoint | one subagent per run, continued by message every round |
+| `baley-the-code-reviewer` | the phase's diff against its task specs | one subagent per phase, fresh at the phase's first round and continued by message on its later rounds, so a retry is reviewed with its findings in hand and no phase is read through the last one's |
+| `powell-the-verifier` | the phase's done-whens and checkpoint | one subagent per phase, as Baley |
 
 **"Invoke `artifact-s101-ledger` with `<op>`" means one Bash call** of its script, never the skill's text in this conversation:
 
@@ -88,12 +88,12 @@ The phase is the first in the plan's order whose ledger status is not `committed
    > Build task `<id>` of `documentation/specs/<slug>/`. Read `<S102 path>` first; it is your whole brief. Then read `S101-<slug>.md` §1 Contracts and §2 Constraints, and the conventions your skill names. Change by hand only the files the task spec's `owns.create`, `owns.modify` and `owns.test` list; what `owns.regenerates` lists you never open: run the command that regenerates it (the restore, the build, the generator) and report if the result is not what the task implies. Stop and report instead of deciding on the conditions of the S102 definition §5 and the S101 §4 Escalation. <On a retry, to the same agent, the whole message is instead: `Your attempt at <id> failed <review | verification>: <the rows, verbatim>. <Ruling by <by>: <note>, when one was given.> Fix it in the files you own, run your checks, and end with the summary again.`> End with the summary your skill defines, and nothing else.
 
    (In Codex, add: *The plugin root is `<plugin-root>`.* Spawn the shell by its name from `.codex/agents/`; where Codex runs agents one at a time, the batch runs in order.)
-3. **Read each summary.** Its first word says what happened: `stopped` (a conflict with a convention or the design, a file outside the brief, a write the harness refused, a decision the builder could not take) is a **stop** (Step 05); `built` is a built task, whatever flags follow. A *gap* flag (no convention covered a choice) is a note that goes into the ledger with the summary, never a stop. A summary with neither word is read for a sentence that says it stopped; absent that, it is `built`. A summary whose first line is not `Conventions read:` naming at least the stack's README is returned once to the same agent with one line, *begin with the conventions you read, then the summary*; that return is not a counted attempt. Then invoke `artifact-s101-ledger` with `attempt` (the summary verbatim).
+3. **Read each summary.** Its first word says what happened: `stopped` (a conflict with a convention or the design, a file outside the brief, a write the harness refused, a decision the builder could not take) is a **stop** (Step 05); `built` is a built task, whatever flags follow. A *gap* flag (no convention covered a choice) is a note that goes into the ledger with the summary, never a stop. A summary with neither word is read for a sentence that says it stopped; absent that, it is `built`. A summary whose first line is not `Conventions read:` naming at least the stack's README is returned once to the same agent with one line, *begin with the conventions you read, then the summary*; that return is not a counted attempt. Then invoke `artifact-s101-ledger` with `attempt` (the summary verbatim) and print `built   T<nnn> · <g> gaps · <f> flags` from the summary's counts, with each gap under it in one line of words (`gap     T<nnn> · no convention covers <the choice>`): a gap is a convention the repo lacks, and the person sees it here, not only in the ledger.
 4. **Next batch**, until every task of the phase is `built`. Then Step 03.
 
 # Step 03 — Review the phase, in a reviewer subagent
 
-Collect the owned files of every task of the phase (the three `owns` lists of their S102s). Print `review  P<n> …` and spawn a **`baley-the-code-reviewer` subagent** the first time in the run, and send every later round and phase to that same agent with `SendMessage` (it keeps the conventions it loaded), with:
+Collect the owned files of every task of the phase (the three `owns` lists of their S102s). Print `review  P<n> …` and spawn a **`baley-the-code-reviewer` subagent** at the phase's first round, and send every later round of the same phase to that same agent with `SendMessage` (it keeps the conventions it loaded and its own findings; the next phase gets a fresh one), with:
 
 > Before you read the diff, load `documentation/conventions/<stack>/README.md` and every file it lists, for each stack these files touch; begin your report with the `Conventions read:` line naming them. Review these files, uncommitted, against the task specs they were built from. Files: <the hand-edited owned files, one per line>. Regenerated: <the files matching the tasks' `owns.regenerates`, one per line, or none>. Task specs: <the S102 paths>. Review focus: <S101 §5 Review focus, verbatim>. Base: HEAD. Return your report only; do not edit any file.
 
@@ -110,7 +110,7 @@ A Flag never blocks; it is in the ledger and the one line.
 
 # Step 04 — Verify the phase, in a verifier subagent
 
-Hash the working tree: `{ git diff HEAD; git ls-files -o --exclude-standard; } | sha256sum`. Print `verify  P<n> …` and spawn a **`powell-the-verifier` subagent** the first time in the run, and send every later round and phase to that same agent with `SendMessage`, with:
+Hash the working tree: `{ git diff HEAD; git ls-files -o --exclude-standard; } | sha256sum`. Print `verify  P<n> …` and spawn a **`powell-the-verifier` subagent** at the phase's first round, and send every later round of the same phase to that same agent with `SendMessage`, with:
 
 > Verify phase `P<n>` of `documentation/specs/<slug>/`. Task specs: <the S102 paths>. Checkpoint: "<the phase's `checkpoint` sentence, verbatim>". Check: "<the phase's `check` command, verbatim>". Run every done-when and the check as written; change nothing; return your report only.
 
@@ -138,7 +138,7 @@ A finding that begins `design:` (from any report or summary) is a stop whose onl
 
 # Step 06 — The gate, and the commit
 
-Print the checkpoint line once more and the gate:
+Print the checkpoint line once more, then `gaps    P<n> · <g> · conventions to add` when the phase raised any, then the gate:
 
 > Say **go** to commit P<n> and start P<n+1> | and finish, or **stop** here.
 
