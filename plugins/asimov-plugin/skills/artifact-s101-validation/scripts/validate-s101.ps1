@@ -61,9 +61,6 @@ if ($RepoRoot -eq '') {
   $probe = $S101; if (-not [System.IO.Path]::IsPathRooted($probe)) { $probe = Join-Path (Get-Location).Path $probe }
   $mRoot = [regex]::Match($probe.Replace('\', '/'), '^(.*)/specs/[^/]+/[^/]+$')
   if ($mRoot.Success) { $RepoRoot = $mRoot.Groups[1].Value } else { $RepoRoot = (Get-Location).Path }
-  # A plan still under documentation/specs/ (the location before 2026-10-23) would match with the repo
-  # root one folder too deep, so every owned path would miss; stop and have the person move the folder.
-  if ($RepoRoot -match '/documentation$') { Write-Output "validate-s101: the plan sits under documentation/specs/; specs live at <repo>/specs/<slug>/ since 2026-10-23. Move the folder (git mv documentation/specs specs) and run again."; exit 2 }
 }
 
 $Sym = [string][char]0xA7       # the section sign

@@ -121,9 +121,6 @@ $LedgerName = Split-Path -Leaf $LedgerPath
 if ($RepoRoot -eq '') {
   $m = [regex]::Match($S101.Replace('\', '/'), '^(.*)/specs/[^/]+/[^/]+$')
   if ($m.Success) { $RepoRoot = $m.Groups[1].Value } else { $RepoRoot = (Get-Location).Path }
-  # A plan still under documentation/specs/ (the location before 2026-10-23) would match with the repo
-  # root one folder too deep, so every owned path would miss; stop and have the person move the folder.
-  if ($RepoRoot -match '/documentation$') { Fail-Run "the plan sits under documentation/specs/; specs live at <repo>/specs/<slug>/ since 2026-10-23. Move the folder (git mv documentation/specs specs) and run again." }
 }
 
 # ---------------------------------------------------------------- the S101
