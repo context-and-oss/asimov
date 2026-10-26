@@ -16,7 +16,7 @@ Design: `documentation/features/D101-asimov-log.html`.
 
 ## 1. The file
 
-`.asimov/log/<YYYY-MM-DD>-<id8>.log` under the repo root the hook payload names (`cwd`, so a worktree logs into itself). One file per session, named by the date of its first line and the first eight characters of the session id; append only; UTF-8; gitignored as `.asimov/`. Two sessions in one repo write two files. A session past midnight keeps its file.
+`.asimov/log/<YYYY-MM-DD>-<id8>.log` under the repo root the hook payload names (`cwd`, so a worktree logs into itself). One file per session, named by the date of its first line and the first eight characters of the session id; append only; UTF-8; gitignored as `.asimov/`, and `.asimov/.gitignore` holds `*`, so git never lists the folder in a repo whose own `.gitignore` predates it. Two sessions in one repo write two files. A session past midnight keeps its file.
 
 Beside it, `.asimov/log/.<id8>.state` holds the session's current stage and feature, its log file name, and one line per running agent (id, start time, shell). It is the hook's own memory and is deleted at session end; one a session end could not delete (the harness gives SessionEnd hooks 1.5 s) is swept by the next session start once it is twelve hours old.
 
@@ -54,9 +54,9 @@ An invocation sets stage and feature for the rest of the session. Seconds are th
 
 ## 4. The rules
 
-- A hook always exits 0 and prints nothing: a failing hook never blocks a run and never reaches the chat (D101 R6). A missing folder is created; a read-only one loses the session's lines.
+- A hook always exits 0 and prints nothing: a failing hook never blocks a run and never reaches the chat (D101 R6); the hook command itself ends in `exit 0`, so a machine without PowerShell gets an empty log and no hook notice. A read-only folder loses the session's lines.
 - Hooks run in parallel: the state file is read, changed and written under a named mutex per session, so a batch of agents starting at once loses no start.
-- The folder is created only when a line is written: an event that makes no line touches nothing, and a repo never initialised for Asimov gets no folder from a Skill call outside `asimov-*`.
+- Only an `asimov-*` invocation creates the folder, and with it `.asimov/.gitignore`; every other event writes a line only where the folder exists. A repo Asimov never ran in gets no folder, and a repo's first session logs from its first invocation.
 - The hook command is a `pwsh … || powershell …` chain: the hook shell must be Git Bash or PowerShell 7, and a typed `/asimov-*` reaches the hook as a `UserPromptExpansion` event, a Skill call as `PreToolUse`.
 - A missing state file is recreated from the event at hand: stage and feature read `-`, a stop carries no seconds.
 - The log is working state, never a record: it is not committed, not rotated and not read by any skill (D101 OOS3, OOS4).

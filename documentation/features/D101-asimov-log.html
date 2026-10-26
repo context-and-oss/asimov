@@ -270,7 +270,7 @@ footer.site-footer a { color: var(--cyan); }
   <a href="../index.html#s6">Diagrams</a>
   <span class="spacer"></span>
   <span class="phase-chip full">Full design</span>
-  <span class="status-chip draft">Draft v0.8</span>
+  <span class="status-chip draft">Draft v0.9</span>
 </nav>
 
 <div class="layout-doc">
@@ -481,8 +481,8 @@ footer.site-footer a { color: var(--cyan); }
     </div>
   </div>
   <div class="principles" style="margin-top:1rem">
-    <div class="principle"><div class="num">1</div><div class="text"><strong>Session start.</strong> Create the folder if missing, write the session line, start the state file with <code>-</code>.</div></div>
-    <div class="principle"><div class="num">2</div><div class="text"><strong>Invocation.</strong> Map the skill name to a stage, take the first word as the feature, update the state, write the line.</div></div>
+    <div class="principle"><div class="num">1</div><div class="text"><strong>Session start.</strong> Where the folder exists, write the session line and start the state file with <code>-</code>; where it does not, nothing (only an invocation creates it).</div></div>
+    <div class="principle"><div class="num">2</div><div class="text"><strong>Invocation.</strong> Map the skill name to a stage, take the first word as the feature, update the state, create the folder if missing (with its self-ignoring <code>.gitignore</code>), write the line.</div></div>
     <div class="principle"><div class="num">3</div><div class="text"><strong>Agent start.</strong> Record id, time and shell in the state; write the line.</div></div>
     <div class="principle"><div class="num">4</div><div class="text"><strong>Agent stop.</strong> Look up the start by id, write the line with seconds, drop the id.</div></div>
     <div class="principle"><div class="num">5</div><div class="text"><strong>Session end.</strong> Write the line, delete the state file.</div></div>
@@ -514,7 +514,7 @@ footer.site-footer a { color: var(--cyan); }
 <section class="s" id="s6-1">
   <h2 class="section-title"><span class="sec-ref">§6.1</span>Platform</h2>
   <p style="color: var(--text-dim); font-size: 0.95rem; line-height: 1.65;">
-    <code>hooks/hooks.json</code> at the plugin root registers one PowerShell command, <code>hooks/scripts/asimov-log.ps1</code>, for the five events (six registrations: a typed <code>/asimov-*</code> and a Skill call are two harness events), async on all but SessionEnd; the script reads the event's JSON from stdin and appends one line. The command is a <code>pwsh … || powershell …</code> chain, so the hook shell must be Git Bash or PowerShell 7. Codex reads the same manifest; it does not substitute <code>${CLAUDE_PLUGIN_ROOT}</code> but exports it as an environment alias, which the shell expands. <code>ASIMOV_LOG_RAW=1</code> adds a raw payload dump, <code>raw-&lt;id8&gt;.jsonl</code> beside the log, off by default because it carries prompt text. No escalation gate: nothing outside the log folder is written.
+    <code>hooks/hooks.json</code> at the plugin root registers one PowerShell command, <code>hooks/scripts/asimov-log.ps1</code>, for the five events (six registrations: a typed <code>/asimov-*</code> and a Skill call are two harness events), async on all but SessionEnd; the script reads the event's JSON from stdin and appends one line. The command is a <code>pwsh … || powershell …</code> chain ending in <code>exit 0</code>, so the hook shell must be Git Bash or PowerShell 7, and a machine without PowerShell gets an empty log and no hook notice. Codex reads the same manifest; it does not substitute <code>${CLAUDE_PLUGIN_ROOT}</code> but exports it as an environment alias, which the shell expands. <code>ASIMOV_LOG_RAW=1</code> adds a raw payload dump, <code>raw-&lt;id8&gt;.jsonl</code> beside the log, off by default because it carries prompt text. No escalation gate: nothing outside the log folder is written.
   </p>
 </section>
 
@@ -635,7 +635,7 @@ footer.site-footer a { color: var(--cyan); }
     · <span class="mono">features/D101-asimov-log.html</span>
   </div>
   <div style="margin-top: 0.4rem">
-    D101 · Asimov run log · Asimov plugin · Draft v0.8 · 2026-10-22
+    D101 · Asimov run log · Asimov plugin · Draft v0.9 · 2026-10-26
   </div>
 </footer>
 

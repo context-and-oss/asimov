@@ -282,6 +282,7 @@ Mode: graph-only | full
 Blind: true | false
 Engine: script | llm (plan) · script | llm (task specs)
 Approval: <by> · <date> · <fingerprint> · holds | superseded | none
+Writer: <the harness's token figure after the plan writer's last message> · <n> writers
 
 ## Plan report
 <the S101 validation report, verbatim>
@@ -297,6 +298,6 @@ Approval: <by> · <date> · <fingerprint> · holds | superseded | none
 <each place the plan had to work around a rule of the template or a check, one line; "none" if none>
 ```
 
-`Blind` is false when any S102 report was produced by the caller's own reading rather than by the script or a fresh subagent; `Engine` records which check ran as the script and which, on a machine without PowerShell, as an LLM reading of the checklist.
+`Blind` is false when any S102 report was produced by the caller's own reading rather than by the script or a fresh subagent; `Engine` records which check ran as the script and which, on a machine without PowerShell, as an LLM reading of the checklist. `Writer` records the figure the harness reported for the plan writer after its last message and how many writers the run spawned, so the rollover threshold is set from measured runs, never guessed again.
 
 The specs folder, with its two gitignored siblings `S101-<feature-slug>.review.md` and `design.md`, is a shared path convention in the sense of hard rule 7 and a lockstep literal in the sense of hard rule 9: both asimov-skills, the four artifact skills, `.gitignore`, `CLAUDE.md` and D100 §5 and §9 move together.

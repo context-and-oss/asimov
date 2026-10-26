@@ -14,9 +14,10 @@
   agent), deleted at session end; a state file a session end could not delete (the harness gives
   SessionEnd hooks 1.5 s) is swept by the next SessionStart once it is over twelve hours old.
   Hooks run in parallel, so the read-modify-write of the state file holds a named mutex per
-  session. The folder is created only when a line is written: an event that makes no line (a
-  Skill call outside asimov-*) touches nothing. It prints nothing, always exits 0, and writes
-  nothing outside .asimov/log/. No skill and no model calls it: the harness does.
+  session. Only an asimov-* invocation creates the folder, and with it .asimov/.gitignore holding
+  '*' so git never lists it whatever the repo's own .gitignore says; every other event writes a line
+  only where the folder exists, so a repo Asimov never ran in gets no folder. It prints nothing,
+  always exits 0, and writes nothing outside .asimov/. No skill and no model calls it: the harness does.
 
   Set ASIMOV_LOG_RAW=1 in the environment to also append every payload, verbatim, to
   .asimov/log/raw-<id8>.jsonl: the way to read what a harness hands over (D101-asimov-log Q1, Q2).
@@ -120,6 +121,9 @@ function Invoke-Log {
   $dir = Join-Path $root '.asimov/log'
   $statePath = Join-Path $dir ".$id8.state"
 
+  # Only an asimov-* invocation creates the folder; every other event logs only where it already exists.
+  if ($event -ne 'PreToolUse' -and $event -ne 'UserPromptExpansion' -and -not (Test-Path -LiteralPath $dir)) { return }
+
   # One writer at a time per session: hooks run in parallel and the state is read, changed, written.
   try {
     $mutex = New-Object System.Threading.Mutex($false, "asimov-log-$id8")
@@ -198,6 +202,8 @@ function Invoke-Log {
 
   if (-not $line) { return }
   if (-not (Test-Path -LiteralPath $dir)) { New-Item -ItemType Directory -Path $dir -Force | Out-Null }
+  $selfIgnore = Join-Path (Split-Path -Parent $dir) '.gitignore'
+  if (-not (Test-Path -LiteralPath $selfIgnore)) { Write-Retry $selfIgnore "*`n" $false }
   if ($env:ASIMOV_LOG_RAW -eq '1') { Write-Retry (Join-Path $dir "raw-$id8.jsonl") (($raw -replace "`r?`n", ' ') + "`n") $true }
   Write-Retry (Join-Path $dir $state.file) $line $true
   if ($saveState) { Write-State $statePath $state }
