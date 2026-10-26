@@ -12,7 +12,7 @@
     plan through the view asimov-spec prints at the cut and at the end, and
     asimov-spec prints on a re-check; nobody is meant to read the
     raw file. Keep it exact, keep it short.
-  - Written to documentation/specs/{{SLUG}}/S101-{{SLUG}}.md in the product
+  - Written to specs/{{SLUG}}/S101-{{SLUG}}.md in the product
     repo. {{SLUG}} is the D101's slug or the ticket key in kebab-case.
   - The first write is the CUT: this file alone, no S102 beside it. The author
     may edit it by hand at that point; every later write starts from the file
@@ -111,7 +111,7 @@ spec: S101
 slug: "{{SLUG}}"
 title: "{{TITLE}}"
 design: { ref: documentation/features/D101-{{SLUG}}.html, version: "{{D101-VERSION}}" }
-# design: { ref: "{{DESIGN-URL}}", read: "{{READ}}", cache: documentation/specs/{{SLUG}}/design.md, approval: verified }
+# design: { ref: "{{DESIGN-URL}}", read: "{{READ}}", cache: specs/{{SLUG}}/design.md, approval: verified }
 status: draft
 approved: none
 version: 0.1

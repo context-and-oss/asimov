@@ -20,6 +20,7 @@ Canonical mapping from L3 pipeline stage → toolkit component (command, asimov-
 | Spec | `asimov-spec` asimov-skill *(Claude Code only)* | `claude-sonnet-5-5` | *(default)* |
 | Code + Review + Test | `asimov-build` asimov-skill *(Claude Code only)* | `claude-sonnet-5-5` | *(default)* |
 | Test | `powell-the-verifier` subagent | `claude-sonnet-5-5` | *(default)* |
+| Project (the frame) | `asimov-project` asimov-skill *(Claude Code only)* | `claude-sonnet-5-5` | *(default)* |
 | Review + Test | `/conventions-check` *(planned)* | `claude-sonnet-5-5` *or* `claude-haiku-4-5` | *(default)* |
 
 `Model` is the literal value of the `model:` field in YAML frontmatter. `Effort` is the literal value of the `effort:` field — the Claude Code adaptive-reasoning control; `xhigh` was introduced on Opus 4.7 and is supported on every later Opus and Sonnet, Opus 5.5 and Sonnet 5.5 included (it sits between `high` and `max`). *(default)* means the field is omitted from frontmatter.

@@ -65,7 +65,7 @@ The author sees the plan twice. Once as the **cut**: the S101 alone, no S102 bes
 
 ### 3.1 The bar on the design
 
-What a design must contain for a plan to be cut from it is the contract `contracts/design.md` in the plugin; the S101 reads a design only through its members. A D101 meets the contract at `Full design`, and its definition §3.1 says which section provides which member. A design that is not a file in the repo (a ticket thread, a page elsewhere) is normalised by `asimov-spec` into `documentation/specs/<feature-slug>/design.md`, in the shape §9 fixes, with ids assigned once in reading order; on a re-run the ids the plan's coverage map already holds are kept and a new item takes the next free number (the contract's rule). The coverage map (§4.8) then carries each id with the source's wording, so the plan stands with only the link beside it. A design that misses a required member is refused with what is missing; the fix goes into the design, never into a copy.
+What a design must contain for a plan to be cut from it is the contract `contracts/design.md` in the plugin; the S101 reads a design only through its members. A D101 meets the contract at `Full design`, and its definition §3.1 says which section provides which member. A design that is not a file in the repo (a ticket thread, a page elsewhere) is normalised by `asimov-spec` into `specs/<feature-slug>/design.md`, in the shape §9 fixes, with ids assigned once in reading order; on a re-run the ids the plan's coverage map already holds are kept and a new item takes the next free number (the contract's rule). The coverage map (§4.8) then carries each id with the source's wording, so the plan stands with only the link beside it. A design that misses a required member is refused with what is missing; the fix goes into the design, never into a copy.
 
 ### 3.2 How the S101 meets `contracts/specification.md`
 
@@ -217,9 +217,9 @@ A cycle, an orphan or an intersecting parallel pair is shape and fails; size onl
 
 ## 9. Placement and naming
 
-An S101 lives in the product repo at `documentation/specs/<feature-slug>/S101-<feature-slug>.md`, beside its S102s (`S102-<feature-slug>-<NNN>-<task-slug>.md`, the task slug three to five words of the title). `<feature-slug>` is the D101's slug, so `documentation/features/D101-permissions.html` plans to `documentation/specs/permissions/S101-permissions.md`; for a ticket it is the ticket key in kebab-case, so `PROJ-123` plans to `documentation/specs/proj-123/S101-proj-123.md`. Markdown body with YAML frontmatter, as every spec format in current use (research §2).
+An S101 lives in the product repo at `specs/<feature-slug>/S101-<feature-slug>.md`, beside its S102s (`S102-<feature-slug>-<NNN>-<task-slug>.md`, the task slug three to five words of the title). `<feature-slug>` is the D101's slug, so `documentation/features/D101-permissions.html` plans to `specs/permissions/S101-permissions.md`; for a ticket it is the ticket key in kebab-case, so `PROJ-123` plans to `specs/proj-123/S101-proj-123.md`. Markdown body with YAML frontmatter, as every spec format in current use (research §2).
 
-For a plan cut from a design that is not a file in the repo, the normalised design sits beside it as a gitignored cache, `documentation/specs/<feature-slug>/design.md`: the contract's members, quoted from the source and numbered, in this shape:
+For a plan cut from a design that is not a file in the repo, the normalised design sits beside it as a gitignored cache, `specs/<feature-slug>/design.md`: the contract's members, quoted from the source and numbered, in this shape:
 
 ```markdown
 # Design — <title>
@@ -275,7 +275,7 @@ Beside the plan, both asimov-skills write one gitignored sidecar, `S101-<feature
 ```markdown
 # Validation — S101-<feature-slug>
 
-S101: documentation/specs/<feature-slug>/S101-<feature-slug>.md v<version>
+S101: specs/<feature-slug>/S101-<feature-slug>.md v<version>
 Design: <design.ref> v<design.version> | <design.ref> read <design.read> · cache <design.cache>
 Date: <YYYY-MM-DD>
 Mode: graph-only | full

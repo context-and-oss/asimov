@@ -49,6 +49,8 @@ li { margin: 0.3rem 0; }
 .figure { margin: 2rem 0; background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 1rem; overflow-x: auto; }
 .figure svg { width: 100%; height: auto; }
 .figure img { max-width: 100%; border-radius: 8px; display: block; }
+/* The four-column phase figure is wider than the text column; on a wide screen it takes the viewport instead of scrolling. */
+@media (min-width: 1300px) { .figure.wide { width: calc(100vw - 3rem); max-width: 1640px; margin-left: 50%; transform: translateX(-50%); } }
 
 /* Key — the one legend component. Colour is local to a figure, so every figure that uses
    colour as meaning carries a key, placed below it. Swatch colour comes from --sw. */

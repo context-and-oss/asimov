@@ -15,7 +15,7 @@ The check of the plan: does it clear its bar, and does it agree with itself and 
 pwsh -NoProfile -File "${CLAUDE_PLUGIN_ROOT}/skills/artifact-s101-validation/scripts/validate-s101.ps1" -S101 <S101 path> [-Mode graph-only | full] [-Design <design path>]
 ```
 
-`pwsh` (PowerShell 7) or `powershell` (Windows PowerShell 5.1; add `-ExecutionPolicy Bypass`), whichever the machine has; the script runs on both. The repo-relative paths resolve against the product repo root, derived from the S101 path (`<root>/documentation/specs/<slug>/`), so the script runs from any working directory (`-RepoRoot` overrides it); `-PluginRoot <plugin-root>` in Codex, where the variable is not substituted. Without `-Mode` the folder decides (full when every task's S102 is on disk). Without `-Design` the script reads the S101's `design` line: the cache when there is one, else the ref when it is a file in the repo.
+`pwsh` (PowerShell 7) or `powershell` (Windows PowerShell 5.1; add `-ExecutionPolicy Bypass`), whichever the machine has; the script runs on both. The repo-relative paths resolve against the product repo root, derived from the S101 path (`<root>/specs/<slug>/`), so the script runs from any working directory (`-RepoRoot` overrides it); `-PluginRoot <plugin-root>` in Codex, where the variable is not substituted. Without `-Mode` the folder decides (full when every task's S102 is on disk). Without `-Design` the script reads the S101's `design` line: the cache when there is one, else the ref when it is a file in the repo.
 
 **Return the script's output verbatim** and nothing else. Exit code 2 means an input could not be read; the one line it prints says which, and that line is the report. **Never** "correct" a row, add a row, or soften one.
 
@@ -28,7 +28,7 @@ pwsh -NoProfile -File "${CLAUDE_PLUGIN_ROOT}/skills/artifact-s101-validation/scr
 | **graph-only** | At the cut: the S101 exists and no S102 does. Also what a cut gets on a re-check. | The S101 and the design. |
 | **full** | Every task in the tree has its S102 on disk. | The S101, every S102 in the folder, the design. |
 
-The design is what the S101 header's `design` line names: a repo file at `design.ref` (a D101), or the normalised cache at `design.cache` (`documentation/specs/<slug>/design.md`, in the shape the S101 definition §9 fixes). Read `${CLAUDE_PLUGIN_ROOT}/contracts/design.md` first; you check the design through its members.
+The design is what the S101 header's `design` line names: a repo file at `design.ref` (a D101), or the normalised cache at `design.cache` (`specs/<slug>/design.md`, in the shape the S101 definition §9 fixes). Read `${CLAUDE_PLUGIN_ROOT}/contracts/design.md` first; you check the design through its members.
 
 The caller states the mode; absent that, the folder decides: no `S102-*.md` → graph-only; every task's file present (`S102-<slug>-<NNN>-*.md`, NNN the task's number) → full; some present, some not → graph-only, and G9 names the missing ones. In graph-only mode a check that needs the S102s is reported **not yet**, never Pass.
 

@@ -236,8 +236,8 @@ td.w { color:var(--warn); }
   function fullRun() {
     seq([
       [0, () => line('u', '/asimov-spec ' + SLUG)],
-      [300, () => line('a', 'Planning D101-' + SLUG + '.html into documentation/specs/' + SLUG + '/: I\'ll read the design and the repo, ask at most five questions, check the cut and show it, and wait for your go, which approves the plan, before any task spec is written.')],
-      [400, () => line('a', 'Reading D101-' + SLUG + '.html (Full design v1.2), conventions/dotnet, conventions/angular, documentation/specs/ …')],
+      [300, () => line('a', 'Planning D101-' + SLUG + '.html into specs/' + SLUG + '/: I\'ll read the design and the repo, ask at most five questions, check the cut and show it, and wait for your go, which approves the plan, before any task spec is written.')],
+      [400, () => line('a', 'Reading D101-' + SLUG + '.html (Full design v1.2), conventions/dotnet, conventions/angular, specs/ …')],
       [700, () => line('dim', '  3 acceptance criteria buildable · 2 stacks · no existing S101 · 2 questions about the cut, the rest decided by default')],
       [500, () => line('a', 'Q1 of 2 · AC2 and AC3 both read the export service. One slice or two?  <span class="dim">default: two — different checkpoints</span>')],
       [900, () => line('u', 'two')],
@@ -251,9 +251,9 @@ td.w { color:var(--warn); }
   function ticketRun() {
     seq([
       [0, () => line('u', '/asimov-spec https://jira.example/browse/OPS-412')],
-      [300, () => line('a', 'Planning OPS-412 into documentation/specs/ops-412/: I\'ll read the ticket and the repo, ask at most five questions, check the cut and show it, and wait for your go, which approves the plan, before any task spec is written.')],
-      [400, () => line('a', 'Reading OPS-412 and its 5 comments through the Jira connector, then conventions/dotnet, conventions/angular, documentation/specs/ …')],
-      [700, () => line('dim', '  Design OPS-412 · approved by the product owner on 2026-10-02 (comment) · R1–R3 · AC1–AC3 · OOS1–OOS2 · no NF · cache documentation/specs/ops-412/design.md written')],
+      [300, () => line('a', 'Planning OPS-412 into specs/ops-412/: I\'ll read the ticket and the repo, ask at most five questions, check the cut and show it, and wait for your go, which approves the plan, before any task spec is written.')],
+      [400, () => line('a', 'Reading OPS-412 and its 5 comments through the Jira connector, then conventions/dotnet, conventions/angular, specs/ …')],
+      [700, () => line('dim', '  Design OPS-412 · approved by the product owner on 2026-10-02 (comment) · R1–R3 · AC1–AC3 · OOS1–OOS2 · no NF · cache specs/ops-412/design.md written')],
       [500, () => line('dim', '  3 acceptance criteria buildable · 2 stacks · no existing S101 · 1 question about the cut, the rest decided by default')],
       [500, () => line('a', 'Q1 of 1 · AC2 and AC3 both read the export service. One slice or two?  <span class="dim">default: two — different checkpoints</span>')],
       [900, () => line('u', 'default')],
@@ -278,7 +278,7 @@ td.w { color:var(--warn); }
   function resumed() {
     seq([
       [0, () => line('u', '/asimov-spec ' + SLUG)],
-      [400, () => line('a', 'Reading D101-' + SLUG + '.html (Full design v1.2) and documentation/specs/' + SLUG + '/ …')],
+      [400, () => line('a', 'Reading D101-' + SLUG + '.html (Full design v1.2) and specs/' + SLUG + '/ …')],
       [600, () => line('dim', '  found S101-' + SLUG + '.md (draft, not approved, 2026-10-01) with no S102 · D101 R/NF/AC ids unchanged · no questions this time')],
       [400, () => line('a', 'Checking the cut as left on disk …')],
       [500, () => cutAndCheck('The cut, as left on disk:', false)]
@@ -288,8 +288,8 @@ td.w { color:var(--warn); }
   function review() {
     seq([
       [0, () => line('u', '/asimov-spec ' + SLUG)],
-      [300, () => line('a', 'The plan under documentation/specs/' + SLUG + '/ is ready, but it changed after ' + WHO + ' approved it on ' + DATE + ': re-checking every task spec and the plan, each in a fresh subagent; a task spec that fails is rewritten, and you approve the plan again at the end.')],
-      [400, () => line('a', 'Re-checking: documentation/specs/' + SLUG + '/S101-' + SLUG + '.md · ready v0.2 · approved by ' + WHO + ' ' + DATE + ' · 9 S102s · D101-' + SLUG + '.html v1.2')],
+      [300, () => line('a', 'The plan under specs/' + SLUG + '/ is ready, but it changed after ' + WHO + ' approved it on ' + DATE + ': re-checking every task spec and the plan, each in a fresh subagent; a task spec that fails is rewritten, and you approve the plan again at the end.')],
+      [400, () => line('a', 'Re-checking: specs/' + SLUG + '/S101-' + SLUG + '.md · ready v0.2 · approved by ' + WHO + ' ' + DATE + ' · 9 S102s · D101-' + SLUG + '.html v1.2')],
       [400, () => line('a', 'The plan, re-checked:')],
       [250, () => el('', view('ready · plan approved by ' + WHO + ' ' + DATE, 9))],
       [500, () => el('blk dim', '  check  T001 clears · T002 clears · T003 clears · T004 clears · T005 clears · T006 clears<br>  check  T007 clears · <span style="color:var(--warn)">1 warn</span><br>  check  T009 <span style="color:var(--bad)">fails</span> · 1 flag · <span style="color:var(--bad)">no longer clears</span><br>  check  T008 clears')],
