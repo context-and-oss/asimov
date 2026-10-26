@@ -165,14 +165,14 @@ Only after confirmation. Apply each target's rule:
    - Present without markers (and the developer agreed in Step 6) → insert the marker block; otherwise skip and note it.
 4. **`index.html`** — render `site-template.html` per the rendering rules below; **Write** to `documentation/index.html`.
 5. **`_chrome.css`** — **Write** to `documentation/_chrome.css` only if the Step 5 action was `NEW` or a confirmed overwrite. Never bump mtime on an identical file.
-6. **`.gitignore`** — the Design- and Spec-stage caches the toolkit writes beside its artifacts must never be committed; they are a run's working state, not a record. Add the patterns that are missing, verbatim, after one comment line, at the end of the file (or as a new file holding only this block). **Change no other line.**
+6. **`.gitignore`** — the Design- and Spec-stage caches the toolkit writes beside its artifacts, and the run log its hooks write under `.asimov/`, must never be committed; they are a run's working state, not a record. Add the patterns that are missing, verbatim, after one comment line, at the end of the file (or as a new file holding only this block). **Change no other line.**
 
    ```
-   # Asimov run caches — written by the asimov-* skills, never a record (see asimov.md)
+   # Asimov run caches and log — written by the asimov-* skills and the plugin's hooks, never a record (see asimov.md)
    documentation/features/*.review.md
    documentation/specs/*/S101-*.review.md
    documentation/specs/*/design.md
-   documentation/specs/*/repo-notes.md
+   .asimov/
    ```
 
 If `documentation/` does not exist, create it as part of writing the site files. Don't pre-create empty `features/`, `reference/`, etc.
@@ -202,4 +202,4 @@ After writing, report:
 
 # Repo handling
 
-The `documentation/` taxonomy (Step 4), the `asimov.md` root location, the `<stack>` slugs and the four `.gitignore` patterns (Step 7, item 6: the `documentation/features/*.review.md` and `documentation/specs/*/…` caches) are the conventions shared with `asimov-design`, `asimov-design-review`, `asimov-spec`, `asimov-build` and the `artifact-*` skills. If the active repo uses a different layout, fork the patterns here and in those skills together — they share the path convention and must stay in lockstep (D100 hard rule 9).
+The `documentation/` taxonomy (Step 4), the `asimov.md` root location, the `<stack>` slugs and the four `.gitignore` patterns (Step 7, item 6: the `documentation/features/*.review.md` and `documentation/specs/*/…` caches and the `.asimov/` log folder) are the conventions shared with `asimov-design`, `asimov-design-review`, `asimov-spec`, `asimov-build` and the `artifact-*` skills. If the active repo uses a different layout, fork the patterns here and in those skills together — they share the path convention and must stay in lockstep (D100 hard rule 9).

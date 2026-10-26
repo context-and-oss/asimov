@@ -54,4 +54,7 @@ You write tests, not production code. In addition to the gap and conflict flags,
 
 - A resolved-target line before the tests: either `Authoring tests for: <base>...HEAD — <n> files` (branch-diff mode) or `Authoring tests for: <explicit target>` (override mode).
 - Tests that a reviewer accepts without style fixes.
-- A short summary that (a) cites the convention files you applied, (b) lists every flag you raised — gap, conflict, or coverage — and (c) notes the rough size of the suite (e.g. "12 tests across 3 files"). If you raised no flags, say so explicitly.
+- A short summary, in this shape:
+  1. First line: `Conventions read: <the entry README and every file you loaded>`, so the caller can see what you judged against.
+  2. Second line, first word `built` or `stopped`, then why in one sentence. `built`: the tests are written and run as the brief says. `stopped`: you did not finish — a conflict with a convention or the design, a file outside your brief, a write the harness refused, production code you cannot test without changing it. Nothing else is a stop; a *gap* or a *coverage* flag is a note, never a reason to stop.
+  3. Then (a) the convention files behind your non-trivial choices, (b) every flag you raised — gap, conflict, or coverage — and (c) the rough size of the suite (e.g. "12 tests across 3 files"). If you raised no flags, say so explicitly.

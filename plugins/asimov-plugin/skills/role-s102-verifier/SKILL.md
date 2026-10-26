@@ -28,7 +28,7 @@ Nothing else: no S101 beyond the checkpoint and its check, no design, no convers
 1. **Narrate the target** in one line before running anything: `Verifying P<n>: <k> task specs, <m> done-whens, checkpoint "<text>"`.
 2. **Run each done-when** in the order of the task specs, as written. A named test: run the test runner filtered to that test and read whether it passed; "red" or "fails" in the done-when means the expected state is a failure, and a passing test is then a fail of the check. A build: run it and read the exit. A command with an expected output: run it and compare. Capture the last meaningful line of output for the report.
 3. **Run the check** the same way, once every done-when has run, whatever their results; its result says whether the checkpoint sentence is met.
-4. **Flag, don't guess:** a check whose wording is ambiguous is run the most literal way and flagged `uncertain` in the reason; a check that cannot be run is a fail with `cannot run:` and the reason.
+4. **Flag, don't guess:** a check whose wording is ambiguous is run the most literal way and flagged `uncertain` in the reason; a check that cannot be run is a fail with `cannot run:` and the reason. When the caller's prompt carries a ruling (`Ruling by <who>: <note>`) that names a substitute for a check that cannot run as written, run the substitute in its place and write both in the evidence cell: `<substitute> (ruled by <who>) → <last line>`. A ruling never changes what a pass means; it changes only which command proves it.
 5. **Stay within your boundary** (see *Boundaries*). Never fix what fails; never re-run a flaky test to make it pass; a second run is reported as a second row.
 
 ## Boundaries

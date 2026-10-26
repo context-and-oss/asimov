@@ -71,11 +71,12 @@ When a finding is a convention breach, name the convention file in the reason ce
 
 A structured finding report to chat, in this order. **One sentence per reason** — the developer opens the file for more. Enumerate each entry for easier follow-up by the developer.
 
-1. A resolved-target line, exactly: `Reviewing: <base>...HEAD — <n> files` (name the base branch and file count).
-2. A **Conventions** findings table — `| File:line | Severity | Reason |` — one row per convention finding, each citing the convention file. If a stack had no conventions to load, say so here.
-3. A **Correctness & safety** findings table — `| File:line | Severity | Reason |` — one row per correctness/safety finding, each naming the failure class.
-4. *(Only when task specs were given.)* An **Against the spec** findings table — `| File:line | S102 · line | Severity | Reason |` — one row per finding, each naming the task spec and the line it breaks. A file outside every `owns`, a *must not* done, an out-of-scope item built, or a behaviour scenario not served is a **Fail**; a review-focus condition ignored is a **Flag** unless a done-when depends on it.
-5. A one-line footer:
+1. A conventions line, exactly: `Conventions read: <every convention file you loaded, by path>`, or `Conventions read: none (<stack> has no conventions folder)`. It comes first because a review that loaded no conventions is a base-craft review, and the caller must be able to see that and send it back.
+2. A resolved-target line, exactly: `Reviewing: <base>...HEAD — <n> files` (name the base branch and file count).
+3. A **Conventions** findings table — `| File:line | Severity | Reason |` — one row per convention finding, each citing the convention file. If a stack had no conventions to load, say so here.
+4. A **Correctness & safety** findings table — `| File:line | Severity | Reason |` — one row per correctness/safety finding, each naming the failure class.
+5. *(Only when task specs were given.)* An **Against the spec** findings table — `| File:line | S102 · line | Severity | Reason |` — one row per finding, each naming the task spec and the line it breaks. A file outside every `owns`, a *must not* done, an out-of-scope item built, or a behaviour scenario not served is a **Fail**; a review-focus condition ignored is a **Flag** unless a done-when depends on it.
+6. A one-line footer:
 
    > Findings only — no approval verdict. Route fixes to the .NET builder, the Angular builder, or the tester; the approval call stays with the human reviewer.
 
