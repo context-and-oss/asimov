@@ -47,8 +47,6 @@ If any cannot be read, stop and report the path. Never paste their content into 
 
 # Step 01 — Read, resolve, ask
 
-**The old specs location stops the run first.** Before anything else in this step, test whether `documentation/specs/` exists in the repo (`Glob documentation/specs/**`). Any hit is one line and a finish, nothing read, nothing written, whatever the message says: *"Plans still sit under `documentation/specs/`; since 2026-10-23 they live at `specs/<slug>/`, and the path this run builds would miss them. Run `git mv documentation/specs specs`, commit, and run again."* The scripts stop on the same path, but a normal run never hands them one: this check is what catches it.
-
 **Read the words**, no flags, no argument order (R26). Say in one line which it is:
 
 | The words hold | It is | Then |

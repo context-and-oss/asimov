@@ -59,8 +59,6 @@ If any cannot be read, stop and report the path. Pass `<plugin-root>` to every a
 
 # Step 01 — Resolve, refuse, position
 
-**The old specs location stops the run first.** Before anything else in this step, test whether `documentation/specs/` exists in the repo (`Glob documentation/specs/**`). Any hit is one line and a finish, nothing read, nothing written, whatever the message says: *"Plans still sit under `documentation/specs/`; since 2026-10-23 they live at `specs/<slug>/`, and the path this run builds would miss them. Run `git mv documentation/specs specs`, commit, and run again."* The scripts stop on the same path, but a normal run never hands them one: this check is what catches it.
-
 **Read the words.** The input is whatever the message carries besides your name: a slug, or a path under `specs/`. Nothing → list every `specs/*/S101-*.md` with its `status` and, when a ledger exists beside it, its position in one line; say what you accept; finish. Never read a flag or an argument order.
 
 **Refuse what cannot be built**, one line each, nothing written, finish:
