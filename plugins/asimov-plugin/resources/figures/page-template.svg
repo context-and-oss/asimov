@@ -1,0 +1,89 @@
+<!--
+  PAGE — a document as a schematic page, with callouts saying what each part is for. Asimov skin.
+
+  USE WHEN:      "What is in this document, and who reads which part?" The reader must see
+                 the anatomy of one document: its top bar (phase, status), its sections in
+                 order, which section is open or special, and to the right what each part
+                 is and for whom. A D101, an S101, a report, a contract: any document with
+                 named parts.
+  DO NOT USE:    for a document as a thing among others (that is a track or a map with the
+                 fg-doc glyph); for the document's content (write the document); for two
+                 documents side by side (two pages, or a scene).
+  BUDGET:        max 8 sections, 4 callouts, 2 chips. One section may be marked open; one
+                 may be taller than the rest because it matters more. Over budget: the
+                 figure shows the top level only and the slide's list carries the detail.
+  ELEMENTS:      sheet (the card surface, emphasised border, rx 12); chips in the top bar
+                 (pill, tinted in its colour: the phase in cyan / brand, the status in amber);
+                 hairline under the bar; section rows (tinted band, mono label with the §
+                 number, left-aligned); the open row (no fill, amber dashed border, amber
+                 label, OPEN right-aligned); callouts to the right (a bracket or a lead line
+                 with the fg-arr head pointing at the row, a mono title and one plain line).
+  COLOUR:        the sheet and the rows are neutral; only the chips and the open row carry
+                 colour, so the eye lands on the state and the gap. Callout titles in the
+                 text colour, their lines in text-dim.
+  GEOMETRY:      viewBox 1000 × 420; the sheet at (40,24) 360 × 370; chips at y 42, 22 high;
+                 the bar at y 80; rows 331 wide from x 54, 31 high (51 for a tall one), 7 px
+                 apart from y 92; callouts start at x 560, their lead lines run from x 550 to
+                 x 410 at the row's middle, a bracket at x 430 spans two rows. Every
+                 coordinate even where it can be (the .5 offsets keep 1 px strokes crisp).
+  ANTI-PATTERNS: - body text inside a row (a row is a label; the document has the text);
+                 - a callout for every row (callouts say what differs, four at most);
+                 - two open rows (then nothing is "the" open one);
+                 - a chip whose colour says nothing (cyan = phase, amber = status; a third
+                   chip needs a third meaning);
+                 - callouts on both sides.
+
+  The first child is a background rect filling the viewBox with the card token; keep it.
+  Placeholders: {{…}}. The ids are prefixed pg-; suffix them if a page holds two pages.
+-->
+<svg viewBox="0 0 1000 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="{{The document as a page: its state in the top bar, its sections in order, which is open, and who reads which part}}">
+  <rect x="0" y="0" width="1000" height="420" fill="var(--bg-card, #14253f)"/>
+  <defs>
+    <marker id="pg-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="var(--border-2, #3b5e8f)"/></marker>
+  </defs>
+
+  <!-- The sheet -->
+  <rect x="40.5" y="24.5" width="360" height="370" rx="12" fill="var(--bg-card, #14253f)" stroke="var(--border-2, #3b5e8f)" stroke-width="1.5"/>
+
+  <!-- Top bar: the two chips, phase and status -->
+  <g font-family="var(--mono, 'JetBrains Mono', ui-monospace, monospace)" font-size="11" letter-spacing="0.08em">
+    <rect x="54.5" y="42.5" width="128" height="22" rx="4" fill="var(--cyan, #4fc3f7)" fill-opacity="0.14" stroke="var(--cyan, #4fc3f7)" stroke-width="1"/>
+    <text x="64" y="57" fill="var(--cyan, #4fc3f7)">{{PHASE CHIP}}</text>
+    <rect x="192.5" y="42.5" width="72" height="22" rx="4" fill="var(--amber, #ffb74d)" fill-opacity="0.14" stroke="var(--amber, #ffb74d)" stroke-width="1"/>
+    <text x="202" y="57" fill="var(--amber, #ffb74d)">{{STATUS}}</text>
+  </g>
+  <line x1="54" y1="80" x2="386" y2="80" stroke="var(--border, #2b4a73)" stroke-width="1"/>
+
+  <!-- Section rows: a label each, no body -->
+  <g font-family="var(--mono, 'JetBrains Mono', ui-monospace, monospace)" font-size="11" letter-spacing="0.1em" fill="var(--text-dim, #a8b8d0)">
+    <rect x="54.5" y="92.5" width="331" height="31" rx="6" fill="var(--bg3, #1b2e4d)" stroke="var(--border, #2b4a73)" stroke-width="1.25"/><text x="66" y="112">{{§2 FIRST SECTION}}</text>
+    <rect x="54.5" y="130.5" width="331" height="31" rx="6" fill="var(--bg3, #1b2e4d)" stroke="var(--border, #2b4a73)" stroke-width="1.25"/><text x="66" y="150">{{§3 SECOND}}</text>
+    <rect x="54.5" y="168.5" width="331" height="51" rx="6" fill="var(--bg3, #1b2e4d)" stroke="var(--border, #2b4a73)" stroke-width="1.25"/><text x="66" y="198">{{§4 THE TALL ONE}}</text>
+    <rect x="54.5" y="226.5" width="331" height="31" rx="6" fill="var(--bg3, #1b2e4d)" stroke="var(--border, #2b4a73)" stroke-width="1.25"/><text x="66" y="246">{{§5 FIFTH}}</text>
+    <!-- the open row -->
+    <rect x="54.5" y="264.5" width="331" height="51" rx="6" fill="none" stroke="var(--amber, #ffb74d)" stroke-width="1.5" stroke-dasharray="5 4"/>
+    <text x="66" y="294" fill="var(--amber, #ffb74d)">{{§6 THE OPEN ONE}}</text><text x="374" y="294" text-anchor="end" fill="var(--amber, #ffb74d)">OPEN</text>
+    <rect x="54.5" y="322.5" width="331" height="31" rx="6" fill="var(--bg3, #1b2e4d)" stroke="var(--border, #2b4a73)" stroke-width="1.25"/><text x="66" y="342">{{§7 SEVENTH}}</text>
+    <rect x="54.5" y="360.5" width="331" height="31" rx="6" fill="var(--bg3, #1b2e4d)" stroke="var(--border, #2b4a73)" stroke-width="1.25"/><text x="66" y="380">{{§8 LAST}}</text>
+  </g>
+
+  <!-- Callouts: what each part is, and for whom -->
+  <g fill="none" stroke="var(--border-2, #3b5e8f)" stroke-width="1.5">
+    <path d="M550 127H430M430 108V146"/><path d="M430 108H410" marker-end="url(#pg-arr)"/><path d="M430 146H410" marker-end="url(#pg-arr)"/>
+    <path d="M550 194H410" marker-end="url(#pg-arr)"/>
+    <path d="M550 290H410" marker-end="url(#pg-arr)"/>
+    <path d="M550 357H430M430 338V376"/><path d="M430 338H410" marker-end="url(#pg-arr)"/><path d="M430 376H410" marker-end="url(#pg-arr)"/>
+  </g>
+  <g font-family="var(--mono, 'JetBrains Mono', ui-monospace, monospace)" font-size="11" font-weight="700" letter-spacing="0.1em" fill="var(--text, #fff)">
+    <text x="560" y="121">{{WHAT §2 AND §3 ARE}}</text>
+    <text x="560" y="188">{{WHAT §4 IS}}</text>
+    <text x="560" y="284">{{WHAT THE OPEN ONE IS}}</text>
+    <text x="560" y="351">{{WHAT §7 AND §8 ARE}}</text>
+  </g>
+  <g font-family="var(--sans, Inter, system-ui, sans-serif)" font-size="11" fill="var(--text-dim, #a8b8d0)">
+    <text x="560" y="137">{{Who reads it, in one line.}}</text>
+    <text x="560" y="204">{{Who reads it, in one line.}}</text>
+    <text x="560" y="300">{{When it is written, and who reads it.}}</text>
+    <text x="560" y="367">{{Who reads it, in one line.}}</text>
+  </g>
+</svg>

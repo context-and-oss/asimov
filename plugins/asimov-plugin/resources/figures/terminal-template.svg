@@ -1,0 +1,62 @@
+<!--
+  TERMINAL — a Claude Code window with one exchange in it. Asimov skin.
+
+  USE WHEN:      "What does it look like to use?" The reader must see the tool in use: the
+                 command typed, what the agent read, the questions it asked or the files it
+                 wrote, the prompt waiting at the bottom. The honest screenshot, drawn: no
+                 pixels, no real paths that go stale, six to nine lines that tell one story.
+  DO NOT USE:    for the result of the run (that is a page, a doc glyph or a track); for a
+                 process (track); for more than one exchange (two terminals, or a track with
+                 the stations labelled).
+  BUDGET:        max 9 lines above the prompt; one command line; a line is one line, never
+                 wrapped except one answer of the agent's, marked wrap. Over budget: cut the
+                 middle, the reader fills it in.
+  ELEMENTS:      window (a darker surface than the card, hairline border, rx 10); title bar
+                 (three dots, the harness name right-aligned, a hairline under); lines in the
+                 mono at 12 px: a command you typed (> in text-mute), a tool call (the dot in
+                 the harness's orange, the rest text-dim), its result (⎿ indented, text-mute),
+                 the agent's words (the dot orange, the words in the text colour); the prompt
+                 box (border-2, a cursor block); the hint under it (text-mute, small).
+  COLOUR:        the window is the page background token, darker than the card; the only
+                 colour is the harness's dot, #d97757, a literal because it is the tool's own
+                 and not a token of ours. Nothing else is coloured; a terminal is grey.
+  GEOMETRY:      viewBox 560 × 300; the window fills it inside a 1 px inset; the title bar
+                 28 high; lines on a 22 px pitch from y 62, text at x 20 (a result at x 36);
+                 the prompt box 26 high at y 240, the hint at y 288. Every coordinate even.
+  ANTI-PATTERNS: - a real file path or a real option list (the reader reads it and it is
+                   wrong next month: a path is three segments at most, a list is three dots);
+                 - the agent's answer as a paragraph (one line, two with wrap);
+                 - a second colour to highlight a line (the window is grey; the slide's lead
+                   says what to look at);
+                 - a terminal with no command line at the top (the story has no start).
+
+  The first child is a background rect filling the viewBox with the card token; keep it.
+  Placeholders: {{…}}. This template defines no ids; one you add takes the tm- prefix.
+-->
+<svg viewBox="0 0 560 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="{{The tool in use: what was typed, what the agent read and asked, as a sentence}}">
+  <rect x="0" y="0" width="560" height="300" fill="var(--bg-card, #14253f)"/>
+
+  <!-- The window -->
+  <rect x="1" y="1" width="558" height="298" rx="10" fill="var(--bg, #0a1424)" stroke="var(--border, #2b4a73)" stroke-width="1"/>
+  <g fill="var(--bg3, #1b2e4d)"><circle cx="20" cy="16" r="4.5"/><circle cx="34" cy="16" r="4.5"/><circle cx="48" cy="16" r="4.5"/></g>
+  <text x="540" y="20" text-anchor="end" font-family="var(--mono, 'JetBrains Mono', ui-monospace, monospace)" font-size="9" letter-spacing="0.08em" fill="var(--text-mute, #6b7a93)">{{harness}}</text>
+  <line x1="1" y1="30" x2="559" y2="30" stroke="var(--border, #2b4a73)" stroke-width="1"/>
+
+  <!-- The exchange: one command, what it read, what it asked -->
+  <g font-family="var(--mono, 'JetBrains Mono', ui-monospace, monospace)" font-size="12">
+    <text x="20" y="62" fill="var(--text-mute, #6b7a93)">&gt; {{/the-command what-it-was-given}}</text>
+    <text x="20" y="84" fill="var(--text-dim, #a8b8d0)"><tspan fill="#d97757">⏺</tspan> {{Read(a-file.md)}}</text>
+    <text x="36" y="106" fill="var(--text-mute, #6b7a93)">⎿ {{Read 41 lines}}</text>
+    <text x="20" y="128" fill="var(--text, #fff)"><tspan fill="#d97757">⏺</tspan> {{The first thing the agent asks or says.}}</text>
+    <text x="20" y="150" fill="var(--text-mute, #6b7a93)">&gt; {{What the person answers.}}</text>
+    <text x="20" y="172" fill="var(--text, #fff)"><tspan fill="#d97757">⏺</tspan> {{The second thing the agent asks.}}</text>
+    <text x="20" y="194" fill="var(--text-mute, #6b7a93)">&gt; {{What the person answers.}}</text>
+    <text x="20" y="216" fill="var(--text, #fff)"><tspan fill="#d97757">⏺</tspan> {{Where the story stops for this slide.}}</text>
+  </g>
+
+  <!-- The prompt, waiting -->
+  <rect x="20" y="240" width="520" height="26" rx="4" fill="none" stroke="var(--border-2, #3b5e8f)" stroke-width="1"/>
+  <text x="30" y="258" font-family="var(--mono, 'JetBrains Mono', ui-monospace, monospace)" font-size="12" fill="var(--text-dim, #a8b8d0)">&gt;</text>
+  <rect x="44" y="247" width="7" height="13" fill="var(--text-dim, #a8b8d0)"/>
+  <text x="20" y="288" font-family="var(--mono, 'JetBrains Mono', ui-monospace, monospace)" font-size="9" fill="var(--text-mute, #6b7a93)">? for shortcuts</text>
+</svg>

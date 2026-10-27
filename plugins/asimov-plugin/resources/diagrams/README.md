@@ -15,6 +15,7 @@ machine. The section number tells you nothing about the notation.
 | Which actor owns each step of an ordered process | UML activity with swimlanes | `activity-swimlane-template.svg` |
 | The states a thing moves through, and which transitions are legal | UML state machine | `state-machine-template.svg` |
 | An ordered run of steps with one actor, including branches | Flowchart (ISO 5807) | `flowchart-template.svg` |
+| A situation, a change or a landscape, to be seen rather than checked | — | Not a notation: a figure. `resources/figures/README.md` |
 | None of the above | — | Write prose. Do not invent a diagram type. |
 
 ## Only recognised notations live here

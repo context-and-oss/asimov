@@ -1,0 +1,20 @@
+/*
+  theme: asimov
+  brand: none
+  The dark theme: the palette of the Asimov site chrome (_chrome.css) and the D101 template,
+  so a figure lifted from either keeps its colours. Default when no theme is named. A shipped
+  theme carries no brand word: the deck takes it from the request or the repo (ground rule 9).
+  Fills the token contract of deck-template.html and nothing else.
+*/
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+:root {
+  --bg: #0a1424; --bg-alt: #122039; --surface: #14253f;
+  --border: #2b4a73; --border-strong: #3b5e8f;
+  --text: #ffffff; --text-dim: #a8b8d0; --text-mute: #6b7a93;
+  --brand: #4fc3f7; --brand-2: #26c6da;
+  --ok: #66bb6a; --warn: #ffb74d; --bad: #ef5350; --extra: #ab47bc;
+  --sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, Consolas, monospace;
+  --nav-bg: rgba(10, 20, 36, 0.85);
+  --on-brand: #0a1424;
+}

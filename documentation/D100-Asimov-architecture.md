@@ -132,6 +132,8 @@ They are laid out **per artifact, not per file kind**: an *artifact* is somethin
 | Persona template | `plugins/asimov-plugin/artifacts/skills/persona-review/persona-review-template.md` | SKILL.md skeleton a persona review skill is authored from — one skill per reader; leading comment holds the ground rules + an anonymised worked example | assess |
 | Standard persona set | `plugins/asimov-plugin/skills/persona-*` | Curated generic reader archetypes shipped as plugin skills — the day-one personas. The v1 set is three, one per orthogonal stake: **Poseidon** (operational reality), **Athena** (technical feasibility), **Hermes** (cost/ROI). Each a self-contained `SKILL.md` following `persona-review-template.md`, named `persona-<god>` (Greek-god handles, distinct from the Asimov-canon subagents) | — |
 | Diagram templates | `plugins/asimov-plugin/resources/diagrams/` (`README.md` is the routing table) | The four standard notations a D101 diagram may use — UML sequence, UML activity with swimlanes, UML state machine, ISO 5807 flowchart. Each template file's leading comment carries its own notation, node-budget and geometry contract | — |
+| Figure templates | `plugins/asimov-plugin/resources/figures/` (`README.md` is the routing table) | The drawing language of an illustration, as `diagrams/` is of a notation: a figure shows a situation, a change or a landscape to be seen in three seconds; a diagram is a notation a reviewer can name. `glyphs.svg` holds the symbols in `currentColor` (a person, the approving person, an agent, a document, a stack, a decision, a result, a bubble, a diff, an avatar, a chip, a window), seven patterns carry the shapes every Asimov figure on the site and in the decks has taken (a scene in two panels, a track of steps with decisions, a map of parts in lanes, a grid of columns by bands, a page with its sections and callouts, a roster of actors in groups, a terminal with one exchange), and the README fixes the grammar: stroke not fill, colour is meaning, site tokens with dark fallbacks so one SVG works in a D101, on the site and in a deck in any theme. Used by `tool-deck-authoring` and `artifact-d101-authoring` | — |
+| Deck | `plugins/asimov-plugin/resources/deck/` (`README.md` says how a deck is built and where a theme is found) | The slide-deck skeleton: one self-contained HTML file, one `<section>` per slide, speaker notes under `N`, a PDF with one landscape page per slide under `Ctrl+P`, styled by one theme file pasted in at the top of the stylesheet. The template's leading comment is the contract (ground rules, component catalogue, the token contract a theme fills); two themes ship, `asimov` (the site's palette) and `light`; a brand theme lives in the product repo, never in the plugin. A resource, not an artifact: a pitch or a session is a deck; an artifact that is a deck (the planned A100) builds its template on this one | — |
 | Documentation site templates | `plugins/asimov-plugin/artifacts/documentation/site/site-template.html` + `plugins/asimov-plugin/artifacts/documentation/site/_chrome.css` | Landing-page + shared-chrome templates `/asimov-init` renders the `documentation/` site from | assess |
 | Asimov context template | `plugins/asimov-plugin/artifacts/root/asimov-md/asimov-md-template.md` | Body of the `asimov.md` context file `/asimov-init` writes to a product repo root and wires into `CLAUDE.md` via `@asimov.md` | assess |
 | Convention read-list template | `plugins/asimov-plugin/artifacts/documentation/conventions/conventions-readme-template.md` | Skeleton `documentation/conventions/<stack>/README.md` `/asimov-init` scaffolds per detected stack (the subagent read-list, §7.2.1) | assess |
@@ -167,6 +169,7 @@ A `SKILL.md` under `plugins/asimov-plugin/skills/<name>/`, discovered automatica
 | `asimov-build` | Asimov-skill | User-invoked entry point (§4.3): the conversation of one build run — the refusals, the batches, Baley then Powell per phase, the gate, the stops and rulings. Composes `artifact-s101-ledger`, `artifact-s101-view` and the five agent shells; carries no method. Ships with `agents/openai.yaml` for Codex. |
 | `persona-poseidon`, `persona-athena`, `persona-hermes` | Persona review | Read a design document as one of its intended readers; the concrete form of `asimov-design-review` check 7. Their definition + template pair lives in `artifacts/skills/persona-review/` (§4.5). |
 | `pm-advisor` | Advisory | Advises on the delivery model held in `plugins/asimov-plugin/processes/`. Carries an intent → file routing table, reads the relevant page at run time, and advises from it. Read-only: it never writes, and never edits `processes/` (a generated export). A skill of the Project column (§3, §4.3): the advisor beside the project artifact skills; the column's design is that of its first artifact, `features/D101-project-management-risk.html`. |
+| `tool-deck-authoring` | Tool | Writes a slide deck from `resources/deck/`: finds out the audience, the length, the line and the theme, shows the outline, waits for the go, writes one self-contained HTML file from the template with the theme pasted in, renders it before reporting. Model-invoked: triggers on a request for a presentation, a deck, slides, a pitch, a talk. The `tool-*` family is a skill over a resource rather than an artifact; the subject is the resource's folder name. Never writes an artifact's deck (the planned A100 has its own skill over the same resource). |
 | `asimov-project` | Asimov-skill | User-invoked entry point (§4.3) of the Project frame: the conversation of one project-artifact run, the artifact and the action read from the message. Composes `artifact-<artifact>-authoring` and `artifact-<artifact>-view`, one pair per project artifact (`artifact-risk-log-authoring` and `artifact-risk-log-view` first), and `pm-advisor`; carries no method. Ships with `agents/openai.yaml` for Codex. |
 | `codex-asimov-init` | Setup entry point (Codex only) | The Codex counterpart of `/asimov-init` (§4.3), invoked as `$asimov-plugin:codex-asimov-init`. Codex-only via frontmatter — `disable-model-invocation: true` + `user-invocable: false` (and `allow_implicit_invocation: false` in its `agents/openai.yaml`). Derives the plugin root from its own file path, because Codex does not substitute `${CLAUDE_PLUGIN_ROOT}` (§7.4). Writes four targets: an `AGENTS.md` managed region (`<!-- asimov:start -->` / `<!-- asimov:end -->`) rendered directly from `asimov-md-template.md`, byte-for-byte copies of `agents/*.toml` into the product repo's `.codex/agents/`, the `documentation/conventions/<stack>/README.md` read-lists, and the documentation site. `asimov.md` and the `@asimov.md` import in `CLAUDE.md` stay with `/asimov-init`. Names no model. Design: [`D101-codex-support.html`](features/D101-codex-support.html). |
 
@@ -269,12 +272,20 @@ asimov/
 │       ├── contracts/                    ← stage handoffs (§4.5): what one stage's output must contain for the next to consume it
 │       │   └── design.md                 ← what a design must contain; nothing about its readers
 │       ├── resources/                    ← building blocks shared across artifacts (§4.5)
-│       │   └── diagrams/                 ← standard diagram notations
-│       │       ├── README.md             ← routing table: intent → diagram type
-│       │       ├── sequence-template.svg
-│       │       ├── activity-swimlane-template.svg
-│       │       ├── state-machine-template.svg
-│       │       └── flowchart-template.svg
+│       │   ├── diagrams/                 ← standard diagram notations
+│       │   │   ├── README.md             ← routing table: intent → diagram type
+│       │   │   ├── sequence-template.svg
+│       │   │   ├── activity-swimlane-template.svg
+│       │   │   ├── state-machine-template.svg
+│       │   │   └── flowchart-template.svg
+│       │   ├── deck/                     ← the slide-deck skeleton (§4.5): template, token contract, two themes
+│       │   │   ├── README.md
+│       │   │   ├── deck-template.html
+│       │   │   └── themes/               ← asimov.css, light.css
+│       │   └── figures/                  ← the drawing language of an illustration (§4.5): glyphs + seven patterns
+│       │       ├── README.md             ← figure or diagram; routing: what the reader must see → pattern
+│       │       ├── glyphs.svg
+│       │       └── <pattern>-template.svg ← scene, track, map, grid, page, roster, terminal
 │       └── processes/                    ← delivery-model corpus pm-advisor reads (§4.6); generated export — not edited here
 │           ├── README.md                 ← meta-entry: vocabulary + draft caveat
 │           ├── delivery-model-framework.md  ← the map
@@ -399,6 +410,7 @@ Planned components that slot into the structure above when added:
 | Item | Adds to layout |
 |---|---|
 | `/conventions-check` slash command | `plugins/asimov-plugin/commands/conventions-check.md` |
+| The A100 scoping and planning report, the first artifact that is a deck (decided 2026-10-27; its template builds on `resources/deck/`) | `plugins/asimov-plugin/artifacts/documentation/a100-scoping-report/` (definition + template), a skill over the deck resource; `documentation/A100-*.html` in a product repo |
 | The Project frame's first artifact, the risk log (`features/D101-project-management-risk.html`, in flight) | `plugins/asimov-plugin/skills/asimov-project/`, `skills/artifact-risk-log-authoring/`, `skills/artifact-risk-log-view/`, `artifacts/project/risk-log/`; `project/risk-log.html` in a product repo |
 
 **The D101 §7 boundary is settled by the S102 definition.** §7 Implementation was the *interim* home for code-grounded build-readiness notes (project layout, reuse-vs-new, method-level wiring). That is S102 content (`s102-task-spec-definition.md` §3): a feature that has an S101 marks §7 N/A and points at its `specs/<feature-slug>/` folder. §7 stays in the template for repos and features not yet on the Spec stage (`d101-feature-design-definition.md` §4.8). Research and decisions: `documentation/research/S101-S102-spec-stage-research.md`.
@@ -436,6 +448,8 @@ Planned components that slot into the structure above when added:
 - `documentation/model-choice.md`
 - `plugins/asimov-plugin/artifacts/documentation/d101-feature-design/d101-feature-design-template.html`
 - `plugins/asimov-plugin/resources/diagrams/` — the four standard diagram notations a D101 diagram may use (`README.md` is the routing table)
+- `plugins/asimov-plugin/resources/deck/` — the slide-deck skeleton and its two themes (`README.md` says how a deck is built and where a theme is found)
+- `plugins/asimov-plugin/resources/figures/` — the glyphs and the seven figure patterns an illustration is drawn from (`README.md` is the routing table)
 - `plugins/asimov-plugin/artifacts/documentation/site/site-template.html` + `plugins/asimov-plugin/artifacts/documentation/site/_chrome.css` (documentation site)
 - `plugins/asimov-plugin/artifacts/root/asimov-md/asimov-md-template.md` + `plugins/asimov-plugin/artifacts/documentation/conventions/conventions-readme-template.md` (`/asimov-init` repo bootstrap)
 - `plugins/asimov-plugin/artifacts/documentation/s101-implementation-plan/s101-implementation-plan-template.md` + `plugins/asimov-plugin/artifacts/documentation/s102-task-spec/s102-task-spec-template.md` (Spec-stage templates)

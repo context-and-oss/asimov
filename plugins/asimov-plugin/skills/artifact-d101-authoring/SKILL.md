@@ -23,7 +23,7 @@ Load these with the file-read tool before touching a D101. In Claude Code `${CLA
    ${CLAUDE_PLUGIN_ROOT}/artifacts/documentation/d101-feature-design/d101-feature-design-template.html
    ```
 
-3. **Best effort — the diagram templates**, read when you draw: the routing table at `${CLAUDE_PLUGIN_ROOT}/resources/diagrams/README.md` and the notation template it points you at. If unreadable, draw a plain flowchart, say so in chat, and carry on — never stop over a diagram template.
+3. **Best effort — the diagram and figure templates**, read when you draw: the routing table at `${CLAUDE_PLUGIN_ROOT}/resources/diagrams/README.md` and the notation template it points you at for anything a reviewer must check; `${CLAUDE_PLUGIN_ROOT}/resources/figures/README.md` and its pattern (a scene, a track, a map) for an illustration the reader must see, a §2 purpose picture for one. If unreadable, draw a plain flowchart, say so in chat, and carry on — never stop over a template.
 
 4. **The repo's `CLAUDE.md`**, if present — repo-specific layout or naming you should respect. Absent is not an error.
 
