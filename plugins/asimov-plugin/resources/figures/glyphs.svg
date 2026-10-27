@@ -1,0 +1,146 @@
+<!--
+  GLYPHS — the recurring symbols every Asimov figure is drawn from. Not a figure: a set of
+  <symbol>s to copy into a figure's <defs> and place with <use>.
+
+  HOW TO USE:    copy the symbols you need into the figure's <defs> (an external
+                 <use href="glyphs.svg#…"> is not reliable from a file:// page, so copy),
+                 keep the ids as they are unless the page already has them, then place:
+                   <use href="#fg-person" x="24" y="40" width="64" height="72" color="var(- -green, #66bb6a)"/>
+                 Every glyph is drawn in currentColor, so the colour of a <use> is its meaning
+                 (see COLOUR); the token is written var(- -green) here only because an XML
+                 comment may not contain two dashes. Width and height scale the glyph; keep its aspect.
+  GLYPHS:        fg-person        a person: head and shoulders, stroke only
+                 fg-person-check  the same person with a tick on the chest: the one who approves
+                 fg-ai            an agent: a circle with "AI"
+                 fg-doc           a document: a paper with a title bar in the glyph's colour and
+                                  grey lines; the paper is the card surface
+                 fg-doc-stack     three documents, the front one a fg-doc: a plan and its tasks
+                 fg-decision      a decision: a diamond, a person decides here
+                 fg-result        a result: a small paper with lines in the glyph's colour
+                 fg-bubble        a chat message: a bubble with two grey lines
+                 fg-diff          a stream of small changes: a grid of chips with + and − marks
+                 fg-avatar        an actor in a roster: a tinted circle, no icon
+                 fg-chip          a state badge (a phase, a status): a tinted pill; the figure
+                                  writes the word over it, 11 px mono, 10 px in from the left
+                 fg-window        a small terminal window: the chrome only, three dots and a
+                                  bar; the figure writes the lines, or none when it is a token
+                 fg-arr           the arrow head every connector uses (a <marker>)
+                 A folder tree is not a glyph: three mono lines (conventions/ then ├── and
+                 └── rows) in text-dim, the folder names in the brand colour.
+  COLOUR:        a glyph takes the colour of what it means, never of what it is:
+                 green = a person decides (the person who approves, every decision, the result
+                 that passed); cyan / brand = the toolkit writes (a design, an agent);
+                 amber = the toolkit reads, reviews or builds; violet = a method; coral = a stop
+                 or an end; text-dim = a person who only does (the developer at L2).
+                 A tint is the glyph's colour at low opacity, never a second colour.
+  TOKENS:        every colour is a site token with its dark fallback — var(- -cyan, #4fc3f7) —
+                 so a figure works in a D101, on the site, in a deck in any theme (the deck
+                 template's alias block maps the names) and opened alone in a browser.
+  GEOMETRY:      strokes 1.5 (small glyphs) or 2.5 (a person); corners rx 3–8; every
+                 coordinate divisible by 2. A glyph has no text but "AI".
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 150" role="img" aria-label="The Asimov figure glyphs: person, approving person, agent, document, document stack, decision, result, chat bubble, stream of changes, avatar, chip, window">
+  <rect x="0" y="0" width="1180" height="150" fill="var(--bg-card, #14253f)"/>
+  <defs>
+    <marker id="fg-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="var(--border-2, #3b5e8f)"/></marker>
+
+    <symbol id="fg-person" viewBox="0 0 64 72">
+      <circle cx="32" cy="16" r="14" fill="none" stroke="currentColor" stroke-width="2.5"/>
+      <path d="M4 70a28 28 0 0 1 56 0" fill="none" stroke="currentColor" stroke-width="2.5"/>
+    </symbol>
+
+    <symbol id="fg-person-check" viewBox="0 0 64 72">
+      <circle cx="32" cy="16" r="14" fill="none" stroke="currentColor" stroke-width="2.5"/>
+      <path d="M4 70a28 28 0 0 1 56 0" fill="none" stroke="currentColor" stroke-width="2.5"/>
+      <path d="M20 46l8 8 14-16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+
+    <symbol id="fg-ai" viewBox="0 0 28 28">
+      <circle cx="14" cy="14" r="12" fill="currentColor" fill-opacity="0.13" stroke="currentColor" stroke-width="1.5"/>
+      <text x="14" y="17.5" text-anchor="middle" font-family="var(--mono, 'JetBrains Mono', ui-monospace, monospace)" font-size="9" font-weight="700" fill="currentColor">AI</text>
+    </symbol>
+
+    <symbol id="fg-doc" viewBox="0 0 80 100">
+      <rect x="1" y="1" width="78" height="98" rx="6" fill="var(--bg-card, #14253f)" stroke="currentColor" stroke-width="1.5"/>
+      <rect x="12" y="14" width="36" height="6" rx="2" fill="currentColor"/>
+      <g fill="var(--border-2, #3b5e8f)">
+        <rect x="12" y="30" width="56" height="4" rx="2"/><rect x="12" y="42" width="44" height="4" rx="2"/>
+        <rect x="12" y="54" width="56" height="4" rx="2"/><rect x="12" y="66" width="30" height="4" rx="2"/><rect x="12" y="78" width="48" height="4" rx="2"/>
+      </g>
+    </symbol>
+
+    <symbol id="fg-doc-stack" viewBox="0 0 96 114">
+      <rect x="15" y="1" width="78" height="98" rx="6" fill="var(--bg-card, #14253f)" stroke="currentColor" stroke-width="1.5" stroke-opacity="0.4"/>
+      <rect x="8" y="7" width="78" height="98" rx="6" fill="var(--bg-card, #14253f)" stroke="currentColor" stroke-width="1.5" stroke-opacity="0.7"/>
+      <rect x="1" y="13" width="78" height="98" rx="6" fill="var(--bg-card, #14253f)" stroke="currentColor" stroke-width="1.5"/>
+      <rect x="12" y="26" width="36" height="6" rx="2" fill="currentColor"/>
+      <g fill="var(--border-2, #3b5e8f)">
+        <rect x="12" y="42" width="56" height="4" rx="2"/><rect x="12" y="54" width="44" height="4" rx="2"/>
+        <rect x="12" y="66" width="56" height="4" rx="2"/><rect x="12" y="78" width="30" height="4" rx="2"/>
+      </g>
+    </symbol>
+
+    <symbol id="fg-decision" viewBox="0 0 36 36">
+      <path d="M18 2l16 16-16 16L2 18z" fill="currentColor" fill-opacity="0.18" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+    </symbol>
+
+    <symbol id="fg-result" viewBox="0 0 52 66">
+      <rect x="1" y="1" width="50" height="64" rx="6" fill="currentColor" fill-opacity="0.13" stroke="currentColor" stroke-width="1.5"/>
+      <g fill="currentColor" fill-opacity="0.5">
+        <rect x="10" y="14" width="32" height="4" rx="2"/><rect x="10" y="25" width="22" height="4" rx="2"/>
+        <rect x="10" y="36" width="32" height="4" rx="2"/><rect x="10" y="47" width="18" height="4" rx="2"/>
+      </g>
+    </symbol>
+
+    <symbol id="fg-bubble" viewBox="0 0 200 48">
+      <rect x="1" y="1" width="198" height="46" rx="10" fill="var(--bg3, #1b2e4d)" stroke="var(--border, #2b4a73)" stroke-width="1.5"/>
+      <rect x="16" y="14" width="150" height="5" rx="2.5" fill="var(--border-2, #3b5e8f)"/>
+      <rect x="16" y="28" width="112" height="5" rx="2.5" fill="var(--border-2, #3b5e8f)"/>
+    </symbol>
+
+    <symbol id="fg-avatar" viewBox="0 0 36 36">
+      <circle cx="18" cy="18" r="16" fill="currentColor" fill-opacity="0.18" stroke="currentColor" stroke-width="1.5"/>
+    </symbol>
+
+    <symbol id="fg-chip" viewBox="0 0 120 22">
+      <rect x="0.5" y="0.5" width="119" height="21" rx="4" fill="currentColor" fill-opacity="0.14" stroke="currentColor" stroke-width="1"/>
+    </symbol>
+
+    <symbol id="fg-window" viewBox="0 0 120 80">
+      <rect x="0.5" y="0.5" width="119" height="79" rx="6" fill="var(--bg, #0a1424)" stroke="var(--border, #2b4a73)" stroke-width="1"/>
+      <g fill="var(--bg3, #1b2e4d)"><circle cx="9" cy="9" r="2.5"/><circle cx="17" cy="9" r="2.5"/><circle cx="25" cy="9" r="2.5"/></g>
+      <line x1="0.5" y1="17" x2="119.5" y2="17" stroke="var(--border, #2b4a73)" stroke-width="1"/>
+      <g fill="var(--border-2, #3b5e8f)"><rect x="8" y="26" width="60" height="4" rx="2"/><rect x="8" y="36" width="80" height="4" rx="2"/><rect x="14" y="46" width="40" height="4" rx="2"/></g>
+      <rect x="8" y="60" width="104" height="12" rx="2" fill="none" stroke="var(--border-2, #3b5e8f)" stroke-width="1"/>
+    </symbol>
+
+    <symbol id="fg-diff" viewBox="0 0 122 92">
+      <g fill="var(--bg3, #1b2e4d)" stroke="var(--border-2, #3b5e8f)" stroke-width="1">
+        <rect x="1" y="1" width="34" height="14" rx="3"/><rect x="43" y="1" width="34" height="14" rx="3"/><rect x="85" y="1" width="34" height="14" rx="3"/>
+        <rect x="1" y="23" width="34" height="14" rx="3"/><rect x="43" y="23" width="34" height="14" rx="3"/><rect x="85" y="23" width="34" height="14" rx="3"/>
+        <rect x="1" y="45" width="34" height="14" rx="3"/><rect x="43" y="45" width="34" height="14" rx="3"/><rect x="85" y="45" width="34" height="14" rx="3"/>
+        <rect x="1" y="67" width="34" height="14" rx="3"/><rect x="43" y="67" width="34" height="14" rx="3"/><rect x="85" y="67" width="34" height="14" rx="3"/>
+      </g>
+      <g stroke-width="2" stroke-linecap="round" fill="none">
+        <path d="M7 8h10M12 4v8" stroke="var(--green, #66bb6a)"/><path d="M49 30h10" stroke="var(--coral, #ef5350)"/><path d="M91 8h10M96 4v8" stroke="var(--green, #66bb6a)"/>
+        <path d="M7 52h10" stroke="var(--coral, #ef5350)"/><path d="M49 74h10M54 70v8" stroke="var(--green, #66bb6a)"/><path d="M91 52h10M96 48v8" stroke="var(--green, #66bb6a)"/>
+      </g>
+    </symbol>
+  </defs>
+
+  <!-- The sheet: every glyph once, at its natural size, labelled. -->
+  <g font-family="var(--mono, 'JetBrains Mono', ui-monospace, monospace)" font-size="10" letter-spacing="0.08em" fill="var(--text-mute, #6b7a93)" text-anchor="middle">
+    <use href="#fg-person" x="20" y="24" width="64" height="72" color="var(--text-dim, #a8b8d0)"/><text x="52" y="120">PERSON</text>
+    <use href="#fg-person-check" x="104" y="24" width="64" height="72" color="var(--green, #66bb6a)"/><text x="136" y="120">APPROVES</text>
+    <use href="#fg-ai" x="196" y="46" width="28" height="28" color="var(--cyan, #4fc3f7)"/><text x="210" y="120">AI</text>
+    <use href="#fg-doc" x="250" y="10" width="80" height="100" color="var(--cyan, #4fc3f7)"/><text x="290" y="128">DOC</text>
+    <use href="#fg-doc-stack" x="350" y="2" width="96" height="114" color="var(--cyan, #4fc3f7)"/><text x="398" y="130">DOC-STACK</text>
+    <use href="#fg-decision" x="470" y="42" width="36" height="36" color="var(--green, #66bb6a)"/><text x="488" y="120">DECISION</text>
+    <use href="#fg-result" x="530" y="28" width="52" height="66" color="var(--green, #66bb6a)"/><text x="556" y="120">RESULT</text>
+    <use href="#fg-bubble" x="600" y="40" width="150" height="36"/><text x="675" y="120">BUBBLE</text>
+    <use href="#fg-diff" x="770" y="24" width="122" height="92"/><text x="831" y="140">DIFF</text>
+    <use href="#fg-avatar" x="914" y="42" width="36" height="36" color="var(--violet, #ab47bc)"/><text x="932" y="120">AVATAR</text>
+    <use href="#fg-chip" x="970" y="49" width="120" height="22" color="var(--cyan, #4fc3f7)"/><text x="980" y="64" text-anchor="start" fill="var(--cyan, #4fc3f7)" font-size="11">CHIP</text><text x="1030" y="120">CHIP</text>
+    <use href="#fg-window" x="1050" y="20" width="120" height="80"/><text x="1110" y="120">WINDOW</text>
+  </g>
+</svg>

@@ -1,0 +1,113 @@
+<!--
+  ROSTER — who does what to what: an input, groups of actors, what comes out. Asimov skin.
+
+  USE WHEN:      "Who are they, and what do they do with it?" The reader must see a cast:
+                 the thing they work on (left), the actors in their groups with a role each
+                 (middle), and what each group produces (right). Personas reading a design,
+                 agents building from a plan, a team around a document.
+  DO NOT USE:    for a sequence (the actors act in order: a track or a swimlane); for an
+                 architecture (map); for one actor (a scene).
+  BUDGET:        max 3 groups, 6 actor cards, 3 outcomes. Over budget: one roster per group,
+                 or the group becomes one card.
+  ELEMENTS:      input card (the card surface, emphasised border, a mono kicker and a title;
+                 a doc, a repo or a plan drawn small inside, or three mono lines of a tree);
+                 group (a tinted frame with a mono tag top-left and one plain line beside it);
+                 actor card (a tinted row: an avatar circle in the actor's colour, a name in
+                 bold, a one-line role, a mono tag right-aligned); the optional dashed card
+                 for "your own" (what the reader may add); outcome cards (tinted, a bold
+                 title and one plain line, one colour each); two brand-coloured arrows,
+                 input → groups → outcomes.
+  COLOUR:        a group has one colour and its tag, frame and avatars take it (cyan / brand
+                 = reads and writes, violet = method, amber = reads then builds, green =
+                 decides); an outcome card takes the colour of what it means. The input is
+                 neutral. The dashed card is text-mute.
+  GEOMETRY:      viewBox 1000 × 340; input at (20,90) 220 × 160; groups at x 300, 400 wide:
+                 the first at y 20, 120 high, the second at y 160, 80 high, the dashed card
+                 at y 260, 50 high; actor rows 372 × 36 inside a group, 6 apart; outcomes at
+                 x 760, 220 wide, 70 high, at y 36 / 126 / 216; arrows at y 170 from x 248
+                 and x 708, 40 long. Every coordinate even.
+  ANTI-PATTERNS: - an actor card with two lines of role (one line; the slide explains);
+                 - avatars with icons that mean nothing (a plain circle is better than a
+                   decorative glyph; an icon is added only when every actor gets a distinct,
+                   meaningful one);
+                 - arrows between actors (they do not hand over to each other here);
+                 - an outcome card with a list (one title, one line).
+
+  The first child is a background rect filling the viewBox with the card token; keep it.
+  Placeholders: {{…}}. This template defines no ids; one you add takes the rs- prefix.
+-->
+<svg viewBox="0 0 1000 340" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="{{The cast: what they work on, who they are in their groups, and what each group produces}}">
+  <rect x="0" y="0" width="1000" height="340" fill="var(--bg-card, #14253f)"/>
+
+  <!-- Input: the thing they work on -->
+  <rect x="20" y="90" width="220" height="160" rx="10" fill="var(--bg-card, #14253f)" stroke="var(--border-2, #3b5e8f)" stroke-width="1.5"/>
+  <text x="36" y="114" font-family="var(--mono, 'JetBrains Mono', ui-monospace, monospace)" font-size="9" letter-spacing="0.14em" fill="var(--text-mute, #6b7a93)">{{YOUR DOCUMENT}}</text>
+  <text x="36" y="138" font-family="var(--sans, Inter, system-ui, sans-serif)" font-size="13" font-weight="700" fill="var(--text, #fff)">{{Its title}}</text>
+  <g fill="var(--bg3, #1b2e4d)" stroke="var(--border, #2b4a73)" stroke-width="1">
+    <rect x="36" y="152" width="188" height="18" rx="4"/><rect x="36" y="176" width="188" height="18" rx="4"/><rect x="36" y="200" width="188" height="18" rx="4"/>
+  </g>
+  <g font-family="var(--mono, 'JetBrains Mono', ui-monospace, monospace)" font-size="9" letter-spacing="0.1em" fill="var(--text-mute, #6b7a93)">
+    <text x="44" y="165">{{§2}}</text><text x="44" y="189">{{§3}}</text><text x="44" y="213">{{§4}}</text>
+  </g>
+  <rect x="36" y="224" width="188" height="18" rx="4" fill="none" stroke="var(--amber, #ffb74d)" stroke-width="1" stroke-dasharray="4 3"/>
+  <text x="44" y="237" font-family="var(--mono, 'JetBrains Mono', ui-monospace, monospace)" font-size="9" letter-spacing="0.1em" fill="var(--amber, #ffb74d)">{{§6}} <tspan fill="var(--text-dim, #a8b8d0)" letter-spacing="0">{{open}}</tspan></text>
+
+  <path d="M248 170h40" fill="none" stroke="var(--cyan, #4fc3f7)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M280 162l8 8-8 8" fill="none" stroke="var(--cyan, #4fc3f7)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Group one: two actors -->
+  <rect x="300" y="20" width="400" height="120" rx="10" fill="var(--cyan, #4fc3f7)" fill-opacity="0.06" stroke="var(--border, #2b4a73)" stroke-width="1.5"/>
+  <rect x="312" y="30" width="70" height="18" rx="3" fill="var(--cyan, #4fc3f7)" fill-opacity="0.14" stroke="var(--cyan, #4fc3f7)" stroke-width="1"/>
+  <text x="347" y="42" text-anchor="middle" font-family="var(--mono, 'JetBrains Mono', ui-monospace, monospace)" font-size="9" letter-spacing="0.1em" fill="var(--cyan, #4fc3f7)">{{GROUP}}</text>
+  <text x="392" y="43" font-family="var(--sans, Inter, system-ui, sans-serif)" font-size="11" fill="var(--text-dim, #a8b8d0)">{{what this group does with it}}</text>
+  <g>
+    <rect x="314" y="56" width="372" height="36" rx="6" fill="var(--bg3, #1b2e4d)" stroke="var(--border, #2b4a73)" stroke-width="1"/>
+    <circle cx="334" cy="74" r="11" fill="var(--cyan, #4fc3f7)" fill-opacity="0.18" stroke="var(--cyan, #4fc3f7)" stroke-width="1.5"/>
+    <text x="354" y="71" font-family="var(--sans, Inter, system-ui, sans-serif)" font-size="12" font-weight="700" fill="var(--text, #fff)">{{Name}}</text>
+    <text x="354" y="85" font-family="var(--sans, Inter, system-ui, sans-serif)" font-size="10" fill="var(--text-dim, #a8b8d0)">{{the role, in four words}}</text>
+    <rect x="600" y="65" width="74" height="18" rx="3" fill="var(--cyan, #4fc3f7)" fill-opacity="0.1" stroke="var(--cyan, #4fc3f7)" stroke-width="1"/>
+    <text x="637" y="77" text-anchor="middle" font-family="var(--mono, 'JetBrains Mono', ui-monospace, monospace)" font-size="8" letter-spacing="0.1em" fill="var(--cyan, #4fc3f7)">{{TAG}}</text>
+  </g>
+  <g>
+    <rect x="314" y="98" width="372" height="36" rx="6" fill="var(--bg3, #1b2e4d)" stroke="var(--border, #2b4a73)" stroke-width="1"/>
+    <circle cx="334" cy="116" r="11" fill="var(--cyan, #4fc3f7)" fill-opacity="0.18" stroke="var(--cyan, #4fc3f7)" stroke-width="1.5"/>
+    <text x="354" y="113" font-family="var(--sans, Inter, system-ui, sans-serif)" font-size="12" font-weight="700" fill="var(--text, #fff)">{{Name}}</text>
+    <text x="354" y="127" font-family="var(--sans, Inter, system-ui, sans-serif)" font-size="10" fill="var(--text-dim, #a8b8d0)">{{the role, in four words}}</text>
+    <rect x="600" y="107" width="74" height="18" rx="3" fill="var(--cyan, #4fc3f7)" fill-opacity="0.1" stroke="var(--cyan, #4fc3f7)" stroke-width="1"/>
+    <text x="637" y="119" text-anchor="middle" font-family="var(--mono, 'JetBrains Mono', ui-monospace, monospace)" font-size="8" letter-spacing="0.1em" fill="var(--cyan, #4fc3f7)">{{TAG}}</text>
+  </g>
+
+  <!-- Group two: one actor -->
+  <rect x="300" y="160" width="400" height="80" rx="10" fill="var(--violet, #ab47bc)" fill-opacity="0.06" stroke="var(--border, #2b4a73)" stroke-width="1.5"/>
+  <rect x="312" y="170" width="70" height="18" rx="3" fill="var(--violet, #ab47bc)" fill-opacity="0.14" stroke="var(--violet, #ab47bc)" stroke-width="1"/>
+  <text x="347" y="182" text-anchor="middle" font-family="var(--mono, 'JetBrains Mono', ui-monospace, monospace)" font-size="9" letter-spacing="0.1em" fill="var(--violet, #ab47bc)">{{GROUP}}</text>
+  <text x="392" y="183" font-family="var(--sans, Inter, system-ui, sans-serif)" font-size="11" fill="var(--text-dim, #a8b8d0)">{{what this group does with it}}</text>
+  <g>
+    <rect x="314" y="196" width="372" height="36" rx="6" fill="var(--bg3, #1b2e4d)" stroke="var(--border, #2b4a73)" stroke-width="1"/>
+    <circle cx="334" cy="214" r="11" fill="var(--violet, #ab47bc)" fill-opacity="0.18" stroke="var(--violet, #ab47bc)" stroke-width="1.5"/>
+    <text x="354" y="211" font-family="var(--sans, Inter, system-ui, sans-serif)" font-size="12" font-weight="700" fill="var(--text, #fff)">{{Name}}</text>
+    <text x="354" y="225" font-family="var(--sans, Inter, system-ui, sans-serif)" font-size="10" fill="var(--text-dim, #a8b8d0)">{{the role, in four words}}</text>
+    <rect x="600" y="205" width="74" height="18" rx="3" fill="var(--violet, #ab47bc)" fill-opacity="0.1" stroke="var(--violet, #ab47bc)" stroke-width="1"/>
+    <text x="637" y="217" text-anchor="middle" font-family="var(--mono, 'JetBrains Mono', ui-monospace, monospace)" font-size="8" letter-spacing="0.1em" fill="var(--violet, #ab47bc)">{{TAG}}</text>
+  </g>
+
+  <!-- Your own: the dashed card for what the reader may add -->
+  <rect x="300" y="260" width="400" height="50" rx="10" fill="none" stroke="var(--border-2, #3b5e8f)" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <rect x="312" y="276" width="70" height="18" rx="3" fill="none" stroke="var(--border-2, #3b5e8f)" stroke-width="1"/>
+  <text x="347" y="288" text-anchor="middle" font-family="var(--mono, 'JetBrains Mono', ui-monospace, monospace)" font-size="9" letter-spacing="0.1em" fill="var(--text-dim, #a8b8d0)">+ {{YOURS}}</text>
+  <text x="392" y="289" font-family="var(--sans, Inter, system-ui, sans-serif)" font-size="11" fill="var(--text-mute, #6b7a93)">{{what the reader may add, in one line}}</text>
+
+  <path d="M708 170h40" fill="none" stroke="var(--cyan, #4fc3f7)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M740 162l8 8-8 8" fill="none" stroke="var(--cyan, #4fc3f7)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Outcomes: what each group produces -->
+  <g font-family="var(--sans, Inter, system-ui, sans-serif)">
+    <rect x="760" y="36" width="220" height="70" rx="10" fill="var(--cyan, #4fc3f7)" fill-opacity="0.08" stroke="var(--cyan, #4fc3f7)" stroke-width="1.5"/>
+    <text x="776" y="60" font-size="12" font-weight="700" fill="var(--cyan, #4fc3f7)">{{Outcome one}}</text>
+    <text x="776" y="80" font-size="11" fill="var(--text-dim, #a8b8d0)">{{What it is, in one line.}}</text>
+    <rect x="760" y="126" width="220" height="70" rx="10" fill="var(--amber, #ffb74d)" fill-opacity="0.08" stroke="var(--amber, #ffb74d)" stroke-width="1.5"/>
+    <text x="776" y="150" font-size="12" font-weight="700" fill="var(--amber, #ffb74d)">{{Outcome two}}</text>
+    <text x="776" y="170" font-size="11" fill="var(--text-dim, #a8b8d0)">{{What it is, in one line.}}</text>
+    <rect x="760" y="216" width="220" height="70" rx="10" fill="var(--violet, #ab47bc)" fill-opacity="0.08" stroke="var(--violet, #ab47bc)" stroke-width="1.5"/>
+    <text x="776" y="240" font-size="12" font-weight="700" fill="var(--violet, #ab47bc)">{{Outcome three}}</text>
+    <text x="776" y="260" font-size="11" fill="var(--text-dim, #a8b8d0)">{{What it is, in one line.}}</text>
+  </g>
+</svg>

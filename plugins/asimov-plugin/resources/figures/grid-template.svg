@@ -1,0 +1,102 @@
+<!--
+  GRID — columns by bands, a cell at every crossing. Asimov skin.
+
+  USE WHEN:      "How does X vary across Y?" Two named axes: the columns are one thing
+                 (phases, zones, levels, options), the bands another (what you type, who
+                 runs it, what it reads; or docs, code, data, secrets), and every cell says
+                 what holds at that crossing. The reader scans a column down or a band
+                 across; a grid is read both ways.
+  DO NOT USE:    when only one axis is named (that is a map, lanes without columns); when the
+                 cells are numbers (a table on the slide, not a figure); when the columns are
+                 steps in time (a track).
+  BUDGET:        max 4 columns, 4 bands, 16 cells; a cell carries a head and at most three
+                 short mono lines, or one word. Over budget: split by band into two grids, or
+                 the cells become one word each.
+  ELEMENTS:      column heads (mono, upper case, in the column's colour or the text colour);
+                 band labels (mono, upper case, text-mute, left, with a dashed hairline across
+                 the band's top); cells (tinted in the band's colour, rx 10: a mono head, two
+                 or three mono lines or one plain line); arrows down between bands at a
+                 column's centre, in the colour of the band they enter (one meaning: "is used
+                 by" or "becomes"); a highlighted column (one, its cells' border stronger)
+                 when the slide is about one of them.
+  COLOUR:        a band has one colour, every cell in it takes that colour (cyan / brand,
+                 violet, amber, green as glyphs.svg means them); a column is never coloured
+                 on its own, it is highlighted by stroke. One highlighted column at most.
+  GEOMETRY:      viewBox 1200 × 520; column heads at y 28; columns 360 wide at x 24 / 420 /
+                 816, 36 apart; bands 140 pitch from y 44: a dashed hairline at the band's
+                 top, the band label at y + 20, cells at y + 36, 96 high; arrows 20 long from
+                 a cell's bottom centre. A fourth column adds 396 to the viewBox width (1596)
+                 at x 1212; a fourth band adds 140 to the height (660) at y 464, and the
+                 closing line moves down with it. Every coordinate even.
+  ANTI-PATTERNS: - a cell left empty (delete the band or write "—" in text-mute, on purpose);
+                 - a column coloured differently from its neighbours (columns are equal; the
+                   band carries colour);
+                 - arrows across columns (that is a map's job);
+                 - a fourth line in a cell;
+                 - two highlighted columns.
+
+  The first child is a background rect filling the viewBox with the card token; keep it.
+  Placeholders: {{…}}. The ids are prefixed gr-; suffix them if a page holds two grids.
+-->
+<svg viewBox="0 0 1200 520" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="{{The two axes and what the cells say, as a sentence: columns are …, bands are …, a cell says …}}">
+  <rect x="0" y="0" width="1200" height="520" fill="var(--bg-card, #14253f)"/>
+  <defs>
+    <marker id="gr-arr-violet" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="var(--violet, #ab47bc)"/></marker>
+    <marker id="gr-arr-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="var(--green, #66bb6a)"/></marker>
+  </defs>
+
+  <!-- Column heads -->
+  <g font-family="var(--mono, 'JetBrains Mono', ui-monospace, monospace)" font-size="12" font-weight="700" letter-spacing="0.14em" fill="var(--text, #fff)">
+    <text x="24" y="28">{{COLUMN ONE}}</text>
+    <text x="420" y="28" fill="var(--cyan, #4fc3f7)">{{COLUMN TWO · HIGHLIGHTED}}</text>
+    <text x="816" y="28">{{COLUMN THREE}}</text>
+  </g>
+
+  <!-- Band one: cyan -->
+  <line x1="24" y1="44" x2="1176" y2="44" stroke="var(--border, #2b4a73)" stroke-width="1" stroke-dasharray="3 5"/>
+  <text x="24" y="64" font-family="var(--mono, 'JetBrains Mono', ui-monospace, monospace)" font-size="10" letter-spacing="0.14em" fill="var(--text-mute, #6b7a93)">{{BAND ONE · WHAT IT IS}}</text>
+  <g fill="var(--cyan, #4fc3f7)" fill-opacity="0.12" stroke="var(--cyan, #4fc3f7)" stroke-width="1.5">
+    <rect x="24" y="80" width="360" height="96" rx="10"/><rect x="420" y="80" width="360" height="96" rx="10" stroke-width="2.5"/><rect x="816" y="80" width="360" height="96" rx="10"/>
+  </g>
+  <!-- Band two: violet -->
+  <line x1="24" y1="184" x2="1176" y2="184" stroke="var(--border, #2b4a73)" stroke-width="1" stroke-dasharray="3 5"/>
+  <text x="24" y="204" font-family="var(--mono, 'JetBrains Mono', ui-monospace, monospace)" font-size="10" letter-spacing="0.14em" fill="var(--text-mute, #6b7a93)">{{BAND TWO · WHAT IT IS}}</text>
+  <g fill="var(--violet, #ab47bc)" fill-opacity="0.12" stroke="var(--violet, #ab47bc)" stroke-width="1.5">
+    <rect x="24" y="220" width="360" height="96" rx="10"/><rect x="420" y="220" width="360" height="96" rx="10" stroke-width="2.5"/><rect x="816" y="220" width="360" height="96" rx="10"/>
+  </g>
+  <!-- Band three: green -->
+  <line x1="24" y1="324" x2="1176" y2="324" stroke="var(--border, #2b4a73)" stroke-width="1" stroke-dasharray="3 5"/>
+  <text x="24" y="344" font-family="var(--mono, 'JetBrains Mono', ui-monospace, monospace)" font-size="10" letter-spacing="0.14em" fill="var(--text-mute, #6b7a93)">{{BAND THREE · WHAT IT IS}}</text>
+  <g fill="var(--green, #66bb6a)" fill-opacity="0.12" stroke="var(--green, #66bb6a)" stroke-width="1.5">
+    <rect x="24" y="360" width="360" height="96" rx="10"/><rect x="420" y="360" width="360" height="96" rx="10" stroke-width="2.5"/><rect x="816" y="360" width="360" height="96" rx="10"/>
+  </g>
+
+  <!-- Cell text: a mono head and up to three mono lines -->
+  <g font-family="var(--mono, 'JetBrains Mono', ui-monospace, monospace)" font-size="11" font-weight="700" letter-spacing="0.1em" fill="var(--text, #fff)">
+    <text x="40" y="104">{{HEAD}}</text><text x="436" y="104">{{HEAD}}</text><text x="832" y="104">{{HEAD}}</text>
+    <text x="40" y="244">{{HEAD}}</text><text x="436" y="244">{{HEAD}}</text><text x="832" y="244">{{HEAD}}</text>
+    <text x="40" y="384">{{HEAD}}</text><text x="436" y="384">{{HEAD}}</text><text x="832" y="384">{{HEAD}}</text>
+  </g>
+  <g font-family="var(--mono, 'JetBrains Mono', ui-monospace, monospace)" font-size="11" fill="var(--text-dim, #a8b8d0)">
+    <text x="40" y="126">{{line one}}</text><text x="40" y="144">{{line two}}</text><text x="40" y="162">{{line three}}</text>
+    <text x="436" y="126">{{line one}}</text><text x="436" y="144">{{line two}}</text><text x="436" y="162">{{line three}}</text>
+    <text x="832" y="126">{{line one}}</text><text x="832" y="144">{{line two}}</text><text x="832" y="162">{{line three}}</text>
+    <text x="40" y="266">{{line one}}</text><text x="40" y="284">{{line two}}</text>
+    <text x="436" y="266">{{line one}}</text><text x="436" y="284">{{line two}}</text>
+    <text x="832" y="266">{{line one}}</text><text x="832" y="284">{{line two}}</text>
+    <text x="40" y="406">{{line one}}</text>
+    <text x="436" y="406">{{line one}}</text>
+    <text x="832" y="406">{{line one}}</text>
+  </g>
+
+  <!-- Arrows down: the colour of the band they enter -->
+  <g fill="none" stroke="var(--violet, #ab47bc)" stroke-width="1.5" marker-end="url(#gr-arr-violet)">
+    <path d="M204 176V216"/><path d="M600 176V216"/><path d="M996 176V216"/>
+  </g>
+  <g fill="none" stroke="var(--green, #66bb6a)" stroke-width="1.5" marker-end="url(#gr-arr-green)">
+    <path d="M204 316V356"/><path d="M600 316V356"/><path d="M996 316V356"/>
+  </g>
+
+  <!-- A closing line under the grid, when the columns chain into one another -->
+  <text x="600" y="496" text-anchor="middle" font-family="var(--mono, 'JetBrains Mono', ui-monospace, monospace)" font-size="10" letter-spacing="0.1em" fill="var(--text-mute, #6b7a93)">{{ONE LINE ON HOW THE COLUMNS RELATE, OR DELETE}}</text>
+</svg>

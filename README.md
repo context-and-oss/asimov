@@ -119,12 +119,20 @@ plugins/asimov-plugin/                    the plugin (install scope)
 │           └── asimov-md-template.md
 ├── contracts/                            stage handoffs — design.md: what a design must contain for Spec to plan from it
 ├── resources/                            building blocks shared across artifacts
-│   └── diagrams/                         the 4 standard diagram notations a D101 may use
-│       ├── README.md                     routing table: reader intent → diagram type
-│       ├── sequence-template.svg
-│       ├── activity-swimlane-template.svg
-│       ├── state-machine-template.svg
-│       └── flowchart-template.svg
+│   ├── diagrams/                         the 4 standard diagram notations a D101 may use
+│   │   ├── README.md                     routing table: reader intent → diagram type
+│   │   ├── sequence-template.svg
+│   │   ├── activity-swimlane-template.svg
+│   │   ├── state-machine-template.svg
+│   │   └── flowchart-template.svg
+│   ├── figures/                          the drawing language of an illustration: glyphs + 7 patterns
+│   │   ├── README.md                     figure or diagram; routing: what the reader must see → pattern
+│   │   ├── glyphs.svg
+│   │   └── <pattern>-template.svg        scene · track · map · grid · page · roster · terminal
+│   └── deck/                             the slide-deck skeleton: one HTML file, notes, PDF, one theme pasted in
+│       ├── README.md                     how a deck is built, the token contract, where a theme is found
+│       ├── deck-template.html
+│       └── themes/                       asimov.css · light.css (brand themes live in the product repo)
 └── processes/                            the Delivery Model corpus pm-advisor reads (generated export)
 documentation/                            repo docs (not inside install scope)
 ├── D100-Asimov-architecture.md            why + how
@@ -142,6 +150,8 @@ documentation/                            repo docs (not inside install scope)
 - [D101 definition](plugins/asimov-plugin/artifacts/documentation/d101-feature-design/d101-feature-design-definition.md) – the two bars, phase vs status
 - [D101 template](plugins/asimov-plugin/artifacts/documentation/d101-feature-design/d101-feature-design-template.html) – structure + ground rules in the leading comment
 - [Diagram templates](plugins/asimov-plugin/resources/diagrams/README.md) – the four notations and when to use which
+- [Figure templates](plugins/asimov-plugin/resources/figures/README.md) – the glyphs and the seven patterns an illustration is drawn from
+- [Deck](plugins/asimov-plugin/resources/deck/README.md) – the slide-deck skeleton and its themes; `tool-deck-authoring` writes one
 - [Levels & Zones](documentation/ai-transition-levels-and-zones.md) – what L3, "L3 on Zone 2" and the pipeline stages mean
 - [CLAUDE.md](CLAUDE.md) – working *on* the toolkit: conventions, how to add things, hard rules
 
