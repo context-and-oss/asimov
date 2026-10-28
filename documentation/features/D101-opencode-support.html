@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D101 — OpenCode 2 support — asimov docs</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+:root {
+  --bg:        #0a1424;
+  --bg2:       #122039;
+  --bg3:       #1b2e4d;
+  --bg-card:   #14253f;
+  --border:    #2b4a73;
+  --border-2:  #3b5e8f;
+  --text:      #fff;
+  --text-dim:  #a8b8d0;
+  --text-mute: #6b7a93;
+  --cyan:      #4fc3f7;
+  --teal:      #26c6da;
+  --green:     #66bb6a;
+  --amber:     #ffb74d;
+  --coral:     #ef5350;
+  --gold:      #ffd54f;
+  --violet:    #ab47bc;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; font-size: 15px; line-height: 1.6; overflow-x: hidden; padding-top: 56px; }
+a { color: inherit; text-decoration: none; }
+code, .mono { font-family: 'JetBrains Mono', monospace; font-size: 0.88em; }
+code { background: var(--bg3); padding: 1px 6px; border-radius: 4px; color: var(--cyan); }
+
+/* Top nav (site-wide — every D101 links to documentation home + chapter sections of the index) */
+.top-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(10,20,36,0.85); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 0.55rem 2rem; display: flex; gap: 1.4rem; align-items: center; font-size: 0.82rem; }
+.top-nav .brand, .top-nav .brand a { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--cyan); letter-spacing: 0.04em; text-decoration: none; }
+.top-nav .brand .sep { color: var(--border); margin: 0 0.5rem; }
+.top-nav a { color: var(--text-dim); font-weight: 500; }
+.top-nav a:hover { color: #fff; }
+.top-nav .spacer { flex: 1; }
+.top-nav .status-chip { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.25rem 0.7rem; border-radius: 999px; background: #ffd54f15; border: 1px solid #ffd54f44; color: var(--gold); font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 700; }
+.top-nav .status-chip::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--gold); }
+/* Phase chip — the authoring axis, deliberately NOT the status axis (see ground rule 12).
+   Square marker + cyan so the two chips never read as one control. */
+.top-nav .phase-chip { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.25rem 0.7rem; border-radius: 999px; background: #4fc3f715; border: 1px solid #4fc3f744; color: var(--cyan); font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 700; }
+.top-nav .phase-chip::before { content: ''; width: 6px; height: 6px; border-radius: 1px; background: var(--cyan); }
+.top-nav .phase-chip.full { background: #66bb6a15; border-color: #66bb6a44; color: var(--green); }
+.top-nav .phase-chip.full::before { background: var(--green); }
+
+/* Layout with left sidebar (per-page TOC) + content column */
+.layout-doc { display: grid; grid-template-columns: 200px minmax(0, 1fr); max-width: 1300px; margin: 0 auto; gap: 1.8rem; padding: 0.5rem 1.5rem; }
+.side-nav { position: sticky; top: 76px; align-self: start; max-height: calc(100vh - 90px); overflow-y: auto; padding: 0.7rem 0.5rem 1rem 0.2rem; font-size: 0.85rem; }
+.side-nav .side-head { font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-mute); margin-bottom: 0.7rem; padding-left: 0.6rem; }
+.side-nav ul { list-style: none; padding: 0; margin: 0; }
+.side-nav ul ul { padding-left: 0.9rem; margin-top: 0.1rem; }
+.side-nav li { margin: 0.1rem 0; }
+.side-nav a { display: block; padding: 0.32rem 0.7rem; color: var(--text-dim); border-left: 2px solid transparent; font-size: 0.86rem; line-height: 1.4; border-radius: 0 4px 4px 0; }
+.side-nav a:hover { color: #fff; background: #4fc3f708; border-left-color: var(--border-2); }
+.content { min-width: 0; }
+
+/* Hero (compact — top-nav already provides separation from page chrome) */
+.hero { padding: 1.5rem 2rem 1.5rem; position: relative; overflow: hidden; max-width: 1300px; margin: 0 auto; }
+.hero::before { content: ''; position: absolute; inset: 0; z-index: 0; background: radial-gradient(ellipse at 20% 30%, #4fc3f718 0%, transparent 50%), radial-gradient(ellipse at 80% 60%, #26c6da14 0%, transparent 50%); }
+.hero > * { position: relative; z-index: 1; }
+.kicker { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--cyan); padding: 0.3rem 0.8rem; border-radius: 999px; border: 1px solid #4fc3f744; background: #4fc3f711; margin-bottom: 1rem; }
+.hero h1 { font-size: clamp(2rem, 4.5vw, 3.4rem); font-weight: 900; letter-spacing: -0.03em; line-height: 1.05; background: linear-gradient(135deg, #fff 0%, var(--cyan) 50%, var(--teal) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.hero .tagline { font-size: 1.05rem; color: var(--text-dim); margin-top: 1rem; max-width: 760px; line-height: 1.6; }
+
+/* Metadata strip */
+.meta-strip { max-width: 1300px; margin: 1rem auto 0; padding: 0 2rem; display: grid; grid-template-columns: repeat(6, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.meta-cell { background: var(--bg-card); padding: 1rem 1.2rem; }
+.meta-cell .label { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-mute); margin-bottom: 0.35rem; }
+.meta-cell .value { font-size: 0.95rem; font-weight: 600; color: var(--text); }
+.meta-cell .value.mono { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; }
+
+/* Sections + chapter bands */
+section.s { max-width: 1300px; margin: 0 auto; padding: 3rem 2rem 0; }
+.chapter-band + section.s { padding-top: 1.5rem; }
+.section-title { font-size: clamp(1.5rem, 2.6vw, 2rem); font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.7rem; }
+.section-title .sec-ref { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; font-weight: 600; color: var(--text-mute); letter-spacing: 0.04em; margin-right: 0.7rem; vertical-align: middle; padding: 0.2rem 0.5rem; border-radius: 4px; background: var(--bg2); border: 1px solid var(--border); }
+.section-desc { color: var(--text-dim); font-size: 1rem; max-width: 780px; margin-bottom: 1.8rem; line-height: 1.65; }
+.chapter-band { max-width: 1300px; margin: 3.5rem auto 0; padding: 0 2rem; }
+.chapter-band-inner { display: grid; grid-template-columns: auto 1fr; gap: 1.5rem; align-items: center; padding: 1.4rem 1.8rem; border-radius: 12px; background: linear-gradient(135deg, #4fc3f714 0%, #26c6da05 100%); border: 1px solid var(--border); border-left: 4px solid var(--cyan); }
+.chapter-band .ch-num { font-family: 'JetBrains Mono', monospace; font-size: 2.6rem; font-weight: 800; color: var(--cyan); line-height: 1; }
+.chapter-band .ch-name { font-size: 1.35rem; font-weight: 700; color: #fff; letter-spacing: 0.01em; margin-bottom: 0.25rem; }
+.chapter-band .ch-summary { font-size: 0.88rem; color: var(--text-dim); line-height: 1.5; }
+
+/* Doc-scope line below metadata strip */
+.doc-scope { max-width: 1300px; margin: 0.7rem auto 0; padding: 0 2.2rem; font-size: 0.82rem; color: var(--text-mute); line-height: 1.5; }
+.doc-scope strong { color: var(--text-dim); font-weight: 600; }
+
+/* Principles */
+.principles { display: grid; gap: 0.65rem; }
+.principle { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 0.95rem 1.3rem; display: flex; gap: 1rem; align-items: center; }
+.principle .num { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; font-weight: 700; width: 30px; height: 30px; border-radius: 8px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--cyan), var(--teal)); color: #0a1424; }
+.principle .text { font-size: 0.95rem; }
+.principle .text strong { color: var(--cyan); font-weight: 700; }
+
+/* Generic bullet list — used anywhere with → / ⚠ items */
+ul.bullets { list-style: none; padding: 0; margin: 0.7rem 0 0; }
+ul.bullets li { position: relative; padding: 0.3rem 0 0.3rem 1.5rem; font-size: 0.9rem; color: var(--text-dim); line-height: 1.6; }
+ul.bullets li + li { margin-top: 0.15rem; }
+ul.bullets li::before { content: '→'; position: absolute; left: 0; top: 0.3rem; font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--cyan); }
+ul.bullets li.warn::before { content: '!'; color: var(--amber); }
+ul.bullets li code { font-size: 0.78rem; }
+
+/* Requirements — flat lists (Functional / Non-functional / Out of scope), all visible, no tabs */
+.req-list { display: grid; gap: 0.5rem; margin-bottom: 1.6rem; }
+.req-list:last-child { margin-bottom: 0; }
+.req { display: grid; grid-template-columns: 60px 1fr; gap: 1rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 0.7rem 1rem; align-items: start; }
+.req .id { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; font-weight: 700; color: var(--cyan); padding-top: 2px; }
+.req .body { font-size: 0.9rem; color: var(--text); line-height: 1.55; }
+.req.oos .id, .req-list.nf .req .id { color: var(--amber); }
+
+/* Data flow SVG diagram */
+.flow-wrap { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.8rem; overflow-x: auto; }
+.flow-wrap svg { display: block; margin: 0 auto; max-width: 100%; height: auto; }
+.flow-legend { display: flex; flex-wrap: wrap; gap: 1.2rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); font-size: 0.82rem; color: var(--text-dim); }
+.flow-legend .item { display: inline-flex; align-items: center; gap: 0.4rem; }
+.flow-legend .swatch { width: 14px; height: 4px; border-radius: 2px; }
+
+/* Interactive UI mockup (embedded via iframe; the mockup file is separate + self-contained) */
+.mockup-wrap { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 0.5rem; margin: 0.6rem 0 1rem; overflow: hidden; }
+.mockup-frame { display: block; width: 100%; border: none; border-radius: 8px; background: #fff; }
+
+/* Code map */
+.codemap { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.codemap-row { display: grid; grid-template-columns: 1fr 1.5fr; gap: 1rem; padding: 0.7rem 1.2rem; border-bottom: 1px solid var(--border); font-size: 0.85rem; align-items: center; }
+.codemap-row:last-child { border-bottom: none; }
+.codemap-row:nth-child(odd) { background: rgba(255,255,255,0.015); }
+.codemap-row .what { color: var(--text); }
+.codemap-row .where { color: var(--cyan); font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; word-break: break-all; }
+
+/* Decisions matrix */
+.decisions { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.decisions-head, .decision-row { display: grid; grid-template-columns: 1.2fr 1fr 1.4fr; gap: 1rem; padding: 0.9rem 1.2rem; align-items: start; border-bottom: 1px solid var(--border); }
+.decisions-head { background: var(--bg2); font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); }
+.decision-row { font-size: 0.85rem; }
+.decision-row:last-child { border-bottom: none; }
+.decision-row .decided { color: #fff; font-weight: 600; }
+.decision-row .alt { color: var(--amber); font-style: italic; font-size: 0.82rem; line-height: 1.5; }
+.decision-row .why { color: var(--text-dim); font-size: 0.82rem; line-height: 1.55; }
+
+/* Generic data table (Shapes §6.4, Configuration §6.6) */
+.data-table { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.data-table .row { display: grid; gap: 1rem; padding: 0.65rem 1.2rem; border-bottom: 1px solid var(--border); font-size: 0.85rem; align-items: start; }
+.data-table .row.head { background: var(--bg2); font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); font-weight: 700; }
+.data-table .row:last-child { border-bottom: none; }
+.data-table .row.cols-2 { grid-template-columns: 1fr 2fr; }
+.data-table .row.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+.data-table .row code { font-size: 0.78rem; }
+.data-table .row .label-cell { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; color: var(--cyan); }
+
+/* Inline-path list (Shapes §6.4) */
+.gps-paths { list-style: none; padding: 0.7rem 0 0; margin: 0; display: grid; gap: 0.4rem; }
+.gps-paths li { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--cyan); background: var(--bg2); border: 1px solid var(--border); border-radius: 6px; padding: 0.45rem 0.8rem; }
+
+/* Sub-section heading (Shapes has multiple sub-blocks) */
+.subhead { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-dim); font-weight: 700; margin: 1.5rem 0 0.6rem; }
+.subhead:first-child { margin-top: 0; }
+/* Anchored subhead (§7 per-unit blocks key to §6 contracts by number) — scroll-margin clears the fixed nav */
+.subhead[id] { scroll-margin-top: 80px; }
+.subhead .s-ref { color: var(--text-mute); margin-right: 0.45rem; }
+/* Implementation label under a §6 contract (§7 build notes) — lighter sibling of .subhead */
+.impl-head { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); font-weight: 700; margin: 1rem 0 0.3rem; }
+
+/* Build-status chip on §7 implementation rows (reuse / new / note) */
+.tag { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+.tag.reuse { background: #66bb6a22; color: var(--green); border: 1px solid #66bb6a55; }
+.tag.new   { background: #ffb74d22; color: var(--amber); border: 1px solid #ffb74d55; }
+.tag.note  { background: var(--bg2); color: var(--text-mute); border: 1px solid var(--border); }
+/* Per-unit build-notes table (§7.x) — a .data-table variant: Aspect | Build tag | Details-with-bullets */
+.impl-table .row { grid-template-columns: 0.5fr 0.45fr 2.75fr; }
+.impl-table .row ul { list-style: disc; margin: 0; padding-left: 1.05rem; display: grid; gap: 0.35rem; }
+.impl-table .row li { line-height: 1.5; }
+
+/* Failure handling */
+.failures { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.failures-head, .failure-row { display: grid; grid-template-columns: 1fr 1fr 80px 1.2fr; gap: 1rem; padding: 0.85rem 1.2rem; align-items: center; border-bottom: 1px solid var(--border); }
+.failures-head { background: var(--bg2); font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); }
+.failure-row { font-size: 0.85rem; }
+.failure-row:last-child { border-bottom: none; }
+.sev { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; font-weight: 700; padding: 0.2rem 0.55rem; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.06em; }
+.sev.med  { background: #ffb74d22; color: var(--amber); border: 1px solid #ffb74d55; }
+.sev.low  { background: #66bb6a22; color: var(--green); border: 1px solid #66bb6a55; }
+.sev.high { background: #ef535022; color: var(--coral); border: 1px solid #ef535055; }
+
+/* Acceptance criteria */
+.ac-table { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.ac-head, .ac-row { display: grid; grid-template-columns: 60px 150px 1fr; gap: 1rem; padding: 0.8rem 1.2rem; align-items: start; border-bottom: 1px solid var(--border); }
+.ac-head { background: var(--bg2); font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); }
+.ac-row { font-size: 0.86rem; }
+.ac-row:last-child { border-bottom: none; }
+.ac-row .ac-id { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--cyan); }
+.ac-row .ac-verifies { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+.verify-chip { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; padding: 0.15rem 0.5rem; border-radius: 4px; background: #4fc3f714; border: 1px solid #4fc3f744; color: var(--cyan); }
+
+/* Open questions — auto-fit */
+.q-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 0.7rem; }
+.q-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.2rem; border-left: 3px solid var(--gold); }
+.q-card .q-head { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
+.q-card .q-id { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; color: var(--gold); background: #ffd54f15; padding: 0.15rem 0.5rem; border-radius: 4px; }
+.q-card .q-decider { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--text-mute); }
+.q-card .q-body { font-size: 0.88rem; color: var(--text); line-height: 1.55; }
+
+/* Accepted deviation (d101-feature-design-definition §4.9) — a rule deliberately not met, recorded next to the
+   thing it excuses. Sits INSIDE the element it annotates (.req, .ac-row, after a .subhead).
+   Violet, so it reads as neither a warning (amber) nor a pass (green): a deliberate third state. */
+.accepted { margin-top: 0.5rem; padding: 0.5rem 0.7rem; border-left: 3px solid var(--violet); border-radius: 0 6px 6px 0; background: #ab47bc12; font-size: 0.82rem; color: var(--text-dim); line-height: 1.55; }
+.accepted .accepted-tag { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--violet); background: #ab47bc22; border: 1px solid #ab47bc55; border-radius: 4px; padding: 0.1rem 0.45rem; margin-right: 0.45rem; }
+.accepted .accepted-rule { color: var(--text); font-weight: 600; }
+.accepted .accepted-by { display: block; margin-top: 0.3rem; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--text-mute); }
+/* Resolution path (required by d101-feature-design-definition §4.3 — every open question names a decider AND a
+   resolution path) and the resolved variant, for questions closed during authoring. */
+.q-card .q-resolution { font-size: 0.82rem; color: var(--text-dim); line-height: 1.5; margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--border); }
+.q-card .q-resolution strong { color: var(--green); }
+.q-card.resolved { border-left-color: var(--green); }
+.q-card.resolved .q-id { color: var(--green); background: #66bb6a15; }
+
+/* References — auto-fit */
+.refs { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+.refs-block { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 1.1rem 1.3rem; }
+.refs-block h4 { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--cyan); margin-bottom: 0.7rem; }
+.refs-block ul { list-style: none; }
+.refs-block li { font-family: 'JetBrains Mono', monospace; font-size: 0.76rem; color: var(--text-dim); padding: 0.2rem 0; line-height: 1.5; word-break: break-all; }
+
+/* Callouts */
+.callout { background: linear-gradient(135deg, #4fc3f712, #26c6da08); border: 1px solid #4fc3f744; border-radius: 10px; padding: 1rem 1.3rem; margin: 1.2rem 0; font-size: 0.9rem; color: var(--text-dim); line-height: 1.6; }
+.callout strong { color: var(--cyan); }
+.callout.warn { background: linear-gradient(135deg, #ffd54f15, #ff890608); border-color: #ffd54f55; }
+.callout.warn strong { color: var(--gold); }
+
+footer.site-footer { max-width: 1300px; margin: 4rem auto 0; padding: 2rem; border-top: 1px solid var(--border); text-align: center; color: var(--text-mute); font-size: 0.82rem; line-height: 1.7; }
+footer.site-footer .mono { color: var(--text-dim); font-family: 'JetBrains Mono', monospace; }
+footer.site-footer a { color: var(--cyan); }
+
+@media (max-width: 1100px) {
+  .meta-strip { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 900px) {
+  .layout-doc { grid-template-columns: 1fr; gap: 1rem; padding: 1rem 1.2rem; }
+  .side-nav { position: static; max-height: none; overflow: visible; border: 1px solid var(--border); border-radius: 8px; padding: 1rem; background: var(--bg-card); }
+}
+@media (max-width: 720px) {
+  .top-nav { overflow-x: auto; padding: 0.55rem 1rem; gap: 1rem; }
+  .top-nav .spacer { display: none; }
+  .hero { padding: 1.2rem 1.2rem 1rem; }
+  section.s { padding: 2.5rem 1.2rem 0; }
+  .meta-strip { grid-template-columns: repeat(2, 1fr); margin: 1rem 1.2rem 0; }
+  .chapter-band { padding: 0 1.2rem; margin-top: 3rem; }
+  .chapter-band-inner { grid-template-columns: 1fr; gap: 0.5rem; padding: 1.2rem 1.4rem; }
+  .chapter-band .ch-num { font-size: 2rem; }
+  .decisions-head, .decision-row { grid-template-columns: 1fr; gap: 0.4rem; }
+  .failures-head, .failure-row { grid-template-columns: 1fr; }
+  .ac-head, .ac-row { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<nav class="top-nav">
+  <span class="brand"><a href="../index.html">asimov<span class="sep">/</span>docs</a></span>
+  <a href="../index.html#s1">Architecture</a>
+  <a href="../index.html#s2">Features</a>
+  <a href="../index.html#s3">Environments</a>
+  <a href="../index.html#s4">Conventions</a>
+  <a href="../index.html#s5">Reference</a>
+  <a href="../index.html#s6">Diagrams</a>
+  <span class="spacer"></span>
+  <span class="phase-chip">Business design</span>
+  <span class="status-chip draft">Draft v0.1</span>
+</nav>
+<div class="layout-doc">
+  <aside class="side-nav">
+    <div class="side-head">On this page</div>
+    <ul>
+      <li><a href="#s2">§2 Purpose &amp; audience</a></li>
+      <li><a href="#s3">§3 Requirements</a></li>
+      <li><a href="#c4">§4 Business design</a><ul>
+        <li><a href="#s4-1">§4.1 Principles</a></li>
+        <li><a href="#s4-2">§4.2 Concepts</a></li>
+        <li><a href="#s4-3">§4.3 User journeys</a></li>
+        <li><a href="#s4-4">§4.4 Rules &amp; boundaries</a></li>
+        <li><a href="#s4-5">§4.5 Decisions</a></li>
+      </ul></li>
+      <li><a href="#s5">§5 UI Design</a></li>
+      <li><a href="#s6-open">§6 Still to write</a></li>
+      <li><a href="#s7-pending">§7 Implementation</a></li>
+      <li><a href="#s8">§8 Acceptance criteria</a></li>
+      <li><a href="#s9">§9 Open questions</a></li>
+      <li><a href="#s10">§10 References</a></li>
+    </ul>
+  </aside>
+  <article class="content">
+<header class="hero">
+  <div class="kicker">D101 · Feature design · Asimov distribution</div>
+  <h1>OpenCode 2 support</h1>
+  <p class="tagline">Make Asimov's full workflow available to OpenCode 2 users, without requiring another coding tool or changing the artifacts and human gates their teams already use.</p>
+</header>
+<div class="meta-strip">
+  <div class="meta-cell"><div class="label">Owner</div><div class="value">Context&amp; / Asimov maintainers</div></div>
+  <div class="meta-cell"><div class="label">Business approver</div><div class="value">TBD — maintainer nomination (Q1)</div></div>
+  <div class="meta-cell"><div class="label">Target harness</div><div class="value mono">OpenCode 2</div></div>
+  <div class="meta-cell"><div class="label">Installation</div><div class="value mono">Global / project-local</div></div>
+  <div class="meta-cell"><div class="label">Last updated</div><div class="value mono">2026-10-28</div></div>
+  <div class="meta-cell"><div class="label">Compatibility</div><div class="value">Existing artifacts retained</div></div>
+</div>
+<div class="doc-scope"><strong>Scope:</strong> A third supported harness for setup, Design, Spec, Build, review, verification, personas, the Project frame and run logging; global installation is the default and repo initialization is explicit. §2–§5 describe the proposed business agreement; §6 is open — see §6.</div>
+
+<section class="s" id="s2">
+  <h2 class="section-title"><span class="sec-ref">§2</span>Purpose &amp; audience</h2>
+  <p class="section-desc">Developers who choose OpenCode 2 should not have to switch coding tools to use Asimov's complete delivery workflow.</p>
+  <ul class="bullets">
+    <li><strong>Access depends on the coding tool.</strong> Asimov currently documents installation for Claude Code and Codex, but offers no supported OpenCode setup.</li>
+    <li><strong>Finding skills is not enough.</strong> A developer needs the workers, checks, recovery and human gates to finish a feature, not only design prompts.</li>
+    <li><strong>Mixed-tool teams need one record.</strong> Designs, plans, task specifications and build records must retain the same meaning regardless of the coding tool used.</li>
+  </ul>
+  <div class="callout"><strong>Audience.</strong> Primary readers are developers using OpenCode 2 and teams adopting Asimov; secondary readers are maintainers shipping and supporting all three harnesses.</div>
+</section>
+
+<section class="s" id="s3">
+  <h2 class="section-title"><span class="sec-ref">§3</span>Requirements</h2>
+  <div class="subhead">Functional — 21</div>
+  <div class="req-list">
+    <div class="req"><div class="id">R1</div><div class="body">A developer shall be able to install Asimov globally for use across product repos in OpenCode 2.</div></div>
+    <div class="req"><div class="id">R2</div><div class="body">A developer shall be able to install Asimov for one product repo only.</div></div>
+    <div class="req"><div class="id">R3</div><div class="body">Installation shall leave product-repo contents unchanged until the developer explicitly invokes a workflow that writes them.</div></div>
+    <div class="req"><div class="id">R4</div><div class="body">Repo initialization shall show the proposed write plan before requesting permission to apply it.</div></div>
+    <div class="req"><div class="id">R5</div><div class="body">Confirmed initialization shall produce the Asimov context, detected-stack convention read-lists and documentation landing site needed by the existing workflows.</div></div>
+    <div class="req"><div class="id">R6</div><div class="body">Asimov shall expose the setup, Design, design-review, Spec, Build and Project-frame entry points by their existing user-facing names in OpenCode 2.</div></div>
+    <div class="req"><div class="id">R7</div><div class="body">Workflow entry points shall begin only when the developer explicitly invokes them.</div></div>
+    <div class="req"><div class="id">R8</div><div class="body">The Design workflow shall stop after writing the business design before a later invocation writes the technical design.</div></div>
+    <div class="req"><div class="id">R9</div><div class="body">Design review shall offer the applicable gap check and discovered persona reviews without declaring human approval.</div></div>
+    <div class="req"><div class="id">R10</div><div class="body">The Spec workflow shall produce a ready implementation plan through its existing planning, validation and human plan-approval gates.</div></div>
+    <div class="req"><div class="id">R11</div><div class="body">The Build workflow shall dispatch work to the five existing Asimov agent identities in their established roles.</div></div>
+    <div class="req"><div class="id">R12</div><div class="body">Build execution shall preserve dependency ordering and disjoint-file batching from the approved plan.</div></div>
+    <div class="req"><div class="id">R13</div><div class="body">Every built phase shall pass review followed by verification before reaching its human commit gate.</div></div>
+    <div class="req"><div class="id">R14</div><div class="body">Build retries shall retain the existing three-failure limit and human stop-ruling behavior.</div></div>
+    <div class="req"><div class="id">R15</div><div class="body">A later OpenCode session shall resume an interrupted build from its existing ledger using the current resume checks.</div></div>
+    <div class="req"><div class="id">R16</div><div class="body">Run logging shall record the existing session, stage-invocation and worker lifecycle observations for OpenCode runs.</div></div>
+    <div class="req"><div class="id">R17</div><div class="body">Persona authoring and review shall support both shipped personas and product-repo custom personas.</div></div>
+    <div class="req"><div class="id">R18</div><div class="body">The Project frame shall expose the capabilities actually shipped with the same Asimov release.</div></div>
+    <div class="req"><div class="id">R19</div><div class="body">An unavailable required capability shall be reported with a recovery action before the dependent workflow step starts.</div></div>
+    <div class="req"><div class="id">R20</div><div class="body">A developer shall have documented installation, update and removal procedures for both OpenCode installation scopes.</div></div>
+    <div class="req"><div class="id">R21</div><div class="body">Removing the OpenCode integration shall retain the product's authored artifacts and committed build records.</div></div>
+  </div>
+  <div class="subhead">Non-functional — 6</div>
+  <div class="req-list nf">
+    <div class="req"><div class="id">NF1</div><div class="body">Workflow procedures and artifact standards shall have one shared source of truth across the three harnesses.</div></div>
+    <div class="req"><div class="id">NF2</div><div class="body">The integration shall preserve existing Claude Code and Codex behavior.</div></div>
+    <div class="req"><div class="id">NF3</div><div class="body">Setup and update shall preserve unrelated user instructions, agents and configuration.</div></div>
+    <div class="req"><div class="id">NF4</div><div class="body">Installed workflows shall resolve their resources independently of the active product-repo directory.</div></div>
+    <div class="req"><div class="id">NF5</div><div class="body">The full workflow shall be verified on Windows, Linux and macOS within the published OpenCode 2 compatibility range and documented prerequisites.</div></div>
+    <div class="req"><div class="id">NF6</div><div class="body">Run-log failures shall not block or change workflow execution.</div></div>
+  </div>
+  <div class="subhead">Out of scope — 5</div>
+  <div class="req-list">
+    <div class="req oos"><div class="id">OOS1</div><div class="body">OpenCode 1 support — this feature targets the V2 APIs rather than maintaining a second OpenCode integration.</div></div>
+    <div class="req oos"><div class="id">OOS2</div><div class="body">New delivery stages, roles or artifact formats — the feature makes the existing workflow available, not a different workflow.</div></div>
+    <div class="req oos"><div class="id">OOS3</div><div class="body">An Asimov-specific graphical dashboard or replacement OpenCode interface — native commands and conversation are sufficient for this integration.</div></div>
+    <div class="req oos"><div class="id">OOS4</div><div class="body">Transfer of live worker conversations between coding tools — committed artifacts and the ledger are the durable handoff, not harness-specific session history.</div></div>
+    <div class="req oos"><div class="id">OOS5</div><div class="body">Guaranteeing every provider/model combination — supported model behavior and prerequisites must be documented, while selection policy remains to be settled in Q3.</div></div>
+  </div>
+</section>
+
+<div class="chapter-band" id="c4"><div class="chapter-band-inner"><div class="ch-num">4</div><div><div class="ch-name">Business design</div><div class="ch-summary">One workflow contract, two installation scopes, explicit setup and unchanged human ownership.</div></div></div></div>
+<section class="s" id="s4-1">
+  <h2 class="section-title"><span class="sec-ref">§4.1</span>Principles</h2>
+  <div class="principles">
+    <div class="principle"><div class="num">1</div><div class="text"><strong>Full workflow at launch.</strong> A supported OpenCode user can finish the existing Design → Spec → Code → Review → Test sequence.</div></div>
+    <div class="principle"><div class="num">2</div><div class="text"><strong>One Asimov.</strong> Tool choice changes how work is launched, not what the team's artifacts mean.</div></div>
+    <div class="principle"><div class="num">3</div><div class="text"><strong>Install is not initialize.</strong> Making Asimov available never implies consent to rewrite a product repo.</div></div>
+    <div class="principle"><div class="num">4</div><div class="text"><strong>The person remains the director.</strong> Checks provide evidence, while the existing approval, stop-ruling and commit decisions stay with their designated humans.</div></div>
+  </div>
+</section>
+<section class="s" id="s4-2">
+  <h2 class="section-title"><span class="sec-ref">§4.2</span>Concepts</h2>
+  <div class="data-table">
+    <div class="row head cols-2"><div>Concept</div><div>What it means</div></div>
+    <div class="row cols-2"><div class="label-cell">Harness</div><div>The coding tool that hosts the conversation, runs tools and launches workers.</div></div>
+    <div class="row cols-2"><div class="label-cell">Installation scope</div><div>Global availability for one developer or availability restricted to one product repo.</div></div>
+    <div class="row cols-2"><div class="label-cell">Repo initialization</div><div>A separately requested, confirmed setup of Asimov context, conventions and documentation.</div></div>
+    <div class="row cols-2"><div class="label-cell">Entry point</div><div>The developer-invoked start of one stage or the Project frame.</div></div>
+    <div class="row cols-2"><div class="label-cell">Agent identity</div><div>A named worker whose role and boundaries are shared across harnesses.</div></div>
+    <div class="row cols-2"><div class="label-cell">Plan and task specifications</div><div>The approved work graph and individual briefs that establish what each worker may build.</div></div>
+    <div class="row cols-2"><div class="label-cell">Ledger</div><div>The durable record of attempts, findings, rulings and commits used to resume a build.</div></div>
+    <div class="row cols-2"><div class="label-cell">Run log</div><div>A disposable operational observation of a run, not its approval record or explanation of decisions.</div></div>
+    <div class="row cols-2"><div class="label-cell">Project frame</div><div>The engagement-level conversation around feature delivery, limited to capabilities already shipped.</div></div>
+  </div>
+</section>
+<section class="s" id="s4-3">
+  <h2 class="section-title"><span class="sec-ref">§4.3</span>User journeys</h2>
+  <div class="subhead">A — Make Asimov available</div>
+  <p>The developer installs Asimov before starting a product workflow.</p>
+  <ol class="principles">
+    <li class="principle"><span class="num">1</span><span class="text">Follow the global installation instructions, or explicitly choose project-local installation.</span></li>
+    <li class="principle"><span class="num">2</span><span class="text">Confirm that the documented Asimov entry points are available in the intended scope.</span></li>
+    <li class="principle"><span class="num">3</span><span class="text">Leave all product artifacts unchanged until a writing workflow is requested.</span></li>
+  </ol>
+  <p>If installation fails or the OpenCode version is unsupported, report that Asimov is not ready with the documented corrective action.</p>
+  <div class="subhead">B — Initialize or refresh a repo</div>
+  <p>The developer invokes setup in the active product repo.</p>
+  <ol class="principles">
+    <li class="principle"><span class="num">1</span><span class="text">Inspect existing instructions, detected stacks and documentation.</span></li>
+    <li class="principle"><span class="num">2</span><span class="text">Show each proposed target and whether it is new, managed, merged, skipped or needs a decision.</span></li>
+    <li class="principle"><span class="num">3</span><span class="text">Wait for confirmation before writing the agreed context, convention read-lists and site.</span></li>
+    <li class="principle"><span class="num">4</span><span class="text">Report completed writes, skipped conflicts and the next workflow the developer can start.</span></li>
+  </ol>
+  <p>A declined plan writes nothing; conflicting ownership or damaged managed boundaries leave the affected target untouched and request a human decision.</p>
+  <div class="subhead">C — Design and specify a feature</div>
+  <p>The developer names a feature, an existing design or another currently supported design input.</p>
+  <ol class="principles">
+    <li class="principle"><span class="num">1</span><span class="text">Interview for the business design, write the D101 and stop so the developer can read it.</span></li>
+    <li class="principle"><span class="num">2</span><span class="text">On a later invocation, complete the technical design without recording business approval.</span></li>
+    <li class="principle"><span class="num">3</span><span class="text">Offer the phase-appropriate gap review and shipped or custom persona reads.</span></li>
+    <li class="principle"><span class="num">4</span><span class="text">Start Spec from an eligible design, show the proposed cut and wait for the person's plan approval.</span></li>
+    <li class="principle"><span class="num">5</span><span class="text">Produce and validate the task specifications, reaching ready only when the current Spec contract allows it.</span></li>
+  </ol>
+  <p>Missing inputs or failed checks are surfaced through the existing stage's correction path, not converted into an approval or guessed past.</p>
+  <div class="subhead">D — Build, recover and finish</div>
+  <p>The developer invokes Build on a ready plan in an eligible working tree.</p>
+  <div class="flow-wrap">
+    <svg viewBox="0 0 980 496" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="UML activity diagram: a successful build phase passes from the developer to builders, Baley, Powell and back to the developer's commit gate">
+      <rect x="0" y="0" width="980" height="496" fill="#14253f"/>
+      <defs><marker id="act-build-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 Z" fill="#a8b8d0"/></marker></defs>
+      <g stroke="#2b4a73" stroke-width="1">
+        <line x1="16" y1="24" x2="964" y2="24"/>
+        <line x1="16" y1="136" x2="964" y2="136"/>
+        <line x1="16" y1="248" x2="964" y2="248"/>
+        <line x1="16" y1="360" x2="964" y2="360"/>
+        <line x1="16" y1="472" x2="964" y2="472"/>
+        <line x1="136" y1="24" x2="136" y2="472"/>
+      </g>
+      <g fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700" text-anchor="middle">
+        <text x="76" y="84">DEVELOPER</text><text x="76" y="196">BUILDERS</text><text x="76" y="308">BALEY</text><text x="76" y="420">POWELL</text>
+      </g>
+      <circle cx="152" cy="80" r="8" fill="#66bb6a"/>
+      <g font-family="Inter, sans-serif" font-size="11" text-anchor="middle" fill="#fff">
+        <rect x="184" y="52" width="128" height="56" rx="8" fill="#66bb6a22" stroke="#66bb6a"/>
+        <text x="248" y="76">Invoke Build</text><text x="248" y="92" fill="#a8b8d0">ready plan</text>
+        <rect x="352" y="164" width="128" height="56" rx="8" fill="#ffb74d1a" stroke="#ffb74d"/>
+        <text x="416" y="188">Build tasks</text><text x="416" y="204" fill="#a8b8d0">assigned files</text>
+        <rect x="520" y="276" width="128" height="56" rx="8" fill="#ffb74d1a" stroke="#ffb74d"/>
+        <text x="584" y="300">Review phase</text><text x="584" y="316" fill="#a8b8d0">against the specs</text>
+        <rect x="688" y="388" width="128" height="56" rx="8" fill="#ffb74d1a" stroke="#ffb74d"/>
+        <text x="752" y="412">Verify outcomes</text><text x="752" y="428" fill="#a8b8d0">done-whens</text>
+        <rect x="784" y="52" width="128" height="56" rx="8" fill="#66bb6a22" stroke="#66bb6a"/>
+        <text x="848" y="76">Rule at the gate</text><text x="848" y="92" fill="#a8b8d0">go commits; stop waits</text>
+      </g>
+      <circle cx="948" cy="80" r="12" fill="none" stroke="#ef5350" stroke-width="1.5"/><circle cx="948" cy="80" r="6" fill="#ef5350"/>
+      <g fill="none" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#act-build-arr)">
+        <line x1="160" y1="80" x2="180" y2="80"/>
+        <path d="M312,80 H408 A8,8 0 0 1 416,88 V160"/>
+        <path d="M480,192 H576 A8,8 0 0 1 584,200 V272"/>
+        <path d="M648,304 H744 A8,8 0 0 1 752,312 V384"/>
+        <path d="M816,416 H840 A8,8 0 0 0 848,408 V112"/>
+        <line x1="912" y1="80" x2="932" y2="80"/>
+      </g>
+    </svg>
+    <div class="flow-legend"><span class="item"><span class="swatch" style="background:var(--green)"></span>Developer entry / gate</span><span class="item"><span class="swatch" style="background:var(--amber)"></span>Worker activity</span><span class="item"><span class="swatch" style="background:var(--coral)"></span>End of this phase's interaction</span></div>
+  </div>
+  <p>The diagram shows the successful phase hand-offs; retries and stops follow the numbered journey and existing Build contract below.</p>
+  <ol class="principles">
+    <li class="principle"><span class="num">1</span><span class="text">Run the existing readiness and resume checks before dispatching any task.</span></li>
+    <li class="principle"><span class="num">2</span><span class="text">Send ready, disjoint-file tasks to Giskard, Daneel or Calvin according to their specified roles.</span></li>
+    <li class="principle"><span class="num">3</span><span class="text">Have Baley review the phase, then Powell verify its promised outcomes.</span></li>
+    <li class="principle"><span class="num">4</span><span class="text">Return failed work through the existing retry loop, recording findings in the ledger.</span></li>
+    <li class="principle"><span class="num">5</span><span class="text">Show the passed checkpoint and wait for go before committing the phase.</span></li>
+    <li class="principle"><span class="num">6</span><span class="text">Resume a later session from the ledger, or finish with the commit record and leave PR creation to the developer.</span></li>
+  </ol>
+  <p>A third task failure, design gap, permission refusal or failed resume check stops the affected progression with evidence and the existing human recovery choices.</p>
+  <div class="subhead">E — Use the frame, update or remove</div>
+  <ul class="bullets">
+    <li>The developer can invoke the Project frame or delivery-model advice independently of a feature build.</li>
+    <li>The developer follows the update procedure for the selected installation scope without granting permission to refresh product context.</li>
+    <li>The developer removes Asimov's OpenCode availability without deleting designs, specifications or committed ledgers.</li>
+  </ul>
+  <p>An unavailable Project action is identified as not shipped rather than invented; update or removal conflicts leave unrelated configuration intact and require a human decision.</p>
+</section>
+<section class="s" id="s4-4">
+  <h2 class="section-title"><span class="sec-ref">§4.4</span>Rules &amp; boundaries</h2>
+  <div class="subhead" id="br1">BR1 — Global is the default, not the only scope</div>
+  <p>When no installation scope is chosen, the documented default is global; project-local installation requires an explicit choice.</p>
+  <ul class="bullets"><li>Positive: a developer following the default guide gets availability across their repos.</li><li>Counter-example: selecting project-local leaves an unrelated repo without Asimov availability from that installation.</li></ul>
+  <div class="subhead" id="br2">BR2 — Setup consent is separate</div>
+  <p>Only a confirmed initialization plan authorizes setup changes, and only within its proposed targets.</p>
+  <ul class="bullets"><li>Positive: confirming a convention read-list update changes its managed content.</li><li>Counter-example: installing or updating Asimov does not regenerate that repo's instructions or documentation.</li></ul>
+  <div class="subhead" id="br3">BR3 — Explicit entry points, reusable supporting skills</div>
+  <p>Stage and setup entry points require an explicit developer invocation; supporting role, artifact, persona and advisory skills retain their current task-driven use.</p>
+  <ul class="bullets"><li>Positive: naming the Build entry point with a ready-plan slug starts its readiness checks.</li><li>Counter-example: asking a general coding question does not implicitly initialize the repo or start a build.</li></ul>
+  <div class="subhead" id="br4">BR4 — Same gates, not automatic approval</div>
+  <p>Each stage follows its current approval policy, and a passing agent report does not substitute for a human decision.</p>
+  <ul class="bullets"><li>Positive: a passed phase waits for the person's go before its commit.</li><li>Counter-example: a design-review report does not mark the D101 Approved, even when no gaps are reported.</li></ul>
+  <div class="subhead" id="br5">BR5 — Worker boundaries survive portability</div>
+  <p>Builders change only their assigned files; reviewers and verifiers do not hand-edit product files.</p>
+  <ul class="bullets"><li>Positive: Giskard implements a .NET task inside its owned-file scope.</li><li>Counter-example: Baley finding a defect reports it instead of repairing it, while permitted test/build commands may regenerate their declared outputs.</li></ul>
+  <div class="subhead" id="br6">BR6 — Resume from evidence</div>
+  <p>A resumed run uses the ledger and current plan checks, not assumed worker memory from a previous session.</p>
+  <ul class="bullets"><li>Positive: a new session retains committed phases and starts workers for the remaining work.</li><li>Counter-example: a changed approval fingerprint fails resume checks rather than inheriting the earlier go.</li></ul>
+  <div class="subhead" id="br7">BR7 — Missing prerequisites are visible</div>
+  <p>If a step cannot obtain its required resource, worker or permission, it reports the blocker before proceeding with that step.</p>
+  <ul class="bullets"><li>Positive: an unavailable builder prevents its task from starting and names how to enable it.</li><li>Counter-example: an optional log-write failure does not prevent a worker from completing its task.</li></ul>
+  <div class="subhead" id="br8">BR8 — Existing ownership wins</div>
+  <p>Setup, update and removal preserve non-Asimov-owned content; uncertain ownership requires a human decision.</p>
+  <ul class="bullets"><li>Positive: refreshing an intact Asimov-managed context region preserves the surrounding instructions.</li><li>Counter-example: a same-named user agent or broken managed-region marker is not silently overwritten.</li></ul>
+  <div class="subhead" id="br9">BR9 — Logs observe, ledgers explain</div>
+  <p>The run log follows the existing privacy and non-blocking contract; decisions and recovery evidence remain in the ledger.</p>
+  <ul class="bullets"><li>Positive: a worker-start observation records its identity without its full brief.</li><li>Counter-example: a logger error neither retries the builder nor records an approval, and raw diagnostic payloads remain opt-in.</li></ul>
+  <div class="subhead" id="br10">BR10 — Removal is not artifact deletion</div>
+  <p>Removing the integration removes its availability, not authored product records.</p>
+  <ul class="bullets"><li>Positive: a completed design and ledger remain readable after removal.</li><li>Counter-example: removing global availability does not erase another separately installed project-local integration.</li></ul>
+</section>
+<section class="s" id="s4-5">
+  <h2 class="section-title"><span class="sec-ref">§4.5</span>Decisions</h2>
+  <div class="decisions">
+    <div class="decisions-head"><div>Decided</div><div>Alternative considered</div><div>Why rejected</div></div>
+    <div class="decision-row"><div class="decided">Full workflow in the first release.</div><div class="alt">Ship setup and Design only.</div><div class="why">The requested support must carry a developer through delivery, not stop at a skills preview.</div></div>
+    <div class="decision-row"><div class="decided">Global default with project-local support.</div><div class="alt">Require a separate installation in every repo.</div><div class="why">Routine availability across repos should not require repeated setup, while teams may deliberately scope adoption.</div></div>
+    <div class="decision-row"><div class="decided">Explicit initialization after installation.</div><div class="alt">Initialize automatically when installed.</div><div class="why">Availability is not consent to change a product repo.</div></div>
+    <div class="decision-row"><div class="decided">Shared workflows with harness-specific adaptation.</div><div class="alt">Fork all prompts and standards for OpenCode.</div><div class="why">Duplicated procedures would drift and undermine one artifact contract across teams.</div></div>
+    <div class="decision-row"><div class="decided">Preserve the existing human gates.</div><div class="alt">Let successful checks advance approvals and commits automatically.</div><div class="why">Portability must not change who owns a delivery decision.</div></div>
+    <div class="decision-row"><div class="decided">Target OpenCode 2.</div><div class="alt">Support both OpenCode major versions in this feature.</div><div class="why">The requested integration is for V2, whose API contract differs from V1.</div></div>
+  </div>
+</section>
+
+<section class="s" id="s5">
+  <h2 class="section-title"><span class="sec-ref">§5</span>UI Design</h2>
+  <p class="section-desc">Use OpenCode's existing command discovery and conversation surface, illustrated below in a neutral terminal-style mockup rather than a new Asimov screen.</p>
+  <div class="subhead">Command invocation, confirmation and recovery</div>
+  <div class="mockup-wrap"><iframe class="mockup-frame" src="mockups/d101-opencode-support/workflow.html" style="height:640px" title="OpenCode Asimov workflow interactive mockup" loading="lazy"></iframe></div>
+  <ul class="bullets">
+    <li><strong>Layout.</strong> Native command discovery feeds a conversation containing the target, concise progress, the checkpoint or write plan and the next required action.</li>
+    <li><strong>Names.</strong> Expose <code>/asimov-init</code>, <code>/asimov-design</code>, <code>/asimov-design-review</code>, <code>/asimov-spec</code>, <code>/asimov-build</code> and <code>/asimov-project</code>.</li>
+    <li><strong>Empty.</strong> An entry point without a target offers the existing eligible-target list or interview rather than guessing a feature.</li>
+    <li><strong>Running.</strong> Show the target and one progress line per dispatched call, with reports retained in their current sidecar or ledger.</li>
+    <li><strong>Awaiting consent.</strong> Setup waits at its write plan, Spec at its cut and Build at its phase checkpoint.</li>
+    <li><strong>Error.</strong> A blocker names the affected step and recovery action; a counted task failure exposes the first finding and the remaining retry or stop route.</li>
+    <li><strong>Populated.</strong> Successful output names the artifact or commit and the next stage, without recording a D101 approval.</li>
+    <li><strong>Try it.</strong> Select setup and cancel its plan, select Build and choose go, or switch to the stopped scenario and choose resume or discard.</li>
+  </ul>
+  <div class="callout">The mockup simulates conversation outcomes only: its scenario selector and response buttons are review aids, not proposed new OpenCode controls; it performs no installation, writes or commits.</div>
+</section>
+
+<section class="s" id="s6-open">
+  <h2 class="section-title"><span class="sec-ref">§6</span>Still to write</h2>
+  <div class="callout warn"><strong>This document is not gap-free.</strong> The workflow scope and installation experience are defined, but the integration mechanism is not settled; no S102 can be written from this design until the following questions are resolved.</div>
+  <ul class="bullets">
+    <li>How one released distribution makes shared skills, commands, agents and all supporting artifacts available in both installation scopes without separating their versions.</li>
+    <li>How installed resource paths remain correct across package caches, local clones, nested working directories and paths containing spaces.</li>
+    <li>How OpenCode worker spawning and continuation preserve fresh first attempts, retry context, disjoint-file concurrency and cancellation without weakening the ledger's guarantees.</li>
+    <li>How Spec's writer and validation boundaries map to OpenCode's tools so that checks remain independent of the authoring context wherever the current contract requires it.</li>
+    <li>How setup owns and refreshes context and agent definitions without claiming existing user content or introducing duplicate mixed-harness instructions.</li>
+    <li>How permissions enforce reviewer and verifier boundaries while allowing the prescribed checks and explicitly confirmed writes or commits.</li>
+    <li>How stage and worker lifecycle observations map to OpenCode's actual events, including parent/child attribution, interrupted sessions and location changes, without inventing a session-end event.</li>
+    <li>How the model selection policy and missing-model recovery work for OpenCode providers, including the tier decision in Q3.</li>
+    <li>Which minimum OpenCode 2 version and prerequisites the installed-package tests will establish for Windows, Linux and macOS.</li>
+    <li>How updates and removal preserve unrelated configuration and authored records when global and project-local installations coexist.</li>
+  </ul>
+  <p>Decider for these mechanism questions: Asimov maintainers, during the separate technical-design pass and before Spec begins.</p>
+</section>
+<section class="s" id="s7-pending">
+  <h2 class="section-title"><span class="sec-ref">§7</span>Implementation</h2>
+  <div class="callout warn"><strong>Pending the technical design.</strong> The build recipe is written once §6 is settled; while this document is in the <em>Business design</em> phase the outstanding technical work is listed under §6 <a href="#s6-open">Still to write</a>.</div>
+</section>
+
+<section class="s" id="s8">
+  <h2 class="section-title"><span class="sec-ref">§8</span>Acceptance criteria</h2>
+  <p class="section-desc">Verify the installed integration, not only a linked development copy; these are target outcomes, not claims that tests have already passed.</p>
+  <div class="ac-table">
+    <div class="ac-head"><div>#</div><div>Verifies</div><div>Description</div></div>
+    <div class="ac-row"><div class="ac-id">AC1</div><div class="ac-verifies"><span class="verify-chip">R1</span><span class="verify-chip">BR1</span></div><div>Follow the default installation guide and confirm entry points are available in two separate product repos.</div></div>
+    <div class="ac-row"><div class="ac-id">AC2</div><div class="ac-verifies"><span class="verify-chip">R2</span><span class="verify-chip">BR1</span></div><div>With no global installation, install for one repo and verify an unrelated repo does not receive its entry points.</div></div>
+    <div class="ac-row"><div class="ac-id">AC3</div><div class="ac-verifies"><span class="verify-chip">R3</span><span class="verify-chip">BR2</span></div><div>Compare product-repo snapshots before and after global installation and a package update; no product file changes.</div></div>
+    <div class="ac-row"><div class="ac-id">AC4</div><div class="ac-verifies"><span class="verify-chip">R4</span><span class="verify-chip">BR2</span></div><div>Invoke setup and decline its displayed write plan; instructions, conventions and the site remain byte-identical.</div></div>
+    <div class="ac-row"><div class="ac-id">AC5</div><div class="ac-verifies"><span class="verify-chip">R5</span><span class="verify-chip">BR2</span></div><div>Confirm setup in a fixture with .NET, Angular and test markers; verify context, the corresponding read-lists and the site meet their existing definitions.</div></div>
+    <div class="ac-row"><div class="ac-id">AC6</div><div class="ac-verifies"><span class="verify-chip">R6</span><span class="verify-chip">R7</span><span class="verify-chip">BR3</span></div><div>Discover and explicitly invoke all six named entry points; an unrelated coding request invokes none of them implicitly.</div></div>
+    <div class="ac-row"><div class="ac-id">AC7</div><div class="ac-verifies"><span class="verify-chip">R8</span><span class="verify-chip">BR4</span></div><div>Complete a Design interview and verify its first write is Business design with §6 open; a later invocation can produce Full design while status remains Draft.</div></div>
+    <div class="ac-row"><div class="ac-id">AC8</div><div class="ac-verifies"><span class="verify-chip">R9</span><span class="verify-chip">R17</span><span class="verify-chip">BR4</span></div><div>Review Business-design and Full-design fixtures, select the matching gap checks plus shipped and newly authored custom personas, and verify findings without a recorded approval.</div></div>
+    <div class="ac-row"><div class="ac-id">AC9</div><div class="ac-verifies"><span class="verify-chip">R10</span><span class="verify-chip">BR4</span></div><div>Run Spec from an eligible design, observe its cut gate, approve the cut and verify validated task specifications and a ready plan under the current Spec contract.</div></div>
+    <div class="ac-row"><div class="ac-id">AC10</div><div class="ac-verifies"><span class="verify-chip">R11</span><span class="verify-chip">BR5</span></div><div>Use fixtures covering .NET, Angular and test-author tasks; verify Giskard, Daneel, Calvin, Baley and Powell run their matching role methods and read the required conventions.</div></div>
+    <div class="ac-row"><div class="ac-id">AC11</div><div class="ac-verifies"><span class="verify-chip">R12</span></div><div>Build a phase with dependent and overlapping-file tasks; verify only dependency-ready tasks with mutually disjoint hand-edited files share a batch.</div></div>
+    <div class="ac-row"><div class="ac-id">AC12</div><div class="ac-verifies"><span class="verify-chip">R13</span><span class="verify-chip">BR4</span></div><div>Inspect the phase ledger and commit history; Baley precedes Powell, both pass before the checkpoint gate, and no phase commit occurs until go.</div></div>
+    <div class="ac-row"><div class="ac-id">AC13</div><div class="ac-verifies"><span class="verify-chip">R14</span></div><div>Inject task failures across review and verification; verify three counted failures stop progression and a new retry budget requires the person's resume ruling.</div></div>
+    <div class="ac-row"><div class="ac-id">AC14</div><div class="ac-verifies"><span class="verify-chip">R15</span><span class="verify-chip">BR6</span></div><div>Interrupt after a committed phase and resume in a new session; verify that phase is retained, remaining work resumes, and a changed approval fingerprint instead causes a refusal.</div></div>
+    <div class="ac-row"><div class="ac-id">AC15</div><div class="ac-verifies"><span class="verify-chip">R16</span><span class="verify-chip">BR9</span></div><div>Run a logged workflow with child workers and an interruption; verify the lifecycle mappings specified by §6 produce correctly attributed observations without full prompts in the normal log.</div></div>
+    <div class="ac-row"><div class="ac-id">AC16</div><div class="ac-verifies"><span class="verify-chip">R18</span></div><div>Compare the installed Project-frame action roster with the same release's shared skill; all shipped actions are reachable and unshipped actions are identified as unavailable.</div></div>
+    <div class="ac-row"><div class="ac-id">AC17</div><div class="ac-verifies"><span class="verify-chip">R19</span><span class="verify-chip">BR7</span></div><div>Remove a required resource, disable a worker and deny a required write in separate fixtures; each affected step reports its blocker and recovery before the dependent action starts.</div></div>
+    <div class="ac-row"><div class="ac-id">AC18</div><div class="ac-verifies"><span class="verify-chip">R20</span><span class="verify-chip">R21</span><span class="verify-chip">BR10</span></div><div>Follow documented install, update and removal steps for both scopes; removal disables only that installation and leaves authored designs, specs and committed ledgers intact.</div></div>
+    <div class="ac-row"><div class="ac-id">AC19</div><div class="ac-verifies"><span class="verify-chip">NF1</span></div><div>Review the release contents and confirm workflow methods and artifact standards are shared rather than copied into independently maintained OpenCode versions.</div></div>
+    <div class="ac-row"><div class="ac-id">AC20</div><div class="ac-verifies"><span class="verify-chip">NF2</span></div><div>Run existing Claude Code and Codex setup, Design, Spec, Build and logging regression scenarios; no previously supported behavior regresses.</div></div>
+    <div class="ac-row"><div class="ac-id">AC21</div><div class="ac-verifies"><span class="verify-chip">NF3</span><span class="verify-chip">BR8</span></div><div>Initialize, refresh and remove in fixtures with unrelated instructions, configuration and a same-named user agent; preserve unrelated bytes and request a decision on uncertain ownership.</div></div>
+    <div class="ac-row"><div class="ac-id">AC22</div><div class="ac-verifies"><span class="verify-chip">NF4</span></div><div>Invoke installed workflows from two unrelated repos and a nested working directory under a path containing spaces; all skills, definitions, templates and scripts resolve to the intended release.</div></div>
+    <div class="ac-row"><div class="ac-id">AC23</div><div class="ac-verifies"><span class="verify-chip">NF5</span></div><div>Publish installed-package results for setup, Design, Spec, Build and resume on Windows, Linux and macOS using the compatibility versions and prerequisites established in Q2.</div></div>
+    <div class="ac-row"><div class="ac-id">AC24</div><div class="ac-verifies"><span class="verify-chip">NF6</span><span class="verify-chip">BR9</span></div><div>Inject log-write failures and compare the run with a healthy-logger fixture; workflow ordering, results and human gates are unchanged.</div></div>
+    <div class="ac-row"><div class="ac-id">AC25</div><div class="ac-verifies"><span class="verify-chip">BR5</span></div><div>Attempt a reviewer/verifier hand edit and a builder edit outside its ownership in boundary fixtures; verify the final §6 permission and ownership controls prevent unauthorized product changes.</div></div>
+  </div>
+</section>
+
+<section class="s" id="s9">
+  <h2 class="section-title"><span class="sec-ref">§9</span>Open questions</h2>
+  <div class="q-grid">
+    <div class="q-card"><div class="q-head"><span class="q-id">Q1</span><span class="q-decider">Asimov maintainers</span></div><div class="q-body">Who is the named business approver and who independently reviews the full design?</div><div class="q-resolution">Resolution path: maintainers nominate the people before requesting approval; this draft records no approval.</div></div>
+    <div class="q-card"><div class="q-head"><span class="q-id">Q2</span><span class="q-decider">Asimov maintainers</span></div><div class="q-body">What minimum OpenCode 2 version and host prerequisites constitute supported full-workflow operation?</div><div class="q-resolution">Resolution path: establish the compatibility matrix from installed-package checks during technical design, before publishing installation guidance.</div></div>
+    <div class="q-card"><div class="q-head"><span class="q-id">Q3</span><span class="q-decider">Asimov maintainers</span></div><div class="q-body">Should OpenCode inherit the session model by default, and how should optional task-tier mappings override it?</div><div class="q-resolution">Resolution path: settle provider/model selection and missing-model behavior in technical design before defining configuration and dispatch contracts.</div></div>
+    <div class="q-card"><div class="q-head"><span class="q-id">Q4</span><span class="q-decider">Asimov maintainers</span></div><div class="q-body">Which published package identity and release process provide a single compatible Asimov update?</div><div class="q-resolution">Resolution path: verify package ownership and align release/version handling during technical design before the first OpenCode publication.</div></div>
+  </div>
+  <div class="subhead">Resolved during authoring — 2026-10-28</div>
+  <div class="q-grid">
+    <div class="q-card resolved"><div class="q-head"><span class="q-id">Q5</span><span class="q-decider">Feature requester</span></div><div class="q-body">Is the first release full workflow or a setup-and-Design preview?</div><div class="q-resolution"><strong>Decision:</strong> full workflow, including agents, retries, resume and logging; reducing it requires reopening scope.</div></div>
+    <div class="q-card resolved"><div class="q-head"><span class="q-id">Q6</span><span class="q-decider">Feature requester</span></div><div class="q-body">What installation experience should developers receive?</div><div class="q-resolution"><strong>Decision:</strong> global by default, optional project-local installation and explicit repo initialization; automatic setup would reopen the consent agreement.</div></div>
+  </div>
+</section>
+<section class="s" id="s10">
+  <h2 class="section-title"><span class="sec-ref">§10</span>References</h2>
+  <div class="refs">
+    <div class="refs-block"><h4>System &amp; sibling designs</h4><ul>
+      <li><a href="../D100-Asimov-architecture.md">D100 — Asimov architecture</a></li>
+      <li><a href="D101-codex-support.html">D101 — Codex support</a></li>
+      <li><a href="D101-asimov-init.html">D101 — Repo initialization</a></li>
+      <li><a href="D101-design-stage.html">D101 — Design stage</a></li>
+      <li><a href="D101-spec-stage.html">D101 — Spec stage</a></li>
+      <li><a href="D101-build-stage.html">D101 — Build stage</a></li>
+      <li><a href="D101-subagents.html">D101 — Subagents</a></li>
+      <li><a href="D101-personas.html">D101 — Personas</a></li>
+      <li><a href="D101-asimov-log.html">D101 — Run log</a></li>
+    </ul></div>
+    <div class="refs-block"><h4>Shared standards</h4><ul>
+      <li><a href="../../plugins/asimov-plugin/artifacts/documentation/d101-feature-design/d101-feature-design-definition.md">D101 definition — bars and ownership</a></li>
+      <li><a href="../../plugins/asimov-plugin/contracts/design.md">Design handoff contract</a></li>
+      <li><a href="../../plugins/asimov-plugin/contracts/specification.md">Specification handoff contract</a></li>
+      <li><a href="../model-choice.md">Model choice — existing harness policy</a></li>
+      <li><a href="../../CLAUDE.md">Toolkit authoring conventions</a></li>
+    </ul></div>
+    <div class="refs-block"><h4>OpenCode 2 — authoritative docs</h4><ul>
+      <li><a href="https://opencode.ai/v2/docs/config">Configuration &amp; scopes</a></li>
+      <li><a href="https://opencode.ai/v2/docs/skills">Skills &amp; resource bases</a></li>
+      <li><a href="https://opencode.ai/v2/docs/commands">Commands</a></li>
+      <li><a href="https://opencode.ai/v2/docs/agents">Agents &amp; permissions</a></li>
+      <li><a href="https://opencode.ai/v2/docs/build/plugins">V2 plugin packaging</a></li>
+      <li><a href="https://opencode.ai/v2/docs/build/plugins/server">V2 registrations, hooks &amp; events</a></li>
+    </ul></div>
+  </div>
+</section>
+  </article>
+</div>
+<footer class="site-footer">
+  <div><a href="../index.html">← Documentation home</a> · <span class="mono">features/D101-opencode-support.html</span></div>
+  <div style="margin-top:0.4rem">D101 · OpenCode 2 support · Asimov distribution · Draft v0.1 · 2026-10-28</div>
+</footer>
+</body>
+</html>
