@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Asimov in OpenCode — conversation mockup</title>
+<style>
+* { box-sizing: border-box; }
+body { margin: 0; padding: 16px; background: #f4f4f2; color: #252525; font: 14px/1.5 system-ui, sans-serif; }
+header { display: flex; justify-content: space-between; gap: 12px; align-items: center; margin-bottom: 12px; }
+h1 { margin: 0; font-size: 17px; }
+.note { margin: 4px 0 12px; color: #626262; font-size: 12px; }
+label { font-weight: 600; }
+select, button { font: inherit; padding: 8px 10px; border: 1px solid #aaa; border-radius: 4px; background: #fff; color: #252525; }
+select { max-width: 100%; }
+button { cursor: pointer; }
+button:hover { background: #e9e9e5; }
+button:focus-visible, select:focus-visible { outline: 3px solid #2263b5; outline-offset: 2px; }
+.toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 12px; }
+.terminal { min-height: 330px; border: 1px solid #aaa; border-radius: 6px; overflow: hidden; background: #fff; }
+.titlebar { padding: 8px 12px; border-bottom: 1px solid #ccc; background: #e8e8e5; display: flex; justify-content: space-between; gap: 8px; }
+#transcript { padding: 16px; min-height: 285px; white-space: pre-wrap; font: 13px/1.6 ui-monospace, Consolas, monospace; }
+.user { margin-bottom: 12px; color: #235b92; }
+.response { border-top: 1px solid #ccc; padding: 12px; }
+#actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+#status { font-size: 12px; color: #626262; }
+@media (max-width: 500px) { header { align-items: start; flex-direction: column; } body { padding: 10px; } }
+</style>
+</head>
+<body>
+<header><h1>Asimov / OpenCode conversation</h1><span id="status">Preview only</span></header>
+<p class="note">Neutral terminal-style interaction study, not a pixel-accurate OpenCode screen; all outcomes are simulated and no files or commits are created.</p>
+<div class="toolbar">
+  <label for="scenario">Review scenario</label>
+  <select id="scenario">
+    <option value="init">/asimov-init — confirm setup</option>
+    <option value="design">/asimov-design — business-design stop</option>
+    <option value="review">/asimov-design-review — select reviews</option>
+    <option value="spec">/asimov-spec — approve the cut</option>
+    <option value="build">/asimov-build — phase commit gate</option>
+    <option value="stopped">/asimov-build — stopped task</option>
+    <option value="empty">/asimov-build — no target</option>
+    <option value="blocked">/asimov-build — missing worker</option>
+    <option value="project">/asimov-project — shipped capability</option>
+  </select>
+  <button id="reset" type="button">Reset</button>
+</div>
+<div class="terminal">
+  <div class="titlebar"><strong>sample-product · feature/order-search</strong><span>Session model</span></div>
+  <div id="transcript" role="log" aria-live="polite"></div>
+  <div class="response"><span>Simulate a developer reply</span><div id="actions"></div></div>
+</div>
+<p class="note">The selector and reply buttons are mockup aids; in OpenCode the developer invokes native commands and replies in the existing composer.</p>
+<script>
+const scenarios = {
+  init: {
+    command: '/asimov-init',
+    text: 'Making this repo Asimov-ready. I show a write plan before changing anything.\n\nWrite plan\n  NEW       Asimov context\n  NEW       .NET and test convention read-lists\n  OVERWRITE documentation landing site\n  SKIP      existing Angular conventions: no Angular stack detected\n\nConfirm this plan, or cancel. Nothing has been written.',
+    replies: {
+      Confirm: 'Applied the confirmed plan. Unrelated instructions were preserved.\nNext: invoke /asimov-design with your feature brief.',
+      Cancel: 'Cancelled. No setup files changed. Invoke /asimov-init when ready.'
+    }
+  },
+  design: {
+    command: '/asimov-design order search',
+    text: 'The business design is written:\n  documentation/features/D101-order-search.html\n  phase: Business design · status: Draft v0.1\n\nOpen it in a browser. §6 is still open.\nRun /asimov-design-review for the business-design findings, or invoke Design again later to continue.',
+    replies: { 'Finish this run': 'Stopped after the business design. No technical design or approval was written.' }
+  },
+  review: {
+    command: '/asimov-design-review order-search',
+    text: 'Reviewing Business design. Select the gap check or a persona read.\nFindings do not change the design or record approval.',
+    replies: {
+      'Gap check': 'Business-design findings written to the review sidecar.\nNext: return to /asimov-design to address the findings.',
+      'Operations persona': 'Operational reader findings written to the review sidecar.\nNext: address them in /asimov-design.'
+    }
+  },
+  spec: {
+    command: '/asimov-spec order-search',
+    text: 'Cut: order-search · 2 phases, 4 tasks\nP0 contracts\nP1 search behavior and tests\n\nThe cut checks pass. Say go to approve this plan and write the task specifications, change it, or stop.',
+    replies: {
+      Go: 'Plan approved by the developer. Task specifications written and validated.\nPlan: ready. Next: /asimov-build order-search.',
+      Stop: 'Stopped at the cut. The plan remains draft; no task expansion started.'
+    }
+  },
+  build: {
+    command: '/asimov-build order-search',
+    text: 'build   T002 · Calvin\nbuild   T003 · Giskard\nreview  P1 · Baley · pass\nverify  P1 · Powell · pass\n\nCheckpoint: order search meets the specified behavior.\nReports are in the ledger. Nothing is committed.\nSay go to commit P1 and finish, or stop here.',
+    replies: {
+      Go: 'commit  sample-hash · P1 Search · owned files and ledger\nDone. Open the PR when ready; Asimov opens none.',
+      Stop: 'Stopped at the gate. Work remains uncommitted.\nNext: /asimov-build order-search resumes from the ledger.'
+    }
+  },
+  stopped: {
+    command: '/asimov-build order-search',
+    text: 'Stopped at T003 after 3 failures: empty search returns an incorrect result.\nP1 remains uncommitted; findings are in the ledger.\nSay resume with a note, discard this phase, or stop.',
+    replies: {
+      'Resume with note': 'Developer ruling recorded: handle an empty query as specified.\nRetry budget renewed; rebuilding the task, then Baley and Powell before the gate.',
+      Discard: 'Confirmed discard of P1 owned changes recorded; committed phases retained.\nNext: fix the task specification in Spec or start the phase again.',
+      Stop: 'Work left unchanged. Resume later from the ledger.'
+    }
+  },
+  empty: {
+    command: '/asimov-build',
+    text: 'Plans\n  order-search · ready\n  invoice-export · draft\n\nName a ready plan to build. No plan has been selected.',
+    replies: { 'Select order-search': 'Selected order-search. Readiness and resume checks run before any worker starts.' }
+  },
+  blocked: {
+    command: '/asimov-build order-search',
+    text: 'Cannot start T003: Giskard is unavailable in this session.\nEnable the installed Asimov agent using the documented setup, then retry.\nNo substitute worker was started.',
+    replies: { Acknowledge: 'Run remains blocked before this task. No task implementation was attempted.' }
+  },
+  project: {
+    command: '/asimov-project',
+    text: 'Choose from the Project actions shipped in your installed Asimov release.\nIf its roster is empty, there is no project artifact action to run yet.\nDelivery-model advice is available through pm-advisor.',
+    replies: { 'Ask for advice': 'Load pm-advisor for delivery-model advice. No unshipped project artifact is invented.' }
+  }
+};
+const selector = document.getElementById('scenario');
+const transcript = document.getElementById('transcript');
+const actions = document.getElementById('actions');
+function render() {
+  const scene = scenarios[selector.value];
+  transcript.replaceChildren();
+  const prompt = document.createElement('div');
+  prompt.className = 'user';
+  prompt.textContent = '> ' + scene.command;
+  const output = document.createElement('div');
+  output.textContent = scene.text;
+  transcript.append(prompt, output);
+  actions.replaceChildren();
+  document.getElementById('status').textContent = 'Preview · awaiting simulated reply';
+  for (const [label, result] of Object.entries(scene.replies)) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.textContent = label;
+    button.addEventListener('click', () => {
+      output.textContent = scene.text + '\n\n> ' + label + '\n\n' + result;
+      actions.replaceChildren();
+      document.getElementById('status').textContent = 'Preview · reply applied';
+    });
+    actions.append(button);
+  }
+}
+selector.addEventListener('change', render);
+document.getElementById('reset').addEventListener('click', render);
+render();
+</script>
+</body>
+</html>
