@@ -79,6 +79,7 @@ if (-not $PluginRoot) { $PluginRoot = Split-Path -Parent (Split-Path -Parent (Sp
 
 $Utf8 = New-Object System.Text.UTF8Encoding $false
 $Dot = [string][char]0x00B7
+$Arrow = [string][char]0x2192
 $States = @('Active', 'Mitigated', 'Accepted', 'Occurred', 'Resolved')
 $Today = (Get-Date).ToString('yyyy-MM-dd', [System.Globalization.CultureInfo]::InvariantCulture)
 
@@ -303,6 +304,7 @@ function Get-Problems($Model) {
   $problems = @()
   if ($Model.register -notin @('kept', 'opt-out')) { $problems += 'the page does not say whether a register is kept (data-register)' }
   if ($Model.updated -notmatch '^\d{4}-\d{2}-\d{2}$') { $problems += 'the register has no last-updated date' }
+  if ($Model.Contains('markers') -and $Model.markers) { $problems += 'the page holds git conflict markers from a merge' }
   $i = 0
   foreach ($r in $Model.risks) {
     $i++
@@ -322,7 +324,10 @@ function Get-Problems($Model) {
 
 function Read-Register([string]$Page) {
   try { $html = [System.IO.File]::ReadAllText($Page, $Utf8) } catch { Exit-Unreadable "The register $Page cannot be read: $($_.Exception.Message)" }
-  return Read-PageModel $html
+  $model = Read-PageModel $html
+  # git conflict markers left by a merge: the page cannot be read in full until the repair (T010)
+  $model.markers = [regex]::IsMatch($html, '(?m)^(<{7}|={7}|>{7})(\s|$)')
+  return $model
 }
 
 # ---------------------------------------------------------------- areas (RL13)
@@ -350,7 +355,7 @@ function Get-Distance([string]$A, [string]$B) {
 # one letter apart when both are four letters or more.
 function Test-NearlySame([string]$A, [string]$B) {
   $ka = Get-AreaKey $A; $kb = Get-AreaKey $B
-  if ($ka -eq $kb) { return $true }
+  if ([string]::Equals($ka, $kb, [System.StringComparison]::Ordinal)) { return $true }
   if ($ka.Length -lt 4 -or $kb.Length -lt 4) { return $false }
   return ((Get-Distance $ka $kb) -eq 1)
 }
@@ -503,6 +508,47 @@ function Invoke-Add([string]$Page, $ChangeData, [string]$Person) {
   Write-Output "$($risk.id) written."
 }
 
+$FieldNames = @('name', 'owner', 'impact', 'probability', 'area', 'description', 'mitigation')
+
+# Any of the seven fields, in any state; the state is never touched (R29, RL8).
+function Invoke-Change([string]$Page, $ChangeData, [string]$Person) {
+  Test-NoScore $ChangeData
+  if (-not (Test-Path -LiteralPath $Page)) { Exit-Refused 'There is no register yet; register a risk first. Nothing written.' }
+  $target = Get-Text (Get-Field $ChangeData 'target')
+  $fields = Get-Field $ChangeData 'fields'
+  $given = @()
+  if ($null -ne $fields) { $given = @($fields.PSObject.Properties | ForEach-Object { $_.Name }) }
+  $unknown = @($given | Where-Object { $FieldNames -notcontains $_ })
+  if ($unknown.Count -gt 0) { Exit-Refused ('A change carries only ' + ($FieldNames -join ', ') + '; not ' + ($unknown -join ', ') + '. Nothing written.') }
+  if ($given.Count -eq 0) { Exit-Refused 'The change names no field. Nothing written.' }
+  $current = Get-Current $Page $Person
+  $model = $current.Model
+  $risk = @($model.risks | Where-Object { [string]::Equals($_.id, $target, [System.StringComparison]::Ordinal) })
+  if ($risk.Count -eq 0) { Exit-Refused "The register holds no $target. Nothing written." }
+  $risk = $risk[0]
+  $parts = @()
+  foreach ($f in $FieldNames) {
+    if ($given -notcontains $f) { continue }
+    $value = Get-Text (Get-Field $fields $f)
+    if ($f -in @('name', 'owner') -and -not $value) { Exit-Refused "A risk keeps its $f; it cannot be emptied. Nothing written." }
+    if ($f -in @('impact', 'probability') -and $value -notmatch '^[1-5]$') { Exit-Refused "The $f is a whole number from 1 to 5. Nothing written." }
+    if ([string]::Equals([string]$risk[$f], $value, [System.StringComparison]::Ordinal)) { continue }
+    $old = if ($risk[$f]) { $risk[$f] } else { 'none' }
+    $new = if ($value) { $value } else { 'none' }
+    $parts += (($f.Substring(0, 1).ToUpperInvariant() + $f.Substring(1)) + ' ' + $old + ' ' + $Arrow + ' ' + $new)
+    $risk[$f] = $value
+  }
+  if ($parts.Count -eq 0) { Exit-Refused "The change leaves $target as it is. Nothing written." }
+  $risk.changed = $Today
+  $risk.history = @($risk.history) + @([ordered]@{ date = $Today; by = $Person; kind = 'change'; text = (($parts -join '; ') + '.') })
+  $text = "$target changed."
+  if ($current.Renumbered.Count -gt 0) { $text += ' ' + ($current.Renumbered -join '; ') + '.' }
+  $model.history = @([ordered]@{ date = $Today; by = $Person; kind = 'write'; with = ''; text = $text }) + @($model.history)
+  $model.updated = $Today
+  Write-Register $Page $model $current.Held
+  Write-Output "$target written."
+}
+
 function Invoke-Read([string]$Page) {
   if (-not (Test-Path -LiteralPath $Page)) { Exit-Unreadable "No register at $Page." }
   $model = Read-Register $Page
@@ -512,7 +558,7 @@ function Invoke-Read([string]$Page) {
     history = @($model.history); risks = @($model.risks); areas = $areas
     problems = @(Get-Problems $model)
   }
-  if ($PSBoundParameters.ContainsKey('Area') -or $Area) { $out.nearly = @($areas | Where-Object { Test-NearlySame $_ $Area }) }
+  if ($Area) { $out.nearly = @($areas | Where-Object { Test-NearlySame $_ $Area }) }
   Write-Output (ConvertTo-Json -InputObject $out -Depth 8)
 }
 
@@ -537,6 +583,7 @@ switch ($actions) {
     $person = Get-Person
     switch (Get-Text (Get-Field $data 'verb')) {
       'add' { Invoke-Add $PagePath $data $person }
+      'change' { Invoke-Change $PagePath $data $person }
       default { Exit-Unreadable "The verb '$(Get-Text (Get-Field $data 'verb'))' is not built yet." }
     }
     exit 0

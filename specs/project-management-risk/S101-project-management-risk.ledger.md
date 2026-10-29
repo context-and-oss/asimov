@@ -19,17 +19,17 @@ phases:
     tasks:
       - { id: T003, status: done, attempts: 1, agent: human-in-session, model: session }
   - id: P2
+    status: committed
+    commit: "54cec5a"
+    go: { by: "SimonVilandt", date: "2026-10-29" }
+    tasks:
+      - { id: T004, status: done, attempts: 1, agent: human-in-session, model: session }
+  - id: P3
     status: passed
     commit: none
     go: none
     tasks:
-      - { id: T004, status: done, attempts: 1, agent: human-in-session, model: session }
-  - id: P3
-    status: pending
-    commit: none
-    go: none
-    tasks:
-      - { id: T005, status: pending, attempts: 0, agent: none, model: none }
+      - { id: T005, status: done, attempts: 1, agent: human-in-session, model: session }
   - id: P4
     status: pending
     commit: none
@@ -347,5 +347,83 @@ First pwsh run was with `-Output Detailed` added, to get test names; then both c
 - 7 + 13 = 20; no scenario or example row is missing a test, and no test is outside the spec.
 
 Working tree: `git status --short` before and after shows the same three modified files (`risk-log.Tests.ps1`, `risk-log.ps1`, the ledger) and nothing new; I wrote one output capture to the scratchpad, outside the repo.
+
+Verified: 2 pass · 0 fail · checkpoint met
+
+### commit · 54cec5a
+go by SimonVilandt on 2026-10-29 · 2 files · ledger
+
+## P3 · Change a risk
+
+### T005 · attempt 1 · human-in-session · session
+Conventions read: none (this repo has no documentation/conventions/); CLAUDE.md and the S101 §1-§2 instead.
+built T005 (human task, built in the session that directs the run; test-first)
+- Tests first: the four scenarios of §2 as four Pester tests (fixtures by -Apply, then hand edits of a created date and a state). Seen red (4 failing on "verb 'change' is not built yet", the 20 earlier tests green) before the code.
+- risk-log.ps1 -Apply with verb change: the target must exist (else exit 1 naming it, page byte-identical, no .new); fields limited to the seven of the change file (others exit 1); name and owner cannot be emptied; impact and probability whole numbers 1-5 (exit 1); an unchanged value is skipped and a change that changes nothing is refused (exit 1); the state is never touched; one history line of kind change per write naming each field "Impact 3 -> 4" (U+2192), old values shown as "none" when empty; changed date today, created kept; register updated today with a write line. Goes through Get-Current, so duplicates are renumbered first and the write's check holds the page to what it held.
+- From P2's review flags: git conflict markers are now a problem (-Read lists them, -Apply refuses "run -Repair first"), verified by hand on both editions; Test-NearlySame compares the keys ordinally (on 5.1 "Skaerm" no longer matches "Skaerm-with-ae"; "Skarm" still does); the dead $PSBoundParameters test in -Read is gone.
+- Test harness: [Console]::OutputEncoding set to UTF-8 in the Pester process (restored in AfterAll), because PowerShell 7 started from a non-UTF-8 console decoded the child's UTF-8 output with the console code page and the arrow came out garbled.
+- Done-when 1 and 2: Pester 5.9.1, 24 passed, 0 failed on PowerShell 7.6.7 and 5.1.
+gaps: 0 · flags: 0
+
+### review
+Conventions read: `CLAUDE.md` (repo root; this repo has no `documentation/conventions/`), plus `plugins/asimov-plugin/skills/artifact-s102-validation/scripts/validate-s102.ps1` as PowerShell house style.
+
+Reviewing: HEAD (uncommitted work as the diff) — 2 files (`risk-log.ps1`, `risk-log.Tests.ps1`) against S102 T005; S101 §1–§2 read as the plan requires; read the whole of `risk-log.ps1` and the test file header. Ran the tests (`Invoke-Pester`, Pester 5.9.1) on both editions: PowerShell 7 → 24 passed / 0 failed; Windows PowerShell 5.1 → 24 passed / 0 failed.
+
+## Conventions
+| File:line | Severity | Reason |
+|---|---|---|
+| `risk-log.ps1`, `risk-log.Tests.ps1` | Pass | Pure ASCII with `[char]` for U+2192, one script with comment-banner sections, `Exit-Refused`/`Exit-Unreadable`, `Set-StrictMode` — matches `validate-s102.ps1` house style and `CLAUDE.md`; no hard rule touched (hard rules 1–11 concern manifests/models/paths). |
+| `risk-log.Tests.ps1:~327` | Flag | `}    }` closes the `Invoke-Change` helper and the `BeforeAll` on one line — formatting slip (base judgment only). |
+
+## Correctness & safety
+| File:line | Severity | Reason |
+|---|---|---|
+| `risk-log.ps1:383`, `:406`, `:414` | Flag | The read-back check (`Format-Model … -ne …`) and `Test-Kept` use `-ne` on strings. Confirmed on 5.1 that `-eq` is culture-aware and case-insensitive (`'æ' -eq 'ae'`, `'ß' -eq 'ss'` → True), so these checks cannot see æ turning into ae or a case-only loss — the same defect class the P2 flag named, fixed only in `Test-NearlySame`. Pre-dates T005 and hurts the T003 focus (UTF-8 name read back unchanged on both editions). Fix with `[string]::Equals(…, Ordinal)`. |
+| `risk-log.ps1:364` (`Get-Areas`) | Flag | `Sort-Object -Unique` is case-insensitive (and on 5.1 probably culture-aware): "Schedule" and "schedule" collapse to one entry, "Skaerm"/"Skærm" may too, which can hide the near-duplicates RL13 wants shown. (uncertain — not run on 5.1; the culture half of the flag may not be fully closed) |
+| `risk-log.ps1:329` | Flag | The marker regex fires on any lone `=======` line; if a description can hold a newline (`Get-Text` only trims), a line of seven equals signs puts the register in permanent "run -Repair first". Requiring a `<<<<<<<` line as well would be safer. (uncertain — depends on whether descriptions can be multi-line) |
+| `risk-log.ps1:517` | Flag | Empty/missing `target` prints "The register holds no . Nothing written." — right exit code, message names nothing. |
+| `risk-log.Tests.ps1` | Flag | Neither P2 flag taken into this attempt has a regression test: no test covers conflict markers (problem on `-Read`, refusal on `-Apply`) or the ordinal area comparison; the ledger says both were "verified by hand". Closed in code, but nothing holds them closed. |
+
+Both P2 flags are closed in the code: markers — `Read-Register` sets `markers`, `Get-Problems` reports it, `Invoke-Read` lists it, `Get-Current` refuses with "run -Repair first" for `add` and `change`; culture-aware comparison — `Test-NearlySame` now ordinal. The `-Read` fix is also right (`$Area` empty → no `nearly`). In `Invoke-Change` itself I found no defect: values compare ordinally (a case-only rename is a real change), nothing is written on any refusal, the `.new` is removed by `Write-Register`'s `finally`, and `Test-Kept` guards earlier history lines.
+
+## Against the spec
+| File:line | S102 · line | Severity | Reason |
+|---|---|---|---|
+| `risk-log.ps1:514–550` | T005 · §2 scenarios 1–4 | Pass | Each scenario has a code path and a matching test: changed date moves / created stays; one history line for several fields; Resolved risk renamed and still Resolved; unknown id exits 1 with page byte-identical and no `.new`. |
+| `risk-log.ps1:530–540` | T005 · §4 Must (state never set; earlier history intact) | Pass | `data-state` never assigned; `Test-Kept` holds old lines. |
+| `risk-log.ps1:522, 533–534` | T005 · §4 Must (seven fields; impact/probability 1–5 else exit 1) | Pass | Unknown fields, emptied name/owner, out-of-range impact/probability all refused with exit 1. |
+| both files | T005 · `owns` | Pass | Only the owned script and its test file changed in code (the ledger edit is the run harness's). |
+| — | T005 · §5 | Pass | No state change, no Mitigated-mitigation refusal (AC12), no handover built. |
+| — | T005 · §3 done-when 1, 2 | Pass | Both commands' test file runs green; four tests named for the scenarios; T003/T004 tests still green. |
+
+## Notes for later tasks
+- **T010 (repair):** `markers` is set only by `Read-Register`, not `Read-PageModel`, so the repair must read through `Read-Register`; `Read-PageModel` on a conflicted page parses both sides into one model with duplicate ids.
+- **T003 (non-ASCII read-back):** the `-ne` culture issue above is the one to close before claiming the check holds on 5.1.
+- **T014:** `-Apply` with a leftover `.new` currently refuses (exit 1, "run -Finish first") — the `-Finish` verb doesn't exist yet; the "-Finish before any verb" behaviour is T014's. The exit-3 path (`Get-Person`) runs after `Read-Change`, so an unset name with a bad change file reports exit 2 first.
+- **Duplicate ids:** a `change` targeting a duplicated id silently applies to the surviving (earliest-created) risk after `Get-Current` renumbers the other; the write line records the renumber, but a caller who meant the second one is not asked.
+
+Findings only — no approval verdict. Route fixes to the .NET builder / Angular builder / tester; the approval call stays with the human reviewer.
+
+### verify
+Verifying P3: 1 task spec (T005), 2 done-whens, checkpoint "A changed field moves the risk's changed date and keeps its created date and its state, an unknown identifier writes nothing, and the script's tests prove it."
+
+Environment: as ruled, exported `PSModulePath` in Bash before every Pester run, set to the Machine value (`powershell -NoProfile -Command "[Environment]::GetEnvironmentVariable('PSModulePath','Machine')"`) + `;C:\Users\sva\AppData\Local\PowerShell\Modules`.
+
+Run note: my first pwsh run added `-Output Detailed` to read test names (so not as-written); I then ran the pwsh command exactly as written and report that run below. Both gave the same result.
+
+| Task | Check | Result | Evidence |
+|---|---|---|---|
+| T005 | done-when 1: green under `pwsh -NoProfile -Command 'Import-Module Pester -MinimumVersion 5.0; exit (Invoke-Pester ... -PassThru ...)'`, T003/T004 tests still green, one test per §2 scenario | pass | pwsh as-written → `Tests Passed: 24, Failed: 0, Skipped: 0, Inconclusive: 0, NotRun: 0`, exit 0. Detailed run lists all four T005 scenario titles as `[+]`, each exactly once. |
+| T005 | done-when 2: green under `powershell -NoProfile -ExecutionPolicy Bypass -Command '...'` | pass | powershell as-written → `Tests Passed: 24, Failed: 0, Skipped: 0, Inconclusive: 0, NotRun: 0`, exit 0 |
+| P3 | checkpoint — the `Check` string (pwsh && powershell) | met | Both halves exit 0 with 0 failures and 0 failed containers (halves run separately, not chained; each half is the identical command). |
+
+T005 tests (green): A changed field moves the changed date and keeps the created date · Several fields changed at once give one history line · A resolved risk can be renamed and stays resolved · An identifier that does not exist writes nothing.
+
+Earlier tests (all green): The first risk creates the register as RISK-001 · A first risk that cannot be written leaves no page behind (×2) · Optional fields left out are not shown · The page states its scoring and carries no script · Names outside ASCII are written intact on both shell editions (×2) · An intact register reads back in full with no problem · A new risk continues the series past resolved risks · A duplicate identifier is renumbered before the write's own change (×2) · The score shown is recomputed and never given · Areas nearly the same are found (×7) · A register with CRLF line endings reads and writes as normal.
+
+Uncertain: I could not confirm which of those 20 are T003's vs T004's — the test file carries no `T003`/`T004` marker (grep found none). All 20 earlier tests ran and passed, and 24 = 20 + 4 new; if done-when 1 means a specific T003/T004 set, that mapping is not observable from the run.
+
+Tree integrity: `git status --porcelain` and `git diff` hashes identical before and after my runs (ffe06e89… / 6a93912b…) — tree unchanged.
 
 Verified: 2 pass · 0 fail · checkpoint met

@@ -80,11 +80,15 @@ BeforeAll {
     return Invoke-RiskLog $Root @('-Path', 'project/risk-log.html', '-Apply', '-Change', $change, '-By', 'Maja Holm')
   }
 
+  # the script writes UTF-8; read its output as UTF-8 whatever the console started with
+  $script:SavedOutputEncoding = [Console]::OutputEncoding
+  try { [Console]::OutputEncoding = $script:Utf8 } catch { }
   $script:SavedGitGlobal = $env:GIT_CONFIG_GLOBAL
   $script:SavedGitNoSystem = $env:GIT_CONFIG_NOSYSTEM
 }
 
 AfterAll {
+  try { [Console]::OutputEncoding = $script:SavedOutputEncoding } catch { }
   $env:GIT_CONFIG_GLOBAL = $script:SavedGitGlobal
   $env:GIT_CONFIG_NOSYSTEM = $script:SavedGitNoSystem
 }
@@ -310,6 +314,75 @@ Describe 'risk-log.ps1' {
       $r = Add-Risk $root ([ordered]@{ name = 'Second'; owner = 'Jonas Berg'; impact = 2; probability = 2 })
       $r.Code | Should -Be 0 -Because $r.Output
       @((Invoke-Read $root).risks).Count | Should -Be 2
+    }
+  }
+
+  Context 'Change a risk''s fields' {
+
+    BeforeAll {
+      function Invoke-Change([string]$Root, [string]$Target, $Fields) {
+        $change = Write-Change $Root ([ordered]@{ verb = 'change'; target = $Target; fields = $Fields })
+        return Invoke-RiskLog $Root @('-Path', 'project/risk-log.html', '-Apply', '-Change', $change, '-By', 'Maja Holm')
+      }    }
+
+    It 'A changed field moves the changed date and keeps the created date' {
+      $root = New-Register 'change-one' (1..3 | ForEach-Object { [ordered]@{ name = "Risk $_"; owner = 'Jonas Berg'; impact = 3; probability = 2 } })
+      $html = Read-Page $root
+      $html = Set-RiskAttr $html 'RISK-003' 'data-created' '2026-01-05'
+      $html = Set-RiskAttr $html 'RISK-003' 'data-changed' '2026-01-05'
+      Set-PageText $root $html
+      $r = Invoke-Change $root 'RISK-003' ([ordered]@{ impact = 4 })
+      $r.Code | Should -Be 0 -Because $r.Output
+      $data = Invoke-Read $root
+      $risk = @($data.risks) | Where-Object { $_.id -eq 'RISK-003' }
+      $risk.impact | Should -Be '4'
+      $risk.state | Should -Be 'Active'
+      $risk.created | Should -Be '2026-01-05'
+      $risk.changed | Should -Be (Get-Today)
+      $last = @($risk.history)[-1]
+      $last.kind | Should -Be 'change'
+      $last.date | Should -Be (Get-Today)
+      $last.by | Should -Be 'Maja Holm'
+      $last.text | Should -Match ('Impact 3 ' + ([string][char]0x2192) + ' 4')
+      $data.updated | Should -Be (Get-Today)
+      @($data.history)[0].kind | Should -Be 'write'
+      @($data.history)[0].by | Should -Be 'Maja Holm'
+    }
+
+    It 'Several fields changed at once give one history line' {
+      $root = New-Register 'change-several' (1..3 | ForEach-Object { [ordered]@{ name = "Risk $_"; owner = 'Jonas Berg'; impact = 3; probability = 2; area = 'Schedule' } })
+      $before = @((@((Invoke-Read $root).risks) | Where-Object { $_.id -eq 'RISK-003' }).history).Count
+      $r = Invoke-Change $root 'RISK-003' ([ordered]@{ owner = 'Sara Nygaard'; area = 'Resources' })
+      $r.Code | Should -Be 0 -Because $r.Output
+      $risk = @((Invoke-Read $root).risks) | Where-Object { $_.id -eq 'RISK-003' }
+      @($risk.history).Count | Should -Be ($before + 1)
+      $last = @($risk.history)[-1]
+      $last.text | Should -Match ('Owner Jonas Berg ' + ([string][char]0x2192) + ' Sara Nygaard')
+      $last.text | Should -Match ('Area Schedule ' + ([string][char]0x2192) + ' Resources')
+      $risk.owner | Should -Be 'Sara Nygaard'
+      $risk.area | Should -Be 'Resources'
+    }
+
+    It 'A resolved risk can be renamed and stays resolved' {
+      $root = New-Register 'change-resolved' (1..6 | ForEach-Object { [ordered]@{ name = "Risk $_"; owner = 'Jonas Berg'; impact = 2; probability = 2 } })
+      Set-PageText $root (Set-RiskAttr (Read-Page $root) 'RISK-006' 'data-state' 'Resolved')
+      $r = Invoke-Change $root 'RISK-006' ([ordered]@{ name = 'Migration window, renamed' })
+      $r.Code | Should -Be 0 -Because $r.Output
+      $risk = @((Invoke-Read $root).risks) | Where-Object { $_.id -eq 'RISK-006' }
+      $risk.name | Should -Be 'Migration window, renamed'
+      $risk.state | Should -Be 'Resolved'
+      @($risk.history).Count | Should -Be 2
+      @($risk.history)[-1].kind | Should -Be 'change'
+    }
+
+    It 'An identifier that does not exist writes nothing' {
+      $root = New-Register 'change-unknown' (1..2 | ForEach-Object { [ordered]@{ name = "Risk $_"; owner = 'Jonas Berg'; impact = 2; probability = 2 } })
+      $before = Get-PageHash $root
+      $r = Invoke-Change $root 'RISK-099' ([ordered]@{ impact = 4 })
+      $r.Code | Should -Be 1 -Because $r.Output
+      $r.Output | Should -Match 'RISK-099'
+      Get-PageHash $root | Should -Be $before
+      Test-Path (Join-Path $root 'project/risk-log.html.new') | Should -BeFalse
     }
   }
 }
