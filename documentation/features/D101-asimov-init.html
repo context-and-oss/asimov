@@ -301,7 +301,7 @@ footer.site-footer a { color: var(--cyan); }
   <a href="../index.html#s6">Diagrams</a>
   <span class="spacer"></span>
   <span class="phase-chip full">Full design</span>
-  <span class="status-chip">Draft v0.5</span>
+  <span class="status-chip">Draft v0.6</span>
 </nav>
 
 <div class="layout-doc">
@@ -349,10 +349,10 @@ footer.site-footer a { color: var(--cyan); }
 <div class="meta-strip">
   <div class="meta-cell"><div class="label">Owner</div><div class="value">Allan Borup</div></div>
   <div class="meta-cell"><div class="label">Approver</div><div class="value">Allan Borup</div></div>
-  <div class="meta-cell"><div class="label">Version</div><div class="value mono">0.4</div></div>
+  <div class="meta-cell"><div class="label">Version</div><div class="value mono">0.6</div></div>
   <div class="meta-cell"><div class="label">Model</div><div class="value mono">claude-opus-5-5 (Claude Code) · none (Codex)</div></div>
   <div class="meta-cell"><div class="label">Outputs</div><div class="value mono">conventions · index.html · Claude Code: asimov.md · CLAUDE.md · Codex: AGENTS.md · .codex/agents/</div></div>
-  <div class="meta-cell"><div class="label">Last updated</div><div class="value mono">2026-10-02</div></div>
+  <div class="meta-cell"><div class="label">Last updated</div><div class="value mono">2026-10-29</div></div>
   <div class="meta-cell"><div class="label">Archetype</div><div class="value">Greenfield (evolves /docs-init)</div></div>
 </div>
 
@@ -692,7 +692,8 @@ footer.site-footer a { color: var(--cyan); }
       <div class="h-value">Merge / Ask</div>
       <div class="h-desc">When a stack README already exists, offer to refresh only the Asimov-managed region; never overwrite the whole file silently.</div>
       <ul class="bullets">
-        <li>Existing README with a managed region → region refreshed, hand-written rules kept</li>
+        <li>Existing README with a managed region → region refreshed wholesale; the read-list and notes below the end marker are never written</li>
+        <li>Read-list found inside the markers (pre-2026-10-29 scaffold) → moved below the end marker before the refresh, no line dropped</li>
         <li class="warn">Existing README without a managed region → command asks before inserting one</li>
       </ul>
     </div>
@@ -778,6 +779,11 @@ footer.site-footer a { color: var(--cyan); }
       <div class="decided">Offer a managed-region merge for an existing convention README</div>
       <div class="alt">Skip an existing README entirely (the <code>/docs-init</code> read-only stance)</div>
       <div class="why">A pure skip leaves a repo that pre-dates the read-list convention permanently un-upgraded. A managed region lets the command add or refresh the Asimov read-list scaffolding while preserving the team's hand-written rules.</div>
+    </div>
+    <div class="decision-row">
+      <div class="decided">The read-list lives below the end marker, user-owned; the managed region holds only the heading and the explanation</div>
+      <div class="alt">The read-list inside the managed region, merged line by line on refresh</div>
+      <div class="why">The read-list is the team's content and the load-bearing index the subagents read, so a refresh that regenerates the region wiped it silently (issue #3). A tool-owned region with no merging and a user-owned list outside it is the split <code>asimov.md</code> and <code>AGENTS.md</code> already follow; line-by-line merging would make the refresh a guess about which lines are Asimov's.</div>
     </div>
     <div class="decision-row">
       <div class="decided">Rename and absorb <code>/docs-init</code> into <code>/asimov-init</code></div>
@@ -1183,7 +1189,8 @@ footer.site-footer a { color: var(--cyan); }
     <div class="ac-row"><div class="ac-id">AC6</div><div class="ac-verifies"><span class="verify-chip">R6</span><span class="verify-chip">R7</span></div><div>In a repo containing a <code>*.csproj</code>, the run scaffolds <code>documentation/conventions/dotnet/README.md</code> and lists <code>dotnet</code> among detected stacks.</div></div>
     <div class="ac-row"><div class="ac-id">AC7</div><div class="ac-verifies"><span class="verify-chip">R9</span></div><div>In a repo with no recognised stack marker, no <code>conventions/&lt;stack&gt;/</code> folder is created and the report states no stack was detected.</div></div>
     <div class="ac-row"><div class="ac-id">AC8</div><div class="ac-verifies"><span class="verify-chip">R8</span></div><div>When a stack <code>README.md</code> already exists, the command offers a managed-region merge and does not overwrite the file wholesale without confirmation.</div></div>
-    <div class="ac-row"><div class="ac-id">AC9</div><div class="ac-verifies"><span class="verify-chip">R7</span><span class="verify-chip">NF7</span></div><div>A scaffolded convention <code>README.md</code> contains the read-list skeleton from the template within Asimov start/end markers.</div></div>
+    <div class="ac-row"><div class="ac-id">AC9</div><div class="ac-verifies"><span class="verify-chip">R7</span><span class="verify-chip">NF7</span></div><div>A scaffolded convention <code>README.md</code> carries the heading and explanation from the template within the Asimov start/end markers and the read-list skeleton below the end marker.</div></div>
+    <div class="ac-row"><div class="ac-id">AC9b</div><div class="ac-verifies"><span class="verify-chip">R8</span><span class="verify-chip">NF7</span></div><div>Replacing the read-list's example lines with real <code>@</code>-references and re-running either entry point leaves every line below the end marker byte-identical; a read-list found inside the markers is moved below them, with no line dropped, and the plan labels the move.</div></div>
     <div class="ac-row"><div class="ac-id">AC10</div><div class="ac-verifies"><span class="verify-chip">R10</span><span class="verify-chip">R11</span></div><div>After a run in a repo with docs, both <code>documentation/index.html</code> and <code>documentation/_chrome.css</code> exist.</div></div>
     <div class="ac-row"><div class="ac-id">AC11</div><div class="ac-verifies"><span class="verify-chip">R12</span></div><div>A doc present as both <code>.md</code> and <code>.html</code> produces exactly one card with an HTML badge; a bucket with zero docs produces no section.</div></div>
     <div class="ac-row"><div class="ac-id">AC12</div><div class="ac-verifies"><span class="verify-chip">NF1</span></div><div>No file outside the declared targets is modified — content and mtime are unchanged after a run; the only edits to a pre-existing file are a confirmed managed region plus, in Claude Code, the <code>CLAUDE.md</code> import line and, in Codex, the <code>AGENTS.md</code> region and the <code>.codex/agents/</code> copies.</div></div>
@@ -1283,7 +1290,7 @@ footer.site-footer a { color: var(--cyan); }
     · <span class="mono">features/D101-asimov-init.html</span>
   </div>
   <div style="margin-top: 0.4rem">
-    D101 · /asimov-init · Asimov plugin · Full design · Draft v0.5 · 2026-10-02
+    D101 · /asimov-init · Asimov plugin · Full design · Draft v0.6 · 2026-10-29
   </div>
 </footer>
 
