@@ -270,7 +270,7 @@ footer.site-footer a { color: var(--cyan); }
   <a href="../index.html#s6">Diagrams</a>
   <span class="spacer"></span>
   <span class="phase-chip full">Full design</span>
-  <span class="status-chip draft">Draft v0.8</span>
+  <span class="status-chip draft">Draft v0.9</span>
 </nav>
 
 <div class="layout-doc">
@@ -345,13 +345,7 @@ footer.site-footer a { color: var(--cyan); }
     <li><strong>Seen on our own projects: a register never reopened.</strong> A register was opened at kick-off and not opened again.</li>
     <li><strong>Seen on our own projects: a risk raised too late.</strong> A risk was raised only after it had happened, when it could no longer be mitigated, only reported.</li>
   </ul>
-  <p class="section-desc" style="margin:1.2rem 0 0.4rem">The delivery model's risk discipline names the failures a register must prevent; their cost on our projects has not been measured.</p>
-  <ul class="bullets">
-    <li><strong>The register that is written once.</strong> Opened at kick-off, never reopened, discovered at closure, and worse than none.</li>
-    <li><strong>Mitigations with no owner.</strong> A plan nobody is answerable for reads as management while nothing is being done.</li>
-    <li><strong>Accepting by default.</strong> A risk left standing with no decision looks the same as one the team chose to live with.</li>
-    <li><strong>A plan read as a result.</strong> A register that shows a risk as mitigated because a plan was written gives false comfort.</li>
-  </ul>
+  <p class="section-desc" style="margin:1.2rem 0 0">Their cost on our projects has not been measured; the failures the design guards against are in §4.1.</p>
   <div class="callout">
     <strong>Audience.</strong> The project lead who keeps the register, the risk owners, the customer and steering readers who read the page the team shares with them, and the maintainers who add the next artifacts to the Project frame.
   </div>
@@ -365,7 +359,7 @@ footer.site-footer a { color: var(--cyan); }
   <h2 class="section-title"><span class="sec-ref">§3</span>Requirements</h2>
   <p class="section-desc">Everything here ships in the first slice: a register is trusted only if its history, its decisions and its integrity hold from the first week, and a register that later changes how it records who and when carries a history that means two things.</p>
 
-  <div class="subhead">Functional — 29</div>
+  <div class="subhead">Functional — 30</div>
   <div class="req-list">
     <div class="req"><div class="id">R1</div><div class="body">The risk log lands in the product repo at <code>project/risk-log.html</code>, the Project frame's folder beside <code>documentation/</code> and <code>specs/</code> (D100 §3).</div></div>
     <div class="req"><div class="id">R3</div><div class="body">The risk log is maintained through the frame's entry point <code>asimov-project</code>, in Claude Code and in Codex alike (D100 §4.3).</div></div>
@@ -395,16 +389,18 @@ footer.site-footer a { color: var(--cyan); }
     <div class="req"><div class="id">R27</div><div class="body">A risk becomes <em>Occurred</em> only when a person sets it, with a reason.</div></div>
     <div class="req"><div class="id">R28</div><div class="body">All open risks of one owner can be given to another named person in one step.</div></div>
     <div class="req"><div class="id">R29</div><div class="body">Any field of a risk can be changed in any state without changing the state.</div></div>
-    <div class="req"><div class="id">R30</div><div class="body">The review shows every open risk with its area, description and mitigation, and marks an empty one as <em>none written</em>.</div></div>
+    <div class="req"><div class="id">R30</div><div class="body">The review shows every open risk with its area, description and mitigation.</div></div>
+    <div class="req"><div class="id">R31</div><div class="body">The review marks an empty description or mitigation as <em>none written</em>.</div></div>
   </div>
 
-  <div class="subhead">Non-functional — 5</div>
+  <div class="subhead">Non-functional — 6</div>
   <div class="req-list nf">
-    <div class="req"><div class="id">NF1</div><div class="body">The register is one readable page in the documentation site's look, with no script.</div></div>
+    <div class="req"><div class="id">NF1</div><div class="body">The register is one readable page in the documentation site's look.</div></div>
     <div class="req"><div class="id">NF2</div><div class="body">The page shows what 1 and 5 mean on both the impact and the probability axis.</div></div>
     <div class="req"><div class="id">NF3</div><div class="body">The page states that the score ranks risks and does not decide what to do.</div></div>
     <div class="req"><div class="id">NF4</div><div class="body">An interrupted write leaves the register as it was.</div></div>
     <div class="req"><div class="id">NF5</div><div class="body">A leftover from an interrupted write is never committed.</div></div>
+    <div class="req"><div class="id">NF6</div><div class="body">The register page carries no script.</div></div>
   </div>
 
   <div class="subhead">Out of scope — 12</div>
@@ -445,6 +441,15 @@ footer.site-footer a { color: var(--cyan); }
     <div class="principle"><div class="num">5</div><div class="text"><strong>The tool keeps the register; people hold the conversation.</strong> Asimov maintains the entries and never writes the message or chooses what to escalate.</div></div>
     <div class="principle"><div class="num">6</div><div class="text"><strong>One fixed view, learned once.</strong> The register always reads the same way, so the weekly review reads it top-down without relearning it.</div></div>
   </div>
+
+  <div class="subhead">The failures the principles guard against</div>
+  <p class="section-desc" style="margin-bottom:0.4rem">The delivery model's risk discipline names them; each is answered by a principle above or a rule in §4.4.</p>
+  <ul class="bullets">
+    <li><strong>The register that is written once.</strong> Opened at kick-off, never reopened, discovered at closure, and worse than none (P1, the review in F4).</li>
+    <li><strong>Mitigations with no owner.</strong> A plan nobody is answerable for reads as management while nothing is being done (RL1).</li>
+    <li><strong>Accepting by default.</strong> A risk left standing with no decision looks the same as one the team chose to live with (P4, RL7).</li>
+    <li><strong>A plan read as a result.</strong> A register that shows a risk as mitigated because a plan was written gives false comfort (RL6).</li>
+  </ul>
 </section>
 
 <section class="s" id="s4-2">
@@ -566,6 +571,7 @@ footer.site-footer a { color: var(--cyan); }
   <ul class="bullets">
     <li>Impact 4, probability 3: the score shown is 12.</li>
     <li>"Score it 15": declined; the person is asked for impact and probability instead.</li>
+    <li>A risk whose impact is missing, in a register waiting for repair: no score is shown, not 0, since there is nothing to compute it from.</li>
   </ul>
 
   <div class="subhead">RL3 · Identifiers continue the series</div>
@@ -624,6 +630,7 @@ footer.site-footer a { color: var(--cyan); }
   <ul class="bullets">
     <li>Resolving a risk adds a line; the lines before it stand.</li>
     <li>A typo in a risk's name is corrected: a new line records the correction, and the earlier lines still show the old name; the history is never tidied, even when a line is wrong.</li>
+    <li>A confirmed review is not a change to any risk: it adds a line to the register's own history and none to any risk's.</li>
   </ul>
 
   <div class="subhead">RL11 · An unreadable register is repaired, never overwritten</div>
@@ -952,7 +959,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="row cols-2"><div class="label-cell">&lt;html lang&gt;</div><div>The project language (RL16, Q2).</div></div>
     <div class="row cols-2"><div class="label-cell">&lt;body&gt;</div><div><code>data-artifact="risk-log"</code>, <code>data-schema="1"</code>, <code>data-register</code> (<code>kept</code> or <code>opt-out</code>) and <code>data-updated</code> (the register's last-updated date).</div></div>
     <div class="row cols-2"><div class="label-cell">h1 + first paragraph</div><div>The title and one-sentence description a reader sees first, and what a later listing would read (S3, OOS3).</div></div>
-    <div class="row cols-2"><div class="label-cell">ol.register-history</div><div>One <code>li</code> per update, with <code>data-date</code>, <code>data-by</code>, <code>data-kind</code> (<code>created</code>, <code>write</code>, <code>review</code>, <code>repair</code>, <code>finish</code>) and, for a review, <code>data-with</code>; inside the ⓘ's <code>&lt;details&gt;</code>.</div></div>
+    <div class="row cols-2"><div class="label-cell">ol.register-history</div><div>One <code>li</code> per update, with <code>data-date</code>, <code>data-by</code>, <code>data-kind</code> (<code>created</code>, <code>write</code>, <code>review</code>, <code>repair</code>, <code>finish</code>, <code>opt-out</code> when an opt-out is written, <code>replaced-opt-out</code> as the first line of a register that replaces one) and, for a review, <code>data-with</code>; inside the ⓘ's <code>&lt;details&gt;</code>.</div></div>
     <div class="row cols-2"><div class="label-cell">table.summary</div><div>Rendered from the articles on every write in the RL12 order; never read.</div></div>
     <div class="row cols-2"><div class="label-cell">section.opt-out</div><div>On an opt-out page only: <code>data-reason</code> (<code>elsewhere</code> or <code>not-worked</code>), <code>data-where</code>, <code>data-by</code>, <code>data-date</code>.</div></div>
   </div>
@@ -967,10 +974,10 @@ footer.site-footer a { color: var(--cyan); }
   </div>
 
   <div class="subhead">Areas nearly the same (RL13)</div>
-  <p class="section-desc" style="margin-bottom:0.4rem">Two areas are nearly the same when they are equal after ignoring case, spaces, hyphens and punctuation, or, for words of four letters or more, when they differ by one letter.</p>
+  <p class="section-desc" style="margin-bottom:0.4rem">Two areas are compared as whole texts, never word by word: after ignoring case, spaces, hyphens and punctuation, they are nearly the same when they are equal or, for texts of four letters or more, when they differ by one letter.</p>
   <ul class="bullets">
     <li><code>schedule</code>, <code>Schedule</code> and <code>sched-ule</code> are nearly the same; so are <code>Schedul</code> and <code>Schedule</code>.</li>
-    <li><code>Cost</code> and <code>Costs</code> are nearly the same; <code>QA</code> and <code>QC</code> are not, being shorter than four letters.</li>
+    <li><code>Cost</code> and <code>Costs</code> are nearly the same, and so are <code>Customer schedule</code> and <code>Customer schedules</code>, compared whole; <code>QA</code> and <code>QC</code> are not, being shorter than four letters, and neither are <code>Customer schedule</code> and <code>Supplier schedule</code>.</li>
   </ul>
 
   <div class="subhead">The change file -Apply takes</div>
@@ -1162,16 +1169,19 @@ footer.site-footer a { color: var(--cyan); }
     <div class="ac-row"><div class="ac-id">AC25</div><div class="ac-verifies"><span class="verify-chip">RL13</span></div><div>Manual step: registering a risk with no area, or with an area unlike any used, prompts for nothing; giving "schedule" where "Schedule" is used asks once, and the answer is kept.</div></div>
     <div class="ac-row"><div class="ac-id">AC26</div><div class="ac-verifies"><span class="verify-chip">RL14</span></div><div>The risk-log definition states that the register is reviewed at closure and that every risk not Resolved carries into the closure report.</div></div>
     <div class="ac-row"><div class="ac-id">AC27</div><div class="ac-verifies"><span class="verify-chip">RL16</span></div><div>Told in Danish in an English project, the risk is not written until the shown English text is confirmed or corrected; a correction is stored as written, and people's names as given.</div></div>
-    <div class="ac-row"><div class="ac-id">AC28</div><div class="ac-verifies"><span class="verify-chip">NF1</span></div><div>The register page contains no <code>&lt;script&gt;</code> and links the site's shared chrome stylesheet.</div></div>
+    <div class="ac-row"><div class="ac-id">AC28</div><div class="ac-verifies"><span class="verify-chip">NF1</span><span class="verify-chip">NF6</span></div><div>The register page contains no <code>&lt;script&gt;</code> and links the site's shared chrome stylesheet.</div></div>
     <div class="ac-row"><div class="ac-id">AC29</div><div class="ac-verifies"><span class="verify-chip">NF2</span><span class="verify-chip">NF3</span></div><div>The register page states what 1 and 5 mean on both axes and the sentence that the score ranks risks and does not decide what to do.</div></div>
     <div class="ac-row"><div class="ac-id">AC30</div><div class="ac-verifies"><span class="verify-chip">R24</span></div><div>After a registration and a confirmed review, the register's history, reached from its last-updated date, holds two lines, each with date and person; a review confirmed with participants names them in its line, and one with the question skipped names only the person.</div></div>
     <div class="ac-row"><div class="ac-id">AC31</div><div class="ac-verifies"><span class="verify-chip">R25</span></div><div>Every history line on every risk names a person.</div></div>
     <div class="ac-row"><div class="ac-id">AC32</div><div class="ac-verifies"><span class="verify-chip">R27</span><span class="verify-chip">RL17</span></div><div>Occurred with no reason is not set; with a reason it is set, the history line holds it, and page and view show the risk in the Occurred group.</div></div>
     <div class="ac-row"><div class="ac-id">AC33</div><div class="ac-verifies"><span class="verify-chip">R28</span></div><div>Handing an owner's risks to a named person changes the owner on each of that owner's open risks, each with its own history line, and leaves the owner of that owner's Resolved risks as it was.</div></div>
     <div class="ac-row"><div class="ac-id">AC34</div><div class="ac-verifies"><span class="verify-chip">R29</span></div><div>Changing the name of a Resolved risk writes the new name and a history line, and the risk is still Resolved.</div></div>
-    <div class="ac-row"><div class="ac-id">AC35</div><div class="ac-verifies"><span class="verify-chip">R30</span></div><div>The review shows, for every risk that is not Resolved, its area, description and mitigation; a risk with no mitigation shows <em>none written</em> in its place, and Resolved risks appear only as a count.</div></div>
+    <div class="ac-row"><div class="ac-id">AC35</div><div class="ac-verifies"><span class="verify-chip">R30</span><span class="verify-chip">R31</span></div><div>The review shows, for every risk that is not Resolved, its area, description and mitigation; a risk with no mitigation shows <em>none written</em> in its place, and Resolved risks appear only as a count.</div></div>
     <div class="ac-row"><div class="ac-id">AC36</div><div class="ac-verifies"><span class="verify-chip">NF4</span></div><div>With a <code>risk-log.html.new</code> left beside an unchanged register, the next run shows what it changes and renames it into place if it passes the check, else deletes it and says so; until then the register is byte-identical.</div></div>
     <div class="ac-row"><div class="ac-id">AC37</div><div class="ac-verifies"><span class="verify-chip">NF5</span></div><div>After the first risk-log run of <code>asimov-project</code> in a repo, its <code>.gitignore</code> holds <code>project/*.new</code>, and a second run adds it no second time.</div></div>
+    <div class="ac-row"><div class="ac-id">AC38</div><div class="ac-verifies"><span class="verify-chip">R7</span></div><div>Changing <code>RISK-099</code> in a register that holds no such risk writes nothing and shows the register so the person can find the right identifier (F2).</div></div>
+    <div class="ac-row"><div class="ac-id">AC39</div><div class="ac-verifies"><span class="verify-chip">R1</span><span class="verify-chip">R21</span></div><div>Reviewing in a repo with neither a register nor an opt-out writes nothing and offers to register a risk or to record an opt-out (F4).</div></div>
+    <div class="ac-row"><div class="ac-id">AC40</div><div class="ac-verifies"><span class="verify-chip">R28</span><span class="verify-chip">RL1</span></div><div>Handing an owner's risks to <em>the project lead</em>, or handing over the risks of an owner who has no open risks, writes nothing and says why (F7).</div></div>
   </div>
 </section>
 
@@ -1291,7 +1301,7 @@ footer.site-footer a { color: var(--cyan); }
     · <span class="mono">features/D101-project-management-risk.html</span>
   </div>
   <div style="margin-top: 0.4rem">
-    D101 · Project management: risk log · asimov-plugin · Draft v0.8 · 2026-10-29
+    D101 · Project management: risk log · asimov-plugin · Draft v0.9 · 2026-10-29
   </div>
 </footer>
 
