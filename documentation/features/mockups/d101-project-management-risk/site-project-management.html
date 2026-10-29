@@ -80,21 +80,21 @@ td:first-child { color:#fff; white-space:nowrap; }
     <p>Nothing yet. A risk log and its kin land under <a href="#">Artifacts → Project management</a> when a command produces them.</p>
   </div>
   <div class="v-after hidden">
-    <p><strong>A risk log</strong>, at <code>documentation/project/risk-log.html</code>: one page per repo that holds every risk of the engagement, what it costs, who owns it and what changed since last week.</p>
+    <p><strong>A risk log</strong>, at <code>project/risk-log.html</code>: one page per repo that holds every risk of the engagement, what it costs, who owns it and what changed since last week.</p>
     <table>
       <tr><th>You say</th><th>It does</th></tr>
-      <tr><td><code>/asimov-risk</code></td><td>Shows the register, sorted by state and score, and asks whether to mark it reviewed today.</td></tr>
-      <tr><td><code>/asimov-risk add …</code></td><td>Asks for name, owner, impact and probability, then gives the risk the next number.</td></tr>
-      <tr><td><code>/asimov-risk accept RISK-004</code></td><td>Records the decision, its reason and who took it. Mitigated and resolved work the same way.</td></tr>
+      <tr><td><code>/asimov-project risk log</code></td><td>Shows the register, sorted by state and score, and asks whether to mark it reviewed today.</td></tr>
+      <tr><td><code>/asimov-project risk log, add …</code></td><td>Asks for name, owner, impact and probability, then gives the risk the next number.</td></tr>
+      <tr><td><code>/asimov-project risk log, accept RISK-004</code></td><td>Records the decision, its reason and who took it. Mitigated and resolved work the same way.</td></tr>
     </table>
     <ul>
       <li><strong>Every decision has a name on it.</strong> Nothing beyond Active is set without a reason and a person.</li>
       <li><strong>History only grows.</strong> Every change is a dated line with who made it; nothing is deleted.</li>
       <li><strong>The score ranks; it does not decide.</strong> Impact times probability orders the review, nothing more.</li>
       <li><strong>Not keeping one is a decision too.</strong> An opt-out is recorded with its reason, in the register’s place.</li>
-      <li>In Codex: <code>$asimov-plugin:asimov-risk</code>.</li>
+      <li>In Codex: <code>$asimov-plugin:asimov-project risk log</code>.</li>
     </ul>
-    <p>More of the family follows: a closure report and project setup are next. See <a href="#">Artifacts → Project management</a>.</p>
+    <p>More of the Project frame follows: a closure report and project setup are next. See <a href="#">Artifacts → Project management</a>.</p>
   </div>
 </main>
 
@@ -104,13 +104,13 @@ td:first-child { color:#fff; white-space:nowrap; }
   <p class="lede v-today">The artifacts that run an engagement, a risk log among them; none has landed yet. <span class="chip planned">planned</span></p>
   <p class="v-today">Until then, the delivery model behind them is described under <a href="#">What's inside → Project management</a>.</p>
   <div class="v-after hidden">
-    <p class="lede">The artifacts that run an engagement. They land under <code>documentation/project/</code> and are listed under <em>Project</em> on your documentation site.</p>
+    <p class="lede">The artifacts that run an engagement. They land in your repo's <code>project/</code>, beside <code>documentation/</code> and <code>specs/</code>, and are kept through <code>asimov-project</code>.</p>
     <div class="card">
       <h3>Risk log <span class="chip assess">assess</span></h3>
-      <p>What could derail the engagement, who owns it, and what changed since last week. Kept by <code>/asimov-risk</code> and reviewed weekly.</p>
+      <p>What could derail the engagement, who owns it, and what changed since last week. Kept by <code>/asimov-project risk log</code> and reviewed weekly.</p>
       <p><a href="#">What it keeps and how →</a></p>
     </div>
-    <p>Next in the family: the closure report and project setup.</p>
+    <p>Next in the Project frame: the closure report and project setup.</p>
   </div>
 </main>
 

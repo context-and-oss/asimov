@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mockup — what /asimov-risk prints</title>
+<title>Mockup — what /asimov-project prints for the risk log</title>
 <style>
 /* Styled after the plan-view transcript of the Spec stage (mockups/d101-spec-stage/plan-run.html). */
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap');
@@ -95,7 +95,7 @@ pre.view .s-Resolved { color:var(--ok); }
   // every open risk in full (R30), Resolved only as a count.
   function view(risks, updated) {
     const n = s => risks.filter(r => r[5] === s).length;
-    let h = '<span class="h">Risk log · documentation/project/risk-log.html</span>\n';
+    let h = '<span class="h">Risk log · project/risk-log.html</span>\n';
     h += '<span class="m">Updated ' + updated + ' · ' + risks.length + ' risks</span>\n';
     h += '<span class="m">' + ORDER.map(s => n(s) + ' ' + s).join(' · ') + '</span>\n\n';
     ORDER.forEach(s => {
@@ -135,7 +135,7 @@ pre.view .s-Resolved { color:var(--ok); }
 
   const S = {
     review() {
-      add(u('/asimov-risk'));
+      add(u('/asimov-project risk log'));
       add(a('Showing the risk log; I ask at the end whether to mark it reviewed.'));
       add(a(MATURITY, 'warn'));
       add(view(RISKS, '2026-10-06'));
@@ -148,8 +148,8 @@ pre.view .s-Resolved { color:var(--ok); }
       ]);
     },
     add() {
-      add(u('/asimov-risk tilføj: kunden når ikke at frigive testere før uge 48'));
-      add(a('Jeg registrerer en ny risiko i documentation/project/risk-log.html. Projektets sprog er engelsk, så jeg viser den engelske tekst, før noget gemmes.'));
+      add(u('/asimov-project risk log, tilføj: kunden når ikke at frigive testere før uge 48'));
+      add(a('Jeg registrerer en ny risiko i project/risk-log.html. Projektets sprog er engelsk, så jeg viser den engelske tekst, før noget gemmes.'));
       add(a('The risk log is an assess-level artifact: the definition is untried and may change without notice. Feedback is welcome.', 'warn'));
       add(a('Hvem ejer risikoen? Og konsekvens og sandsynlighed, 1–5 hver (konsekvens 1 = klares inden for ugen, 5 = truer målet; sandsynlighed 1 = ville overraske os, 5 = forventet, medmindre vi handler).'));
       add(u('Jonas, konsekvens 4, sandsynlighed 3, område Schedule, ingen mitigation endnu'));
@@ -165,7 +165,7 @@ pre.view .s-Resolved { color:var(--ok); }
       ]);
     },
     handover() {
-      add(u('/asimov-risk Jonas Berg leaves at the end of the month, give his risks to Sara Nygaard'));
+      add(u('/asimov-project risk log: Jonas Berg leaves at the end of the month, give his risks to Sara Nygaard'));
       add(a('Handing Jonas Berg\'s open risks to Sara Nygaard.'));
       add(a(MATURITY, 'warn'));
       add(a('Jonas Berg owns three open risks: RISK-002 (Occurred), RISK-004 (Accepted), RISK-007 (Active). RISK-006 is Resolved and keeps its owner.'));
@@ -175,7 +175,7 @@ pre.view .s-Resolved { color:var(--ok); }
       ]);
     },
     accept() {
-      add(u('/asimov-risk accept RISK-004'));
+      add(u('/asimov-project risk log, accept RISK-004'));
       add(a('Setting RISK-004 Third-party API pricing changes from Active to Accepted.'));
       add(a(MATURITY, 'warn'));
       add(a('Accepted needs a reason and the person who decided. Why is it lived with, and who decided?'));
@@ -188,8 +188,8 @@ pre.view .s-Resolved { color:var(--ok); }
       ]);
     },
     none() {
-      add(u('/asimov-risk'));
-      add(a('Looking for documentation/project/risk-log.html.'));
+      add(u('/asimov-project risk log'));
+      add(a('Looking for project/risk-log.html.'));
       add(a(MATURITY, 'warn'));
       add(a('No risk register and no opt-out in this repo yet.', 'warn'));
       gate('Start a register with its first risk, or record that no register is kept here?', [
@@ -198,15 +198,15 @@ pre.view .s-Resolved { color:var(--ok); }
       ]);
     },
     optout() {
-      add(u('/asimov-risk'));
+      add(u('/asimov-project risk log'));
       add(a('Showing the risk log.'));
       add(a(MATURITY, 'warn'));
-      add('<pre class="view"><span class="h">Risk log · documentation/project/risk-log.html</span>\n<span class="s-Accepted">No register kept here</span>\nHandled elsewhere: the customer’s project tool, PMO board\n<span class="m">Decided by Erik Lund · 2026-09-30</span></pre>');
+      add('<pre class="view"><span class="h">Risk log · project/risk-log.html</span>\n<span class="s-Accepted">No register kept here</span>\nHandled elsewhere: the customer’s project tool, PMO board\n<span class="m">Decided by Erik Lund · 2026-09-30</span></pre>');
       add(a('Registering a risk replaces the opt-out with a register; say <span class="dim">add</span> to start.'));
     },
     repair() {
-      add(u('/asimov-risk'));
-      add(a('Reading documentation/project/risk-log.html.'));
+      add(u('/asimov-project risk log'));
+      add(a('Reading project/risk-log.html.'));
       add(a(MATURITY, 'warn'));
       add(a('The register cannot be read in full, so I will not write to it. Proposed repair:', 'bad'));
       add('<div class="diff">' +
