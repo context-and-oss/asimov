@@ -320,6 +320,7 @@ function Get-Problems($Model) {
     if ($r.created -notmatch '^\d{4}-\d{2}-\d{2}$') { $problems += "$who has no created date" }
     if ($r.changed -notmatch '^\d{4}-\d{2}-\d{2}$') { $problems += "$who has no changed date" }
     if (@($r.history).Count -eq 0) { $problems += "$who has no history" }
+    if (@($r.history | Where-Object { -not $_.by }).Count -gt 0) { $problems += "a history line of $who names no person" }
   }
   return $problems
 }
@@ -367,7 +368,8 @@ function Get-Areas($Model) {
   $set = New-Object System.Collections.Generic.HashSet[string] ([System.StringComparer]::Ordinal)
   foreach ($r in $Model.risks) { if ($r.area) { [void]$set.Add($r.area) } }
   $list = New-Object System.Collections.Generic.List[string] (,[string[]]@($set))
-  $list.Sort([System.StringComparer]::Ordinal)
+  # alphabetical without regard to case, case only as a tie-break; ordinal, so both editions agree
+  $list.Sort([System.Comparison[string]] { param($a, $b) $c = [string]::Compare($a, $b, [System.StringComparison]::OrdinalIgnoreCase); if ($c -ne 0) { $c } else { [string]::CompareOrdinal($a, $b) } })
   return @($list)
 }
 
@@ -388,6 +390,7 @@ function Write-Register([string]$Page, $Model, $Held) {
     $problem = $null
     if ($html -match '\{\{') { $problem = 'a placeholder was left unfilled' }
     elseif (-not (Test-Same (Format-Model $back) (Format-Model $Model))) { $problem = 'the written page does not read back as the change' }
+    elseif (Test-Unsigned $back) { $problem = "a history line names no person" }
     else { $problem = Test-Kept $Held $back }
     if ($problem) { Exit-Refused "Not written: $problem. The register is as it was." }
     if (Test-Path -LiteralPath $Page) { [System.IO.File]::Replace($new, $Page, [NullString]::Value) } else { [System.IO.File]::Move($new, $Page) }
@@ -395,6 +398,13 @@ function Write-Register([string]$Page, $Model, $Held) {
   } finally {
     if (-not $renamed -and (Test-Path -LiteralPath $new)) { Remove-Item -LiteralPath $new -Force }
   }
+}
+
+# Every history line, of the register and of every risk, names the person who made it (R25).
+function Test-Unsigned($Model) {
+  if (@($Model.history | Where-Object { -not $_.by }).Count -gt 0) { return $true }
+  foreach ($r in $Model.risks) { if (@($r.history | Where-Object { -not $_.by }).Count -gt 0) { return $true } }
+  return $false
 }
 
 # The new page keeps every risk and every history line the page held (after renumbering), and
@@ -581,7 +591,7 @@ function Invoke-State([string]$Page, $ChangeData, [string]$Person) {
   if ($to -eq 'Mitigated' -and -not $risk.mitigation) { Exit-Refused "Setting $target to Mitigated needs its mitigation written first. Nothing written." }
   if ($to -eq 'Accepted' -and -not $decider) { Exit-Refused "Setting $target to Accepted needs the name of the person who decided it. Nothing written." }
   $text = "$($risk.state) $Arrow ${to}: $reason"
-  if (-not $text.EndsWith('.')) { $text += '.' }
+  if ($text -notmatch '[.?!]$') { $text += '.' }
   if ($decider) { $text += " Decided by $decider." }
   $risk.state = $to
   $risk.changed = $Today
@@ -592,6 +602,32 @@ function Invoke-State([string]$Page, $ChangeData, [string]$Person) {
   $model.updated = $Today
   Write-Register $Page $model $current.Held
   Write-Output "$target written."
+}
+
+# Every open risk of a leaving owner to a named successor in one write, each with its own line (R28).
+function Invoke-Handover([string]$Page, $ChangeData, [string]$Person) {
+  Test-NoScore $ChangeData
+  if (-not (Test-Path -LiteralPath $Page)) { Exit-Refused 'There is no register yet; register a risk first. Nothing written.' }
+  $from = Get-Text (Get-Field $ChangeData 'target')
+  $to = Get-Text (Get-Field $ChangeData 'to')
+  if (-not $from) { Exit-Refused 'A handover names the owner whose risks move (target). Nothing written.' }
+  if (-not $to) { Exit-Refused 'A handover names the person the risks move to (to). Nothing written.' }
+  if (Test-Same $from $to) { Exit-Refused "$from already owns those risks. Nothing written." }
+  $current = Get-Current $Page $Person
+  $model = $current.Model
+  $open = @($model.risks | Where-Object { $_.state -ne 'Resolved' -and (Test-Same $_.owner.Trim() $from) })
+  if ($open.Count -eq 0) { Exit-Refused "$from has no open risks; nothing to hand over. Nothing written." }
+  foreach ($risk in $open) {
+    $risk.owner = $to
+    $risk.changed = $Today
+    $risk.history = @($risk.history) + @([ordered]@{ date = $Today; by = $Person; kind = 'handover'; text = "Handed over from $from to $to." })
+  }
+  $line = "Open risks of $from handed over to ${to}: " + (($open | ForEach-Object { $_.id }) -join ', ') + '.'
+  if ($current.Renumbered.Count -gt 0) { $line += ' ' + ($current.Renumbered -join '; ') + '.' }
+  $model.history = @([ordered]@{ date = $Today; by = $Person; kind = 'write'; with = ''; text = $line }) + @($model.history)
+  $model.updated = $Today
+  Write-Register $Page $model $current.Held
+  Write-Output ((($open | ForEach-Object { $_.id }) -join ', ') + ' written.')
 }
 
 function Invoke-Read([string]$Page) {
@@ -630,6 +666,7 @@ switch ($actions) {
       'add' { Invoke-Add $PagePath $data $person }
       'change' { Invoke-Change $PagePath $data $person }
       'state' { Invoke-State $PagePath $data $person }
+      'handover' { Invoke-Handover $PagePath $data $person }
       default { Exit-Unreadable "The verb '$(Get-Text (Get-Field $data 'verb'))' is not built yet." }
     }
     exit 0

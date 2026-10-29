@@ -323,7 +323,8 @@ Describe 'risk-log.ps1' {
       function Invoke-Change([string]$Root, [string]$Target, $Fields) {
         $change = Write-Change $Root ([ordered]@{ verb = 'change'; target = $Target; fields = $Fields })
         return Invoke-RiskLog $Root @('-Path', 'project/risk-log.html', '-Apply', '-Change', $change, '-By', 'Maja Holm')
-      }    }
+      }
+    }
 
     It 'A changed field moves the changed date and keeps the created date' {
       $root = New-Register 'change-one' (1..3 | ForEach-Object { [ordered]@{ name = "Risk $_"; owner = 'Jonas Berg'; impact = 3; probability = 2 } })
@@ -415,10 +416,12 @@ Describe 'risk-log.ps1' {
       $root = New-StateRegister ("set-$from-$to") $from $true
       $state = [ordered]@{ to = $to; reason = $reason }
       if ($decider) { $state.decider = $decider }
+      $was = @((Invoke-Read $root).risks) | Where-Object { $_.id -eq 'RISK-002' }
       $r = Invoke-State $root 'RISK-002' $state
       $r.Code | Should -Be 0 -Because $r.Output
       $risk = @((Invoke-Read $root).risks) | Where-Object { $_.id -eq 'RISK-002' }
       $risk.state | Should -Be $to
+      foreach ($f in 'name', 'owner', 'impact', 'probability', 'area', 'description', 'mitigation', 'created') { $risk.$f | Should -Be $was.$f }
       $risk.changed | Should -Be (Get-Today)
       $last = @($risk.history)[-1]
       $last.kind | Should -Be 'state'
@@ -471,6 +474,76 @@ Describe 'risk-log.ps1' {
       ($history | ForEach-Object { $_.kind }) -join ',' | Should -Be 'created,change,state'
       foreach ($h in $history) { $h.date | Should -Match '^\d{4}-\d{2}-\d{2}$' }
       ($history[0] | ConvertTo-Json -Compress) | Should -Be ($first | ConvertTo-Json -Compress)
+    }
+  }
+
+  Context 'Hand open risks to an owner' {
+
+    BeforeAll {
+      function Invoke-Handover([string]$Root, [string]$From, [string]$To, [string]$By = 'Maja Holm') {
+        $change = Write-Change $Root ([ordered]@{ verb = 'handover'; target = $From; to = $To })
+        return Invoke-RiskLog $Root @('-Path', 'project/risk-log.html', '-Apply', '-Change', $change, '-By', $By)
+      }
+      function Invoke-As([string]$Root, $Change, [string]$By) {
+        $file = Write-Change $Root $Change
+        return Invoke-RiskLog $Root @('-Path', 'project/risk-log.html', '-Apply', '-Change', $file, '-By', $By)
+      }
+    }
+
+    It 'Every open risk of the owner moves to the new owner' {
+      $root = New-Register 'handover' (1..6 | ForEach-Object { [ordered]@{ name = "Risk $_"; owner = $(if ($_ % 2 -eq 0) { 'Jonas Berg' } else { 'Erik Lund' }); impact = 2; probability = 2 } })
+      $html = Read-Page $root
+      $html = Set-RiskAttr $html 'RISK-002' 'data-state' 'Occurred'
+      $html = Set-RiskAttr $html 'RISK-004' 'data-state' 'Accepted'
+      $html = Set-RiskAttr $html 'RISK-006' 'data-state' 'Resolved'
+      $html = Set-RiskAttr $html 'RISK-006' 'data-changed' '2026-01-09'
+      Set-PageText $root $html
+      $six = @((Invoke-Read $root).risks) | Where-Object { $_.id -eq 'RISK-006' }
+      $r = Invoke-Handover $root 'Jonas Berg' 'Sara Nygaard'
+      $r.Code | Should -Be 0 -Because $r.Output
+      $data = Invoke-Read $root
+      foreach ($pair in @(@('RISK-002', 'Occurred'), @('RISK-004', 'Accepted'))) {
+        $risk = @($data.risks) | Where-Object { $_.id -eq $pair[0] }
+        $risk.owner | Should -Be 'Sara Nygaard'
+        $risk.state | Should -Be $pair[1]
+        $risk.changed | Should -Be (Get-Today)
+        $last = @($risk.history)[-1]
+        $last.kind | Should -Be 'handover'
+        $last.by | Should -Be 'Maja Holm'
+        $last.text | Should -Match 'Jonas Berg'
+        $last.text | Should -Match 'Sara Nygaard'
+      }
+      $now = @($data.risks) | Where-Object { $_.id -eq 'RISK-006' }
+      ($now | ConvertTo-Json -Depth 6 -Compress) | Should -Be ($six | ConvertTo-Json -Depth 6 -Compress)
+    }
+
+    It 'A handover with no open risk to move writes nothing (<situation>)' -ForEach @(
+      @{ situation = 'Jonas Berg owns only RISK-006 in state Resolved'; jonas = $true }
+      @{ situation = 'Jonas Berg owns no risk'; jonas = $false }
+    ) {
+      $root = New-Register ('no-open-' + $jonas) (1..6 | ForEach-Object { [ordered]@{ name = "Risk $_"; owner = $(if ($jonas -and $_ -eq 6) { 'Jonas Berg' } else { 'Erik Lund' }); impact = 2; probability = 2 } })
+      if ($jonas) { Set-PageText $root (Set-RiskAttr (Read-Page $root) 'RISK-006' 'data-state' 'Resolved') }
+      $before = Get-PageHash $root
+      $r = Invoke-Handover $root 'Jonas Berg' 'Sara Nygaard'
+      $r.Code | Should -Be 1 -Because $r.Output
+      $r.Output | Should -Match 'Jonas Berg has no open risks'
+      Get-PageHash $root | Should -Be $before
+    }
+
+    It 'Every history line on every risk names a person' {
+      $root = New-TestRepo 'signed'
+      (Invoke-As $root ([ordered]@{ verb = 'add'; fields = [ordered]@{ name = 'Sponsor changes'; owner = 'Jonas Berg'; impact = 3; probability = 3; mitigation = 'Brief the deputy.' }; language = 'en' }) 'Ada One').Code | Should -Be 0
+      (Invoke-As $root ([ordered]@{ verb = 'change'; target = 'RISK-001'; fields = [ordered]@{ impact = 4 } }) 'Bo Two').Code | Should -Be 0
+      (Invoke-As $root ([ordered]@{ verb = 'state'; target = 'RISK-001'; state = [ordered]@{ to = 'Mitigated'; reason = 'the deputy is briefed' } }) 'Cy Three').Code | Should -Be 0
+      (Invoke-Handover $root 'Jonas Berg' 'Sara Nygaard' 'Di Four').Code | Should -Be 0
+      $history = @(@((Invoke-Read $root).risks)[0].history)
+      ($history | ForEach-Object { $_.by }) -join ',' | Should -Be 'Ada One,Bo Two,Cy Three,Di Four'
+      Set-PageText $root ((Read-Page $root) -replace '(<ol class="risk-history">\s*<li data-date="[^"]*") data-by="[^"]*"', '$1 data-by=""')
+      $before = Get-PageHash $root
+      $r = Add-Risk $root ([ordered]@{ name = 'Another'; owner = 'Erik Lund'; impact = 2; probability = 2 })
+      $r.Code | Should -Be 1 -Because $r.Output
+      $r.Output | Should -Match 'no person'
+      Get-PageHash $root | Should -Be $before
     }
   }
 

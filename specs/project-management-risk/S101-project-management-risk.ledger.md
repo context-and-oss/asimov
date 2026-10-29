@@ -31,17 +31,17 @@ phases:
     tasks:
       - { id: T005, status: done, attempts: 1, agent: human-in-session, model: session }
   - id: P4
+    status: committed
+    commit: "7631c2b"
+    go: { by: "SimonVilandt", date: "2026-10-29" }
+    tasks:
+      - { id: T006, status: done, attempts: 1, agent: human-in-session, model: session }
+  - id: P5
     status: passed
     commit: none
     go: none
     tasks:
-      - { id: T006, status: done, attempts: 1, agent: human-in-session, model: session }
-  - id: P5
-    status: pending
-    commit: none
-    go: none
-    tasks:
-      - { id: T007, status: pending, attempts: 0, agent: none, model: none }
+      - { id: T007, status: done, attempts: 1, agent: human-in-session, model: session }
   - id: P6
     status: pending
     commit: none
@@ -515,5 +515,88 @@ Scenario coverage in the Detailed run (context "Decide a risk's state"):
 Earlier contexts, all green in the same run: "Register a risk on a new page" (T003) 7 tests; "Read, number and score risks" (T004) 13; "Change a risk's fields" (T005) 4; "Review guards" 2 (as described). Total 7+13+4+16+2 = 42 = "Discovery found 42 tests".
 
 Notes: the `-Output Detailed` run is a variant of the pwsh command used only to read test names; the exit codes above are from the commands run exactly as written (output discarded). The pwsh command was run twice in total (detailed variant, then as written), both exit 0. Tree-state fingerprint (`git status --short | md5sum`) was `ffe06e893a13852e0766801a9ff162e5` both before and after all runs — it covers status, not file contents, but it shows the same modified/untracked set, and I created or edited no repo file.
+
+Verified: 2 pass · 0 fail · checkpoint met
+
+### commit · 7631c2b
+go by SimonVilandt on 2026-10-29 · 2 files · ledger
+
+## P5 · Hand risks to an owner
+
+### T007 · attempt 1 · human-in-session · session
+Conventions read: none (this repo has no documentation/conventions/); CLAUDE.md and the S101 §1-§2 instead.
+built T007 (human task, built in the session that directs the run; test-first)
+- Tests first: the three scenarios of §2 as four Pester tests (the no-open-risk outline's two rows). Seen red (4 failing on "verb 'handover' is not built yet", the 42 earlier green) before the code.
+- risk-log.ps1 -Apply with verb handover (target = the leaving owner, to = the successor): both required (exit 1); the same name refused; open = not Resolved, owners compared as written after trimming, ordinally; none open -> exit 1 "<owner> has no open risks", page byte-identical; one write moves every open risk (owner, changed today, a handover line "Handed over from X to Y." by the person); Resolved risks untouched; register write line naming the risks moved.
+- R25: the write's check refuses a new page holding any history line without a person (Test-Unsigned, exit 1 "a history line names no person"), and -Read lists such a line as a problem; the test removes data-by from one line by hand and an add is refused with the page unchanged.
+- From P4's review flags: a state reason ending in ? or ! no longer gets a full stop appended; the T006 set test now asserts the fields and created date are unchanged by a state change; areas sort alphabetically ignoring case with an ordinal tie-break (OrdinalIgnoreCase, so both editions agree; non-ASCII letters still sort after Z); the "}    }" formatting slip fixed.
+- Done-when 1 and 2: Pester 5.9.1, 46 passed, 0 failed on PowerShell 7.6.7 and on 5.1 (5.1 run alone: 5 min 42 s; the suite now takes about five minutes per edition, each test spawning the script in a child process).
+gaps: 0 · flags: 1
+- flag: the suite's run time (about 11 minutes for the check's two editions) is near the 10-minute limit of one tool call; a verifier should run each edition as its own call.
+
+### review
+Conventions read: `CLAUDE.md` (repo root; this repo has no `documentation/conventions/`) and `plugins/asimov-plugin/skills/artifact-s102-validation/scripts/validate-s102.ps1` as PowerShell house style. Also read: S102 T007 whole, the D101 ids/S101 §1–§2 as traced by the ledger, the P4 review and the T007 attempt in `specs/project-management-risk/S101-project-management-risk.ledger.md`, all of `risk-log.ps1` and the diff of `risk-log.Tests.ps1`.
+
+Reviewing: HEAD (uncommitted work as the diff) — 2 files, against S102 T007. Ran Pester 5.9.1: Windows PowerShell 5.1 → 46 passed / 0 failed; PowerShell 7 → 46 passed / 0 failed on the second run. (A first pwsh run, started in parallel with the 5.1 run, reported 45 passed / 1 failed; I did not capture which test, and it did not reproduce when re-run with failure details — likely load-related, but unconfirmed.) Two small manual experiments run in the scratchpad (below); no repo file edited.
+
+## Conventions
+| File:line | Severity | Reason |
+|---|---|---|
+| `risk-log.ps1`, `risk-log.Tests.ps1` (the diff) | Pass | Pure ASCII kept (no non-ASCII byte in either file), same banner sections, reuses `Exit-Refused`/`Get-Field`/`Get-Text`/`Test-Same` — matches `validate-s102.ps1` and `CLAUDE.md`; no hard rule touched. |
+| `risk-log.ps1:393` | Flag | Message uses a double-quoted string with nothing to expand where the neighbouring messages use single quotes — base judgment, cosmetic. |
+
+## Correctness & safety
+| File:line | Severity | Reason |
+|---|---|---|
+| `risk-log.ps1:305-326` vs `:404-408` | Flag | `Get-Problems` checks only *risk* history lines for a missing person, but the new write check (`Test-Unsigned`) also checks the *register* history. A hand-edited register line with `data-by=""` therefore leaves `-Read` with no problems while every write is refused — reproduced: `-Apply` → `Not written: a history line names no person. The register is as it was.` (exit 1), with no pointer to a repair. Failure class: check disagrees with its reader → page unwritable. Fix: make `Get-Problems` report the register line too, so the repair path (T010) is offered. |
+| `risk-log.ps1:393` (`Test-Unsigned` in `Write-Register`) | Flag | The write-side check is only reachable through a whitespace `-By`: `Get-Person` returns `''` for `-By ' '` (`if ($By)` is true, `Trim()` yields empty) — reproduced: handover refused, exit 1, page unchanged. A blank person should be caught in `Get-Person` (exit 3, which is T014's case). |
+| `risk-log.ps1:608-631` (`Invoke-Handover`) | Pass | Inputs checked before any mutation; open = state not Resolved; owners compared ordinally after `Trim()` on both sides; all moves in one `Write-Register` (all-or-none); Resolved risks untouched; each moved risk gets its own `handover` line (kind is in the template's list) with `by`; register line lists the moved ids and renumbers; none-open exits 1 before any write. |
+| `risk-log.ps1:372` (`Get-Areas` sort) | Pass | Case-insensitive ordinal with an ordinal tie-break behaves the same on both editions (both suites green); case-only duplicates still kept apart. No test pins the order (see spec table). |
+| `risk-log.ps1:594` | Pass | A reason ending in `?`/`!` no longer gets a full stop appended. |
+
+## Against the spec
+| File:line | S102 · line | Severity | Reason |
+|---|---|---|---|
+| `risk-log.ps1:608-631` | T007 · §2 scenario 1 (every open risk moves) | Pass | Owner, changed date, kind `handover`, `by`, history text naming both people; Resolved RISK-006 untouched — test checks each. |
+| `risk-log.ps1:618-619` | T007 · §2 outline (no open risk) | Pass | Both example rows → exit 1 "Jonas Berg has no open risks", page byte-identical (hash asserted). |
+| `risk-log.Tests.ps1` ("Every history line on every risk names a person", last 6 lines) | T007 · §2 scenario 3, "refused **by the write's check** with exit 1" | Flag | The test breaks `data-by` on a risk line by hand, so the refusal comes from `Get-Current`/`Get-Problems` ("cannot be read in full … run -Repair first"); the `'no person'` match is satisfied by that read-side message, not by `Test-Unsigned`. The write's check is never exercised — deleting `Test-Unsigned` would leave the suite green. A blank `-By` would hit the write-side check. The first half of the scenario (four writes by four people, every line signed) is served and tested. |
+| `risk-log.ps1:393-395` | T007 · §4 Must (all or none) | Pass | One write; page unchanged on any refusal. |
+| both files | T007 · `owns` | Pass | Only the owned script and its test changed in code (the ledger edit is the run's own). |
+| `risk-log.ps1:608-631` | T007 · §5 (role as new owner, departed owner) | Pass | No refusal of a role, no noticing of a departed owner. |
+| `risk-log.Tests.ps1` (whole) | T007 · §3 done-when 1 | Pass | One test per scenario/outline row, titled as the spec; both editions green. |
+
+## P4's review flags taken into this attempt
+- State change never touches a field (spec-table Flag) → **closed**: the set test now compares name, owner, impact, probability, area, description, mitigation and created before and after.
+- `}    }` formatting slip at test line 326 → **closed**.
+- Reason ending in `?`/`!` → **code closed**, but **no test** asserts it (every reason in the set examples ends in a letter).
+- Area order → **code closed**, **no test** asserts it (the only area tests check count for case-only duplicates and the sorted set; the sort comparator is unpinned).
+- Half-resolved merge (one marker line deleted, `=======` left) reads as a clean register → **still open**; P4 marked it uncertain and tied it to T010 — the T007 ledger entry neither closes nor defers it, so it should be written down as handed to T010.
+
+## Notes for later tasks (review focus; none belongs to T007)
+- **T010 (repair):** `Get-Problems` now includes "a history line of RISK-NNN names no person" — the repair has no person to put there, so it must ask for one or refuse. The register-level unsigned line is not a problem at all today (first correctness Flag). Markers are still set only by `Read-Register`.
+- **T014:** `Get-Person` should refuse an empty trimmed `-By` with exit 3; it is not yet an `-Apply`-first step (`Read-Change` still runs before it). A leftover `.new` still refuses `-Apply` with "run -Finish first"; `-Finish` not built.
+- **T003/T004:** nothing in this phase obstructs the UTF-8/CRLF checks; owner and handover texts go through the same ordinal read-back comparison.
+- **T012:** nothing in this phase blocks the no-PowerShell fallback; the handover rules live in the script alone, so the skills will have to restate them (open = any state but Resolved; owners compared as written after trimming; one write; each risk its own signed line).
+
+Findings only — no approval verdict. Route fixes to the .NET builder / Angular builder / tester; the approval call stays with the human reviewer.
+
+### verify
+Verifying P5: 1 task spec (T007), 2 done-whens, checkpoint "Every open risk of the owner moves to the new owner with its own signed history line, resolved risks keep their owner, an owner with no open risks writes nothing, and the script's tests prove it."
+
+Environment: as ruled, `export PSModulePath="$(powershell -NoProfile -Command "[Environment]::GetEnvironmentVariable('PSModulePath','Machine')");C:\Users\sva\AppData\Local\PowerShell\Modules"` first in Bash. Both halves of the check run with exactly the commands as written, sequentially, each as its own call — never in parallel.
+
+| Task | Check | Result | Evidence |
+|---|---|---|---|
+| T007 | done-when 1: `risk-log.Tests.ps1` green under `pwsh -NoProfile -Command '…Invoke-Pester…'`, T003–T006 tests still green, one test per scenario of §2 (one per example row) | pass | pwsh run → "Tests Passed: 46, Failed: 0, Skipped: 0, Inconclusive: 0, NotRun: 0", exit=0, 423.7 s; test names: see note below |
+| T007 | done-when 2: green under `powershell -NoProfile -ExecutionPolicy Bypass -Command '…Invoke-Pester…'` | pass | powershell run → "Tests Passed: 46, Failed: 0, Skipped: 0, Inconclusive: 0, NotRun: 0", exit=0, 1153.7 s |
+| P5 | checkpoint (the `Check` command: both halves, sequentially) | met | pwsh exit 0 then powershell exit 0; 46 passed / 0 failed on each edition |
+
+Test names per §2 scenario (read from `/c/Privat/Repositories/asimov/plugins/asimov-plugin/skills/artifact-risk-log-authoring/scripts/risk-log.Tests.ps1`, context 'Hand open risks to an owner', lines 480-548 — the default Pester output does not list names, and I did not run a third time with detailed output):
+- Scenario 1 → 'Every open risk of the owner moves to the new owner' (line 493): asserts RISK-002 (Occurred) and RISK-004 (Accepted) owned by Sara Nygaard, states kept, changed today, last history line kind handover by Maja Holm naming Jonas Berg and Sara Nygaard; RISK-006 (Resolved) unchanged.
+- Scenario Outline 2 → 'A handover with no open risk to move writes nothing (<situation>)' (line 520), a `-ForEach` with two rows matching the two example rows ("Jonas Berg owns only RISK-006 in state Resolved", "Jonas Berg owns no risk"); each expects exit 1, "Jonas Berg has no open risks", page byte-identical.
+- Scenario 3 → 'Every history line on every risk names a person' (line 533): add/change/state Mitigated/handover with four different -By → history by Ada One, Bo Two, Cy Three, Di Four; then a page with a blank data-by is refused with exit 1 and "no person", page unchanged.
+- The earlier tasks' tests are in their own contexts; the 'Review guards' context holds two tests belonging to no task spec. The 46 count and green result come from the runs; the one-per-scenario mapping comes from reading the file.
+
+Read-only boundary: tree fingerprint (`git ls-files -s -m -o --exclude-standard | sha256sum`) identical before and after both runs (5521cfa35084eb8105c1e52dd0e29aa75aae646f1c9be53840de096cd83cbb9b). No edits made; my only output files are the two run logs in the session scratchpad, outside the repo. No test re-run.
 
 Verified: 2 pass · 0 fail · checkpoint met
