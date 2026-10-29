@@ -6,18 +6,18 @@ fingerprint: "1bb81caedb63"
 started: { by: "SimonVilandt", date: "2026-10-29" }
 phases:
   - id: P0
-    status: passed
-    commit: none
-    go: none
+    status: committed
+    commit: "e4f7b9b"
+    go: { by: "SimonVilandt", date: "2026-10-29" }
     tasks:
       - { id: T001, status: done, attempts: 1, agent: human-in-session, model: session }
       - { id: T002, status: done, attempts: 1, agent: human-in-session, model: session }
   - id: P1
-    status: pending
+    status: passed
     commit: none
     go: none
     tasks:
-      - { id: T003, status: pending, attempts: 0, agent: none, model: none }
+      - { id: T003, status: done, attempts: 1, agent: human-in-session, model: session }
   - id: P2
     status: pending
     commit: none
@@ -174,3 +174,97 @@ Working tree: `git status --short` before and after identical (` M specs/project
 Note for the run: the Pester files contain no tests ("Discovery found 0 tests"), so exit 0 means no failures, as the scaffold intends — not that anything was exercised.
 
 Verified: 5 pass · 0 fail · checkpoint met
+
+### commit · e4f7b9b
+go by SimonVilandt on 2026-10-29 · 3 files · ledger
+
+## P1 · Register the first risk
+
+### T003 · attempt 1 · human-in-session · session
+Conventions read: none (this repo has no documentation/conventions/); CLAUDE.md and the S101 §1-§2 instead.
+built T003 (human task, built in the session that directs the run; test-first)
+- Tests first: five scenarios of §2 added to risk-log.Tests.ps1 as seven Pester tests (the outline's two rows, the non-ASCII scenario on pwsh and on powershell); every repo and page in TestDrive, git run with GIT_CONFIG_GLOBAL on an empty file and GIT_CONFIG_NOSYSTEM=1 so no developer identity leaks in; ASCII-only file, non-ASCII built with [char]. Seen red (7 of 7 failing on "not built yet") before the code.
+- risk-log.ps1 -Apply with verb add on a repo with no page: required fields (name, owner, impact 1-5, probability 1-5) refused with exit 1; the first write must name the project language (exit 1); no person -> exit 3 (git config user.name, else -By); render from the template read at run time under -PluginRoot (blocks by BEGIN/END markers, the authoring comment stripped, kept form only, register-line omits data-with unless the kind is review, the risk block lifted into the resolved group); values HTML-escaped (& < > " and braces only, so UTF-8 names stay as written); score rendered only; write to risk-log.html.new, read it back into the model and compare parsed data, then Move/Replace into place; a failed check deletes the .new and exits 1. An add on an existing page exits 2 "not built yet" (T004's).
+- Fixed from P0's review flags: [Console]::OutputEncoding UTF-8; data-with only on review lines; escaping; the risk block in the resolved group.
+- Done-when 1 and 2: Pester 5.9.1, 7 passed, 0 failed on PowerShell 7.6.7 and 5.1.
+gaps: 0 · flags: 2
+- flag: the script's own texts (history lines, the page description) are English; RL16 wants stored content in the project language. Left to T011/T012 (the definition and the authoring skill decide whether the script takes these texts from the change file).
+- flag: an unbuilt action or verb still exits 2, as P0's review noted; T004-T010 replace them.
+
+### review
+Conventions read: CLAUDE.md (repo root; no `documentation/conventions/` exists), `plugins/asimov-plugin/skills/artifact-s102-validation/scripts/validate-s102.ps1` (house style for a PowerShell script).
+
+Reviewing: HEAD (uncommitted, working tree) — 2 files (`risk-log.ps1`, `risk-log.Tests.ps1`) against S102 T003. (`specs/project-management-risk/S101-project-management-risk.ledger.md` is also modified but not in scope; not reviewed.)
+
+Ran the Pester file under both editions: `pwsh` 7 passed / 0 failed, `powershell` 5.1 7 passed / 0 failed. Both files are pure ASCII. Also ran the script by hand on hostile input: a name containing `& < > " {{OWNER}} $1 $& ${x}` and a multi-line description with `{{NAME}}` — written and read back clean, no placeholder re-substitution; a CRLF copy of the template under `-PluginRoot` — exit 0; a pre-existing `risk-log.html.new` containing "OLD" — silently overwritten (see Correctness row 1).
+
+### Conventions
+Stack: PowerShell script. CLAUDE.md has no PowerShell rules beyond the pure-ASCII/5.1+7 house style and hard rule 3 (template read by path at run time).
+
+| File:line | Severity | Reason |
+|---|---|---|
+| (whole changeset) | Pass | Follows the `validate-s102.ps1` house style: ASCII-only source, 5.1 + 7, `Set-StrictMode`, `$ErrorActionPreference = 'Stop'`, console encoding in try/catch, plugin root derived three folders up; the template is read at run time from `$PluginRoot`, not copied into the script. |
+| risk-log.ps1 `Format-Page` — `[regex]::Replace($Template, '(?s)<!--...', '', 1)` | Flag | The static `Regex.Replace` has no count overload; the `1` binds to `RegexOptions` = `IgnoreCase` (confirmed: `[regex]::Replace("ABC","b","x",1)` → `AxC`). It works (and the tests prove the comment is stripped), but the intent is misstated; base-judgment: pass `[System.Text.RegularExpressions.RegexOptions]::None` or use an instance `Regex` with a count. |
+| risk-log.ps1 `$Today = (Get-Date).ToString('yyyy-MM-dd')` | Flag | Culture-sensitive format (a Buddhist/Japanese-era calendar in the current culture changes the year); CLAUDE.md mandates `YYYY-MM-DD` dates — use `[CultureInfo]::InvariantCulture`. Same exposure in the test's `Get-Today`. Base-judgment. |
+
+### Correctness & safety
+
+| File:line | Severity | Reason |
+|---|---|---|
+| risk-log.ps1 `Write-Register` — `WriteAllText($new, …)` | Flag | An existing `<page>.new` from an interrupted earlier run is overwritten with no check (reproduced: a stale `.new` was clobbered and then renamed over the page). This is the review-focus case "a `.new` left by an earlier run → `-Finish` runs before any verb" (T014); not a T003 defect, since T003 only needs failure cleanup, but when T004+ reuse this function an `-Apply` that finds a `.new` should refuse (exit 1, "run -Finish first") rather than destroy the thing `-Finish` is meant to recover. Failure class: data loss on recovery path. |
+| risk-log.ps1 `Write-Register` — between `WriteAllText` and the compare | Flag | The `.new` is deleted only on a failed comparison; any terminating error in between (`$ErrorActionPreference = 'Stop'` — e.g. a read-back exception, a locked file) leaves the `.new` behind with an unhandled error. The spec says a failed check deletes the `.new`; a `try/finally` that removes the `.new` unless renamed closes this. Failure class: cleanup not guaranteed. |
+| risk-log.ps1 `Read-PageModel` / `Format-Model` — look-ahead for T004/T010 | Flag (uncertain — not a T003 defect) | The check compares parsed text exactly. For the CRLF review-focus case (T004), a hand-checked-out page will read multi-line `description`/`mitigation`/history `text` back with `\r\n` while the model holds `\n`, so the compare would report a false mismatch. Normalise newlines in `Read-PageModel` (or in `Format-Model`) before T004 reads real pages. The block regexes already tolerate `\r?\n`. |
+| risk-log.ps1 `Get-Score` / `Format-Risk` — look-ahead for T010 | Pass | A missing impact or probability yields `''`, so the score renders empty, not 0; parsing yields `''` for a removed attribute — what T010's "no score shown, read reports a problem" needs. |
+| risk-log.ps1 `Get-Person` / main `Apply` — look-ahead for T014 | Pass | `-By` unset and no git user name → exit 3 with a stated reason before any write; `git` missing is caught as well. |
+| risk-log.ps1 `Write-Register` — `$repoName = Split-Path -Leaf (Split-Path -Parent $dir)` | Flag | The repo name for `<title>` is the grandparent folder of the page: right for `project/risk-log.html` at a repo root, wrong for any other `-Path`; a drive-root `$dir` makes `Split-Path -Leaf ''` throw. Low risk since the path is fixed by convention. Base-judgment. |
+| risk-log.ps1 — UTF-8 (review focus, T003) | Pass | Change file read with BOM-less UTF-8 `ReadAllText`, page written with BOM-less UTF-8, HTML-escaping leaves non-ASCII intact; the tests build æ/ø/å with `[char]` and check bytes (no BOM) and the exact name/owner on both editions. |
+| risk-log.Tests.ps1 `New-TestRepo` | Flag | The no-git-identity test sets `$env:GIT_CONFIG_GLOBAL` and `GIT_CONFIG_NOSYSTEM` in the Pester process and never restores them (they leak to the rest of the session), and `GIT_CONFIG_GLOBAL` needs git ≥ 2.32 — on older git the exit-3 example would pick up the developer's own identity, against §4 "never depend on the developer's git identity". Set/restore around the call, or pass per child process. |
+| risk-log.Tests.ps1 non-ASCII test | Flag | The `powershell`/`pwsh` rows call the shell by bare name; a machine without `pwsh` (or 5.1) fails the test rather than skipping. Acceptable if both editions are required — say so in the comment. |
+
+### Against the spec
+
+| File:line | S102 · line | Severity | Reason |
+|---|---|---|---|
+| (whole changeset) | §1 owns / `owns.modify`, `owns.test` | Pass | Only `risk-log.ps1` and `risk-log.Tests.ps1` changed; both are listed in `owns`. |
+| risk-log.ps1 `Invoke-Add` / `Apply` | §2 "The first risk creates the register as RISK-001" | Pass | RISK-001, Active, score 12 beside the name, today's dates, one `created` line each in risk and register history, `lang` from `language`. |
+| risk-log.ps1 `Test-Required`, `Get-Person` | §2 outline rows (exit 1 no owner; exit 3 no person) | Pass | Exit codes 1 and 3 with a reason on stdout, no page and no `.new` left; the tests assert both. |
+| risk-log.ps1 `Format-Risk` | §2 "Optional fields left out are not shown" | Pass | No `risk-desc`/`risk-mitigation` element, `data-area=""`. |
+| risk-log.ps1 `Format-Page` / template | §2 "states its scoring and carries no script" | Pass | No `<script`, chrome link present, anchors table and caveat sentence from the template. |
+| risk-log.ps1 `Read-Template`, `Write-Register` | §4 Must: render from template under `-PluginRoot`; write via `.new`, check, rename; create the folder | Pass | Template read at run time under `$PluginRoot`; `.new` beside the page, read back, checked, then moved/replaced; folder created when absent. |
+| risk-log.ps1 `Format-Risk` | §4 Must: score in no `data-*`, nothing reads it back | Pass | `data-*` carries impact/probability only; `Read-PageModel` never reads the score. The history text "(score N)" is narrative, not the score field. |
+| risk-log.ps1 `Invoke-Add` | §4 Must not: read back an existing page | Pass | An existing page exits 2 "not built yet" — no read, no overwrite. |
+| risk-log.Tests.ps1 | §4 Must: `TestDrive:`, no developer identity | Flag | `TestDrive:` used throughout; the identity isolation has the weaknesses in the Correctness row for `New-TestRepo`. |
+| risk-log.Tests.ps1 | §3 done-when 1: one test per scenario, one per example row | Pass | Seven tests: one each for the first, optional, scoring and non-ASCII scenarios, plus two outline rows; the non-ASCII scenario is split into a pwsh and a powershell test, consistent with "each page" in the scenario. |
+| risk-log.ps1 `Invoke-Add` — `language`, `Exit-Refused` | §2 / §5 Out of scope (translation T012/T014) | Pass | Titles, description and history text are English regardless of `language`; deferred to T012/T014, not built early. |
+
+Review-focus items other than T003 UTF-8 (CRLF, hand-removed impact, conflict markers, git user unset, leftover `.new`, no PowerShell) are not due this phase; the notes above are what would make them harder: the newline-normalisation gap, the unguarded `.new` overwrite, and the cleanup-on-exception gap.
+
+Findings only — no approval verdict. Route fixes to the .NET builder / Angular builder / tester; the approval call stays with the human reviewer.
+
+### verify
+Verifying P1: 1 task spec (T003), 2 done-whens, checkpoint "A first risk becomes RISK-001, Active, on a new register page that shows the scoring anchors and carries no script, a risk without an owner is refused, and the script's tests prove it."
+
+Environment (as ruled by SimonVilandt): before any command I ran `export PSModulePath="$(powershell -NoProfile -Command "[Environment]::GetEnvironmentVariable('PSModulePath','Machine')");C:\Users\sva\AppData\Local\PowerShell\Modules"` — Pester resolved to 5.9.1 in both shells. All commands run from `C:/Privat/Repositories/asimov`.
+
+| Task | Check | Result | Evidence |
+|---|---|---|---|
+| T003 | done-when 1: green under `pwsh -NoProfile -Command 'Import-Module Pester -MinimumVersion 5.0; exit (Invoke-Pester -Path …/risk-log.Tests.ps1 -PassThru \| ForEach-Object { $_.FailedCount + $_.FailedContainersCount })'`, one test per §2 scenario / example row | pass | exit 0; last line `Tests Passed: 7, Failed: 0, Skipped: 0, Inconclusive: 0, NotRun: 0`. A separate `-Output Detailed` run listed the 7 test names (below). |
+| T003 | done-when 2: green under `powershell -NoProfile -ExecutionPolicy Bypass -Command '…same Pester expression…'` | pass | exit 0; last line `Tests Passed: 7, Failed: 0, Skipped: 0, Inconclusive: 0, NotRun: 0` |
+| P1 | checkpoint: P1's check (pwsh run && powershell run) | met | The two runs of done-when 1 and 2 are exactly the check's two halves as written (no `&&` between them); both exited 0. |
+
+Per-scenario check for done-when 1 — the Detailed run showed these 7 tests:
+- The first risk creates the register as RISK-001
+- A first risk that cannot be written leaves no page behind (no owner)
+- A first risk that cannot be written leaves no page behind (every required field present)
+- Optional fields left out are not shown
+- The page states its scoring and carries no script
+- Names outside ASCII are written intact on both shell editions (pwsh)
+- Names outside ASCII are written intact on both shell editions (powershell)
+
+One test per scenario, one per example row of the outline, and the ASCII scenario has one test per shell edition. I read these names from the output only; I did not open the test file to check the assertions against the scenario steps.
+
+Notes:
+- I ran the pwsh command once with `-Output Detailed` and `$r` instead of the as-written pipeline, to see test names. That is a second run, not the as-written command; the as-written commands were then run in both shells, and only those two runs are the evidence for the two done-whens.
+- The working-tree status hash (`git status --short | md5sum`) was identical before and after my runs: `ffe06e893a13852e0766801a9ff162e5`.
+
+Verified: 2 pass · 0 fail · checkpoint met
