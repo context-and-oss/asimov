@@ -352,7 +352,7 @@ $Consumes = @(); if ($H.ContainsKey('consumes') -and $H['consumes'] -is [array])
 $Produces = @(); if ($H.ContainsKey('produces') -and $H['produces'] -is [array]) { $Produces = @($H['produces']) }
 $Status = ''; if ($H.ContainsKey('status')) { $Status = [string]$H['status'] }
 $Role = ''; if ($H.ContainsKey('role')) { $Role = [string]$H['role'] }
-$IsTester = ($Role -match 'tester'); $IsBuilder = ($Role -match 'builder')
+$IsTester = ($Role -match 'tester'); $IsBuilder = ($Role -match 'builder' -or $Role -eq 'human')
 
 # S101 section 1 contracts: name -> producer task ids
 $Contracts = @{}
