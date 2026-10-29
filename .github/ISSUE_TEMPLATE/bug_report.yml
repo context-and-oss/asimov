@@ -1,6 +1,7 @@
 name: Bug report
 description: A command, subagent or skill does something other than what its documentation says.
-labels: [bug]
+type: Bug
+labels: ["status: new"]
 body:
   - type: input
     id: component
