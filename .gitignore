@@ -29,19 +29,15 @@ documentation/features/*.review.md
 # assumptions, written by asimov-spec and overwritten by
 # the next run (s101-implementation-plan-definition §9, D101-spec-stage.html §6.8).
 # A cache, never a record; the assumptions themselves live in the S101.
-documentation/specs/*/S101-*.review.md
+specs/*/S101-*.review.md
 # Design cache — a design that is not a file in the repo (a ticket thread),
 # normalised into the shape the S101 definition §9 fixes, for the blind validation
 # reader. The source's tool is the record; asimov-spec rewrites this on every
 # run (S101 definition §3.1, §9).
-documentation/specs/*/design.md
-# Repo notes — what the cut learned about the repo (files, names with paths,
-# package types, the test fixture and runner, the commands), written by
-# artifact-s101-authoring beside the S101 so the task-spec writers start from it
-# instead of exploring the repo from nothing (S101 definition §9). A cache,
-# refreshed at every cut; never a plan, never a record.
-documentation/specs/*/repo-notes.md
-
+specs/*/design.md
+# Asimov run log — one text line per harness event, written by the plugin's
+# hooks (asimov-log-definition.md, D101-asimov-log.html). Working state, never a record.
+.asimov/
 # Claude Code local state
 .claude/settings.local.json
 

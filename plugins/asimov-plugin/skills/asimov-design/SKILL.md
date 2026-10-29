@@ -145,7 +145,7 @@ When §8a is plausibly met: summarise the business design in five to ten bullets
 
 # Step 07 — Phase C: technical design
 
-Entered only from Step 01, against a file at `Business design`. Re-read the file first: it is the record of what §2–§5 settled, and you may not have written it. The open-§6 list is your agenda, each item a question to close. Then work §6.1 *Platform*, §6.2 *Data flow* (an SVG, the authoring skill's rule), §6.3 to §6.8, then **§7 Implementation**, the code-grounded recipe realising the §6 contracts, written *after* §6 is settled and sitting **outside both bars** (definition §4.8): it moves no chip and gates no verdict; a feature that has an S101 marks §7 N/A and points at `documentation/specs/<slug>/`; a pure-reuse build takes the §7 N/A stub. Then §10, completing what Phase B left thin.
+Entered only from Step 01, against a file at `Business design`. Re-read the file first: it is the record of what §2–§5 settled, and you may not have written it. The open-§6 list is your agenda, each item a question to close. Then work §6.1 *Platform*, §6.2 *Data flow* (an SVG, the authoring skill's rule), §6.3 to §6.8, then **§7 Implementation**, the code-grounded recipe realising the §6 contracts, written *after* §6 is settled and sitting **outside both bars** (definition §4.8): it moves no chip and gates no verdict; a feature that has an S101 marks §7 N/A and points at `specs/<slug>/`; a pure-reuse build takes the §7 N/A stub. Then §10, completing what Phase B left thin.
 
 When an item on the agenda turns out to change the business design, **say so and stop**: that is a return to Phase B, not something to paper over in §6.
 

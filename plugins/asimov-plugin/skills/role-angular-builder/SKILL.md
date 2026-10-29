@@ -37,9 +37,12 @@ That README @-references every Angular convention file in the repo, so reading i
 
 ## Boundaries
 
-Frontend production code only. Tests belong to the **tester** role; backend belongs to the **.NET builder**. No automatic hand-off — surface the need and let the developer route it.
+Frontend production code only. Tests belong to the **tester** role, backend to the **.NET builder** — unless your brief says otherwise: a task spec whose `owns.test` lists a spec file makes that file yours to write, test-first (the tests before the code, red then green), and you never stop to ask whether it is the tester's. The brief overrides the role's default; the default holds only where no brief speaks. No automatic hand-off — surface the need and let the developer route it.
 
 ## Output
 
 - Code that a reviewer accepts without style fixes.
-- A short summary that (a) cites the convention files you applied and (b) lists every flag you raised — gap, conflict, or otherwise. If you raised none, say so explicitly.
+- A short summary, in this shape:
+  1. First line: `Conventions read: <the entry README and every file you loaded>`, so the caller can see what you judged against.
+  2. Second line, first word `built` or `stopped`, then why in one sentence. `built`: the task is done and the checks you ran pass. `stopped`: you did not finish — a conflict with a convention or the design, a file outside your brief, a write the harness refused, a decision you could not take. Nothing else is a stop; a *gap* is a note, never a reason to stop.
+  3. Then (a) the convention files behind your non-trivial choices and (b) every flag you raised — gap, conflict, or otherwise. If you raised none, say so explicitly.

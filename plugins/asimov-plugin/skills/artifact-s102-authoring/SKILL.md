@@ -1,6 +1,6 @@
 ---
 name: artifact-s102-authoring
-description: How to write one S102 task spec (documentation/specs/<slug>/S102-<slug>-NNN-<task>.md) for one builder role from one task line in an S101 tree — the task part of a specification under contracts/specification.md: header copied from the task line plus the owned files and the contract names it consumes and produces, intent, behaviour as Gherkin or an explicit none, done-when as named tests and commands, task-specific constraints and stops, out of scope — so that a builder with no conversation history can build it and decide every line of code itself. Use when asked to "write the S102 for task T003", "write a task spec for this ticket", "rewrite this S102 against these findings", or inside asimov-spec at every task. Writes one S102; never the S101, never another S102, never a method body, a test body or a step, never a placeholder.
+description: How to write one S102 task spec (specs/<slug>/S102-<slug>-NNN-<task>.md) for one builder role from one task line in an S101 tree — the task part of a specification under contracts/specification.md: header copied from the task line plus the owned files and the contract names it consumes and produces, intent, behaviour as Gherkin or an explicit none, done-when as named tests and commands, task-specific constraints and stops, out of scope — so that a builder with no conversation history can build it and decide every line of code itself. Use when asked to "write the S102 for task T003", "write a task spec for this ticket", "rewrite this S102 against these findings", or inside asimov-spec at every task. Writes one S102; never the S101, never another S102, never a method body, a test body or a step, never a placeholder.
 ---
 
 # S102 authoring
@@ -16,8 +16,8 @@ One task line in, one task spec out. The S102 is the whole brief a fresh builder
 1. **The S102 template**, whole: `${CLAUDE_PLUGIN_ROOT}/artifacts/documentation/s102-task-spec/s102-task-spec-template.md`
 2. **The S101**: the task's line (title, role, tier, after, traces) and the body it inherits: §1 (the rows this task produces, and every row whose producer it comes after), §2, §4, §5 (a line pinned to this task becomes a scenario).
 3. **The design, by the ids in `traces`**: a D101's requirement wording, §6 contract, rule with its counter-example and acceptance criterion; or the cache's R, NF, AC and OOS items and Interfaces section.
-4. **The repo notes**, `documentation/specs/<slug>/repo-notes.md` beside the S101, when the cut wrote them: files, existing names with their declaring paths, package types, the test project, fixture and runner, the commands. Take every path and name as given; the shape check looks each one up, and a wrong line is a template finding, not your cost.
-5. **The repo, only for what the notes lack**, everything in **one message** as parallel tool calls: one read of a declaring file for a name you must place (found by one search); one read of a file the task touches that the notes do not list. Never a walk, a caller, or a file opened to see how it works. Also: the headers of the S102s already written for tasks that may run beside this one (no path between them), so the owned sets stay disjoint; for a builder in a slice, its tester's S102 (§2 holds the slice's scenarios, §3 names the tests); the stack's conventions (`documentation/conventions/<stack>/README.md` and what it lists) for the build and test commands and the test project layout.
+4. **What you read for the cut**, when you are the writer that cut this plan: it is in your context, and you read none of it again. A writer that did not cut the plan (a rollover, a hand run) first reads the S101 whole and every S102 already written in the folder.
+5. **The repo, only for what the above lacks**, everything in **one message** as parallel tool calls: one read of a declaring file for a name you must place (found by one search); one read of a file the task touches that you have not read. Never a walk, a caller, or a file opened to see how it works. Also: the headers of the S102s already written for tasks that may run beside this one (no path between them), so the owned sets stay disjoint; for a builder in a slice, its tester's S102 (§2 holds the slice's scenarios, §3 names the tests); the stack's conventions (`documentation/conventions/<stack>/README.md` and what it lists) for the build and test commands and the test project layout.
 
 ## Inputs from the caller
 
@@ -44,12 +44,12 @@ One task line in, one task spec out. The S102 is the whole brief a fresh builder
 
 6. **Out of scope.** The neighbouring task that owns the adjacent thing (by id), the follow-up the design deferred (by OOS number), the refactor that tempts. One line each; *none* if none.
 
-7. **Write** `documentation/specs/<slug>/S102-<slug>-<NNN>-<task-slug>.md` from the template: `<NNN>` the task number, `<task-slug>` three to five words of the title in kebab-case, never the whole title. No section opens with a template sentence. A rewrite goes to the same path, in place.
+7. **Write** `specs/<slug>/S102-<slug>-<NNN>-<task-slug>.md` from the template: `<NNN>` the task number, `<task-slug>` three to five words of the title in kebab-case, never the whole title. No section opens with a template sentence. A rewrite goes to the same path, in place.
 
 8. **Check your own shape.** Through Bash, one call per file:
 
    ```
-   pwsh -NoProfile -File "${CLAUDE_PLUGIN_ROOT}/scripts/validate-s102.ps1" -S102 <the file> -S101 <the S101> -Design <the D101 path, or the cache the S101's design line names>
+   pwsh -NoProfile -File "${CLAUDE_PLUGIN_ROOT}/skills/artifact-s102-validation/scripts/validate-s102.ps1" -S102 <the file> -S101 <the S101> -Design <the D101 path, or the cache the S101's design line names>
    ```
 
    (`powershell -NoProfile -ExecutionPolicy Bypass -File …` with only Windows PowerShell; `-PluginRoot <plugin-root>` in Codex.) Fix every Fail the file can fix (a done-when without a code span and a result word, a missing header key, a template sentence left in, a count) and run it again, at most twice. A Fail beginning `design:` or `S101:` is not yours: it becomes a *cannot write*. Flags and Warns are left. With no PowerShell, skip and say so. You never mark the file validated: the caller's run is the record.

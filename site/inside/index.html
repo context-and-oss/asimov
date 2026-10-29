@@ -364,11 +364,11 @@
     </div>
   </div>
 
-  <h2>The three phases</h2>
-  <p>Design, specification, build. Each phase is one asimov-skill that writes and one that checks, standing on its own skills and its own piece of your repository. One D101 becomes one S101 and its S102s, and those become code.</p>
+  <h2>The three phases, and the frame</h2>
+  <p>Design, specification, build. Each phase is one asimov-skill you name (design has a second one for the review), standing on its own skills and its own piece of your repository. One D101 becomes one S101 and its S102s, and those become code. The fourth column is the frame around them: project management, kept while the phases run.</p>
 
-  <div class="figure">
-<svg class="insidemap phases" viewBox="0 0 1200 876" style="min-width:900px" role="img" aria-label="Phase diagram, three columns and four bands. Top band, what you type: asimov-design and asimov-design-review; asimov-spec; asimov-build. Second band, who runs it: you in your own session for design; you plus a fresh blind subagent per S102 for specification; the named agents Giskard, Daneel, Calvin, Baley and Powell for build. Third band, skills: the artifact and persona skills for design, the five S101 and S102 skills for specification, the role skills for build. Bottom band, your repository: the D101 under documentation/features, the S101, S102s and ledger under documentation/specs, and your code and tests under src and test. A chain under it reads: one D101 becomes one S101 and N S102s becomes code, tests and the ledger. Around the phases: asimov-init and pm-advisor.">
+  <div class="figure wide">
+<svg class="insidemap phases" viewBox="0 0 1596 876" style="min-width:1200px" role="img" aria-label="Phase diagram, three phase columns, a fourth column for the frame, and four bands. Top band, what you type: asimov-design and asimov-design-review; asimov-spec; asimov-build; asimov-project. Second band, who runs it: you in your own session for design; you plus a fresh blind subagent per S102 for specification; the named agents Giskard, Daneel, Calvin, Baley and Powell for build; you in your own session for project. Third band, skills: the artifact and persona skills for design, the five S101 and S102 skills for specification, the role skills for build, the risk-log artifact skills and pm-advisor for project. Bottom band, your repository: the D101 under documentation/features, the S101, S102s and ledger under specs, your code and tests under src and test, and the project pages under project, both beside documentation. A chain under it reads: one D101 becomes one S101 and N S102s becomes code, tests and the ledger; the project column is kept across the chain. Around the phases: asimov-init.">
   <style>
     .phases .skill rect { fill: var(--violet, #ab47bc); fill-opacity: 0.14; stroke: var(--violet, #ab47bc); stroke-width: 1.5; }
     .phases .skill .go, .phases .skill .head { fill: var(--violet, #ab47bc); }
@@ -413,9 +413,18 @@
     <text class="sub" x="832" y="134">Baley reviews, Powell verifies, you say go;</text>
     <text class="sub" x="832" y="154">the ledger beside the plan is the record</text>
   </a>
+  <a class="writes" href="../inside/project-management.html">
+    <title>Open Project management — the frame around the phases</title>
+    <rect x="1212" y="44" width="360" height="120" rx="10"/>
+    <text class="head mono" x="1228" y="70">PROJECT<tspan class="go" dx="8">→</tspan></text>
+    <text class="mono" x="1228" y="94" style="font-size:12px">asimov-project</text>
+    <text class="sub" x="1228" y="118">the engagement around the work, kept while</text>
+    <text class="sub" x="1228" y="134">the phases run: a risk log first, a closure</text>
+    <text class="sub" x="1228" y="154">report next; the frame, not a step</text>
+  </a>
 
   <!-- ─── band 2: who runs it ─── -->
-  <line class="band" x1="24" y1="184" x2="1176" y2="184"/>
+  <line class="band" x1="24" y1="184" x2="1572" y2="184"/>
   <text class="lbl mono" x="24" y="204">WHO RUNS IT</text>
 
   <a class="you" href="../how-it-works.html">
@@ -439,9 +448,16 @@
     <text class="sub" x="832" y="264">named, fresh per call: they work without you</text>
     <text class="sub" x="832" y="280">a thin shell per tool: name, model, tools</text>
   </a>
+  <a class="you" href="../inside/project-management.html">
+    <title>Open Project management</title>
+    <rect x="1212" y="216" width="360" height="90" rx="10"/>
+    <text x="1228" y="242" style="font-weight:700">You, in your own session</text>
+    <text class="sub" x="1228" y="264">no agent: a project page is a conversation with you,</text>
+    <text class="sub" x="1228" y="280">and the advisor answers from the delivery model</text>
+  </a>
 
   <!-- ─── band 3: skills ─── -->
-  <line class="band" x1="24" y1="326" x2="1176" y2="326"/>
+  <line class="band" x1="24" y1="326" x2="1572" y2="326"/>
   <text class="lbl mono" x="24" y="346">SKILLS · THE METHOD</text>
 
   <a class="skill" href="../artifacts/documentation/d101.html">
@@ -479,14 +495,25 @@
     <text class="sub" x="832" y="508">how each role works, reading your conventions;</text>
     <text class="sub" x="832" y="524">one skill per role, shared by every tool</text>
   </a>
+  <a class="skill" href="../inside/project-management.html">
+    <title>Open Project management — the project skills</title>
+    <rect x="1212" y="358" width="360" height="180" rx="10"/>
+    <text class="head mono" x="1228" y="384">ARTIFACT-*</text>
+    <text class="mono" x="1228" y="404" style="font-size:12px">artifact-risk-log-authoring</text>
+    <text class="mono" x="1228" y="422" style="font-size:12px">artifact-risk-log-view</text>
+    <text class="head mono" x="1228" y="452">PM-*</text>
+    <text class="mono" x="1228" y="472" style="font-size:12px">pm-advisor</text>
+    <text class="sub" x="1228" y="508">one skill writes a page, one shows it in chat;</text>
+    <text class="sub" x="1228" y="524">the advisor reads the delivery model</text>
+  </a>
 
   <!-- ─── band 4: your repository ─── -->
-  <line class="band" x1="24" y1="558" x2="1176" y2="558"/>
+  <line class="band" x1="24" y1="558" x2="1572" y2="558"/>
   <text class="lbl mono" x="24" y="578">WHAT THEY WORK ON</text>
 
-  <rect class="repo" x="24" y="590" width="1152" height="110" rx="12"/>
+  <rect class="repo" x="24" y="590" width="1548" height="110" rx="12"/>
   <g class="repohead">
-    <rect x="24" y="590" width="1152" height="30" rx="12"/>
+    <rect x="24" y="590" width="1548" height="30" rx="12"/>
     <text class="head mono" x="40" y="610">YOUR REPOSITORY</text>
   </g>
   <a class="writes" href="../artifacts/documentation/d101.html">
@@ -500,7 +527,7 @@
     <title>Open Documentation — the specs folder</title>
     <rect x="436" y="630" width="328" height="56" rx="8"/>
     <text x="452" y="652" style="font-weight:700">One S101, N S102s, one ledger</text>
-    <text class="sub mono" x="452" y="672">documentation/specs/&lt;slug&gt;/</text>
+    <text class="sub mono" x="452" y="672">specs/&lt;slug&gt;/</text>
     <text class="go" x="748" y="652" text-anchor="end">→</text>
   </a>
   <a class="reads" href="../inside/agents.html">
@@ -510,36 +537,42 @@
     <text class="sub mono" x="848" y="672">src/ · test/</text>
     <text class="go" x="1144" y="652" text-anchor="end">→</text>
   </a>
+  <a class="writes" href="../inside/project-management.html">
+    <title>Open Project management — the project pages</title>
+    <rect x="1228" y="630" width="328" height="56" rx="8"/>
+    <text x="1244" y="652" style="font-weight:700">Project pages, a risk log first</text>
+    <text class="sub mono" x="1244" y="672">project/</text>
+    <text class="go" x="1540" y="652" text-anchor="end">→</text>
+  </a>
 
   <!-- ─── the chain ─── -->
   <text class="chain" x="204" y="734" text-anchor="middle">one D101</text>
   <text class="chain" x="600" y="734" text-anchor="middle">one S101 + N S102s</text>
   <text class="chain" x="996" y="734" text-anchor="middle">code, tests, the ledger</text>
+  <text class="chain" x="1392" y="734" text-anchor="middle">kept across the chain</text>
   <g class="flow chain-arrow" marker-end="url(#phArrowDim)">
     <path d="M250 730 H520"/>
     <path d="M684 730 H912"/>
   </g>
 
+  <!-- ─── the frame, not a step: a dashed line sets the fourth column off from the chain ─── -->
+  <line class="band" x1="1194" y1="44" x2="1194" y2="744"/>
+
   <!-- ─── around the phases ─── -->
-  <line class="band" x1="24" y1="760" x2="1176" y2="760"/>
+  <line class="band" x1="24" y1="760" x2="1572" y2="760"/>
   <text class="lbl mono" x="24" y="780">AROUND THE PHASES</text>
   <a class="writes" href="../get-started.html">
     <title>Open Get started — asimov-init</title>
-    <rect x="24" y="792" width="560" height="60" rx="10"/>
+    <rect x="24" y="792" width="1548" height="60" rx="10"/>
     <text class="mono" x="40" y="816" style="font-size:12px">asimov-init</text>
     <text class="sub" x="40" y="836">sets a repository up: asimov.md, the convention read-lists, the docs site</text>
-  </a>
-  <a class="skill" href="../inside/project-management.html">
-    <title>Open Project management — the advisor</title>
-    <rect x="616" y="792" width="560" height="60" rx="10"/>
-    <text class="mono" x="632" y="816" style="font-size:12px">pm-advisor</text>
-    <text class="sub" x="632" y="836">"what does the delivery model say?" — plain words, any time</text>
   </a>
 
   <!-- ─── connectors ─── -->
   <g class="flow into-repo" marker-end="url(#imArrowGrey)">
     <path d="M204 164 V212"/>
     <path d="M600 164 V212"/>
+    <path d="M1392 164 V212"/>
   </g>
   <g class="flow into-reads" marker-end="url(#imArrowAmber)">
     <path d="M996 164 V212"/>
@@ -549,14 +582,17 @@
     <path d="M204 306 V354"/>
     <path d="M600 306 V354"/>
     <path d="M996 306 V354"/>
+    <path d="M1392 306 V354"/>
   </g>
   <g class="flow into-writes" marker-end="url(#imArrowCyan)">
     <path d="M204 538 V626"/>
     <path d="M600 538 V626"/>
+    <path d="M1392 538 V626"/>
   </g>
   <text class="lbl mono" x="212" y="566">WORKS ON</text>
   <text class="lbl mono" x="608" y="566">WORKS ON</text>
   <text class="lbl mono" x="1004" y="566">WORKS ON</text>
+  <text class="lbl mono" x="1400" y="566">WORKS ON</text>
 </svg>
     <div class="key" aria-label="Phase diagram colour key">
       <b>Key</b>
@@ -572,7 +608,7 @@
     <li><strong>Everything lives in your repository.</strong> Asimov-skills write into it; personas and agents read from it. There is no copy inside the plugin to drift.</li>
     <li><strong>One rule keeps the layers clean.</strong> An asimov-skill calls skills and carries no method. A skill reads artifacts and calls no skill. Two levels, never three.</li>
     <li><strong>Same name in both tools.</strong> What you type is <code>/asimov-spec</code> in Claude Code and <code>$asimov-plugin:asimov-spec</code> in Codex; the skill underneath is one file.</li>
-    <li><strong>The frame is not a step.</strong> Project management is the engagement around the feature work; the artifacts it needs, a risk log among them, land in the repository later.</li>
+    <li><strong>The frame is not a step.</strong> Project management is the engagement around the feature work: its own column, kept while the phases run, never a link in the chain. Its pages, a risk log first, land under <code>project/</code>, beside <code>documentation/</code> and <code>specs/</code>.</li>
   </ul>
 
 </main>

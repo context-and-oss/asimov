@@ -8,14 +8,10 @@
   - The builder, as its brief; the author, to see what the builder will be told;
     artifact-s102-authoring writes it, artifact-s102-validation checks it in a
     fresh subagent. The file in the plugin is the source of truth (D100 §7.4).
-  - Written to documentation/specs/{{SLUG}}/S102-{{SLUG}}-{{NNN}}-{{TASK-SLUG}}.md,
+  - Written to specs/{{SLUG}}/S102-{{SLUG}}-{{NNN}}-{{TASK-SLUG}}.md,
     beside the S101 whose task line it expands; {{NNN}} is the task id's
     number, T003 → 003; {{TASK-SLUG}} is three to five words of the title in
     kebab-case, never the whole title. There is no S102 without an S101.
-  - Before reading the repo from nothing, read repo-notes.md beside the S101
-    when it exists (the cut's notes: files, names with their paths, package
-    types, the test fixture and runner, the commands); take its paths and
-    names as given, the shape check looks each one up.
   - Strip THIS comment from the rendered file.
 
   THE LINE
@@ -90,7 +86,7 @@
   No section opens with a sentence from this template; the rendered file holds
   content only.
 
-  THE SHAPE CHECK (scripts/validate-s102.ps1): what it needs beyond the above
+  THE SHAPE CHECK (skills/artifact-s102-validation/scripts/validate-s102.ps1): what it needs beyond the above
   - Header: every key of this template, owns with its four lists (regenerates:
     [] when nothing is regenerated); after and traces equal to the task line.
   - 2 Behaviour: one scenario tagged @review-focus (the tag on the line above
@@ -127,7 +123,7 @@
 -->
 ---
 spec: S102
-s101: documentation/specs/{{SLUG}}/S101-{{SLUG}}.md
+s101: specs/{{SLUG}}/S101-{{SLUG}}.md
 task: "{{TASK-ID}}"
 title: "{{TITLE}}"
 role: dotnet-builder

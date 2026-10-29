@@ -20,6 +20,7 @@ Canonical mapping from L3 pipeline stage → toolkit component (command, asimov-
 | Spec | `asimov-spec` asimov-skill *(Claude Code only)* | `claude-sonnet-5-5` | *(default)* |
 | Code + Review + Test | `asimov-build` asimov-skill *(Claude Code only)* | `claude-sonnet-5-5` | *(default)* |
 | Test | `powell-the-verifier` subagent | `claude-sonnet-5-5` | *(default)* |
+| Project (the frame) | `asimov-project` asimov-skill *(Claude Code only)* | `claude-sonnet-5-5` | *(default)* |
 | Review + Test | `/conventions-check` *(planned)* | `claude-sonnet-5-5` *or* `claude-haiku-4-5` | *(default)* |
 
 `Model` is the literal value of the `model:` field in YAML frontmatter. `Effort` is the literal value of the `effort:` field — the Claude Code adaptive-reasoning control; `xhigh` was introduced on Opus 4.7 and is supported on every later Opus and Sonnet, Opus 5.5 and Sonnet 5.5 included (it sits between `high` and `max`). *(default)* means the field is omitted from frontmatter.
@@ -40,14 +41,14 @@ The tier is a recommendation; `asimov-build` maps it to the model through the Ag
 
 ### 1.2 Subagents an asimov-skill spawns without a shell
 
-`asimov-spec` runs its writer skills in fresh subagents of the harness's generic `general-purpose` type, which has no frontmatter of its own and inherits the session's model unless the Agent tool's `model` field says otherwise, so the skill passes `model` (and for the cut `effort`) on every call. Two writers, two scripts:
+`asimov-spec` runs its writer skills in one subagent of the harness's generic `general-purpose` type, spawned at the first cut with `model: opus` and `effort: high` and continued by message (`SendMessage`) for every later call of the run; a subagent otherwise inherits the session's model. One writer, three scripts:
 
 | Call | Does | Model · effort |
 |---|---|---|
-| **plan writer** (`general-purpose`): `artifact-s101-authoring`, and on a small plan `artifact-s102-authoring` in the same call | cuts the plan and runs the graph check on it: the one judgement-heavy step of the run | `claude-opus-5-5` (`model: opus`), `effort: high` |
-| **task writer** (`general-purpose`): `artifact-s102-authoring` | writes the task specs of one phase (the tester first) from the plan, the notes and the template; its bar is a script, which it runs on its own output | `claude-sonnet-5-5` (`model: sonnet`) |
-| **plan check**: `artifact-s101-validation` | a script, `scripts/validate-s101.ps1`, run inline through Bash | no model: one tool call |
-| **task-spec check**: `artifact-s102-validation` | a script, `scripts/validate-s102.ps1`, run inline through Bash | no model: one tool call |
+| **plan writer** (`general-purpose`): `artifact-s101-authoring`, then `artifact-s102-authoring` for every task by message after the go | cuts the plan and runs the graph check on it, the one judgement-heavy step of the run, then writes the task specs phase by phase with the cut's reads still in context; a second writer only when the first is full | `claude-opus-5-5` (`model: opus`), `effort: high` |
+| **plan check**: `artifact-s101-validation` | a script, `skills/artifact-s101-validation/scripts/validate-s101.ps1`, run inline through Bash | no model: one tool call |
+| **task-spec check**: `artifact-s102-validation` | a script, `skills/artifact-s102-validation/scripts/validate-s102.ps1`, run inline through Bash | no model: one tool call |
+| **ledger** (`asimov-build`): `artifact-s101-ledger` | a script, `skills/artifact-s101-ledger/scripts/ledger.ps1`, one call per operation, run inline through Bash | no model: one tool call |
 
 Added 2026-10-07 and reshaped 2026-10-08. The first shape (writers inheriting Opus at xhigh, two LLM validators on Sonnet) came after a two-task run spent a quarter of its tokens on four shape checks that walked the codebase like a builder. The second came after the same ticket's third run still took thirty minutes and 690k tokens with the checks already scripted: the time was in xhigh thinking across sixty tool calls and in two more validator cold starts, and the developer's table showed the writers on the session's model, not the pinned one, so no `model` had reached the Agent call. Now only the plan is cut on Opus, at high rather than xhigh (the bar is a script and the author reads the cut; xhigh bought nothing the script could measure), the task specs are written on Sonnet, both checks are scripts, and `asimov-spec` itself runs on Sonnet since it carries a conversation and reads reports. The validation skills name this table as the one the calls mirror; a change here changes `asimov-spec`'s spawn text in the same commit (the shape of hard rule 2). The build subagents' own rows above are their default when no plan names a tier.
 

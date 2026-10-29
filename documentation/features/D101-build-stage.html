@@ -270,7 +270,7 @@ footer.site-footer a { color: var(--cyan); }
   <a href="../index.html#s6">Diagrams</a>
   <span class="spacer"></span>
   <span class="phase-chip full">Full design</span>
-  <span class="status-chip draft">Draft v0.2</span>
+  <span class="status-chip draft">Draft v0.4</span>
 </nav>
 
 <div class="layout-doc">
@@ -314,7 +314,7 @@ footer.site-footer a { color: var(--cyan); }
 <header class="hero">
   <div class="kicker">D101 · Feature design · Asimov plugin</div>
   <h1>Build stage</h1>
-  <p class="tagline">One run of <code>asimov-build</code> builds a ready plan: each task goes to its Asimov agent with its task spec, Baley and a fresh verifier check the result, the ledger records it, and the person says go after every phase. What was approved at the cut is what gets built.</p>
+  <p class="tagline">One run of <code>asimov-build</code> builds a ready plan: each task goes to its Asimov agent with its task spec, Baley and Powell check the result, the ledger records it, and the person says go after every phase. What was approved at the cut is what gets built.</p>
 </header>
 
 <div class="meta-strip">
@@ -492,7 +492,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="row cols-2" style="grid-template-columns:110px 1fr"><div class="label-cell">go</div><div>The person's word after a met checkpoint; the only thing that commits.</div></div>
     <div class="row cols-2" style="grid-template-columns:110px 1fr"><div class="label-cell">stop</div><div>The run ending before a go, with the reason and the choices in the chat and the ledger.</div></div>
     <div class="row cols-2" style="grid-template-columns:110px 1fr"><div class="label-cell">ruling</div><div>What the person chose at a stop: resume with a note, discard the phase, or stop.</div></div>
-    <div class="row cols-2" style="grid-template-columns:110px 1fr"><div class="label-cell">ledger</div><div><code>documentation/specs/&lt;slug&gt;/S101-&lt;slug&gt;.ledger.md</code>: per task its state, attempts, agent and reports; per phase its checkpoint, go and commit; every ruling. Committed with each phase.</div></div>
+    <div class="row cols-2" style="grid-template-columns:110px 1fr"><div class="label-cell">ledger</div><div><code>specs/&lt;slug&gt;/S101-&lt;slug&gt;.ledger.md</code>: per task its state, attempts, agent and reports; per phase its checkpoint, go and commit; every ruling. Committed with each phase.</div></div>
     <div class="row cols-2" style="grid-template-columns:110px 1fr"><div class="label-cell">plan status</div><div>The S101's own axis, <code>ready → in progress → done</code>: the one line the run writes into a spec.</div></div>
   </div>
 </section>
@@ -575,6 +575,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="decision-row"><div class="decided">The ledger is committed with each phase</div><div class="alt">gitignored, like the Spec-stage sidecar</div><div class="why">A run must be resumable by someone else, and the PR reviewer gets the verification in the PR. Closes D100 Q5.</div></div>
     <div class="decision-row"><div class="decided">Verification is a fresh verifier agent, Powell (Test stage)</div><div class="alt">the builder runs its own done-when</div><div class="why">Agent vs. spec: the builder never grades its own work.</div></div>
     <div class="decision-row"><div class="decided">Baley, then Powell, once per phase</div><div class="alt">once per task; Powell first</div><div class="why">The phase is what the person gates, and its tasks are mostly sequential. Review before test is the L3 order: a diff that breaks the spec is caught before its code runs.</div></div>
+    <div class="decision-row"><div class="decided">Agents continued by message: a builder fresh at the first attempt, Baley and Powell once per phase</div><div class="alt">a fresh subagent per call; Baley and Powell once per run</div><div class="why">A fresh spawn costs some 60k tokens before any work, and a retry re-read the task spec, the conventions and the code for 75–130k; the agent that built the task already has them. Baley and Powell are fresh per phase, not per run: a retry is reviewed with its findings in hand, and no phase is read through the last one's; the cost is one conventions load per phase. Blindness was the reason for fresh, and only the validators needed it, which are scripts now. Fresh where the harness cannot continue an agent.</div></div>
     <div class="decision-row"><div class="decided">Baley reads the task spec: review vs. spec</div><div class="alt">conventions and correctness only</div><div class="why">Review vs. spec is the L3 stage; the task spec is the standard the diff is held to.</div></div>
     <div class="decision-row"><div class="decided">The person rules on every stop</div><div class="alt">an orchestrator ruling below a threshold</div><div class="why">First version; fewer stops is Q1.</div></div>
     <div class="decision-row"><div class="decided">A stop ends the run once running tasks finish</div><div class="alt">wait until the phase ends</div><div class="why">A half-built phase is for the person to see, not to hide behind more work.</div></div>
@@ -624,7 +625,7 @@ footer.site-footer a { color: var(--cyan); }
 <section class="s" id="s6-1">
   <h2 class="section-title"><span class="sec-ref">§6.1</span>Platform</h2>
   <p style="color: var(--text-dim); font-size: 0.95rem; line-height: 1.65;">
-    <code>asimov-build</code> is an asimov-skill: one <code>SKILL.md</code> for Claude Code and Codex plus <code>agents/openai.yaml</code>, run in the product repo on the branch that is checked out. It spawns the plugin's agents through the harness, one fresh agent per call, in the L3 order Code → Review vs. spec → Test vs. spec, and keeps the method in three skills: the ledger's, a <em>vs. spec</em> target in Baley's, and Powell's.
+    <code>asimov-build</code> is an asimov-skill: one <code>SKILL.md</code> for Claude Code and Codex plus <code>agents/openai.yaml</code>, run in the product repo on the branch that is checked out. It spawns the plugin's agents through the harness, a builder fresh at a task's first attempt and continued by message on a retry, Baley and Powell once per phase and continued on its retries, in the L3 order Code → Review vs. spec → Test vs. spec, and keeps the method in three skills: the ledger's, a <em>vs. spec</em> target in Baley's, and Powell's.
   </p>
   <div class="callout warn">
     <strong>⚠ Escalation gate.</strong> Commits only at a go, never on the default branch, never a push, never a PR.
@@ -725,9 +726,9 @@ footer.site-footer a { color: var(--cyan); }
   </div>
   <div class="data-table">
     <div class="row head cols-2" style="grid-template-columns:200px 1fr"><div>Message</div><div>Carries</div></div>
-    <div class="row cols-2" style="grid-template-columns:200px 1fr"><div class="label-cell">/asimov-build slug</div><div>The S101 path is derived; the run refuses a plan not <code>ready</code>, a broken approval, a dirty tree or the default branch, and resumes from the ledger when one exists.</div></div>
+    <div class="row cols-2" style="grid-template-columns:200px 1fr"><div class="label-cell">/asimov-build slug</div><div>The S101 path is derived; the run refuses a plan not <code>ready</code>, a broken approval, a dirty tree, the default branch or a baseline whose first check fails on HEAD, and resumes from the ledger when one exists.</div></div>
     <div class="row cols-2" style="grid-template-columns:200px 1fr"><div class="label-cell">S102 path · model</div><div>The builder's prompt: build this one task spec, read the S101 contracts and constraints, change by hand only the owned files and regenerate (never open) what the task spec's <code>owns.regenerates</code> lists, stop as the S102 definition §5 says. Claude Code: the Agent tool with the shell's name and the tier's model. Codex: the copied agents, mechanism per Q2.</div></div>
-    <div class="row cols-2" style="grid-template-columns:200px 1fr"><div class="label-cell">summary · flags</div><div>The builder's own summary, as its role skill defines; a flag is a stop (R10).</div></div>
+    <div class="row cols-2" style="grid-template-columns:200px 1fr"><div class="label-cell">summary · flags</div><div>The builder's own summary, as its role skill defines: a <code>Conventions read:</code> line, then <code>built</code> or <code>stopped</code>; <code>stopped</code> or a conflict is a stop (R10), a gap is a note: one chat line and the ledger.</div></div>
     <div class="row cols-2" style="grid-template-columns:200px 1fr"><div class="label-cell">ledger: built</div><div>State, attempt and agent written before the next task starts, so a dead run resumes here.</div></div>
     <div class="row cols-2" style="grid-template-columns:200px 1fr"><div class="label-cell">owned files · S102 paths · review focus</div><div>Baley's prompt: the diff of the phase's owned files, reviewed on its two axes plus a third, <em>against the spec</em>; the phase's regenerated files (lock files, generated clients) are listed apart and checked only for being what the hand edits imply.</div></div>
     <div class="row cols-2" style="grid-template-columns:200px 1fr"><div class="label-cell">S102 paths · checkpoint</div><div>Powell's prompt: run every done-when as written and the checkpoint; change nothing; report per task with the command and its last line. The working tree is hashed before and after.</div></div>
@@ -752,7 +753,7 @@ footer.site-footer a { color: var(--cyan); }
 
 <section class="s" id="s6-4">
   <h2 class="section-title"><span class="sec-ref">§6.4</span>Shapes</h2>
-  <div class="subhead">The ledger · <code>documentation/specs/&lt;slug&gt;/S101-&lt;slug&gt;.ledger.md</code></div>
+  <div class="subhead">The ledger · <code>specs/&lt;slug&gt;/S101-&lt;slug&gt;.ledger.md</code></div>
   <div class="data-table">
     <div class="row head cols-2" style="grid-template-columns:120px 1fr"><div>Field</div><div>Notes</div></div>
     <div class="row cols-2" style="grid-template-columns:120px 1fr"><div class="label-cell">frontmatter</div><div><code>ledger: S101</code> · <code>slug</code> · <code>s101</code> path · <code>fingerprint</code> of the approval it was started from · <code>started</code> by and date.</div></div>
@@ -773,7 +774,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="row head cols-2" style="grid-template-columns:130px 1fr"><div>Report</div><div>Shape</div></div>
     <div class="row cols-2" style="grid-template-columns:130px 1fr"><div class="label-cell">Baley vs. spec</div><div>The two existing tables, plus <em>Against the spec</em>: S102 line · severity · reason. A Fail there is a failed task and Powell does not run; a Flag is shown and recorded, never blocks.</div></div>
     <div class="row cols-2" style="grid-template-columns:130px 1fr"><div class="label-cell">Powell</div><div>One row per done-when: task · check as written · pass or fail · the command and its last line. One row for the checkpoint: met or not. No verdict on the phase; the run derives it.</div></div>
-    <div class="row cols-2" style="grid-template-columns:130px 1fr"><div class="label-cell">Builder</div><div>The role skill's summary: conventions applied, flags raised. A flag of kind conflict or gap is a stop (R10).</div></div>
+    <div class="row cols-2" style="grid-template-columns:130px 1fr"><div class="label-cell">Builder</div><div>The role skill's summary: the conventions read, <code>built</code> or <code>stopped</code>, flags raised. A <code>stopped</code> summary or a conflict is a stop (R10); a gap is a note in the ledger and one line in the chat.</div></div>
   </div>
 </section>
 
@@ -912,7 +913,7 @@ footer.site-footer a { color: var(--cyan); }
     · <span class="mono">features/D101-build-stage.html</span>
   </div>
   <div style="margin-top: 0.4rem">
-    D101 · Build stage · Asimov plugin · Draft v0.2 · 2026-10-07
+    D101 · Build stage · Asimov plugin · Draft v0.4 · 2026-10-26
   </div>
 </footer>
 

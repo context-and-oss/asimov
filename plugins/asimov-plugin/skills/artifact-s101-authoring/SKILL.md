@@ -1,11 +1,11 @@
 ---
 name: artifact-s101-authoring
-description: How to cut one design that meets contracts/design.md, a D101 at Full design or a normalised design cache, into one S101 implementation plan (documentation/specs/<slug>/S101-<slug>.md) — the plan part of a specification under contracts/specification.md: slices from the acceptance criteria, a Foundation phase 0 only when the plan needs one (the contracts as code, whatever every slice builds against), a tester task before the builder tasks in every slice that adds behaviour and one test-first builder per stack in a maintenance slice, a close phase when the run needs one, the contracts stated once, the constraints the design imposes, the coverage map, the assumptions — and write it from the template. Use when asked to "cut this D101 into a plan", "write the S101 for this feature", "re-cut the plan with this correction", or inside asimov-spec at every cut round. Writes the S101 and, on the per-phase path, the gitignored repo-notes.md beside it; never an S102, never a question, never the view (artifact-s101-view prints the plan); it runs the graph script on its own cut before returning.
+description: How to cut one design that meets contracts/design.md, a D101 at Full design or a normalised design cache, into one S101 implementation plan (specs/<slug>/S101-<slug>.md) — the plan part of a specification under contracts/specification.md: slices from the acceptance criteria, a Foundation phase 0 only when the plan needs one (the contracts as code, whatever every slice builds against), a tester task before the builder tasks in every slice that adds behaviour and one test-first builder per stack in a maintenance slice, a close phase when the run needs one, the contracts stated once, the constraints the design imposes, the coverage map, the assumptions — and write it from the template. Use when asked to "cut this D101 into a plan", "write the S101 for this feature", "re-cut the plan with this correction", or inside asimov-spec at every cut round. Writes the S101 only; never an S102, never a question, never the view (artifact-s101-view prints the plan); it runs the graph script on its own cut before returning.
 ---
 
 # S101 authoring
 
-One design in, one S101 draft out. This skill owns what the plan says and how it is written. asimov-spec owns the conversation, `scripts/validate-s101.ps1` the bar, artifact-s101-view the rendering. A skill is a leaf: it reads artifacts and calls no other skill.
+One design in, one S101 draft out. This skill owns what the plan says and how it is written. asimov-spec owns the conversation, `skills/artifact-s101-validation/scripts/validate-s101.ps1` the bar, artifact-s101-view the rendering. A skill is a leaf: it reads artifacts and calls no other skill.
 
 ## Read first
 
@@ -15,7 +15,7 @@ One design in, one S101 draft out. This skill owns what the plan says and how it
 
 1. **The S101 template**, whole: `${CLAUDE_PLUGIN_ROOT}/artifacts/documentation/s101-implementation-plan/s101-implementation-plan-template.md`
 2. **The thresholds**: in `${CLAUDE_PLUGIN_ROOT}/artifacts/documentation/s101-implementation-plan/s101-implementation-plan-definition.md`, the `thresholds:` block and the ten lines after it, nothing more of the file.
-3. **The design**, whole. A D101: §3 (R, NF, out of scope), §4.5 rules, §6 contracts by number, §8 acceptance criteria, §9 open questions; its `.phase-chip` must read `Full design`, else return *refused: not at Full design* and write nothing. A normalised design (`documentation/specs/<slug>/design.md`): one section per contract member; a required member missing → *refused: design incomplete* naming it, nothing written.
+3. **The design**, whole. A D101: §3 (R, NF, out of scope), §4.5 rules, §6 contracts by number, §8 acceptance criteria, §9 open questions; its `.phase-chip` must read `Full design`, else return *refused: not at Full design* and write nothing. A normalised design (`specs/<slug>/design.md`): one section per contract member; a required member missing → *refused: design incomplete* naming it, nothing written.
 4. **The conventions**: `documentation/conventions/<stack>/README.md` per stack the design touches, and of the files it lists only those that give the build and test commands, the runner and the layering (the Read tool does not expand `@`-imports). Never copied into the plan: the builder loads them.
 5. **The repo, by a list, in one turn.** List first, from the design and the conventions: each file the design names or the criteria will change; one search per existing name a task must use, to place its declaring file; the test class of the code a slice changes; the project file of the owned project, for package ids. Then issue every read in **one message** as parallel tool calls, and every search in a second. Nothing else: no callers, no neighbouring folders, no file opened to see how it works, no second read. You are planning, not building; a ticket-sized cut is about fifteen tool calls after these.
 6. **On an update or rewrite**: the existing `S101-<slug>.md` and the headers of every `S102-*.md` in the folder.
@@ -33,7 +33,6 @@ Missing inputs take the default in brackets.
 | `slice` | On a normalised design, the author's answer to the fixed slice-shape question: `test-first` (one test-first builder per stack) or `pair` (a tester task, then a builder per stack, in every slice). [`test-first`] |
 | `cut_feedback` | The author's words at the gate, or a validation row routed to the plan. Overrides `answers` where they conflict. [none] |
 | `keep` | Task ids whose S102 is written and clears. Their line does not change and their file stays byte-identical; the plan is re-cut around them. [none] |
-| `notes` | `full`: write `repo-notes.md` (step 12) for the per-phase task writers. `none`: a small plan, whose task specs the same session drafts next, so no notes. [`full`] |
 
 ## Steps
 
@@ -55,33 +54,31 @@ Missing inputs take the default in brackets.
 
 9. **Coverage map, §3, both ways.** Every id of the design in scope (a D101's R, NF, §6.x.y and AC; a cache's R, NF and AC) against task ids; every task's `traces` against what it serves. An id no task serves carries its reason: *verified by review*, or *out of scope here, per OOSn*. An OOS id that bounds a task may have a row, delivered by that task; none is required. A normalised design's rows carry the source's wording in *Says*; a D101's may read —. A requirement with no task and no reason is fixed now; a task with no requirement is scope dropped.
 
-10. **Tiers and assumptions, §6.** `low` where the names, the signatures and the check determine the task; `mid` for behaviour in prose with a clear check; `high` for judgement or integration. Then every decision taken without a question, in order: the question, the options, the default taken; *How* is `default`, `decided by default` or `corrected at the cut`, with `, behaviour` appended when the decision changes what a user sees or gets (an output, a visible rule, a stored value): the view prints those rows, so the author sees them before the go. A gap no default bridges gets a row whose *Taken* begins `design:`. A workaround of the template or a check is a template finding (step 14), not an assumption. No §6, no plan.
+10. **Tiers and assumptions, §6.** `low` where the names, the signatures and the check determine the task; `mid` for behaviour in prose with a clear check; `high` for judgement or integration. Then every decision taken without a question, in order: the question, the options, the default taken; *How* is `default`, `decided by default` or `corrected at the cut`, with `, behaviour` appended when the decision changes what a user sees or gets (an output, a visible rule, a stored value): the view prints those rows, so the author sees them before the go. A gap no default bridges gets a row whose *Taken* begins `design:`. A workaround of the template or a check is a template finding (step 13), not an assumption. No §6, no plan.
 
-11. **Write** `documentation/specs/<slug>/S101-<slug>.md` from the template: the `design` line as passed (the template's other one dropped), the tree with one task per line, the six body sections, the first paragraph naming the design and its approval (and *unverified* when the design line says so), `status: draft`, `approved: none` on a new file (an existing `approved:` line is kept byte-identical). Create the folder if absent. Ids `P0`, `P1..Pn`, `T001..` in order of appearance. A phase `name` is two to five words; a task `title` three to seven, under 60 characters, never the sentence that says what it covers (the S102's intent). No prose that retells the tree, no code, no signature outside §1, no template guidance sentence left in: the file holds content only.
+11. **Write** `specs/<slug>/S101-<slug>.md` from the template: the `design` line as passed (the template's other one dropped), the tree with one task per line, the six body sections, the first paragraph naming the design and its approval (and *unverified* when the design line says so), `status: draft`, `approved: none` on a new file (an existing `approved:` line is kept byte-identical). Create the folder if absent. Ids `P0`, `P1..Pn`, `T001..` in order of appearance. A phase `name` is two to five words; a task `title` three to seven, under 60 characters, never the sentence that says what it covers (the S102's intent). No prose that retells the tree, no code, no signature outside §1, no template guidance sentence left in: the file holds content only.
 
-12. **Write the repo notes when `notes` is `full`**: `documentation/specs/<slug>/repo-notes.md`, in the shape the S101 definition §9 fixes (the files the plan touches, the existing names with their declaring paths, the package types with id and project, the test project, fixture and runner, the build and test commands, anything looked up twice). Facts with paths, never a decision, never code; only what you read for the cut, so a sparse file is correct. Rewrite it whole at every cut round and in `update` and `rewrite`; never in `finalise`. Gitignored, never named in the plan.
-
-13. **Check your own graph.** Through Bash:
+12. **Check your own graph.** Through Bash:
 
    ```
-   pwsh -NoProfile -File "${CLAUDE_PLUGIN_ROOT}/scripts/validate-s101.ps1" -S101 <the S101> -Mode graph-only
+   pwsh -NoProfile -File "${CLAUDE_PLUGIN_ROOT}/skills/artifact-s101-validation/scripts/validate-s101.ps1" -S101 <the S101> -Mode graph-only
    ```
 
    (`powershell -NoProfile -ExecutionPolicy Bypass -File …` with only Windows PowerShell; `-PluginRoot <plugin-root>` in Codex.) Fix every Fail the plan can fix (a builder not after its tester, a cross-slice `after`, a coverage row missing or naming an id the design lacks, a command in a `checkpoint`, a title over the length) and run it again, at most twice. A `design:` row is not yours to fix: it becomes a `design:` assumption. Flags and Warns are left. With no PowerShell, skip and say so in the return line. The caller's run is the record.
 
-14. **Return** the path; one line `<n> phases · <m> tasks · S101-<slug>.md written (draft v<version>) · repo-notes.md written | skipped`; one line `self-check: clean | <k> fail left: <the rows> | skipped: no PowerShell`; and any template findings, one line each under `template findings:`.
+13. **Return** the path; one line `<n> phases · <m> tasks · S101-<slug>.md written (draft v<version>)`; one line `self-check: clean | <k> fail left: <the rows> | skipped: no PowerShell`; and any template findings, one line each under `template findings:`.
 
 ## Modes
 
 - **new.** No S101 exists. Version `0.1`.
 - **update.** The design's items are unchanged. Start from the S101 on disk, keep every task in `keep`, re-cut around them, bump the version.
 - **rewrite.** An id missing or added, or the content changed. Plan from the design alone, bump the version; the caller has deleted every S102 and `keep` is empty.
-- **finalise.** After the plan validation. Start from the S101 on disk and change only §1, §3 and §6 so they agree with the task specs as written (a produced name with no row, a trace gained or lost, an assumption a rewrite resolved). No re-cut, no change to the tree, no touch of the notes; `keep` is every task. Bump the version when §3 or §6 changed; a §1-only change bumps nothing. Return the path, `finalise: §1 +2 rows · §3 1 row changed · §6 +1` or `finalise: nothing changed`, then one line per cell.
+- **finalise.** After the plan validation. Start from the S101 on disk and change only §1, §3 and §6 so they agree with the task specs as written (a produced name with no row, a trace gained or lost, an assumption a rewrite resolved). No re-cut, no change to the tree; `keep` is every task. Bump the version when §3 or §6 changed; a §1-only change bumps nothing. Return the path, `finalise: §1 +2 rows · §3 1 row changed · §6 +1` or `finalise: nothing changed`, then one line per cell.
 - **Any cut round after the first** (`cut_feedback` present). Start from the S101 on disk, which may carry hand edits, apply the feedback, rewrite in place. The version stays while `approved:` is `none`; once an approval with a fingerprint is on disk, every write that changes the tree, §2, §3 or §6 bumps it (`0.3` → `0.4`), a write to §1, §4 or §5 alone does not (definition §6).
 
 ## Never
 
-- Write an S102, or anything outside `documentation/specs/<slug>/`: you write the S101 and, when `notes` is `full`, `repo-notes.md`.
+- Write an S102, or anything outside `specs/<slug>/`: you write the S101 only.
 - Write code, a step, a test body, or a signature outside §1.
 - Put a command in a `checkpoint` or a sentence in a `check`; a test result in `delivers`.
 - Write a task title or a phase name that is a sentence.
@@ -91,7 +88,7 @@ Missing inputs take the default in brackets.
 - Set a status other than `draft`; write, change or drop the `approved:` line; touch an S101 at `ready` or later (return *refused* with the status).
 - Ask a question or wait: a missing answer takes its default and becomes an assumption.
 - Re-cut an S101 the author edited by hand: on `cut_feedback` of the form *read again*, return *not mine*.
-- Judge the plan beyond the graph script (step 13), validate an S102, render the plan, or call any skill.
+- Judge the plan beyond the graph script (step 12), validate an S102, render the plan, or call any skill.
 - Delete a file: the caller deletes.
 - Invent a stack, a runner, a path or a signature: what you cannot ground is an assumption with its options, or a `design:` row.
 - Read the ticket anywhere but the cache, or fix the cache: a defect in it is a `design:` row.

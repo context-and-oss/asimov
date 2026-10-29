@@ -65,7 +65,7 @@ The author sees the plan twice. Once as the **cut**: the S101 alone, no S102 bes
 
 ### 3.1 The bar on the design
 
-What a design must contain for a plan to be cut from it is the contract `contracts/design.md` in the plugin; the S101 reads a design only through its members. A D101 meets the contract at `Full design`, and its definition §3.1 says which section provides which member. A design that is not a file in the repo (a ticket thread, a page elsewhere) is normalised by `asimov-spec` into `documentation/specs/<feature-slug>/design.md`, in the shape §9 fixes, with ids assigned once in reading order; on a re-run the ids the plan's coverage map already holds are kept and a new item takes the next free number (the contract's rule). The coverage map (§4.8) then carries each id with the source's wording, so the plan stands with only the link beside it. A design that misses a required member is refused with what is missing; the fix goes into the design, never into a copy.
+What a design must contain for a plan to be cut from it is the contract `contracts/design.md` in the plugin; the S101 reads a design only through its members. A D101 meets the contract at `Full design`, and its definition §3.1 says which section provides which member. A design that is not a file in the repo (a ticket thread, a page elsewhere) is normalised by `asimov-spec` into `specs/<feature-slug>/design.md`, in the shape §9 fixes, with ids assigned once in reading order; on a re-run the ids the plan's coverage map already holds are kept and a new item takes the next free number (the contract's rule). The coverage map (§4.8) then carries each id with the source's wording, so the plan stands with only the link beside it. A design that misses a required member is refused with what is missing; the fix goes into the design, never into a copy.
 
 ### 3.2 How the S101 meets `contracts/specification.md`
 
@@ -200,7 +200,7 @@ One canonical list. Every check is asked of the S101 alone, with the design and 
 | 9 | Is the S101 free of code, steps and test bodies, free of run state, and free of prose that retells the graph? | Separation |
 | 10 | Is every model tier a recommendation consistent with its meaning in §5? | Model choice |
 
-Validation (`artifact-s101-validation`) is **hard on shape, soft on content**: it fails a missing header field, a missing plan member, a cycle, a builder ahead of its tester, an orphan task, a broken link, an intersecting parallel pair, a consumed name with no producer and no path on disk; it does not judge whether the phases are sensible, whether a Foundation was needed, or whether the review focus is the right five. That is the reviewer's. It runs in two modes: **graph-only** on the S101 alone, at the cut, where a check that needs the S102s is reported as *not yet*, never as Pass; and **full** once every S102 exists, re-answering every row. The check is a script, `scripts/validate-s101.ps1` (since 2026-10-08; the checklist in `artifact-s101-validation` is its specification and the fallback): every row is answered by enumeration from the files' text and from lookups, in about a second, so two runs on an unchanged plan agree by construction and nothing is carried between modes. The two LLM validators it replaced cost a two-task run some 120k tokens and gave different answers on unchanged text. **A Fail means a builder would be stuck or build the wrong thing.** A defect the run should know about but that would stop no builder (a long title, a command inside a checkpoint sentence) is a Flag, whatever row it falls under.
+Validation (`artifact-s101-validation`) is **hard on shape, soft on content**: it fails a missing header field, a missing plan member, a cycle, a builder ahead of its tester, an orphan task, a broken link, an intersecting parallel pair, a consumed name with no producer and no path on disk; it does not judge whether the phases are sensible, whether a Foundation was needed, or whether the review focus is the right five. That is the reviewer's. It runs in two modes: **graph-only** on the S101 alone, at the cut, where a check that needs the S102s is reported as *not yet*, never as Pass; and **full** once every S102 exists, re-answering every row. The check is a script, `skills/artifact-s101-validation/scripts/validate-s101.ps1` (since 2026-10-08; the checklist in `artifact-s101-validation` is its specification and the fallback): every row is answered by enumeration from the files' text and from lookups, in about a second, so two runs on an unchanged plan agree by construction and nothing is carried between modes. The two LLM validators it replaced cost a two-task run some 120k tokens and gave different answers on unchanged text. **A Fail means a builder would be stuck or build the wrong thing.** A defect the run should know about but that would stop no builder (a long title, a command inside a checkpoint sentence) is a Flag, whatever row it falls under.
 
 ### 8.1 Size thresholds
 
@@ -217,33 +217,9 @@ A cycle, an orphan or an intersecting parallel pair is shape and fails; size onl
 
 ## 9. Placement and naming
 
-An S101 lives in the product repo at `documentation/specs/<feature-slug>/S101-<feature-slug>.md`, beside its S102s (`S102-<feature-slug>-<NNN>-<task-slug>.md`, the task slug three to five words of the title). `<feature-slug>` is the D101's slug, so `documentation/features/D101-permissions.html` plans to `documentation/specs/permissions/S101-permissions.md`; for a ticket it is the ticket key in kebab-case, so `PROJ-123` plans to `documentation/specs/proj-123/S101-proj-123.md`. Markdown body with YAML frontmatter, as every spec format in current use (research §2).
+An S101 lives in the product repo at `specs/<feature-slug>/S101-<feature-slug>.md`, beside its S102s (`S102-<feature-slug>-<NNN>-<task-slug>.md`, the task slug three to five words of the title). `<feature-slug>` is the D101's slug, so `documentation/features/D101-permissions.html` plans to `specs/permissions/S101-permissions.md`; for a ticket it is the ticket key in kebab-case, so `PROJ-123` plans to `specs/proj-123/S101-proj-123.md`. Markdown body with YAML frontmatter, as every spec format in current use (research §2).
 
-**The repo notes.** The cut reads the repo once; the task-spec writers that follow should not read it again from nothing. So the authoring skill writes what it learned beside the plan as a gitignored cache, `documentation/specs/<feature-slug>/repo-notes.md`, and refreshes it at every cut, on the path where fresh writers follow the cut (a plan whose task specs are written per phase); a small plan, whose task specs the cutting session drafts itself with the repo already in its context, writes none, and a stale one from an earlier run is deleted before the cut: the files the plan touches with one line on what each holds, the existing types, methods and values the tasks will name with the path that declares each, the types that come from a package with the package id and the project that references it, the test project, fixture and runner in use, the build and test commands as the conventions give them, and anything the cut had to look up twice. Facts with paths, never a plan, never a decision, never code. The task-spec writers read it first and take its paths and names as given (the shape check looks each one up for free; a wrong line is a template finding, not a reason to re-walk the repo); a validator may read it only as a list of where to look, and answers every row against the code on disk, never against the notes. The notes hold what the cut read and nothing looked up for their sake: the cut opens the files the design names, the test class of what a slice changes, the owned project file and one declaring file per name a task must use, and no more; a sparse notes file is correct. A missing file (a fresh checkout) costs nothing but the re-reading; nothing refuses on it.
-
-```markdown
-# Repo notes — <feature-slug>
-
-Written: <YYYY-MM-DD> · by the cut of S101-<feature-slug>.md v<version>
-
-## Files the plan touches
-- <repo-relative path> — <what it holds, one line>
-
-## Existing names the tasks will use
-- <Name> (<repo-relative path>) — <one line: what it is>
-- <Name> (package <PackageId>, referenced by <project file>) — <one line>
-
-## Tests
-- project: <path> · fixture: <name (path)> · runner: <the test command from the conventions>
-
-## Commands
-- build: <command> · test: <command> · filter form: <how the runner filters to one class>
-
-## Looked up twice
-- <anything the cut had to find more than once, with where it is>
-```
-
-For a plan cut from a design that is not a file in the repo, the normalised design sits beside it as a gitignored cache, `documentation/specs/<feature-slug>/design.md`: the contract's members, quoted from the source and numbered, in this shape:
+For a plan cut from a design that is not a file in the repo, the normalised design sits beside it as a gitignored cache, `specs/<feature-slug>/design.md`: the contract's members, quoted from the source and numbered, in this shape:
 
 ```markdown
 # Design — <title>
@@ -299,13 +275,14 @@ Beside the plan, both asimov-skills write one gitignored sidecar, `S101-<feature
 ```markdown
 # Validation — S101-<feature-slug>
 
-S101: documentation/specs/<feature-slug>/S101-<feature-slug>.md v<version>
+S101: specs/<feature-slug>/S101-<feature-slug>.md v<version>
 Design: <design.ref> v<design.version> | <design.ref> read <design.read> · cache <design.cache>
 Date: <YYYY-MM-DD>
 Mode: graph-only | full
 Blind: true | false
 Engine: script | llm (plan) · script | llm (task specs)
 Approval: <by> · <date> · <fingerprint> · holds | superseded | none
+Writer: <the harness's token figure after the plan writer's last message> · <n> writers
 
 ## Plan report
 <the S101 validation report, verbatim>
@@ -321,6 +298,6 @@ Approval: <by> · <date> · <fingerprint> · holds | superseded | none
 <each place the plan had to work around a rule of the template or a check, one line; "none" if none>
 ```
 
-`Blind` is false when any S102 report was produced by the caller's own reading rather than by the script or a fresh subagent; `Engine` records which check ran as the script and which, on a machine without PowerShell, as an LLM reading of the checklist.
+`Blind` is false when any S102 report was produced by the caller's own reading rather than by the script or a fresh subagent; `Engine` records which check ran as the script and which, on a machine without PowerShell, as an LLM reading of the checklist. `Writer` records the figure the harness reported for the plan writer after its last message and how many writers the run spawned, so the rollover threshold is set from measured runs, never guessed again.
 
 The specs folder, with its two gitignored siblings `S101-<feature-slug>.review.md` and `design.md`, is a shared path convention in the sense of hard rule 7 and a lockstep literal in the sense of hard rule 9: both asimov-skills, the four artifact skills, `.gitignore`, `CLAUDE.md` and D100 §5 and §9 move together.

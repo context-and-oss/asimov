@@ -168,7 +168,7 @@ The template carries an **Implementation** section (its §7) below the technical
 
 **It sits outside both bars.** Neither §8a nor §8b gates it, and it moves neither the phase nor the status chip. Check 6 — *could one or more S102s be written from this* — is asked of the technical design and the business design alone; a D101 is gap-free with its implementation section empty. The implementation section is authored *after* the gap-free bar, as build-readiness for the implementer or a build subagent, and its absence is never a reason to send a D101 back.
 
-**It is the interim home for build notes until the Spec stage is in use.** Much of what it records — file-level layout, reuse-vs-new, method-level wiring — is S102 territory (§3; `s102-task-spec-definition.md` §3). Until a feature has an S101 and its S102s, this section lets a D101 carry that detail without dressing it as business or contract design. A feature that has an S101 marks §7 N/A and points at its `documentation/specs/<feature-slug>/` folder.
+**It is the interim home for build notes until the Spec stage is in use.** Much of what it records — file-level layout, reuse-vs-new, method-level wiring — is S102 territory (§3; `s102-task-spec-definition.md` §3). Until a feature has an S101 and its S102s, this section lets a D101 carry that detail without dressing it as business or contract design. A feature that has an S101 marks §7 N/A and points at its `specs/<feature-slug>/` folder.
 
 Its shape — Full-design phase only, a *pending* stub while the technical design is open, an N/A stub when the build is pure reuse — is defined in the template's authoring ground rules (rule 13) and N/A policy.
 

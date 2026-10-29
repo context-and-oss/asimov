@@ -53,6 +53,7 @@ codex plugin add asimov-plugin@asimov-marketplace
 - Built: the Design stage (`asimov-design` and `asimov-design-review`, user-invoked skills for both harnesses), the five subagents (each a `role-*` skill plus a thin shell per harness), the two D101 artifact skills, persona reviews, the `pm-advisor` skill (delivery-model advice), the Spec stage: `asimov-spec` (a user-invoked skill, one file for Claude Code and Codex) over the S101/S102 definitions, templates and four `artifact-s10x-*` skills, planning from a Full-design D101 or from an approved Jira ticket. Untried outside this repo as of 2026-10-02.
 - Planned: `/conventions-check`. See [D100 §9](documentation/D100-Asimov-architecture.md#9-not-yet-built).
 - Every artifact carries a maturity level (`assess` / `trial` / `adopt` / `hold`). The producing skill or command tells you if it's not at `adopt`.
+- Needs PowerShell for the Spec- and Build-stage checks, the ledger script and the run-log hooks: `pwsh` (PowerShell 7, on Windows, Linux and macOS) or Windows PowerShell 5.1. Without it those checks cannot run and the run log stays empty; nothing else is affected.
 - Requires Claude Code with plugin support and access to the models the skills and commands pin. Map in [model-choice.md](documentation/model-choice.md). Codex with plugin support runs the setup skill (`codex-asimov-init`) and the Design- and Spec-stage skills (`$asimov-plugin:asimov-design`, `$asimov-plugin:asimov-design-review`, `$asimov-plugin:asimov-spec`, `$asimov-plugin:asimov-build`); none of them binds a model in Codex, which runs the session's.
 
 ## Skills and commands you type
@@ -91,6 +92,7 @@ A persona review reads a D101 as one of its intended readers and reports where t
 plugins/asimov-plugin/                    the plugin (install scope)
 ├── .claude-plugin/plugin.json            plugin manifest (Claude Code)
 ├── .codex-plugin/plugin.json             plugin manifest (Codex)
+├── hooks/                               hooks.json + scripts/asimov-log.ps1 — the run log, one line per harness event (both harnesses)
 ├── commands/                             slash commands (asimov-init; Claude Code only)
 ├── agents/                               subagent shells (Giskard, Daneel, Calvin, Baley) — .md for Claude Code, .toml for Codex
 ├── skills/                               role-* (the subagents' methods), artifact-d101-* (D101 authoring + gap review), artifact-persona-authoring (custom persona authoring), artifact-s101-*/artifact-s102-* (Spec-stage authoring + validation), asimov-design + asimov-design-review (Design-stage entry points, both harnesses), asimov-spec (Spec-stage entry point, both harnesses), asimov-build (Build-stage entry point), persona-* (Poseidon, Athena, Hermes), pm-advisor, codex-asimov-init (Codex setup entry point)
@@ -110,6 +112,7 @@ plugins/asimov-plugin/                    the plugin (install scope)
 │   │   └── persona-review/               the persona review skill artifact (artifact-persona-authoring)
 │   │       ├── persona-review-definition.md
 │   │       └── persona-review-template.md       SKILL.md skeleton for a persona review skill
+│   ├── dot-asimov/                       lands in the product repo's .asimov/ — the run log's definition
 │   └── root/                             lands at the product repo's root
 │       └── asimov-md/                    the asimov.md context file (/asimov-init)
 │           ├── asimov-md-definition.md
