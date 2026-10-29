@@ -37,17 +37,17 @@ phases:
     tasks:
       - { id: T006, status: done, attempts: 1, agent: human-in-session, model: session }
   - id: P5
+    status: committed
+    commit: "1878c14"
+    go: { by: "SimonVilandt", date: "2026-10-29" }
+    tasks:
+      - { id: T007, status: done, attempts: 1, agent: human-in-session, model: session }
+  - id: P6
     status: passed
     commit: none
     go: none
     tasks:
-      - { id: T007, status: done, attempts: 1, agent: human-in-session, model: session }
-  - id: P6
-    status: pending
-    commit: none
-    go: none
-    tasks:
-      - { id: T008, status: pending, attempts: 0, agent: none, model: none }
+      - { id: T008, status: done, attempts: 1, agent: human-in-session, model: session }
   - id: P7
     status: pending
     commit: none
@@ -600,3 +600,92 @@ Test names per §2 scenario (read from `/c/Privat/Repositories/asimov/plugins/as
 Read-only boundary: tree fingerprint (`git ls-files -s -m -o --exclude-standard | sha256sum`) identical before and after both runs (5521cfa35084eb8105c1e52dd0e29aa75aae646f1c9be53840de096cd83cbb9b). No edits made; my only output files are the two run logs in the session scratchpad, outside the repo. No test re-run.
 
 Verified: 2 pass · 0 fail · checkpoint met
+
+### commit · 1878c14
+go by SimonVilandt on 2026-10-29 · 2 files · ledger
+
+## P6 · Review the register
+
+### T008 · attempt 1 · human-in-session · session
+Conventions read: none (this repo has no documentation/conventions/); CLAUDE.md and the S101 §1-§2 instead.
+built T008 (human task, built in the session that directs the run; test-first)
+- Test harness first: Invoke-RiskLog now runs the script in the Pester process by default (a script's exit ends only the script and sets $LASTEXITCODE; parameters splatted by name), and only the two-edition test starts pwsh and powershell; the suite went from about 7 min (pwsh) and 19 min (5.1) to under 1.5 min on each, with the same 46 tests and no assertion changed.
+- Tests: the five scenarios of §2 as six Pester tests (the review outline's two rows). Seen red (6 failing, 46 earlier green) before the code.
+- risk-log.ps1 -View: the fixed 80-column view of D101 §5 S2 and the mockup's view function: "Risk log . <path>", "Updated <date> . N risks", the count per state, then each open state group with every risk in full (id, score, name; owner . area . I P . changed; description wrapped at the text column; Mitigation wrapped; "none written" for an empty description or mitigation; "no area" for an empty area), each risk closed by a rule of U+2500 to column 80, Resolved as "Resolved (n)" only; words wrapped, an over-long word cut, never a line over 80; RL12 order; labels in fixed English, content as kept; no verdict; writes nothing; an unreadable register refused with "run -Repair first"; no page -> "No register and no opt-out at <path>." exit 0.
+- -Read with no page -> exit 0, register "none", empty lists.
+- -Apply review: no page -> exit 1, nothing written; otherwise one register-history line of kind review (data-with = the participants, text "Reviewed[, with A, B].") by the person, last-updated today, no risk's changed date or history touched.
+- From P5's review flags: Get-Problems now reports an unsigned register-history line too (the reader agrees with the write's check); a blank -By (spaces) is no person (exit 3).
+- Done-when 1 and 2: Pester 5.9.1, 52 passed, 0 failed on PowerShell 7.6.7 (1 min 14 s) and 5.1 (1 min 32 s).
+gaps: 0 · flags: 1
+- flag: the view's labels are fixed English, as the S102 says; the stored history texts the script writes ("Created.", "Reviewed, with ...") are English too, which RL16 (content in the project language) leaves to T011/T012 to settle.
+
+### review
+Conventions read: `CLAUDE.md` (repo root — this repo has no `documentation/conventions/`), `plugins/asimov-plugin/skills/artifact-s102-validation/scripts/validate-s102.ps1` (PowerShell house style). Also read: the T008 S102, the S101 review focus, the ledger's T008 attempt, D101 F4/RL9/RL10/RL12/S2, the mockup's `view` function.
+
+Reviewing: HEAD (uncommitted) vs S102-008 — 2 files (`risk-log.ps1`, `risk-log.Tests.ps1`)
+
+Ran the suite once per edition: PowerShell 7 → 52 passed / 0 failed (1 min 22 s); Windows PowerShell 5.1 → 52 passed / 0 failed. Script and tests are pure ASCII (no char > 0x7F). Probed by hand: a hand-removed `data-by` on the register line → `-Read` `problems` entry and `-View` refusal; long name + long description wrap with the widest line exactly 80 columns.
+
+**Conventions** (CLAUDE.md + house style)
+
+| File:line | Severity | Reason |
+|---|---|---|
+| `risk-log.ps1` (whole diff) | Pass | House style kept: `Set-StrictMode`, `Exit-Refused`/`Exit-Unreadable` helpers, `Ordinal` string compares (the earlier flag class), pure ASCII, same code on both editions. |
+| `risk-log.Tests.ps1` (new Context) | Pass | Reuses the helpers, `TestDrive:`, non-ASCII built with `[char]`. |
+| `risk-log.ps1:19-47` (comment-based help) | Flag | `-View` is documented and `review` already listed in the `verb` line, but the `.PARAMETER Read` text doesn't say that a missing page now returns `register: none` — a changed contract T013/T014 will read. |
+
+**Correctness & safety**
+
+| File:line | Severity | Reason |
+|---|---|---|
+| `risk-log.ps1:635-648` (`Invoke-Review`), `:701-707` (`Invoke-View`) | Flag (look-ahead → T009) | Neither branches on `register = 'opt-out'`. Forcing `data-register="opt-out"` onto a kept page: `-View` printed an empty-looking "0 risks" log and `-Apply review` exited 0 and wrote it. `Format-Page` always renders the kept form (`:211`), so a real opt-out page (whose reason/where/decider are not in the model) would be rewritten as an empty register by a review — failure class: data loss. T009 should make both refuse or branch. |
+| `risk-log.ps1:484-493` + `:643` | Flag (uncertain) | `Invoke-Review` goes through `Get-Current`, which renumbers duplicate ids — so a review of a register holding duplicates adds a `renumber` line to a risk's history, against RL10's "a confirmed review adds none to any risk". It matches the "next write renumbers" rule and the register line names it, but RL10/the scenario's "no risk's history moved" don't carve it out; settle before T010. |
+| `risk-log.ps1:106` | Flag | Blank `-By` is closed only when git has no name (exit 3); with `git config user.name` set, `-By '  '` falls through to the git name and writes as that person (reproduced). Consistent with "else git config", but the ledger's "a blank -By is no person (exit 3)" overstates it; settle when T014 asks for the name once. |
+| `risk-log.ps1:689` | Flag (uncertain) | An empty area prints `no area`; the S102/D101 S2 only invent "none written" (description/mitigation), and the mockup prints the empty string. Harmless and in the spirit of the layout, but a new label nobody specified. |
+| `risk-log.ps1:656-670` (`Format-Wrapped`) | Flag (base judgment) | Width counts UTF-16 units and the over-long-word cut can split a surrogate pair — fine for the æøå focus; only matters for emoji/wide characters. |
+| `risk-log.ps1:701-707` | Pass | `-View` is read-only; a register with a missing impact is refused ("run -Repair first") before any score is formed, so `0` is never shown; `Get-Score` returns `''`. |
+| `risk-log.ps1:710-713` | Pass | `-Read` with no page → `register: none`, exit 0, writes nothing. |
+
+**Against the spec** (S102-008)
+
+| File:line | S102 · line | Severity | Reason |
+|---|---|---|---|
+| both files | owns (create/modify/test) | Pass | Only the owned script and test file changed; ledger/specs are the run's. |
+| `risk-log.ps1:635-648` | §2 scenario 1 (review) | Pass | One `review` line by the person with `with`, `updated` moved, no risk's `changed`/history touched; refused without page → exit 1, no `.new`. |
+| `risk-log.ps1:672-699` | §2 scenarios 3–4, §4 Must (layout) | Pass | Header, per-state counts, groups in fixed order, rule per risk, Resolved as count only, ends after the risks, no verdict text. Rule = 2 + 78 U+2500, as the mockup. |
+| `risk-log.Tests.ps1:641` | §2 scenario 2 "on the page the Resolved group is last" | Flag | `LastIndexOf('<article class="risk"') -gt IndexOf('<details …')` is always true once a Resolved risk exists — it proves nothing about order; the neighbouring regex proves the Resolved risks sit inside the details, not that no open group follows it. "Folded" is proven (exact `<details class="resolved-group">`, no `open`). Assert the last `<article>` is a Resolved id, or that `</details>` follows the last open group. |
+| `risk-log.Tests.ps1:~653` | §2 scenario 3 | Flag | The unanchored `'12'` in the "every field shown" list would also match a December date; the score assertion should be anchored to the `RISK-001` line. |
+| `risk-log.Tests.ps1` (new Context) | P5 flag 1 (register-history line with no person) | Flag | Closed in code (`Get-Problems`, `:310`) and my probe confirms it — but no test holds it closed; the suite stays green if the line is removed. This is the pattern P2/P3 already flagged. |
+| `risk-log.Tests.ps1` (new Context) | P5 flag 2 (blank `-By`) | Flag | Same: closed in code, no test (neither the exit-3 case nor the git-name-set case). |
+| `risk-log.ps1`, test harness | review-focus T003 (æøå on both editions) | Flag (look-ahead; see harness below) | `Names outside ASCII…` still runs in a child process per edition, but it only reads the page file bytes. |
+
+**Harness change (`Invoke-RiskLog` in-process)**
+
+The 46 earlier tests are textually unchanged (the diff touches only the helper and adds the new Context), and all 52 pass on both editions. Argument splatting by name works for every call shape the suite uses (switch followed by a `-Something` → `$true`; no value starts with `-`); absolute paths make the cwd difference harmless; a script `exit` ends only the script and `$global:LASTEXITCODE` is reset before each call; `$ErrorActionPreference`/strict mode stay scoped to the script; `GIT_CONFIG_GLOBAL` and the console encoding are saved/restored in `BeforeAll`/`AfterAll`; the no-`-By`/exit-3 test still works (git runs from the pushed location with the empty global config). Two things are weakened or fragile:
+- **No stdout round-trip across a process boundary** — nothing now exercises the script's `[Console]::OutputEncoding` line or a `-Read` of non-ASCII JSON through a child shell, which is exactly where 5.1 differs from 7. No earlier test did it either (only page bytes), so no earlier assertion is weaker — but the T003 focus ("read back unchanged on both shell editions") now has no test on the read-back path. Add one non-ASCII `-Read` in the two-edition test before T014.
+- **A crash now surfaces as an exception in the test rather than exit code 1** — a test asserting a non-zero code on an unexpected exception would behave differently. None does today.
+
+**P5 flags**: closed in code, no regression test — register-history "names no person" in `Get-Problems`; blank `-By` in `Get-Person`. Closed — reader and write check now agree on unsigned lines. Carried, not new in this diff — the P5 flag on the earlier no-person test passing for the wrong reason.
+
+**Things that would make later tasks hard**: T009 — `-View`/`-Review` on an opt-out page (above). T010 — a duplicate-id register is shown by `-View` without a hint and a review renumbers it; `-View`/`-Read` report no `duplicates` list (earlier flag). T014 — the "ask for the name once" flow can't tell a blank `-By` from an omitted one. T011/T012 — stored history texts the script writes ("Reviewed, with …") and the view's labels are English (the ledger's own flag).
+
+Findings only — no approval verdict. Route fixes to the .NET builder / Angular builder / tester; the approval call stays with the human reviewer.
+
+### verify
+Verifying P6: 1 task spec (T008), 2 done-whens, checkpoint "The view lists every open risk in full in the fixed order with resolved ones as a count, a confirmed review moves only the register's date and signs its history, a missing register writes nothing, and the script's tests prove it."
+
+Environment: PSModulePath exported in Bash (Machine value + `C:\Users\sva\AppData\Local\PowerShell\Modules`) before every run, as the ruling says; the two editions run one after the other.
+
+| Task | Check | Result | Evidence |
+|---|---|---|---|
+| T008 | done-when 1: `risk-log.Tests.ps1` green under `pwsh -NoProfile -Command '…Invoke-Pester…'`, T003–T007 tests still green, one test per scenario of §2 | pass | as-written command exit 0, last line "Tests Passed: 52, Failed: 0, Skipped: 0, Inconclusive: 0, NotRun: 0"; context "Review view and confirmed review" holds 6 tests (below); earlier contexts (Register a risk on a new page; Read, number and score risks; Change a risk's fields; Decide a risk's state; Hand open risks to an owner) all green |
+| T008 | done-when 2: green under `powershell -NoProfile -ExecutionPolicy Bypass -Command '…'` | pass | as-written command exit 0, last line "Tests Passed: 52, Failed: 0, Skipped: 0, Inconclusive: 0, NotRun: 0" |
+| T008 | per scenario of §2, one test each / per example row | pass | context "Review view and confirmed review" → 6 passing tests: "A confirmed review moves only the register's date (with participants)", "A confirmed review moves only the register's date (no participants)", "Page and view list risks in the fixed order", "The view shows every open risk in full and writes nothing", "The view never prints a verdict", "A repo with neither a register nor an opt-out" — 5 scenarios, 2 outline rows; same 6 names on both editions |
+| P6 | checkpoint | met | the six tests above pass on pwsh and on Windows PowerShell 5.1 (52/52 each) |
+
+Notes:
+- The as-written check prints no per-test names under default output; to read them I ran the same command with `-Output Detailed` added (and `$r` so the exit code still came from the failure counts) — an extra run, not a replacement for the as-written runs — once on pwsh and once on 5.1: both exit 0, 52 passed. Each edition thus ran the suite twice with identical results (pwsh 3× total, 5.1 2×).
+- The "Review guards" context holds 2 tests belonging to no task spec, as stated; both pass ("Conflict markers make the register unreadable, a line of equals signs alone does not", "Areas that differ only in case are both listed").
+- Working tree unchanged: `git status --short` before and after shows the same three modified files (`risk-log.Tests.ps1`, `risk-log.ps1`, ledger `S101-project-management-risk.ledger.md`); I wrote only output captures to the scratchpad, outside the repo.
+
+Verified: 3 pass · 0 fail · checkpoint met

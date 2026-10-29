@@ -27,11 +27,24 @@ BeforeAll {
     return $path
   }
 
-  # Runs the script in a child process of the given shell, from the repo root.
-  function Invoke-RiskLog([string]$Root, [string[]]$Arguments, [string]$Shell = $script:ThisShell) {
+  # Runs the script from the repo root: in this process by default (its exit ends only the script
+  # and sets $LASTEXITCODE, and a child process per call made the suite take twenty minutes on 5.1),
+  # or in a child process of the given shell when a test is about the shell edition itself.
+  function Invoke-RiskLog([string]$Root, [string[]]$Arguments, [string]$Shell = '') {
     Push-Location $Root
     try {
-      $out = & $Shell -NoProfile -ExecutionPolicy Bypass -File $script:RiskLog @Arguments 2>&1
+      $global:LASTEXITCODE = 0
+      if ($Shell) { $out = & $Shell -NoProfile -ExecutionPolicy Bypass -File $script:RiskLog @Arguments 2>&1 }
+      else {
+        # array splatting would pass "-Path" as a value to a script; name the parameters instead
+        $named = @{}
+        for ($i = 0; $i -lt $Arguments.Count; $i++) {
+          $name = $Arguments[$i].TrimStart('-')
+          if ($i + 1 -lt $Arguments.Count -and -not $Arguments[$i + 1].StartsWith('-')) { $named[$name] = $Arguments[$i + 1]; $i++ }
+          else { $named[$name] = $true }
+        }
+        $out = & $script:RiskLog @named 2>&1
+      }
       return [pscustomobject]@{ Code = $LASTEXITCODE; Output = ($out | Out-String) }
     } finally { Pop-Location }
   }
@@ -544,6 +557,144 @@ Describe 'risk-log.ps1' {
       $r.Code | Should -Be 1 -Because $r.Output
       $r.Output | Should -Match 'no person'
       Get-PageHash $root | Should -Be $before
+    }
+  }
+
+  Context 'Review view and confirmed review' {
+
+    BeforeAll {
+      function Invoke-View([string]$Root) { return Invoke-RiskLog $Root @('-Path', 'project/risk-log.html', '-View') }
+      function Invoke-Review([string]$Root, [string[]]$With) {
+        $change = [ordered]@{ verb = 'review' }
+        if ($With) { $change.with = $With }
+        $file = Write-Change $Root $change
+        return Invoke-RiskLog $Root @('-Path', 'project/risk-log.html', '-Apply', '-Change', $file, '-By', 'Maja Holm')
+      }
+      # A register of the given risks, then their states set by hand.
+      function New-StatedRegister([string]$Name, $Risks) {
+        $root = New-Register $Name ($Risks | ForEach-Object { $_.fields })
+        $html = Read-Page $root
+        $i = 0
+        foreach ($r in $Risks) {
+          $i++
+          $id = 'RISK-' + $i.ToString('000')
+          if ($r.state -ne 'Active') { $html = Set-RiskAttr $html $id 'data-state' $r.state }
+          if ($r.Contains('changed')) { $html = Set-RiskAttr $html $id 'data-changed' $r.changed }
+        }
+        Set-PageText $root $html
+        return $root
+      }
+      function Get-Lines([string]$Text) { return @($Text -split "`r?`n") }
+    }
+
+    It 'A confirmed review moves only the register''s date (<case>)' -ForEach @(
+      @{ case = 'with participants'; with = @('Erik Lund', 'Jonas Berg') }
+      @{ case = 'no participants'; with = @() }
+    ) {
+      $root = New-TestRepo ('review-' + $case.Replace(' ', '-'))
+      $change = Write-Change $root ([ordered]@{ verb = 'add'; fields = [ordered]@{ name = 'Sponsor changes'; owner = 'Jonas Berg'; impact = 3; probability = 3 }; language = 'en' })
+      (Invoke-RiskLog $root @('-Path', 'project/risk-log.html', '-Apply', '-Change', $change, '-By', 'Jonas Berg')).Code | Should -Be 0
+      Set-PageText $root ((Read-Page $root).Replace((Get-Today), '2026-01-10'))
+      $r = Invoke-Review $root $with
+      $r.Code | Should -Be 0 -Because $r.Output
+      $data = Invoke-Read $root
+      $data.updated | Should -Be (Get-Today)
+      $risk = @($data.risks)[0]
+      $risk.changed | Should -Be '2026-01-10'
+      @($risk.history).Count | Should -Be 1
+      $lines = @($data.history)
+      $lines.Count | Should -Be 2
+      $lines[1].kind | Should -Be 'created'
+      $lines[1].by | Should -Be 'Jonas Berg'
+      $lines[0].kind | Should -Be 'review'
+      $lines[0].date | Should -Be (Get-Today)
+      $lines[0].by | Should -Be 'Maja Holm'
+      if ($with.Count -gt 0) {
+        "$($lines[0].with) $($lines[0].text)" | Should -Match 'Erik Lund'
+        "$($lines[0].with) $($lines[0].text)" | Should -Match 'Jonas Berg'
+      } else {
+        $lines[0].with | Should -BeNullOrEmpty
+        $lines[0].text | Should -Not -Match 'Jonas Berg|Erik Lund'
+      }
+    }
+
+    It 'Page and view list risks in the fixed order' {
+      $root = New-StatedRegister 'order' @(
+        @{ state = 'Mitigated'; fields = [ordered]@{ name = 'One'; owner = 'Maja Holm'; impact = 2; probability = 2; mitigation = 'Done.' } }
+        @{ state = 'Accepted'; fields = [ordered]@{ name = 'Two'; owner = 'Maja Holm'; impact = 2; probability = 2 } }
+        @{ state = 'Active'; fields = [ordered]@{ name = 'Three'; owner = 'Maja Holm'; impact = 4; probability = 3 } }
+        @{ state = 'Occurred'; fields = [ordered]@{ name = 'Four'; owner = 'Maja Holm'; impact = 2; probability = 2 } }
+        @{ state = 'Resolved'; fields = [ordered]@{ name = 'Five'; owner = 'Maja Holm'; impact = 2; probability = 2 } }
+        @{ state = 'Active'; changed = '2025-01-01'; fields = [ordered]@{ name = 'Six'; owner = 'Maja Holm'; impact = 5; probability = 4 } }
+        @{ state = 'Resolved'; fields = [ordered]@{ name = 'Seven'; owner = 'Maja Holm'; impact = 2; probability = 2 } }
+        @{ state = 'Mitigated'; fields = [ordered]@{ name = 'Eight'; owner = 'Maja Holm'; impact = 3; probability = 3; mitigation = 'Done.' } }
+        @{ state = 'Active'; fields = [ordered]@{ name = 'Nine'; owner = 'Maja Holm'; impact = 3; probability = 4 } }
+      )
+      $change = Write-Change $root ([ordered]@{ verb = 'change'; target = 'RISK-002'; fields = [ordered]@{ owner = 'Erik Lund' } })
+      (Invoke-RiskLog $root @('-Path', 'project/risk-log.html', '-Apply', '-Change', $change, '-By', 'Maja Holm')).Code | Should -Be 0
+      $page = Read-Page $root
+      $ids = @([regex]::Matches($page, '<article class="risk" id="(RISK-\d+)"') | ForEach-Object { $_.Groups[1].Value })
+      $ids -join ',' | Should -Be 'RISK-006,RISK-003,RISK-009,RISK-008,RISK-001,RISK-002,RISK-004,RISK-005,RISK-007'
+      $groups = @([regex]::Matches($page, '<section class="state-group">\s*<h3>(\w+)</h3>') | ForEach-Object { $_.Groups[1].Value })
+      $groups -join ',' | Should -Be 'Active,Mitigated,Accepted,Occurred'
+      $page | Should -Match '(?s)<details class="resolved-group">((?!</details>).)*id="RISK-005"((?!</details>).)*id="RISK-007".*</details>'
+      $page.LastIndexOf('<article class="risk"') | Should -BeGreaterThan $page.IndexOf('<details class="resolved-group">')
+      $view = Invoke-View $root
+      $view.Code | Should -Be 0 -Because $view.Output
+      $lines = Get-Lines $view.Output
+      $heads = @($lines | Where-Object { $_ -match '^(Active|Mitigated|Accepted|Occurred|Resolved)\b' } | ForEach-Object { ($_ -split '\s')[0] })
+      $heads -join ',' | Should -Be 'Active,Mitigated,Accepted,Occurred,Resolved'
+      $shown = @($lines | Where-Object { $_ -match '^  RISK-\d+' } | ForEach-Object { ($_.Trim() -split '\s+')[0] })
+      $shown -join ',' | Should -Be 'RISK-006,RISK-003,RISK-009,RISK-008,RISK-001,RISK-002,RISK-004'
+    }
+
+    It 'The view shows every open risk in full and writes nothing' {
+      $root = New-StatedRegister 'view-full' @(
+        @{ state = 'Active'; fields = [ordered]@{ name = 'Sponsor changes mid-engagement'; owner = 'Maja Holm'; impact = 4; probability = 3; area = 'Governance'; description = 'The sponsor has announced a reorganisation; a new sponsor may reopen the scope that was agreed at kick-off and signed by both parties.'; mitigation = 'Brief the deputy sponsor on every steering decision.' } }
+        @{ state = 'Occurred'; fields = [ordered]@{ name = 'Environment late'; owner = 'Jonas Berg'; impact = 3; probability = 4; area = 'Schedule' } }
+        @{ state = 'Resolved'; fields = [ordered]@{ name = 'Old one'; owner = 'Jonas Berg'; impact = 2; probability = 2 } }
+        @{ state = 'Resolved'; fields = [ordered]@{ name = 'Older one'; owner = 'Jonas Berg'; impact = 2; probability = 2 } }
+      )
+      $before = Get-PageHash $root
+      $view = Invoke-View $root
+      $view.Code | Should -Be 0 -Because $view.Output
+      $out = $view.Output
+      foreach ($s in 'RISK-001', '12', 'Sponsor changes mid-engagement', 'Maja Holm', 'Governance', 'I4', 'P3', (Get-Today), 'reorganisation', 'Brief the deputy sponsor') { $out | Should -Match ([regex]::Escape($s)) }
+      $block = [regex]::Match($out, '(?s)  RISK-002.*?(\r?\n  [' + [char]0x2500 + ']|$)').Value
+      $block | Should -Match 'Environment late'
+      $block | Should -Match 'Jonas Berg'
+      $block | Should -Match 'Schedule'
+      $block | Should -Match 'I3'
+      $block | Should -Match 'P4'
+      ([regex]::Matches($block, 'none written')).Count | Should -Be 2
+      $out | Should -Match 'Resolved \(2\)'
+      $out | Should -Not -Match 'Old one|Older one|RISK-003|RISK-004'
+      foreach ($l in (Get-Lines $out)) { $l.Length | Should -BeLessOrEqual 80 -Because $l }
+      Get-PageHash $root | Should -Be $before
+    }
+
+    It 'The view never prints a verdict' {
+      $root = New-Register 'verdict' @([ordered]@{ name = 'Key developer leaves'; owner = 'Maja Holm'; impact = 5; probability = 5 })
+      $view = Invoke-View $root
+      $view.Code | Should -Be 0
+      $view.Output | Should -Match 'Key developer leaves'
+      $view.Output | Should -Match '25'
+      $view.Output | Should -Not -Match '(?i)\b(warn|warning|should|must|consider|urgent|critical|attention|recommend|advise|advice|alert|danger|high risk|act now)\b|!'
+    }
+
+    It 'A repo with neither a register nor an opt-out' {
+      $root = New-TestRepo 'none'
+      $read = Invoke-RiskLog $root @('-Path', 'project/risk-log.html', '-Read')
+      $read.Code | Should -Be 0 -Because $read.Output
+      ($read.Output | ConvertFrom-Json).register | Should -Be 'none'
+      $view = Invoke-View $root
+      $view.Code | Should -Be 0 -Because $view.Output
+      $view.Output | Should -Match '(?i)no register'
+      $view.Output | Should -Match '(?i)no opt-out'
+      $r = Invoke-Review $root @()
+      $r.Code | Should -Be 1 -Because $r.Output
+      Test-Path (Join-Path $root 'project/risk-log.html') | Should -BeFalse
+      Test-Path (Join-Path $root 'project/risk-log.html.new') | Should -BeFalse
     }
   }
 

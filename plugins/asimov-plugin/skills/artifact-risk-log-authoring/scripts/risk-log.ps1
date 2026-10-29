@@ -103,7 +103,7 @@ function Get-Text($Value) {
 }
 
 function Get-Person {
-  if ($By) { return $By.Trim() }
+  if ($By -and $By.Trim()) { return $By.Trim() }
   $name = $null
   try { $name = (& git config user.name 2>$null) } catch { $name = $null }
   if ($name) { return ([string]$name).Trim() }
@@ -307,6 +307,7 @@ function Get-Problems($Model) {
   if ($Model.register -notin @('kept', 'opt-out')) { $problems += 'the page does not say whether a register is kept (data-register)' }
   if ($Model.updated -notmatch '^\d{4}-\d{2}-\d{2}$') { $problems += 'the register has no last-updated date' }
   if ($Model.Contains('markers') -and $Model.markers) { $problems += 'the page holds git conflict markers from a merge' }
+  if (@($Model.history | Where-Object { -not $_.by }).Count -gt 0) { $problems += 'a line of the register history names no person' }
   $i = 0
   foreach ($r in $Model.risks) {
     $i++
@@ -630,8 +631,86 @@ function Invoke-Handover([string]$Page, $ChangeData, [string]$Person) {
   Write-Output ((($open | ForEach-Object { $_.id }) -join ', ') + ' written.')
 }
 
+# A confirmed review: one register-history line, the last-updated date, and no risk touched (RL9).
+function Invoke-Review([string]$Page, $ChangeData, [string]$Person) {
+  if (-not (Test-Path -LiteralPath $Page)) { Exit-Refused 'There is no register to review: register a risk or record an opt-out first. Nothing written.' }
+  $with = @(@(Get-Field $ChangeData 'with') | ForEach-Object { Get-Text $_ } | Where-Object { $_ })
+  $current = Get-Current $Page $Person
+  $model = $current.Model
+  $text = 'Reviewed'
+  if ($with.Count -gt 0) { $text += ', with ' + ($with -join ', ') }
+  $text += '.'
+  if ($current.Renumbered.Count -gt 0) { $text += ' ' + ($current.Renumbered -join '; ') + '.' }
+  $model.history = @([ordered]@{ date = $Today; by = $Person; kind = 'review'; with = ($with -join ', '); text = $text }) + @($model.history)
+  $model.updated = $Today
+  Write-Register $Page $model $current.Held
+  Write-Output 'Review written.'
+}
+
+# ---------------------------------------------------------------- the view (S2, P6)
+
+$Width = 80
+$Indent = ' ' * 16
+
+# Words to lines no wider than the view; the first line starts with $First, the rest with the indent.
+function Format-Wrapped([string]$Text, [string]$First) {
+  $lines = @(); $line = $First; $room = $Width
+  foreach ($word in ($Text -split '\s+' | Where-Object { $_ })) {
+    while ($Indent.Length + $word.Length -gt $room) {
+      # a word longer than a whole line is cut, never left to overflow
+      $take = $room - $line.Length
+      if ($take -lt 1) { $lines += $line.TrimEnd(); $line = $Indent; continue }
+      $lines += $line + $word.Substring(0, $take); $word = $word.Substring($take); $line = $Indent
+    }
+    if (($line.Length + $word.Length) -gt $room -and $line.Trim()) { $lines += $line.TrimEnd(); $line = $Indent }
+    $line += $word + ' '
+  }
+  $lines += $line.TrimEnd()
+  return $lines
+}
+
+function Format-View($Model, [string]$Shown) {
+  $out = New-Object System.Collections.Generic.List[string]
+  $risks = @($Model.risks)
+  $out.Add("Risk log $Dot $Shown")
+  $out.Add("Updated $($Model.updated) $Dot $($risks.Count) risks")
+  $out.Add((($States | ForEach-Object { $s = $_; "$(@($risks | Where-Object { $_.state -eq $s }).Count) $s" }) -join " $Dot "))
+  $out.Add('')
+  $rule = '  ' + ([string][char]0x2500 * ($Width - 2))
+  $ordered = Get-Ordered $risks
+  foreach ($s in $States) {
+    $inState = @($ordered | Where-Object { $_.state -eq $s })
+    if ($inState.Count -eq 0) { continue }
+    if ($s -eq 'Resolved') { $out.Add("Resolved ($($inState.Count))"); $out.Add(''); continue }
+    $out.Add($s)
+    foreach ($r in $inState) {
+      $score = (Get-Score $r).PadLeft(2)
+      foreach ($l in (Format-Wrapped $r.name ('  ' + $r.id + '  ' + $score + '  '))) { $out.Add($l) }
+      $area = if ($r.area) { $r.area } else { 'no area' }
+      foreach ($l in (Format-Wrapped "$($r.owner) $Dot $area $Dot I$($r.impact) P$($r.probability) $Dot changed $($r.changed)" $Indent)) { $out.Add($l) }
+      if ($r.description) { foreach ($l in (Format-Wrapped $r.description $Indent)) { $out.Add($l) } } else { $out.Add($Indent + 'Description: none written') }
+      if ($r.mitigation) { foreach ($l in (Format-Wrapped $r.mitigation '     Mitigation ')) { $out.Add($l) } } else { $out.Add('     Mitigation none written') }
+      $out.Add($rule)
+    }
+    $out.Add('')
+  }
+  while ($out.Count -gt 0 -and $out[$out.Count - 1] -eq '') { $out.RemoveAt($out.Count - 1) }
+  return ($out -join "`n")
+}
+
+function Invoke-View([string]$Page) {
+  if (-not (Test-Path -LiteralPath $Page)) { Write-Output "No register and no opt-out at $Path."; return }
+  $model = Read-Register $Page
+  $problems = @(Get-Problems $model)
+  if ($problems.Count -gt 0) { Exit-Refused ('The register cannot be read in full (' + ($problems -join '; ') + '); run -Repair first.') }
+  Write-Output (Format-View $model $Path)
+}
+
 function Invoke-Read([string]$Page) {
-  if (-not (Test-Path -LiteralPath $Page)) { Exit-Unreadable "No register at $Page." }
+  if (-not (Test-Path -LiteralPath $Page)) {
+    Write-Output (ConvertTo-Json -InputObject ([ordered]@{ lang = ''; register = 'none'; updated = ''; history = @(); risks = @(); areas = @(); problems = @() }) -Depth 4)
+    return
+  }
   $model = Read-Register $Page
   $areas = @(Get-Areas $model)
   $out = [ordered]@{
@@ -658,6 +737,10 @@ switch ($actions) {
     Invoke-Read $PagePath
     exit 0
   }
+  'View' {
+    Invoke-View $PagePath
+    exit 0
+  }
   'Apply' {
     if (Test-Path -LiteralPath ($PagePath + '.new')) { Exit-Refused "An earlier write was interrupted: $Path.new is still there. Run -Finish first. Nothing written." }
     $data = Read-Change $Change
@@ -667,6 +750,7 @@ switch ($actions) {
       'change' { Invoke-Change $PagePath $data $person }
       'state' { Invoke-State $PagePath $data $person }
       'handover' { Invoke-Handover $PagePath $data $person }
+      'review' { Invoke-Review $PagePath $data $person }
       default { Exit-Unreadable "The verb '$(Get-Text (Get-Field $data 'verb'))' is not built yet." }
     }
     exit 0
