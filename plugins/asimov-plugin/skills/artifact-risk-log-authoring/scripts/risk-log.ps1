@@ -299,6 +299,8 @@ function Read-PageModel([string]$Html) {
   return $model
 }
 
+function Test-Same([string]$A, [string]$B) { return [string]::Equals($A, $B, [System.StringComparison]::Ordinal) }
+
 # What stops a register being read in full; a duplicate identifier is not one (the next write renumbers it).
 function Get-Problems($Model) {
   $problems = @()
@@ -326,7 +328,7 @@ function Read-Register([string]$Page) {
   try { $html = [System.IO.File]::ReadAllText($Page, $Utf8) } catch { Exit-Unreadable "The register $Page cannot be read: $($_.Exception.Message)" }
   $model = Read-PageModel $html
   # git conflict markers left by a merge: the page cannot be read in full until the repair (T010)
-  $model.markers = [regex]::IsMatch($html, '(?m)^(<{7}|={7}|>{7})(\s|$)')
+  $model.markers = ([regex]::IsMatch($html, '(?m)^<{7}(\s|$)') -and [regex]::IsMatch($html, '(?m)^>{7}(\s|$)'))
   return $model
 }
 
@@ -361,7 +363,12 @@ function Test-NearlySame([string]$A, [string]$B) {
 }
 
 function Get-Areas($Model) {
-  return @($Model.risks | ForEach-Object { $_.area } | Where-Object { $_ } | Sort-Object -Unique)
+  # unique by ordinal comparison: "Schedule" and "schedule" are two areas to show, never one
+  $set = New-Object System.Collections.Generic.HashSet[string] ([System.StringComparer]::Ordinal)
+  foreach ($r in $Model.risks) { if ($r.area) { [void]$set.Add($r.area) } }
+  $list = New-Object System.Collections.Generic.List[string] (,[string[]]@($set))
+  $list.Sort([System.StringComparer]::Ordinal)
+  return @($list)
 }
 
 # ---------------------------------------------------------------- write
@@ -380,7 +387,7 @@ function Write-Register([string]$Page, $Model, $Held) {
     $back = Read-PageModel ([System.IO.File]::ReadAllText($new, $Utf8))
     $problem = $null
     if ($html -match '\{\{') { $problem = 'a placeholder was left unfilled' }
-    elseif ((Format-Model $back) -ne (Format-Model $Model)) { $problem = 'the written page does not read back as the change' }
+    elseif (-not (Test-Same (Format-Model $back) (Format-Model $Model))) { $problem = 'the written page does not read back as the change' }
     else { $problem = Test-Kept $Held $back }
     if ($problem) { Exit-Refused "Not written: $problem. The register is as it was." }
     if (Test-Path -LiteralPath $Page) { [System.IO.File]::Replace($new, $Page, [NullString]::Value) } else { [System.IO.File]::Move($new, $Page) }
@@ -403,7 +410,7 @@ function Test-Kept($Held, $New) {
     $old = @($r.history); $cur = @($now[0].history)
     if ($cur.Count -lt $old.Count) { return "the new page drops a history line of $($r.id)" }
     for ($k = 0; $k -lt $old.Count; $k++) {
-      if ("$($old[$k].date)|$($old[$k].by)|$($old[$k].kind)|$($old[$k].text)" -ne "$($cur[$k].date)|$($cur[$k].by)|$($cur[$k].kind)|$($cur[$k].text)") { return "the new page changes a history line of $($r.id)" }
+      if (-not (Test-Same "$($old[$k].date)|$($old[$k].by)|$($old[$k].kind)|$($old[$k].text)" "$($cur[$k].date)|$($cur[$k].by)|$($cur[$k].kind)|$($cur[$k].text)")) { return "the new page changes a history line of $($r.id)" }
     }
   }
   # the register's history is newest first: what the page held is the tail of the new list
@@ -411,7 +418,7 @@ function Test-Kept($Held, $New) {
   if ($cur.Count -lt $old.Count) { return 'the new page drops a line of the register history' }
   $offset = $cur.Count - $old.Count
   for ($k = 0; $k -lt $old.Count; $k++) {
-    if ("$($old[$k].date)|$($old[$k].by)|$($old[$k].kind)|$($old[$k].text)" -ne "$($cur[$k + $offset].date)|$($cur[$k + $offset].by)|$($cur[$k + $offset].kind)|$($cur[$k + $offset].text)") { return 'the new page changes a line of the register history' }
+    if (-not (Test-Same "$($old[$k].date)|$($old[$k].by)|$($old[$k].kind)|$($old[$k].text)" "$($cur[$k + $offset].date)|$($cur[$k + $offset].by)|$($cur[$k + $offset].kind)|$($cur[$k + $offset].text)")) { return 'the new page changes a line of the register history' }
   }
   return $null
 }
@@ -524,6 +531,7 @@ function Invoke-Change([string]$Page, $ChangeData, [string]$Person) {
   $current = Get-Current $Page $Person
   $model = $current.Model
   $risk = @($model.risks | Where-Object { [string]::Equals($_.id, $target, [System.StringComparison]::Ordinal) })
+  if (-not $target) { Exit-Refused "The change names no target (RISK-NNN). Nothing written." }
   if ($risk.Count -eq 0) { Exit-Refused "The register holds no $target. Nothing written." }
   $risk = $risk[0]
   $parts = @()
@@ -533,6 +541,7 @@ function Invoke-Change([string]$Page, $ChangeData, [string]$Person) {
     if ($f -in @('name', 'owner') -and -not $value) { Exit-Refused "A risk keeps its $f; it cannot be emptied. Nothing written." }
     if ($f -in @('impact', 'probability') -and $value -notmatch '^[1-5]$') { Exit-Refused "The $f is a whole number from 1 to 5. Nothing written." }
     if ([string]::Equals([string]$risk[$f], $value, [System.StringComparison]::Ordinal)) { continue }
+    if ($f -eq 'mitigation' -and -not $value -and $risk.state -eq 'Mitigated') { Exit-Refused "$target is Mitigated, so its mitigation cannot be emptied; set it back to Active first. Nothing written." }
     $old = if ($risk[$f]) { $risk[$f] } else { 'none' }
     $new = if ($value) { $value } else { 'none' }
     $parts += (($f.Substring(0, 1).ToUpperInvariant() + $f.Substring(1)) + ' ' + $old + ' ' + $Arrow + ' ' + $new)
@@ -544,6 +553,42 @@ function Invoke-Change([string]$Page, $ChangeData, [string]$Person) {
   $text = "$target changed."
   if ($current.Renumbered.Count -gt 0) { $text += ' ' + ($current.Renumbered -join '; ') + '.' }
   $model.history = @([ordered]@{ date = $Today; by = $Person; kind = 'write'; with = ''; text = $text }) + @($model.history)
+  $model.updated = $Today
+  Write-Register $Page $model $current.Held
+  Write-Output "$target written."
+}
+
+# Every state is a person's decision with a reason; Mitigated needs a mitigation, Accepted a decider;
+# any state can be set from any other, under the same identifier (RL5, RL6, RL7, RL17).
+function Invoke-State([string]$Page, $ChangeData, [string]$Person) {
+  Test-NoScore $ChangeData
+  if (-not (Test-Path -LiteralPath $Page)) { Exit-Refused 'There is no register yet; register a risk first. Nothing written.' }
+  $target = Get-Text (Get-Field $ChangeData 'target')
+  if (-not $target) { Exit-Refused 'The change names no target (RISK-NNN). Nothing written.' }
+  $state = Get-Field $ChangeData 'state'
+  $to = Get-Text (Get-Field $state 'to')
+  $reason = Get-Text (Get-Field $state 'reason')
+  $decider = Get-Text (Get-Field $state 'decider')
+  $match = @($States | Where-Object { Test-Same $_ $to })
+  if ($match.Count -eq 0) { Exit-Refused ("The state is one of " + ($States -join ', ') + "; not '$to'. Nothing written.") }
+  $current = Get-Current $Page $Person
+  $model = $current.Model
+  $risk = @($model.risks | Where-Object { Test-Same $_.id $target })
+  if ($risk.Count -eq 0) { Exit-Refused "The register holds no $target. Nothing written." }
+  $risk = $risk[0]
+  if (Test-Same $risk.state $to) { Exit-Refused "$target is already $to. Nothing written." }
+  if (-not $reason) { Exit-Refused "Setting $target to $to needs a reason. Nothing written." }
+  if ($to -eq 'Mitigated' -and -not $risk.mitigation) { Exit-Refused "Setting $target to Mitigated needs its mitigation written first. Nothing written." }
+  if ($to -eq 'Accepted' -and -not $decider) { Exit-Refused "Setting $target to Accepted needs the name of the person who decided it. Nothing written." }
+  $text = "$($risk.state) $Arrow ${to}: $reason"
+  if (-not $text.EndsWith('.')) { $text += '.' }
+  if ($decider) { $text += " Decided by $decider." }
+  $risk.state = $to
+  $risk.changed = $Today
+  $risk.history = @($risk.history) + @([ordered]@{ date = $Today; by = $Person; kind = 'state'; text = $text })
+  $line = "$target $($to.ToLowerInvariant())."
+  if ($current.Renumbered.Count -gt 0) { $line += ' ' + ($current.Renumbered -join '; ') + '.' }
+  $model.history = @([ordered]@{ date = $Today; by = $Person; kind = 'write'; with = ''; text = $line }) + @($model.history)
   $model.updated = $Today
   Write-Register $Page $model $current.Held
   Write-Output "$target written."
@@ -584,6 +629,7 @@ switch ($actions) {
     switch (Get-Text (Get-Field $data 'verb')) {
       'add' { Invoke-Add $PagePath $data $person }
       'change' { Invoke-Change $PagePath $data $person }
+      'state' { Invoke-State $PagePath $data $person }
       default { Exit-Unreadable "The verb '$(Get-Text (Get-Field $data 'verb'))' is not built yet." }
     }
     exit 0

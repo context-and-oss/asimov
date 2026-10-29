@@ -25,17 +25,17 @@ phases:
     tasks:
       - { id: T004, status: done, attempts: 1, agent: human-in-session, model: session }
   - id: P3
+    status: committed
+    commit: "578747d"
+    go: { by: "SimonVilandt", date: "2026-10-29" }
+    tasks:
+      - { id: T005, status: done, attempts: 1, agent: human-in-session, model: session }
+  - id: P4
     status: passed
     commit: none
     go: none
     tasks:
-      - { id: T005, status: done, attempts: 1, agent: human-in-session, model: session }
-  - id: P4
-    status: pending
-    commit: none
-    go: none
-    tasks:
-      - { id: T006, status: pending, attempts: 0, agent: none, model: none }
+      - { id: T006, status: done, attempts: 1, agent: human-in-session, model: session }
   - id: P5
     status: pending
     commit: none
@@ -425,5 +425,95 @@ Earlier tests (all green): The first risk creates the register as RISK-001 · A 
 Uncertain: I could not confirm which of those 20 are T003's vs T004's — the test file carries no `T003`/`T004` marker (grep found none). All 20 earlier tests ran and passed, and 24 = 20 + 4 new; if done-when 1 means a specific T003/T004 set, that mapping is not observable from the run.
 
 Tree integrity: `git status --porcelain` and `git diff` hashes identical before and after my runs (ffe06e89… / 6a93912b…) — tree unchanged.
+
+Verified: 2 pass · 0 fail · checkpoint met
+
+### commit · 578747d
+go by SimonVilandt on 2026-10-29 · 2 files · ledger
+
+## P4 · Decide a risk's state
+
+### T006 · attempt 1 · human-in-session · session
+Conventions read: none (this repo has no documentation/conventions/); CLAUDE.md and the S101 §1-§2 instead.
+built T006 (human task, built in the session that directs the run; test-first)
+- Tests first: the four scenarios of §2 as sixteen Pester tests (the set outline's eight rows, the refused outline's six rows, the Mitigated-mitigation scenario, the history scenario), plus a "Review guards" context of two tests that are not T006 scenarios: conflict markers make the register unreadable while a lone line of equals signs in a description does not, and areas differing only in case are both listed (P2/P3 review flags kept closed). Seen red (18 failing, the 24 earlier green) before the code.
+- risk-log.ps1 -Apply with verb state: the target must exist and name a state; setting the state it already has is refused; every state change needs a reason; Mitigated needs a written mitigation; Accepted needs a decider; any state from any other (RL5), same identifier; one history line of kind state "Active -> Mitigated: <reason>. Decided by <decider>." (U+2192); changed date today; a field is never touched; register updated with a write line. -Apply change refuses to empty the mitigation of a Mitigated risk ("set it back to Active first").
+- From P3's review flags: the write's check (Format-Model compare, Test-Kept history lines) compares ordinally (Test-Same), so on 5.1 an "ae" for an "ae-ligature" or a case-only change is no longer invisible; Get-Areas is unique by ordinal comparison and sorted ordinally (so "Schedule" and "schedule" are two); conflict markers need both a <<<<<<< and a >>>>>>> line; an empty target names itself in the refusal.
+- Done-when 1 and 2: Pester 5.9.1, 42 passed, 0 failed on PowerShell 7.6.7 and 5.1.
+gaps: 0 · flags: 0
+
+### review
+Conventions read: `CLAUDE.md` (repo root; this repo has no `documentation/conventions/`) and `plugins/asimov-plugin/skills/artifact-s102-validation/scripts/validate-s102.ps1` as PowerShell house style. Also read: S101 §1–§2, the P3 review and P4 T006 attempt in the ledger.
+
+Reviewing: HEAD (uncommitted work as the diff) — 2 files, against S102 T006. Read the whole of `risk-log.ps1` and the whole diff of the test file; ran Pester 5.9.1 on both editions — PowerShell 7: 42 passed / 0 failed; Windows PowerShell 5.1: 42 passed / 0 failed. Nothing edited.
+
+## Conventions
+| File:line | Severity | Reason |
+|---|---|---|
+| `risk-log.ps1`, `risk-log.Tests.ps1` (the diff) | Pass | Pure ASCII kept (`[char]` for U+2192), same banner sections, reuses `Exit-Refused`/`Get-Field`/`Get-Text` — matches `validate-s102.ps1` and `CLAUDE.md`; no hard rule touched. |
+| `risk-log.Tests.ps1:326` | Flag | P3's formatting flag still open: `}    }` closes the `Invoke-Change` helper and the `BeforeAll` on one line — not touched in this attempt and not mentioned in the ledger (base judgment only, no convention file behind it). |
+
+## Correctness & safety
+| File:line | Severity | Reason |
+|---|---|---|
+| `risk-log.ps1:370` (`Get-Areas`) | Flag | The ordinal sort puts every capitalised area before every lowercase one and non-ASCII letters last (`Zebra`, `apple`, `Ægir`) — the order `-Read` returns and later tasks will show a person. Sort case-insensitively with an ordinal tie-break to keep "Schedule"/"schedule" distinct without scrambling the alphabet. Base judgment. |
+| `risk-log.ps1:331` | Flag | Conflict markers now need both a `<<<<<<<` and a `>>>>>>>` line. Content cannot cause a false hit (`ConvertTo-Html` escapes `<`/`>`, so a lone `=======` is the only content-borne case), but a merge half-resolved by hand — one marker line deleted, the `=======` left in — now reads as a clean register; both sides' risks then parse as duplicate ids and `Invoke-Renumber` renumbers them silently instead of sending the person to repair. (uncertain — depends on whether T010's repair is meant to catch half-resolved merges) |
+| `risk-log.ps1:583-584` | Flag | A reason ending in `?` or `!` gets a full stop appended ("…late?.") by `-not $text.EndsWith('.')`. Base judgment; cosmetic, but it goes into the permanent history. |
+| `risk-log.ps1:533-534` | Pass | Empty-target message now names itself ("The change names no target (RISK-NNN)") — P3 flag closed. The check sits after the lookup/`Get-Current`, harmless since nothing is written. |
+| `risk-log.ps1:563-595` (`Invoke-State`) | Pass | No defect found: verb inputs checked before any mutation; ordinal compares (`active` refused); already-in-state refused; all rules before `Write-Register`, so a refusal leaves no `.new` and an untouched page. |
+| `risk-log.ps1:544` | Pass | The Mitigated guard sits after the "value unchanged" skip (an already-empty mitigation isn't refused); whitespace-only trimmed to empty and refused; runs before the write, so no partial in-memory change can reach the page. |
+
+## Against the spec
+| File:line | S102 · line | Severity | Reason |
+|---|---|---|---|
+| `risk-log.ps1:563-595` | T006 · §2 scenario 1 (set when what it needs is given) | Pass | All eight example rows served by one code path: identifier, changed date, group on the page, `state` history line with reason and optional decider — the test checks each row, including the Resolved group in `<details>`. |
+| `risk-log.ps1:579-582` | T006 · §2 scenario 2 (requirement missing) | Pass | All six rows refused with exit 1, page byte-identical (page-hash asserted). |
+| `risk-log.ps1:544` | T006 · §2 scenario 3 | Pass | Mitigated mitigation cannot be emptied; message "set it back to Active first"; test matches `Active` and the page hash. |
+| test "A risk's history only grows" | T006 · §2 scenario 4 | Pass | Three dated lines `created,change,state`; first line JSON-identical. |
+| `risk-log.ps1:586-588` | T006 · §4 Must (state change never alters a field) | Pass | Only `state`, `changed`, `history` assigned. |
+| `risk-log.Tests.ps1` (state context) | T006 · §4 Must (state change never alters a field) | Flag | No test asserts it: the set test never compares impact/owner/mitigation/area before and after, and `Test-Kept` checks only history, so a later edit that touched a field would pass the suite. A one-line before/after assertion would hold it. |
+| `risk-log.ps1:402-424` | T006 · §4 Must (check refuses a page that drops/rewrites history) | Pass | Existing `Test-Kept` serves it, now ordinal; no new test for the refusal in the diff. |
+| `risk-log.ps1:586` | T006 · §4 Must not (derive state from a field) | Pass | Nothing sets a state from a mitigation or any field. |
+| both files | T006 · `owns` | Pass | Only the owned script and its test file changed in code (the ledger edit is the run's own). |
+| — | T006 · §5 | Pass | No prompting for missing mitigation/decider/reason (T012/T014), no Occurred group in the view, no issue-log pointer. |
+| — | T006 · §3 done-when 1, 2 | Pass | Both editions green; T003–T005 tests still pass; each scenario has a test of its own title. (The test file carries no T003/T004 marker, so done-when 1's "T003 to T005 still green" cannot be mapped to specific tests.) |
+
+## P3 flags taken into this attempt
+- `-ne` culture-aware compares → **closed**: `Test-Same` used in the write's read-back check and both `Test-Kept` loops.
+- `Get-Areas` uniqueness → **closed**: ordinal now, held by the "Areas that differ only in case" guard test (passes on 5.1, so the 5.1 half I flagged uncertain is covered).
+- lone `=======` marker → **closed**, held by the "Conflict markers…" guard test (which also checks the refusal, exit 1, on `-Apply`); see the half-resolved flag above for the residual.
+- empty-target message → **closed**.
+- missing regression tests for markers/areas → **closed**.
+- `}    }` formatting slip at test line 326 → **open**.
+
+## Notes for later tasks (review focus; none belongs to T006)
+- **T010 (repair):** `markers` is set only by `Read-Register` — the repair must read through it. The both-markers rule means a half-resolved page is not flagged as conflicted (flag above). A true duplicate id is renumbered silently by `Get-Current` on any verb; `-Apply state`/`change` aimed at a duplicated id lands on the earliest-created risk — the write line records the renumber, but the person is not asked.
+- **T014:** `Get-Person` runs after `Read-Change`, so unset `user.name` + a bad change file reports exit 2 before exit 3. A leftover `.new` currently refuses `-Apply` (exit 1, "run -Finish first"); `-Finish` is not built.
+- **T003/T004:** the ordinal compares now make the read-back check sensitive to æ→ae and case-only changes, so a UTF-8/CRLF check will hold on both editions. `Read-PageModel` normalises CRLF before parsing; a reason/description containing a literal CRLF would fail the read-back check and be refused (uncertain — not exercised).
+- **T012:** nothing in this phase obstructs the no-PowerShell fallback; the state rules are all in the script, so the skills will need to restate them.
+
+Findings only — no approval verdict. Route fixes to the .NET builder / Angular builder / tester; the approval call stays with the human reviewer.
+
+### verify
+Verifying P4: 1 task spec (T006), 2 done-whens, checkpoint "Each state is set only with its reason, decider or mitigation, a refused state leaves the page as it was, a risk's history only grows, and the script's tests prove every case."
+
+Environment: PSModulePath exported before every command as ruled (Machine PSModulePath + `C:\Users\sva\AppData\Local\PowerShell\Modules`), so Pester 5.9.1 was found.
+
+| Task | Check | Result | Evidence |
+|---|---|---|---|
+| T006 | done-when 1: Tests.ps1 green under the `pwsh` command, T003–T005 tests still green, one test per scenario of §2 (one per example row of an outline) | pass | `pwsh` command as written → exit 0; a separate pwsh run of the same command with `-Output Detailed` added (to read test names) → "Tests Passed: 42, Failed: 0, Skipped: 0, Inconclusive: 0, NotRun: 0" |
+| T006 | done-when 2: Tests.ps1 green under the `powershell` (5.1) command | pass | `powershell` command as written → exit 0 |
+| P4 | checkpoint (the `check`: both commands in sequence with `&&`, as written) | met | `pwsh` → exit 0, then `powershell` → exit 0 |
+
+Scenario coverage in the Detailed run (context "Decide a risk's state"):
+- "A state is set when what it needs is given" — 8 tests, one per example row: Active→Mitigated, Active→Accepted, Active→Occurred, Active→Resolved, Mitigated→Active, Accepted→Active, Occurred→Active, Resolved→Active
+- "A state whose requirement is missing is not set" — 6 tests, one per example row: Active→Mitigated (a reason), Active→Accepted (a reason, no decider), Active→Resolved (no reason), Active→Occurred (no reason), Resolved→Active (no reason), Active→Active (a reason)
+- "The mitigation of a Mitigated risk cannot be emptied" — 1 test
+- "A risk's history only grows" — 1 test
+→ 16 tests for the four §2 scenarios, matching the done-when's titles.
+
+Earlier contexts, all green in the same run: "Register a risk on a new page" (T003) 7 tests; "Read, number and score risks" (T004) 13; "Change a risk's fields" (T005) 4; "Review guards" 2 (as described). Total 7+13+4+16+2 = 42 = "Discovery found 42 tests".
+
+Notes: the `-Output Detailed` run is a variant of the pwsh command used only to read test names; the exit codes above are from the commands run exactly as written (output discarded). The pwsh command was run twice in total (detailed variant, then as written), both exit 0. Tree-state fingerprint (`git status --short | md5sum`) was `ffe06e893a13852e0766801a9ff162e5` both before and after all runs — it covers status, not file contents, but it shows the same modified/untracked set, and I created or edited no repo file.
 
 Verified: 2 pass · 0 fail · checkpoint met

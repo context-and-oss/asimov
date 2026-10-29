@@ -385,4 +385,114 @@ Describe 'risk-log.ps1' {
       Test-Path (Join-Path $root 'project/risk-log.html.new') | Should -BeFalse
     }
   }
+
+  Context 'Decide a risk''s state' {
+
+    BeforeAll {
+      function Invoke-State([string]$Root, [string]$Target, $State) {
+        $change = Write-Change $Root ([ordered]@{ verb = 'state'; target = $Target; state = $State })
+        return Invoke-RiskLog $Root @('-Path', 'project/risk-log.html', '-Apply', '-Change', $change, '-By', 'Maja Holm')
+      }
+      function New-StateRegister([string]$Name, [string]$From, [bool]$WithMitigation) {
+        $second = [ordered]@{ name = 'The decided one'; owner = 'Jonas Berg'; impact = 3; probability = 3 }
+        if ($WithMitigation) { $second.mitigation = 'Pair on every module.' }
+        $root = New-Register $Name @([ordered]@{ name = 'Another'; owner = 'Jonas Berg'; impact = 2; probability = 2 }, $second)
+        if ($From -ne 'Active') { Set-PageText $root (Set-RiskAttr (Read-Page $root) 'RISK-002' 'data-state' $From) }
+        return $root
+      }
+    }
+
+    It 'A state is set when what it needs is given (<from> to <to>)' -ForEach @(
+      @{ from = 'Active'; to = 'Mitigated'; reason = 'pairing in place on all modules'; decider = '' }
+      @{ from = 'Active'; to = 'Accepted'; reason = 'the customer carries the cost'; decider = 'Allan Borup' }
+      @{ from = 'Active'; to = 'Occurred'; reason = 'arrived three weeks late; re-planned'; decider = '' }
+      @{ from = 'Active'; to = 'Resolved'; reason = 'rehearsal finished inside the window'; decider = '' }
+      @{ from = 'Mitigated'; to = 'Active'; reason = 'the mitigation no longer holds'; decider = '' }
+      @{ from = 'Accepted'; to = 'Active'; reason = 'the contract changed'; decider = '' }
+      @{ from = 'Occurred'; to = 'Active'; reason = 'the problem is handled; the risk remains'; decider = '' }
+      @{ from = 'Resolved'; to = 'Active'; reason = 'the sponsor change is back on the table'; decider = '' }
+    ) {
+      $root = New-StateRegister ("set-$from-$to") $from $true
+      $state = [ordered]@{ to = $to; reason = $reason }
+      if ($decider) { $state.decider = $decider }
+      $r = Invoke-State $root 'RISK-002' $state
+      $r.Code | Should -Be 0 -Because $r.Output
+      $risk = @((Invoke-Read $root).risks) | Where-Object { $_.id -eq 'RISK-002' }
+      $risk.state | Should -Be $to
+      $risk.changed | Should -Be (Get-Today)
+      $last = @($risk.history)[-1]
+      $last.kind | Should -Be 'state'
+      $last.by | Should -Be 'Maja Holm'
+      $last.text | Should -Match ([regex]::Escape($reason))
+      if ($decider) { $last.text | Should -Match ([regex]::Escape($decider)) }
+      $page = Read-Page $root
+      if ($to -eq 'Resolved') {
+        $page | Should -Match '(?s)<details class="resolved-group">((?!</details>).)*id="RISK-002"'
+      } else {
+        $page | Should -Match ('(?s)<section class="state-group">\s*<h3>' + $to + '</h3>((?!</section>).)*id="RISK-002"')
+      }
+    }
+
+    It 'A state whose requirement is missing is not set (<from> to <to>, <given>)' -ForEach @(
+      @{ from = 'Active'; mitigation = $false; to = 'Mitigated'; given = 'a reason'; state = @{ to = 'Mitigated'; reason = 'all modules paired' } }
+      @{ from = 'Active'; mitigation = $true; to = 'Accepted'; given = 'a reason and no decider'; state = @{ to = 'Accepted'; reason = 'the customer carries it' } }
+      @{ from = 'Active'; mitigation = $true; to = 'Resolved'; given = 'no reason'; state = @{ to = 'Resolved' } }
+      @{ from = 'Active'; mitigation = $true; to = 'Occurred'; given = 'no reason'; state = @{ to = 'Occurred' } }
+      @{ from = 'Resolved'; mitigation = $true; to = 'Active'; given = 'no reason'; state = @{ to = 'Active' } }
+      @{ from = 'Active'; mitigation = $true; to = 'Active'; given = 'a reason'; state = @{ to = 'Active'; reason = 'still here' } }
+    ) {
+      $root = New-StateRegister ("refuse-$from-$to-" + $given.Replace(' ', '-')) $from $mitigation
+      $before = Get-PageHash $root
+      $r = Invoke-State $root 'RISK-002' $state
+      $r.Code | Should -Be 1 -Because $r.Output
+      $r.Output.Trim() | Should -Not -BeNullOrEmpty
+      Get-PageHash $root | Should -Be $before
+    }
+
+    It 'The mitigation of a Mitigated risk cannot be emptied' {
+      $root = New-Register 'empty-mitigation' (1..3 | ForEach-Object { [ordered]@{ name = "Risk $_"; owner = 'Jonas Berg'; impact = 2; probability = 2; mitigation = 'Pair on every module.' } })
+      Set-PageText $root (Set-RiskAttr (Read-Page $root) 'RISK-003' 'data-state' 'Mitigated')
+      $before = Get-PageHash $root
+      $change = Write-Change $root ([ordered]@{ verb = 'change'; target = 'RISK-003'; fields = [ordered]@{ mitigation = '' } })
+      $r = Invoke-RiskLog $root @('-Path', 'project/risk-log.html', '-Apply', '-Change', $change, '-By', 'Maja Holm')
+      $r.Code | Should -Be 1 -Because $r.Output
+      $r.Output | Should -Match 'Active'
+      Get-PageHash $root | Should -Be $before
+    }
+
+    It 'A risk''s history only grows' {
+      $root = New-Register 'grows' @([ordered]@{ name = 'Sponsor changes'; owner = 'Maja Holm'; impact = 3; probability = 3 })
+      $first = @(@((Invoke-Read $root).risks)[0].history)[0]
+      $change = Write-Change $root ([ordered]@{ verb = 'change'; target = 'RISK-001'; fields = [ordered]@{ impact = 4 } })
+      (Invoke-RiskLog $root @('-Path', 'project/risk-log.html', '-Apply', '-Change', $change, '-By', 'Maja Holm')).Code | Should -Be 0
+      (Invoke-State $root 'RISK-001' ([ordered]@{ to = 'Resolved'; reason = 'the sponsor stayed' })).Code | Should -Be 0
+      $history = @(@((Invoke-Read $root).risks)[0].history)
+      $history.Count | Should -Be 3
+      ($history | ForEach-Object { $_.kind }) -join ',' | Should -Be 'created,change,state'
+      foreach ($h in $history) { $h.date | Should -Match '^\d{4}-\d{2}-\d{2}$' }
+      ($history[0] | ConvertTo-Json -Compress) | Should -Be ($first | ConvertTo-Json -Compress)
+    }
+  }
+
+  # Not scenarios of a task spec: guards a review asked to keep closed.
+  Context 'Review guards' {
+
+    It 'Conflict markers make the register unreadable, a line of equals signs alone does not' {
+      $root = New-Register 'markers' @([ordered]@{ name = 'One'; owner = 'Maja Holm'; impact = 2; probability = 2; description = "Before`n=======`nafter" })
+      @((Invoke-Read $root).problems).Count | Should -Be 0
+      $html = Read-Page $root
+      $art = [regex]::Match($html, '(?s)<article class="risk".*?</article>')
+      Set-PageText $root ($html.Substring(0, $art.Index) + "<<<<<<< HEAD`n" + $art.Value + "`n=======`n" + $art.Value + "`n>>>>>>> other`n" + $html.Substring($art.Index + $art.Length))
+      @((Invoke-Read $root).problems) -join ' ' | Should -Match 'conflict markers'
+      (Add-Risk $root ([ordered]@{ name = 'Two'; owner = 'Maja Holm'; impact = 2; probability = 2 })).Code | Should -Be 1
+    }
+
+    It 'Areas that differ only in case are both listed' {
+      $root = New-Register 'case-areas' @(
+        [ordered]@{ name = 'One'; owner = 'Maja Holm'; impact = 2; probability = 2; area = 'Schedule' }
+        [ordered]@{ name = 'Two'; owner = 'Maja Holm'; impact = 2; probability = 2; area = 'schedule' }
+      )
+      @((Invoke-Read $root).areas).Count | Should -Be 2
+    }
+  }
 }
