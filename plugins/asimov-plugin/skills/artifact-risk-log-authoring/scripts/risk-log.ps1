@@ -19,7 +19,8 @@
 .PARAMETER Path
   The register page, normally project/risk-log.html in the product repo.
 .PARAMETER Read
-  Print the data model, the areas in use and the problems found, as JSON. Writes nothing.
+  Print the data model, the areas in use, the opt-out and the problems found, as JSON. Writes
+  nothing. With no page, register is "none" and every list is empty (exit 0).
 .PARAMETER Area
   With -Read: also print the areas in use that are nearly the same as this text.
 .PARAMETER View
@@ -127,7 +128,15 @@ function Read-Template {
 # ---------------------------------------------------------------- the model
 
 function New-Register([string]$Lang) {
-  return [ordered]@{ lang = $Lang; register = 'kept'; updated = $Today; history = @(); risks = @() }
+  return [ordered]@{ lang = $Lang; register = 'kept'; updated = $Today; history = @(); risks = @(); optout = $null }
+}
+
+$OptOutReasons = @('elsewhere', 'not-worked')
+
+# The opt-out's reason as a sentence: the page's first paragraph, the view, the replacing line.
+function Format-OptOutReason($OptOut) {
+  if ($OptOut.reason -eq 'elsewhere') { return "Risks are handled elsewhere: $($OptOut.where)." }
+  return 'Risks are not worked with on this engagement.'
 }
 
 function Get-Score($Risk) {
@@ -140,6 +149,7 @@ function Get-Score($Risk) {
 function Format-Model($Model) {
   $lines = New-Object System.Collections.Generic.List[string]
   $lines.Add("lang=$($Model.lang)|register=$($Model.register)|updated=$($Model.updated)")
+  if ($Model.Contains('optout') -and $null -ne $Model.optout) { $o = $Model.optout; $lines.Add("optout|$($o.reason)|$($o.where)|$($o.by)|$($o.date)") }
   foreach ($h in $Model.history) { $lines.Add("reg|$($h.date)|$($h.by)|$($h.kind)|$($h.with)|$($h.text)") }
   foreach ($r in @($Model.risks | Sort-Object @{ Expression = { $_.id } }, @{ Expression = { $_.created } }, @{ Expression = { $_.name } })) {
     $lines.Add("risk|$($r.id)|$($r.state)|$($r.impact)|$($r.probability)|$($r.owner)|$($r.area)|$($r.created)|$($r.changed)|$($r.name)|$($r.description)|$($r.mitigation)")
@@ -208,6 +218,7 @@ function Format-Risk([string]$Block, $Risk) {
 function Format-Page([string]$Template, $Model, [string]$RepoName) {
   # the template's own authoring comment never reaches a page
   $t = ([regex]'(?s)<!--\s*\r?\n\s*Page template for the risk log.*?-->\r?\n?').Replace($Template, '', 1)
+  if ($Model.register -eq 'opt-out') { return Format-OptOutPage $t $Model $RepoName }
   $t = Set-Block $t 'form:opt-out' ''
   $t = Set-Block $t 'form:kept' (Get-Block $t 'form:kept')
   $t = Set-Block $t 'counts' (Get-Block $t 'counts')
@@ -256,6 +267,22 @@ function Format-Page([string]$Template, $Model, [string]$RepoName) {
   })
 }
 
+# The template's opt-out form: no risks, the reason, the place, the decider, and the register's history.
+function Format-OptOutPage([string]$T, $Model, [string]$RepoName) {
+  $o = $Model.optout
+  $t = Set-Block $T 'form:kept' ''
+  $t = Set-Block $t 'counts' ''
+  $t = Set-Block $t 'form:opt-out' (Get-Block $t 'form:opt-out')
+  $regBlock = Get-Block $t 'register-line'
+  $t = Set-Block $t 'register-line' (($Model.history | ForEach-Object { Format-RegisterLine $regBlock $_ }) -join '')
+  $reasonText = if ($o.reason -eq 'elsewhere') { 'Handled elsewhere' } else { 'Not worked with on this engagement' }
+  return Set-Values $t ([ordered]@{
+    REASON = $o.reason; 'REASON-TEXT' = $reasonText; WHERE = $o.where; DECIDER = $o.by; DATE = $o.date; LANGUAGE = $Model.lang
+    LANG = $Model.lang; 'REPO-NAME' = $RepoName; TITLE = 'No risk register kept here'; REGISTER = $Model.register; UPDATED = $Model.updated
+    DESCRIPTION = (Format-OptOutReason $o)
+  })
+}
+
 # ---------------------------------------------------------------- read back
 
 function ConvertFrom-Html([string]$Value) { return [System.Net.WebUtility]::HtmlDecode($Value) }
@@ -279,7 +306,12 @@ function Read-Lines([string]$List) {
 function Read-PageModel([string]$Html) {
   $Html = $Html.Replace("`r`n", "`n")
   $body = [regex]::Match($Html, '<body([^>]*)>').Groups[1].Value
-  $model = [ordered]@{ lang = (Get-Attr ([regex]::Match($Html, '<html[^>]*>').Value) 'lang'); register = (Get-Attr $body 'data-register'); updated = (Get-Attr $body 'data-updated'); history = @(); risks = @() }
+  $model = [ordered]@{ lang = (Get-Attr ([regex]::Match($Html, '<html[^>]*>').Value) 'lang'); register = (Get-Attr $body 'data-register'); updated = (Get-Attr $body 'data-updated'); history = @(); risks = @(); optout = $null }
+  $section = [regex]::Match($Html, '<section class="opt-out"([^>]*)>')
+  if ($section.Success) {
+    $a = $section.Groups[1].Value
+    $model.optout = [ordered]@{ reason = (Get-Attr $a 'data-reason'); where = (Get-Attr $a 'data-where'); by = (Get-Attr $a 'data-by'); date = (Get-Attr $a 'data-date') }
+  }
   $model.history = @(Read-Lines ([regex]::Match($Html, '(?s)<ol class="register-history">(.*?)</ol>').Groups[1].Value))
   $risks = @()
   foreach ($m in [regex]::Matches($Html, '(?s)<article class="risk"(?<attrs>[^>]*)>(?<body>.*?)</article>')) {
@@ -306,6 +338,11 @@ function Get-Problems($Model) {
   $problems = @()
   if ($Model.register -notin @('kept', 'opt-out')) { $problems += 'the page does not say whether a register is kept (data-register)' }
   if ($Model.updated -notmatch '^\d{4}-\d{2}-\d{2}$') { $problems += 'the register has no last-updated date' }
+  if ($Model.register -eq 'opt-out') {
+    $o = $null; if ($Model.Contains('optout')) { $o = $Model.optout }
+    if ($null -eq $o -or $OptOutReasons -notcontains $o.reason -or -not $o.by -or $o.date -notmatch '^\d{4}-\d{2}-\d{2}$') { $problems += 'the opt-out has no reason, decider or date' }
+    if (@($Model.risks).Count -gt 0) { $problems += 'an opt-out page holds risks' }
+  }
   if ($Model.Contains('markers') -and $Model.markers) { $problems += 'the page holds git conflict markers from a merge' }
   if (@($Model.history | Where-Object { -not $_.by }).Count -gt 0) { $problems += 'a line of the register history names no person' }
   $i = 0
@@ -496,10 +533,12 @@ function Invoke-Add([string]$Page, $ChangeData, [string]$Person) {
   Test-NoScore $ChangeData
   $fields = Get-Field $ChangeData 'fields'
   Test-Required $fields
-  $held = $null; $renumbered = @()
+  $held = $null; $renumbered = @(); $replaced = $null
   if (Test-Path -LiteralPath $Page) {
     $current = Get-Current $Page $Person
     $model = $current.Model; $held = $current.Held; $renumbered = $current.Renumbered
+    # the first risk replaces an opt-out, and the register remembers what it replaced (R23)
+    if ($model.register -eq 'opt-out') { $replaced = $model.optout; $model.register = 'kept'; $model.optout = $null }
   } else {
     $lang = Get-Text (Get-Field $ChangeData 'language')
     if (-not $lang) { Exit-Refused 'The first write names the project language (language). Nothing written.' }
@@ -513,7 +552,9 @@ function Invoke-Add([string]$Page, $ChangeData, [string]$Person) {
   }
   $risk.history = @([ordered]@{ date = $Today; by = $Person; kind = 'created'; text = "Created. Impact $($risk.impact), Probability $($risk.probability) (score $(Get-Score $risk))." })
   $model.risks = @($model.risks) + @($risk)
-  if ($null -eq $held) {
+  if ($null -ne $replaced) {
+    $line = [ordered]@{ date = $Today; by = $Person; kind = 'replaced-opt-out'; with = ''; text = "Register created with $($risk.id), replacing the opt-out ($($replaced.reason)) decided by $($replaced.by) on $($replaced.date): $(Format-OptOutReason $replaced)" }
+  } elseif ($null -eq $held) {
     $line = [ordered]@{ date = $Today; by = $Person; kind = 'created'; with = ''; text = "Register created with $($risk.id). Project language: $($model.lang)." }
   } else {
     $text = "$($risk.id) registered."
@@ -637,6 +678,7 @@ function Invoke-Review([string]$Page, $ChangeData, [string]$Person) {
   $with = @(@(Get-Field $ChangeData 'with') | ForEach-Object { Get-Text $_ } | Where-Object { $_ })
   $current = Get-Current $Page $Person
   $model = $current.Model
+  if ($model.register -eq 'opt-out') { Exit-Refused 'No register is kept here (an opt-out); there is nothing to review. Register a risk to start one. Nothing written.' }
   $text = 'Reviewed'
   if ($with.Count -gt 0) { $text += ', with ' + ($with -join ', ') }
   $text += '.'
@@ -703,7 +745,39 @@ function Invoke-View([string]$Page) {
   $model = Read-Register $Page
   $problems = @(Get-Problems $model)
   if ($problems.Count -gt 0) { Exit-Refused ('The register cannot be read in full (' + ($problems -join '; ') + '); run -Repair first.') }
+  if ($model.register -eq 'opt-out') {
+    $o = $model.optout
+    $lines = @("Risk log $Dot $Path", 'No risk register kept here.', '')
+    $lines += Format-Wrapped (Format-OptOutReason $o) ''
+    $lines += "Decided by $($o.by) on $($o.date)."
+    Write-Output ($lines -join "`n")
+    return
+  }
   Write-Output (Format-View $model $Path)
+}
+
+# Records that no register is kept here, why and who decided, in the register's place (RL15, R21, R22).
+function Invoke-OptOut([string]$Page, $ChangeData, [string]$Person) {
+  $o = Get-Field $ChangeData 'opt-out'
+  $reason = Get-Text (Get-Field $o 'reason')
+  $where = Get-Text (Get-Field $o 'where')
+  $decider = Get-Text (Get-Field $o 'decider')
+  if ($OptOutReasons -notcontains $reason) { Exit-Refused ("An opt-out's reason is one of " + ($OptOutReasons -join ', ') + "; not '$reason'. Nothing written.") }
+  if ($reason -eq 'elsewhere' -and -not $where) { Exit-Refused 'An opt-out because risks are handled elsewhere names where (where). Nothing written.' }
+  if (-not $decider) { Exit-Refused 'An opt-out names the person who decided it (decider). Nothing written.' }
+  if (Test-Path -LiteralPath $Page) {
+    $current = Read-Register $Page
+    if ($current.register -eq 'opt-out') { Exit-Refused 'An opt-out is already recorded here. Nothing written.' }
+    Exit-Refused 'The register holds risks, and a risk is never deleted: resolve the risks instead of opting out. Nothing written.'
+  }
+  $lang = Get-Text (Get-Field $ChangeData 'language')
+  if (-not $lang) { Exit-Refused 'The first write names the project language (language). Nothing written.' }
+  $model = New-Register $lang
+  $model.register = 'opt-out'
+  $model.optout = [ordered]@{ reason = $reason; where = $where; by = $decider; date = $Today }
+  $model.history = @([ordered]@{ date = $Today; by = $Person; kind = 'opt-out'; with = ''; text = "Opt-out recorded, decided by ${decider}: $(Format-OptOutReason $model.optout)" })
+  Write-Register $Page $model $null
+  Write-Output 'Opt-out written.'
 }
 
 function Invoke-Read([string]$Page) {
@@ -715,7 +789,7 @@ function Invoke-Read([string]$Page) {
   $areas = @(Get-Areas $model)
   $out = [ordered]@{
     lang = $model.lang; register = $model.register; updated = $model.updated
-    history = @($model.history); risks = @($model.risks); areas = $areas
+    history = @($model.history); risks = @($model.risks); areas = $areas; optout = $model.optout
     problems = @(Get-Problems $model)
   }
   if ($Area) { $out.nearly = @($areas | Where-Object { Test-NearlySame $_ $Area }) }
@@ -751,6 +825,7 @@ switch ($actions) {
       'state' { Invoke-State $PagePath $data $person }
       'handover' { Invoke-Handover $PagePath $data $person }
       'review' { Invoke-Review $PagePath $data $person }
+      'optout' { Invoke-OptOut $PagePath $data $person }
       default { Exit-Unreadable "The verb '$(Get-Text (Get-Field $data 'verb'))' is not built yet." }
     }
     exit 0

@@ -43,17 +43,17 @@ phases:
     tasks:
       - { id: T007, status: done, attempts: 1, agent: human-in-session, model: session }
   - id: P6
+    status: committed
+    commit: "e875695"
+    go: { by: "SimonVilandt", date: "2026-10-29" }
+    tasks:
+      - { id: T008, status: done, attempts: 1, agent: human-in-session, model: session }
+  - id: P7
     status: passed
     commit: none
     go: none
     tasks:
-      - { id: T008, status: done, attempts: 1, agent: human-in-session, model: session }
-  - id: P7
-    status: pending
-    commit: none
-    go: none
-    tasks:
-      - { id: T009, status: pending, attempts: 0, agent: none, model: none }
+      - { id: T009, status: done, attempts: 1, agent: human-in-session, model: session }
   - id: P8
     status: pending
     commit: none
@@ -687,5 +687,90 @@ Notes:
 - The as-written check prints no per-test names under default output; to read them I ran the same command with `-Output Detailed` added (and `$r` so the exit code still came from the failure counts) — an extra run, not a replacement for the as-written runs — once on pwsh and once on 5.1: both exit 0, 52 passed. Each edition thus ran the suite twice with identical results (pwsh 3× total, 5.1 2×).
 - The "Review guards" context holds 2 tests belonging to no task spec, as stated; both pass ("Conflict markers make the register unreadable, a line of equals signs alone does not", "Areas that differ only in case are both listed").
 - Working tree unchanged: `git status --short` before and after shows the same three modified files (`risk-log.Tests.ps1`, `risk-log.ps1`, ledger `S101-project-management-risk.ledger.md`); I wrote only output captures to the scratchpad, outside the repo.
+
+Verified: 3 pass · 0 fail · checkpoint met
+
+### commit · e875695
+go by SimonVilandt on 2026-10-29 · 2 files · ledger
+
+## P7 · Record an opt-out
+
+### T009 · attempt 1 · human-in-session · session
+Conventions read: none (this repo has no documentation/conventions/); CLAUDE.md and the S101 §1-§2 instead.
+built T009 (human task, built in the session that directs the run; test-first)
+- Tests first: the five scenarios of §2 as nine Pester tests (the written outline's two rows, the refused outline's three rows), plus four review guards: a review of an opt-out page leaves it as it was (P6 data-loss flag), an unsigned register-history line is a problem, a blank -By with no git name is exit 3 (P5 flags), and the non-ASCII two-edition test now also reads the register back through each shell's stdout (P6 flag). The order test now asserts the last article is a Resolved one and no state group follows the resolved group (P6 flag). Seen red (9 failing, 54 green) before the code.
+- risk-log.ps1 -Apply with verb optout and an "opt-out" object { reason, where, decider }: reason one of elsewhere, not-worked (else exit 1); elsewhere needs where; a decider always; the first write names the language; the page is the template's opt-out form (data-register opt-out, section.opt-out with data-reason, data-where, data-by, data-date; title "No risk register kept here"; first paragraph the reason sentence with its place), the register history one opt-out line by the person. An opt-out over a register with risks -> exit 1 "a risk is never deleted", page byte-identical; a second opt-out -> exit 1.
+- -Apply add on an opt-out page replaces it with a kept register: RISK-001, the language kept, the opt-out's history line kept, and a new top line of kind replaced-opt-out naming the reason, the decider and the date.
+- -View of an opt-out page prints "No risk register kept here.", the reason with its place, and "Decided by X on <date>."; -Read returns the opt-out; -Apply review on an opt-out page is refused (exit 1), so a review can never render an opt-out page as an empty register.
+- The model carries optout (read from section.opt-out, compared by the write's check); Get-Problems flags an opt-out without reason, decider or date, or one holding risks. -Read's help states the register "none" answer (P6 flag).
+- Done-when 1 and 2: Pester 5.9.1, 63 passed, 0 failed on PowerShell 7.6.7 (57 s) and 5.1 (1 min 49 s).
+gaps: 0 · flags: 1
+- flag: two design questions from P6's review stay open, for the person directing the run: should a review renumber duplicate identifiers (a renumber line on a risk, which RL10 says a review never adds), and is "no area" the right label for an empty area in the view.
+
+### review
+Conventions read: `CLAUDE.md` (repo root, as the repo's conventions), `plugins/asimov-plugin/skills/artifact-s102-validation/scripts/validate-s102.ps1` (PowerShell house style). Also read: S102-…-009, S101 §1–§2, the ledger's P6 review and T009 attempt, the template's `form:opt-out` block, the D101 sections named. (No `documentation/conventions/` exists here.)
+
+Reviewing: HEAD (uncommitted work) — 2 files (`risk-log.ps1`, `risk-log.Tests.ps1`); the ledger edit is the run's own.
+
+Ran the suite on pwsh: 63 passed / 0 failed (1m24s). Did not run the Windows PowerShell 5.1 edition (the ledger reports 63 green there). Probed by hand (pwsh) with a Danish opt-out ("Åse Ørsted" decider): name and page survive write → `-Read` → `-View` → a CRLF round-trip, and a later `add` replaced the opt-out keeping its history line.
+
+**Conventions**
+
+| File:line | Severity | Reason |
+|---|---|---|
+| `risk-log.ps1` (whole diff) | Pass | House style kept: `Exit-Refused`/`Exit-Unreadable` helpers, ordinal compares via `Test-Same`, `Set-StrictMode`-safe `.Contains('optout')` guards, pure ASCII, one code path for both editions. |
+| `risk-log.ps1:22`, `:38` | Pass | Help text states the `-Read` "none" answer (a P6 flag) and the `opt-out` field. |
+| `risk-log.Tests.ps1` (new Context) | Pass | Matches the suite's helpers and TestDrive fixtures; one test per example row as the done-when asks. |
+| `CLAUDE.md` hard rules 1–11 | Pass | None apply to these two files. |
+
+**Correctness & safety**
+
+| File:line | Severity | Reason |
+|---|---|---|
+| `risk-log.ps1:137-140`, `:766` | Flag | Sentence assembly: a `where` ending in a full stop gives "Risks are handled elsewhere: Jira.." (reproduced) — the doubled stop lands in the lead paragraph, the view, and the `replaced-opt-out` history line, which is append-only and never fixable. |
+| `risk-log.ps1:340-345` | Flag | `Get-Problems` accepts an `elsewhere` opt-out page with an empty `data-where`, which the write refuses — the reader is looser than the writer (the earlier register-history fix "reader agrees with the write's check" sets the pattern). |
+| `risk-log.ps1:772-776` | Flag | The refusal for an existing page says "The register holds risks" without checking: a kept page with zero risks (hand edit) gets a wrong message; the page is also read with `Read-Register` but never through `Get-Problems`, so a conflicted page gets the same wrong message. |
+| `risk-log.ps1:271-284` | Flag | For `not-worked` the template's "Where" row renders with an empty `<dd>` (the template has no way to drop it) — cosmetic. |
+| `risk-log.ps1:155-157` | Pass | The write's read-back check now covers the `optout` line, so a lossy opt-out page is refused before the rename; no `.new` remains on any refusal (tested). |
+| `risk-log.ps1:537-541`, `:555-557` | Pass | Replacement keeps the opt-out's own history line, sets `optout` null, and `Test-Kept` accepts it as the tail; the new top line names reason, decider and date. |
+| `risk-log.ps1:680` | Pass | A review of an opt-out page is refused (exit 1), page unchanged — closes P6's data-loss flag, held by a test. |
+| `risk-log.ps1:748-755` | Pass | `-View` of an opt-out page prints the reason with its place, then the decider and the date. |
+
+**Against the spec**
+
+| File:line | S102 · line | Severity | Reason |
+|---|---|---|---|
+| both files | owns | Pass | Only the owned script and test file changed. |
+| `risk-log.ps1:760-780` | §2 outline 1 / §4 Must | Pass | Exit 0, page titled "No risk register kept here", `data-register="opt-out"`, `section.opt-out` attributes as D101 §6.4 names them, language kept, one `opt-out` history line by `-By`. |
+| `risk-log.ps1:762-767` | §2 outline 2 / §4 Must | Pass | Exit 1 for an invalid reason, `elsewhere` with no place, or no decider; no page and no `.new` left. |
+| `risk-log.ps1:772-775` | §2 scenario 4 | Pass | Opt-out over a register refused with "a risk is never deleted", page hash unchanged; a second opt-out also refused. |
+| `risk-log.Tests.ps1` (Context "Opt out and replace it") | §3 done-when 1 | Pass | Nine tests for the five scenarios (written outline 2 rows, refused outline 3 rows) plus four review guards. |
+| `risk-log.Tests.ps1:~669` | P6 flag (unanchored `'12'` in the view test) | Flag | Not mentioned in the T009 attempt and still open: the bare `'12'` would also match a date; anchor the score to the RISK-001 line. |
+| ledger T009 vs P6 flags | P6 flags taken in | Pass | Closed with tests: opt-out review data loss, unsigned register-history line, blank `-By` with no git name (exit 3), non-ASCII read-back through each edition's stdout, the Resolved-group order assertion, the `-Read` "none" help. The two design questions (review renumbering duplicates vs RL10; the "no area" label) are carried openly. |
+| review focus T003/T004 | æ/ø/å, CRLF | Pass | Non-ASCII decider and CRLF pages checked as above; the two-edition test now reads the name back through each shell. |
+
+**Hard later (look-ahead, none belongs to T009)**
+- T010: `Get-Problems` reports "an opt-out page holds risks", but `-Repair` has no rule for it; `-View` and every write refuse such a page, so the repair must decide which form wins.
+- T010: `Invoke-Review` still renumbers duplicate ids through `Get-Current` (the carried RL10 question).
+- T014: blank `-By` falls through to the git name when git has one (P6 flag, still true), so the "ask once" flow can't tell blank from omitted.
+- T011/T012: the opt-out sentences and history texts the script writes are fixed English, like the other stored texts the ledger already flags for RL16.
+
+Findings only — no approval verdict. Route fixes to the .NET builder / Angular builder / tester; the approval call stays with the human reviewer.
+
+### verify
+Verifying P7: 1 task spec (T009), 2 done-whens, checkpoint "An opt-out is written only with its reason, its place and its decider, a first risk replaces it and names it in the history, and the script's tests prove it."
+
+Environment: as ruled, PSModulePath exported in Bash before every run (Machine value from `[Environment]::GetEnvironmentVariable('PSModulePath','Machine')` + `;C:\Users\sva\AppData\Local\PowerShell\Modules`); Pester 5.9.1 loaded in both editions. All commands run from `C:/Privat/Repositories/asimov`; the two halves sequentially.
+
+| Task | Check | Result | Evidence |
+|---|---|---|---|
+| T009 | done-when 1: green under `pwsh -NoProfile -Command 'Import-Module Pester ... exit (... FailedCount + FailedContainersCount)'`, T003–T008 tests still green, one test per scenario of §2 | pass | pwsh, as written → "Tests Passed: 63, Failed: 0, Skipped: 0, Inconclusive: 0, NotRun: 0", exit 0 (49 s) |
+| T009 | done-when 1 — test coverage of §2 | pass | Detailed run lists 8 tests in context "Opt out and replace it": An opt-out with its reason and decider is written (elsewhere) / (not-worked); An opt-out missing what it needs is not written (elsewhere, no place) / (elsewhere, no decider) / (not-worked, no decider); Registering a risk replaces the opt-out; An opt-out cannot replace a register that holds risks; The view of an opt-out page states the opt-out — one per scenario, one per example row. Contexts for T003–T008 (Register a risk on a new page; Read, number and score risks; Change a risk's fields; Decide a risk's state; Hand open risks to an owner; Review view and confirmed review) all present and green, plus "Review guards". |
+| T009 | done-when 2: green under `powershell -NoProfile -ExecutionPolicy Bypass -Command 'Import-Module Pester ...'` | pass | powershell 5.1, as written → "Tests Passed: 63, Failed: 0, Skipped: 0, Inconclusive: 0, NotRun: 0", exit 0 (78 s) |
+| P7 | checkpoint — the check command (both halves `&&`-chained) | met | both halves run separately as written, each exited 0 (not run as one `&&` shell line) |
+
+Notes:
+- The pwsh half ran twice: first with `-Output Detailed` added to read test names (63 passed, exit 0, 57.6 s), then exactly as written (63 passed, exit 0). Both reported.
+- Tree untouched: `git status --short` hash identical before and after (ffe06e89…); the three modified files (`risk-log.Tests.ps1`, `risk-log.ps1`, ledger) were already modified at start.
 
 Verified: 3 pass · 0 fail · checkpoint met

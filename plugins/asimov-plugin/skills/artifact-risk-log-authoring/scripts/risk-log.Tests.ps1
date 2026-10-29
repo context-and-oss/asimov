@@ -196,6 +196,12 @@ Describe 'risk-log.ps1' {
       $page = (New-Object System.Text.UTF8Encoding($false, $true)).GetString($bytes)
       $page | Should -Match ([regex]::Escape('<span class="risk-name">' + $name + '</span>'))
       $page | Should -Match ([regex]::Escape('data-owner="' + $owner + '"'))
+      # and read back through the same shell's stdout, where the editions differ
+      $read = Invoke-RiskLog $root @('-Path', 'project/risk-log.html', '-Read') $shell
+      $read.Code | Should -Be 0 -Because $read.Output
+      $risk = @(($read.Output | ConvertFrom-Json).risks)[0]
+      $risk.name | Should -Be $name
+      $risk.owner | Should -Be $owner
     }
   }
 
@@ -638,7 +644,8 @@ Describe 'risk-log.ps1' {
       $groups = @([regex]::Matches($page, '<section class="state-group">\s*<h3>(\w+)</h3>') | ForEach-Object { $_.Groups[1].Value })
       $groups -join ',' | Should -Be 'Active,Mitigated,Accepted,Occurred'
       $page | Should -Match '(?s)<details class="resolved-group">((?!</details>).)*id="RISK-005"((?!</details>).)*id="RISK-007".*</details>'
-      $page.LastIndexOf('<article class="risk"') | Should -BeGreaterThan $page.IndexOf('<details class="resolved-group">')
+      $ids[-1] | Should -BeIn @('RISK-005', 'RISK-007')
+      $page.LastIndexOf('</section>') | Should -BeLessThan $page.IndexOf('<details class="resolved-group">')
       $view = Invoke-View $root
       $view.Code | Should -Be 0 -Because $view.Output
       $lines = Get-Lines $view.Output
@@ -698,6 +705,93 @@ Describe 'risk-log.ps1' {
     }
   }
 
+  Context 'Opt out and replace it' {
+
+    BeforeAll {
+      function Invoke-OptOut([string]$Root, $OptOut) {
+        $file = Write-Change $Root ([ordered]@{ verb = 'optout'; 'opt-out' = $OptOut; language = 'en' })
+        return Invoke-RiskLog $Root @('-Path', 'project/risk-log.html', '-Apply', '-Change', $file, '-By', 'Maja Holm')
+      }
+    }
+
+    It 'An opt-out with its reason and decider is written (<reason>)' -ForEach @(
+      @{ reason = 'elsewhere'; where = "the customer's project tool"; says = "the customer's project tool" }
+      @{ reason = 'not-worked'; where = ''; says = 'risks are not worked with on this engagement' }
+    ) {
+      $root = New-TestRepo ('optout-' + $reason)
+      $o = [ordered]@{ reason = $reason; decider = 'Erik Lund' }
+      if ($where) { $o.where = $where }
+      $r = Invoke-OptOut $root $o
+      $r.Code | Should -Be 0 -Because $r.Output
+      $page = Read-Page $root
+      $page | Should -Match 'data-register="opt-out"'
+      $page | Should -Match '<h1>No risk register kept here</h1>'
+      $lead = [System.Net.WebUtility]::HtmlDecode([regex]::Match($page, '<p class="lead">(.*?)</p>').Groups[1].Value)
+      $lead | Should -Match ('(?i)' + [regex]::Escape($says))
+      $section = [regex]::Match($page, '<section class="opt-out"[^>]*>').Value
+      $section | Should -Match ('data-reason="' + $reason + '"')
+      $section | Should -Match 'data-by="Erik Lund"'
+      $section | Should -Match ('data-date="' + (Get-Today) + '"')
+      $page | Should -Not -Match '<article class="risk"'
+      $data = Invoke-Read $root
+      $data.register | Should -Be 'opt-out'
+      @($data.history).Count | Should -Be 1
+      @($data.history)[0].kind | Should -Be 'opt-out'
+      @($data.history)[0].date | Should -Be (Get-Today)
+      @($data.history)[0].by | Should -Be 'Maja Holm'
+    }
+
+    It 'An opt-out missing what it needs is not written (<reason>, <missing>)' -ForEach @(
+      @{ reason = 'elsewhere'; missing = 'no place'; optout = @{ reason = 'elsewhere'; decider = 'Erik Lund' } }
+      @{ reason = 'elsewhere'; missing = 'no decider'; optout = @{ reason = 'elsewhere'; where = "the customer's project tool" } }
+      @{ reason = 'not-worked'; missing = 'no decider'; optout = @{ reason = 'not-worked' } }
+    ) {
+      $root = New-TestRepo ('optout-missing-' + $reason + '-' + $missing.Replace(' ', '-'))
+      $r = Invoke-OptOut $root $optout
+      $r.Code | Should -Be 1 -Because $r.Output
+      $r.Output.Trim() | Should -Not -BeNullOrEmpty
+      Test-Path (Join-Path $root 'project/risk-log.html') | Should -BeFalse
+      Test-Path (Join-Path $root 'project/risk-log.html.new') | Should -BeFalse
+    }
+
+    It 'Registering a risk replaces the opt-out' {
+      $root = New-TestRepo 'optout-replaced'
+      (Invoke-OptOut $root ([ordered]@{ reason = 'elsewhere'; where = "the customer's project tool"; decider = 'Erik Lund' })).Code | Should -Be 0
+      Set-PageText $root ((Read-Page $root).Replace((Get-Today), '2026-01-12'))
+      $r = Add-Risk $root ([ordered]@{ name = 'Sponsor changes'; owner = 'Maja Holm'; impact = 3; probability = 3 })
+      $r.Code | Should -Be 0 -Because $r.Output
+      $data = Invoke-Read $root
+      $data.register | Should -Be 'kept'
+      @($data.risks)[0].id | Should -Be 'RISK-001'
+      $first = @($data.history)[0]
+      $first.kind | Should -Be 'replaced-opt-out'
+      $first.text | Should -Match 'elsewhere|customer'
+      $first.text | Should -Match 'Erik Lund'
+      $first.text | Should -Match '2026-01-12'
+      (Read-Page $root) | Should -Not -Match '<section class="opt-out"'
+    }
+
+    It 'An opt-out cannot replace a register that holds risks' {
+      $root = New-Register 'optout-over-risks' @([ordered]@{ name = 'Sponsor changes'; owner = 'Maja Holm'; impact = 3; probability = 3 })
+      $before = Get-PageHash $root
+      $r = Invoke-OptOut $root ([ordered]@{ reason = 'not-worked'; decider = 'Erik Lund' })
+      $r.Code | Should -Be 1 -Because $r.Output
+      $r.Output | Should -Match '(?i)never deleted'
+      Get-PageHash $root | Should -Be $before
+    }
+
+    It 'The view of an opt-out page states the opt-out' {
+      $root = New-TestRepo 'optout-view'
+      (Invoke-OptOut $root ([ordered]@{ reason = 'elsewhere'; where = "the customer's project tool"; decider = 'Erik Lund' })).Code | Should -Be 0
+      $view = Invoke-RiskLog $root @('-Path', 'project/risk-log.html', '-View')
+      $view.Code | Should -Be 0 -Because $view.Output
+      $view.Output | Should -Match '(?i)no risk register kept here'
+      $view.Output | Should -Match ([regex]::Escape("the customer's project tool"))
+      $view.Output | Should -Match 'Erik Lund'
+      $view.Output | Should -Match (Get-Today)
+    }
+  }
+
   # Not scenarios of a task spec: guards a review asked to keep closed.
   Context 'Review guards' {
 
@@ -709,6 +803,29 @@ Describe 'risk-log.ps1' {
       Set-PageText $root ($html.Substring(0, $art.Index) + "<<<<<<< HEAD`n" + $art.Value + "`n=======`n" + $art.Value + "`n>>>>>>> other`n" + $html.Substring($art.Index + $art.Length))
       @((Invoke-Read $root).problems) -join ' ' | Should -Match 'conflict markers'
       (Add-Risk $root ([ordered]@{ name = 'Two'; owner = 'Maja Holm'; impact = 2; probability = 2 })).Code | Should -Be 1
+    }
+
+    It 'A register-history line with no person is a problem to repair' {
+      $root = New-Register 'unsigned-register' @([ordered]@{ name = 'One'; owner = 'Maja Holm'; impact = 2; probability = 2 })
+      Set-PageText $root ((Read-Page $root) -replace '(<ol class="register-history">\s*<li data-date="[^"]*") data-by="[^"]*"', '$1 data-by=""')
+      @((Invoke-Read $root).problems) -join ' ' | Should -Match 'register history names no person'
+    }
+
+    It 'A blank -By is no person when git has none' {
+      $root = New-TestRepo 'blank-by'
+      $change = Write-Change $root ([ordered]@{ verb = 'add'; fields = [ordered]@{ name = 'One'; owner = 'Maja Holm'; impact = 2; probability = 2 }; language = 'en' })
+      $r = Invoke-RiskLog $root @('-Path', 'project/risk-log.html', '-Apply', '-Change', $change, '-By', '   ')
+      $r.Code | Should -Be 3 -Because $r.Output
+    }
+
+    It 'A review of an opt-out page leaves it as it was' {
+      $root = New-TestRepo 'review-optout'
+      $file = Write-Change $root ([ordered]@{ verb = 'optout'; 'opt-out' = [ordered]@{ reason = 'not-worked'; decider = 'Erik Lund' }; language = 'en' })
+      (Invoke-RiskLog $root @('-Path', 'project/risk-log.html', '-Apply', '-Change', $file, '-By', 'Maja Holm')).Code | Should -Be 0
+      $before = Get-PageHash $root
+      $review = Write-Change $root ([ordered]@{ verb = 'review' })
+      (Invoke-RiskLog $root @('-Path', 'project/risk-log.html', '-Apply', '-Change', $review, '-By', 'Maja Holm')).Code | Should -Be 1
+      Get-PageHash $root | Should -Be $before
     }
 
     It 'Areas that differ only in case are both listed' {
