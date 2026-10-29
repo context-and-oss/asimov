@@ -13,17 +13,17 @@ phases:
       - { id: T001, status: done, attempts: 1, agent: human-in-session, model: session }
       - { id: T002, status: done, attempts: 1, agent: human-in-session, model: session }
   - id: P1
+    status: committed
+    commit: "44ebe61"
+    go: { by: "SimonVilandt", date: "2026-10-29" }
+    tasks:
+      - { id: T003, status: done, attempts: 1, agent: human-in-session, model: session }
+  - id: P2
     status: passed
     commit: none
     go: none
     tasks:
-      - { id: T003, status: done, attempts: 1, agent: human-in-session, model: session }
-  - id: P2
-    status: pending
-    commit: none
-    go: none
-    tasks:
-      - { id: T004, status: pending, attempts: 0, agent: none, model: none }
+      - { id: T004, status: done, attempts: 1, agent: human-in-session, model: session }
   - id: P3
     status: pending
     commit: none
@@ -266,5 +266,86 @@ One test per scenario, one per example row of the outline, and the ASCII scenari
 Notes:
 - I ran the pwsh command once with `-Output Detailed` and `$r` instead of the as-written pipeline, to see test names. That is a second run, not the as-written command; the as-written commands were then run in both shells, and only those two runs are the evidence for the two done-whens.
 - The working-tree status hash (`git status --short | md5sum`) was identical before and after my runs: `ffe06e893a13852e0766801a9ff162e5`.
+
+Verified: 2 pass · 0 fail · checkpoint met
+
+### commit · 44ebe61
+go by SimonVilandt on 2026-10-29 · 2 files · ledger
+
+## P2 · Number and score risks
+
+### T004 · attempt 1 · human-in-session · session
+Conventions read: none (this repo has no documentation/conventions/); CLAUDE.md and the S101 §1-§2 instead.
+built T004 (human task, built in the session that directs the run; test-first)
+- Tests first: the six scenarios of §2 as thirteen Pester tests (the duplicate outline's two rows, the areas outline's seven rows); fixtures written by -Apply and then hand-edited (states, identifiers, created dates, a shown score, CRLF), all in TestDrive. Seen red (13 failing, the 7 of T003 still green) before the code. The test file now restores GIT_CONFIG_GLOBAL and GIT_CONFIG_NOSYSTEM in AfterAll and computes today in the invariant culture (P1 review flags).
+- risk-log.ps1: -Read prints the model as JSON (lang, register, updated, history, risks, areas, problems; with -Area also "nearly") and writes nothing; it reads only the attributes and lists of D101 §6.4, never the score, summary or counts. -Apply add now writes to an existing page: the page is read, a page with problems is refused (exit 1, "run -Repair first"), duplicate identifiers are renumbered first (the earliest-created keeps the id, ties to the upper one on the page; the others take the next numbers with a renumber line "Renumbered from RISK-007"), the new risk takes max+1 (never a gap, never a resolved id), the register history gains a write line naming the renumbering. A change carrying a score is refused (exit 1). Areas nearly the same (RL13): whole texts, ignoring case, spaces, hyphens and punctuation, equal or one edit apart when both are four letters or more.
+- The write's check now also holds the new page to what the page held: no risk dropped, no history line dropped or changed, the register history's old lines kept as its tail, no identifier twice (exit 1).
+- From P1's review flags: an -Apply that finds a leftover risk-log.html.new refuses (exit 1, "Run -Finish first") instead of overwriting it; the .new is removed in a finally unless renamed; CRLF pages are normalised before parsing; dates in the invariant culture; the comment-stripping regex no longer passes IgnoreCase by accident; File.Replace gets [NullString]::Value (PowerShell had turned $null into "").
+- Fixed on the way: a 2D-array index Windows PowerShell 5.1 cannot parse (the distance now uses two rows), and the read-back compare now orders risks by identifier, since the page shows them in the RL12 order.
+- Done-when 1 and 2: Pester 5.9.1, 20 passed, 0 failed on PowerShell 7.6.7 and 5.1.
+gaps: 0 · flags: 1
+- flag: -Read's problems cover missing or malformed fields only; conflict markers and the repair are T010's.
+
+### review
+Conventions read: `CLAUDE.md` (repo root; this repo has no `documentation/conventions/`), `plugins/asimov-plugin/skills/artifact-s102-validation/scripts/validate-s102.ps1` (house style for PowerShell scripts) — plus S102 T004, the template header, D101 §6.4/RL2/RL3/RL4/RL13 and the P1 review in the ledger.
+
+Reviewing: HEAD (uncommitted) vs S102 T004 — 2 files (`risk-log.ps1`, `risk-log.Tests.ps1`). Both done-whens run: Pester 5.9.1, 20 passed / 0 failed on `pwsh` and on Windows PowerShell 5.1. Scratch checks (stale `.new`, conflict markers, non-ASCII on both editions) run in the scratchpad; no repo file touched.
+
+**P1 review flags — closed?** Closed: `IgnoreCase` regex (now instance `Regex`), invariant-culture date, stale `.new` refused in `-Apply` (reproduced: exit 1 "Run -Finish first"), `.new` deleted in a `finally`, CRLF normalised in `Read-PageModel`, git env vars restored in `AfterAll`. Not closed and not mentioned in the ledger: repo-name-for-`<title>` still the page's grandparent (`Write-Register`); the `pwsh`/`powershell` bare-name note on the T003 test unchanged; the `GIT_CONFIG_GLOBAL` git ≥ 2.32 caveat unchanged. All three low risk.
+
+### Conventions (CLAUDE.md, house style)
+| File:line | Severity | Reason |
+|---|---|---|
+| risk-log.ps1, risk-log.Tests.ps1 (whole) | Pass | Pure ASCII kept (middle dot via `[char]0x00B7`, Danish names via `[char]`); dates `YYYY-MM-DD` in invariant culture; same param/exit-code/section-comment style as `validate-s102.ps1`. |
+| risk-log.ps1 `Invoke-Read` — `$PSBoundParameters.ContainsKey('Area')` | Flag | Inside a function `$PSBoundParameters` is the function's own (only `Page`), so this test is always false; only the `-or $Area` half works, so an explicit `-Area ''` never prints `nearly`. Remove the dead half or pass `$Area` in. |
+
+### Correctness & safety
+| File:line | Severity | Reason |
+|---|---|---|
+| risk-log.ps1 `Test-NearlySame` — `$ka -eq $kb` | Flag | Cross-edition difference, reproduced: on Windows PowerShell 5.1 `-eq` compares culture-aware, so the key of "Skærm" equals "skaerm" and `-Read -Area Skaerm` returns "Skærm" as nearly the same; `pwsh` returns `[]` for the same input. D101 says the same two areas must give the same answer on every run, and the project's own examples are Danish. Compare with `[string]::Equals($ka,$kb,[StringComparison]::Ordinal)`. (Same applies to `-eq`/`-ne` on identifiers in `Get-Problems`/`Test-Kept`/`Invoke-Renumber`, but those are ASCII.) |
+| risk-log.ps1 `Get-Problems` / `Get-Current` | Flag | Look-ahead for T010 (conflict markers): a page with `<<<<<<<`/`=======`/`>>>>>>>` around the two sides of one risk reads with `problems: []`, and a following `-Apply add` exits 0, silently drops the markers and renumbers the "other side" as a new RISK-002 (reproduced). That is the opposite of the review-focus rule (merge by identifier, ask per field changed on both sides). The repair is T010's by §5, but a one-line "conflict markers present" entry in `Get-Problems` would make `-Apply` refuse ("run -Repair first") until T010 lands, and gives T010 its trigger. |
+| risk-log.ps1 `Get-Problems` / `Invoke-Read` | Flag | Duplicate identifiers are deliberately not a problem, and `-Read` has no field that says so; the entry point/T010 repair would have to rescan `risks[].id` to learn that a repair/renumber is pending. A `duplicates` list in the JSON is cheap and doesn't change the spec'd empty `problems`. |
+| risk-log.ps1 `Invoke-Renumber` | Flag (uncertain) | A renumbered risk gets a history line dated today but its `changed` date is not bumped, so `data-changed` and its newest history line can disagree. Neither D101 RL4 nor T004 says either way; settle it before T008/T010 reuse the function. |
+| risk-log.ps1 `Get-Current` / `Test-Kept` | Flag | The baseline `$held` is the page re-read and put through the same `Invoke-Renumber`, so the check cannot catch a defect in the renumbering itself; it also compares register history without `with`. Acceptable now, but it weakens "the check compares against what the page held". |
+| risk-log.ps1 `Write-Register` | Pass | `.new` removed unless renamed; `[NullString]::Value` fixes the `File.Replace` backup argument; series is max+1, no gap closed, no resolved id reused; dups renumbered earliest-created first, ties to the upper one on the page, and the new risk takes the next number after renumbering — matches RL3/RL4. |
+| risk-log.ps1 `-Read` | Pass | Writes nothing (page hash unchanged in the test); reads only the attributes/lists the template names, never the score, summary or counts; UTF-8 output intact on both editions (Danish name/area read back byte-correct). |
+
+### Against the spec (S102 T004)
+| File:line | S102 · line | Severity | Reason |
+|---|---|---|---|
+| risk-log.Tests.ps1 (whole) | §4 Must "the write's check refuses, exit 1, a new page that drops a risk or a history line… or holds a duplicate identifier" | Flag | Implemented in `Test-Kept`, but no test makes it fire; every scenario in §2 passes through it only on the success path. The §3 done-when does not require one, so this is a coverage gap, not a spec break. |
+| risk-log.Tests.ps1 CRLF test | §2 `@review-focus` CRLF scenario | Flag | Scenario met (CRLF page, `-Read` no problem, add passes its check), but the fixture's description is the single line 'First line.', so the test does not exercise the multi-line description/history text the P1 flag named. |
+| risk-log.ps1 `Get-Problems` | §5 out of scope (unreadable register → repair, T010) | Pass | Reports missing fields only (no impact → `''`, not 0, and a problem); does not build the repair. The conflict-marker gap above is the only thing it leaves open. |
+| risk-log.ps1 / risk-log.Tests.ps1 | §1, §2, §3, §4 | Pass | Only the two owned files changed; all six scenarios / 13 rows covered by tests; T003 tests still green; score refused (exit 1, page hash unchanged) and recomputed on write; series not reused or closed. |
+
+Review-focus items not yet reachable in this phase (for later tasks): the T014 "`.new` before any verb" guard exists in `-Apply` only — `-Read`/`-View` ignore a stale `.new`; the `-By`/exit-3 path works as T014 needs.
+
+Findings only — no approval verdict. Route fixes to the .NET builder / Angular builder / tester; the approval call stays with the human reviewer.
+
+### verify
+Verifying P2: 1 task spec, 2 done-whens, checkpoint "A new risk continues the series past resolved ones, a duplicate identifier is renumbered before the write, a hand-edited score is recomputed, nearly-same areas are found, and the script's tests prove each case."
+
+Environment: as ruled, exported PSModulePath to the new-window value before running (Machine PSModulePath read via `powershell -NoProfile -Command "[Environment]::GetEnvironmentVariable('PSModulePath','Machine')"` + `;C:\Users\sva\AppData\Local\PowerShell\Modules`); Pester 5.9.1 loaded under both shells. All commands run from `C:/Privat/Repositories/asimov`.
+
+First pwsh run was with `-Output Detailed` added, to get test names; then both commands re-run exactly as written. The rows below are from the as-written runs.
+
+| Task | Check | Result | Evidence |
+|---|---|---|---|
+| T004 | done-when 1: `risk-log.Tests.ps1` green under `pwsh -NoProfile -Command 'Import-Module Pester -MinimumVersion 5.0; exit (Invoke-Pester ... FailedCount + FailedContainersCount)'`, T003's tests still green, one test per §2 scenario/example row | pass | pwsh exit 0; last line `Tests Passed: 20, Failed: 0, Skipped: 0, Inconclusive: 0, NotRun: 0`; test-name check below |
+| T004 | done-when 2: green under `powershell -NoProfile -ExecutionPolicy Bypass -Command '...'` (same Pester expression) | pass | powershell 5.1 exit 0; last line `Tests Passed: 20, Failed: 0, Skipped: 0, Inconclusive: 0, NotRun: 0` |
+| P2 | checkpoint: the script's tests prove each case | met | the check command (pwsh `&&` powershell) exits 0 on both |
+
+**Test-name check (done-when 1), from the Detailed pwsh run — 20 tests:**
+- T003's seven, in context "Register a risk on a new page", all present and green: The first risk creates the register as RISK-001 · A first risk that cannot be written leaves no page behind (no owner) · (every required field present) · Optional fields left out are not shown · The page states its scoring and carries no script · Names outside ASCII are written intact on both shell editions (pwsh) · (powershell).
+- T004's thirteen, in context "Read, number and score risks", one per §2 scenario / example row:
+  - An intact register reads back in full with no problem — 1
+  - A new risk continues the series past resolved risks — 1
+  - A duplicate identifier is renumbered before the write's own change (on two different days) / (on the same day) — 2 = 2 rows
+  - The score shown is recomputed and never given — 1
+  - Areas nearly the same are found — 7 = 7 rows (Schedule/schedule, Schedule/sched-ule, Schedule/Schedul, Cost/Costs, Customer schedule/Customer schedules, QA/QC, Supplier schedule/Customer schedule)
+  - A register with CRLF line endings reads and writes as normal — 1
+- 7 + 13 = 20; no scenario or example row is missing a test, and no test is outside the spec.
+
+Working tree: `git status --short` before and after shows the same three modified files (`risk-log.Tests.ps1`, `risk-log.ps1`, the ledger) and nothing new; I wrote one output capture to the scratchpad, outside the repo.
 
 Verified: 2 pass · 0 fail · checkpoint met

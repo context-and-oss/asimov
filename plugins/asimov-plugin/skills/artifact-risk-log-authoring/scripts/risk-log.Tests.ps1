@@ -40,7 +40,53 @@ BeforeAll {
     return [System.IO.File]::ReadAllText((Join-Path $Root 'project/risk-log.html'), $script:Utf8)
   }
 
-  function Get-Today { (Get-Date).ToString('yyyy-MM-dd') }
+  function Get-Today { (Get-Date).ToString('yyyy-MM-dd', [System.Globalization.CultureInfo]::InvariantCulture) }
+
+  # A register of the given risks, written by -Apply one add at a time.
+  function New-Register([string]$Name, $Risks) {
+    $root = New-TestRepo $Name
+    foreach ($fields in $Risks) {
+      $change = Write-Change $root ([ordered]@{ verb = 'add'; fields = $fields; language = 'en' })
+      $r = Invoke-RiskLog $root @('-Path', 'project/risk-log.html', '-Apply', '-Change', $change, '-By', 'Maja Holm')
+      if ($r.Code -ne 0) { throw "fixture add failed: $($r.Output)" }
+    }
+    return $root
+  }
+
+  function Set-PageText([string]$Root, [string]$Text) {
+    [System.IO.File]::WriteAllText((Join-Path $Root 'project/risk-log.html'), $Text, $script:Utf8)
+  }
+
+  # Sets one attribute on the article of the n-th risk with this id (a hand edit of a fixture).
+  function Set-RiskAttr([string]$Html, [string]$Id, [string]$Attr, [string]$Value, [int]$Nth = 0) {
+    $ms = [regex]::Matches($Html, '<article class="risk" id="' + $Id + '"[^>]*>')
+    $m = $ms[$Nth]
+    $tag = [regex]::Replace($m.Value, ' ' + $Attr + '="[^"]*"', ' ' + $Attr + '="' + $Value + '"')
+    return $Html.Substring(0, $m.Index) + $tag + $Html.Substring($m.Index + $m.Length)
+  }
+
+  function Get-PageHash([string]$Root) {
+    return [BitConverter]::ToString([System.Security.Cryptography.SHA256]::Create().ComputeHash([System.IO.File]::ReadAllBytes((Join-Path $Root 'project/risk-log.html'))))
+  }
+
+  function Invoke-Read([string]$Root, [string[]]$More = @()) {
+    $r = Invoke-RiskLog $Root (@('-Path', 'project/risk-log.html', '-Read') + $More)
+    if ($r.Code -ne 0) { throw "-Read failed ($($r.Code)): $($r.Output)" }
+    return ($r.Output | ConvertFrom-Json)
+  }
+
+  function Add-Risk([string]$Root, $Fields) {
+    $change = Write-Change $Root ([ordered]@{ verb = 'add'; fields = $Fields })
+    return Invoke-RiskLog $Root @('-Path', 'project/risk-log.html', '-Apply', '-Change', $change, '-By', 'Maja Holm')
+  }
+
+  $script:SavedGitGlobal = $env:GIT_CONFIG_GLOBAL
+  $script:SavedGitNoSystem = $env:GIT_CONFIG_NOSYSTEM
+}
+
+AfterAll {
+  $env:GIT_CONFIG_GLOBAL = $script:SavedGitGlobal
+  $env:GIT_CONFIG_NOSYSTEM = $script:SavedGitNoSystem
 }
 
 Describe 'risk-log.ps1' {
@@ -133,6 +179,137 @@ Describe 'risk-log.ps1' {
       $page = (New-Object System.Text.UTF8Encoding($false, $true)).GetString($bytes)
       $page | Should -Match ([regex]::Escape('<span class="risk-name">' + $name + '</span>'))
       $page | Should -Match ([regex]::Escape('data-owner="' + $owner + '"'))
+    }
+  }
+
+  Context 'Read, number and score risks' {
+
+    It 'An intact register reads back in full with no problem' {
+      $root = New-Register 'intact' @(
+        [ordered]@{ name = 'Sponsor changes'; owner = 'Maja Holm'; impact = 4; probability = 3; area = 'Governance'; description = 'A reorganisation is announced.'; mitigation = 'Brief the deputy sponsor.' }
+        [ordered]@{ name = 'Environment late'; owner = 'Jonas Berg'; impact = 3; probability = 4; area = 'Schedule' }
+        [ordered]@{ name = 'Pricing changes'; owner = 'Erik Lund'; impact = 2; probability = 3 }
+      )
+      $before = Get-PageHash $root
+      $data = Invoke-Read $root
+      @($data.risks).Count | Should -Be 3
+      (@($data.risks) | ForEach-Object { $_.id }) -join ',' | Should -Be 'RISK-001,RISK-002,RISK-003'
+      $first = @($data.risks) | Where-Object { $_.id -eq 'RISK-001' }
+      $first.state | Should -Be 'Active'
+      $first.owner | Should -Be 'Maja Holm'
+      $first.impact | Should -Be '4'
+      $first.probability | Should -Be '3'
+      $first.area | Should -Be 'Governance'
+      $first.description | Should -Be 'A reorganisation is announced.'
+      $first.mitigation | Should -Be 'Brief the deputy sponsor.'
+      $first.created | Should -Be (Get-Today)
+      $first.changed | Should -Be (Get-Today)
+      @($first.history).Count | Should -Be 1
+      ((@($data.areas) | Sort-Object) -join ',') | Should -Be 'Governance,Schedule'
+      @($data.problems).Count | Should -Be 0
+      Get-PageHash $root | Should -Be $before
+    }
+
+    It 'A new risk continues the series past resolved risks' {
+      $root = New-Register 'series' (1..7 | ForEach-Object { [ordered]@{ name = "Risk $_"; owner = 'Maja Holm'; impact = 2; probability = 2 } })
+      $html = Read-Page $root
+      $html = Set-RiskAttr $html 'RISK-004' 'data-state' 'Resolved'
+      $html = Set-RiskAttr $html 'RISK-007' 'data-state' 'Resolved'
+      Set-PageText $root $html
+      $before = Invoke-Read $root
+      $r = Add-Risk $root ([ordered]@{ name = 'Risk 8'; owner = 'Jonas Berg'; impact = 3; probability = 3 })
+      $r.Code | Should -Be 0 -Because $r.Output
+      $after = Invoke-Read $root
+      (@($after.risks) | ForEach-Object { $_.id } | Sort-Object) -join ',' | Should -Be 'RISK-001,RISK-002,RISK-003,RISK-004,RISK-005,RISK-006,RISK-007,RISK-008'
+      (@($after.risks) | Where-Object { $_.id -eq 'RISK-008' }).name | Should -Be 'Risk 8'
+      foreach ($old in @($before.risks)) {
+        $now = @($after.risks) | Where-Object { $_.id -eq $old.id }
+        $now.state | Should -Be $old.state
+        @($now.history).Count | Should -Be @($old.history).Count
+      }
+      @($after.history).Count | Should -Be (@($before.history).Count + 1)
+    }
+
+    It 'A duplicate identifier is renumbered before the write''s own change (<created>)' -ForEach @(
+      @{ created = 'on two different days'; which = 'later-created' }
+      @{ created = 'on the same day'; which = 'lower one on the page' }
+    ) {
+      $root = New-Register ('dup-' + $which.Replace(' ', '-')) @(
+        [ordered]@{ name = 'Upper seven'; owner = 'Maja Holm'; impact = 2; probability = 2 }
+        [ordered]@{ name = 'Lower seven'; owner = 'Maja Holm'; impact = 2; probability = 2 }
+        [ordered]@{ name = 'The eight'; owner = 'Maja Holm'; impact = 2; probability = 2 }
+      )
+      $html = (Read-Page $root).Replace('RISK-001', 'RISK-007').Replace('RISK-002', 'RISK-007').Replace('RISK-003', 'RISK-008')
+      if ($created -eq 'on two different days') {
+        # the upper one on the page is the later-created, so the rule, not the page order, decides
+        $html = Set-RiskAttr $html 'RISK-007' 'data-created' '2026-01-02' 0
+        $html = Set-RiskAttr $html 'RISK-007' 'data-created' '2026-01-01' 1
+        $expected = 'Upper seven'
+      } else { $expected = 'Lower seven' }
+      Set-PageText $root $html
+      $r = Add-Risk $root ([ordered]@{ name = 'Brand new'; owner = 'Jonas Berg'; impact = 3; probability = 3 })
+      $r.Code | Should -Be 0 -Because $r.Output
+      $data = Invoke-Read $root
+      $nine = @($data.risks) | Where-Object { $_.id -eq 'RISK-009' }
+      $nine.name | Should -Be $expected
+      $last = @($nine.history)[-1]
+      $last.kind | Should -Be 'renumber'
+      $last.text | Should -Be 'Renumbered from RISK-007'
+      @($nine.history).Count | Should -Be 2
+      @(@($data.risks) | Where-Object { $_.id -eq 'RISK-007' }).Count | Should -Be 1
+      (@($data.risks) | Where-Object { $_.id -eq 'RISK-007' }).name | Should -Not -Be $expected
+      (@($data.risks) | Where-Object { $_.id -eq 'RISK-008' }).name | Should -Be 'The eight'
+      (@($data.risks) | Where-Object { $_.id -eq 'RISK-010' }).name | Should -Be 'Brand new'
+    }
+
+    It 'The score shown is recomputed and never given' {
+      $root = New-Register 'score' @(
+        [ordered]@{ name = 'Small one'; owner = 'Maja Holm'; impact = 2; probability = 2 }
+        [ordered]@{ name = 'Big one'; owner = 'Maja Holm'; impact = 4; probability = 3 }
+      )
+      $html = Read-Page $root
+      $art = [regex]::Match($html, '(?s)<article class="risk" id="RISK-002".*?</article>')
+      $edited = $art.Value.Replace('<span class="sc">score 12</span>', '<span class="sc">score 15</span>')
+      $html = $html.Substring(0, $art.Index) + $edited + $html.Substring($art.Index + $art.Length)
+      $html = $html.Replace('<td class="num score">12</td>', '<td class="num score">15</td>')
+      Set-PageText $root $html
+      (Add-Risk $root ([ordered]@{ name = 'Third'; owner = 'Jonas Berg'; impact = 1; probability = 1 })).Code | Should -Be 0
+      $page = Read-Page $root
+      [regex]::Match($page, '(?s)<article class="risk" id="RISK-002".*?</article>').Value | Should -Match '<span class="sc">score 12</span>'
+      $page | Should -Not -Match '<span class="sc">score 15</span>'
+      $before = Get-PageHash $root
+      $r = Add-Risk $root ([ordered]@{ name = 'Scored by hand'; owner = 'Jonas Berg'; impact = 3; probability = 5; score = 15 })
+      $r.Code | Should -Be 1 -Because $r.Output
+      Get-PageHash $root | Should -Be $before
+    }
+
+    It 'Areas nearly the same are found (<inUse> / <given>)' -ForEach @(
+      @{ inUse = 'Schedule'; given = 'schedule'; near = $true }
+      @{ inUse = 'Schedule'; given = 'sched-ule'; near = $true }
+      @{ inUse = 'Schedule'; given = 'Schedul'; near = $true }
+      @{ inUse = 'Cost'; given = 'Costs'; near = $true }
+      @{ inUse = 'Customer schedule'; given = 'Customer schedules'; near = $true }
+      @{ inUse = 'QA'; given = 'QC'; near = $false }
+      @{ inUse = 'Supplier schedule'; given = 'Customer schedule'; near = $false }
+    ) {
+      $root = New-Register ('area-' + [guid]::NewGuid().ToString('n').Substring(0, 8)) @(
+        [ordered]@{ name = 'One risk'; owner = 'Maja Holm'; impact = 2; probability = 2; area = $inUse }
+      )
+      $data = Invoke-Read $root @('-Area', $given)
+      (@($data.nearly) -contains $inUse) | Should -Be $near
+    }
+
+    It 'A register with CRLF line endings reads and writes as normal' -Tag 'review-focus' {
+      $root = New-Register 'crlf' @(
+        [ordered]@{ name = 'Sponsor changes'; owner = 'Maja Holm'; impact = 4; probability = 3; description = 'First line.' }
+      )
+      Set-PageText $root ((Read-Page $root) -replace "`r?`n", "`r`n")
+      (Read-Page $root) | Should -Match "`r`n"
+      $data = Invoke-Read $root
+      @($data.problems).Count | Should -Be 0
+      $r = Add-Risk $root ([ordered]@{ name = 'Second'; owner = 'Jonas Berg'; impact = 2; probability = 2 })
+      $r.Code | Should -Be 0 -Because $r.Output
+      @((Invoke-Read $root).risks).Count | Should -Be 2
     }
   }
 }

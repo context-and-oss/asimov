@@ -80,7 +80,7 @@ if (-not $PluginRoot) { $PluginRoot = Split-Path -Parent (Split-Path -Parent (Sp
 $Utf8 = New-Object System.Text.UTF8Encoding $false
 $Dot = [string][char]0x00B7
 $States = @('Active', 'Mitigated', 'Accepted', 'Occurred', 'Resolved')
-$Today = (Get-Date).ToString('yyyy-MM-dd')
+$Today = (Get-Date).ToString('yyyy-MM-dd', [System.Globalization.CultureInfo]::InvariantCulture)
 
 # ---------------------------------------------------------------- exits
 
@@ -134,12 +134,13 @@ function Get-Score($Risk) {
   return ''
 }
 
-# One canonical text per model, so the check compares parsed data and never bytes.
+# One canonical text per model, so the check compares parsed data and never bytes; the risks in
+# identifier order, since the page shows them in the RL12 order.
 function Format-Model($Model) {
   $lines = New-Object System.Collections.Generic.List[string]
   $lines.Add("lang=$($Model.lang)|register=$($Model.register)|updated=$($Model.updated)")
   foreach ($h in $Model.history) { $lines.Add("reg|$($h.date)|$($h.by)|$($h.kind)|$($h.with)|$($h.text)") }
-  foreach ($r in $Model.risks) {
+  foreach ($r in @($Model.risks | Sort-Object @{ Expression = { $_.id } }, @{ Expression = { $_.created } }, @{ Expression = { $_.name } })) {
     $lines.Add("risk|$($r.id)|$($r.state)|$($r.impact)|$($r.probability)|$($r.owner)|$($r.area)|$($r.created)|$($r.changed)|$($r.name)|$($r.description)|$($r.mitigation)")
     foreach ($h in $r.history) { $lines.Add("line|$($r.id)|$($h.date)|$($h.by)|$($h.kind)|$($h.text)") }
   }
@@ -205,7 +206,7 @@ function Format-Risk([string]$Block, $Risk) {
 
 function Format-Page([string]$Template, $Model, [string]$RepoName) {
   # the template's own authoring comment never reaches a page
-  $t = [regex]::Replace($Template, '(?s)<!--\s*\r?\n\s*Page template for the risk log.*?-->\r?\n?', '', 1)
+  $t = ([regex]'(?s)<!--\s*\r?\n\s*Page template for the risk log.*?-->\r?\n?').Replace($Template, '', 1)
   $t = Set-Block $t 'form:opt-out' ''
   $t = Set-Block $t 'form:kept' (Get-Block $t 'form:kept')
   $t = Set-Block $t 'counts' (Get-Block $t 'counts')
@@ -275,6 +276,7 @@ function Read-Lines([string]$List) {
 
 # The page back into the model: only the attributes and lists the template names.
 function Read-PageModel([string]$Html) {
+  $Html = $Html.Replace("`r`n", "`n")
   $body = [regex]::Match($Html, '<body([^>]*)>').Groups[1].Value
   $model = [ordered]@{ lang = (Get-Attr ([regex]::Match($Html, '<html[^>]*>').Value) 'lang'); register = (Get-Attr $body 'data-register'); updated = (Get-Attr $body 'data-updated'); history = @(); risks = @() }
   $model.history = @(Read-Lines ([regex]::Match($Html, '(?s)<ol class="register-history">(.*?)</ol>').Groups[1].Value))
@@ -296,25 +298,147 @@ function Read-PageModel([string]$Html) {
   return $model
 }
 
+# What stops a register being read in full; a duplicate identifier is not one (the next write renumbers it).
+function Get-Problems($Model) {
+  $problems = @()
+  if ($Model.register -notin @('kept', 'opt-out')) { $problems += 'the page does not say whether a register is kept (data-register)' }
+  if ($Model.updated -notmatch '^\d{4}-\d{2}-\d{2}$') { $problems += 'the register has no last-updated date' }
+  $i = 0
+  foreach ($r in $Model.risks) {
+    $i++
+    $who = if ($r.id) { $r.id } else { "risk $i on the page" }
+    if ($r.id -notmatch '^RISK-\d{3,}$') { $problems += "$who has no identifier of the form RISK-NNN" }
+    if ($r.state -notin $States) { $problems += "$who has no state" }
+    if (-not $r.name) { $problems += "$who has no name" }
+    if (-not $r.owner) { $problems += "$who has no owner" }
+    if ($r.impact -notmatch '^[1-5]$') { $problems += "$who has no impact from 1 to 5" }
+    if ($r.probability -notmatch '^[1-5]$') { $problems += "$who has no probability from 1 to 5" }
+    if ($r.created -notmatch '^\d{4}-\d{2}-\d{2}$') { $problems += "$who has no created date" }
+    if ($r.changed -notmatch '^\d{4}-\d{2}-\d{2}$') { $problems += "$who has no changed date" }
+    if (@($r.history).Count -eq 0) { $problems += "$who has no history" }
+  }
+  return $problems
+}
+
+function Read-Register([string]$Page) {
+  try { $html = [System.IO.File]::ReadAllText($Page, $Utf8) } catch { Exit-Unreadable "The register $Page cannot be read: $($_.Exception.Message)" }
+  return Read-PageModel $html
+}
+
+# ---------------------------------------------------------------- areas (RL13)
+
+function Get-AreaKey([string]$Area) { return ($Area.ToLowerInvariant() -replace '[^\p{L}\p{Nd}]', '') }
+
+function Get-Distance([string]$A, [string]$B) {
+  $prev = New-Object 'int[]' ($B.Length + 1)
+  for ($j = 0; $j -le $B.Length; $j++) { $prev[$j] = $j }
+  for ($i = 1; $i -le $A.Length; $i++) {
+    $cur = New-Object 'int[]' ($B.Length + 1)
+    $cur[0] = $i
+    for ($j = 1; $j -le $B.Length; $j++) {
+      $cost = 1
+      if ($A[$i - 1] -eq $B[$j - 1]) { $cost = 0 }
+      $up = $prev[$j] + 1; $left = $cur[$j - 1] + 1; $diag = $prev[$j - 1] + $cost
+      $cur[$j] = [Math]::Min([Math]::Min($up, $left), $diag)
+    }
+    $prev = $cur
+  }
+  return $prev[$B.Length]
+}
+
+# Whole texts, never word by word: equal after ignoring case, spaces, hyphens and punctuation, or
+# one letter apart when both are four letters or more.
+function Test-NearlySame([string]$A, [string]$B) {
+  $ka = Get-AreaKey $A; $kb = Get-AreaKey $B
+  if ($ka -eq $kb) { return $true }
+  if ($ka.Length -lt 4 -or $kb.Length -lt 4) { return $false }
+  return ((Get-Distance $ka $kb) -eq 1)
+}
+
+function Get-Areas($Model) {
+  return @($Model.risks | ForEach-Object { $_.area } | Where-Object { $_ } | Sort-Object -Unique)
+}
+
 # ---------------------------------------------------------------- write
 
-# Render to <page>.new, read it back, compare with the intended model, then rename into place.
-function Write-Register([string]$Page, $Model) {
+# Render to <page>.new, read it back, compare with the intended model and with what the page held,
+# then rename into place. Anything short of the rename deletes the .new.
+function Write-Register([string]$Page, $Model, $Held) {
   $dir = Split-Path -Parent $Page
   if (-not (Test-Path -LiteralPath $dir)) { New-Item -ItemType Directory -Path $dir | Out-Null }
   $repoName = Split-Path -Leaf (Split-Path -Parent $dir)
   $html = Format-Page (Read-Template) $Model $repoName
   $new = $Page + '.new'
-  [System.IO.File]::WriteAllText($new, $html, $Utf8)
-  $back = Read-PageModel ([System.IO.File]::ReadAllText($new, $Utf8))
-  $problem = $null
-  if ($html -match '\{\{') { $problem = 'a placeholder was left unfilled' }
-  elseif ((Format-Model $back) -ne (Format-Model $Model)) { $problem = 'the written page does not read back as the change' }
-  if ($problem) {
-    Remove-Item -LiteralPath $new -Force
-    Exit-Refused "Not written: $problem. The register is as it was."
+  $renamed = $false
+  try {
+    [System.IO.File]::WriteAllText($new, $html, $Utf8)
+    $back = Read-PageModel ([System.IO.File]::ReadAllText($new, $Utf8))
+    $problem = $null
+    if ($html -match '\{\{') { $problem = 'a placeholder was left unfilled' }
+    elseif ((Format-Model $back) -ne (Format-Model $Model)) { $problem = 'the written page does not read back as the change' }
+    else { $problem = Test-Kept $Held $back }
+    if ($problem) { Exit-Refused "Not written: $problem. The register is as it was." }
+    if (Test-Path -LiteralPath $Page) { [System.IO.File]::Replace($new, $Page, [NullString]::Value) } else { [System.IO.File]::Move($new, $Page) }
+    $renamed = $true
+  } finally {
+    if (-not $renamed -and (Test-Path -LiteralPath $new)) { Remove-Item -LiteralPath $new -Force }
   }
-  if (Test-Path -LiteralPath $Page) { [System.IO.File]::Replace($new, $Page, $null) } else { [System.IO.File]::Move($new, $Page) }
+}
+
+# The new page keeps every risk and every history line the page held (after renumbering), and
+# holds no identifier twice.
+function Test-Kept($Held, $New) {
+  $ids = @($New.risks | ForEach-Object { $_.id })
+  $dups = @($ids | Group-Object | Where-Object { $_.Count -gt 1 } | ForEach-Object { $_.Name })
+  if ($dups.Count -gt 0) { return "the new page holds $($dups -join ', ') twice" }
+  if ($null -eq $Held) { return $null }
+  foreach ($r in $Held.risks) {
+    $now = @($New.risks | Where-Object { $_.id -eq $r.id })
+    if ($now.Count -eq 0) { return "the new page drops $($r.id)" }
+    $old = @($r.history); $cur = @($now[0].history)
+    if ($cur.Count -lt $old.Count) { return "the new page drops a history line of $($r.id)" }
+    for ($k = 0; $k -lt $old.Count; $k++) {
+      if ("$($old[$k].date)|$($old[$k].by)|$($old[$k].kind)|$($old[$k].text)" -ne "$($cur[$k].date)|$($cur[$k].by)|$($cur[$k].kind)|$($cur[$k].text)") { return "the new page changes a history line of $($r.id)" }
+    }
+  }
+  # the register's history is newest first: what the page held is the tail of the new list
+  $old = @($Held.history); $cur = @($New.history)
+  if ($cur.Count -lt $old.Count) { return 'the new page drops a line of the register history' }
+  $offset = $cur.Count - $old.Count
+  for ($k = 0; $k -lt $old.Count; $k++) {
+    if ("$($old[$k].date)|$($old[$k].by)|$($old[$k].kind)|$($old[$k].text)" -ne "$($cur[$k + $offset].date)|$($cur[$k + $offset].by)|$($cur[$k + $offset].kind)|$($cur[$k + $offset].text)") { return 'the new page changes a line of the register history' }
+  }
+  return $null
+}
+
+# ---------------------------------------------------------------- numbering (RL3, RL4)
+
+function Get-Number([string]$Id) { if ($Id -match '^RISK-(\d+)$') { return [int]$Matches[1] } return 0 }
+
+function Format-Id([int]$N) { return 'RISK-' + $N.ToString('000', [System.Globalization.CultureInfo]::InvariantCulture) }
+
+function Get-NextNumber($Model) {
+  $max = 0
+  foreach ($r in $Model.risks) { $n = Get-Number $r.id; if ($n -gt $max) { $max = $n } }
+  return $max + 1
+}
+
+# Every identifier held twice keeps its earliest-created risk (on the same day, the upper one on the
+# page); each other gets the next number and a renumber line. Returns what was renumbered.
+function Invoke-Renumber($Model, [string]$Person) {
+  $done = @()
+  $risks = @($Model.risks)
+  $groups = @($risks | Group-Object { $_.id } | Where-Object { $_.Count -gt 1 })
+  foreach ($g in $groups) {
+    $order = @(0..($risks.Count - 1) | Where-Object { $risks[$_].id -eq $g.Name } | Sort-Object @{ Expression = { $risks[$_].created } }, @{ Expression = { $_ } })
+    foreach ($idx in $order[1..($order.Count - 1)]) {
+      $old = $risks[$idx].id
+      $risks[$idx].id = Format-Id (Get-NextNumber $Model)
+      $risks[$idx].history = @($risks[$idx].history) + @([ordered]@{ date = $Today; by = $Person; kind = 'renumber'; text = "Renumbered from $old" })
+      $done += "$old renumbered to $($risks[$idx].id)"
+    }
+  }
+  return $done
 }
 
 # ---------------------------------------------------------------- the change
@@ -326,24 +450,70 @@ function Test-Required($Fields) {
   if ($missing.Count -gt 0) { Exit-Refused ('A risk needs a name, an owner, an impact and a probability; missing: ' + ($missing -join ', ') + '. Nothing written.') }
 }
 
+# The score is rendered from impact and probability, never given (RL2).
+function Test-NoScore($ChangeData) {
+  if ($null -ne (Get-Field $ChangeData 'score') -or $null -ne (Get-Field (Get-Field $ChangeData 'fields') 'score')) {
+    Exit-Refused 'A score is never given: it is impact times probability. Give those instead. Nothing written.'
+  }
+}
+
+# The current register, readable in full and with its duplicates renumbered, plus the same again
+# as the baseline the write's check holds the new page to.
+function Get-Current([string]$Page, [string]$Person) {
+  $model = Read-Register $Page
+  $problems = @(Get-Problems $model)
+  if ($problems.Count -gt 0) { Exit-Refused ('The register cannot be read in full (' + ($problems -join '; ') + '); run -Repair first. Nothing written.') }
+  $renumbered = @(Invoke-Renumber $model $Person)
+  $held = Read-Register $Page
+  Invoke-Renumber $held $Person | Out-Null
+  return @{ Model = $model; Held = $held; Renumbered = $renumbered }
+}
+
 function Invoke-Add([string]$Page, $ChangeData, [string]$Person) {
-  if (Test-Path -LiteralPath $Page) { Exit-Unreadable 'Adding to an existing register is not built yet.' }
+  Test-NoScore $ChangeData
   $fields = Get-Field $ChangeData 'fields'
   Test-Required $fields
-  $lang = Get-Text (Get-Field $ChangeData 'language')
-  if (-not $lang) { Exit-Refused 'The first write names the project language (language). Nothing written.' }
-  $model = New-Register $lang
+  $held = $null; $renumbered = @()
+  if (Test-Path -LiteralPath $Page) {
+    $current = Get-Current $Page $Person
+    $model = $current.Model; $held = $current.Held; $renumbered = $current.Renumbered
+  } else {
+    $lang = Get-Text (Get-Field $ChangeData 'language')
+    if (-not $lang) { Exit-Refused 'The first write names the project language (language). Nothing written.' }
+    $model = New-Register $lang
+  }
   $risk = [ordered]@{
-    id = 'RISK-001'; state = 'Active'; impact = (Get-Text (Get-Field $fields 'impact')); probability = (Get-Text (Get-Field $fields 'probability'))
+    id = (Format-Id (Get-NextNumber $model)); state = 'Active'; impact = (Get-Text (Get-Field $fields 'impact')); probability = (Get-Text (Get-Field $fields 'probability'))
     owner = (Get-Text (Get-Field $fields 'owner')); area = (Get-Text (Get-Field $fields 'area')); created = $Today; changed = $Today
     name = (Get-Text (Get-Field $fields 'name')); description = (Get-Text (Get-Field $fields 'description')); mitigation = (Get-Text (Get-Field $fields 'mitigation'))
     history = @()
   }
   $risk.history = @([ordered]@{ date = $Today; by = $Person; kind = 'created'; text = "Created. Impact $($risk.impact), Probability $($risk.probability) (score $(Get-Score $risk))." })
-  $model.risks = @($risk)
-  $model.history = @([ordered]@{ date = $Today; by = $Person; kind = 'created'; with = ''; text = "Register created with $($risk.id). Project language: $lang." })
-  Write-Register $Page $model
+  $model.risks = @($model.risks) + @($risk)
+  if ($null -eq $held) {
+    $line = [ordered]@{ date = $Today; by = $Person; kind = 'created'; with = ''; text = "Register created with $($risk.id). Project language: $($model.lang)." }
+  } else {
+    $text = "$($risk.id) registered."
+    if ($renumbered.Count -gt 0) { $text += ' ' + ($renumbered -join '; ') + '.' }
+    $line = [ordered]@{ date = $Today; by = $Person; kind = 'write'; with = ''; text = $text }
+  }
+  $model.history = @($line) + @($model.history)
+  $model.updated = $Today
+  Write-Register $Page $model $held
   Write-Output "$($risk.id) written."
+}
+
+function Invoke-Read([string]$Page) {
+  if (-not (Test-Path -LiteralPath $Page)) { Exit-Unreadable "No register at $Page." }
+  $model = Read-Register $Page
+  $areas = @(Get-Areas $model)
+  $out = [ordered]@{
+    lang = $model.lang; register = $model.register; updated = $model.updated
+    history = @($model.history); risks = @($model.risks); areas = $areas
+    problems = @(Get-Problems $model)
+  }
+  if ($PSBoundParameters.ContainsKey('Area') -or $Area) { $out.nearly = @($areas | Where-Object { Test-NearlySame $_ $Area }) }
+  Write-Output (ConvertTo-Json -InputObject $out -Depth 8)
 }
 
 # ---------------------------------------------------------------- main
@@ -357,7 +527,12 @@ if (@($actions).Count -ne 1) {
 $PagePath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($Path)
 
 switch ($actions) {
+  'Read' {
+    Invoke-Read $PagePath
+    exit 0
+  }
   'Apply' {
+    if (Test-Path -LiteralPath ($PagePath + '.new')) { Exit-Refused "An earlier write was interrupted: $Path.new is still there. Run -Finish first. Nothing written." }
     $data = Read-Change $Change
     $person = Get-Person
     switch (Get-Text (Get-Field $data 'verb')) {
