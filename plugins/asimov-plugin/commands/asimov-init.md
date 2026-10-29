@@ -120,7 +120,7 @@ Inspect what already exists so the write plan can label each target. Use **Read*
 
 - **`asimov.md`** → `NEW` if absent, `OVERWRITE` if present (it is regenerated wholesale either way).
 - **`CLAUDE.md` import** → `SKIP` if any line already references `asimov.md` (e.g. `@asimov.md`); `APPEND` if `CLAUDE.md` exists without it; `NEW` if `CLAUDE.md` is absent (you'll create a minimal one).
-- **Each detected stack `README.md`** → `NEW` (scaffold from template) if absent; `MERGE` if present **with** an `<!-- asimov:start -->`…`<!-- asimov:end -->` region (refresh only that region); `ASK` if present **without** markers (do not modify until the developer agrees to inserting a region).
+- **Each detected stack `README.md`** → `NEW` (scaffold from template) if absent; `MERGE` if present **with** an `<!-- asimov:start -->`…`<!-- asimov:end -->` region (refresh only that region; the read-list below the end marker is the team's and is never written); `MERGE — read-list moved below the markers` if that region still holds `@`-reference lines (a file scaffolded before the read-list became user-owned): the run moves those lines out of the region before refreshing it; `ASK` if present **without** markers (do not modify until the developer agrees to inserting a region).
 - **`index.html`** → `NEW` if absent, `OVERWRITE` if present.
 - **`_chrome.css`** → `NEW` if absent; `SKIP` if present and byte-identical to the template; `ASK` (overwrite/keep/diff) if present and different.
 - **`.gitignore`** → the four Asimov patterns below: `NEW` if the file is absent; `APPEND` if it exists and any pattern is missing (only the missing ones are added, under one comment line); `SKIP` if every pattern is already there.
@@ -159,10 +159,11 @@ Only after confirmation. Apply each target's rule:
    - If absent: **Write** a minimal `CLAUDE.md` whose body is the `@asimov.md` import line plus one line: *"Run Claude's `/init` to add full repo context below."*
    - If present without the import: append a blank line and the `@asimov.md` line at the end. **Change no other line.**
    - If present with any line referencing `asimov.md`: write nothing (SKIP).
-3. **Convention READMEs** — for each detected stack, render `conventions-readme-template.md` (substitute `{{STACK}}`, `{{REPO-NAME}}`; strip the leading comment):
-   - Absent → **Write** the rendered file.
-   - Present with `asimov:start`/`asimov:end` markers → replace **only** the text between the markers; keep everything else.
-   - Present without markers (and the developer agreed in Step 6) → insert the marker block; otherwise skip and note it.
+3. **Convention READMEs** — for each detected stack, render `conventions-readme-template.md` (substitute `{{STACK}}`, `{{REPO-NAME}}`; strip the leading comment). The region between the markers is Asimov's (the heading and the explanation); the read-list and the notes below the end marker are the team's, seeded once and never written again:
+   - Absent → **Write** the rendered file, whole.
+   - Present with `asimov:start`/`asimov:end` markers → replace **only** the text between the markers, wholesale; **change no line outside them**. The read-list is outside; it keeps whatever the team wrote, example lines included.
+   - Present with `@`-reference lines **inside** the markers (scaffolded before the read-list moved out) → first move every `@`-reference line, in order, to just below the end marker under a `## Convention files (read-list)` heading (reuse the heading if one already exists below the markers), then replace the region. Report the move in Step 8. Never drop a line.
+   - Present without markers (and the developer agreed in Step 6) → insert the marker block above the existing text; the existing text becomes the user-owned part. Otherwise skip and note it.
 4. **`index.html`** — render `site-template.html` per the rendering rules below; **Write** to `documentation/index.html`.
 5. **`_chrome.css`** — **Write** to `documentation/_chrome.css` only if the Step 5 action was `NEW` or a confirmed overwrite. Never bump mtime on an identical file.
 6. **`.gitignore`** — the Design- and Spec-stage caches the toolkit writes beside its artifacts, and the run log its hooks write under `.asimov/`, must never be committed; they are a run's working state, not a record. Add the patterns that are missing, verbatim, after one comment line, at the end of the file (or as a new file holding only this block). **Change no other line.**
