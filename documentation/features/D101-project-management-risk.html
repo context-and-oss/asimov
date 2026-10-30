@@ -1,0 +1,1309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D101 — Project management: risk log — asimov docs</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+:root {
+  --bg:        #0a1424;
+  --bg2:       #122039;
+  --bg3:       #1b2e4d;
+  --bg-card:   #14253f;
+  --border:    #2b4a73;
+  --border-2:  #3b5e8f;
+  --text:      #fff;
+  --text-dim:  #a8b8d0;
+  --text-mute: #6b7a93;
+  --cyan:      #4fc3f7;
+  --teal:      #26c6da;
+  --green:     #66bb6a;
+  --amber:     #ffb74d;
+  --coral:     #ef5350;
+  --gold:      #ffd54f;
+  --violet:    #ab47bc;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; font-size: 15px; line-height: 1.6; overflow-x: hidden; padding-top: 56px; }
+a { color: inherit; text-decoration: none; }
+code, .mono { font-family: 'JetBrains Mono', monospace; font-size: 0.88em; }
+code { background: var(--bg3); padding: 1px 6px; border-radius: 4px; color: var(--cyan); }
+
+/* Top nav (site-wide — every D101 links to documentation home + chapter sections of the index) */
+.top-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(10,20,36,0.85); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 0.55rem 2rem; display: flex; gap: 1.4rem; align-items: center; font-size: 0.82rem; }
+.top-nav .brand, .top-nav .brand a { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--cyan); letter-spacing: 0.04em; text-decoration: none; }
+.top-nav .brand .sep { color: var(--border); margin: 0 0.5rem; }
+.top-nav a { color: var(--text-dim); font-weight: 500; }
+.top-nav a:hover { color: #fff; }
+.top-nav .spacer { flex: 1; }
+.top-nav .status-chip { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.25rem 0.7rem; border-radius: 999px; background: #ffd54f15; border: 1px solid #ffd54f44; color: var(--gold); font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 700; }
+.top-nav .status-chip::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--gold); }
+/* Phase chip — the authoring axis, deliberately NOT the status axis (see ground rule 12).
+   Square marker + cyan so the two chips never read as one control. */
+.top-nav .phase-chip { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.25rem 0.7rem; border-radius: 999px; background: #4fc3f715; border: 1px solid #4fc3f744; color: var(--cyan); font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 700; }
+.top-nav .phase-chip::before { content: ''; width: 6px; height: 6px; border-radius: 1px; background: var(--cyan); }
+.top-nav .phase-chip.full { background: #66bb6a15; border-color: #66bb6a44; color: var(--green); }
+.top-nav .phase-chip.full::before { background: var(--green); }
+
+/* Layout with left sidebar (per-page TOC) + content column */
+.layout-doc { display: grid; grid-template-columns: 200px minmax(0, 1fr); max-width: 1300px; margin: 0 auto; gap: 1.8rem; padding: 0.5rem 1.5rem; }
+.side-nav { position: sticky; top: 76px; align-self: start; max-height: calc(100vh - 90px); overflow-y: auto; padding: 0.7rem 0.5rem 1rem 0.2rem; font-size: 0.85rem; }
+.side-nav .side-head { font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-mute); margin-bottom: 0.7rem; padding-left: 0.6rem; }
+.side-nav ul { list-style: none; padding: 0; margin: 0; }
+.side-nav ul ul { padding-left: 0.9rem; margin-top: 0.1rem; }
+.side-nav li { margin: 0.1rem 0; }
+.side-nav a { display: block; padding: 0.32rem 0.7rem; color: var(--text-dim); border-left: 2px solid transparent; font-size: 0.86rem; line-height: 1.4; border-radius: 0 4px 4px 0; }
+.side-nav a:hover { color: #fff; background: #4fc3f708; border-left-color: var(--border-2); }
+.content { min-width: 0; }
+
+/* Hero (compact — top-nav already provides separation from page chrome) */
+.hero { padding: 1.5rem 2rem 1.5rem; position: relative; overflow: hidden; max-width: 1300px; margin: 0 auto; }
+.hero::before { content: ''; position: absolute; inset: 0; z-index: 0; background: radial-gradient(ellipse at 20% 30%, #4fc3f718 0%, transparent 50%), radial-gradient(ellipse at 80% 60%, #26c6da14 0%, transparent 50%); }
+.hero > * { position: relative; z-index: 1; }
+.kicker { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--cyan); padding: 0.3rem 0.8rem; border-radius: 999px; border: 1px solid #4fc3f744; background: #4fc3f711; margin-bottom: 1rem; }
+.hero h1 { font-size: clamp(2rem, 4.5vw, 3.4rem); font-weight: 900; letter-spacing: -0.03em; line-height: 1.05; background: linear-gradient(135deg, #fff 0%, var(--cyan) 50%, var(--teal) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.hero .tagline { font-size: 1.05rem; color: var(--text-dim); margin-top: 1rem; max-width: 760px; line-height: 1.6; }
+
+/* Metadata strip */
+.meta-strip { max-width: 1300px; margin: 1rem auto 0; padding: 0 2rem; display: grid; grid-template-columns: repeat(6, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.meta-cell { background: var(--bg-card); padding: 1rem 1.2rem; }
+.meta-cell .label { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-mute); margin-bottom: 0.35rem; }
+.meta-cell .value { font-size: 0.95rem; font-weight: 600; color: var(--text); }
+.meta-cell .value.mono { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; }
+
+/* Sections + chapter bands */
+section.s { max-width: 1300px; margin: 0 auto; padding: 3rem 2rem 0; }
+.chapter-band + section.s { padding-top: 1.5rem; }
+.section-title { font-size: clamp(1.5rem, 2.6vw, 2rem); font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.7rem; }
+.section-title .sec-ref { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; font-weight: 600; color: var(--text-mute); letter-spacing: 0.04em; margin-right: 0.7rem; vertical-align: middle; padding: 0.2rem 0.5rem; border-radius: 4px; background: var(--bg2); border: 1px solid var(--border); }
+.section-desc { color: var(--text-dim); font-size: 1rem; max-width: 780px; margin-bottom: 1.8rem; line-height: 1.65; }
+.chapter-band { max-width: 1300px; margin: 3.5rem auto 0; padding: 0 2rem; }
+.chapter-band-inner { display: grid; grid-template-columns: auto 1fr; gap: 1.5rem; align-items: center; padding: 1.4rem 1.8rem; border-radius: 12px; background: linear-gradient(135deg, #4fc3f714 0%, #26c6da05 100%); border: 1px solid var(--border); border-left: 4px solid var(--cyan); }
+.chapter-band .ch-num { font-family: 'JetBrains Mono', monospace; font-size: 2.6rem; font-weight: 800; color: var(--cyan); line-height: 1; }
+.chapter-band .ch-name { font-size: 1.35rem; font-weight: 700; color: #fff; letter-spacing: 0.01em; margin-bottom: 0.25rem; }
+.chapter-band .ch-summary { font-size: 0.88rem; color: var(--text-dim); line-height: 1.5; }
+
+/* Doc-scope line below metadata strip */
+.doc-scope { max-width: 1300px; margin: 0.7rem auto 0; padding: 0 2.2rem; font-size: 0.82rem; color: var(--text-mute); line-height: 1.5; }
+.doc-scope strong { color: var(--text-dim); font-weight: 600; }
+
+/* Principles */
+.principles { display: grid; gap: 0.65rem; }
+.principle { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 0.95rem 1.3rem; display: flex; gap: 1rem; align-items: center; }
+.principle .num { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; font-weight: 700; width: 30px; height: 30px; border-radius: 8px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--cyan), var(--teal)); color: #0a1424; }
+.principle .text { font-size: 0.95rem; }
+.principle .text strong { color: var(--cyan); font-weight: 700; }
+
+/* Generic bullet list — used anywhere with → / ⚠ items */
+ul.bullets { list-style: none; padding: 0; margin: 0.7rem 0 0; }
+ul.bullets li { position: relative; padding: 0.3rem 0 0.3rem 1.5rem; font-size: 0.9rem; color: var(--text-dim); line-height: 1.6; }
+ul.bullets li + li { margin-top: 0.15rem; }
+ul.bullets li::before { content: '→'; position: absolute; left: 0; top: 0.3rem; font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--cyan); }
+ul.bullets li.warn::before { content: '!'; color: var(--amber); }
+ul.bullets li code { font-size: 0.78rem; }
+
+/* Requirements — flat lists (Functional / Non-functional / Out of scope), all visible, no tabs */
+.req-list { display: grid; gap: 0.5rem; margin-bottom: 1.6rem; }
+.req-list:last-child { margin-bottom: 0; }
+.req { display: grid; grid-template-columns: 60px 1fr; gap: 1rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 0.7rem 1rem; align-items: start; }
+.req .id { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; font-weight: 700; color: var(--cyan); padding-top: 2px; }
+.req .body { font-size: 0.9rem; color: var(--text); line-height: 1.55; }
+.req.oos .id, .req-list.nf .req .id { color: var(--amber); }
+
+/* Data flow SVG diagram */
+.flow-wrap { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.8rem; overflow-x: auto; }
+.flow-wrap svg { display: block; margin: 0 auto; max-width: 100%; height: auto; }
+.flow-legend { display: flex; flex-wrap: wrap; gap: 1.2rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); font-size: 0.82rem; color: var(--text-dim); }
+.flow-legend .item { display: inline-flex; align-items: center; gap: 0.4rem; }
+.flow-legend .swatch { width: 14px; height: 4px; border-radius: 2px; }
+
+/* Interactive UI mockup (embedded via iframe; the mockup file is separate + self-contained) */
+.mockup-wrap { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 0.5rem; margin: 0.6rem 0 1rem; overflow: hidden; }
+.mockup-frame { display: block; width: 100%; border: none; border-radius: 8px; background: #fff; }
+
+/* Code map */
+.codemap { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.codemap-row { display: grid; grid-template-columns: 1fr 1.5fr; gap: 1rem; padding: 0.7rem 1.2rem; border-bottom: 1px solid var(--border); font-size: 0.85rem; align-items: center; }
+.codemap-row:last-child { border-bottom: none; }
+.codemap-row:nth-child(odd) { background: rgba(255,255,255,0.015); }
+.codemap-row .what { color: var(--text); }
+.codemap-row .where { color: var(--cyan); font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; word-break: break-all; }
+
+/* Decisions matrix */
+.decisions { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.decisions-head, .decision-row { display: grid; grid-template-columns: 1.2fr 1fr 1.4fr; gap: 1rem; padding: 0.9rem 1.2rem; align-items: start; border-bottom: 1px solid var(--border); }
+.decisions-head { background: var(--bg2); font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); }
+.decision-row { font-size: 0.85rem; }
+.decision-row:last-child { border-bottom: none; }
+.decision-row .decided { color: #fff; font-weight: 600; }
+.decision-row .alt { color: var(--amber); font-style: italic; font-size: 0.82rem; line-height: 1.5; }
+.decision-row .why { color: var(--text-dim); font-size: 0.82rem; line-height: 1.55; }
+
+/* Generic data table (Shapes §6.4, Configuration §6.6) */
+.data-table { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.data-table .row { display: grid; gap: 1rem; padding: 0.65rem 1.2rem; border-bottom: 1px solid var(--border); font-size: 0.85rem; align-items: start; }
+.data-table .row.head { background: var(--bg2); font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); font-weight: 700; }
+.data-table .row:last-child { border-bottom: none; }
+.data-table .row.cols-2 { grid-template-columns: 1fr 2fr; }
+.data-table .row.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+.data-table .row code { font-size: 0.78rem; }
+.data-table .row .label-cell { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; color: var(--cyan); }
+
+/* Inline-path list (Shapes §6.4) */
+.gps-paths { list-style: none; padding: 0.7rem 0 0; margin: 0; display: grid; gap: 0.4rem; }
+.gps-paths li { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--cyan); background: var(--bg2); border: 1px solid var(--border); border-radius: 6px; padding: 0.45rem 0.8rem; }
+
+/* Sub-section heading (Shapes has multiple sub-blocks) */
+.subhead { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-dim); font-weight: 700; margin: 1.5rem 0 0.6rem; }
+.subhead:first-child { margin-top: 0; }
+/* Anchored subhead (§7 per-unit blocks key to §6 contracts by number) — scroll-margin clears the fixed nav */
+.subhead[id] { scroll-margin-top: 80px; }
+.subhead .s-ref { color: var(--text-mute); margin-right: 0.45rem; }
+/* Implementation label under a §6 contract (§7 build notes) — lighter sibling of .subhead */
+.impl-head { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); font-weight: 700; margin: 1rem 0 0.3rem; }
+
+/* Build-status chip on §7 implementation rows (reuse / new / note) */
+.tag { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+.tag.reuse { background: #66bb6a22; color: var(--green); border: 1px solid #66bb6a55; }
+.tag.new   { background: #ffb74d22; color: var(--amber); border: 1px solid #ffb74d55; }
+.tag.note  { background: var(--bg2); color: var(--text-mute); border: 1px solid var(--border); }
+/* Per-unit build-notes table (§7.x) — a .data-table variant: Aspect | Build tag | Details-with-bullets */
+.impl-table .row { grid-template-columns: 0.5fr 0.45fr 2.75fr; }
+.impl-table .row ul { list-style: disc; margin: 0; padding-left: 1.05rem; display: grid; gap: 0.35rem; }
+.impl-table .row li { line-height: 1.5; }
+
+/* Failure handling */
+.failures { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.failures-head, .failure-row { display: grid; grid-template-columns: 1fr 1fr 80px 1.2fr; gap: 1rem; padding: 0.85rem 1.2rem; align-items: center; border-bottom: 1px solid var(--border); }
+.failures-head { background: var(--bg2); font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); }
+.failure-row { font-size: 0.85rem; }
+.failure-row:last-child { border-bottom: none; }
+.sev { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; font-weight: 700; padding: 0.2rem 0.55rem; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.06em; }
+.sev.med  { background: #ffb74d22; color: var(--amber); border: 1px solid #ffb74d55; }
+.sev.low  { background: #66bb6a22; color: var(--green); border: 1px solid #66bb6a55; }
+.sev.high { background: #ef535022; color: var(--coral); border: 1px solid #ef535055; }
+
+/* Acceptance criteria */
+.ac-table { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.ac-head, .ac-row { display: grid; grid-template-columns: 60px 150px 1fr; gap: 1rem; padding: 0.8rem 1.2rem; align-items: start; border-bottom: 1px solid var(--border); }
+.ac-head { background: var(--bg2); font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); }
+.ac-row { font-size: 0.86rem; }
+.ac-row:last-child { border-bottom: none; }
+.ac-row .ac-id { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--cyan); }
+.ac-row .ac-verifies { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+.verify-chip { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; padding: 0.15rem 0.5rem; border-radius: 4px; background: #4fc3f714; border: 1px solid #4fc3f744; color: var(--cyan); }
+
+/* Open questions — auto-fit */
+.q-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 0.7rem; }
+.q-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.2rem; border-left: 3px solid var(--gold); }
+.q-card .q-head { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
+.q-card .q-id { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; color: var(--gold); background: #ffd54f15; padding: 0.15rem 0.5rem; border-radius: 4px; }
+.q-card .q-decider { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--text-mute); }
+.q-card .q-body { font-size: 0.88rem; color: var(--text); line-height: 1.55; }
+
+/* Accepted deviation (d101-feature-design-definition §4.9) — a rule deliberately not met, recorded next to the
+   thing it excuses. Sits INSIDE the element it annotates (.req, .ac-row, after a .subhead).
+   Violet, so it reads as neither a warning (amber) nor a pass (green): a deliberate third state. */
+.accepted { margin-top: 0.5rem; padding: 0.5rem 0.7rem; border-left: 3px solid var(--violet); border-radius: 0 6px 6px 0; background: #ab47bc12; font-size: 0.82rem; color: var(--text-dim); line-height: 1.55; }
+.accepted .accepted-tag { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--violet); background: #ab47bc22; border: 1px solid #ab47bc55; border-radius: 4px; padding: 0.1rem 0.45rem; margin-right: 0.45rem; }
+.accepted .accepted-rule { color: var(--text); font-weight: 600; }
+.accepted .accepted-by { display: block; margin-top: 0.3rem; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--text-mute); }
+/* Resolution path (required by d101-feature-design-definition §4.3 — every open question names a decider AND a
+   resolution path) and the resolved variant, for questions closed during authoring. */
+.q-card .q-resolution { font-size: 0.82rem; color: var(--text-dim); line-height: 1.5; margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--border); }
+.q-card .q-resolution strong { color: var(--green); }
+.q-card.resolved { border-left-color: var(--green); }
+.q-card.resolved .q-id { color: var(--green); background: #66bb6a15; }
+
+/* References — auto-fit */
+.refs { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+.refs-block { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 1.1rem 1.3rem; }
+.refs-block h4 { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--cyan); margin-bottom: 0.7rem; }
+.refs-block ul { list-style: none; }
+.refs-block li { font-family: 'JetBrains Mono', monospace; font-size: 0.76rem; color: var(--text-dim); padding: 0.2rem 0; line-height: 1.5; word-break: break-all; }
+
+/* Callouts */
+.callout { background: linear-gradient(135deg, #4fc3f712, #26c6da08); border: 1px solid #4fc3f744; border-radius: 10px; padding: 1rem 1.3rem; margin: 1.2rem 0; font-size: 0.9rem; color: var(--text-dim); line-height: 1.6; }
+.callout strong { color: var(--cyan); }
+.callout.warn { background: linear-gradient(135deg, #ffd54f15, #ff890608); border-color: #ffd54f55; }
+.callout.warn strong { color: var(--gold); }
+
+footer.site-footer { max-width: 1300px; margin: 4rem auto 0; padding: 2rem; border-top: 1px solid var(--border); text-align: center; color: var(--text-mute); font-size: 0.82rem; line-height: 1.7; }
+footer.site-footer .mono { color: var(--text-dim); font-family: 'JetBrains Mono', monospace; }
+footer.site-footer a { color: var(--cyan); }
+
+@media (max-width: 1100px) {
+  .meta-strip { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 900px) {
+  .layout-doc { grid-template-columns: 1fr; gap: 1rem; padding: 1rem 1.2rem; }
+  .side-nav { position: static; max-height: none; overflow: visible; border: 1px solid var(--border); border-radius: 8px; padding: 1rem; background: var(--bg-card); }
+}
+@media (max-width: 720px) {
+  .top-nav { overflow-x: auto; padding: 0.55rem 1rem; gap: 1rem; }
+  .top-nav .spacer { display: none; }
+  .hero { padding: 1.2rem 1.2rem 1rem; }
+  section.s { padding: 2.5rem 1.2rem 0; }
+  .meta-strip { grid-template-columns: repeat(2, 1fr); margin: 1rem 1.2rem 0; }
+  .chapter-band { padding: 0 1.2rem; margin-top: 3rem; }
+  .chapter-band-inner { grid-template-columns: 1fr; gap: 0.5rem; padding: 1.2rem 1.4rem; }
+  .chapter-band .ch-num { font-size: 2rem; }
+  .decisions-head, .decision-row { grid-template-columns: 1fr; gap: 0.4rem; }
+  .failures-head, .failure-row { grid-template-columns: 1fr; }
+  .ac-head, .ac-row { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <span class="brand"><a href="../index.html">asimov<span class="sep">/</span>docs</a></span>
+  <a href="../index.html#s1">Architecture</a>
+  <a href="../index.html#s2">Features</a>
+  <a href="../index.html#s3">Environments</a>
+  <a href="../index.html#s4">Conventions</a>
+  <a href="../index.html#s5">Reference</a>
+  <a href="../index.html#s6">Diagrams</a>
+  <span class="spacer"></span>
+  <span class="phase-chip full">Full design</span>
+  <span class="status-chip draft">Draft v0.9</span>
+</nav>
+
+<div class="layout-doc">
+  <aside class="side-nav">
+    <div class="side-head">On this page</div>
+    <ul>
+      <li><a href="#s2">§2 Why</a></li>
+      <li><a href="#s3">§3 Requirements</a></li>
+      <li><a href="#c4">§4 Business design</a>
+        <ul>
+          <li><a href="#s4-1">§4.1 Principles</a></li>
+          <li><a href="#s4-2">§4.2 Concepts</a></li>
+          <li><a href="#s4-3">§4.3 What a person does</a></li>
+          <li><a href="#s4-4">§4.4 Rules</a></li>
+          <li><a href="#s4-5">§4.5 Decisions</a></li>
+        </ul>
+      </li>
+      <li><a href="#s5">§5 UI Design</a></li>
+      <li><a href="#c6">§6 Technical design</a>
+        <ul>
+          <li><a href="#s6-1">§6.1 Platform</a></li>
+          <li><a href="#s6-2">§6.2 Data flow</a></li>
+          <li><a href="#s6-3">§6.3 Code map</a></li>
+          <li><a href="#s6-4">§6.4 Shapes</a></li>
+          <li><a href="#s6-5">§6.5 APIs &amp; contracts</a></li>
+          <li><a href="#s6-6">§6.6 Configuration</a></li>
+          <li><a href="#s6-7">§6.7 Failure handling</a></li>
+          <li><a href="#s6-8">§6.8 Gotchas</a></li>
+        </ul>
+      </li>
+      <li><a href="#c7">§7 Implementation</a>
+        <ul>
+          <li><a href="#s7-1">§7.1 New vs. reuse</a></li>
+          <li><a href="#s7-2">§7.2 The files</a></li>
+          <li><a href="#s7-4">§7.4 Each part</a></li>
+          <li><a href="#s7-5">§7.5 Wiring</a></li>
+        </ul>
+      </li>
+      <li><a href="#s8">§8 Acceptance</a></li>
+      <li><a href="#s9">§9 Open questions</a></li>
+      <li><a href="#s10">§10 References</a></li>
+    </ul>
+  </aside>
+
+  <article class="content">
+
+<header class="hero">
+  <div class="kicker">D101 · Feature design · Project frame</div>
+  <h1>Risk log</h1>
+  <p class="tagline">The first artifact of the Project frame, the record of the engagement the stages run inside: one register per product repo, kept in the project's language, where every state beyond Active is a decision with a name on it and every change leaves a dated line.</p>
+</header>
+
+<div class="meta-strip">
+  <div class="meta-cell"><div class="label">Owner</div><div class="value">Simon Vilandt</div></div>
+  <div class="meta-cell"><div class="label">Business approver</div><div class="value">Allan Borup</div></div>
+  <div class="meta-cell"><div class="label">Frame</div><div class="value mono">Project (D100 §3)</div></div>
+  <div class="meta-cell"><div class="label">Pieces</div><div class="value mono">a path of asimov-project · 2 skills · 1 script</div></div>
+  <div class="meta-cell"><div class="label">Last updated</div><div class="value mono">2026-10-29</div></div>
+  <div class="meta-cell"><div class="label">Lands in</div><div class="value mono">project/</div></div>
+</div>
+
+<div class="doc-scope">
+  <strong>Scope:</strong> the risk log, first artifact of the Project frame (D100 §3): the register, its path through the frame's entry point <code>asimov-project</code>, the two skills and the script that maintain and show it, and the frame's pages on the Asimov website. The frame's shared rules live in D100 §3/§4.3 and CLAUDE.md, not here; each later artifact (closure report, project setup, status report and their kin) gets its own D101 in the <code>D101-project-management-*</code> series. §2–§5 are the business agreement, §6 the technical design, §7 the build notes until the Spec stage plans it.
+</div>
+
+<!-- ═════════════════════ §2 ═════════════════════ -->
+<section class="s" id="s2">
+  <h2 class="section-title"><span class="sec-ref">§2</span>Why</h2>
+  <p class="section-desc">The delivery model asks for a risk register reviewed every week, and Asimov can produce every document a solution needs but none of the documents that run the engagement.</p>
+  <ul class="bullets">
+    <li><strong>Nothing covers the engagement.</strong> Every artifact the toolkit ships describes the solution; what could derail the work, who owns it and what changed since last week has no home.</li>
+    <li><strong>Seen on our own projects: a register never reopened.</strong> A register was opened at kick-off and not opened again.</li>
+    <li><strong>Seen on our own projects: a risk raised too late.</strong> A risk was raised only after it had happened, when it could no longer be mitigated, only reported.</li>
+  </ul>
+  <p class="section-desc" style="margin:1.2rem 0 0">Their cost on our projects has not been measured; the failures the design guards against are in §4.1.</p>
+  <div class="callout">
+    <strong>Audience.</strong> The project lead who keeps the register, the risk owners, the customer and steering readers who read the page the team shares with them, and the maintainers who add the next artifacts to the Project frame.
+  </div>
+  <div class="callout">
+    <strong>Success.</strong> One engagement's register has been maintained five times, by a write or a confirmed review, by someone other than its author; that is also the evidence that moves the risk log from <em>assess</em> to <em>trial</em>.
+  </div>
+</section>
+
+<!-- ═════════════════════ §3 ═════════════════════ -->
+<section class="s" id="s3">
+  <h2 class="section-title"><span class="sec-ref">§3</span>Requirements</h2>
+  <p class="section-desc">Everything here ships in the first slice: a register is trusted only if its history, its decisions and its integrity hold from the first week, and a register that later changes how it records who and when carries a history that means two things.</p>
+
+  <div class="subhead">Functional — 30</div>
+  <div class="req-list">
+    <div class="req"><div class="id">R1</div><div class="body">The risk log lands in the product repo at <code>project/risk-log.html</code>, the Project frame's folder beside <code>documentation/</code> and <code>specs/</code> (D100 §3).</div></div>
+    <div class="req"><div class="id">R3</div><div class="body">The risk log is maintained through the frame's entry point <code>asimov-project</code>, in Claude Code and in Codex alike (D100 §4.3).</div></div>
+    <div class="req"><div class="id">R4</div><div class="body">The Asimov website describes the Project frame's risk log as available.</div></div>
+    <div class="req"><div class="id">R5</div><div class="body">A risk is registered with a name, an owner, an impact from 1 to 5 and a probability from 1 to 5.</div></div>
+    <div class="req"><div class="id">R6</div><div class="body">A risk may carry a description, an area and a mitigation.</div></div>
+    <div class="req"><div class="id">R7</div><div class="body">Every risk gets an identifier of the form <code>RISK-NNN</code> that is never reused.</div></div>
+    <div class="req"><div class="id">R8</div><div class="body">A risk's score is its impact times its probability, shown and never entered.</div></div>
+    <div class="req"><div class="id">R9</div><div class="body">A newly registered risk is <em>Active</em>.</div></div>
+    <div class="req"><div class="id">R10</div><div class="body">A risk becomes <em>Mitigated</em> only when a person sets it, and only while a mitigation is written.</div></div>
+    <div class="req"><div class="id">R11</div><div class="body">A risk becomes <em>Accepted</em> only when a person sets it, with a reason and the named person who decided.</div></div>
+    <div class="req"><div class="id">R12</div><div class="body">A risk becomes <em>Resolved</em> only when a person sets it, with a reason.</div></div>
+    <div class="req"><div class="id">R13</div><div class="body">A Mitigated, Accepted, Occurred or Resolved risk can be set back to <em>Active</em> under the same identifier.</div></div>
+    <div class="req"><div class="id">R14</div><div class="body">Every change to a risk adds a dated line to that risk's history.</div></div>
+    <div class="req"><div class="id">R15</div><div class="body">A risk is never deleted.</div></div>
+    <div class="req"><div class="id">R16</div><div class="body">Every risk shows the date it was created.</div></div>
+    <div class="req"><div class="id">R17</div><div class="body">Every risk shows the date it was last changed.</div></div>
+    <div class="req"><div class="id">R18</div><div class="body">The register shows the date it was last updated.</div></div>
+    <div class="req"><div class="id">R19</div><div class="body">A confirmed review with no changes moves only the register's last-updated date.</div></div>
+    <div class="req"><div class="id">R20</div><div class="body">The register is read grouped by state and, within a state, by score, highest first.</div></div>
+    <div class="req"><div class="id">R21</div><div class="body">A person can record that no register is kept, with the reason <em>handled elsewhere</em> (naming where) or <em>risks are not worked with on this engagement</em>.</div></div>
+    <div class="req"><div class="id">R22</div><div class="body">A recorded opt-out names the person who decided it.</div></div>
+    <div class="req"><div class="id">R23</div><div class="body">Registering a risk after an opt-out replaces the opt-out with a register.</div></div>
+    <div class="req"><div class="id">R24</div><div class="body">The register keeps a history of every update, including confirmed reviews, each with its date and the person who made it.</div></div>
+    <div class="req"><div class="id">R25</div><div class="body">Every line of a risk's history names the person who made the change.</div></div>
+    <div class="req"><div class="id">R26</div><div class="body">No line in a risk's history is ever removed or rewritten.</div></div>
+    <div class="req"><div class="id">R27</div><div class="body">A risk becomes <em>Occurred</em> only when a person sets it, with a reason.</div></div>
+    <div class="req"><div class="id">R28</div><div class="body">All open risks of one owner can be given to another named person in one step.</div></div>
+    <div class="req"><div class="id">R29</div><div class="body">Any field of a risk can be changed in any state without changing the state.</div></div>
+    <div class="req"><div class="id">R30</div><div class="body">The review shows every open risk with its area, description and mitigation.</div></div>
+    <div class="req"><div class="id">R31</div><div class="body">The review marks an empty description or mitigation as <em>none written</em>.</div></div>
+  </div>
+
+  <div class="subhead">Non-functional — 6</div>
+  <div class="req-list nf">
+    <div class="req"><div class="id">NF1</div><div class="body">The register is one readable page in the documentation site's look.</div></div>
+    <div class="req"><div class="id">NF2</div><div class="body">The page shows what 1 and 5 mean on both the impact and the probability axis.</div></div>
+    <div class="req"><div class="id">NF3</div><div class="body">The page states that the score ranks risks and does not decide what to do.</div></div>
+    <div class="req"><div class="id">NF4</div><div class="body">An interrupted write leaves the register as it was.</div></div>
+    <div class="req"><div class="id">NF5</div><div class="body">A leftover from an interrupted write is never committed.</div></div>
+    <div class="req"><div class="id">NF6</div><div class="body">The register page carries no script.</div></div>
+  </div>
+
+  <div class="subhead">Out of scope — 12</div>
+  <div class="req-list">
+    <div class="req oos"><div class="id">OOS1</div><div class="body">Closing the register at handover — it belongs to the closure report, a later artifact of the Project frame; RL14 states what that report must honour.</div></div>
+    <div class="req oos"><div class="id">OOS2</div><div class="body">Project setup, the place a project's information such as its language is decided — a later artifact of the Project frame; until it exists the register asks for the language itself (RL16, Q2).</div></div>
+    <div class="req oos"><div class="id">OOS3</div><div class="body">Listing the register on the product's documentation site, and showing its state there (formerly R2) — the site scans <code>documentation/</code> only and needs changes before a page from <code>project/</code> belongs on it; decided 2026-10-29 (Q1).</div></div>
+    <div class="req oos"><div class="id">OOS4</div><div class="body">A risk detector that notices risk-shaped talk and proposes entries — it is designed once the register's shape has settled, and it defers to the register's own entry point.</div></div>
+    <div class="req oos"><div class="id">OOS5</div><div class="body">The other project artifacts the delivery model names (project plan, status report, change log, clarification log, issue log) — each gets its own D101 in the same series when it is designed; an Occurred risk will point to the issue log once it exists.</div></div>
+    <div class="req oos"><div class="id">OOS6</div><div class="body">Drafting the difficult conversation or deciding what to escalate — the discipline keeps that human (P5).</div></div>
+    <div class="req oos"><div class="id">OOS7</div><div class="body">Deleting a risk — resolving is how a risk leaves the active view; the entry and its history stay.</div></div>
+    <div class="req oos"><div class="id">OOS8</div><div class="body">A fixed or suggested set of areas — what counts as an area differs too much between engagements for a default to be anything but noise.</div></div>
+    <div class="req oos"><div class="id">OOS9</div><div class="body">A stage contract under <code>contracts/</code> — the register is engagement state across all four phases and hands nothing to a next stage.</div></div>
+    <div class="req oos"><div class="id">OOS10</div><div class="body">Listing the Spec stage's plans on the product's documentation site — they live in <code>specs/</code>, beside <code>documentation/</code>, and that question belongs to the Spec stage.</div></div>
+    <div class="req oos"><div class="id">OOS11</div><div class="body">Editing the delivery-model corpus — it is a generated export; the register's divergence from it is recorded in the risk-log definition instead.</div></div>
+    <div class="req oos"><div class="id">OOS12</div><div class="body">Sharing the register page with the customer — how is the team's choice (a file, a hosted folder); Asimov only writes the page.</div></div>
+  </div>
+</section>
+
+<!-- ═════════════════════ §4 ═════════════════════ -->
+<div class="chapter-band" id="c4">
+  <div class="chapter-band-inner">
+    <div class="ch-num">4</div>
+    <div>
+      <div class="ch-name">Business design</div>
+      <div class="ch-summary">The principles the risk log holds to, the vocabulary of the risk log, what a person does with it, the rules with their counter-examples, and the decisions with the alternatives they ruled out.</div>
+    </div>
+  </div>
+</div>
+
+<section class="s" id="s4-1">
+  <h2 class="section-title"><span class="sec-ref">§4.1</span>Principles</h2>
+  <div class="principles">
+    <div class="principle"><div class="num">1</div><div class="text"><strong>Engagement state, not solution documentation.</strong> A project artifact is maintained and re-read for the life of the engagement, not approved once and then read.</div></div>
+    <div class="principle"><div class="num">2</div><div class="text"><strong>The page is the register.</strong> Data, view and history live on one page in the repo; there is no second store to fall out of step with it.</div></div>
+    <div class="principle"><div class="num">3</div><div class="text"><strong>Nothing derived is read back.</strong> The score is shown on the page, but it is always recomputed from impact and probability, never taken from what the page shows.</div></div>
+    <div class="principle"><div class="num">4</div><div class="text"><strong>Every decision is explicit and signed.</strong> Anything beyond Active is set by a person with a reason, and "nobody decided" is never a state.</div></div>
+    <div class="principle"><div class="num">5</div><div class="text"><strong>The tool keeps the register; people hold the conversation.</strong> Asimov maintains the entries and never writes the message or chooses what to escalate.</div></div>
+    <div class="principle"><div class="num">6</div><div class="text"><strong>One fixed view, learned once.</strong> The register always reads the same way, so the weekly review reads it top-down without relearning it.</div></div>
+  </div>
+
+  <div class="subhead">The failures the principles guard against</div>
+  <p class="section-desc" style="margin-bottom:0.4rem">The delivery model's risk discipline names them; each is answered by a principle above or a rule in §4.4.</p>
+  <ul class="bullets">
+    <li><strong>The register that is written once.</strong> Opened at kick-off, never reopened, discovered at closure, and worse than none (P1, the review in F4).</li>
+    <li><strong>Mitigations with no owner.</strong> A plan nobody is answerable for reads as management while nothing is being done (RL1).</li>
+    <li><strong>Accepting by default.</strong> A risk left standing with no decision looks the same as one the team chose to live with (P4, RL7).</li>
+    <li><strong>A plan read as a result.</strong> A register that shows a risk as mitigated because a plan was written gives false comfort (RL6).</li>
+  </ul>
+</section>
+
+<section class="s" id="s4-2">
+  <h2 class="section-title"><span class="sec-ref">§4.2</span>Concepts</h2>
+  <p class="section-desc">The vocabulary of the risk log, in the words a project lead uses.</p>
+  <div class="data-table">
+    <div class="row head cols-2"><div>Concept</div><div>What it means</div></div>
+    <div class="row cols-2"><div class="label-cell">Project artifact</div><div>A page about the engagement rather than the solution, kept in the product repo's <code>project/</code>, beside <code>documentation/</code> and <code>specs/</code> (D100 §3).</div></div>
+    <div class="row cols-2"><div class="label-cell">Risk log (register)</div><div>The one page per product repo that holds every risk of the engagement, at <code>project/risk-log.html</code>.</div></div>
+    <div class="row cols-2"><div class="label-cell">Opt-out</div><div>A recorded decision, in the register's place, that no register is kept here, with its reason and the person who decided.</div></div>
+    <div class="row cols-2"><div class="label-cell">Risk</div><div>An uncertain event that could affect scope, schedule, resources, cost or quality, stated as an event rather than a worry.</div></div>
+    <div class="row cols-2"><div class="label-cell">Identifier</div><div><code>RISK-NNN</code>, the stable handle a risk is updated by, numbered in one continuous series.</div></div>
+    <div class="row cols-2"><div class="label-cell">Owner</div><div>The named person who answers for the risk; a role is not an owner.</div></div>
+    <div class="row cols-2"><div class="label-cell">Impact</div><div>If it happens, what it costs, judged from 1 to 5 against the anchors on the page.</div></div>
+    <div class="row cols-2"><div class="label-cell">Probability</div><div>How likely it is to happen, judged from 1 to 5 against the anchors on the page.</div></div>
+    <div class="row cols-2"><div class="label-cell">Score</div><div>Impact times probability, from 1 to 25; it ranks risks against each other and does not say what to do.</div></div>
+    <div class="row cols-2"><div class="label-cell">Mitigation</div><div>The plan to avoid the risk or reduce its impact; written, it is a plan, not a result.</div></div>
+    <div class="row cols-2"><div class="label-cell">State</div><div>One of <em>Active</em>, <em>Mitigated</em>, <em>Accepted</em>, <em>Occurred</em> or <em>Resolved</em>; every state but Active is a person's decision.</div></div>
+    <div class="row cols-2"><div class="label-cell">Occurred</div><div>The risk happened: it is no longer uncertain, it is a problem, and it is not the same as a risk that was dealt with.</div></div>
+    <div class="row cols-2"><div class="label-cell">Open risk</div><div>A risk in any state but Resolved.</div></div>
+    <div class="row cols-2"><div class="label-cell">History</div><div>The dated, signed lines that record every change to one risk, or every update to the register, and only ever grow.</div></div>
+    <div class="row cols-2"><div class="label-cell">Dates</div><div>A risk has <em>created</em> and <em>changed</em>; the register has <em>last updated</em>.</div></div>
+    <div class="row cols-2"><div class="label-cell">Review</div><div>A person has read the register and confirmed it, which updates the register without changing any risk.</div></div>
+    <div class="row cols-2"><div class="label-cell">Reviewed by</div><div>The person who confirmed the review, which does not mean they reviewed alone; who else took part may be named with it.</div></div>
+    <div class="row cols-2"><div class="label-cell">Project language</div><div>The language the register's content is kept in, which may differ from the language a person writes in.</div></div>
+  </div>
+</section>
+
+<section class="s" id="s4-3">
+  <h2 class="section-title"><span class="sec-ref">§4.3</span>What a person does</h2>
+  <p class="section-desc">Where the risk log sits in the Project frame, and the seven things a person does with it.</p>
+
+  <div class="subhead">The risk log in the Project frame</div>
+  <p class="section-desc" style="margin-bottom:0.4rem">The risk log is the first artifact of the Project frame, the engagement the stages run inside (D100 §3): its page lands at <code>project/risk-log.html</code>, a person reaches it through the frame's one entry point by naming it (<code>asimov-project</code>, "risk log, …"), and the frame's shared rules live in D100 §3/§4.3 and CLAUDE.md, not in this document.</p>
+  <ul class="bullets">
+    <li>The closure report and the project setup are the next two artifacts this document names (OOS1, OOS2), each with its own D101 in the <code>D101-project-management-*</code> series.</li>
+    <li>The register is engagement state; it hands nothing to a next stage and so has no stage contract (OOS9).</li>
+    <li>The delivery model's advisor (<code>pm-advisor</code>) is at hand, never in the way: it is offered in one line where the model has an answer, when a person scores a risk against the anchors and when a person opts out of keeping a register, and its advice is never written into the page unasked.</li>
+  </ul>
+
+  <div class="subhead">What a person can do with the risk log</div>
+  <ul class="bullets">
+    <li><strong>Keep it by asking.</strong> Register, change, decide and hand over risks by naming the risk log to the Project frame's entry point (<code>asimov-project</code>), in Claude Code or Codex.</li>
+    <li><strong>Read it as a page.</strong> The register is one page in <code>project/</code> that the team reads in the repo and shares with the customer.</li>
+    <li><strong>See it in the chat.</strong> The same view every time, so the weekly review reads it top-down.</li>
+    <li><strong>Find it on the Asimov website.</strong> The Project frame's pages say what the risk log does.</li>
+  </ul>
+
+  <div class="subhead">F1 · Register a risk</div>
+  <p class="section-desc" style="margin-bottom:0.4rem"><em>"Something could derail us."</em> — the person names a new risk; the four required fields are asked for, the three optional ones offered.</p>
+  <ul class="bullets">
+    <li>Outcome: a new risk, Active, with the next identifier, the history line <em>Created</em>, created and changed set to today, and the register updated today.</li>
+    <li>When no register exists yet, this first risk creates it, and the project language is asked for once (RL16).</li>
+    <li>When an opt-out stands, the register replaces it and its first history line names the opt-out it replaced (R23).</li>
+    <li>Told in another language than the project's, the risk is shown as it will be stored, in the project's language, and written only once the person confirms or corrects it (RL16).</li>
+    <li class="warn">A required field still missing after the questions: nothing is written, and the person is told which field is missing.</li>
+  </ul>
+
+  <div class="subhead">F2 · Change a risk</div>
+  <p class="section-desc" style="margin-bottom:0.4rem"><em>"Its impact went up."</em> — the person names an identifier, sees the current values and says what changes.</p>
+  <ul class="bullets">
+    <li>Outcome: the fields changed, one history line naming each field with its old and new value, and the risk's changed date moved to today.</li>
+    <li>Any field can be changed in any state, a Resolved risk included, and the state stays as it is (R29).</li>
+    <li class="warn">An identifier that does not exist: nothing is written, and the register is shown so the person can find the right one.</li>
+    <li class="warn">Emptying the mitigation of a Mitigated risk: refused; the person first sets the risk back to Active with a reason (RL6).</li>
+  </ul>
+
+  <div class="subhead">F3 · Decide a risk's state</div>
+  <p class="section-desc" style="margin-bottom:0.4rem"><em>"We have dealt with it."</em> or <em>"It happened."</em> — the person sets Mitigated, Accepted, Occurred, Resolved or back to Active, with a reason.</p>
+  <ul class="bullets">
+    <li>Outcome: the new state, a history line with the reason and the person, and the risk's changed date moved to today.</li>
+    <li class="warn">A state whose requirements are not met (no mitigation written, no decider named, no reason): the state is not set, and the person is told what is missing.</li>
+  </ul>
+
+  <div class="subhead">F4 · Review the register</div>
+  <p class="section-desc" style="margin-bottom:0.4rem"><em>"Where do we stand?"</em> — the default when the entry point is called with nothing else; the view is shown with every open risk in full (R30), then the person is asked whether to mark the register as reviewed today.</p>
+  <ul class="bullets">
+    <li>Yes: one optional question follows, <em>"Who took part?"</em>, which the person may skip; the register's last-updated date moves to today and its history gains a <em>Reviewed</em> line with the person and any participants; no risk changes.</li>
+    <li>No: nothing is written.</li>
+    <li class="warn">No register and no opt-out: the person is told so and offered F1 or F5.</li>
+  </ul>
+
+  <div class="subhead">F5 · Opt out</div>
+  <p class="section-desc" style="margin-bottom:0.4rem"><em>"We don't keep a risk register here."</em> — the person gives the reason, the place when it is handled elsewhere, and who decided.</p>
+  <ul class="bullets">
+    <li>Outcome: the register's place holds the opt-out, with its reason, decider and date, on a page titled <em>No risk register kept here</em> whose first paragraph is the reason.</li>
+    <li class="warn">An opt-out with a reason missing, a decider missing, or "handled elsewhere" without the place: nothing is written.</li>
+  </ul>
+
+  <div class="subhead">F6 · Bring a register back into working order</div>
+  <p class="section-desc" style="margin-bottom:0.4rem"><em>"Someone edited it by hand."</em> — any flow that finds the register unreadable stops before writing and offers a repair instead.</p>
+  <ul class="bullets">
+    <li>Outcome: a repair proposal listing each change as before and after; once confirmed, the register is readable again, nothing it held is lost, and its history gains a <em>Repaired</em> line.</li>
+    <li class="warn">The repair declined: nothing is written, and the register stays unreadable until it is repaired, by the tool or by hand.</li>
+  </ul>
+
+  <div class="subhead">F7 · Hand risks to a new owner</div>
+  <p class="section-desc" style="margin-bottom:0.4rem"><em>"Jonas rolls off at the end of the month."</em> — the person names the leaving owner and the named person who takes over.</p>
+  <ul class="bullets">
+    <li>Outcome: every open risk of that owner has the new owner, each with a history line naming the handover, and each risk's changed date moved to today.</li>
+    <li>Resolved risks keep the owner they had when they were resolved.</li>
+    <li class="warn">A new owner given as a role, or an owner with no open risks: nothing is written, and the person is told why.</li>
+  </ul>
+</section>
+
+<section class="s" id="s4-4">
+  <h2 class="section-title"><span class="sec-ref">§4.4</span>Rules</h2>
+  <p class="section-desc">What governs every entry and every change, each with the adjacent case it does not cover.</p>
+
+  <div class="subhead">RL1 · A risk needs its four required fields</div>
+  <p class="section-desc" style="margin-bottom:0.4rem">A risk is written only with a name, an owner who is a named person, an impact and a probability.</p>
+  <ul class="bullets">
+    <li>"Sponsor changes mid-engagement", owner Allan Borup, impact 4, probability 3: written.</li>
+    <li>The same risk with no owner, or with "the project lead" as owner: not written; the person is asked for a name.</li>
+  </ul>
+
+  <div class="subhead">RL2 · The score is computed, never given</div>
+  <p class="section-desc" style="margin-bottom:0.4rem">The score shown is always impact times probability.</p>
+  <ul class="bullets">
+    <li>Impact 4, probability 3: the score shown is 12.</li>
+    <li>"Score it 15": declined; the person is asked for impact and probability instead.</li>
+    <li>A risk whose impact is missing, in a register waiting for repair: no score is shown, not 0, since there is nothing to compute it from.</li>
+  </ul>
+
+  <div class="subhead">RL3 · Identifiers continue the series</div>
+  <p class="section-desc" style="margin-bottom:0.4rem">A new risk takes the highest identifier in the register plus one, counting resolved risks.</p>
+  <ul class="bullets">
+    <li>RISK-001 to RISK-006, with RISK-004 resolved: the new risk is RISK-007.</li>
+    <li>RISK-007 resolved and the highest: the next is RISK-008, never RISK-007 again.</li>
+  </ul>
+
+  <div class="subhead">RL4 · Duplicates are renumbered by the tool</div>
+  <p class="section-desc" style="margin-bottom:0.4rem">When two risks share an identifier, the next write first gives the later-created one the highest identifier plus one, with its history and a <em>Renumbered from</em> line, and only then makes its own change; created the same day, the one further down the page is renumbered.</p>
+  <ul class="bullets">
+    <li>Two branches each added RISK-007 and both were merged, RISK-008 exists: the later one becomes RISK-009.</li>
+    <li>The same register, and the next write adds a risk: the duplicate becomes RISK-009 first, and the new risk RISK-010.</li>
+    <li>No identifier is shared: nothing is renumbered, and a gap in the series is never closed.</li>
+  </ul>
+
+  <div class="subhead">RL5 · Any state from any state, each with a reason</div>
+  <p class="section-desc" style="margin-bottom:0.4rem">Every state can be set from every other, each target state brings its own requirements, and every change of state carries a reason.</p>
+  <ul class="bullets">
+    <li>Mitigated to Accepted, because what is left after the mitigation is lived with: set, with the reason.</li>
+    <li>Active to Active is no change of state: nothing is written.</li>
+  </ul>
+
+  <div class="subhead">RL6 · Mitigated needs a written mitigation</div>
+  <p class="section-desc" style="margin-bottom:0.4rem">A risk can be set Mitigated only while its mitigation field holds a plan.</p>
+  <ul class="bullets">
+    <li>Mitigation written, person sets Mitigated: set.</li>
+    <li>Mitigation empty: the person is asked for it, and without one the risk stays where it was.</li>
+    <li>The mitigation of a Mitigated risk is emptied: refused; the risk is first set back to Active with a reason.</li>
+  </ul>
+
+  <div class="subhead">RL7 · Accepted needs a reason and a decider</div>
+  <p class="section-desc" style="margin-bottom:0.4rem">A risk can be set Accepted only with a reason and the named person who decided to live with it.</p>
+  <ul class="bullets">
+    <li>"We live with it: the customer carries the cost. Allan Borup": set, and the history line names both.</li>
+    <li>"We live with it" with no name: not set.</li>
+  </ul>
+
+  <div class="subhead">RL8 · A risk's dates</div>
+  <p class="section-desc" style="margin-bottom:0.4rem">A risk's created date is set once; its changed date moves on anything that touches that risk, its fields, its state or its identifier.</p>
+  <ul class="bullets">
+    <li>A new owner is set: changed moves to today, created stays.</li>
+    <li>A confirmed review: no risk's changed date moves.</li>
+  </ul>
+
+  <div class="subhead">RL9 · The register's date</div>
+  <p class="section-desc" style="margin-bottom:0.4rem">The register's last-updated date moves on every write and on every confirmed review, and each move adds a line, with the person, to the register's history.</p>
+  <ul class="bullets">
+    <li>"Yes, mark it reviewed", with Erik Lund and Jonas Berg taking part: last updated is today, and the register's history gains <em>Reviewed by Maja Holm with Erik Lund, Jonas Berg</em>.</li>
+    <li>The register shown and the question answered no: nothing moves.</li>
+  </ul>
+
+  <div class="subhead">RL10 · History only grows</div>
+  <p class="section-desc" style="margin-bottom:0.4rem">Every change adds a dated line naming the person, and no action removes or rewrites a line.</p>
+  <ul class="bullets">
+    <li>Resolving a risk adds a line; the lines before it stand.</li>
+    <li>A typo in a risk's name is corrected: a new line records the correction, and the earlier lines still show the old name; the history is never tidied, even when a line is wrong.</li>
+    <li>A confirmed review is not a change to any risk: it adds a line to the register's own history and none to any risk's.</li>
+  </ul>
+
+  <div class="subhead">RL11 · An unreadable register is repaired, never overwritten</div>
+  <p class="section-desc" style="margin-bottom:0.4rem">A register the tool cannot read in full is not written to; the tool proposes a repair, returns each change as before and after, and writes it only when the person confirms, losing nothing the register held.</p>
+  <ul class="bullets">
+    <li>A risk lost its impact in a hand edit: the proposal shows <em>RISK-005 impact: (missing) → asked</em> and waits for the value and the go.</li>
+    <li>A register that reads in full: no repair is proposed.</li>
+  </ul>
+
+  <div class="subhead">RL12 · How the register is ordered</div>
+  <p class="section-desc" style="margin-bottom:0.4rem">Risks are grouped by state in the order Active, Mitigated, Accepted, Occurred, Resolved, and within a state by score, highest first, then by identifier.</p>
+  <ul class="bullets">
+    <li>Two Active risks at 12: RISK-003 before RISK-009.</li>
+    <li>An Active risk at 20 comes before one at 12, even when the one at 12 changed more recently: the order never follows dates.</li>
+  </ul>
+
+  <div class="subhead">RL13 · An area is the person's word</div>
+  <p class="section-desc" style="margin-bottom:0.4rem">An area is free text and the tool never proposes one; only when the area given is nearly the same as one already used does it ask once, and the person's answer stands.</p>
+  <ul class="bullets">
+    <li>"schedule" given, "Schedule" already used: the tool asks "Did you mean Schedule?" and keeps what the person answers.</li>
+    <li>No area given, or "Supplier" when no area resembles it: nothing is asked, and the area is kept as written or left empty.</li>
+  </ul>
+
+  <div class="subhead">RL14 · What the closure report must honour</div>
+  <p class="section-desc" style="margin-bottom:0.4rem">When the engagement closes, the register is reviewed first and the risks no longer relevant are resolved; every risk not Resolved then carries into the closure report.</p>
+  <ul class="bullets">
+    <li>An Accepted or Occurred risk at closure: carried into the report, since it transfers with the solution.</li>
+    <li>A Resolved risk: not carried.</li>
+  </ul>
+
+  <div class="subhead">RL15 · An opt-out needs its reason and decider</div>
+  <p class="section-desc" style="margin-bottom:0.4rem">An opt-out is written only with one of the two reasons, the person who decided and, for <em>handled elsewhere</em>, the place.</p>
+  <ul class="bullets">
+    <li>"Handled in the customer's tracker, project X; Allan Borup": written.</li>
+    <li>"Handled elsewhere" with no place: not written.</li>
+  </ul>
+
+  <div class="subhead">RL16 · Content is kept in the project's language</div>
+  <p class="section-desc" style="margin-bottom:0.4rem">Content is kept in the project's language; when a person writes in another language, the tool shows the translation it will store and writes it only once the person has confirmed it or corrected it in the project's language.</p>
+  <ul class="bullets">
+    <li>An English project, "kunden når ikke at frigive testere før uge 48": shown as "The customer cannot release testers before week 48. Correct?" and written only after the answer.</li>
+    <li>Written in the project's language: no translation step, and the words are stored as written.</li>
+    <li>It covers the text the person writes (name, description, mitigation, reasons); history lines the tool phrases itself are written straight in the project's language, and names of people and systems are never translated.</li>
+    <li>The language is asked for when the register or an opt-out is first written.</li>
+  </ul>
+
+  <div class="subhead">RL17 · Occurred needs what happened and where it is handled</div>
+  <p class="section-desc" style="margin-bottom:0.4rem">A risk can be set Occurred only with a reason saying what happened and where it is handled now.</p>
+  <ul class="bullets">
+    <li>The customer's test environment arrives three weeks late: set Occurred, "arrived 2026-11-17, three weeks late; re-planned in the weekly plan".</li>
+    <li>A risk that did not happen because the mitigation worked: Resolved, not Occurred.</li>
+  </ul>
+</section>
+
+<section class="s" id="s4-5">
+  <h2 class="section-title"><span class="sec-ref">§4.5</span>Decisions</h2>
+  <p class="section-desc">A decision recorded without its rejected alternative is one that gets re-litigated.</p>
+  <div class="decisions">
+    <div class="decisions-head"><div>Decided</div><div>Alternative considered</div><div>Why rejected</div></div>
+    <div class="decision-row"><div class="decided">One D101 per project artifact, named <code>D101-project-management-&lt;member&gt;</code></div><div class="alt">One shared D101 for the Project frame that every artifact joins, as the Design and Spec stages have</div><div class="why">The artifacts are separate pages with little in common beyond the frame, whose rules already live in D100 §3/§4.3 and CLAUDE.md; the shared prefix keeps the series together.</div></div>
+    <div class="decision-row"><div class="decided">The risk log is a path of <code>asimov-project</code>, not its own <code>asimov-risk</code></div><div class="alt">Its own entry point, <code>asimov-risk</code></div><div class="why">One word per column, as each stage has one (D100 §4.3); a frame with one word per artifact would grow a command per page.</div></div>
+    <div class="decision-row"><div class="decided">An entry point invoked by name in both tools</div><div class="alt">A slash command</div><div class="why">A command runs in Claude Code only, and nothing about a register is specific to one tool.</div></div>
+    <div class="decision-row"><div class="decided">The register is one HTML page holding data, view and history</div><div class="alt">A Markdown file, or a data file rendered into a page</div><div class="why">One page in the documentation site's look reads like the rest of the repo's pages and leaves no second store to drift.</div></div>
+    <div class="decision-row"><div class="decided">The score is shown but never read back</div><div class="alt">A stored score the tool reads back</div><div class="why">A derived value read from a second place drifts from the values it is derived from.</div></div>
+    <div class="decision-row"><div class="decided">Every state beyond Active is set by a person</div><div class="alt">Mitigated derived from a filled mitigation field</div><div class="why">A written plan is not a done mitigation, and a register that says otherwise gives false comfort.</div></div>
+    <div class="decision-row"><div class="decided">Accepted is a state of its own</div><div class="alt">No accept at all, or Resolved with a reason</div><div class="why">The discipline asks for avoid, reduce or accept as a deliberate choice, and names accepting by default as a failure.</div></div>
+    <div class="decision-row"><div class="decided">Occurred is a state of its own</div><div class="alt">Resolved with a reason "occurred", or out of scope until an issue log exists</div><div class="why">A risk that happened is not solved, and the register must tell "we avoided it" from "it happened".</div></div>
+    <div class="decision-row"><div class="decided">Any field can be changed in any state</div><div class="alt">A Resolved risk is locked and must be reopened to be changed</div><div class="why">The history records every change anyway, and reopening to fix a typo costs more than it protects.</div></div>
+    <div class="decision-row"><div class="decided">Emptying the mitigation of a Mitigated risk is refused</div><div class="alt">Emptying it sets the risk back to Active</div><div class="why">That would be a change of state nobody decided.</div></div>
+    <div class="decision-row"><div class="decided">Identifiers are <code>RISK-NNN</code></div><div class="alt"><code>R-NNN</code></div><div class="why">It collides with the requirement numbers R1, R2 that designs and plans trace by.</div></div>
+    <div class="decision-row"><div class="decided">Duplicate identifiers are renumbered by the tool</div><div class="alt">Stop and let the person renumber</div><div class="why">The series must stay continuous with no duplicate, and the person should not have to do bookkeeping.</div></div>
+    <div class="decision-row"><div class="decided">Duplicates are renumbered before the write's own change</div><div class="alt">The write's change first, then the renumbering</div><div class="why">The register is put in order before anything new is added, so the series follows creation order.</div></div>
+    <div class="decision-row"><div class="decided">One register per product repo</div><div class="alt">One register per engagement across repos</div><div class="why">One fixed place is what the tool and every reader can find; an engagement over several repos keeps its register in one.</div></div>
+    <div class="decision-row"><div class="decided">An opt-out is recorded in the register's place</div><div class="alt">An opt-out is simply the register's absence</div><div class="why">Absence cannot tell "decided not to" from "never thought about it".</div></div>
+    <div class="decision-row"><div class="decided">The chat view shows every open risk in full: area, description and mitigation</div><div class="alt">One line per risk, or a summary with details on request</div><div class="why">A review cannot judge whether a mitigation still holds without reading it, and a detail step on request gets skipped.</div></div>
+    <div class="decision-row"><div class="decided">A review counts only when confirmed</div><div class="alt">Every view of the register counts as a review</div><div class="why">A glance is not a review, and a date that moves on every glance says nothing.</div></div>
+    <div class="decision-row"><div class="decided">A review is recorded under the person who confirms it, with participants optional</div><div class="alt">Only the confirming person, or participants required</div><div class="why">The record must not claim someone reviewed alone, and a required list would be skipped or invented.</div></div>
+    <div class="decision-row"><div class="decided">An owner's open risks can be handed over in one step; noticing a leaving owner is open (Q3)</div><div class="alt">Flag owners whose risks have not changed in N weeks</div><div class="why">The tool does not know the team, and a threshold flags owners of stable risks as falsely as leaving ones.</div></div>
+    <div class="decision-row"><div class="decided">Who and when sit behind the register's date, one step away</div><div class="alt">A visible column of reviewers and editors</div><div class="why">The weekly read needs the risks; who touched them is needed for trust, not at a glance.</div></div>
+    <div class="decision-row"><div class="decided">The project language is asked for once and kept in the register</div><div class="alt">Read from project setup</div><div class="why">Project setup does not exist yet; Q2 moves the source when it does.</div></div>
+    <div class="decision-row"><div class="decided">A translation is shown and confirmed before it is stored; the original is not kept</div><div class="alt">Store the original beside the translation, or the original as the record</div><div class="why">What is stored is what the person approved, a mistranslation is caught before it becomes history, and the register stays in one language.</div></div>
+    <div class="decision-row"><div class="decided">The register is not listed on the product's documentation site, for now (OOS3)</div><div class="alt">The site generator also reads <code>../project/*.html</code> and links across</div><div class="why">The site needs changes before a page outside <code>documentation/</code> belongs on it; decided 2026-10-29.</div></div>
+    <div class="decision-row"><div class="decided">No register figures on any generated page</div><div class="alt">A generated band of figures on the site's landing page</div><div class="why">A generated band goes stale between generator runs, and figures that may be old are worse than none (Q1).</div></div>
+    <div class="decision-row"><div class="decided">The website's project-management pages change in the same slice</div><div class="alt">Wait until the risk log reaches trial</div><div class="why">The pages say "Nothing yet" and "planned" the day the risk log ships, and a public page that contradicts the plugin is worse than none.</div></div>
+    <div class="decision-row"><div class="decided">Everything ships in the first slice</div><div class="alt">A first slice and a later one (website, opt-out, register history, repair, renumbering, translation)</div><div class="why">The register is trusted only if its history and integrity hold from the first week.</div></div>
+    <div class="decision-row"><div class="decided">No fixed set of areas</div><div class="alt">The discipline's five areas</div><div class="why">Areas differ too much between engagements for a default to help.</div></div>
+    <div class="decision-row"><div class="decided">The divergence from the discipline is recorded in the risk-log definition</div><div class="alt">Edit the discipline in the corpus</div><div class="why">The corpus is a generated export and is not edited in this repo.</div></div>
+    <div class="decision-row"><div class="decided">The risk log's definition and template sit in <code>artifacts/project/risk-log/</code></div><div class="alt"><code>artifacts/documentation/risk-log/</code></div><div class="why">The plugin's folders mirror where an artifact lands, and the page lands in <code>project/</code> (D100 §4.5).</div></div>
+  </div>
+</section>
+
+<!-- ═════════════════════ §5 ═════════════════════ -->
+<section class="s" id="s5">
+  <h2 class="section-title"><span class="sec-ref">§5</span>UI Design</h2>
+  <p class="section-desc">Three surfaces change: the register page, what the entry point prints for the risk log, and the Project frame's pages on the Asimov website; the product's documentation site does not change (S3). Styled after the existing documentation site chrome (the register page), the plan view of the Spec stage (the chat) and the Asimov website (its pages).</p>
+
+  <div class="subhead">S1 · The register page</div>
+  <div class="mockup-wrap">
+    <iframe class="mockup-frame" src="mockups/d101-project-management-risk/risk-log-page.html" style="height: 640px" title="risk-log-page interactive mockup" loading="lazy"></iframe>
+  </div>
+  <ul class="bullets">
+    <li>From the top: title, last-updated date with its ⓘ, the count per state; the scoring anchors folded; the summary table; the risks grouped by state.</li>
+    <li>Each summary row links to its risk; each risk shows its fields, created and changed dates, and its history with who made each change.</li>
+    <li>The ⓘ beside the last-updated date unfolds the register's own history: every update and every confirmed review, with date and person.</li>
+    <li>Occurred risks have their own group, after Accepted; Resolved risks sit last and folded.</li>
+    <li>Headings and labels follow the template; the content is in the project's language (RL16).</li>
+    <li>Switch the state at the top of the mockup: a register with risks, a register where every risk is resolved, and an opt-out.</li>
+  </ul>
+
+  <div class="subhead">S2 · What the entry point prints</div>
+  <div class="mockup-wrap">
+    <iframe class="mockup-frame" src="mockups/d101-project-management-risk/risk-run.html" style="height: 600px" title="risk-run interactive mockup" loading="lazy"></iframe>
+  </div>
+  <ul class="bullets">
+    <li>One fixed text layout, 80 columns: the header line, then the risks by state, each open risk in full (identifier, score and name; owner, area, impact, probability and changed date; description; mitigation), each risk closed by a horizontal rule so the risks are easy to tell apart, then the closing question.</li>
+    <li>An empty description or mitigation shows as <em>none written</em>, so a risk without a plan stands out in the review; Resolved risks show only as a count.</li>
+    <li>The chat's own words follow the conversation's language; a risk's content is shown as it is kept.</li>
+    <li>Scenarios: a review confirmed with its participants, a risk registered in Danish and confirmed in English, a state decided, risks handed to a new owner, no register yet, an opt-out, and an unreadable register with its repair shown as before and after.</li>
+    <li class="warn">The view never prints a verdict; anything the entry point says about the register comes after the view and is its own line.</li>
+  </ul>
+
+  <div class="subhead">S3 · The product's documentation site — unchanged in this slice</div>
+  <ul class="bullets">
+    <li>The register is not listed on the site for now (OOS3): the site scans <code>documentation/</code>, and the page sits in <code>project/</code>.</li>
+    <li>The page already carries what a later listing would read, an <code>&lt;h1&gt;</code> and a first paragraph, and so does an opt-out page.</li>
+  </ul>
+
+  <div class="subhead">S4 · The Project frame's pages on the Asimov website</div>
+  <div class="mockup-wrap">
+    <iframe class="mockup-frame" src="mockups/d101-project-management-risk/site-project-management.html" style="height: 600px" title="site-project-management interactive mockup" loading="lazy"></iframe>
+  </div>
+  <ul class="bullets">
+    <li><em>What's inside → Project management</em> replaces "Nothing yet" with what lands in a repo: the risk log, how to start it, and what it keeps.</li>
+    <li><em>Artifacts → Project management</em> drops its <em>planned</em> chip and lists the risk log as the frame's first artifact.</li>
+    <li>The Project column of the phase diagram on <em>What's inside</em> is already on <code>main</code>; it gains no box.</li>
+    <li>Toggle the mockup between today's page and the page after this design lands.</li>
+  </ul>
+</section>
+
+<!-- ═════════════════════ §6 — Chapter band ═════════════════════ -->
+<div class="chapter-band" id="c6">
+  <div class="chapter-band-inner">
+    <div class="ch-num">6</div>
+    <div>
+      <div class="ch-name">Technical design</div>
+      <div class="ch-summary">Where the risk log lives, how one write flows from the conversation through a script to the page, the files, the page's data shape, the script's interface, the few settings, the failures and their recovery, and the gotchas.</div>
+    </div>
+  </div>
+</div>
+
+<!-- §6.1 Platform -->
+<section class="s" id="s6-1">
+  <h2 class="section-title"><span class="sec-ref">§6.1</span>Platform</h2>
+  <p style="color: var(--text-dim); font-size: 0.95rem; line-height: 1.65;">
+    Everything ships in the plugin and runs in Claude Code and Codex alike: a row and a section in the Project frame's entry point <code>asimov-project</code>, two artifact skills (<code>artifact-risk-log-authoring</code>, <code>artifact-risk-log-view</code>), one script beside the authoring skill (<code>skills/artifact-risk-log-authoring/scripts/risk-log.ps1</code>, Windows PowerShell 5.1 and PowerShell 7), and the artifact's definition and template under <code>artifacts/project/risk-log/</code>. In a product repo it writes one file, <code>project/risk-log.html</code>, and while a write is in flight its sibling <code>risk-log.html.new</code>. The script reads, renders and checks the page and compares areas; the skills hold the conversation and decide what changes. There is no service, no store beside the page and no network call.
+  </p>
+  <div class="callout warn">
+    <strong>⚠ Lockstep gates.</strong> <code>project/</code> is a literal of hard rule 9, the <code>project/*.new</code> pattern joins the <code>.gitignore</code> block written by both init entry points and appended by <code>asimov-project</code>, and the artifact's <code>assess</code> level is mirrored in D100 §4.5 in the same commit (hard rule 10).
+  </div>
+
+  <div class="subhead">Technical decisions</div>
+  <div class="decisions">
+    <div class="decisions-head"><div>Decided</div><div>Alternative considered</div><div>Why rejected</div></div>
+    <div class="decision-row"><div class="decided">A script reads, renders and checks the page; the model decides only the change</div><div class="alt">The model rewrites the whole HTML on every change and a script checks it afterwards</div><div class="why">The register's promises (R26, RL10, RL12, P3) are bookkeeping a script keeps the same every time, and a model only nearly the same.</div></div>
+    <div class="decision-row"><div class="decided">A write goes to <code>risk-log.html.new</code>, is checked, then replaces the page by one rename</div><div class="alt">Write the page in place</div><div class="why">A write that dies halfway would leave a broken register; a rename is all or nothing.</div></div>
+    <div class="decision-row"><div class="decided">"Who" is <code>git config user.name</code>, asked once per run when unset</div><div class="alt">Ask the person on every write</div><div class="why">The Build stage's ledger already names people this way, and asking every time is friction with no gain.</div></div>
+    <div class="decision-row"><div class="decided">The script also renders the chat view</div><div class="alt">The view skill formats the view from the data model</div><div class="why">A fixed view (P6) held by a model drifts in width and order; held by a script it cannot.</div></div>
+    <div class="decision-row"><div class="decided">The script decides which areas are nearly the same (RL13)</div><div class="alt">The authoring skill judges it</div><div class="why">The same two areas must give the same answer on every run.</div></div>
+    <div class="decision-row"><div class="decided">The rules the script implements are written in the two artifact skills, which are also the fallback without PowerShell</div><div class="alt">A separate specification document</div><div class="why">The Spec stage's validation skills are their scripts' specifications already; one home per rule.</div></div>
+    <div class="decision-row"><div class="decided">A conflicted register is a repair: both sides merged by identifier, conflicting fields chosen by the person</div><div class="alt">A git merge driver, or one writer per engagement</div><div class="why">The repair (RL11) and renumbering (RL4) already cover it, so no new rule and no repository setting is needed.</div></div>
+  </div>
+</section>
+
+<!-- §6.2 Data flow -->
+<section class="s" id="s6-2">
+  <h2 class="section-title"><span class="sec-ref">§6.2</span>Data flow</h2>
+  <p class="section-desc">One write, registering a risk: the conversation decides the change, the script turns it into a checked page, and the page is replaced only when the check passes.</p>
+  <div class="flow-wrap">
+    <svg viewBox="0 0 980 712" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="UML sequence diagram: a person asks asimov-project to register a risk in the risk log; asimov-project has the script read the register, decides the change with the authoring skill, has the person confirm it, then has the script apply it; the script writes a new page, checks it and renames it into place, or deletes it when the check fails.">
+      <rect x="0" y="0" width="980" height="712" fill="#14253f"/>
+      <defs>
+        <marker id="seq-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 Z" fill="#a8b8d0"/>
+        </marker>
+        <marker id="seq-arr-accent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 Z" fill="#66bb6a"/>
+        </marker>
+        <marker id="seq-arr-open" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10" fill="none" stroke="#a8b8d0" stroke-width="1.4"/>
+        </marker>
+      </defs>
+
+      <!-- Heads -->
+      <g>
+        <rect x="40" y="24" width="168" height="48" rx="8" fill="#66bb6a22" stroke="#66bb6a"/>
+        <text x="124" y="44" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">Person</text>
+        <text x="124" y="60" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">project lead · entry</text>
+      </g>
+      <g>
+        <rect x="284" y="24" width="168" height="48" rx="8" fill="#ffb74d1a" stroke="#ffb74d"/>
+        <text x="368" y="44" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">asimov-project</text>
+        <text x="368" y="60" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">conversation + authoring</text>
+      </g>
+      <g>
+        <rect x="528" y="24" width="168" height="48" rx="8" fill="#ffb74d1a" stroke="#ffb74d"/>
+        <text x="612" y="44" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">risk-log.ps1</text>
+        <text x="612" y="60" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">read · render · check</text>
+      </g>
+      <g>
+        <rect x="772" y="24" width="168" height="48" rx="8" fill="#4fc3f71a" stroke="#4fc3f7"/>
+        <text x="856" y="44" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">risk-log.html</text>
+        <text x="856" y="60" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">the register page</text>
+      </g>
+
+      <!-- Lifelines -->
+      <line x1="124" y1="72" x2="124" y2="688" stroke="#3b5e8f" stroke-width="1.5" stroke-dasharray="4 4"/>
+      <line x1="368" y1="72" x2="368" y2="688" stroke="#3b5e8f" stroke-width="1.5" stroke-dasharray="4 4"/>
+      <line x1="612" y1="72" x2="612" y2="688" stroke="#3b5e8f" stroke-width="1.5" stroke-dasharray="4 4"/>
+      <line x1="856" y1="72" x2="856" y2="688" stroke="#3b5e8f" stroke-width="1.5" stroke-dasharray="4 4"/>
+
+      <!-- Activation bars -->
+      <rect x="120" y="112" width="8" height="552" fill="#66bb6a22" stroke="#66bb6a"/>
+      <rect x="364" y="112" width="8" height="552" fill="#ffb74d1a" stroke="#ffb74d"/>
+      <rect x="608" y="152" width="8" height="64" fill="#ffb74d1a" stroke="#ffb74d"/>
+      <rect x="608" y="392" width="8" height="240" fill="#ffb74d1a" stroke="#ffb74d"/>
+      <rect x="852" y="184" width="8" height="24" fill="#4fc3f71a" stroke="#4fc3f7"/>
+      <rect x="852" y="480" width="8" height="24" fill="#4fc3f71a" stroke="#4fc3f7"/>
+
+      <!-- Combined fragment (alt): the script and the page take part, the conversation does not -->
+      <rect x="592" y="424" width="284" height="176" fill="none" stroke="#3b5e8f" stroke-width="1.5"/>
+      <rect x="592" y="424" width="64" height="24" fill="#122039" stroke="#3b5e8f"/>
+      <text x="624" y="440" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700">alt</text>
+      <text x="624" y="464" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">[check passes]</text>
+      <line x1="592" y1="520" x2="876" y2="520" stroke="#3b5e8f" stroke-width="1.5" stroke-dasharray="4 4"/>
+      <text x="624" y="544" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">[check fails]</text>
+
+      <!-- m1: the request, accented -->
+      <line x1="128" y1="112" x2="364" y2="112" stroke="#66bb6a" stroke-width="1.5" marker-end="url(#seq-arr-accent)"/>
+      <text x="246" y="104" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">/asimov-project risk log, add …</text>
+
+      <!-- m2: read -->
+      <line x1="372" y1="152" x2="608" y2="152" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#seq-arr)"/>
+      <text x="490" y="144" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">-Read</text>
+
+      <!-- m3: the script reads the page -->
+      <line x1="616" y1="184" x2="852" y2="184" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#seq-arr)"/>
+      <text x="734" y="176" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">parse the page</text>
+
+      <!-- m4: return -->
+      <line x1="608" y1="216" x2="372" y2="216" stroke="#a8b8d0" stroke-width="1.5" stroke-dasharray="4 4" marker-end="url(#seq-arr-open)"/>
+      <text x="490" y="208" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">model · problems</text>
+
+      <!-- m5: self-message, the authoring skill inline -->
+      <polyline points="372,256 420,256 420,280 372,280" fill="none" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#seq-arr)"/>
+      <text x="432" y="272" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">authoring: the change</text>
+
+      <!-- m6: confirmation -->
+      <line x1="364" y1="320" x2="128" y2="320" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#seq-arr)"/>
+      <text x="246" y="312" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">confirm (as stored)</text>
+
+      <!-- m7: answer -->
+      <line x1="128" y1="352" x2="364" y2="352" stroke="#a8b8d0" stroke-width="1.5" stroke-dasharray="4 4" marker-end="url(#seq-arr-open)"/>
+      <text x="246" y="344" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">yes · or corrected text</text>
+
+      <!-- m8: apply -->
+      <line x1="372" y1="392" x2="608" y2="392" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#seq-arr)"/>
+      <text x="490" y="384" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">-Apply change.json</text>
+
+      <!-- m9: first region, write and rename -->
+      <line x1="616" y1="480" x2="852" y2="480" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#seq-arr)"/>
+      <text x="734" y="472" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">.new · check · rename</text>
+
+      <!-- m10: second region, self-message -->
+      <polyline points="616,568 664,568 664,592 616,592" fill="none" stroke="#a8b8d0" stroke-width="1.5" marker-end="url(#seq-arr)"/>
+      <text x="676" y="584" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">delete .new</text>
+
+      <!-- m11: result -->
+      <line x1="608" y1="632" x2="372" y2="632" stroke="#a8b8d0" stroke-width="1.5" stroke-dasharray="4 4" marker-end="url(#seq-arr-open)"/>
+      <text x="490" y="624" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">written · or refused rule</text>
+
+      <!-- m12: report -->
+      <line x1="364" y1="664" x2="128" y2="664" stroke="#a8b8d0" stroke-width="1.5" stroke-dasharray="4 4" marker-end="url(#seq-arr-open)"/>
+      <text x="246" y="656" text-anchor="middle" fill="#a8b8d0" font-family="JetBrains Mono, monospace" font-size="9">RISK-007 written</text>
+    </svg>
+    <div class="flow-legend">
+      <span class="item"><span class="swatch" style="background:var(--green)"></span>Person, the entry</span>
+      <span class="item"><span class="swatch" style="background:var(--amber)"></span>Processing: the skills, the script</span>
+      <span class="item"><span class="swatch" style="background:var(--cyan)"></span>The register page</span>
+    </div>
+  </div>
+  <div class="principles" style="margin-top:1rem">
+    <div class="principle"><div class="num">1</div><div class="text"><strong>Start.</strong> <code>asimov-project</code> reads the risk log's row, prints the maturity line, adds the four cache patterns and <code>project/*.new</code> to <code>.gitignore</code> when missing, and runs <code>-Finish</code> if a <code>.new</code> is left from an earlier run.</div></div>
+    <div class="principle"><div class="num">2</div><div class="text"><strong>Read.</strong> <code>-Read</code> parses the page into a data model and a list of problems; any problem, conflict markers included, turns the run into a repair (<code>-Repair</code>, RL11) before anything else.</div></div>
+    <div class="principle"><div class="num">3</div><div class="text"><strong>Decide.</strong> <code>artifact-risk-log-authoring</code> turns what the person said into one change file: the fields, the state change with its reason and decider, and every free text already in the project's language.</div></div>
+    <div class="principle"><div class="num">4</div><div class="text"><strong>Confirm.</strong> <code>asimov-project</code> shows the change as it will be stored, translation included; a correction replaces the proposed text as written.</div></div>
+    <div class="principle"><div class="num">5</div><div class="text"><strong>Apply.</strong> <code>-Apply</code> renumbers duplicates first, applies the change, appends the history lines with the person from <code>git config user.name</code>, renders the page from the template to <code>risk-log.html.new</code>, checks it against the current page, and renames it into place.</div></div>
+    <div class="principle"><div class="num">6</div><div class="text"><strong>Refuse.</strong> A failed check deletes the <code>.new</code>, leaves the page as it was, and returns the rule that refused it.</div></div>
+    <div class="principle"><div class="num">7</div><div class="text"><strong>Review.</strong> <code>-View</code> prints the fixed view; a confirmed review is an <code>-Apply</code> whose change adds one register-history line and touches no risk.</div></div>
+  </div>
+</section>
+
+<!-- §6.3 Code map -->
+<section class="s" id="s6-3">
+  <h2 class="section-title"><span class="sec-ref">§6.3</span>Code map</h2>
+  <div class="codemap">
+    <div class="codemap-row"><div class="what">The conversation: the risk log's row in Step 01 and its section (verbs, questions, confirmations, the leftover-write check, the <code>.gitignore</code> pattern)</div><div class="where">plugins/asimov-plugin/skills/asimov-project/SKILL.md</div></div>
+    <div class="codemap-row"><div class="what">The method: from what was said to one change file</div><div class="where">plugins/asimov-plugin/skills/artifact-risk-log-authoring/SKILL.md</div></div>
+    <div class="codemap-row"><div class="what">The read: prints the fixed view, writes nothing</div><div class="where">plugins/asimov-plugin/skills/artifact-risk-log-view/SKILL.md</div></div>
+    <div class="codemap-row"><div class="what">Read, render, check, view, repair, finish</div><div class="where">plugins/asimov-plugin/skills/artifact-risk-log-authoring/scripts/risk-log.ps1</div></div>
+    <div class="codemap-row"><div class="what">The contract: fields, states, rules, the bar, the divergence from the discipline</div><div class="where">plugins/asimov-plugin/artifacts/project/risk-log/risk-log-definition.md</div></div>
+    <div class="codemap-row"><div class="what">The shape the script renders</div><div class="where">plugins/asimov-plugin/artifacts/project/risk-log/risk-log-template.html</div></div>
+    <div class="codemap-row"><div class="what">The <code>project/*.new</code> pattern in the <code>.gitignore</code> block both init entry points write</div><div class="where">plugins/asimov-plugin/commands/asimov-init.md · plugins/asimov-plugin/skills/codex-asimov-init/SKILL.md</div></div>
+    <div class="codemap-row"><div class="what">The Project frame's pages on the website</div><div class="where">site/inside/project-management.html · site/artifacts/project-management/index.html</div></div>
+    <div class="codemap-row"><div class="what">The register, in a product repo</div><div class="where">project/risk-log.html</div></div>
+  </div>
+</section>
+
+<!-- §6.4 Shapes -->
+<section class="s" id="s6-4">
+  <h2 class="section-title"><span class="sec-ref">§6.4</span>Shapes</h2>
+  <p class="section-desc">The page is the record: everything the script reads back is in attributes and lists; everything derived (the score, the summary table, the counts) is rendered text and never read.</p>
+
+  <div class="subhead">The page</div>
+  <div class="data-table">
+    <div class="row head cols-2"><div>Element</div><div>Carries</div></div>
+    <div class="row cols-2"><div class="label-cell">&lt;html lang&gt;</div><div>The project language (RL16, Q2).</div></div>
+    <div class="row cols-2"><div class="label-cell">&lt;body&gt;</div><div><code>data-artifact="risk-log"</code>, <code>data-schema="1"</code>, <code>data-register</code> (<code>kept</code> or <code>opt-out</code>) and <code>data-updated</code> (the register's last-updated date).</div></div>
+    <div class="row cols-2"><div class="label-cell">h1 + first paragraph</div><div>The title and one-sentence description a reader sees first, and what a later listing would read (S3, OOS3).</div></div>
+    <div class="row cols-2"><div class="label-cell">ol.register-history</div><div>One <code>li</code> per update, with <code>data-date</code>, <code>data-by</code>, <code>data-kind</code> (<code>created</code>, <code>write</code>, <code>review</code>, <code>repair</code>, <code>finish</code>, <code>opt-out</code> when an opt-out is written, <code>replaced-opt-out</code> as the first line of a register that replaces one) and, for a review, <code>data-with</code>; inside the ⓘ's <code>&lt;details&gt;</code>.</div></div>
+    <div class="row cols-2"><div class="label-cell">table.summary</div><div>Rendered from the articles on every write in the RL12 order; never read.</div></div>
+    <div class="row cols-2"><div class="label-cell">section.opt-out</div><div>On an opt-out page only: <code>data-reason</code> (<code>elsewhere</code> or <code>not-worked</code>), <code>data-where</code>, <code>data-by</code>, <code>data-date</code>.</div></div>
+  </div>
+
+  <div class="subhead">One risk</div>
+  <div class="data-table">
+    <div class="row head cols-2"><div>Element</div><div>Carries</div></div>
+    <div class="row cols-2"><div class="label-cell">article.risk</div><div><code>id</code> (<code>RISK-NNN</code>), <code>data-state</code>, <code>data-impact</code>, <code>data-probability</code>, <code>data-owner</code>, <code>data-area</code>, <code>data-created</code>, <code>data-changed</code>.</div></div>
+    <div class="row cols-2"><div class="label-cell">h3</div><div>The name; the score beside it is rendered from impact and probability.</div></div>
+    <div class="row cols-2"><div class="label-cell">.risk-desc · .risk-mitigation</div><div>The description and the mitigation as text; absent when empty.</div></div>
+    <div class="row cols-2"><div class="label-cell">ol.risk-history</div><div>One <code>li</code> per change, with <code>data-date</code>, <code>data-by</code> and <code>data-kind</code> (<code>created</code>, <code>change</code>, <code>state</code>, <code>renumber</code>, <code>repair</code>, <code>handover</code>); only ever appended to.</div></div>
+  </div>
+
+  <div class="subhead">Areas nearly the same (RL13)</div>
+  <p class="section-desc" style="margin-bottom:0.4rem">Two areas are compared as whole texts, never word by word: after ignoring case, spaces, hyphens and punctuation, they are nearly the same when they are equal or, for texts of four letters or more, when they differ by one letter.</p>
+  <ul class="bullets">
+    <li><code>schedule</code>, <code>Schedule</code> and <code>sched-ule</code> are nearly the same; so are <code>Schedul</code> and <code>Schedule</code>.</li>
+    <li><code>Cost</code> and <code>Costs</code> are nearly the same, and so are <code>Customer schedule</code> and <code>Customer schedules</code>, compared whole; <code>QA</code> and <code>QC</code> are not, being shorter than four letters, and neither are <code>Customer schedule</code> and <code>Supplier schedule</code>.</li>
+  </ul>
+
+  <div class="subhead">The change file -Apply takes</div>
+  <ul class="gps-paths">
+    <li>verb: add | change | state | handover | review | optout | repair</li>
+    <li>target: RISK-NNN (or the leaving owner, for handover)</li>
+    <li>fields: name · owner · impact · probability · area · description · mitigation</li>
+    <li>state: { to, reason, decider }</li>
+    <li>with: [participants] (review) · to: new owner (handover) · opt-out: { reason, where, decider }</li>
+    <li>language: the project language, on the first write only</li>
+  </ul>
+</section>
+
+<!-- §6.5 APIs -->
+<section class="s" id="s6-5">
+  <h2 class="section-title"><span class="sec-ref">§6.5</span>APIs &amp; contracts</h2>
+  <div class="callout">
+    One script, <code>risk-log.ps1 -Path project/risk-log.html</code> plus one action: <code>-Read</code> (data model, the areas in use and problems as JSON; with <code>-Area &lt;text&gt;</code> also the areas in use that are nearly the same), <code>-View</code> (the fixed 80-column text), <code>-Apply -Change &lt;file&gt;</code> (write, check, rename), <code>-Repair</code> (a proposal as JSON, from problems or conflict markers) and <code>-Finish</code> (an interrupted write). Exit codes: <code>0</code> done, <code>1</code> refused by a rule (the rule on stdout), <code>2</code> an input could not be read, <code>3</code> no person (<code>git config user.name</code> unset and no <code>-By</code>). <code>-PluginRoot</code> defaults to the parent of the script's folder. No other interface changes.
+  </div>
+</section>
+
+<!-- §6.6 Configuration -->
+<section class="s" id="s6-6">
+  <h2 class="section-title"><span class="sec-ref">§6.6</span>Configuration &amp; secrets</h2>
+  <p class="section-desc">Nothing is configured in the plugin; the few values live in the repo or the page.</p>
+  <div class="data-table">
+    <div class="row head cols-3"><div>Setting</div><div>Default</div><div>Justification</div></div>
+    <div class="row cols-3"><div class="label-cell">Project language</div><div><code>lang</code> on the page, asked at the first write</div><div>Kept with the record until project setup exists (Q2).</div></div>
+    <div class="row cols-3"><div class="label-cell">Person</div><div><code>git config user.name</code></div><div>As the ledger; asked once per run when unset, never guessed.</div></div>
+    <div class="row cols-3"><div class="label-cell">Ignore pattern</div><div><code>project/*.new</code></div><div>An interrupted write is never committed.</div></div>
+    <div class="row cols-3"><div class="label-cell">View width</div><div><code>80</code> columns</div><div>The fixed view (P6); not a setting a person changes.</div></div>
+  </div>
+</section>
+
+<!-- §6.7 Failure handling -->
+<section class="s" id="s6-7">
+  <h2 class="section-title"><span class="sec-ref">§6.7</span>Failure handling</h2>
+  <div class="failures">
+    <div class="failures-head"><div>Failure</div><div>Effect</div><div>Severity</div><div>Recovery</div></div>
+    <div class="failure-row"><div>A write dies before the rename</div><div>A <code>.new</code> is left; the page is unchanged</div><div><span class="sev low">Low</span></div><div>The next run's <code>-Finish</code> renames it after showing it, if it passes the check, else deletes it and says so.</div></div>
+    <div class="failure-row"><div>The check refuses a write</div><div>Nothing written</div><div><span class="sev med">Med</span></div><div>The <code>.new</code> is deleted and the refusing rule is reported; the person changes the request.</div></div>
+    <div class="failure-row"><div>The page cannot be read in full (a hand edit)</div><div>No write</div><div><span class="sev med">Med</span></div><div><code>-Repair</code> proposes each change as before and after; confirmed, it is applied like any write (RL11).</div></div>
+    <div class="failure-row"><div>Git conflict markers after a merge</div><div>No write</div><div><span class="sev med">Med</span></div><div>The repair merges both sides by identifier, renumbers true duplicates (RL4) and asks the person for each field changed differently on both sides.</div></div>
+    <div class="failure-row"><div>No person (<code>user.name</code> unset)</div><div>The script stops with exit 3</div><div><span class="sev low">Low</span></div><div><code>asimov-project</code> asks for the name once and passes it as <code>-By</code> for the rest of the run.</div></div>
+    <div class="failure-row"><div>No PowerShell on the machine</div><div>The script cannot run</div><div><span class="sev med">Med</span></div><div>The skills apply the rules the script implements, which live in <code>artifact-risk-log-authoring</code> (read, apply, check, areas) and <code>artifact-risk-log-view</code> (the view's layout), and say plainly that no script ran the check.</div></div>
+    <div class="failure-row"><div>A translation is wrong</div><div>Caught before it is stored</div><div><span class="sev low">Low</span></div><div>The confirmation shows it; the person corrects it in the project's language (RL16).</div></div>
+  </div>
+</section>
+
+<!-- §6.8 Gotchas -->
+<section class="s" id="s6-8">
+  <h2 class="section-title"><span class="sec-ref">§6.8</span>Known constraints &amp; gotchas</h2>
+  <div class="callout warn">
+    <strong>Encoding.</strong> Windows PowerShell 5.1 reads a BOM-less script as ANSI, so the script is pure ASCII like the validators, and it writes the page as UTF-8 explicitly, since names and content are rarely ASCII.
+  </div>
+  <div class="callout warn">
+    <strong>The rename is atomic only on one volume.</strong> The <code>.new</code> sits beside the page, never in a temp folder, so the replace stays one rename.
+  </div>
+  <div class="callout">
+    <strong>Hand edits to rendered text are overwritten.</strong> A changed score, summary row or count is rendered anew on the next write (P3, AC10); a hand edit to a field or a history line is a repair.
+  </div>
+  <div class="callout">
+    <strong>Line endings.</strong> The check compares the parsed data, not bytes, so a checkout that turns LF into CRLF never fails a write; only a declined review is promised byte-identical, and it writes nothing.
+  </div>
+</section>
+
+<!-- ═════════════════════ §7 — Chapter band (Implementation) ═════════════════════ -->
+<div class="chapter-band" id="c7">
+  <div class="chapter-band-inner">
+    <div class="ch-num">7</div>
+    <div>
+      <div class="ch-name">Implementation</div>
+      <div class="ch-summary">What is new and what is reused, where the new files sit, and the wiring that moves with them. The build itself is planned by the Spec stage.</div>
+    </div>
+  </div>
+</div>
+
+<!-- §7.1 New vs. reuse -->
+<section class="s" id="s7-1">
+  <h2 class="section-title"><span class="sec-ref">§7.1</span>What is genuinely new to build</h2>
+  <p class="section-desc">Everything not listed here is reuse of a pattern the plugin already has.</p>
+  <div class="callout">
+    <strong>These notes are code-grounded design.</strong> Each pattern named was checked against the plugin on 2026-10-29, after the Project frame (PR 35) and the scripts beside their skills (PR 33); the task-level detail is the S101's and the S102s' once <code>asimov-spec</code> cuts this design, and §7 then points at <code>specs/project-management-risk/</code>.
+  </div>
+  <div class="data-table">
+    <div class="row head" style="grid-template-columns: 1.2fr 0.4fr 2fr;"><div>Item</div><div>Build</div><div>Pattern</div></div>
+    <div class="row" style="grid-template-columns: 1.2fr 0.4fr 2fr;"><div class="label-cell">risk-log.ps1</div><div><span class="tag new">new</span></div><div>Shape of <code>skills/artifact-s102-validation/scripts/validate-s102.ps1</code>: comment-based help, pure ASCII, 5.1 and 7, template as schema, exit codes.</div></div>
+    <div class="row" style="grid-template-columns: 1.2fr 0.4fr 2fr;"><div class="label-cell">risk-log definition + template</div><div><span class="tag new">new</span></div><div>Shape of <code>artifacts/documentation/s101-ledger/</code>: maturity block, bar, required content, append-only rules.</div></div>
+    <div class="row" style="grid-template-columns: 1.2fr 0.4fr 2fr;"><div class="label-cell">asimov-project: the risk log</div><div><span class="tag new">new</span></div><div>The skeleton's commented example row made real in Step 01, and the risk log's section below it, following Step 02's rules.</div></div>
+    <div class="row" style="grid-template-columns: 1.2fr 0.4fr 2fr;"><div class="label-cell">artifact-risk-log-authoring</div><div><span class="tag new">new</span></div><div>Shape of <code>skills/artifact-s101-ledger/SKILL.md</code>: the only writer, read first, never writes elsewhere.</div></div>
+    <div class="row" style="grid-template-columns: 1.2fr 0.4fr 2fr;"><div class="label-cell">artifact-risk-log-view</div><div><span class="tag new">new</span></div><div>Shape of <code>skills/artifact-s101-view/SKILL.md</code>: prints, writes nothing, judges nothing.</div></div>
+    <div class="row" style="grid-template-columns: 1.2fr 0.4fr 2fr;"><div class="label-cell">The entry point</div><div><span class="tag reuse">reuse</span></div><div><code>asimov-project</code>, its frontmatter, derived root, maturity notice and model row, as they stand on <code>main</code>.</div></div>
+    <div class="row" style="grid-template-columns: 1.2fr 0.4fr 2fr;"><div class="label-cell">Identity</div><div><span class="tag reuse">reuse</span></div><div>The ledger's <code>git config user.name</code>.</div></div>
+  </div>
+</section>
+
+<!-- §7.2 Layout -->
+<section class="s" id="s7-2">
+  <h2 class="section-title"><span class="sec-ref">§7.2</span>The files</h2>
+  <p class="section-desc" style="margin-bottom:0.9rem">Where the new files sit in the plugin.</p>
+  <div class="data-table">
+    <div class="row head" style="grid-template-columns: 0.9fr 2fr;"><div>Folder</div><div>What it holds</div></div>
+    <div class="row" style="grid-template-columns: 0.9fr 2fr;"><div class="label-cell">artifacts/project/risk-log/</div><div>risk-log-definition.md · risk-log-template.html</div></div>
+    <div class="row" style="grid-template-columns: 0.9fr 2fr;"><div class="label-cell">skills/asimov-project/</div><div>SKILL.md: one row in Step 01, one section below it (existing file)</div></div>
+    <div class="row" style="grid-template-columns: 0.9fr 2fr;"><div class="label-cell">skills/artifact-risk-log-authoring/</div><div>SKILL.md · scripts/risk-log.ps1</div></div>
+    <div class="row" style="grid-template-columns: 0.9fr 2fr;"><div class="label-cell">skills/artifact-risk-log-view/</div><div>SKILL.md</div></div>
+  </div>
+</section>
+
+<!-- §7.4 Per-unit build notes -->
+<section class="s" id="s7-4">
+  <h2 class="section-title"><span class="sec-ref">§7.4</span>Each part</h2>
+  <p class="section-desc">Build notes per part, keyed to §6: where its input comes from, what bounds it, and what it enforces rather than leaves to review.</p>
+
+  <div class="subhead" id="s7-4-1"><span class="s-ref">§7.4.1</span><code>risk-log.ps1</code> · contract <a href="#s6-5">§6.5</a>, <a href="#s6-4">§6.4</a></div>
+  <div class="data-table impl-table">
+    <div class="row head"><div>Aspect</div><div>Build</div><div>Details</div></div>
+    <div class="row"><div class="label-cell">Source</div><div><span class="tag new">new</span></div><div><ul><li>Parses the page's attributes and lists; renders from <code>risk-log-template.html</code>, which is its schema, as the S102 template is <code>validate-s102.ps1</code>'s.</li></ul></div></div>
+    <div class="row"><div class="label-cell">Bound</div><div><span class="tag note">note</span></div><div><ul><li>Reads and writes one page and its <code>.new</code>; runs <code>git config user.name</code> and, in a repair after a merge, <code>git show :2:</code> and <code>:3:</code>; nothing else.</li></ul></div></div>
+    <div class="row"><div class="label-cell">Enforce</div><div><span class="tag new">new</span></div><div><ul><li>Old history lines and risks kept, required fields valid, Mitigated only with a mitigation, no duplicate identifier, the RL12 order, the score from impact and probability; any miss refuses the write with exit 1.</li></ul></div></div>
+  </div>
+
+  <div class="subhead" id="s7-4-2"><span class="s-ref">§7.4.2</span><code>asimov-project</code>, the risk log's section · contract <a href="#s6-2">§6.2</a></div>
+  <div class="data-table impl-table">
+    <div class="row head"><div>Aspect</div><div>Build</div><div>Details</div></div>
+    <div class="row"><div class="label-cell">Source</div><div><span class="tag reuse">reuse</span></div><div><ul><li>The skeleton on <code>main</code>: Step 00's derived root, Step 01's table and maturity notice, Step 02's rules (questions, one summary, the go, then the write; <code>pm-advisor</code> at hand).</li></ul></div></div>
+    <div class="row"><div class="label-cell">Bound</div><div><span class="tag note">note</span></div><div><ul><li>The section writes only <code>.gitignore</code> lines; every register change goes through the authoring skill and the script; no other artifact's row is touched.</li></ul></div></div>
+    <div class="row"><div class="label-cell">Enforce</div><div><span class="tag new">new</span></div><div><ul><li><code>-Finish</code> before any verb; the confirmation shows the stored text before every write.</li></ul></div></div>
+  </div>
+
+  <div class="subhead" id="s7-4-3"><span class="s-ref">§7.4.3</span><code>artifact-risk-log-authoring</code> · contract <a href="#s6-4">§6.4</a></div>
+  <div class="data-table impl-table">
+    <div class="row head"><div>Aspect</div><div>Build</div><div>Details</div></div>
+    <div class="row"><div class="label-cell">Source</div><div><span class="tag reuse">reuse</span></div><div><ul><li>The frame of <code>artifact-s101-ledger</code>: read first, the only writer, never another file.</li></ul></div></div>
+    <div class="row"><div class="label-cell">Bound</div><div><span class="tag note">note</span></div><div><ul><li>Produces one change file per write; holds the rules the script implements, as its specification and the fallback.</li></ul></div></div>
+    <div class="row"><div class="label-cell">Enforce</div><div><span class="tag new">new</span></div><div><ul><li>Free text in the project's language before it reaches the change file; a decider and a reason where the target state needs them.</li></ul></div></div>
+  </div>
+
+  <div class="subhead" id="s7-4-4"><span class="s-ref">§7.4.4</span><code>artifact-risk-log-view</code> · contract <a href="#s6-5">§6.5</a></div>
+  <div class="data-table impl-table">
+    <div class="row head"><div>Aspect</div><div>Build</div><div>Details</div></div>
+    <div class="row"><div class="label-cell">Source</div><div><span class="tag reuse">reuse</span></div><div><ul><li>The frame of <code>artifact-s101-view</code>: prints, writes nothing, judges nothing.</li></ul></div></div>
+    <div class="row"><div class="label-cell">Bound</div><div><span class="tag note">note</span></div><div><ul><li>Calls <code>-View</code> on the authoring skill's script by its full path, as <code>artifact-s101-ledger</code>'s callers reach <code>ledger.ps1</code>, and prints its text unchanged; holds the view's layout as the specification and the fallback.</li></ul></div></div>
+    <div class="row"><div class="label-cell">Enforce</div><div><span class="tag new">new</span></div><div><ul><li>Nothing written, ever, including the review date; the confirmation is <code>asimov-project</code>'s.</li></ul></div></div>
+  </div>
+</section>
+
+<!-- §7.5 Cross-cutting -->
+<section class="s" id="s7-5">
+  <h2 class="section-title"><span class="sec-ref">§7.5</span>Cross-cutting — the wiring that moves with it</h2>
+  <ul class="bullets">
+    <li><span class="em">model-choice.md.</span> No change: <code>asimov-project</code> already has its row (stage <em>Project</em>), and the artifact skills declare no model.</li>
+    <li><span class="em">D100.</span> §4.3 and §4.6 move the risk log from "in flight" to built, §4.5 gains the pair under <code>artifacts/project/risk-log/</code> with <code>assess</code> (hard rule 10), §5 the tree with the script beside its skill.</li>
+    <li><span class="em">CLAUDE.md.</span> The quick map and the current state; hard rule 9 already names <code>project/</code> and gains the <code>project/*.new</code> pattern.</li>
+    <li><span class="em">.gitignore block.</span> <code>project/*.new</code> joins the patterns both init entry points write and <code>asimov-project</code> appends for the risk log.</li>
+    <li><span class="em">Website.</span> The Project frame's two pages, and AC6 of <code>D101-website.html</code> changed in the same commit.</li>
+    <li class="warn"><span class="em">No manifest change.</span> Skills auto-discover, so neither plugin manifest is touched and hard rule 11 does not fire.</li>
+  </ul>
+</section>
+
+<!-- ═════════════════════ §8 ═════════════════════ -->
+<section class="s" id="s8">
+  <h2 class="section-title"><span class="sec-ref">§8</span>Acceptance criteria</h2>
+  <div class="ac-table">
+    <div class="ac-head"><div>#</div><div>Verifies</div><div>Description</div></div>
+    <div class="ac-row"><div class="ac-id">AC1</div><div class="ac-verifies"><span class="verify-chip">R1</span></div><div>The first risk registered in a repo with no register writes <code>project/risk-log.html</code>.</div></div>
+    <div class="ac-row"><div class="ac-id">AC3</div><div class="ac-verifies"><span class="verify-chip">R3</span></div><div><code>/asimov-project risk log, add …</code> in Claude Code and <code>$asimov-plugin:asimov-project risk log, add …</code> in Codex each register a risk in the same repo, and no <code>asimov-risk</code> entry point exists.</div></div>
+    <div class="ac-row"><div class="ac-id">AC4</div><div class="ac-verifies"><span class="verify-chip">R4</span></div><div><code>site/inside/project-management.html</code> and <code>site/artifacts/project-management/index.html</code> name the risk log and contain neither "planned" nor "Nothing yet", and AC6 of <code>D101-website.html</code> is changed to match.</div></div>
+    <div class="ac-row"><div class="ac-id">AC5</div><div class="ac-verifies"><span class="verify-chip">R5</span><span class="verify-chip">RL1</span></div><div>A risk given without an owner is not written; the same risk with all four required fields is written as RISK-001.</div></div>
+    <div class="ac-row"><div class="ac-id">AC6</div><div class="ac-verifies"><span class="verify-chip">RL1</span></div><div>Manual step: given "the project lead" as owner, the entry point asks for a person's name before writing.</div></div>
+    <div class="ac-row"><div class="ac-id">AC7</div><div class="ac-verifies"><span class="verify-chip">R6</span></div><div>A risk with no description, area or mitigation is written and shown without those fields.</div></div>
+    <div class="ac-row"><div class="ac-id">AC8</div><div class="ac-verifies"><span class="verify-chip">R7</span><span class="verify-chip">RL3</span></div><div>In a register holding RISK-001 to RISK-007 with RISK-004 and RISK-007 resolved, a new risk is RISK-008.</div></div>
+    <div class="ac-row"><div class="ac-id">AC9</div><div class="ac-verifies"><span class="verify-chip">RL4</span></div><div>A register holding two RISK-007 and one RISK-008 is, after the next write, left with RISK-007, RISK-008 and RISK-009, where RISK-009 is the later-created duplicate (the lower one on the page when created the same day) and its history ends with <em>Renumbered from RISK-007</em>; when that write adds a risk, the new risk is RISK-010.</div></div>
+    <div class="ac-row"><div class="ac-id">AC10</div><div class="ac-verifies"><span class="verify-chip">R8</span><span class="verify-chip">RL2</span></div><div>A register whose page shows a wrong score for a risk (edited by hand) shows the correct score after the next write, computed from that risk's impact and probability; "score it 15" writes nothing.</div></div>
+    <div class="ac-row"><div class="ac-id">AC11</div><div class="ac-verifies"><span class="verify-chip">R9</span></div><div>A newly registered risk shows the state Active.</div></div>
+    <div class="ac-row"><div class="ac-id">AC12</div><div class="ac-verifies"><span class="verify-chip">R10</span><span class="verify-chip">RL6</span></div><div>Setting Mitigated on a risk with an empty mitigation asks for one; declined, the risk keeps its state and the file is unchanged; emptying the mitigation of a Mitigated risk is refused and writes nothing.</div></div>
+    <div class="ac-row"><div class="ac-id">AC13</div><div class="ac-verifies"><span class="verify-chip">R11</span><span class="verify-chip">RL7</span></div><div>Accepted with no decider is not set; with a reason and a name it is set, and the history line holds both.</div></div>
+    <div class="ac-row"><div class="ac-id">AC14</div><div class="ac-verifies"><span class="verify-chip">R12</span></div><div>Resolved with no reason is not set; with a reason it is set, and the history line holds it.</div></div>
+    <div class="ac-row"><div class="ac-id">AC15</div><div class="ac-verifies"><span class="verify-chip">R13</span><span class="verify-chip">RL5</span></div><div>From each of Mitigated, Accepted, Occurred and Resolved, setting Active with a reason gives Active under the same identifier; setting it with no reason, or setting Active on an Active risk, writes nothing.</div></div>
+    <div class="ac-row"><div class="ac-id">AC16</div><div class="ac-verifies"><span class="verify-chip">R14</span><span class="verify-chip">R26</span><span class="verify-chip">RL10</span></div><div>A risk registered, then changed, then resolved has three dated history lines, and the first is unchanged after the third is written.</div></div>
+    <div class="ac-row"><div class="ac-id">AC17</div><div class="ac-verifies"><span class="verify-chip">R15</span></div><div>The entry point offers no way to delete a risk, and asked to delete one it offers resolving instead.</div></div>
+    <div class="ac-row"><div class="ac-id">AC18</div><div class="ac-verifies"><span class="verify-chip">R16</span><span class="verify-chip">R17</span><span class="verify-chip">RL8</span></div><div>A change to a risk moves its changed date to today and leaves its created date as it was.</div></div>
+    <div class="ac-row"><div class="ac-id">AC19</div><div class="ac-verifies"><span class="verify-chip">R18</span><span class="verify-chip">R19</span><span class="verify-chip">RL9</span></div><div>A confirmed review with no changes moves the register's last-updated date to today and no risk's changed date; a declined review leaves the file byte-identical.</div></div>
+    <div class="ac-row"><div class="ac-id">AC20</div><div class="ac-verifies"><span class="verify-chip">R20</span><span class="verify-chip">RL12</span></div><div>Page and view list risks by state (Active, Mitigated, Accepted, Occurred, Resolved), then by score descending, then by identifier; Resolved is last and folded on the page.</div></div>
+    <div class="ac-row"><div class="ac-id">AC21</div><div class="ac-verifies"><span class="verify-chip">R21</span><span class="verify-chip">RL15</span></div><div>An opt-out "handled elsewhere" without the place is not written; with the place and a decider the register's page states the opt-out, its reason, decider and date.</div></div>
+    <div class="ac-row"><div class="ac-id">AC22</div><div class="ac-verifies"><span class="verify-chip">R22</span></div><div>An opt-out with no decider is not written.</div></div>
+    <div class="ac-row"><div class="ac-id">AC23</div><div class="ac-verifies"><span class="verify-chip">R23</span></div><div>Registering a risk where an opt-out stands produces a register whose first history line names the opt-out it replaced.</div></div>
+    <div class="ac-row"><div class="ac-id">AC24</div><div class="ac-verifies"><span class="verify-chip">RL11</span></div><div>A register with a risk missing its impact is not written to; the repair proposal lists each change as before and after; confirmed, the register reads in full, every risk and history line it held is still there, and its history ends with <em>Repaired</em>.</div></div>
+    <div class="ac-row"><div class="ac-id">AC25</div><div class="ac-verifies"><span class="verify-chip">RL13</span></div><div>Manual step: registering a risk with no area, or with an area unlike any used, prompts for nothing; giving "schedule" where "Schedule" is used asks once, and the answer is kept.</div></div>
+    <div class="ac-row"><div class="ac-id">AC26</div><div class="ac-verifies"><span class="verify-chip">RL14</span></div><div>The risk-log definition states that the register is reviewed at closure and that every risk not Resolved carries into the closure report.</div></div>
+    <div class="ac-row"><div class="ac-id">AC27</div><div class="ac-verifies"><span class="verify-chip">RL16</span></div><div>Told in Danish in an English project, the risk is not written until the shown English text is confirmed or corrected; a correction is stored as written, and people's names as given.</div></div>
+    <div class="ac-row"><div class="ac-id">AC28</div><div class="ac-verifies"><span class="verify-chip">NF1</span><span class="verify-chip">NF6</span></div><div>The register page contains no <code>&lt;script&gt;</code> and links the site's shared chrome stylesheet.</div></div>
+    <div class="ac-row"><div class="ac-id">AC29</div><div class="ac-verifies"><span class="verify-chip">NF2</span><span class="verify-chip">NF3</span></div><div>The register page states what 1 and 5 mean on both axes and the sentence that the score ranks risks and does not decide what to do.</div></div>
+    <div class="ac-row"><div class="ac-id">AC30</div><div class="ac-verifies"><span class="verify-chip">R24</span></div><div>After a registration and a confirmed review, the register's history, reached from its last-updated date, holds two lines, each with date and person; a review confirmed with participants names them in its line, and one with the question skipped names only the person.</div></div>
+    <div class="ac-row"><div class="ac-id">AC31</div><div class="ac-verifies"><span class="verify-chip">R25</span></div><div>Every history line on every risk names a person.</div></div>
+    <div class="ac-row"><div class="ac-id">AC32</div><div class="ac-verifies"><span class="verify-chip">R27</span><span class="verify-chip">RL17</span></div><div>Occurred with no reason is not set; with a reason it is set, the history line holds it, and page and view show the risk in the Occurred group.</div></div>
+    <div class="ac-row"><div class="ac-id">AC33</div><div class="ac-verifies"><span class="verify-chip">R28</span></div><div>Handing an owner's risks to a named person changes the owner on each of that owner's open risks, each with its own history line, and leaves the owner of that owner's Resolved risks as it was.</div></div>
+    <div class="ac-row"><div class="ac-id">AC34</div><div class="ac-verifies"><span class="verify-chip">R29</span></div><div>Changing the name of a Resolved risk writes the new name and a history line, and the risk is still Resolved.</div></div>
+    <div class="ac-row"><div class="ac-id">AC35</div><div class="ac-verifies"><span class="verify-chip">R30</span><span class="verify-chip">R31</span></div><div>The review shows, for every risk that is not Resolved, its area, description and mitigation; a risk with no mitigation shows <em>none written</em> in its place, and Resolved risks appear only as a count.</div></div>
+    <div class="ac-row"><div class="ac-id">AC36</div><div class="ac-verifies"><span class="verify-chip">NF4</span></div><div>With a <code>risk-log.html.new</code> left beside an unchanged register, the next run shows what it changes and renames it into place if it passes the check, else deletes it and says so; until then the register is byte-identical.</div></div>
+    <div class="ac-row"><div class="ac-id">AC37</div><div class="ac-verifies"><span class="verify-chip">NF5</span></div><div>After the first risk-log run of <code>asimov-project</code> in a repo, its <code>.gitignore</code> holds <code>project/*.new</code>, and a second run adds it no second time.</div></div>
+    <div class="ac-row"><div class="ac-id">AC38</div><div class="ac-verifies"><span class="verify-chip">R7</span></div><div>Changing <code>RISK-099</code> in a register that holds no such risk writes nothing and shows the register so the person can find the right identifier (F2).</div></div>
+    <div class="ac-row"><div class="ac-id">AC39</div><div class="ac-verifies"><span class="verify-chip">R1</span><span class="verify-chip">R21</span></div><div>Reviewing in a repo with neither a register nor an opt-out writes nothing and offers to register a risk or to record an opt-out (F4).</div></div>
+    <div class="ac-row"><div class="ac-id">AC40</div><div class="ac-verifies"><span class="verify-chip">R28</span><span class="verify-chip">RL1</span></div><div>Handing an owner's risks to <em>the project lead</em>, or handing over the risks of an owner who has no open risks, writes nothing and says why (F7).</div></div>
+  </div>
+</section>
+
+<!-- ═════════════════════ §9 ═════════════════════ -->
+<section class="s" id="s9">
+  <h2 class="section-title"><span class="sec-ref">§9</span>Open questions</h2>
+  <div class="q-grid">
+    <div class="q-card">
+      <div class="q-head"><span class="q-id">Q1</span><span class="q-decider">Simon Vilandt</span></div>
+      <div class="q-body">When the product's documentation site lists pages from <code>project/</code>, how does it show the register, and its state, so that what it shows always matches the current risks?</div>
+      <div class="q-resolution">Resolution path: settled with the site's own changes, before any page from <code>project/</code> is listed there (OOS3).</div>
+    </div>
+    <div class="q-card">
+      <div class="q-head"><span class="q-id">Q2</span><span class="q-decider">Simon Vilandt</span></div>
+      <div class="q-body">When project setup exists, the register reads the project's language from it rather than asking: what happens to a register that already holds its own?</div>
+      <div class="q-resolution">Resolution path: settled in the design of project setup, its own D101 in the <code>D101-project-management-*</code> series (OOS2).</div>
+    </div>
+    <div class="q-card">
+      <div class="q-head"><span class="q-id">Q3</span><span class="q-decider">Simon Vilandt</span></div>
+      <div class="q-body">How does a register notice an owner who has left the engagement, so their open risks do not sit with nobody?</div>
+      <div class="q-resolution">Resolution path: after use on a real engagement, or when project setup (OOS2) knows the team; until then the handover (F7, R28) is done when a person knows.</div>
+    </div>
+    <div class="q-card">
+      <div class="q-head"><span class="q-id">Q4</span><span class="q-decider">Simon Vilandt</span></div>
+      <div class="q-body">Has the register met its success measure: maintained five times by someone other than its author (§2)?</div>
+      <div class="q-resolution">Resolution path: checked once the first engagement has used the register; a yes is the evidence for moving the risk log from assess to trial.</div>
+    </div>
+  </div>
+
+  <div class="subhead">Resolved during authoring</div>
+  <div class="q-grid">
+    <div class="q-card resolved">
+      <div class="q-head"><span class="q-id">Q5</span><span class="q-decider">Resolved 2026-10-19</span></div>
+      <div class="q-body">Does a written mitigation make a risk Mitigated, as the brief proposed?</div>
+      <div class="q-resolution"><strong>Decision:</strong> no; Mitigated is set by a person, only while a mitigation is written (R10, RL6). Reopened only if the register's readers find the extra step is skipped in practice.</div>
+    </div>
+    <div class="q-card resolved">
+      <div class="q-head"><span class="q-id">Q6</span><span class="q-decider">Resolved 2026-10-19</span></div>
+      <div class="q-body">Can the register express a deliberate acceptance?</div>
+      <div class="q-resolution"><strong>Decision:</strong> yes, as the state Accepted with a reason and a named decider (R11, RL7).</div>
+    </div>
+    <div class="q-card resolved">
+      <div class="q-head"><span class="q-id">Q7</span><span class="q-decider">Resolved 2026-10-19</span></div>
+      <div class="q-body">Is a live band of register figures above the site's catalogue still wanted, or is the card the answer?</div>
+      <div class="q-resolution"><strong>Decision:</strong> the card ships now; any figures wait until the site can show them always current (Q1, OOS3).</div>
+    </div>
+    <div class="q-card resolved">
+      <div class="q-head"><span class="q-id">Q8</span><span class="q-decider">Resolved 2026-10-19</span></div>
+      <div class="q-body">Does every view of the register count as a review?</div>
+      <div class="q-resolution"><strong>Decision:</strong> no; the person confirms the review, and only then does the register's date move (R19, RL9).</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════════════════ §10 ═════════════════════ -->
+<section class="s" id="s10">
+  <h2 class="section-title"><span class="sec-ref">§10</span>References</h2>
+  <div class="refs">
+    <div class="refs-block">
+      <h4>Discipline</h4>
+      <ul>
+        <li><a href="../../plugins/asimov-plugin/processes/disciplines/risk-management.md">plugins/asimov-plugin/processes/disciplines/risk-management.md</a></li>
+      </ul>
+    </div>
+    <div class="refs-block">
+      <h4>Architecture and standards</h4>
+      <ul>
+        <li><a href="../D100-Asimov-architecture.md">documentation/D100-Asimov-architecture.md</a> (§3 the Project frame, §4.3 <code>asimov-project</code>)</li>
+        <li><a href="../../plugins/asimov-plugin/skills/asimov-project/SKILL.md">plugins/asimov-plugin/skills/asimov-project/SKILL.md</a></li>
+        <li><a href="../../plugins/asimov-plugin/artifacts/documentation/d101-feature-design/d101-feature-design-definition.md">d101-feature-design-definition.md</a></li>
+        <li><a href="../../CLAUDE.md">CLAUDE.md</a> ("How to add a project artifact", artifact maturity, hard rules 3, 6, 9, 10)</li>
+      </ul>
+    </div>
+    <div class="refs-block">
+      <h4>Sibling designs</h4>
+      <ul>
+        <li><a href="D101-design-stage.html">D101-design-stage.html</a></li>
+        <li><a href="D101-spec-stage.html">D101-spec-stage.html</a> (the fixed view)</li>
+        <li><a href="D101-build-stage.html">D101-build-stage.html</a> (the ledger, append-only state)</li>
+        <li><a href="D101-artifact-maturity.html">D101-artifact-maturity.html</a></li>
+        <li><a href="D101-asimov-init.html">D101-asimov-init.html</a> (the <code>.gitignore</code> block)</li>
+        <li><a href="D101-website.html">D101-website.html</a> (AC6 changes)</li>
+        <li><a href="D101-codex-support.html">D101-codex-support.html</a> (§6.2, the derived root)</li>
+      </ul>
+    </div>
+    <div class="refs-block">
+      <h4>Pages that change</h4>
+      <ul>
+        <li><a href="../../site/inside/project-management.html">site/inside/project-management.html</a></li>
+        <li><a href="../../site/artifacts/project-management/index.html">site/artifacts/project-management/index.html</a></li>
+        <li><a href="../../plugins/asimov-plugin/skills/asimov-project/SKILL.md">plugins/asimov-plugin/skills/asimov-project/SKILL.md</a> (the risk log's row and section)</li>
+        <li><a href="../../plugins/asimov-plugin/commands/asimov-init.md">plugins/asimov-plugin/commands/asimov-init.md</a> (the <code>.gitignore</code> block)</li>
+        <li><a href="../../plugins/asimov-plugin/skills/codex-asimov-init/SKILL.md">plugins/asimov-plugin/skills/codex-asimov-init/SKILL.md</a></li>
+      </ul>
+    </div>
+    <div class="refs-block">
+      <h4>Patterns reused</h4>
+      <ul>
+        <li><a href="../../plugins/asimov-plugin/skills/artifact-s102-validation/scripts/validate-s102.ps1">plugins/asimov-plugin/skills/artifact-s102-validation/scripts/validate-s102.ps1</a> (script shape)</li>
+        <li><a href="../../plugins/asimov-plugin/artifacts/documentation/s101-ledger/s101-ledger-definition.md">s101-ledger-definition.md</a> (append-only state, git identity)</li>
+        <li><a href="../../plugins/asimov-plugin/skills/artifact-s101-ledger/scripts/ledger.ps1">plugins/asimov-plugin/skills/artifact-s101-ledger/scripts/ledger.ps1</a> (a script beside its skill, called by full path)</li>
+        <li><a href="../../plugins/asimov-plugin/skills/artifact-s101-view/SKILL.md">plugins/asimov-plugin/skills/artifact-s101-view/SKILL.md</a> (the fixed view)</li>
+        <li><a href="../../plugins/asimov-plugin/skills/asimov-spec/SKILL.md">plugins/asimov-plugin/skills/asimov-spec/SKILL.md</a> (scripts through Bash, the .gitignore append)</li>
+        <li><a href="../model-choice.md">documentation/model-choice.md</a></li>
+        <li><a href="../../plugins/asimov-plugin/resources/diagrams/README.md">resources/diagrams/README.md</a> (§6.2 notation)</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+  </article>
+</div>
+
+<footer class="site-footer">
+  <div>
+    <a href="../index.html">← Documentation home</a>
+    · <span class="mono">features/D101-project-management-risk.html</span>
+  </div>
+  <div style="margin-top: 0.4rem">
+    D101 · Project management: risk log · asimov-plugin · Draft v0.9 · 2026-10-29
+  </div>
+</footer>
+
+</body>
+</html>

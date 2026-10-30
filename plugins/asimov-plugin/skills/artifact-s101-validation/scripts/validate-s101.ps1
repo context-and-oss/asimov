@@ -542,7 +542,7 @@ for ($i = 0; $i -lt $Phases.Count; $i++) {
   }
   if ($isSlice) {
     $testers = @($ph.Tasks | Where-Object { $_.Role -match 'tester' })
-    $builders = @($ph.Tasks | Where-Object { $_.Role -match 'builder' })
+    $builders = @($ph.Tasks | Where-Object { $_.Role -match 'builder' -or $_.Role -eq 'human' })
     if ($builders.Count -eq 0) { $res += 'Fail'; $why += "$($ph.Id) is a slice with no builder task" }
     # A builder comes after a tester of its own stack. A builder whose stack has no tester in the phase is
     # test-first (a ticket's slice, a maintenance slice, a stack with no tester role: definition section 3 and
@@ -559,7 +559,7 @@ for ($i = 0; $i -lt $Phases.Count; $i++) {
     }
       foreach ($tt in $testers) {
         foreach ($u in $UpstreamOf[$tt.Id]) {
-          if ($TaskById.ContainsKey($u) -and $TaskById[$u].Role -match 'builder' -and $SliceTaskIds -contains $u -and $TaskById[$u].Phase -ne $ph.Id) { $SeqPairs += "$($tt.Id) after $u" }
+          if ($TaskById.ContainsKey($u) -and ($TaskById[$u].Role -match 'builder' -or $TaskById[$u].Role -eq 'human') -and $SliceTaskIds -contains $u -and $TaskById[$u].Phase -ne $ph.Id) { $SeqPairs += "$($tt.Id) after $u" }
         }
       }
   } elseif ($i -gt $lastSliceIdx -and $lastSliceIdx -ge 0) {

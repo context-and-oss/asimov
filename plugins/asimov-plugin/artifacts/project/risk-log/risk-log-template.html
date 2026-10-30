@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="{{LANG}}">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{TITLE}} — {{REPO-NAME}}</title>
+<link rel="stylesheet" href="../documentation/_chrome.css">
+<!--
+  Page template for the risk log, the register of one engagement's risks.
+  Rendered by `skills/artifact-risk-log-authoring/scripts/risk-log.ps1` to
+  `project/risk-log.html` in a product repo (beside `documentation/`, so the
+  shared chrome is `../documentation/_chrome.css`). The script is the only writer.
+
+  HOW THE SCRIPT USES THIS FILE
+  - Read at every write. Substitute the {{PLACEHOLDERS}}; repeat each block
+    between a `BEGIN <name>` and `END <name>` comment once per item; keep one of
+    the two page forms (`form:kept`, `form:opt-out`) and drop the other.
+  - Read back by the same script: everything it reads is an attribute or a list
+    item named in D101 §6.4. Nothing else on the page is ever read.
+
+  THE PAGE IS THE RECORD
+  - Read back: `html[lang]`; `body` data-artifact, data-schema, data-register,
+    data-updated; `ol.register-history > li` (data-date, data-by, data-kind,
+    data-with); `section.opt-out` (data-reason, data-where, data-by, data-date);
+    `article.risk` (id, data-state, data-impact, data-probability, data-owner,
+    data-area, data-created, data-changed), its `h3 .risk-name`, `.risk-desc`,
+    `.risk-mitigation`, `ol.risk-history > li` (data-date, data-by, data-kind).
+  - Rendered only, never read back: the score (impact × probability), the
+    `table.summary`, the state counts, the state group headings, the labels.
+    A hand edit of any of these is overwritten by the next write.
+  - No score in any `data-*` attribute; no script element; no event-handler attribute.
+
+  PLACEHOLDERS
+    {{LANG}}            the project language, as a BCP 47 tag (en, da)
+    {{REPO-NAME}}       the product repo's name, for the <title>
+    {{TITLE}}           the page title: "Risk log", or on an opt-out page
+                        "No risk register kept here" (in the project language)
+    {{DESCRIPTION}}     the one-sentence description under the title; on an
+                        opt-out page, the reason (the first paragraph)
+    {{REGISTER}}        kept | opt-out
+    {{UPDATED}}         the register's last-updated date, YYYY-MM-DD
+    {{N-ACTIVE}} {{N-MITIGATED}} {{N-ACCEPTED}} {{N-OCCURRED}} {{N-RESOLVED}}
+                        the count per state (rendered)
+    In `register-line`: {{DATE}} {{BY}} {{KIND}} {{WITH}} {{TEXT}}
+      KIND: created | write | review | repair | finish | opt-out | replaced-opt-out;
+      data-with only on a review line (the participants, comma-separated).
+    In `summary-group`: {{STATE}}.
+    In `summary-row`: {{ID}} {{NAME}} {{OWNER}} {{AREA}} {{IMPACT}}
+      {{PROBABILITY}} {{SCORE}} {{CHANGED}}.
+    In `risk`: {{ID}} (RISK-NNN) {{STATE}} (Active | Mitigated | Accepted |
+      Occurred | Resolved) {{IMPACT}} {{PROBABILITY}} (1-5) {{SCORE}} {{OWNER}}
+      {{AREA}} {{CREATED}} {{CHANGED}} {{NAME}} {{DESC}} {{MITIGATION}}.
+    In `risk-line`: {{DATE}} {{BY}} {{KIND}} {{TEXT}}
+      KIND: created | change | state | renumber | repair | handover.
+    In `form:opt-out`: {{REASON}} (elsewhere | not-worked) {{REASON-TEXT}}
+      {{WHERE}} {{DECIDER}} {{DATE}} {{LANGUAGE}}.
+
+  REPEATED BLOCKS
+    register-line   one per update of the register, newest first; only appended to
+    summary-group   one per state that holds a risk, in the order below
+    summary-row     one per risk, inside its state's group
+    state-group     one per open state that holds a risk: Active, Mitigated,
+                    Accepted, Occurred, in that order
+    risk            one per risk; within a group by score descending, then id
+    risk-desc       present only when the risk has a description
+    risk-mitigation present only when the risk has a mitigation; else risk-none
+    risk-line       one per change of the risk, oldest first; only appended to
+    resolved-group  present only when a risk is Resolved: always last, folded
+    empty-note      present only when no risk is open (every risk Resolved)
+    counts          on the kept form only (the opt-out page has no risks to count)
+
+  ORDER (RL12): by state Active, Mitigated, Accepted, Occurred, Resolved;
+  then by score descending; then by identifier. Resolved is last and folded.
+-->
+<style>
+/* Risk-log components; tokens and chrome come from _chrome.css. */
+.page { max-width: 1100px; margin: 0 auto; padding: 1.6rem 2rem 3rem; }
+h1 { font-size: 2.3rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.15; }
+.lead { margin-top: 0.6rem; color: var(--text-dim); max-width: 760px; }
+h2 { font-size: 1.25rem; font-weight: 700; margin: 2rem 0 0.7rem; padding-bottom: 0.35rem; border-bottom: 1px solid var(--border); }
+.status-line { display: flex; flex-wrap: wrap; gap: 0.6rem 1.2rem; align-items: center; margin-top: 0.9rem; color: var(--text-dim); font-size: 0.9rem; }
+.updated { position: relative; }
+.updated details { display: inline-block; }
+.updated summary { list-style: none; cursor: pointer; display: inline-flex; gap: 0.4rem; align-items: center; }
+.updated summary::-webkit-details-marker { display: none; }
+.updated .date { font-family: 'JetBrains Mono', monospace; color: var(--text); }
+.updated .i { display: inline-flex; width: 17px; height: 17px; border-radius: 50%; border: 1px solid var(--border-2); color: var(--text-mute); font-size: 0.7rem; font-weight: 700; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; }
+.updated details[open] .i { border-color: var(--cyan); color: var(--cyan); }
+.reg-history { position: absolute; top: 1.8rem; left: 0; z-index: 20; min-width: 420px; background: var(--bg2); border: 1px solid var(--border-2); border-radius: 8px; padding: 0.7rem 0.9rem; box-shadow: 0 10px 30px #0008; }
+.reg-history .hd { font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-mute); margin-bottom: 0.4rem; }
+ol.register-history, ol.risk-history { list-style: none; }
+ol.register-history li, ol.risk-history li { font-size: 0.82rem; color: var(--text-dim); padding: 0.18rem 0; }
+ol.register-history time, ol.risk-history time { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: var(--text); margin-right: 0.5rem; }
+.who { color: var(--cyan); }
+.counts { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+.chip { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; font-weight: 700; padding: 0.15rem 0.55rem; border-radius: 999px; border: 1px solid; letter-spacing: 0.04em; }
+.chip.Active { color: var(--amber); border-color: #ffb74d55; background: #ffb74d14; }
+.chip.Mitigated { color: var(--cyan); border-color: #4fc3f755; background: #4fc3f714; }
+.chip.Accepted { color: var(--violet); border-color: #ab47bc66; background: #ab47bc18; }
+.chip.Occurred { color: var(--coral); border-color: #ef535055; background: #ef535014; }
+.chip.Resolved { color: var(--green); border-color: #66bb6a55; background: #66bb6a14; }
+.anchors { margin-top: 1.2rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; }
+.anchors summary { cursor: pointer; padding: 0.6rem 1rem; font-size: 0.85rem; color: var(--text-dim); }
+.anchors .body { padding: 0 1rem 0.9rem; font-size: 0.85rem; color: var(--text-dim); }
+.anchors table { width: 100%; border-collapse: collapse; margin: 0.4rem 0 0.6rem; }
+.anchors td, .anchors th { padding: 0.35rem 0.6rem; border-bottom: 1px solid var(--border); text-align: left; }
+.anchors th { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-mute); }
+.caveat { border-left: 3px solid var(--gold); padding: 0.4rem 0.7rem; background: #ffd54f10; color: var(--text); }
+table.summary { width: 100%; border-collapse: collapse; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; font-size: 0.85rem; }
+table.summary th { background: var(--bg2); font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-mute); text-align: left; padding: 0.5rem 0.7rem; }
+table.summary td { padding: 0.5rem 0.7rem; border-top: 1px solid var(--border); color: var(--text-dim); vertical-align: top; }
+table.summary td.id a { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; }
+table.summary td.num { font-family: 'JetBrains Mono', monospace; text-align: right; }
+table.summary td.score { font-weight: 700; color: #fff; }
+table.summary tr.group td { background: var(--bg2); font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-mute); padding: 0.3rem 0.7rem; }
+.state-group > h3 { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-mute); margin-top: 1.2rem; }
+article.risk { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.2rem; margin: 0.8rem 0; scroll-margin-top: 80px; }
+article.risk:target { border-color: var(--cyan); box-shadow: 0 0 0 1px var(--cyan); }
+article.risk h3 { font-size: 1.02rem; font-weight: 700; display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap; }
+article.risk h3 .rid { font-family: 'JetBrains Mono', monospace; color: var(--cyan); font-size: 0.88rem; }
+article.risk h3 .sc { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--text-mute); margin-left: auto; }
+.fields { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; margin: 0.7rem 0; }
+.fields div { background: var(--bg2); padding: 0.4rem 0.6rem; font-size: 0.82rem; }
+.fields .l { display: block; font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); }
+article.risk p { font-size: 0.88rem; color: var(--text-dim); margin: 0.3rem 0; }
+article.risk .lbl { font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); margin-top: 0.6rem; }
+article.risk .none { color: var(--text-mute); font-style: italic; }
+details.resolved-group > summary { cursor: pointer; color: var(--text-dim); font-size: 0.9rem; padding: 0.4rem 0; }
+.empty-note { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 0.9rem 1.1rem; color: var(--text-dim); margin-top: 0.8rem; }
+section.opt-out { background: var(--bg-card); border: 1px solid var(--border); border-left: 4px solid var(--violet); border-radius: 10px; padding: 1.2rem 1.4rem; margin-top: 1.4rem; }
+section.opt-out dl { display: grid; grid-template-columns: 140px 1fr; gap: 0.4rem 1rem; font-size: 0.9rem; }
+section.opt-out dt { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-mute); padding-top: 0.2rem; }
+section.opt-out dd { color: var(--text); }
+section.opt-out p { color: var(--text-dim); margin-top: 1rem; font-size: 0.88rem; }
+@media (max-width: 760px) { .fields { grid-template-columns: repeat(2, 1fr); } .reg-history { min-width: 280px; } section.opt-out dl { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body data-artifact="risk-log" data-schema="1" data-register="{{REGISTER}}" data-updated="{{UPDATED}}">
+
+<nav class="top-nav">
+  <span class="brand"><a href="../documentation/index.html">{{REPO-NAME}}</a><span class="sep">/</span>project</span>
+</nav>
+
+<main class="page">
+<div class="doc-kicker">Project · Risk log</div>
+<h1>{{TITLE}}</h1>
+<p class="lead">{{DESCRIPTION}}</p>
+
+<div class="status-line">
+  <span class="updated">
+    <details>
+      <summary>Last updated <span class="date">{{UPDATED}}</span> <span class="i" title="Who updated the register, and when">i</span></summary>
+      <div class="reg-history">
+        <div class="hd">Register history</div>
+        <ol class="register-history">
+          <!-- BEGIN register-line -->
+          <li data-date="{{DATE}}" data-by="{{BY}}" data-kind="{{KIND}}" data-with="{{WITH}}"><time>{{DATE}}</time><span class="who">{{BY}}</span> · {{TEXT}}</li>
+          <!-- END register-line -->
+        </ol>
+      </div>
+    </details>
+  </span>
+  <!-- BEGIN counts -->
+  <span class="counts"><span class="chip Active">{{N-ACTIVE}} Active</span><span class="chip Mitigated">{{N-MITIGATED}} Mitigated</span><span class="chip Accepted">{{N-ACCEPTED}} Accepted</span><span class="chip Occurred">{{N-OCCURRED}} Occurred</span><span class="chip Resolved">{{N-RESOLVED}} Resolved</span></span>
+  <!-- END counts -->
+</div>
+
+<!-- BEGIN form:kept -->
+<details class="anchors">
+  <summary>How risks are scored</summary>
+  <div class="body">
+    <table>
+      <tr><th></th><th>1</th><th>5</th></tr>
+      <tr><td>Impact</td><td>A nuisance, absorbed within the week</td><td>Threatens the engagement's goal or its contract</td></tr>
+      <tr><td>Probability</td><td>Would surprise us</td><td>Expected unless we act</td></tr>
+    </table>
+    <div class="caveat">The score ranks risks against each other. It does not tell you what to do.</div>
+  </div>
+</details>
+
+<h2>Summary</h2>
+<table class="summary">
+  <tr><th>ID</th><th>Risk</th><th>Owner</th><th>Area</th><th>I</th><th>P</th><th>Score</th><th>Changed</th></tr>
+  <!-- BEGIN summary-group -->
+  <tr class="group"><td colspan="8">{{STATE}}</td></tr>
+  <!-- BEGIN summary-row -->
+  <tr><td class="id"><a href="#{{ID}}">{{ID}}</a></td><td>{{NAME}}</td><td>{{OWNER}}</td><td>{{AREA}}</td><td class="num">{{IMPACT}}</td><td class="num">{{PROBABILITY}}</td><td class="num score">{{SCORE}}</td><td class="mono">{{CHANGED}}</td></tr>
+  <!-- END summary-row -->
+  <!-- END summary-group -->
+</table>
+
+<h2>Risks</h2>
+<!-- BEGIN empty-note -->
+<div class="empty-note">No open risks. Every registered risk is resolved; they stay below with their history.</div>
+<!-- END empty-note -->
+
+<!-- BEGIN state-group -->
+<section class="state-group">
+<h3>{{STATE}}</h3>
+<!-- BEGIN risk -->
+<article class="risk" id="{{ID}}" data-state="{{STATE}}" data-impact="{{IMPACT}}" data-probability="{{PROBABILITY}}" data-owner="{{OWNER}}" data-area="{{AREA}}" data-created="{{CREATED}}" data-changed="{{CHANGED}}">
+  <h3><span class="rid">{{ID}}</span><span class="risk-name">{{NAME}}</span> <span class="chip {{STATE}}">{{STATE}}</span><span class="sc">score {{SCORE}}</span></h3>
+  <div class="fields"><div><span class="l">Owner</span>{{OWNER}}</div><div><span class="l">Area</span>{{AREA}}</div><div><span class="l">Impact</span>{{IMPACT}}</div><div><span class="l">Probability</span>{{PROBABILITY}}</div><div><span class="l">Created</span><span class="mono">{{CREATED}}</span></div><div><span class="l">Changed</span><span class="mono">{{CHANGED}}</span></div></div>
+  <!-- BEGIN risk-desc -->
+  <p class="risk-desc">{{DESC}}</p>
+  <!-- END risk-desc -->
+  <div class="lbl">Mitigation</div>
+  <!-- BEGIN risk-mitigation -->
+  <p class="risk-mitigation">{{MITIGATION}}</p>
+  <!-- END risk-mitigation -->
+  <!-- BEGIN risk-none -->
+  <p><span class="none">None written yet.</span></p>
+  <!-- END risk-none -->
+  <div class="lbl">History</div>
+  <ol class="risk-history">
+    <!-- BEGIN risk-line -->
+    <li data-date="{{DATE}}" data-by="{{BY}}" data-kind="{{KIND}}"><time>{{DATE}}</time><span class="who">{{BY}}</span> · {{TEXT}}</li>
+    <!-- END risk-line -->
+  </ol>
+</article>
+<!-- END risk -->
+</section>
+<!-- END state-group -->
+
+<!-- BEGIN resolved-group -->
+<details class="resolved-group">
+  <summary>Resolved ({{N-RESOLVED}})</summary>
+  <!-- the same `risk` block, once per Resolved risk -->
+</details>
+<!-- END resolved-group -->
+<!-- END form:kept -->
+
+<!-- BEGIN form:opt-out -->
+<section class="opt-out" data-reason="{{REASON}}" data-where="{{WHERE}}" data-by="{{DECIDER}}" data-date="{{DATE}}">
+  <dl>
+    <dt>Reason</dt><dd>{{REASON-TEXT}}</dd>
+    <dt>Where</dt><dd>{{WHERE}}</dd>
+    <dt>Decided by</dt><dd>{{DECIDER}}</dd>
+    <dt>Date</dt><dd class="mono">{{DATE}}</dd>
+    <dt>Language</dt><dd>{{LANGUAGE}}</dd>
+  </dl>
+  <p>Registering a risk replaces this page with a register, and the register's first history line names this opt-out.</p>
+</section>
+<!-- END form:opt-out -->
+</main>
+
+<footer class="site-footer"><a href="../documentation/index.html">← Documentation home</a> · <span class="mono">project/risk-log.html</span></footer>
+</body>
+</html>
