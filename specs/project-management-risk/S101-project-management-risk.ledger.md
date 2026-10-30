@@ -70,9 +70,9 @@ phases:
       - { id: T013, status: done, attempts: 2, agent: human-in-session, model: session }
       - { id: T014, status: done, attempts: 3, agent: human-in-session, model: session }
   - id: P10
-    status: passed
-    commit: none
-    go: none
+    status: committed
+    commit: "ca979b1"
+    go: { by: "SimonVilandt", date: "2026-10-30" }
     tasks:
       - { id: T015, status: done, attempts: 2, agent: human-in-session, model: session }
       - { id: T016, status: done, attempts: 1, agent: human-in-session, model: session }
@@ -1389,3 +1389,6 @@ Verifying P10: 2 task specs, 4 done-whens, checkpoint "The website's two Project
 Note (uncertain): the check command only shows the five files are modified; it does not test that the pages "name the risk log as available" or that the documents "agree with what shipped". As a supplementary read-only grep (not part of the check as written): `grep -ci "planned|nothing yet"` → 0 in both website pages; `grep -c risk` → 9 in site/inside/project-management.html, 5 in site/artifacts/project-management/index.html. I did not read the page content for agreement with the shipped plugin.
 
 Verified: 4 pass · 0 fail · checkpoint met
+
+### commit · ca979b1
+go by SimonVilandt on 2026-10-30 · 5 files · ledger
