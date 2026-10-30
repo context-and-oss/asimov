@@ -61,21 +61,21 @@ phases:
     tasks:
       - { id: T010, status: done, attempts: 3, agent: human-in-session, model: session }
   - id: P9
-    status: passed
-    commit: none
-    go: none
+    status: committed
+    commit: "6a384d3"
+    go: { by: "SimonVilandt", date: "2026-10-30" }
     tasks:
       - { id: T011, status: done, attempts: 2, agent: human-in-session, model: session }
       - { id: T012, status: done, attempts: 3, agent: human-in-session, model: session }
       - { id: T013, status: done, attempts: 2, agent: human-in-session, model: session }
       - { id: T014, status: done, attempts: 3, agent: human-in-session, model: session }
   - id: P10
-    status: pending
+    status: passed
     commit: none
     go: none
     tasks:
-      - { id: T015, status: pending, attempts: 0, agent: none, model: none }
-      - { id: T016, status: pending, attempts: 0, agent: none, model: none }
+      - { id: T015, status: done, attempts: 2, agent: human-in-session, model: session }
+      - { id: T016, status: done, attempts: 1, agent: human-in-session, model: session }
 ---
 
 # Ledger — project-management-risk
@@ -1258,3 +1258,134 @@ Test count 79 on both editions, the same as P8's figure although `risk-log.Tests
 Working tree unchanged by this run: `git status --short` hash identical before and after; every command read-only (Pester runs only read the test file); scratch output to the scratchpad.
 
 Verified: 8 pass · 0 fail · checkpoint met (check command and done-whens only; hand run not yet done). Extra Pester check: 2 pass · 0 fail.
+
+### commit · 6a384d3
+go by SimonVilandt on 2026-10-30 · 9 files · ledger
+
+## P10 · Website and records
+
+### T015 · attempt 1 · human-in-session · session
+Conventions read: none (this repo has no documentation/conventions/); CLAUDE.md, the mockup site-project-management.html (its After this design state) and site/artifacts/documentation/s101.html (chip and source links) instead.
+built T015 (human task, built in the session that directs the run)
+- site/inside/project-management.html: the "More skills are planned … pm-*" bullet removed; "What lands in your repo" now names the risk log at project/risk-log.html, a table of three things you say (/asimov-project risk log; …, add …; …, accept RISK-004), the four principles, the Codex invocation, and the next two Project-frame artifacts; the delivery model and Ask it sections unchanged.
+- site/artifacts/project-management/index.html: the planned chip and "none has landed yet" gone; the lede says where the frame's pages land; a Risk log section with an assess chip (equal to the definition's maturity), Produced by / Lands in / Source (Definition · Template on GitHub), and a link to the story.
+- documentation/features/D101-website.html: R6 and AC6 say what the two pages now say; Draft v0.4 -> v0.5 (2026-10-30), in the same change as the pages.
+- Done-when 1: node documentation/website/check-links.mjs -> "ok: 22 page(s), all links resolve", exit 0. Done-when 2: the three files modified, nothing else. Neither page contains "planned" or "Nothing yet".
+gaps: 0 · flags: 0
+
+### T016 · attempt 1 · human-in-session · session
+Conventions read: none (this repo has no documentation/conventions/); CLAUDE.md itself and D100 instead.
+built T016 (human task, built in the session that directs the run)
+- D100: §3 says the risk log is built (2026-10-30) and how it is kept; §4.3's asimov-project row is no longer a skeleton or "in flight"; §4.6 gains rows for artifact-risk-log-authoring (with its script) and artifact-risk-log-view; §5's tree shows the two skills, the script and artifacts/project/risk-log/ with its definition and template, and asimov-project no longer "a skeleton"; §5's present-state paragraph names the risk log as of 2026-10-30; §9 drops the risk log. The §4.5 rows (T011's) untouched.
+- CLAUDE.md: the quick map gains the two skills, the script and the artifact folder, asimov-project no longer a skeleton; "How to add a project artifact" says the risk log is built; hard rule 9's seventh literal names the risk log's skills and definition and the project/*.new pattern in the block both init entry points write and asimov-project appends, and the cache-pattern sentence notes the init entry points' five-pattern form; Current state gains a "The risk log is built" paragraph (the run, the script, the rulings, and what is not yet done: the hand run, asimov-spec's four patterns).
+- Done-when 1: both files modified, nothing else. Done-when 2: git diff --check exits 0.
+gaps: 0 · flags: 1
+- flag: asimov-spec's Step 01 still appends four patterns (no project/*.new) and this repo's own .gitignore has no project/*.new; recorded in CLAUDE.md's Current state as not yet done, for a follow-up.
+
+### review
+Conventions read: `CLAUDE.md` (hard rules 6, 9, 10; "How to add a project artifact"; the quick map) as the repo's conventions (`documentation/conventions/` does not exist); house style `site/artifacts/documentation/s101.html` and the *After this design* state of `documentation/features/mockups/d101-project-management-risk/site-project-management.html`. Also read for the claims: `plugins/asimov-plugin/artifacts/project/risk-log/risk-log-definition.md`, `skills/asimov-project/SKILL.md`, `skills/artifact-risk-log-authoring/SKILL.md`, `skills/artifact-risk-log-view/SKILL.md`, `risk-log.ps1` (parameters), the S101 and its ledger, `commands/asimov-init.md`, `skills/codex-asimov-init/SKILL.md`, `skills/asimov-spec/SKILL.md` (the `.gitignore` block).
+
+Reviewing: HEAD (uncommitted) — 5 files, against S102 T015 and T016. (`specs/project-management-risk/S101-project-management-risk.ledger.md` also shows as modified; it's build bookkeeping and in no `owns`, so not reviewed.)
+
+## Conventions (CLAUDE.md hard rule 6 / drift; house style)
+
+| # | File:line | Severity | Reason |
+|---|---|---|---|
+| 1 | `site/artifacts/project-management/index.html:7` | **Fail** | The meta description still reads "nothing has landed in this area yet" on a page that now lists the risk log as built — the "Nothing yet" claim T015 exists to remove, in a form the AC4 word check doesn't catch (hard rule 6). |
+| 2 | `site/inside/project-management.html:6` | Flag | The meta description still ends "and the artifacts to come" while the page now shows the first artifact (hard rule 6). |
+| 3 | `documentation/features/D101-website.html:361, 429–431, 610` | **Fail** | The document now contradicts its own R6/AC6: line 361 "no table yet: one lede with the *planned* chip"; the decision row at 429–431 says the area page "stays planned" because "no project-management artifact exists yet"; the §4.4 table row at 610 lists project-management as definition "none", level "planned". Drift of exactly the kind hard rule 6 names, in a file T015 owns and edits in this very diff. |
+| 4 | `documentation/features/D101-website.html:354, 689–690` | Flag | Line 354 says the page tells "what will land under Artifacts"; Q3's resolution path reads "closes when the first project-management artifact lands" — which has now happened, so the question is left open without a note. Author may want to close it. |
+| 5 | `site/artifacts/project-management/index.html:32–38` | Flag | The `<dl>` has no `class="meta"`; `site.css:83–86` styles only `.meta`, and `s101.html:39` uses it — the Produced by / Lands in / Source rows render unstyled. S102 T015 §4 Prefer asks for `s101.html`'s form. |
+| 6 | `site/inside/index.html:302` | Flag | Outside T015's `owns` (not an edit for this task), but "first of a planned family" is the last public `pm-*` "planned" claim; this diff removes the matching bullet from `inside/project-management.html`, so the two now disagree. |
+| 7 | `CLAUDE.md:356, 358, 370` | Pass | Keep "four cache patterns", "in flight on PR 34", "skeleton"/"empty table" — but these are dated history entries; 370 now ends "arrived with PR 34; see the next paragraph", and `asimov-spec` Step 01 still appends four patterns, so the 2026-10-07 text was and is true. |
+| 8 | `CLAUDE.md` hard rule 9 / `.gitignore` block | Pass | "four-pattern block" wording gone; now says `project/*.new` is in "the init entry points' five-pattern form", matching `commands/asimov-init.md:168–176` and `codex-asimov-init/SKILL.md:194–202`, and names `asimov-project` as the appender (matches `asimov-project/SKILL.md:67`). |
+| 9 | `documentation/D100-Asimov-architecture.md` | Pass | No "in flight", "skeleton", "empty artifact table" or "planned" left for the risk log; §9 row removed; `git diff --check` clean on D100 and `CLAUDE.md`. |
+
+## Correctness & safety (claims checked against the built files)
+
+| File:line | Severity | Reason |
+|---|---|---|
+| `site/inside/project-management.html:~124, 130` | Flag | "Nothing beyond Active is set without a reason and a person" carries over from the mockup; by definition §3.2 only Accepted needs a named decider (Mitigated needs a written mitigation). The person is the history line's author (RL10), so the claim holds only in that reading. **Uncertain** — wording call for the author. |
+| `site/inside/project-management.html` (table, flows, bullets) | Pass | Sorted by state then score = RL12; "mark reviewed today" question matches the skill; next number = RL3; Occurred/Mitigated/Resolved take a reason = §3.2; history only grows / no deletion = RL10 and the verbs table; score ranks, doesn't decide; opt-out in the register's place = RL15; Codex form `$asimov-plugin:asimov-project risk log`. |
+| `site/artifacts/project-management/index.html` | Pass | `assess` chip equals the definition's `maturity: assess`; both GitHub paths exist in the plugin; `project/risk-log.html` and "beside `documentation/` and `specs/`" right; `#artifacts` anchor exists at `inside/project-management.html:117`; `node documentation/website/check-links.mjs` → `ok: 22 page(s), all links resolve`. |
+| `CLAUDE.md` quick map + new "The risk log is built" paragraph | Pass | Both skills and the script exist; flags `-Read -View -Apply -Repair -Finish`; 79 Pester tests on 7 and 5.1 match the ledger; 11 phases / 16 tasks / every task `role: human` match the S101; `:2:`/`:3:` repair = RL11; "area none written" in `risk-log.ps1:1035`; definition and template at `assess`. |
+| `documentation/D100-Asimov-architecture.md` §3, §4.3, §4.6, §5, §9 | Pass | §4.6 rows and §5 tree entries match the files; "what exists today" paragraph names them; the §4.5 rows for the pair already exist at 144–145 (T011's), so T016's stop condition does not fire. |
+
+## Against the spec
+
+| File:line | S102 · line | Severity | Reason |
+|---|---|---|---|
+| `site/artifacts/project-management/index.html:7` | T015 · §1 Intent (line 27) | **Fail** | The intent is that no public page says nothing has landed once the plugin carries the register; the meta description still does. |
+| `documentation/features/D101-website.html:361, 429–431, 610` | T015 · §4 Must "AC6 … say what the two pages now say" (line 43) | Flag | The literal Must is met (R6/AC6 updated, version → Draft v0.5 dated 2026-10-30), but the same document still states the opposite in these places (Conventions #3). |
+| `site/artifacts/project-management/index.html:32` | T015 · §4 Prefer (line 45) | Flag | `s101.html`'s form is `<dl class="meta">`; this page omits `class="meta"`. |
+| `site/inside/project-management.html`, `site/artifacts/project-management/index.html` | T015 · §4 Must (lines 40–42) | Pass | "Nothing yet" replaced by the risk log in the *After this design* state; `pm-*` planned bullet removed; "planned" chip dropped, `assess` chip with Definition and Template links added; neither page contains "planned"/"Nothing yet"; *delivery model* and *Ask it* sections untouched. |
+| all five files | T015 · §4 Must not (line 44); T016 · §4 Must not (line 44) | Pass | No page added, no navigation changed, no phase-diagram box; D100 §4.5 rows, `model-choice.md` and both plugin manifests untouched. |
+| `CLAUDE.md`, `D100-Asimov-architecture.md` | T016 · §4 Must (lines 40–43) | Pass | §3/§4.3/§4.6 moved; §5 shows the artifact folder and the script beside its skill; §9 drops the risk log; quick map, "How to add a project artifact", "Current state" and hard rule 9 updated. |
+| T015/T016 done-whens | §3 | Pass | Link check exits 0; `git diff --check` on D100/`CLAUDE.md` clean; `git status` lists show the expected files modified (read the lists; did not run the verifier's full sequence). |
+
+Findings only — no approval verdict. Route fixes to the .NET builder / Angular builder / tester; the approval call stays with the human reviewer.
+
+### T015 · attempt 2 · human-in-session · session
+Conventions read: none (this repo has no documentation/conventions/); CLAUDE.md, s101.html and the mockup instead.
+built T015 attempt 2, against P10 review round 1
+- Fail (artifacts page meta description "nothing has landed"): now "Project-management artifacts: the risk log, kept in your repo's project/ through asimov-project."
+- Fail (D101-website.html contradicting its own R6/AC6): line 354 says what lands under Artifacts (the risk log first); line 361 says the area page lists its artifacts with chip, definition and template; the decision row says the area page lists the frame's artifacts, never a skill as an artifact; the §4.4 chip table moves project-management out of the "none / planned" row into its own row (risk-log-definition.md, assess); Q3, Allan Borup's, keeps its question open with a note that the first artifact landed 2026-10-30 and is listed.
+- Flags: the inside page's meta description names the risk log instead of "the artifacts to come"; the artifacts page's <dl> carries class="meta" as s101.html does; "Every decision has a name on it" now says every change of state carries a reason and its author, and an acceptance names who decided.
+- Not changed: site/inside/index.html line 302 ("first of a planned family") is outside T015's owns; raised for the person.
+- Done-whens: link check "ok: 22 page(s), all links resolve"; the three files modified, nothing else; neither page contains "planned", "Nothing yet" or "nothing has landed".
+gaps: 0 · flags: 1
+- flag: site/inside/index.html still calls pm-advisor "the first of a planned family".
+
+### review
+Conventions read: `CLAUDE.md` (hard rules 6, 9, 10; "How to add a project artifact") as the repo's conventions (`documentation/conventions/` does not exist); house style `site/artifacts/documentation/s101.html` and the *After this design* state of `documentation/features/mockups/d101-project-management-risk/site-project-management.html`. Also re-read for the claims: `risk-log-definition.md` §3.2 and RL5–RL7, `asimov-project/SKILL.md`.
+
+Reviewing: HEAD (uncommitted), round 2 — the same 5 files, against S102 T015 (attempt 2) and T016. T016's files (`CLAUDE.md`, `documentation/D100-Asimov-architecture.md`) show the same diff size as in round 1 (18 and 19 lines), so my round-1 pass on them stands; the three T015 files re-diffed in full.
+
+## Round-1 findings re-checked
+
+| Round 1 | Now | Status |
+|---|---|---|
+| Fail — `site/artifacts/project-management/index.html:7` meta description "nothing has landed in this area yet" | "Project-management artifacts: the risk log, kept in your repo's project/ through asimov-project." | **Closed** |
+| Fail — `D101-website.html` 361, 429–431, 610 contradicted R6/AC6 | 361 says the area page lists its artifacts, the risk log first, with chip, definition and template, and a pointer to the story; decision row 429–431 says the area page "lists the frame's artifacts" (the risk log "since 2026-10-30"); 610 drops project-management from the "none / planned" row and adds `artifacts/project-management/index.html (risk log)` · `risk-log-definition.md` · `assess` (equals the definition's `maturity`). | **Closed** |
+| Flag — `D101-website.html` 354 and Q3 | 354 now "what lands under Artifacts (the risk log first)"; Q3's resolution path adds that the first artifact landed 2026-10-30 and names what is still open (`pm-*` pages, a delivery-model nav item). | **Closed** |
+| Flag — `site/inside/project-management.html:7` meta description "the artifacts to come" | now "… and the risk log that lands in your repo" | **Closed** |
+| Flag — `<dl>` without `class="meta"` | `<dl class="meta">`, as `s101.html:39` | **Closed** |
+| Flag — "Nothing beyond Active is set without a reason and a person" | "Every change of state carries a reason and the person who made it; an acceptance also names who decided it." — matches definition §3.2 / RL5, RL7, RL10. | **Closed** |
+
+## Conventions (hard rule 6, house style)
+
+| File:line | Severity | Reason |
+|---|---|---|
+| all five files | Pass | Word check for "planned", "Nothing yet", "nothing has landed", "to come", "will land", "no table" finds nothing in the two site pages; in `D101-website.html` the only remaining `pm-*` mentions are line 299 (§2 background), OOS2 and the decision row at 434, which describe the still-open Q3 question of whether `pm-*` skills get pages — not drift. `node documentation/website/check-links.mjs` → `ok: 22 page(s), all links resolve`; `git diff --check` clean on the three T015 files. |
+| `site/inside/index.html:302` | Flag | Outside T015's `owns` by design and raised to the person, as you said. "first of a planned family" is now the only public `pm-*` "planned" claim and no longer matches the inside page, where that bullet was removed. |
+
+## Correctness & safety
+
+| File:line | Severity | Reason |
+|---|---|---|
+| `site/inside/project-management.html`, `site/artifacts/project-management/index.html`, `documentation/features/D101-website.html` | Pass | The edits break nothing found: every claim on the pages still matches the definition and `asimov-project`; the `#artifacts` anchor still exists; the Version/footer moves to Draft v0.5, 2026-10-30, in both places; AC6 and R6 agree with the pages. |
+
+## Against the spec
+
+| File:line | S102 · line | Severity | Reason |
+|---|---|---|---|
+| T015 files | T015 · §4 Must (40–43), Prefer (45), Intent (27) | Pass | Every Must holds; the Prefer is met with `dl.meta`; no page tells a reader nothing has landed. |
+| T015 files | T015 · §4 Must not (44) | Pass | No page added, navigation unchanged, no Project-column box in the phase diagram. |
+| all five files | T015 · §3, T016 · §3 | Pass | Link check exits 0; `git diff --check` clean; `git status` shows the owned files modified plus the ledger (build bookkeeping, in no `owns`). Read the lists; did not run the verifier's full sequence. |
+
+Findings only — no approval verdict. Route fixes to the .NET builder / Angular builder / tester; the approval call stays with the human reviewer.
+
+### verify
+Verifying P10: 2 task specs, 4 done-whens, checkpoint "The website's two Project frame pages name the risk log as available, and the architecture, the repo guide and the website's design agree with what shipped."
+
+| Task | Check | Result | Evidence |
+|---|---|---|---|
+| T015 | done-when 1: `node documentation/website/check-links.mjs` exits 0 and prints `ok:` with every page's links resolving | pass | `node documentation/website/check-links.mjs` → `ok: 22 page(s), all links resolve` (exit 0) |
+| T015 | done-when 2: `git status --short -- site/inside/project-management.html site/artifacts/project-management/index.html documentation/features/D101-website.html` prints the three files as modified and nothing else | pass | → ` M documentation/features/D101-website.html`, ` M site/artifacts/project-management/index.html`, ` M site/inside/project-management.html` (3 lines) |
+| T016 | done-when 1: `git status --short -- documentation/D100-Asimov-architecture.md CLAUDE.md` prints both files as modified and nothing else | pass | → ` M CLAUDE.md`, ` M documentation/D100-Asimov-architecture.md` (2 lines) |
+| T016 | done-when 2: `git diff --check -- documentation/D100-Asimov-architecture.md CLAUDE.md` exits 0 | pass | no output, exit 0 |
+| P10 | checkpoint: the check `git status --short -- <the five files>` (as written in the plan) | met | the command lists exactly the five files, all ` M`: CLAUDE.md, documentation/D100-Asimov-architecture.md, documentation/features/D101-website.html, site/artifacts/project-management/index.html, site/inside/project-management.html |
+
+Note (uncertain): the check command only shows the five files are modified; it does not test that the pages "name the risk log as available" or that the documents "agree with what shipped". As a supplementary read-only grep (not part of the check as written): `grep -ci "planned|nothing yet"` → 0 in both website pages; `grep -c risk` → 9 in site/inside/project-management.html, 5 in site/artifacts/project-management/index.html. I did not read the page content for agreement with the shipped plugin.
+
+Verified: 4 pass · 0 fail · checkpoint met

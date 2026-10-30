@@ -3,7 +3,7 @@ spec: S101
 slug: "project-management-risk"
 title: "Risk log"
 design: { ref: documentation/features/D101-project-management-risk.html, version: "0.9" }
-status: in progress
+status: done
 approved: { by: "SimonVilandt", date: "2026-10-29", fingerprint: "1bb81caedb63" }
 version: 0.1
 author: "Simon Vilandt"

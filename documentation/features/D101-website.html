@@ -238,7 +238,7 @@ footer.site-footer a { color: var(--cyan); }
   <a href="../index.html#s6">Diagrams</a>
   <span class="spacer"></span>
   <span class="phase-chip full">Full design</span>
-  <span class="status-chip">Draft v0.4</span>
+  <span class="status-chip">Draft v0.5</span>
 </nav>
 
 <div class="layout-doc">
@@ -310,7 +310,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="req"><div class="id">R3</div><div class="body">Every artifact page shows the artifact's maturity level from its definition, or <em>planned</em> when no definition exists.</div></div>
     <div class="req"><div class="id">R4</div><div class="body">Every page carries the same navigation: Home · Why · How it works · What's inside · Artifacts (Documentation, Project management, General) · AI transition · Get started.</div></div>
     <div class="req"><div class="id">R5</div><div class="body">"What's inside" is an overview that describes each kind of thing in the plugin in one sentence, without counts, and links to one page per kind under the same sub-nav.</div></div>
-    <div class="req"><div class="id">R6</div><div class="body">Project management is told under "What's inside": the delivery model, the advisor that reads it, and that a <code>pm-*</code> family is planned. The area page under Artifacts stays <em>planned</em>, names no skill, and points to the story until the first artifact lands.</div></div>
+    <div class="req"><div class="id">R6</div><div class="body">Project management is told under "What's inside": the delivery model, the advisor that reads it, and what lands in the repo: the risk log at <code>project/risk-log.html</code>, kept through <code>asimov-project</code>. The area page under Artifacts lists the risk log as the first artifact, with its maturity chip and its definition and template, and points to the story.</div></div>
     <div class="req"><div class="id">R7</div><div class="body">The three stub pages (personas, conventions, asimov.md) carry content in the artifact-page shape (§4.3).</div></div>
     <div class="req"><div class="id">R8</div><div class="body">Every internal link resolves to a file.</div></div>
   </div>
@@ -351,14 +351,14 @@ footer.site-footer a { color: var(--cyan); }
   <ul class="bullets">
     <li>Home shows L2 to L3, the nine stages, and three worked examples of the tooling in use.</li>
     <li>What's inside is an overview: one sentence and a link per kind. Each kind has its own narrative page under the same sub-nav: commands, skills, personas, agents, project management. Skills are the method layer under the other kinds, so their page links out to each of them.</li>
-    <li>Project management tells the delivery model (phases, approaches, disciplines, one figure), the advisor that reads it, and what will land under Artifacts.</li>
+    <li>Project management tells the delivery model (phases, approaches, disciplines, one figure), the advisor that reads it, and what lands under Artifacts (the risk log first).</li>
   </ul>
 
   <div class="subhead">Area page</div>
   <p class="section-desc" style="margin-bottom:0.4rem">What the area is, then a table of its artifacts: code · name · maturity · one line.</p>
   <ul class="bullets">
     <li>Documentation carries the document-model figure and the maturity legend.</li>
-    <li>Project management has no table yet: one lede with the <em>planned</em> chip, and a pointer to the story under What's inside.</li>
+    <li>Project management lists its artifacts, the risk log first, with its chip and its definition and template, and points to the story under What's inside.</li>
   </ul>
 
   <div class="subhead">Artifact page</div>
@@ -426,9 +426,9 @@ footer.site-footer a { color: var(--cyan); }
       <div class="why">The deck's scenes already tell the story; redrawing would fork it.</div>
     </div>
     <div class="decision-row">
-      <div class="decided">Project management told under What's inside; the Artifacts area page stays planned</div>
+      <div class="decided">Project management told under What's inside; the Artifacts area page lists the frame's artifacts</div>
       <div class="alt">Describe the delivery model and the advisor on the Artifacts area page</div>
-      <div class="why">No project-management artifact exists yet; the area page would describe a skill as if it were one. The story belongs with the other kinds.</div>
+      <div class="why">The area page lists what lands in a repo (the risk log, since 2026-10-30), never a skill as if it were an artifact. The story belongs with the other kinds.</div>
     </div>
     <div class="decision-row">
       <div class="decided">One project-management page for the whole <code>pm-*</code> family</div>
@@ -607,7 +607,8 @@ footer.site-footer a { color: var(--cyan); }
     <div class="row cols-3"><div class="label-cell">artifacts/general/personas.html</div><div><code>persona-review-definition.md</code></div><div>assess</div></div>
     <div class="row cols-3"><div class="label-cell">artifacts/general/conventions.html</div><div><code>conventions-definition.md</code></div><div>assess</div></div>
     <div class="row cols-3"><div class="label-cell">artifacts/general/asimov-md.html</div><div><code>asimov-md-definition.md</code></div><div>assess</div></div>
-    <div class="row cols-3"><div class="label-cell">a100, d100, s101, s102, project-management</div><div>none</div><div>planned</div></div>
+    <div class="row cols-3"><div class="label-cell">a100, d100, s101, s102</div><div>none</div><div>planned</div></div>
+    <div class="row cols-3"><div class="label-cell">artifacts/project-management/index.html (risk log)</div><div><code>risk-log-definition.md</code></div><div>assess</div></div>
   </div>
   <ul class="bullets">
     <li>The map is one table in <code>check-site.mjs</code>; a new artifact page adds one row.</li>
@@ -661,7 +662,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="ac-row"><div class="ac-id">AC3</div><div class="ac-verifies"><span class="verify-chip">R3</span><span class="verify-chip">§4.4</span></div><div>Every chip equals <code>maturity</code> in the definition its page links to; <em>planned</em> pages link none.</div></div>
     <div class="ac-row"><div class="ac-id">AC4</div><div class="ac-verifies"><span class="verify-chip">R5</span><span class="verify-chip">§4.4</span></div><div>No numeral directly precedes the words commands, personas, agents or template anywhere under <code>site/</code>.</div></div>
     <div class="ac-row"><div class="ac-id">AC5</div><div class="ac-verifies"><span class="verify-chip">R7</span></div><div>The phrase "This page is being written" occurs zero times under <code>site/</code>.</div></div>
-    <div class="ac-row"><div class="ac-id">AC6</div><div class="ac-verifies"><span class="verify-chip">R6</span></div><div><code>inside/project-management.html</code> contains <code>pm-</code> and "planned" in the same sentence; <code>artifacts/project-management/index.html</code> contains no skill name and links to it.</div></div>
+    <div class="ac-row"><div class="ac-id">AC6</div><div class="ac-verifies"><span class="verify-chip">R6</span></div><div><code>inside/project-management.html</code> names the risk log at <code>project/risk-log.html</code> and <code>/asimov-project risk log</code>; <code>artifacts/project-management/index.html</code> lists the risk log with a chip equal to its definition's <code>maturity</code>, links its definition and template, and links to the story; neither page contains "planned" or "Nothing yet".</div></div>
     <div class="ac-row"><div class="ac-id">AC7</div><div class="ac-verifies"><span class="verify-chip">R2</span><span class="verify-chip">§4.4</span></div><div>Manual, reviewer ≠ author: each artifact page read against its definition, no rule restated.</div></div>
     <div class="ac-row"><div class="ac-id">AC8</div><div class="ac-verifies"><span class="verify-chip">NF3</span></div><div>Every h1 is at most eight words; every element with class <code>lede</code> contains one sentence.</div></div>
     <div class="ac-row"><div class="ac-id">AC9</div><div class="ac-verifies"><span class="verify-chip">NF2</span></div><div>No <code>href</code> or <code>src</code> under <code>site/</code> begins with <code>/</code>.</div></div>
@@ -687,7 +688,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="q-card">
       <div class="q-head"><span class="q-id">Q3</span><span class="q-decider">Allan Borup</span></div>
       <div class="q-body">When the project-management area gets artifact pages, whether <code>pm-*</code> skills get their own, and whether the delivery model then earns a nav item.</div>
-      <div class="q-resolution">Resolution path: closes when the first project-management artifact lands. The area page gets its table then; the story stays under What's inside.</div>
+      <div class="q-resolution">Resolution path: closes when the first project-management artifact lands. The area page gets its table then; the story stays under What's inside. <em>The first, the risk log, landed 2026-10-30 and the area page lists it; whether <code>pm-*</code> skills get pages and the delivery model a nav item is still open.</em></div>
     </div>
     <div class="q-card">
       <div class="q-head"><span class="q-id">Q6</span><span class="q-decider">Allan Borup</span></div>
@@ -740,7 +741,7 @@ footer.site-footer a { color: var(--cyan); }
     · <span class="mono">features/D101-website.html</span>
   </div>
   <div style="margin-top: 0.4rem">
-    D101 · Website · Asimov · Draft v0.4 · 2026-10-06
+    D101 · Website · Asimov · Draft v0.5 · 2026-10-30
   </div>
 </footer>
 
