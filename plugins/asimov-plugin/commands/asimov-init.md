@@ -123,7 +123,7 @@ Inspect what already exists so the write plan can label each target. Use **Read*
 - **Each detected stack `README.md`** → `NEW` (scaffold from template) if absent; `MERGE` if present **with** an `<!-- asimov:start -->`…`<!-- asimov:end -->` region (refresh only that region); `ASK` if present **without** markers (do not modify until the developer agrees to inserting a region).
 - **`index.html`** → `NEW` if absent, `OVERWRITE` if present.
 - **`_chrome.css`** → `NEW` if absent; `SKIP` if present and byte-identical to the template; `ASK` (overwrite/keep/diff) if present and different.
-- **`.gitignore`** → the four Asimov patterns below: `NEW` if the file is absent; `APPEND` if it exists and any pattern is missing (only the missing ones are added, under one comment line); `SKIP` if every pattern is already there.
+- **`.gitignore`** → the five Asimov patterns below: `NEW` if the file is absent; `APPEND` if it exists and any pattern is missing (only the missing ones are added, under one comment line); `SKIP` if every pattern is already there.
 
 # Step 6 — Confirm
 
@@ -165,7 +165,7 @@ Only after confirmation. Apply each target's rule:
    - Present without markers (and the developer agreed in Step 6) → insert the marker block; otherwise skip and note it.
 4. **`index.html`** — render `site-template.html` per the rendering rules below; **Write** to `documentation/index.html`.
 5. **`_chrome.css`** — **Write** to `documentation/_chrome.css` only if the Step 5 action was `NEW` or a confirmed overwrite. Never bump mtime on an identical file.
-6. **`.gitignore`** — the Design- and Spec-stage caches the toolkit writes beside its artifacts, and the run log its hooks write under `.asimov/`, must never be committed; they are a run's working state, not a record. Add the patterns that are missing, verbatim, after one comment line, at the end of the file (or as a new file holding only this block). **Change no other line.**
+6. **`.gitignore`** — the Design- and Spec-stage caches the toolkit writes beside its artifacts, the run log its hooks write under `.asimov/`, and a risk-log write interrupted before its rename (`project/*.new`), must never be committed; they are a run's working state, not a record. Add the patterns that are missing, verbatim, after one comment line, at the end of the file (or as a new file holding only this block). **Change no other line.**
 
    ```
    # Asimov run caches and log — written by the asimov-* skills and the plugin's hooks, never a record (see asimov.md)
@@ -173,6 +173,7 @@ Only after confirmation. Apply each target's rule:
    specs/*/S101-*.review.md
    specs/*/design.md
    .asimov/
+   project/*.new
    ```
 
 If `documentation/` does not exist, create it as part of writing the site files. Don't pre-create empty `features/`, `reference/`, etc.
@@ -202,4 +203,4 @@ After writing, report:
 
 # Repo handling
 
-The `documentation/` taxonomy (Step 4), the `asimov.md` root location, the `<stack>` slugs and the four `.gitignore` patterns (Step 7, item 6: the `documentation/features/*.review.md` and `specs/*/…` caches and the `.asimov/` log folder) are the conventions shared with `asimov-design`, `asimov-design-review`, `asimov-spec`, `asimov-build` and the `artifact-*` skills. If the active repo uses a different layout, fork the patterns here and in those skills together — they share the path convention and must stay in lockstep (D100 hard rule 9).
+The `documentation/` taxonomy (Step 4), the `asimov.md` root location, the `<stack>` slugs and the five `.gitignore` patterns (Step 7, item 6: the `documentation/features/*.review.md` and `specs/*/…` caches, the `.asimov/` log folder and the risk log's interrupted write `project/*.new`) are the conventions shared with `asimov-design`, `asimov-design-review`, `asimov-spec`, `asimov-build` and the `artifact-*` skills. If the active repo uses a different layout, fork the patterns here and in those skills together — they share the path convention and must stay in lockstep (D100 hard rule 9).

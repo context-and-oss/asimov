@@ -531,6 +531,7 @@ function Invoke-Renumber($Model, [string]$Person) {
       $old = $risks[$idx].id
       $risks[$idx].id = Format-Id (Get-NextNumber $Model)
       $risks[$idx].history = @($risks[$idx].history) + @([ordered]@{ date = $Today; by = $Person; kind = 'renumber'; text = "Renumbered from $old" })
+      $risks[$idx].changed = $Today
       $done += "$old renumbered to $($risks[$idx].id)"
     }
   }
@@ -921,6 +922,7 @@ function Set-Repair($Plan, $Answers, [string]$Person, [switch]$AutoOnly) {
       $risk.id = $value
       $from = if ($c.before) { $c.before } else { 'no identifier' }
       $risk.history = @($risk.history) + @([ordered]@{ date = $Today; by = $Person; kind = 'renumber'; text = "Renumbered from $from" })
+      $risk.changed = $Today
     } elseif ($c.field -match '^history/(\d+)/(by|kind|date)$') {
       @($risk.history)[[int]$Matches[1]][$Matches[2]] = $value
     } elseif ($c.field -match '^history/(\d+)/text$') {

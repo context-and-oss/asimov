@@ -55,20 +55,20 @@ phases:
     tasks:
       - { id: T009, status: done, attempts: 1, agent: human-in-session, model: session }
   - id: P8
+    status: committed
+    commit: "8225e61"
+    go: { by: "SimonVilandt", date: "2026-10-30" }
+    tasks:
+      - { id: T010, status: done, attempts: 3, agent: human-in-session, model: session }
+  - id: P9
     status: passed
     commit: none
     go: none
     tasks:
-      - { id: T010, status: done, attempts: 3, agent: human-in-session, model: session }
-  - id: P9
-    status: pending
-    commit: none
-    go: none
-    tasks:
-      - { id: T011, status: pending, attempts: 0, agent: none, model: none }
-      - { id: T012, status: pending, attempts: 0, agent: none, model: none }
-      - { id: T013, status: pending, attempts: 0, agent: none, model: none }
-      - { id: T014, status: pending, attempts: 0, agent: none, model: none }
+      - { id: T011, status: done, attempts: 2, agent: human-in-session, model: session }
+      - { id: T012, status: done, attempts: 3, agent: human-in-session, model: session }
+      - { id: T013, status: done, attempts: 2, agent: human-in-session, model: session }
+      - { id: T014, status: done, attempts: 3, agent: human-in-session, model: session }
   - id: P10
     status: pending
     commit: none
@@ -988,3 +988,273 @@ The "Review guards" context (line 933 on) holds extra tests belonging to no task
 Working tree unchanged: `git status --short` identical before and after my runs (the three files already modified at start — risk-log.ps1, risk-log.Tests.ps1, the ledger — stayed so).
 
 Verified: 2 pass · 0 fail · checkpoint met
+
+### commit · 8225e61
+go by SimonVilandt on 2026-10-30 · 2 files · ledger
+
+## P9 · Risk log conversation
+
+### T011 · attempt 1 · human-in-session · session
+Conventions read: none (this repo has no documentation/conventions/); CLAUDE.md, the S101 §1-§2 and s101-ledger-definition.md (the shape) instead.
+built T011 (human task, built in the session that directs the run)
+- Created plugins/asimov-plugin/artifacts/project/risk-log/risk-log-definition.md: the maturity block (assess, since 2026-10-30); what the register is for; the bar, kept; the fields (four required, three optional, the derived score), the five states with what each requires, the register (language, last-updated date, its own history, the scoring view, or an opt-out); the page as the record, naming the template and the script by path; RL1-RL17 each with its uncovered case, RL4 carrying the ruling of 2026-10-30 (a review never renumbers) and RL11 the merge rule; the append-only rules; the departures from the Risk management discipline (Mitigated and Occurred added to the responses, no fixed areas, the score as a rank, the history for the comment field); the anti-patterns; placement.
+- D100 §4.5 gains "Definition of risk log" and "Risk log template" rows, both assess.
+- Done-when 1: the first five lines are the maturity block. Done-when 2: the definition new, D100 modified, nothing else.
+gaps: 0 · flags: 1
+- flag: RL16 says history lines the tool phrases itself are written in the project's language; the script writes them in English (built T003-T010), so a register in another language mixes the two. The definition states RL16 as designed; the gap is the script's.
+
+### T012 · attempt 1 · human-in-session · session
+Conventions read: none (this repo has no documentation/conventions/); CLAUDE.md, the S101 §1-§2 and artifact-s101-ledger/SKILL.md (the frame) instead.
+built T012 (human task, built in the session that directs the run)
+- Created plugins/asimov-plugin/skills/artifact-risk-log-authoring/SKILL.md: frontmatter name and description only, trigger-shaped; reads the definition and (for the fallback) the template by path with the Codex derived-root step; calls the script by its full path; inputs from the caller; the method (read, build one change per verb, find what is missing and return it: a role as owner, a missing field or reason or decider, a score given, an area nearly one in use, a delete request answered with resolving; the project's language with the as-stored text returned for confirmation; write only with the confirmed change, through a temp-folder change file and -Apply; exit 3 back to the caller); the repair (the proposal as before and after, questions answered, verb repair); the rules the script implements (read, apply, check, areas nearly the same) as its specification; the fallback without PowerShell (the whole page rendered from the template through .new and the same checks, ending "No script ran the check"); never: call a skill, ask the person, write another file, delete.
+- The four scenarios of §2 are the skill's text (a role is never written; the language step; delete becomes resolve; the no-PowerShell fallback said plainly); they are proven by a hand run (S101 A5, A13), not by a command.
+- Done-when 1 and 2: the frontmatter's first lines; the file new.
+gaps: 0 · flags: 0
+
+### T013 · attempt 1 · human-in-session · session
+Conventions read: none (this repo has no documentation/conventions/); CLAUDE.md and artifact-s101-view/SKILL.md (the frame) instead.
+built T013 (human task, built in the session that directs the run; light form)
+- Created plugins/asimov-plugin/skills/artifact-risk-log-view/SKILL.md: frontmatter name and description only; calls the script's -View by its full path with the Codex derived-root step; prints it unchanged in a fenced block; relays a refusal; the layout as the script's specification and the fallback (80 columns, the RL12 order, no score for a missing impact, fixed English labels, "area none written" per the ruling, the opt-out form); never writes, never judges.
+- Done-when 1 and 2: the frontmatter's first lines; the file new.
+gaps: 0 · flags: 0
+
+### T014 · attempt 1 · human-in-session · session
+Conventions read: none (this repo has no documentation/conventions/); CLAUDE.md and the asimov-project skeleton's own rules (Step 02) instead.
+built T014 (human task, built in the session that directs the run)
+- asimov-project: the Step 01 table's "none yet" row, its comment and the "holds no artifact yet" line replaced by the risk log's row; the risk log's section after Step 02: before the first question (narrate and maturity; the five .gitignore patterns appended when missing, once; -Finish first on a leftover .new with its outcome shown; one question for the person on exit 3, kept for the run); the verbs table (add, change, state, handover, optout, repair, delete answered with resolving, no verb = review) with what each asks, pm-advisor offered in one line when scoring against the anchors and when opting out; asking only what the authoring skill returns (a person's name, missing fields, "Did you mean <area>?" once, the as-stored translation); the go (one summary, "Write this to the risk log?", the write through artifact-risk-log-authoring, the view through artifact-risk-log-view); the review (nothing written with neither register nor opt-out and the two ways on offered; the view, "Mark the register as reviewed today?", then "Who took part?", skippable; a register with duplicates offered the repair); what happens next. The frontmatter is unchanged (model claude-sonnet-5-5).
+- /asimov-init and codex-asimov-init: the .gitignore block grows from four patterns to five with project/*.new, and every sentence that counts the patterns says five.
+- The six scenarios of §2 are the skill's text and are proven by a hand run in Claude Code and Codex (S101 A5, A13); this run had no hand run, since the installed plugin predates the Project frame.
+- Done-when 1 and 2: the three files changed; the frontmatter unchanged.
+gaps: 0 · flags: 1
+- flag: asimov-spec's Step 01 also appends the Asimov cache patterns (four, without project/*.new); it is not this task's file, so a repo initialised only by asimov-spec gets the risk log's pattern from asimov-project's first run instead.
+
+### review
+Conventions read: `CLAUDE.md` (hard rules 2, 3, 6, 9, 10; "How to add a project artifact"; the skill families; the Codex-root rule); house style from `plugins/asimov-plugin/artifacts/documentation/s101-ledger/s101-ledger-definition.md`, `plugins/asimov-plugin/skills/artifact-s101-ledger/SKILL.md`, `plugins/asimov-plugin/skills/artifact-s101-view/SKILL.md`. (No `documentation/conventions/` folder in this repo.)
+
+Also read: S102 011–014, the S101 review focus as given, D101 §4.4, §6.2–§6.7, §7.4, the ledger diff; checked the skills' claims against the whole of `risk-log.ps1`, and the definition's departures against `risk-management.md`.
+
+Reviewing: HEAD (uncommitted) vs S102 task specs 011, 012, 013, 014 — 7 files (ledger diff excluded from the set).
+
+## Conventions
+| File:line | Severity | Reason |
+|---|---|---|
+| `plugins/asimov-plugin/skills/asimov-project/SKILL.md:65-66` | Flag | Step 02's shared rule is "nothing is written before the person's go" (line 51), but the risk-log section writes `.gitignore` and runs `-Finish` (which renames a `.new` over the page) before the first question. D101 AC36/AC37 want both, so the section should say it is the one exception — otherwise a reader sees a contradiction. (A bare review in a repo with no register also writes `.gitignore`.) — CLAUDE.md |
+| `plugins/asimov-plugin/artifacts/project/risk-log/risk-log-definition.md:81, 121` | Flag | The file ships to product repos, but cites "hard rule 9" (a toolkit CLAUDE.md rule) and "ruling 2026-10-30" (a ledger ruling), neither of which means anything there. Citing D100 is house style and fine; state the review-never-renumbers rule without the ruling's date. — CLAUDE.md |
+| `plugins/asimov-plugin/skills/asimov-spec/SKILL.md:65` (outside changeset) + repo `.gitignore` | Flag (uncertain) | Hard rule 9's sixth literal makes the init block and the `asimov-spec` Step 01 block lockstep partners. Both init entry points and `asimov-project` now write five patterns; `asimov-spec` still appends four, CLAUDE.md still says "four-pattern block", and this repo's own `.gitignore` has no `project/*.new`. The design doesn't list `asimov-spec`, so this is likely a T016 decision — I did not check whether T016 covers it. — CLAUDE.md |
+| `asimov-init.md`, `codex-asimov-init/SKILL.md` | Pass | Every count sentence says five (126/206; 144/232); block gains `project/*.new`, nothing else changed. — CLAUDE.md |
+| `asimov-project/SKILL.md` frontmatter | Pass | Unchanged, so `model:` still matches its model-choice row (hard rule 2); frontmatter identical in the diff. — CLAUDE.md |
+| Both new skills | Pass | Frontmatter `name` + `description` only; definition/template by path with the Codex derived-root step (hard rule 3). — CLAUDE.md |
+| D100 §4.5 | Pass | Two rows with the right paths and `assess`, matching the definition's maturity block (hard rule 10). — CLAUDE.md |
+
+## Correctness & safety
+| File:line | Severity | Reason |
+|---|---|---|
+| `plugins/asimov-plugin/skills/artifact-risk-log-authoring/SKILL.md:61` | Flag (uncertain) | The change file is "one JSON file in the system's temp folder" with no encoding stated. The script reads it as UTF-8; if written by shell redirection on Windows PowerShell 5.1 it would be ANSI/UTF-16 and "Søren"/"Jonas Bæk" would be corrupted — review focus T003 only covers the script's side. Add "write it as UTF-8 without BOM". |
+| `plugins/asimov-plugin/artifacts/project/risk-log/risk-log-definition.md:45, 85` vs `risk-log.ps1` (outside set) | Flag | RL8 says a risk's changed date moves on anything that touches it, and D101 RL8 names "its identifier"; `Invoke-Renumber` and the repair's `id` change add a history line but leave `changed` alone. The definition is faithful to the design — the defect is the script's; route to the T003/T010 builder or amend RL8. |
+| `plugins/asimov-plugin/skills/asimov-project/SKILL.md:62-67, 96` + `artifact-risk-log-authoring/SKILL.md:45` | Flag | The entry point never runs `-Read` before asking: for a register with a hand-removed impact (review focus T010 expects the read to turn the run into a repair), the view prints (no score, correct), then the person answers "Mark as reviewed?" and "Who took part?", and only then hits the refusal. Ruling 1 likewise: `-Read` doesn't list a duplicate identifier as a problem, so `-Read` alone wouldn't flag it. The refusal is correct and safe, but the questions come first; have the entry point/skill check `-Read` problems and duplicate ids in `risks` before the review question. |
+| Script claims in all three files (`-Read/-View/-Apply/-Repair/-Finish`, exits 0–3, `-By`, change-file fields, repair keys, `.new` check-and-rename, "area none written", 80-column layout, review refusal) | Pass | Each matched `risk-log.ps1`; the two rulings (review refused on duplicate identifier; "area none written") are implemented as the skills state. |
+
+## Against the spec
+| File:line | S102 · line | Severity | Reason |
+|---|---|---|---|
+| `asimov-project/SKILL.md:66` + `artifact-risk-log-authoring/SKILL.md:34-41` | T014 · §2 "A leftover write is finished before any verb" (review focus); T012 · §4 | Flag | The entry point runs `-Finish` "through the authoring skill's script call", but the skill's `verb` list (add…repair) has no finish, and its fallback section doesn't say how to finish/discard a `.new` without PowerShell. Works because the script call is listed, but the path is implicit; a `-Finish` that returns exit 3 before the name was asked is only covered by reading step 4 ("a write returns exit 3") to include it. Name finish as an input, or say step 4 applies to `-Finish`. |
+| `artifact-risk-log-view/SKILL.md:43` | T013 · §1 (view as the script's specification and fallback) | Flag | The opt-out layout omits the first line `Risk log · <path>` the script prints (`risk-log.ps1:1057`), so a fallback print would differ from the script's. |
+| `asimov-project/SKILL.md:65` | T014 · §2 "The first risk-log run keeps leftovers out of git" | Pass | Five patterns, exactly matching the init block; missing ones only; "added <n>" only when any; no `.gitignore` → one. |
+| `asimov-project/SKILL.md:67` | T014 · §2 "No git user name means one question for the run" (review focus) | Pass | Asked once, passed as the person for the rest of the run; authoring step 5 returns exit 3 to the caller and takes `person` back. |
+| `artifact-risk-log-authoring/SKILL.md:55, 60, 78` | T012 · §2 all four scenarios | Pass | Role-as-owner → "a person's name is needed"; Danish text returned as stored to confirm; delete → offer to resolve; no-PowerShell fallback ends "No script ran the check…". |
+| `asimov-project/SKILL.md` rows/verbs | T014 · §2 outlines (either tool, ask before write, review default) | Pass | One row; no `asimov-risk`; review waits for confirmation then asks "Who took part?" (skippable); another artifact's row untouched; `pm-advisor` offered in one line for both cases. |
+| `risk-log-definition.md` | T011 · §3, §4 | Pass | Front matter lines 1–5 as required; D100 modified + definition new; fields (4 required + 3 optional), five states, RL1–RL17 with uncovered cases, page as record, bar, RL14 closure rule, the four discipline departures (checked against `risk-management.md`); no restated template markup or script parameters. |
+| All seven files | S102 `owns` for 011–014 | Pass | Nothing touched outside the four tasks' `owns` lists. |
+
+Findings only — no approval verdict. Route fixes to the .NET builder / Angular builder / tester; the approval call stays with the human reviewer.
+
+### ruling · 2026-10-30 · SimonVilandt
+resume · Stopped at P9's checkpoint: every done-when passed, but the hand run of the conversation in Claude Code and Codex the checkpoint names was not done (the installed plugin predates the Project frame). Ruling: fix Baley's P9 flags in P9's files (and RL8's changed date on renumbering in risk-log.ps1, with a test); the hand run is done after the merge, as part of the review. (The ledger script has no way to record a verify whose done-whens pass but whose checkpoint is unmet without naming a failed task; a finding for the Build stage.)
+
+### T011 · attempt 2 · human-in-session · session
+Conventions read: none (this repo has no documentation/conventions/); CLAUDE.md and the house-style siblings named in P9's review instead.
+built (attempt 2, after SimonVilandt's resume ruling on P9's stop) — the P9 review flags, one line each:
+- asimov-project: the section says why steps 2-3 (the .gitignore patterns, finishing a leftover write) write before the go, the one exception to Step 02; a finish goes through the authoring skill as the verb `finish`, and exit 3 on a finish is the same one question; a new step 5 reads the register before the first question, and a register that does not read in full or holds an identifier twice goes to the repair before any review question.
+- artifact-risk-log-authoring: `finish` is a named input with its own step (0) and its fallback without PowerShell; the read returns repair needed also for an identifier held twice; the change file is written as UTF-8 without a byte-order mark, with the file-write tool.
+- artifact-risk-log-view: the opt-out layout opens with the same "Risk log . project/risk-log.html" line the script prints.
+- risk-log-definition.md: no toolkit-only references left (hard rule 9, the ruling's date); RL4 states that a review never renumbers and that renumbering moves the risk's changed date (RL8).
+- risk-log.ps1 (P8's file, touched under the ruling): a renumbered risk's changed date moves to today, in the write's renumbering and in the repair; the T004 duplicate test asserts it (the renumbered risk changed today, the other keeps its date). Pester 5.9.1: 79 passed, 0 failed on PowerShell 7.6.7 and 5.1.
+- Not changed, by design: asimov-spec's Step 01 still appends four patterns and CLAUDE.md speaks of a four-pattern block; CLAUDE.md is T016's, asimov-spec no task's, so the lockstep is left for T016 and a follow-up.
+gaps: 0 · flags: 1
+- flag: the hand run of the conversation in Claude Code and Codex is deferred to after the merge, by the ruling.
+
+### T012 · attempt 2 · human-in-session · session
+Conventions read: none (this repo has no documentation/conventions/); CLAUDE.md and the house-style siblings named in P9's review instead.
+built (attempt 2, after SimonVilandt's resume ruling on P9's stop) — the P9 review flags, one line each:
+- asimov-project: the section says why steps 2-3 (the .gitignore patterns, finishing a leftover write) write before the go, the one exception to Step 02; a finish goes through the authoring skill as the verb `finish`, and exit 3 on a finish is the same one question; a new step 5 reads the register before the first question, and a register that does not read in full or holds an identifier twice goes to the repair before any review question.
+- artifact-risk-log-authoring: `finish` is a named input with its own step (0) and its fallback without PowerShell; the read returns repair needed also for an identifier held twice; the change file is written as UTF-8 without a byte-order mark, with the file-write tool.
+- artifact-risk-log-view: the opt-out layout opens with the same "Risk log . project/risk-log.html" line the script prints.
+- risk-log-definition.md: no toolkit-only references left (hard rule 9, the ruling's date); RL4 states that a review never renumbers and that renumbering moves the risk's changed date (RL8).
+- risk-log.ps1 (P8's file, touched under the ruling): a renumbered risk's changed date moves to today, in the write's renumbering and in the repair; the T004 duplicate test asserts it (the renumbered risk changed today, the other keeps its date). Pester 5.9.1: 79 passed, 0 failed on PowerShell 7.6.7 and 5.1.
+- Not changed, by design: asimov-spec's Step 01 still appends four patterns and CLAUDE.md speaks of a four-pattern block; CLAUDE.md is T016's, asimov-spec no task's, so the lockstep is left for T016 and a follow-up.
+gaps: 0 · flags: 1
+- flag: the hand run of the conversation in Claude Code and Codex is deferred to after the merge, by the ruling.
+
+### T013 · attempt 2 · human-in-session · session
+Conventions read: none (this repo has no documentation/conventions/); CLAUDE.md and the house-style siblings named in P9's review instead.
+built (attempt 2, after SimonVilandt's resume ruling on P9's stop) — the P9 review flags, one line each:
+- asimov-project: the section says why steps 2-3 (the .gitignore patterns, finishing a leftover write) write before the go, the one exception to Step 02; a finish goes through the authoring skill as the verb `finish`, and exit 3 on a finish is the same one question; a new step 5 reads the register before the first question, and a register that does not read in full or holds an identifier twice goes to the repair before any review question.
+- artifact-risk-log-authoring: `finish` is a named input with its own step (0) and its fallback without PowerShell; the read returns repair needed also for an identifier held twice; the change file is written as UTF-8 without a byte-order mark, with the file-write tool.
+- artifact-risk-log-view: the opt-out layout opens with the same "Risk log . project/risk-log.html" line the script prints.
+- risk-log-definition.md: no toolkit-only references left (hard rule 9, the ruling's date); RL4 states that a review never renumbers and that renumbering moves the risk's changed date (RL8).
+- risk-log.ps1 (P8's file, touched under the ruling): a renumbered risk's changed date moves to today, in the write's renumbering and in the repair; the T004 duplicate test asserts it (the renumbered risk changed today, the other keeps its date). Pester 5.9.1: 79 passed, 0 failed on PowerShell 7.6.7 and 5.1.
+- Not changed, by design: asimov-spec's Step 01 still appends four patterns and CLAUDE.md speaks of a four-pattern block; CLAUDE.md is T016's, asimov-spec no task's, so the lockstep is left for T016 and a follow-up.
+gaps: 0 · flags: 1
+- flag: the hand run of the conversation in Claude Code and Codex is deferred to after the merge, by the ruling.
+
+### T014 · attempt 2 · human-in-session · session
+Conventions read: none (this repo has no documentation/conventions/); CLAUDE.md and the house-style siblings named in P9's review instead.
+built (attempt 2, after SimonVilandt's resume ruling on P9's stop) — the P9 review flags, one line each:
+- asimov-project: the section says why steps 2-3 (the .gitignore patterns, finishing a leftover write) write before the go, the one exception to Step 02; a finish goes through the authoring skill as the verb `finish`, and exit 3 on a finish is the same one question; a new step 5 reads the register before the first question, and a register that does not read in full or holds an identifier twice goes to the repair before any review question.
+- artifact-risk-log-authoring: `finish` is a named input with its own step (0) and its fallback without PowerShell; the read returns repair needed also for an identifier held twice; the change file is written as UTF-8 without a byte-order mark, with the file-write tool.
+- artifact-risk-log-view: the opt-out layout opens with the same "Risk log . project/risk-log.html" line the script prints.
+- risk-log-definition.md: no toolkit-only references left (hard rule 9, the ruling's date); RL4 states that a review never renumbers and that renumbering moves the risk's changed date (RL8).
+- risk-log.ps1 (P8's file, touched under the ruling): a renumbered risk's changed date moves to today, in the write's renumbering and in the repair; the T004 duplicate test asserts it (the renumbered risk changed today, the other keeps its date). Pester 5.9.1: 79 passed, 0 failed on PowerShell 7.6.7 and 5.1.
+- Not changed, by design: asimov-spec's Step 01 still appends four patterns and CLAUDE.md speaks of a four-pattern block; CLAUDE.md is T016's, asimov-spec no task's, so the lockstep is left for T016 and a follow-up.
+gaps: 0 · flags: 1
+- flag: the hand run of the conversation in Claude Code and Codex is deferred to after the merge, by the ruling.
+
+### review
+Conventions read: `CLAUDE.md` (hard rules 2, 3, 6, 9, 10; "How to add a project artifact"; the skill families; the Codex-root rule) as the repo's conventions (no `documentation/conventions/`); house style `plugins/asimov-plugin/artifacts/documentation/s101-ledger/s101-ledger-definition.md`, `plugins/asimov-plugin/skills/artifact-s101-ledger/SKILL.md`, `plugins/asimov-plugin/skills/artifact-s101-view/SKILL.md`. Also re-read: the four S102s, the P9 ruling and the attempt-2 entries in the ledger, the diffs of `risk-log.ps1`, `risk-log.Tests.ps1` and `asimov-project/SKILL.md`; new files read whole, and the script's `Invoke-Renumber` and `Set-Repair`.
+
+Reviewing: HEAD (uncommitted), round 2 — 9 files (the round-1 seven + `plugins/asimov-plugin/skills/artifact-risk-log-authoring/scripts/risk-log.ps1` and `risk-log.Tests.ps1`). D100, `asimov-init.md` and `codex-asimov-init/SKILL.md` diffs unchanged since round 1.
+
+Pester 5.9.1, `PSModulePath` as instructed, editions sequentially: PowerShell 7 → 79 passed, 0 failed, 0 skipped; Windows PowerShell 5.1 → 79 passed, 0 failed, 0 skipped (matches the ledger's figures).
+
+## Round-1 flags
+
+| Round-1 flag | Status |
+|---|---|
+| `asimov-project` writes `.gitignore`/`-Finish` before the go, against Step 02's "nothing is written before the go" | Closed — the section now opens with a paragraph naming steps 2–3 as the one exception to Step 02, and why. |
+| Definition cites "hard rule 9" and a ruling date | Closed — grep finds neither; §7 now says the `project/` folder is as `asimov-project` and D100 §3/§5 name it; RL4 states the rule without a date. |
+| `asimov-spec` Step 01 appends four patterns / CLAUDE.md "four-pattern block" / this repo's `.gitignore` lacks `project/*.new` | Knowingly left (T016 + follow-up), as ruled. |
+| Change file written with no encoding named | Closed — authoring step 5 now says UTF-8 without BOM, written with the file-write tool, and why a 5.1 redirect wouldn't do. |
+| RL8: renumbering left `changed` alone | Closed — `risk-log.ps1:534` (write-path renumbering) and `:925` (repair) now set `changed = $Today`; the T004 duplicate test asserts both sides (renumbered risk shows today, the kept one its own date); the definition's RL4 says so. |
+| Ask-then-refuse ordering (no read before the questions) | Closed in intent by "Before the first question" step 5 — with a defect, see Conventions row 1. |
+| `-Finish` had no verb in the authoring skill | Closed — `finish` is a named input and step 0 of the method, with a no-PowerShell fallback; section step 3 invokes it as a verb, step 4 covers exit 3 on a finish. |
+| View skill's opt-out layout missed the first line | Closed — now opens with *Risk log · project/risk-log.html*, then the sentence, empty line, reason, *Decided by*, matching `risk-log.ps1:1057-1060`. |
+
+## Conventions
+
+| File:line | Severity | Reason |
+|---|---|---|
+| `plugins/asimov-plugin/skills/artifact-risk-log-authoring/SKILL.md:46`, `asimov-project/SKILL.md:69, 97` vs `risk-log-definition.md:81` and `SKILL.md:73` | Flag | The new step 1 / step 5 send a register holding an identifier twice to the repair for **every** verb, but RL4 and the skill's own Apply rule say the next write renumbers duplicates first (D101 AC9: "after the next write"), which the script does for add/change/state/handover. Ruling 1 covers only the review. As written, an add on a duplicated register is refused by the skill although the script would renumber and write it. Limit the duplicate-identifier route to `review`, or change RL4/AC9. |
+| `asimov-project/SKILL.md:69` vs `artifact-risk-log-authoring/SKILL.md:34-41` | Flag | Step 5 says "invoke the authoring skill's read once before the first question", but the skill's `verb` list has no read verb and `said` is required; the read is step 1 of every verb, so the caller cannot ask for it alone. Name a `read` input, or say the caller sends the verb it already has with no `confirmed`. |
+| `asimov-project/SKILL.md:58-60` (exception paragraph) | Pass | The exception is stated in the same breath as the rule it breaks, each write said in one line. |
+| `risk-log-definition.md` | Pass | No toolkit-only references remain; maturity block and D100 §4.5 unchanged and in step (hard rule 10). |
+
+## Correctness & safety
+
+| File:line | Severity | Reason |
+|---|---|---|
+| `risk-log.ps1:534`, `:925` | Pass | `changed` moves only for the renumbered risk; the write's check compares parsed data incl. `changed`, so intended and read-back models agree; `Test-Kept` compares history lines only and the `Held` baseline is renumbered the same way, so no new refusal; a review is still refused on a duplicate, so RL8's "a review moves no risk's changed date" holds. |
+| `risk-log.Tests.ps1:284-297` | Flag (low) | The new assertions cover the write path (renumber during an add) only; the repair path (`Set-Repair` `id` branch, `:925`) got the same code change but no assertion. Add one `changed`-equals-today assertion to the existing repair-renumber test. |
+| `artifact-risk-log-authoring/SKILL.md:62` (UTF-8) | Pass | Matches the script's UTF-8 read (`Read-Change`, `risk-log.ps1:118`). |
+
+## Against the spec
+
+| File:line | S102 · line | Severity | Reason |
+|---|---|---|---|
+| `asimov-project/SKILL.md:67-68` | T014 · §2 "A leftover write is finished before any verb" (review focus) | Pass | `finish` runs first, as a verb, through the authoring skill; its outcome printed before the verb's questions; exit 3 on a finish is the one question. |
+| `asimov-project/SKILL.md:68` | T014 · §2 "No git user name means one question for the run" (review focus) | Pass | Asked once for a write or a finish, then passed as the person for the run. |
+| `artifact-risk-log-authoring/SKILL.md:79` | T012 · §2 "With no PowerShell the skill applies the rules itself and says so" (review focus) | Pass | Fallback now covers `finish` too; the closing "No script ran the check…" line kept. |
+| `asimov-project/SKILL.md:97-101` | T014 · §2 "The review is the default and waits for confirmation" | Pass | Cases unchanged: neither register nor opt-out → nothing written; register → view, "Mark the register as reviewed today?", then "Who took part?" (skippable); unreadable/duplicate → repair before any review question (see Conventions flag 1 for the other verbs). |
+| `risk-log.ps1`, `risk-log.Tests.ps1` | T011 · §4 / S101 review focus T010 | Pass | The additional files stay inside the P9 ruling; only behaviour change is the RL8 `changed` date. |
+| All nine files | S102 `owns` 011–014 + the ruling's one extra file | Pass | Nothing touched beyond the four tasks' `owns` plus the two script files the ruling adds. |
+
+Findings only — no approval verdict. Route fixes to the .NET builder / Angular builder / tester; the approval call stays with the human reviewer.
+
+### T012 · attempt 3 · human-in-session · session
+Conventions read: none (this repo has no documentation/conventions/); CLAUDE.md and the house-style siblings instead.
+built (attempt 3, against P9 review round 2):
+- The duplicate-identifier route is limited to the review, as RL4 and AC9 say: a write renumbers a duplicate itself; only a review (and the read before the review question) returns the identifier held twice and that the repair renumbers it. A register that does not read in full still goes to the repair for every verb but `repair`.
+- `read` is a named verb of the authoring skill (step 1 alone, its answer returned), and asimov-project's read before asking invokes it by that name.
+- The repair-path renumbering's changed date has an assertion in the same-day merge test; honestly weak, since that fixture's risk was created today, so the write-path assertion (an older changed date moving to today) is the one that proves RL8.
+- Pester 5.9.1: 79 passed, 0 failed on PowerShell 7.6.7 and 5.1.
+gaps: 0 · flags: 1
+- flag: the hand run is deferred to after the merge, by the ruling.
+
+### T014 · attempt 3 · human-in-session · session
+Conventions read: none (this repo has no documentation/conventions/); CLAUDE.md and the house-style siblings instead.
+built (attempt 3, against P9 review round 2):
+- The duplicate-identifier route is limited to the review, as RL4 and AC9 say: a write renumbers a duplicate itself; only a review (and the read before the review question) returns the identifier held twice and that the repair renumbers it. A register that does not read in full still goes to the repair for every verb but `repair`.
+- `read` is a named verb of the authoring skill (step 1 alone, its answer returned), and asimov-project's read before asking invokes it by that name.
+- The repair-path renumbering's changed date has an assertion in the same-day merge test; honestly weak, since that fixture's risk was created today, so the write-path assertion (an older changed date moving to today) is the one that proves RL8.
+- Pester 5.9.1: 79 passed, 0 failed on PowerShell 7.6.7 and 5.1.
+gaps: 0 · flags: 1
+- flag: the hand run is deferred to after the merge, by the ruling.
+
+### review
+Conventions read: `CLAUDE.md` (hard rules 2, 3, 6, 9, 10; "How to add a project artifact"; the skill families; the Codex-root rule) as the repo's conventions (no `documentation/conventions/`); house style `plugins/asimov-plugin/artifacts/documentation/s101-ledger/s101-ledger-definition.md`, `plugins/asimov-plugin/skills/artifact-s101-ledger/SKILL.md`, `plugins/asimov-plugin/skills/artifact-s101-view/SKILL.md`. Also read: the ledger's T012/T014 attempt-3 entries, `artifact-risk-log-authoring/SKILL.md` and `asimov-project/SKILL.md` as they now stand, the tests diff, the same-day merge test.
+
+Reviewing: HEAD (uncommitted), round 3 — the same 9 files as round 2 (only the two skills and `risk-log.Tests.ps1` changed since).
+
+Pester 5.9.1, `PSModulePath` as instructed, editions sequentially: PowerShell 7 → 79 passed, 0 failed, 0 skipped; Windows PowerShell 5.1 → 79 passed, 0 failed, 0 skipped.
+
+## Round-2 flags
+
+| Round-2 flag | Status |
+|---|---|
+| Duplicate-identifier route applied to every verb, against RL4/AC9 | Closed — authoring step 1 now says only a *problem* stops a write ("no verb but `repair` writes to a register that does not read in full"); a duplicate is "no problem for a write, which renumbers it first (RL4)", and only `review` (and `read`) return the identifier held twice and that the repair renumbers it. Matches the script (`Get-Problems` excludes duplicates, `Invoke-Review` refuses them) and the Apply bullet at line 73. `asimov-project` step 5 says the same ("An identifier held twice stops only the review; a write renumbers it itself (RL4)"), and the review case at line 99 is likewise review-only. |
+| No named read verb for the entry point's read-before-asking | Closed — `read` is in the `verb` input (`SKILL.md:39`) as "step 1 alone, answer returned, before the caller asks anything"; `asimov-project` step 5 invokes it by name and line 99 refers to "the `read` before asking". |
+| Repair-path renumber had no `changed` assertion | Closed in form, weak in substance (below). |
+
+## Conventions
+
+| File:line | Severity | Reason |
+|---|---|---|
+| `plugins/asimov-plugin/skills/artifact-risk-log-authoring/SKILL.md:38` | Flag (low) | The `said` input is still "Required", but `read` and `finish` have nothing said; mark it "required except for `read` and `finish`". Same small gap I noted for `finish` before. |
+| `SKILL.md:39, 46` vs `asimov-project/SKILL.md:70, 99` | Pass | The two files agree: `read` returns as described; a register that does not read in full goes to the repair for every verb but `repair`; a duplicate identifier stops only the review. Nothing else reads differently. |
+| Frontmatter, description, Codex root step, D100 rows, init entry points | Pass | Unchanged since round 2. |
+
+## Correctness & safety
+
+| File:line | Severity | Reason |
+|---|---|---|
+| `risk-log.Tests.ps1:1019` (same-day merge test) | Flag (low) | As the builder's own note says: every risk in that fixture is created today, so its `changed` is already today and the assertion passes without the `Set-Repair` change at `risk-log.ps1:925` — it would not catch a regression there. The write-path test (284–297, a `changed` of 2026-01-05 moving to today) is what proves RL8. A repair-path test would need a duplicate-identifier fixture whose `changed` is set to an old date by hand (as the write-path test does), then `-Repair` + apply. |
+| Authoring skill, `read` | Pass | `-Read` already returns the `risks` list with identifiers, so the duplicate check needs no new script support. |
+
+## Against the spec
+
+| File:line | S102 · line | Severity | Reason |
+|---|---|---|---|
+| `asimov-project/SKILL.md:97-101` | T014 · §2 "The review is the default and waits for confirmation" | Pass | Neither register nor opt-out → nothing written; register → view, "Mark the register as reviewed today?", then "Who took part?" (skippable); unreadable or duplicate → repair before the review question. |
+| `artifact-risk-log-authoring/SKILL.md:46`, ruling 1 (review refuses a duplicate) | T012 §2 / P8 ruling | Pass | Refusal still the script's; the conversation now learns it before asking. |
+| All nine files | S102 `owns` 011–014 + the two script files the ruling adds | Pass | No file outside the set touched. |
+
+Findings only — no approval verdict. Route fixes to the .NET builder / Angular builder / tester; the approval call stays with the human reviewer.
+
+### verify
+Verifying P9 (second round): 4 task specs (T011–T014), 8 done-whens, checkpoint "A person registers, changes, decides, reviews and hands over risks through the frame's entry point in Claude Code and in Codex, and the hand run of the conversation's criteria proves it."
+
+| Task | Check | Result | Evidence |
+|---|---|---|---|
+| T011 | done-when 1: `Get-Content -TotalCount 5` on `risk-log-definition.md` → `---`, `artifact: risk-log`, `maturity: assess`, dated `since:`, `---` | pass | prints `---`, `artifact: risk-log`, `maturity: assess`, `since: 2026-10-30`, `---` |
+| T011 | done-when 2: `git status --short -- …/risk-log/ documentation/D100-Asimov-architecture.md` → definition new, D100 modified, nothing else | pass | ` M documentation/D100-Asimov-architecture.md`, `?? …/risk-log/risk-log-definition.md`, no other lines |
+| T012 | done-when 1: `Get-Content -TotalCount 3` on `artifact-risk-log-authoring/SKILL.md` | pass | `---`, `name: artifact-risk-log-authoring`, `description: The only writer of the risk log …` |
+| T012 | done-when 2: `git status --short` on that file → new | pass | `?? plugins/asimov-plugin/skills/artifact-risk-log-authoring/SKILL.md` |
+| T013 | done-when 1: `Get-Content -TotalCount 3` on `artifact-risk-log-view/SKILL.md` | pass | `---`, `name: artifact-risk-log-view`, `description: Print the risk log …` |
+| T013 | done-when 2: `git status --short` on that file → new | pass | `?? plugins/asimov-plugin/skills/artifact-risk-log-view/SKILL.md` |
+| T014 | done-when 1: `git diff --stat` on the three files → changed | pass | asimov-init.md 7, asimov-project/SKILL.md 58, codex-asimov-init/SKILL.md 7 → `3 files changed, 60 insertions(+), 12 deletions(-)` (asimov-project grew 55 → 58 since round 1) |
+| T014 | done-when 2: `Get-Content -TotalCount 8` on `asimov-project/SKILL.md` → frontmatter, `model: claude-sonnet-5-5` unchanged | pass | line 7 `model: claude-sonnet-5-5`; other frontmatter lines intact |
+| P9 | checkpoint — the Check `git status --short -- <the seven paths>` | met (command, as written) | ` M D100`, ` M commands/asimov-init.md`, ` M asimov-project/SKILL.md`, ` M codex-asimov-init/SKILL.md`, `?? risk-log-definition.md`, `?? artifact-risk-log-authoring/SKILL.md`, `?? artifact-risk-log-view/SKILL.md` |
+
+Hand run: **not done.** Per Simon Vilandt's ruling, the hand run of the conversation in Claude Code and in Codex is done after the merge, as part of the review; nothing I can see shows it was done. The checkpoint's "met" above therefore covers only the check command and the done-whens, not the sentence's claim that the behaviour was proven by a hand run.
+
+Beyond P9's own done-whens (the extra Pester check from the ruling, not part of this phase's checks): files `risk-log.ps1` (+2 lines in `git diff --stat`) and `risk-log.Tests.ps1` (+6), both modified/uncommitted (RL8). Method: the earlier phases' Pester command as written in the S101 phase checks, `PSModulePath` = Machine value + `C:\Users\sva\AppData\Local\PowerShell\Modules`, editions sequentially.
+
+| Task | Check | Result | Evidence |
+|---|---|---|---|
+| extra | `risk-log.Tests.ps1` under `pwsh -NoProfile -Command 'Import-Module Pester -MinimumVersion 5.0; exit (Invoke-Pester … FailedCount + FailedContainersCount)'` | pass | `Tests Passed: 79, Failed: 0, Skipped: 0, Inconclusive: 0, NotRun: 0`, 70.9 s, exit=0 |
+| extra | same under `powershell -NoProfile -ExecutionPolicy Bypass -Command '…'` | pass | `Tests Passed: 79, Failed: 0, Skipped: 0, Inconclusive: 0, NotRun: 0`, 94.4 s, exit=0 |
+
+Test count 79 on both editions, the same as P8's figure although `risk-log.Tests.ps1` gained 6 lines — I did not inspect where they went.
+
+Working tree unchanged by this run: `git status --short` hash identical before and after; every command read-only (Pester runs only read the test file); scratch output to the scratchpad.
+
+Verified: 8 pass · 0 fail · checkpoint met (check command and done-whens only; hand run not yet done). Extra Pester check: 2 pass · 0 fail.

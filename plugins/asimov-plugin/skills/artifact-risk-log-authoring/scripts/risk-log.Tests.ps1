@@ -281,6 +281,9 @@ Describe 'risk-log.ps1' {
         $html = Set-RiskAttr $html 'RISK-007' 'data-created' '2026-01-01' 1
         $expected = 'Upper seven'
       } else { $expected = 'Lower seven' }
+      # RL8: renumbering touches the risk, so its changed date moves; the other keeps its own
+      $html = Set-RiskAttr $html 'RISK-007' 'data-changed' '2026-01-05' 0
+      $html = Set-RiskAttr $html 'RISK-007' 'data-changed' '2026-01-05' 1
       Set-PageText $root $html
       $r = Add-Risk $root ([ordered]@{ name = 'Brand new'; owner = 'Jonas Berg'; impact = 3; probability = 3 })
       $r.Code | Should -Be 0 -Because $r.Output
@@ -290,6 +293,8 @@ Describe 'risk-log.ps1' {
       $last = @($nine.history)[-1]
       $last.kind | Should -Be 'renumber'
       $last.text | Should -Be 'Renumbered from RISK-007'
+      $nine.changed | Should -Be (Get-Today)
+      (@($data.risks) | Where-Object { $_.id -eq 'RISK-007' }).changed | Should -Be '2026-01-05'
       @($nine.history).Count | Should -Be 2
       @(@($data.risks) | Where-Object { $_.id -eq 'RISK-007' }).Count | Should -Be 1
       (@($data.risks) | Where-Object { $_.id -eq 'RISK-007' }).name | Should -Not -Be $expected
@@ -1011,6 +1016,7 @@ Describe 'risk-log.ps1' {
       ((@($data.risks) | ForEach-Object { $_.name } | Sort-Object) -join ',') | Should -Be 'From A,From B,Risk 1,Risk 2'
       @($data.risks | Where-Object { $_.id -eq 'RISK-004' }).Count | Should -Be 1
       @(@($data.risks | Where-Object { $_.id -eq 'RISK-004' })[0].history)[-1].kind | Should -Be 'renumber'
+      @($data.risks | Where-Object { $_.id -eq 'RISK-004' })[0].changed | Should -Be (Get-Today)
       @($data.history | Where-Object { $_.text -like 'RISK-003 registered: From *' }).Count | Should -Be 2
       (Read-Page $root) | Should -Not -Match '(?m)^(<<<<<<<|>>>>>>>)'
     }
