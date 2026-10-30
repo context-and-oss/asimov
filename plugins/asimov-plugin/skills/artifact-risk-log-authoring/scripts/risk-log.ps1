@@ -135,7 +135,7 @@ $OptOutReasons = @('elsewhere', 'not-worked')
 
 # The opt-out's reason as a sentence: the page's first paragraph, the view, the replacing line.
 function Format-OptOutReason($OptOut) {
-  if ($OptOut.reason -eq 'elsewhere') { return "Risks are handled elsewhere: $($OptOut.where)." }
+  if ($OptOut.reason -eq 'elsewhere') { return "Risks are handled elsewhere: $(([string]$OptOut.where).TrimEnd('.'))." }
   return 'Risks are not worked with on this engagement.'
 }
 
@@ -293,11 +293,36 @@ function Get-Attr([string]$Tag, [string]$Name) {
   return ''
 }
 
+# Every <li> of a history list is a line: one a hand edit damaged is read from what is left of it
+# and marked, so the repair restores it and no line is ever lost to the reader.
 function Read-Lines([string]$List) {
   $out = @()
-  foreach ($m in [regex]::Matches($List, '(?s)<li(?<attrs>[^>]*)>.*?<span class="who">.*?</span> ' + $Dot + ' (?<text>.*?)</li>')) {
-    $a = $m.Groups['attrs'].Value
-    $out += [ordered]@{ date = (Get-Attr $a 'data-date'); by = (Get-Attr $a 'data-by'); kind = (Get-Attr $a 'data-kind'); with = (Get-Attr $a 'data-with'); text = (ConvertFrom-Html $m.Groups['text'].Value) }
+  # split at every opening tag, so a lost </li> can never fold the next line into this one
+  foreach ($chunk in [regex]::Split($List, '(?=<li[\s>])')) {
+    $open = [regex]::Match($chunk, '^<li(?<attrs>[^>]*)>')
+    if (-not $open.Success) { continue }
+    $a = $open.Groups['attrs'].Value
+    $rest = $chunk.Substring($open.Length)
+    $end = $rest.IndexOf('</li>', [System.StringComparison]::Ordinal)
+    $damaged = ($end -lt 0)
+    $inner = if ($damaged) { $rest.Trim() } else { $rest.Substring(0, $end) }
+    $line = [ordered]@{ date = (Get-Attr $a 'data-date'); by = (Get-Attr $a 'data-by'); kind = (Get-Attr $a 'data-kind'); with = (Get-Attr $a 'data-with'); text = '' }
+    $m = [regex]::Match($inner, '(?s)^<time>(?<time>.*?)</time><span class="who">.*?</span> ' + $Dot + ' (?<text>.*)$')
+    if ($m.Success) {
+      $line.text = ConvertFrom-Html $m.Groups['text'].Value
+      # a date lost from the attribute is still in the line's own <time>
+      if (-not $line.date) { $line.date = ConvertFrom-Html $m.Groups['time'].Value; $damaged = $true }
+    } else {
+      $time = [regex]::Match($inner, '(?s)<time>(.*?)</time>')
+      if (-not $line.date -and $time.Success) { $line.date = ConvertFrom-Html $time.Groups[1].Value }
+      $plain = (ConvertFrom-Html ($inner -replace '<[^>]*>', '')).Trim()
+      foreach ($lead in @($line.date, $line.by)) { if ($lead -and $plain.StartsWith($lead, [System.StringComparison]::Ordinal)) { $plain = $plain.Substring($lead.Length).Trim() } }
+      $line.text = $plain.TrimStart([char]0x00B7).Trim()
+      $damaged = $true
+    }
+    if (-not $line.kind -or $line.date -notmatch '^\d{4}-\d{2}-\d{2}$') { $damaged = $true }
+    if ($damaged) { $line.damaged = $true }
+    $out += $line
   }
   return $out
 }
@@ -324,7 +349,11 @@ function Read-PageModel([string]$Html) {
       mitigation = (ConvertFrom-Html ([regex]::Match($b, '(?s)<p class="risk-mitigation">(.*?)</p>').Groups[1].Value))
       history = @()
     }
-    $risk.history = @(Read-Lines ([regex]::Match($b, '(?s)<ol class="risk-history">(.*?)</ol>').Groups[1].Value) | ForEach-Object { [ordered]@{ date = $_.date; by = $_.by; kind = $_.kind; text = $_.text } })
+    $risk.history = @(Read-Lines ([regex]::Match($b, '(?s)<ol class="risk-history">(.*?)</ol>').Groups[1].Value) | ForEach-Object {
+      $l = [ordered]@{ date = $_.date; by = $_.by; kind = $_.kind; text = $_.text }
+      if ($_.Contains('damaged')) { $l.damaged = $true }
+      $l
+    })
     $risks += $risk
   }
   $model.risks = $risks
@@ -340,11 +369,13 @@ function Get-Problems($Model) {
   if ($Model.updated -notmatch '^\d{4}-\d{2}-\d{2}$') { $problems += 'the register has no last-updated date' }
   if ($Model.register -eq 'opt-out') {
     $o = $null; if ($Model.Contains('optout')) { $o = $Model.optout }
-    if ($null -eq $o -or $OptOutReasons -notcontains $o.reason -or -not $o.by -or $o.date -notmatch '^\d{4}-\d{2}-\d{2}$') { $problems += 'the opt-out has no reason, decider or date' }
+    if ($null -eq $o -or $OptOutReasons -cnotcontains $o.reason -or -not $o.by -or $o.date -notmatch '^\d{4}-\d{2}-\d{2}$') { $problems += 'the opt-out has no reason, decider or date' }
+    elseif ($o.reason -eq 'elsewhere' -and -not $o.where) { $problems += 'the opt-out says risks are handled elsewhere but not where' }
     if (@($Model.risks).Count -gt 0) { $problems += 'an opt-out page holds risks' }
   }
   if ($Model.Contains('markers') -and $Model.markers) { $problems += 'the page holds git conflict markers from a merge' }
   if (@($Model.history | Where-Object { -not $_.by }).Count -gt 0) { $problems += 'a line of the register history names no person' }
+  if (@($Model.history | Where-Object { $_.Contains('damaged') }).Count -gt 0) { $problems += 'a line of the register history is damaged' }
   $i = 0
   foreach ($r in $Model.risks) {
     $i++
@@ -359,6 +390,7 @@ function Get-Problems($Model) {
     if ($r.changed -notmatch '^\d{4}-\d{2}-\d{2}$') { $problems += "$who has no changed date" }
     if (@($r.history).Count -eq 0) { $problems += "$who has no history" }
     if (@($r.history | Where-Object { -not $_.by }).Count -gt 0) { $problems += "a history line of $who names no person" }
+    if (@($r.history | Where-Object { $_.Contains('damaged') }).Count -gt 0) { $problems += "a history line of $who is damaged" }
   }
   return $problems
 }
@@ -415,7 +447,7 @@ function Get-Areas($Model) {
 
 # Render to <page>.new, read it back, compare with the intended model and with what the page held,
 # then rename into place. Anything short of the rename deletes the .new.
-function Write-Register([string]$Page, $Model, $Held) {
+function Write-Register([string]$Page, $Model, $Held, [switch]$Fill) {
   $dir = Split-Path -Parent $Page
   if (-not (Test-Path -LiteralPath $dir)) { New-Item -ItemType Directory -Path $dir | Out-Null }
   $repoName = Split-Path -Leaf (Split-Path -Parent $dir)
@@ -429,7 +461,7 @@ function Write-Register([string]$Page, $Model, $Held) {
     if ($html -match '\{\{') { $problem = 'a placeholder was left unfilled' }
     elseif (-not (Test-Same (Format-Model $back) (Format-Model $Model))) { $problem = 'the written page does not read back as the change' }
     elseif (Test-Unsigned $back) { $problem = "a history line names no person" }
-    else { $problem = Test-Kept $Held $back }
+    else { $problem = Test-Kept $Held $back -Fill:$Fill }
     if ($problem) { Exit-Refused "Not written: $problem. The register is as it was." }
     if (Test-Path -LiteralPath $Page) { [System.IO.File]::Replace($new, $Page, [NullString]::Value) } else { [System.IO.File]::Move($new, $Page) }
     $renamed = $true
@@ -447,28 +479,32 @@ function Test-Unsigned($Model) {
 
 # The new page keeps every risk and every history line the page held (after renumbering), and
 # holds no identifier twice.
-function Test-Kept($Held, $New) {
+function Test-Kept($Held, $New, [switch]$Fill) {
   $ids = @($New.risks | ForEach-Object { $_.id })
   $dups = @($ids | Group-Object | Where-Object { $_.Count -gt 1 } | ForEach-Object { $_.Name })
   if ($dups.Count -gt 0) { return "the new page holds $($dups -join ', ') twice" }
   if ($null -eq $Held) { return $null }
   foreach ($r in $Held.risks) {
-    $now = @($New.risks | Where-Object { $_.id -eq $r.id })
+    $now = @($New.risks | Where-Object { Test-Same $_.id $r.id })
     if ($now.Count -eq 0) { return "the new page drops $($r.id)" }
     $old = @($r.history); $cur = @($now[0].history)
     if ($cur.Count -lt $old.Count) { return "the new page drops a history line of $($r.id)" }
-    for ($k = 0; $k -lt $old.Count; $k++) {
-      if (-not (Test-Same "$($old[$k].date)|$($old[$k].by)|$($old[$k].kind)|$($old[$k].text)" "$($cur[$k].date)|$($cur[$k].by)|$($cur[$k].kind)|$($cur[$k].text)")) { return "the new page changes a history line of $($r.id)" }
-    }
+    for ($k = 0; $k -lt $old.Count; $k++) { if (-not (Test-LineKept $old[$k] $cur[$k] $Fill)) { return "the new page changes a history line of $($r.id)" } }
   }
   # the register's history is newest first: what the page held is the tail of the new list
   $old = @($Held.history); $cur = @($New.history)
   if ($cur.Count -lt $old.Count) { return 'the new page drops a line of the register history' }
   $offset = $cur.Count - $old.Count
-  for ($k = 0; $k -lt $old.Count; $k++) {
-    if (-not (Test-Same "$($old[$k].date)|$($old[$k].by)|$($old[$k].kind)|$($old[$k].text)" "$($cur[$k + $offset].date)|$($cur[$k + $offset].by)|$($cur[$k + $offset].kind)|$($cur[$k + $offset].text)")) { return 'the new page changes a line of the register history' }
-  }
+  for ($k = 0; $k -lt $old.Count; $k++) { if (-not (Test-LineKept $old[$k] $cur[$k + $offset] $Fill)) { return 'the new page changes a line of the register history' } }
   return $null
+}
+
+# A history line is kept as it was; in a repair a line with no person may gain one, and nothing else.
+function Test-LineKept($Old, $Cur, [bool]$Fill) {
+  if (-not $Fill) { return (Test-Same (Get-LineKey $Old) (Get-LineKey $Cur)) }
+  # in a repair a field the line lost (person, kind, date) may be given back; nothing it held may change
+  foreach ($f in 'date', 'by', 'kind', 'text') { if ($Old[$f] -and -not (Test-Same ([string]$Old[$f]) ([string]$Cur[$f]))) { return $false } }
+  return $true
 }
 
 # ---------------------------------------------------------------- numbering (RL3, RL4)
@@ -550,14 +586,16 @@ function Invoke-Add([string]$Page, $ChangeData, [string]$Person) {
     name = (Get-Text (Get-Field $fields 'name')); description = (Get-Text (Get-Field $fields 'description')); mitigation = (Get-Text (Get-Field $fields 'mitigation'))
     history = @()
   }
-  $risk.history = @([ordered]@{ date = $Today; by = $Person; kind = 'created'; text = "Created. Impact $($risk.impact), Probability $($risk.probability) (score $(Get-Score $risk))." })
+  # the name goes into the first line, which never changes, so a merge can tell two new risks apart
+  $risk.history = @([ordered]@{ date = $Today; by = $Person; kind = 'created'; text = "Created: $($risk.name). Impact $($risk.impact), Probability $($risk.probability) (score $(Get-Score $risk))." })
   $model.risks = @($model.risks) + @($risk)
   if ($null -ne $replaced) {
     $line = [ordered]@{ date = $Today; by = $Person; kind = 'replaced-opt-out'; with = ''; text = "Register created with $($risk.id), replacing the opt-out ($($replaced.reason)) decided by $($replaced.by) on $($replaced.date): $(Format-OptOutReason $replaced)" }
   } elseif ($null -eq $held) {
     $line = [ordered]@{ date = $Today; by = $Person; kind = 'created'; with = ''; text = "Register created with $($risk.id). Project language: $($model.lang)." }
   } else {
-    $text = "$($risk.id) registered."
+    # the register line says what it is about, so two sides writing on one day stay two lines in a merge
+    $text = "$($risk.id) registered: $($risk.name)."
     if ($renumbered.Count -gt 0) { $text += ' ' + ($renumbered -join '; ') + '.' }
     $line = [ordered]@{ date = $Today; by = $Person; kind = 'write'; with = ''; text = $text }
   }
@@ -577,7 +615,7 @@ function Invoke-Change([string]$Page, $ChangeData, [string]$Person) {
   $fields = Get-Field $ChangeData 'fields'
   $given = @()
   if ($null -ne $fields) { $given = @($fields.PSObject.Properties | ForEach-Object { $_.Name }) }
-  $unknown = @($given | Where-Object { $FieldNames -notcontains $_ })
+  $unknown = @($given | Where-Object { $FieldNames -cnotcontains $_ })
   if ($unknown.Count -gt 0) { Exit-Refused ('A change carries only ' + ($FieldNames -join ', ') + '; not ' + ($unknown -join ', ') + '. Nothing written.') }
   if ($given.Count -eq 0) { Exit-Refused 'The change names no field. Nothing written.' }
   $current = Get-Current $Page $Person
@@ -588,7 +626,7 @@ function Invoke-Change([string]$Page, $ChangeData, [string]$Person) {
   $risk = $risk[0]
   $parts = @()
   foreach ($f in $FieldNames) {
-    if ($given -notcontains $f) { continue }
+    if ($given -cnotcontains $f) { continue }
     $value = Get-Text (Get-Field $fields $f)
     if ($f -in @('name', 'owner') -and -not $value) { Exit-Refused "A risk keeps its $f; it cannot be emptied. Nothing written." }
     if ($f -in @('impact', 'probability') -and $value -notmatch '^[1-5]$') { Exit-Refused "The $f is a whole number from 1 to 5. Nothing written." }
@@ -602,7 +640,7 @@ function Invoke-Change([string]$Page, $ChangeData, [string]$Person) {
   if ($parts.Count -eq 0) { Exit-Refused "The change leaves $target as it is. Nothing written." }
   $risk.changed = $Today
   $risk.history = @($risk.history) + @([ordered]@{ date = $Today; by = $Person; kind = 'change'; text = (($parts -join '; ') + '.') })
-  $text = "$target changed."
+  $text = "$target changed: " + ($parts -join "; ") + "."
   if ($current.Renumbered.Count -gt 0) { $text += ' ' + ($current.Renumbered -join '; ') + '.' }
   $model.history = @([ordered]@{ date = $Today; by = $Person; kind = 'write'; with = ''; text = $text }) + @($model.history)
   $model.updated = $Today
@@ -638,7 +676,8 @@ function Invoke-State([string]$Page, $ChangeData, [string]$Person) {
   $risk.state = $to
   $risk.changed = $Today
   $risk.history = @($risk.history) + @([ordered]@{ date = $Today; by = $Person; kind = 'state'; text = $text })
-  $line = "$target $($to.ToLowerInvariant())."
+  $line = "$target $($to.ToLowerInvariant()): $reason"
+  if ($line -notmatch "[.?!]$") { $line += "." }
   if ($current.Renumbered.Count -gt 0) { $line += ' ' + ($current.Renumbered -join '; ') + '.' }
   $model.history = @([ordered]@{ date = $Today; by = $Person; kind = 'write'; with = ''; text = $line }) + @($model.history)
   $model.updated = $Today
@@ -679,14 +718,277 @@ function Invoke-Review([string]$Page, $ChangeData, [string]$Person) {
   $current = Get-Current $Page $Person
   $model = $current.Model
   if ($model.register -eq 'opt-out') { Exit-Refused 'No register is kept here (an opt-out); there is nothing to review. Register a risk to start one. Nothing written.' }
+  # a review adds no line to any risk (RL10), so duplicates wait for the repair, which renumbers them
+  if ($current.Renumbered.Count -gt 0) { Exit-Refused 'The register holds the same identifier twice; run -Repair first, which renumbers it. Nothing written.' }
   $text = 'Reviewed'
   if ($with.Count -gt 0) { $text += ', with ' + ($with -join ', ') }
   $text += '.'
-  if ($current.Renumbered.Count -gt 0) { $text += ' ' + ($current.Renumbered -join '; ') + '.' }
   $model.history = @([ordered]@{ date = $Today; by = $Person; kind = 'review'; with = ($with -join ', '); text = $text }) + @($model.history)
   $model.updated = $Today
   Write-Register $Page $model $current.Held
   Write-Output 'Review written.'
+}
+
+# ---------------------------------------------------------------- repair (RL11, NF4, D101 section 6.7)
+
+function Get-LineKey($Line) { return "$($Line.date)|$($Line.by)|$($Line.kind)|$($Line.text)" }
+
+# Lines by date, newest first, keeping the given order among lines of one date (5.1's sort is not stable).
+function Get-ByDate($Lines, [switch]$Oldest) {
+  $i = 0
+  $tagged = @($Lines | ForEach-Object { $i++; [pscustomobject]@{ n = $i; d = $_.date; line = $_ } })
+  return @($tagged | Sort-Object @{ Expression = { $_.d }; Descending = (-not $Oldest) }, @{ Expression = { $_.n } } | ForEach-Object { $_.line })
+}
+
+# The two sides of a conflicted page, read from git's index (:2: ours, :3: theirs), and nothing else.
+function Read-Sides([string]$Page) {
+  $dir = Split-Path -Parent $Page; $leaf = Split-Path -Leaf $Page
+  $sides = @()
+  foreach ($stage in 2, 3) {
+    $text = $null
+    try { $text = (& git -C $dir show ":${stage}:./$leaf" 2>$null) -join "`n" } catch { $text = $null }
+    if (-not $text) { Exit-Refused "The page holds conflict markers but git has no side $stage of it; finish or abort the merge in git first. Nothing written." }
+    $sides += , (Read-PageModel $text)
+  }
+  return $sides
+}
+
+# Both sides merged by identifier: a risk on one side is kept; the same risk (same name, first history line
+# and the same created date) on both is one risk whose differing fields become questions; two risks under one identifier stay two,
+# and the renumbering settles them. Every history line of either side is kept.
+# Two histories of one thing joined: the lines both sides share are their common start (oldest first)
+# and are kept once; every line after it is a side's own and is kept, even one identical to a line of
+# the other side, since the same words on the same day can be two events.
+function Join-Histories($A, $B, [switch]$NewestFirst) {
+  $a = @($A); $b = @($B)
+  if ($NewestFirst) { [array]::Reverse($a); [array]::Reverse($b) }
+  $n = 0
+  while ($n -lt $a.Count -and $n -lt $b.Count -and (Test-Same (Get-LineKey $a[$n]) (Get-LineKey $b[$n]))) { $n++ }
+  $shared = @(); if ($n -gt 0) { $shared = @($a[0..($n - 1)]) }
+  $own = @(); if ($a.Count -gt $n) { $own += @($a[$n..($a.Count - 1)]) }; if ($b.Count -gt $n) { $own += @($b[$n..($b.Count - 1)]) }
+  $joined = @($shared) + @(Get-ByDate $own -Oldest)
+  if ($NewestFirst) { [array]::Reverse($joined) }
+  return $joined
+}
+
+function Merge-Sides($Ours, $Theirs) {
+  $questions = @()
+  $model = [ordered]@{ lang = $Ours.lang; register = 'kept'; updated = (@($Ours.updated, $Theirs.updated) | Sort-Object)[-1]; history = @(); risks = @(); optout = $null }
+  # a risk on either side makes the register kept (a risk is never deleted); two opt-outs stay an opt-out
+  if ($Ours.register -eq 'opt-out' -and $Theirs.register -eq 'opt-out') { $model.register = 'opt-out'; $model.optout = $Ours.optout }
+  elseif ($Ours.register -eq 'opt-out' -and @($Ours.risks).Count -eq 0 -and $Theirs.register -ne 'kept') { $model.register = 'opt-out'; $model.optout = $Ours.optout }
+  $model.history = Join-Histories $Ours.history $Theirs.history -NewestFirst
+  $used = @()
+  $risks = @()
+  foreach ($r in $Ours.risks) {
+    $first = $r.created + "|" + $r.name + "|" + $(if (@($r.history).Count -gt 0) { Get-LineKey @($r.history)[0] } else { "" })
+    $k = -1
+    for ($j = 0; $j -lt @($Theirs.risks).Count; $j++) {
+      $t = @($Theirs.risks)[$j]
+      if ($used -ccontains $j -or -not (Test-Same $t.id $r.id)) { continue }
+      $tFirst = $t.created + "|" + $t.name + "|" + $(if (@($t.history).Count -gt 0) { Get-LineKey @($t.history)[0] } else { "" })
+      if (Test-Same $tFirst $first) { $k = $j; break }
+    }
+    if ($k -lt 0) { $risks += $r; continue }
+    $used += $k
+    $t = @($Theirs.risks)[$k]
+    foreach ($f in @('state') + $FieldNames) {
+      if (-not (Test-Same ([string]$r[$f]) ([string]$t[$f]))) {
+        $questions += [ordered]@{ key = "$($r.id)#$($risks.Count)/$f"; target = $r.id; field = $f; name = $r.name; index = $risks.Count; before = @([string]$r[$f], [string]$t[$f]); after = $null; ask = $true; note = 'differs between the two sides of the merge; with no common base, either side may be the one that changed it' }
+      }
+    }
+    $r.history = Join-Histories $r.history $t.history
+    $r.changed = (@($r.changed, $t.changed) | Sort-Object)[-1]
+    $risks += $r
+  }
+  for ($j = 0; $j -lt @($Theirs.risks).Count; $j++) { if ($used -cnotcontains $j) { $risks += @($Theirs.risks)[$j] } }
+  $model.risks = $risks
+  return @{ Model = $model; Questions = $questions }
+}
+
+# What a repair would change, as before and after: the merge's questions, the renumbering of
+# true duplicates, and one entry per field a hand edit broke. Asked values carry after = null.
+function Get-RepairPlan([string]$Page) {
+  $model = Read-Register $Page
+  $changes = @()
+  $merged = $false
+  if ($model.Contains('markers') -and $model.markers) {
+    $sides = Read-Sides $Page
+    $m = Merge-Sides $sides[0] $sides[1]
+    $model = $m.Model; $changes += $m.Questions; $merged = $true
+  }
+  # true duplicates: the earliest-created keeps the identifier (ties: the one first on the page)
+  $risks = @($model.risks)
+  $next = Get-NextNumber $model
+  foreach ($g in @($risks | Group-Object { $_.id } | Where-Object { $_.Count -gt 1 })) {
+    $order = @(0..($risks.Count - 1) | Where-Object { Test-Same $risks[$_].id $g.Name } | Sort-Object @{ Expression = { $risks[$_].created } }, @{ Expression = { $_ } })
+    $n = 0
+    foreach ($idx in $order[1..($order.Count - 1)]) {
+      $n++
+      $changes += [ordered]@{ key = "$($g.Name)#$n"; target = $g.Name; field = 'id'; name = $risks[$idx].name; index = $idx; before = $g.Name; after = (Format-Id $next); ask = $false; note = 'the same identifier twice' }
+      $next++
+    }
+  }
+  # every key carries the risk's place on the page, so two risks under one identifier never share an answer
+  $i = 0
+  foreach ($r in $risks) {
+    $who = if ($r.id) { $r.id } else { "risk $($i + 1) on the page" }
+    $at = "$who#$i"
+    if ($r.id -notmatch '^RISK-\d{3,}$') { $changes += [ordered]@{ key = "$at/id"; target = $who; field = 'id'; name = $r.name; index = $i; before = [string]$r.id; after = (Format-Id $next); ask = $false; note = 'no identifier of the form RISK-NNN; the next free one' }; $next++ }
+    foreach ($f in 'name', 'owner') { if (-not $r[$f]) { $changes += [ordered]@{ key = "$at/$f"; target = $who; field = $f; name = $r.name; index = $i; before = ''; after = $null; ask = $true; note = 'missing' } } }
+    foreach ($f in 'impact', 'probability') { if ($r[$f] -notmatch '^[1-5]$') { $changes += [ordered]@{ key = "$at/$f"; target = $who; field = $f; name = $r.name; index = $i; before = [string]$r[$f]; after = $null; ask = $true; note = 'not a whole number from 1 to 5' } } }
+    if ($r.state -notin $States -and -not $merged) { $changes += [ordered]@{ key = "$at/state"; target = $who; field = 'state'; name = $r.name; index = $i; before = [string]$r.state; after = $null; ask = $true; note = 'not a state' } }
+    $lines = @($r.history)
+    if ($r.created -notmatch '^\d{4}-\d{2}-\d{2}$' -and $lines.Count -gt 0) { $changes += [ordered]@{ key = "$at/created"; target = $who; field = 'created'; name = $r.name; index = $i; before = [string]$r.created; after = $lines[0].date; ask = $false; note = 'from its first history line' } }
+    if ($r.changed -notmatch '^\d{4}-\d{2}-\d{2}$' -and $lines.Count -gt 0) { $changes += [ordered]@{ key = "$at/changed"; target = $who; field = 'changed'; name = $r.name; index = $i; before = [string]$r.changed; after = $lines[-1].date; ask = $false; note = 'from its last history line' } }
+    for ($k = 0; $k -lt $lines.Count; $k++) {
+      if (-not $lines[$k].by) { $changes += [ordered]@{ key = "$at/history/$k/by"; target = $who; field = "history/$k/by"; name = $r.name; index = $i; before = ''; after = $null; ask = $true; note = "the person of its history line of $($lines[$k].date)" } }
+      if ($lines[$k].Contains('damaged')) { $changes += Get-LineRepair $lines[$k] "$at/history/$k" $who "history/$k" $r.name $i "its history line" }
+    }
+    $i++
+  }
+  $reg = @($model.history)
+  for ($k = 0; $k -lt $reg.Count; $k++) {
+    if (-not $reg[$k].by) { $changes += [ordered]@{ key = "register/history/$k/by"; target = 'register'; field = "history/$k/by"; name = ''; before = ''; after = $null; ask = $true; note = "the person of the register's line of $($reg[$k].date)" } }
+    if ($reg[$k].Contains('damaged')) { $changes += Get-LineRepair $reg[$k] "register/history/$k" 'register' "history/$k" '' $null "the register's line" }
+  }
+  # a merge is a change of its own, so the joined register is written even when nothing is asked
+  if ($merged) { $changes += [ordered]@{ key = 'register/merge'; target = 'register'; field = 'merge'; name = ''; before = 'two sides of a git merge'; after = 'one register'; ask = $false; note = 'the sides of the merge joined by identifier, every line of both kept' } }
+  if ($model.updated -notmatch '^\d{4}-\d{2}-\d{2}$') { $changes += [ordered]@{ key = 'register/updated'; target = 'register'; field = 'updated'; name = ''; before = [string]$model.updated; after = $(if ($reg.Count -gt 0) { $reg[0].date } else { $Today }); ask = $false; note = 'from its newest history line' } }
+  if ($model.register -notin @('kept', 'opt-out')) { $changes += [ordered]@{ key = 'register/register'; target = 'register'; field = 'register'; name = ''; before = [string]$model.register; after = $(if ($risks.Count -gt 0) { 'kept' } else { 'opt-out' }); ask = $false; note = 'from what the page holds' } }
+  if ($model.register -eq 'opt-out') {
+    if ($risks.Count -gt 0) {
+      # a risk is never deleted, so a page holding risks is a register, whatever it says
+      $changes += [ordered]@{ key = 'register/register'; target = 'register'; field = 'register'; name = ''; before = 'opt-out'; after = 'kept'; ask = $false; note = 'the page holds risks, and a risk is never deleted' }
+    } else {
+      $o = $model.optout
+      foreach ($f in 'reason', 'by', 'date') {
+        $v = ''; if ($null -ne $o) { $v = [string]$o[$f] }
+        $bad = ($f -eq 'reason' -and $OptOutReasons -cnotcontains $v) -or ($f -eq 'by' -and -not $v) -or ($f -eq 'date' -and $v -notmatch '^\d{4}-\d{2}-\d{2}$')
+        if ($bad) { $changes += [ordered]@{ key = "register/optout/$f"; target = 'register'; field = "optout/$f"; name = ''; before = $v; after = $null; ask = $true; note = "the opt-out's $(if ($f -eq 'by') { 'decider' } else { $f })" } }
+      }
+      if ($null -ne $o -and $o.reason -eq 'elsewhere' -and -not $o.where) { $changes += [ordered]@{ key = 'register/optout/where'; target = 'register'; field = 'optout/where'; name = ''; before = ''; after = $null; ask = $true; note = 'where risks are handled' } }
+    }
+  }
+  return @{ Model = $model; Changes = $changes }
+}
+
+# A damaged history line: restored from what is left of it (unasked), and its kind or date asked when
+# nothing on the page holds them any more.
+function Get-LineRepair($Line, [string]$Key, [string]$Target, [string]$Field, [string]$Name, $Index, [string]$What) {
+  $out = @()
+  $c = [ordered]@{ key = "$Key/text"; target = $Target; field = "$Field/text"; name = $Name; before = 'damaged'; after = $Line.text; ask = $false; note = "$What of $($Line.date), restored from what is left of it on the page" }
+  if ($null -ne $Index) { $c.index = $Index }
+  $out += $c
+  foreach ($f in 'kind', 'date') {
+    $bad = if ($f -eq 'kind') { -not $Line.kind } else { $Line.date -notmatch '^\d{4}-\d{2}-\d{2}$' }
+    if ($bad) {
+      $q = [ordered]@{ key = "$Key/$f"; target = $Target; field = "$Field/$f"; name = $Name; before = [string]$Line[$f]; after = $null; ask = $true; note = "the $f of $What `"$($Line.text)`", which the page no longer holds" }
+      if ($null -ne $Index) { $q.index = $Index }
+      $out += $q
+    }
+  }
+  return $out
+}
+
+# Applies a plan to its model; with -AutoOnly only what needs no answer (the baseline the check holds).
+function Set-Repair($Plan, $Answers, [string]$Person, [switch]$AutoOnly) {
+  $model = $Plan.Model
+  $risks = @($model.risks)
+  $done = @()
+  foreach ($c in $Plan.Changes) {
+    if ($c.ask -and $AutoOnly) { continue }
+    $value = $c.after
+    if ($c.ask) {
+      $a = @($Answers | Where-Object { Test-Same ([string](Get-Field $_ 'key')) $c.key })
+      if ($a.Count -eq 0 -or -not (Get-Text (Get-Field $a[0] 'after'))) { Exit-Refused "The repair still asks for $($c.target) $($c.field) ($($c.note)). Nothing written." }
+      $value = Get-Text (Get-Field $a[0] 'after')
+    }
+    if ($c.target -eq 'register') {
+      if ($c.field -eq 'merge') { $done += 'the two sides of a git merge joined'; continue }
+      if ($c.field -match '^history/(\d+)/(by|kind|date)$') { @($model.history)[[int]$Matches[1]][$Matches[2]] = $value }
+      elseif ($c.field -match '^history/(\d+)/text$') { $l = @($model.history)[[int]$Matches[1]]; $l.text = $value; $l.Remove('damaged') }
+      elseif ($c.field -match '^optout/(\w+)$') { if ($null -eq $model.optout) { $model.optout = [ordered]@{ reason = ''; where = ''; by = ''; date = '' } }; $model.optout[$Matches[1]] = $value }
+      else {
+        $model[$c.field] = $value
+        if ($c.field -eq 'register' -and $value -eq 'kept') { $model.optout = $null }
+      }
+      $done += "register $($c.field) $(if ($c.before) { $c.before } else { '(missing)' }) $Arrow $value"
+      continue
+    }
+    $risk = if ($c.Contains('index')) { $risks[$c.index] } else { @($risks | Where-Object { Test-Same $_.id $c.target })[0] }
+    if ($c.field -eq 'id') {
+      $risk.id = $value
+      $from = if ($c.before) { $c.before } else { 'no identifier' }
+      $risk.history = @($risk.history) + @([ordered]@{ date = $Today; by = $Person; kind = 'renumber'; text = "Renumbered from $from" })
+    } elseif ($c.field -match '^history/(\d+)/(by|kind|date)$') {
+      @($risk.history)[[int]$Matches[1]][$Matches[2]] = $value
+    } elseif ($c.field -match '^history/(\d+)/text$') {
+      $l = @($risk.history)[[int]$Matches[1]]; $l.text = $value; $l.Remove('damaged')
+    } else {
+      $risk[$c.field] = $value
+    }
+    $before = if ($c.before -is [array]) { ($c.before -join ' / ') } elseif ($c.before) { $c.before } else { '(missing)' }
+    $done += "$($c.target) $($c.field) $before $Arrow $value"
+  }
+  return $done
+}
+
+function Invoke-RepairProposal([string]$Page) {
+  if (-not (Test-Path -LiteralPath $Page)) { Exit-Refused "No register at $Path; there is nothing to repair." }
+  $plan = Get-RepairPlan $Page
+  $problems = @(Get-Problems (Read-Register $Page))
+  $ids = @($plan.Changes | Where-Object { $_.field -eq 'id' })
+  if ($ids.Count -gt 0) { $problems += 'the same identifier twice' }
+  Write-Output (ConvertTo-Json -InputObject ([ordered]@{ problems = $problems; changes = @($plan.Changes) }) -Depth 6)
+}
+
+# A confirmed repair: the plan again, the answers the proposal carries, the same .new, check and rename.
+function Invoke-RepairWrite([string]$Page, $ChangeData, [string]$Person) {
+  if (-not (Test-Path -LiteralPath $Page)) { Exit-Refused "No register at $Path; there is nothing to repair. Nothing written." }
+  $answers = @(Get-Field (Get-Field $ChangeData 'proposal') 'changes')
+  $held = Get-RepairPlan $Page
+  Set-Repair $held @() $Person -AutoOnly | Out-Null
+  $plan = Get-RepairPlan $Page
+  $done = @(Set-Repair $plan $answers $Person)
+  if ($done.Count -eq 0) {
+    $left = @(Get-Problems (Read-Register $Page))
+    if ($left.Count -gt 0) { Exit-Refused ('The repair cannot settle this by itself: ' + ($left -join '; ') + '. Edit the page by hand and run -Repair again. Nothing written.') }
+    Exit-Refused 'The register needs no repair. Nothing written.'
+  }
+  $model = $plan.Model
+  $problems = @(Get-Problems $model)
+  if ($problems.Count -gt 0) { Exit-Refused ('The repair would still leave: ' + ($problems -join '; ') + '. Nothing written.') }
+  $model.history = @([ordered]@{ date = $Today; by = $Person; kind = 'repair'; with = ''; text = ('Repaired: ' + ($done -join '; ') + '.') }) + @($model.history)
+  $model.updated = $Today
+  Write-Register $Page $model $held.Model -Fill
+  Write-Output 'Repair written.'
+}
+
+# A .new left by an interrupted write: shown, then renamed into place if it passes the check, else deleted.
+function Invoke-Finish([string]$Page, [string]$Person) {
+  $new = $Page + '.new'
+  if (-not (Test-Path -LiteralPath $new)) { Write-Output 'Nothing to finish.'; return }
+  $current = $null
+  if (Test-Path -LiteralPath $Page) { $current = Read-Register $Page }
+  $html = [System.IO.File]::ReadAllText($new, $Utf8)
+  $next = Read-PageModel $html
+  $next.markers = ([regex]::IsMatch($html, '(?m)^<{7}(\s|$)') -and [regex]::IsMatch($html, '(?m)^>{7}(\s|$)'))
+  $was = @(); if ($null -ne $current) { $was = @((Format-Model $current) -split "`n") }
+  $now = @((Format-Model $next) -split "`n")
+  $diff = @($now | Where-Object { $was -cnotcontains $_ } | ForEach-Object { "+ $_" }) + @($was | Where-Object { $now -cnotcontains $_ } | ForEach-Object { "- $_" })
+  Write-Output ("$Path.new changes:`n" + ($diff -join "`n"))
+  $problem = $null
+  if ($html -match '\{\{') { $problem = 'a placeholder was left unfilled' }
+  elseif (@(Get-Problems $next).Count -gt 0) { $problem = (@(Get-Problems $next) -join '; ') }
+  elseif (Test-Unsigned $next) { $problem = 'a history line names no person' }
+  else { $problem = Test-Kept $current $next }
+  Remove-Item -LiteralPath $new -Force
+  if ($problem) { Exit-Refused "Deleted $Path.new: $problem. The register is as it was." }
+  $next.history = @([ordered]@{ date = $Today; by = $Person; kind = 'finish'; with = ''; text = 'Finished an interrupted write.' }) + @($next.history)
+  $next.updated = $Today
+  Write-Register $Page $next $current
+  Write-Output 'Finished: the interrupted write is in place.'
 }
 
 # ---------------------------------------------------------------- the view (S2, P6)
@@ -728,7 +1030,7 @@ function Format-View($Model, [string]$Shown) {
     foreach ($r in $inState) {
       $score = (Get-Score $r).PadLeft(2)
       foreach ($l in (Format-Wrapped $r.name ('  ' + $r.id + '  ' + $score + '  '))) { $out.Add($l) }
-      $area = if ($r.area) { $r.area } else { 'no area' }
+      $area = if ($r.area) { $r.area } else { 'area none written' }
       foreach ($l in (Format-Wrapped "$($r.owner) $Dot $area $Dot I$($r.impact) P$($r.probability) $Dot changed $($r.changed)" $Indent)) { $out.Add($l) }
       if ($r.description) { foreach ($l in (Format-Wrapped $r.description $Indent)) { $out.Add($l) } } else { $out.Add($Indent + 'Description: none written') }
       if ($r.mitigation) { foreach ($l in (Format-Wrapped $r.mitigation '     Mitigation ')) { $out.Add($l) } } else { $out.Add('     Mitigation none written') }
@@ -744,7 +1046,12 @@ function Invoke-View([string]$Page) {
   if (-not (Test-Path -LiteralPath $Page)) { Write-Output "No register and no opt-out at $Path."; return }
   $model = Read-Register $Page
   $problems = @(Get-Problems $model)
-  if ($problems.Count -gt 0) { Exit-Refused ('The register cannot be read in full (' + ($problems -join '; ') + '); run -Repair first.') }
+  # a missing field or person, or a damaged history line, is shown as the page holds it (no score
+  # for no impact); anything that leaves no clear register to show (conflict markers, a risk with no
+  # identifier or state, a broken opt-out) is refused
+  $shown = '(has no (impact|probability|owner|name|created date|changed date|history)|names no person|is damaged)'
+  $blocking = @($problems | Where-Object { $_ -notmatch $shown })
+  if ($blocking.Count -gt 0) { Exit-Refused ('The register cannot be read in full (' + ($problems -join '; ') + '); run -Repair first.') }
   if ($model.register -eq 'opt-out') {
     $o = $model.optout
     $lines = @("Risk log $Dot $Path", 'No risk register kept here.', '')
@@ -762,13 +1069,15 @@ function Invoke-OptOut([string]$Page, $ChangeData, [string]$Person) {
   $reason = Get-Text (Get-Field $o 'reason')
   $where = Get-Text (Get-Field $o 'where')
   $decider = Get-Text (Get-Field $o 'decider')
-  if ($OptOutReasons -notcontains $reason) { Exit-Refused ("An opt-out's reason is one of " + ($OptOutReasons -join ', ') + "; not '$reason'. Nothing written.") }
+  if ($OptOutReasons -cnotcontains $reason) { Exit-Refused ("An opt-out's reason is one of " + ($OptOutReasons -join ', ') + "; not '$reason'. Nothing written.") }
   if ($reason -eq 'elsewhere' -and -not $where) { Exit-Refused 'An opt-out because risks are handled elsewhere names where (where). Nothing written.' }
   if (-not $decider) { Exit-Refused 'An opt-out names the person who decided it (decider). Nothing written.' }
   if (Test-Path -LiteralPath $Page) {
     $current = Read-Register $Page
     if ($current.register -eq 'opt-out') { Exit-Refused 'An opt-out is already recorded here. Nothing written.' }
-    Exit-Refused 'The register holds risks, and a risk is never deleted: resolve the risks instead of opting out. Nothing written.'
+    if (@(Get-Problems $current).Count -gt 0) { Exit-Refused 'The register cannot be read in full; run -Repair first. Nothing written.' }
+    if (@($current.risks).Count -gt 0) { Exit-Refused 'The register holds risks, and a risk is never deleted: resolve the risks instead of opting out. Nothing written.' }
+    Exit-Refused 'A register is kept here; an opt-out replaces no register. Nothing written.'
   }
   $lang = Get-Text (Get-Field $ChangeData 'language')
   if (-not $lang) { Exit-Refused 'The first write names the project language (language). Nothing written.' }
@@ -826,12 +1135,18 @@ switch ($actions) {
       'handover' { Invoke-Handover $PagePath $data $person }
       'review' { Invoke-Review $PagePath $data $person }
       'optout' { Invoke-OptOut $PagePath $data $person }
-      default { Exit-Unreadable "The verb '$(Get-Text (Get-Field $data 'verb'))' is not built yet." }
+      'repair' { Invoke-RepairWrite $PagePath $data $person }
+      default { Exit-Unreadable "The verb '$(Get-Text (Get-Field $data 'verb'))' is not one of add, change, state, handover, review, optout, repair." }
     }
     exit 0
   }
-  default {
-    Write-Output "-$($actions) is not built yet."
-    exit 2
+  'Repair' {
+    Invoke-RepairProposal $PagePath
+    exit 0
+  }
+  'Finish' {
+    $person = Get-Person
+    Invoke-Finish $PagePath $person
+    exit 0
   }
 }

@@ -96,6 +96,18 @@ BeforeAll {
   # the script writes UTF-8; read its output as UTF-8 whatever the console started with
   $script:SavedOutputEncoding = [Console]::OutputEncoding
   try { [Console]::OutputEncoding = $script:Utf8 } catch { }
+  function Invoke-Repair([string]$Root) {
+    $r = Invoke-RiskLog $Root @('-Path', 'project/risk-log.html', '-Repair')
+    if ($r.Code -ne 0) { throw "-Repair failed ($($r.Code)): $($r.Output)" }
+    return ($r.Output | ConvertFrom-Json)
+  }
+  function Get-Change($Proposal, [string]$Target, [string]$Field) {
+    return @($Proposal.changes | Where-Object { $_.target -eq $Target -and $_.field -eq $Field })[0]
+  }
+  function Invoke-Git([string]$Root, [string[]]$GitArgs) {
+    & git -C $Root -c user.name=Tester -c user.email=tester@example.invalid -c core.autocrlf=false @GitArgs 2>&1 | Out-Null
+  }
+
   $script:SavedGitGlobal = $env:GIT_CONFIG_GLOBAL
   $script:SavedGitNoSystem = $env:GIT_CONFIG_NOSYSTEM
 }
@@ -666,7 +678,8 @@ Describe 'risk-log.ps1' {
       $view = Invoke-View $root
       $view.Code | Should -Be 0 -Because $view.Output
       $out = $view.Output
-      foreach ($s in 'RISK-001', '12', 'Sponsor changes mid-engagement', 'Maja Holm', 'Governance', 'I4', 'P3', (Get-Today), 'reorganisation', 'Brief the deputy sponsor') { $out | Should -Match ([regex]::Escape($s)) }
+      $out | Should -Match '(?m)^  RISK-001  12  Sponsor changes mid-engagement'
+      foreach ($s in 'Sponsor changes mid-engagement', 'Maja Holm', 'Governance', 'I4', 'P3', (Get-Today), 'reorganisation', 'Brief the deputy sponsor') { $out | Should -Match ([regex]::Escape($s)) }
       $block = [regex]::Match($out, '(?s)  RISK-002.*?(\r?\n  [' + [char]0x2500 + ']|$)').Value
       $block | Should -Match 'Environment late'
       $block | Should -Match 'Jonas Berg'
@@ -792,6 +805,130 @@ Describe 'risk-log.ps1' {
     }
   }
 
+  Context 'Repair and finish interrupted writes' {
+
+    BeforeAll {
+      # Six risks, then RISK-005's impact removed by hand.
+      function New-BrokenRegister([string]$Name) {
+        $root = New-Register $Name (1..6 | ForEach-Object { [ordered]@{ name = "Risk $_"; owner = 'Jonas Berg'; impact = 3; probability = 2 } })
+        Set-PageText $root (Set-RiskAttr (Read-Page $root) 'RISK-005' 'data-impact' '')
+        return $root
+      }
+    }
+
+    It 'An unreadable register is not written to and gets a repair proposal' {
+      $root = New-BrokenRegister 'repair-proposal'
+      @((Invoke-Read $root).problems) -join ' ' | Should -Match 'RISK-005.*impact'
+      $before = Get-PageHash $root
+      (Add-Risk $root ([ordered]@{ name = 'Another'; owner = 'Maja Holm'; impact = 2; probability = 2 })).Code | Should -Be 1
+      Get-PageHash $root | Should -Be $before
+      $proposal = Invoke-Repair $root
+      Get-PageHash $root | Should -Be $before
+      $c = Get-Change $proposal 'RISK-005' 'impact'
+      $c | Should -Not -BeNullOrEmpty
+      [string]$c.before | Should -BeNullOrEmpty
+      $c.ask | Should -BeTrue
+      foreach ($change in @($proposal.changes)) { $change.PSObject.Properties.Name | Should -Contain 'before'; $change.PSObject.Properties.Name | Should -Contain 'after' }
+    }
+
+    It 'A confirmed repair loses nothing' {
+      $root = New-BrokenRegister 'repair-confirmed'
+      $held = Invoke-Read $root
+      $proposal = Invoke-Repair $root
+      (Get-Change $proposal 'RISK-005' 'impact').after = '4'
+      $file = Write-Change $root ([ordered]@{ verb = 'repair'; proposal = $proposal })
+      $r = Invoke-RiskLog $root @('-Path', 'project/risk-log.html', '-Apply', '-Change', $file, '-By', 'Maja Holm')
+      $r.Code | Should -Be 0 -Because $r.Output
+      $data = Invoke-Read $root
+      @($data.problems).Count | Should -Be 0
+      (@($data.risks) | Where-Object { $_.id -eq 'RISK-005' }).impact | Should -Be '4'
+      foreach ($old in @($held.risks)) {
+        $now = @($data.risks) | Where-Object { $_.id -eq $old.id }
+        $now | Should -Not -BeNullOrEmpty
+        (@($now.history) | ConvertTo-Json -Depth 4 -Compress) | Should -Be (@($old.history) | ConvertTo-Json -Depth 4 -Compress)
+      }
+      @($data.history).Count | Should -Be (@($held.history).Count + 1)
+      @($data.history)[0].kind | Should -Be 'repair'
+      @($data.history)[0].by | Should -Be 'Maja Holm'
+      @($data.history)[0].text | Should -Match '^Repaired'
+    }
+
+    It 'A leftover new file is finished or discarded (<case>)' -ForEach @(
+      @{ case = 'passes'; passes = $true }
+      @{ case = 'fails, having dropped a history line'; passes = $false }
+    ) {
+      $root = New-Register ('finish-' + $passes) (1..2 | ForEach-Object { [ordered]@{ name = "Risk $_"; owner = 'Jonas Berg'; impact = 3; probability = 2 } })
+      $page = Join-Path $root 'project/risk-log.html'
+      if ($passes) {
+        # the page a write would have renamed into place: the same register with a third risk
+        $twin = New-Register ('finish-twin') (1..3 | ForEach-Object { [ordered]@{ name = "Risk $_"; owner = 'Jonas Berg'; impact = 3; probability = 2 } })
+        Copy-Item (Join-Path $twin 'project/risk-log.html') ($page + '.new')
+      } else {
+        $html = Read-Page $root
+        [System.IO.File]::WriteAllText($page + '.new', ([regex]'(?s)(<ol class="risk-history">\s*)<li[^>]*>.*?</li>').Replace($html, '$1', 1), $script:Utf8)
+      }
+      $before = Get-PageHash $root
+      (Invoke-RiskLog $root @('-Path', 'project/risk-log.html', '-Read')).Code | Should -Be 0
+      Get-PageHash $root | Should -Be $before
+      Test-Path ($page + '.new') | Should -BeTrue
+      $r = Invoke-RiskLog $root @('-Path', 'project/risk-log.html', '-Finish', '-By', 'Maja Holm')
+      $r.Output.Trim() | Should -Not -BeNullOrEmpty
+      Test-Path ($page + '.new') | Should -BeFalse
+      if ($passes) {
+        $r.Code | Should -Be 0 -Because $r.Output
+        $r.Output | Should -Match 'RISK-003'
+        $data = Invoke-Read $root
+        @($data.risks).Count | Should -Be 3
+        @($data.history)[0].kind | Should -Be 'finish'
+      } else {
+        $r.Code | Should -Be 1 -Because $r.Output
+        $r.Output | Should -Match '(?i)deleted'
+        Get-PageHash $root | Should -Be $before
+      }
+    }
+
+    It 'A risk with no impact shows no score' -Tag 'review-focus' {
+      $root = New-BrokenRegister 'no-score'
+      $view = Invoke-RiskLog $root @('-Path', 'project/risk-log.html', '-View')
+      $view.Code | Should -Be 0 -Because $view.Output
+      $line = @($view.Output -split "`r?`n" | Where-Object { $_ -match '^  RISK-005' })[0]
+      $line | Should -Match '^  RISK-005\s+Risk 5$'
+      $line | Should -Not -Match '\b0\b'
+      @((Invoke-Read $root).problems) -join ' ' | Should -Match 'RISK-005'
+    }
+
+    It 'Conflict markers after a merge become a repair' -Tag 'review-focus' {
+      $root = New-Register 'merge' (1..6 | ForEach-Object { [ordered]@{ name = "Risk $_"; owner = 'Jonas Berg'; impact = 3; probability = 2 } })
+      Invoke-Git $root @('add', '-A'); Invoke-Git $root @('commit', '-q', '-m', 'base')
+      $base = (& git -C $root rev-parse --abbrev-ref HEAD)
+      Invoke-Git $root @('checkout', '-q', '-b', 'side-b')
+      (Add-Risk $root ([ordered]@{ name = 'From B'; owner = 'Erik Lund'; impact = 2; probability = 2 })).Code | Should -Be 0
+      Set-PageText $root (Set-RiskAttr (Read-Page $root) 'RISK-007' 'data-created' '2026-01-01')
+      $change = Write-Change $root ([ordered]@{ verb = 'change'; target = 'RISK-002'; fields = [ordered]@{ probability = 5 } })
+      (Invoke-RiskLog $root @('-Path', 'project/risk-log.html', '-Apply', '-Change', $change, '-By', 'Maja Holm')).Code | Should -Be 0
+      Remove-Item $change
+      Invoke-Git $root @('commit', '-q', '-am', 'side b')
+      Invoke-Git $root @('checkout', '-q', $base)
+      (Add-Risk $root ([ordered]@{ name = 'From A'; owner = 'Sara Nygaard'; impact = 2; probability = 2 })).Code | Should -Be 0
+      $change = Write-Change $root ([ordered]@{ verb = 'change'; target = 'RISK-002'; fields = [ordered]@{ probability = 4 } })
+      (Invoke-RiskLog $root @('-Path', 'project/risk-log.html', '-Apply', '-Change', $change, '-By', 'Maja Holm')).Code | Should -Be 0
+      Remove-Item $change
+      Invoke-Git $root @('commit', '-q', '-am', 'side a')
+      Invoke-Git $root @('merge', 'side-b')
+      (Read-Page $root) | Should -Match '(?m)^<<<<<<<'
+      @((Invoke-Read $root).problems) -join ' ' | Should -Match 'conflict'
+      $proposal = Invoke-Repair $root
+      $p = Get-Change $proposal 'RISK-002' 'probability'
+      $p | Should -Not -BeNullOrEmpty
+      $p.ask | Should -BeTrue
+      (@($p.before) | ForEach-Object { [string]$_ } | Sort-Object) -join ',' | Should -Be '4,5'
+      $ren = @($proposal.changes | Where-Object { $_.field -eq 'id' -and $_.before -eq 'RISK-007' })
+      $ren.Count | Should -Be 1
+      $ren[0].after | Should -Be 'RISK-008'
+      $ren[0].name | Should -Be 'From A'
+    }
+  }
+
   # Not scenarios of a task spec: guards a review asked to keep closed.
   Context 'Review guards' {
 
@@ -826,6 +963,166 @@ Describe 'risk-log.ps1' {
       $review = Write-Change $root ([ordered]@{ verb = 'review' })
       (Invoke-RiskLog $root @('-Path', 'project/risk-log.html', '-Apply', '-Change', $review, '-By', 'Maja Holm')).Code | Should -Be 1
       Get-PageHash $root | Should -Be $before
+    }
+
+    It 'A history line a hand edit damaged is restored by the repair, never dropped' {
+      $root = New-Register 'damaged-line' (1..2 | ForEach-Object { [ordered]@{ name = "Risk $_"; owner = 'Jonas Berg'; impact = 3; probability = 2 } })
+      $change = Write-Change $root ([ordered]@{ verb = 'change'; target = 'RISK-001'; fields = [ordered]@{ impact = 4 } })
+      (Invoke-RiskLog $root @('-Path', 'project/risk-log.html', '-Apply', '-Change', $change, '-By', 'Maja Holm')).Code | Should -Be 0
+      $html = Read-Page $root
+      $art = [regex]::Match($html, '(?s)<article class="risk" id="RISK-001".*?</article>')
+      $broken = ([regex]'<span class="who">([^<]*)</span>').Replace($art.Value, '$1', 1)
+      Set-PageText $root (Set-RiskAttr ($html.Substring(0, $art.Index) + $broken + $html.Substring($art.Index + $art.Length)) 'RISK-002' 'data-impact' '')
+      $data = Invoke-Read $root
+      @(@($data.risks) | Where-Object { $_.id -eq 'RISK-001' })[0].history.Count | Should -Be 2
+      @($data.problems) -join ' ' | Should -Match 'RISK-001 is damaged'
+      $proposal = Invoke-Repair $root
+      (Get-Change $proposal 'RISK-002' 'impact').after = '3'
+      $file = Write-Change $root ([ordered]@{ verb = 'repair'; proposal = $proposal })
+      $r = Invoke-RiskLog $root @('-Path', 'project/risk-log.html', '-Apply', '-Change', $file, '-By', 'Maja Holm')
+      $r.Code | Should -Be 0 -Because $r.Output
+      $after = Invoke-Read $root
+      @($after.problems).Count | Should -Be 0
+      $lines = @(@(@($after.risks) | Where-Object { $_.id -eq 'RISK-001' })[0].history)
+      $lines.Count | Should -Be 2
+      $lines[0].text | Should -Match '^Created: Risk 1\.'
+      $lines[1].kind | Should -Be 'change'
+    }
+
+    It 'A merge keeps two risks added the same day under one identifier, and every line of both sides' {
+      $root = New-Register 'merge-same-day' (1..2 | ForEach-Object { [ordered]@{ name = "Risk $_"; owner = 'Jonas Berg'; impact = 3; probability = 2 } })
+      Invoke-Git $root @('add', '-A'); Invoke-Git $root @('commit', '-q', '-m', 'base')
+      $base = (& git -C $root rev-parse --abbrev-ref HEAD)
+      Invoke-Git $root @('checkout', '-q', '-b', 'side-b')
+      (Add-Risk $root ([ordered]@{ name = 'From B'; owner = 'Maja Holm'; impact = 2; probability = 2 })).Code | Should -Be 0
+      Invoke-Git $root @('commit', '-q', '-am', 'side b')
+      Invoke-Git $root @('checkout', '-q', $base)
+      (Add-Risk $root ([ordered]@{ name = 'From A'; owner = 'Maja Holm'; impact = 2; probability = 2 })).Code | Should -Be 0
+      Invoke-Git $root @('commit', '-q', '-am', 'side a')
+      Invoke-Git $root @('merge', 'side-b')
+      (Read-Page $root) | Should -Match '(?m)^<<<<<<<'
+      $proposal = Invoke-Repair $root
+      @($proposal.changes | Where-Object { $_.ask }).Count | Should -Be 0
+      $file = Write-Change $root ([ordered]@{ verb = 'repair'; proposal = $proposal })
+      $r = Invoke-RiskLog $root @('-Path', 'project/risk-log.html', '-Apply', '-Change', $file, '-By', 'Maja Holm')
+      $r.Code | Should -Be 0 -Because $r.Output
+      $data = Invoke-Read $root
+      @($data.problems).Count | Should -Be 0
+      ((@($data.risks) | ForEach-Object { $_.name } | Sort-Object) -join ',') | Should -Be 'From A,From B,Risk 1,Risk 2'
+      @($data.risks | Where-Object { $_.id -eq 'RISK-004' }).Count | Should -Be 1
+      @(@($data.risks | Where-Object { $_.id -eq 'RISK-004' })[0].history)[-1].kind | Should -Be 'renumber'
+      @($data.history | Where-Object { $_.text -like 'RISK-003 registered: From *' }).Count | Should -Be 2
+      (Read-Page $root) | Should -Not -Match '(?m)^(<<<<<<<|>>>>>>>)'
+    }
+
+    It 'A merge with nothing to ask is written by the repair' {
+      $root = New-Register 'merge-nothing-to-ask' (1..2 | ForEach-Object { [ordered]@{ name = "Risk $_"; owner = 'Jonas Berg'; impact = 3; probability = 2 } })
+      Invoke-Git $root @('add', '-A'); Invoke-Git $root @('commit', '-q', '-m', 'base')
+      $base = (& git -C $root rev-parse --abbrev-ref HEAD)
+      Invoke-Git $root @('checkout', '-q', '-b', 'side-b')
+      $review = Write-Change $root ([ordered]@{ verb = 'review'; with = @('Erik Lund') })
+      (Invoke-RiskLog $root @('-Path', 'project/risk-log.html', '-Apply', '-Change', $review, '-By', 'Sara Nygaard')).Code | Should -Be 0
+      Remove-Item $review
+      Invoke-Git $root @('commit', '-q', '-am', 'side b')
+      Invoke-Git $root @('checkout', '-q', $base)
+      (Add-Risk $root ([ordered]@{ name = 'From A'; owner = 'Maja Holm'; impact = 2; probability = 2 })).Code | Should -Be 0
+      Invoke-Git $root @('commit', '-q', '-am', 'side a')
+      Invoke-Git $root @('merge', 'side-b')
+      (Read-Page $root) | Should -Match '(?m)^<<<<<<<'
+      $proposal = Invoke-Repair $root
+      @($proposal.changes | Where-Object { $_.ask }).Count | Should -Be 0
+      $file = Write-Change $root ([ordered]@{ verb = 'repair'; proposal = $proposal })
+      $r = Invoke-RiskLog $root @('-Path', 'project/risk-log.html', '-Apply', '-Change', $file, '-By', 'Maja Holm')
+      $r.Code | Should -Be 0 -Because $r.Output
+      $data = Invoke-Read $root
+      @($data.problems).Count | Should -Be 0
+      @($data.risks).Count | Should -Be 3
+      @($data.history | Where-Object { $_.kind -eq 'review' -and $_.by -eq 'Sara Nygaard' }).Count | Should -Be 1
+      @($data.history | Where-Object { $_.text -like 'RISK-003 registered: From A*' }).Count | Should -Be 1
+    }
+
+    It 'A confirmed merge takes the answer for a field changed on both sides' {
+      $root = New-Register 'merge-answered' (1..2 | ForEach-Object { [ordered]@{ name = "Risk $_"; owner = 'Jonas Berg'; impact = 3; probability = 2 } })
+      Invoke-Git $root @('add', '-A'); Invoke-Git $root @('commit', '-q', '-m', 'base')
+      $base = (& git -C $root rev-parse --abbrev-ref HEAD)
+      foreach ($side in @(@{ branch = 'side-b'; p = 5 }, @{ branch = $base; p = 4 })) {
+        if ($side.branch -ne $base) { Invoke-Git $root @('checkout', '-q', '-b', $side.branch) } else { Invoke-Git $root @('checkout', '-q', $base) }
+        $change = Write-Change $root ([ordered]@{ verb = 'change'; target = 'RISK-002'; fields = [ordered]@{ probability = $side.p } })
+        (Invoke-RiskLog $root @('-Path', 'project/risk-log.html', '-Apply', '-Change', $change, '-By', 'Maja Holm')).Code | Should -Be 0
+        Remove-Item $change
+        Invoke-Git $root @('commit', '-q', '-am', "probability $($side.p)")
+      }
+      Invoke-Git $root @('merge', 'side-b')
+      $proposal = Invoke-Repair $root
+      $q = Get-Change $proposal 'RISK-002' 'probability'
+      $q.ask | Should -BeTrue
+      $q.after = '5'
+      $file = Write-Change $root ([ordered]@{ verb = 'repair'; proposal = $proposal })
+      $r = Invoke-RiskLog $root @('-Path', 'project/risk-log.html', '-Apply', '-Change', $file, '-By', 'Maja Holm')
+      $r.Code | Should -Be 0 -Because $r.Output
+      $risk = @((Invoke-Read $root).risks) | Where-Object { $_.id -eq 'RISK-002' }
+      $risk.probability | Should -Be '5'
+      @($risk.history | Where-Object { $_.kind -eq 'change' }).Count | Should -Be 2
+    }
+
+    It 'A history line with a lost date or a lost closing tag is read, reported and kept by the repair (<case>)' -ForEach @(
+      @{ case = 'lost date' }
+      @{ case = 'lost closing tag' }
+    ) {
+      $root = New-Register ('damage-' + $case.Replace(' ', '-')) (1..2 | ForEach-Object { [ordered]@{ name = "Risk $_"; owner = 'Jonas Berg'; impact = 3; probability = 2 } })
+      $change = Write-Change $root ([ordered]@{ verb = 'change'; target = 'RISK-001'; fields = [ordered]@{ impact = 4 } })
+      (Invoke-RiskLog $root @('-Path', 'project/risk-log.html', '-Apply', '-Change', $change, '-By', 'Maja Holm')).Code | Should -Be 0
+      $html = Read-Page $root
+      $art = [regex]::Match($html, '(?s)<article class="risk" id="RISK-001".*?</article>')
+      $broken = if ($case -eq 'lost date') { ([regex]'(<ol class="risk-history">\s*<li) data-date="[^"]*"').Replace($art.Value, '$1', 1) } else { ([regex]'(<ol class="risk-history">\s*<li[^>]*>.*?)</li>').Replace($art.Value, '$1', 1) }
+      Set-PageText $root ($html.Substring(0, $art.Index) + $broken + $html.Substring($art.Index + $art.Length))
+      $data = Invoke-Read $root
+      @($data.problems) -join ' ' | Should -Match 'RISK-001 is damaged'
+      $lines = @(@(@($data.risks) | Where-Object { $_.id -eq 'RISK-001' })[0].history)
+      $lines.Count | Should -Be 2
+      $lines[0].date | Should -Be (Get-Today)
+      $lines[1].kind | Should -Be 'change'
+      $proposal = Invoke-Repair $root
+      $file = Write-Change $root ([ordered]@{ verb = 'repair'; proposal = $proposal })
+      $r = Invoke-RiskLog $root @('-Path', 'project/risk-log.html', '-Apply', '-Change', $file, '-By', 'Maja Holm')
+      $r.Code | Should -Be 0 -Because $r.Output
+      $after = @(@(@((Invoke-Read $root).risks) | Where-Object { $_.id -eq 'RISK-001' })[0].history)
+      ($after | ForEach-Object { "$($_.date)|$($_.kind)" }) -join ',' | Should -Be "$(Get-Today)|created,$(Get-Today)|change"
+      $after[0].text | Should -Match '^Created: Risk 1\.'
+    }
+
+    It 'A review of a register holding an identifier twice is refused and points to the repair' {
+      $root = New-Register 'review-dups' (1..2 | ForEach-Object { [ordered]@{ name = "Risk $_"; owner = 'Jonas Berg'; impact = 3; probability = 2 } })
+      Set-PageText $root ((Read-Page $root).Replace('RISK-002', 'RISK-001'))
+      $before = Get-PageHash $root
+      $review = Write-Change $root ([ordered]@{ verb = 'review' })
+      $r = Invoke-RiskLog $root @('-Path', 'project/risk-log.html', '-Apply', '-Change', $review, '-By', 'Maja Holm')
+      $r.Code | Should -Be 1
+      $r.Output | Should -Match '-Repair'
+      Get-PageHash $root | Should -Be $before
+    }
+
+    It 'An empty area shows as none written in the view' {
+      $root = New-Register 'empty-area' @([ordered]@{ name = 'One'; owner = 'Maja Holm'; impact = 2; probability = 2 })
+      (Invoke-RiskLog $root @('-Path', 'project/risk-log.html', '-View')).Output | Should -Match ('Maja Holm ' + [char]0x00B7 + ' area none written ' + [char]0x00B7)
+    }
+
+    It 'An opt-out place ending in a full stop is not doubled, and one with no place is a problem' {
+      $root = New-TestRepo 'optout-stop'
+      $file = Write-Change $root ([ordered]@{ verb = 'optout'; 'opt-out' = [ordered]@{ reason = 'elsewhere'; where = 'Jira.'; decider = 'Erik Lund' }; language = 'en' })
+      (Invoke-RiskLog $root @('-Path', 'project/risk-log.html', '-Apply', '-Change', $file, '-By', 'Maja Holm')).Code | Should -Be 0
+      (Read-Page $root) | Should -Not -Match 'Jira\.\.'
+      Set-PageText $root ((Read-Page $root) -replace 'data-where="[^"]*"', 'data-where=""')
+      @((Invoke-Read $root).problems) -join ' ' | Should -Match 'not where'
+    }
+
+    It 'An opt-out over a register says what stops it' {
+      $root = New-Register 'optout-message' @([ordered]@{ name = 'One'; owner = 'Maja Holm'; impact = 2; probability = 2 })
+      Set-PageText $root (Set-RiskAttr (Read-Page $root) 'RISK-001' 'data-impact' '')
+      $file = Write-Change $root ([ordered]@{ verb = 'optout'; 'opt-out' = [ordered]@{ reason = 'not-worked'; decider = 'Erik Lund' }; language = 'en' })
+      $r = Invoke-RiskLog $root @('-Path', 'project/risk-log.html', '-Apply', '-Change', $file, '-By', 'Maja Holm')
+      $r.Code | Should -Be 1
+      $r.Output | Should -Match '-Repair'
     }
 
     It 'Areas that differ only in case are both listed' {

@@ -49,17 +49,17 @@ phases:
     tasks:
       - { id: T008, status: done, attempts: 1, agent: human-in-session, model: session }
   - id: P7
+    status: committed
+    commit: "af92fd2"
+    go: { by: "SimonVilandt", date: "2026-10-29" }
+    tasks:
+      - { id: T009, status: done, attempts: 1, agent: human-in-session, model: session }
+  - id: P8
     status: passed
     commit: none
     go: none
     tasks:
-      - { id: T009, status: done, attempts: 1, agent: human-in-session, model: session }
-  - id: P8
-    status: pending
-    commit: none
-    go: none
-    tasks:
-      - { id: T010, status: pending, attempts: 0, agent: none, model: none }
+      - { id: T010, status: done, attempts: 3, agent: human-in-session, model: session }
   - id: P9
     status: pending
     commit: none
@@ -774,3 +774,217 @@ Notes:
 - Tree untouched: `git status --short` hash identical before and after (ffe06e89…); the three modified files (`risk-log.Tests.ps1`, `risk-log.ps1`, ledger) were already modified at start.
 
 Verified: 3 pass · 0 fail · checkpoint met
+
+### commit · af92fd2
+go by SimonVilandt on 2026-10-29 · 2 files · ledger
+
+## P8 · Repair and finish writes
+
+### T010 · attempt 1 · human-in-session · session
+Conventions read: none (this repo has no documentation/conventions/); CLAUDE.md and the S101 §1-§2 instead.
+built T010 (human task, built in the session that directs the run; test-first)
+- Tests first: the five scenarios of §2 as six Pester tests (the leftover outline's two rows); the merge test builds a real git merge in TestDrive (base, two branches each adding RISK-007 and changing RISK-002's probability, one side's RISK-007 created earlier). Seen red (6 failing, 63 green) before the code. The view test's score assertion is now anchored to the RISK-001 line (P6/P7 flag).
+- Rulings by SimonVilandt at the start of P8, on two questions P6's review raised: (1) a confirmed review of a register holding the same identifier twice is refused and points to -Repair, which renumbers it, so a review never adds a line to a risk (RL10); (2) an empty area shows in the view as "area none written", the one phrase the design uses for an empty field. Neither is written in the D101 yet.
+- risk-log.ps1 -Repair: a JSON proposal { problems, changes }, writes nothing. Each change has key, target, field, before, after, ask and a note: the questions of a merge (a field changed differently on the two sides, before = both values, asked), the renumbering of true duplicates (the earliest-created keeps the identifier, ties to the first on the page; after = the next free identifier), and one entry per broken field (name, owner, impact, probability, state asked; created and changed proposed from the history; a history line with no person asked; the register's updated and kind proposed).
+- A page with conflict markers is merged from git's :2: and :3: only: a risk on one side is kept; the same risk (same created date and first history line) on both is one risk, its differing fields asked, its history the union by date; two risks under one identifier stay two and are renumbered; the register history is the union, newest first (a stable sort by hand, since 5.1's is not).
+- -Apply repair: the plan is computed again, the answers taken from the proposal by key (an unanswered question exits 1), the result must read without problems, one register line of kind repair "Repaired: <each change before -> after>", written through .new, check and rename; the check holds the page to the plan with only its unasked changes, and in a repair a history line with no person may gain one (Test-LineKept -Fill), nothing else.
+- -Finish: nothing to finish -> exit 0; else prints what the .new changes (lines added and removed), checks it (placeholders, problems, unsigned lines, nothing the page held dropped), deletes it either way, and on a pass writes it with a finish line through the usual write; on a fail exits 1 "Deleted ..." with the page as it was.
+- -View now shows a register with problems as the page holds it (a risk with no impact shows no score) and refuses only a page with conflict markers; a review refuses a register holding duplicates.
+- From P7's review flags: a place ending in a full stop no longer doubles it; the reader flags an "elsewhere" opt-out with no place; an opt-out over an existing page says which of risks, problems or an empty register stops it.
+- Done-when 1 and 2: Pester 5.9.1, 69 passed, 0 failed on PowerShell 7.6.7 and 5.1 (5.1: 1 min 54 s; the PowerShell 7 run passed too, but its wall time spanned the machine sleeping overnight).
+gaps: 0 · flags: 1
+- flag: the two rulings above change what the design says (RL4 renumbers on the next write; S2 names no label for an empty area); the D101 should record them.
+
+### review
+Conventions read: `CLAUDE.md` (repo root, as the repo's conventions; this repo has no `documentation/conventions/`), `plugins/asimov-plugin/skills/artifact-s102-validation/scripts/validate-s102.ps1` (PowerShell house style). Also read: S102-010, the S101 ledger's T010 attempt and P7 review, the script and tests whole.
+
+Reviewing: HEAD (uncommitted work) — 2 files (`risk-log.ps1`, `risk-log.Tests.ps1`); the ledger edit is the run's own.
+
+Ran Pester 5.9.1 on both editions as the done-whens write it: 69 passed / 0 failed on pwsh 7 and on Windows PowerShell 5.1. Probed by hand in scratch git repos with real `-Repair`/`-Apply` calls; the æ/ø/å merge probe passed on both editions (names/owners read from `git show :2:`/`:3:` intact, including non-asked names).
+
+**Conventions**
+
+| File:line | Severity | Reason |
+|---|---|---|
+| risk-log.ps1 (whole diff) | Pass | `Exit-Refused`/`Exit-Unreadable` helpers, ordinal `Test-Same`, pure ASCII, one path for both editions, only the two owned files changed. |
+| risk-log.ps1:752, :793, :732 | Flag | `-contains`/`-notcontains` are case-insensitive in PowerShell, against the script's ordinal house style: history lines differing only by case count as the same in `Merge-Sides`, and a case-only change is missing from `-Finish`'s printed diff. |
+| risk-log.ps1:688-690 | Flag | After the new duplicate-refusal at :686, `if ($current.Renumbered.Count -gt 0) { $text += … }` at :690 is dead code. |
+| risk-log.Tests.ps1 | Flag | Neither ruling has a test (a review refusing duplicate identifiers; "area none written"), nor do the three P7 fixes (doubled full stop, "elsewhere but not where" reader problem, the three-way opt-out refusal message). Earlier tasks closed their review flags with tests. |
+| ledger T010 flag | Flag | Both rulings change what the D101 says (RL4 renumbers on the next write; S2 names no label for an empty area); neither is recorded there yet — a hard-rule-6 drift risk. The ledger already notes it. |
+
+**Correctness & safety**
+
+| File:line | Severity | Reason |
+|---|---|---|
+| risk-log.ps1:306-332, :820-846 | Fail | Data loss: a repair writes the page from the parsed model, and a history `<li>` that no longer matches the reader (e.g. `<span class="who">` lost in a hand edit) vanishes silently. Reproduced: RISK-001 had 2 lines; with RISK-002's impact removed, `-Read` showed 1 line and no problem for it; the confirmed repair wrote the page without it, and the write's check passed because it compares the parse to itself. This is the S102 "must not remove a history line" and the stop. Compare the count of `<li>` with the parsed lines, or list the broken line as a proposal question. |
+| risk-log.ps1:745-752 (`Merge-Sides`) | Fail | Two different risks are merged into one and one is lost: identity is `id` + `created` + first history line, and that line is "Created. Impact I, Probability P (score S)" — no name. Reproduced: two branches each added a different RISK-003 on the same day by the same person with the same impact/probability → the merge treated them as one risk and asked "name FromA / FromB"; the answer kept one name and the other risk is gone. Dates are day-granular, so same-day is the common case. A true duplicate is only renumbered when the creation signature differs. |
+| risk-log.ps1:737-738 (`Merge-Sides`) | Flag | Register-history lines identical in date/person/kind/text on both sides are collapsed to one — in the same probe, B's "RISK-003 registered." and "RISK-002 changed." were dropped. The "loses nothing" bar is checked only against the merged model (`$held.Model`), never against the two sides, so this cannot trip the check. |
+| risk-log.ps1:726-779 (`Merge-Sides`, `Get-RepairPlan`) | Flag | `register` is forced to `kept` and `optout` to null: two sides that each recorded an opt-out merge into an empty kept register and the opt-out reason/place/decider are lost. |
+| risk-log.ps1:726-779 | Flag | Every field that differs between the sides is asked, including one changed on only one side (with only `:2:`/`:3:`, as the S102 requires, there is no base to tell). The question text "changed differently on the two sides" overstates it; the proposal should say so. |
+| risk-log.ps1:776-805 (`Get-RepairPlan`) | Flag | Problems the reader reports with no repair entry: a risk with no `RISK-NNN` identifier gives `changes: []`; an opt-out with no reason/decider/date, or one that holds risks, gives `changes: []` too — and `-Apply repair` then says "The register needs no repair", contradicting the problem `-Read` reports, so the run dead-ends. (The P7 "hard later" item — opt-out page holding risks has no repair rule — is still open.) A question could keep these. |
+| risk-log.ps1:806-812 | Flag | Change keys are `"$who/$field"`, so two risks sharing an identifier (the typical merge case) and missing the same field get the same key, and one answer fills both. Add the index to the key. |
+| risk-log.ps1:936-945 (`Invoke-View`) | Flag | The new "show a register with problems as the page holds it" regresses two cases (reproduced): an opt-out page with its `section.opt-out` lost used to be refused and now ends in a raw StrictMode exception ("The property 'reason' cannot be found", exit 1, no message); a risk with an invalid state is silently omitted (header says "2 risks", one shown, no hint). The no-impact case the S102 asks for is fine. |
+| risk-log.ps1:857-880 (`Invoke-Finish`) | Pass | Prints added/removed lines, checks, deletes the `.new` either way, exits 1 with "Deleted …" on a failing page leaving it byte-identical, writes with a `finish` line on a pass (re-rendering the parsed `.new` rather than renaming the file itself — same result). |
+| risk-log.ps1:826-856 (`Invoke-RepairWrite`) | Pass | Proposal read-only (writes nothing); the write recomputes the plan and ignores any `after` the proposal gives for an unasked change; unanswered question → exit 1; result must read without problems; `.new` → check → rename; `Fill` permits only a missing person to be added to a history line. |
+| risk-log.ps1:755-775 (`Read-Sides`) | Pass | `git show :2:`/`:3:` only; clear refusal if git has no side; non-ASCII survived on both editions. |
+| risk-log.ps1:784-796 (duplicate renumbering) | Pass | Probed with a register edited to hold RISK-001 twice: a review is refused pointing to `-Repair`; the repair renumbers RISK-002 with a `renumber` line, the earliest-created keeps the identifier, nothing lost. Ruling matches code. |
+| risk-log.ps1:925 | Pass | Empty area → "area none written", as ruled. |
+
+**Against the spec**
+
+| File:line | S102 · line | Severity | Reason |
+|---|---|---|---|
+| both files | owns | Pass | Only the owned script and its test file changed. |
+| risk-log.ps1:820-846 | S102-010 · §4 Must not (remove or rewrite a history line) | Fail | A history line a hand edit broke is neither restored from the page nor listed as a question — it is dropped (first Correctness Fail). |
+| risk-log.ps1:726-779 | S102-010 · §1 "a confirmed repair loses nothing" + §2 conflict scenario | Fail | The merge can fold two distinct risks into one (Merge-Sides Fail). The test builds its merge with `data-created` changed by hand, so the same-day case is never exercised. |
+| risk-log.ps1:776-805 | S102-010 · §4 Stops | Flag | Where a repair has no way to keep a field (missing identifier, opt-out problems) it silently returns an empty proposal instead of asking or stopping with a reason. |
+| risk-log.Tests.ps1 (merge test) | S102-010 · §2 scenario "Conflict markers…" | Flag | The test checks the proposal, as the S102 words it, but never applies the merge; the review focus asks for "a repair that merges both sides", and the confirmed-merge path (both sides' risks present, history union, renumber line) is untested — which is how the two merge defects above got through. |
+| risk-log.ps1 / Tests | S101 review focus: no impact → no score, read reports the problem | Pass | `-View` shows `RISK-005  Risk 5` with no score; `-Read` names RISK-005 and its impact; test anchored to the RISK-005 line. |
+| risk-log.ps1 / Tests | S102-010 · §2 scenarios 1, 2, leftover outline | Pass | Each has a test, one per example row; behaviour probed by hand. |
+| risk-log.ps1:137-140, :344, :963-968 | P7 review flags taken in | Pass | Doubled stop, the reader's "elsewhere but not where" problem, and the clearer opt-out refusal are in the code. Two P7 items stay open: opt-out page holding risks has no repair rule (above); the cosmetic empty "Where" row for `not-worked` untouched. |
+| risk-log.ps1:680-686, :925 | Ledger rulings by SimonVilandt | Pass | Both are what the code does (reproduced); both lack tests and D101 entries (see Conventions). |
+
+Findings only — no approval verdict. Route fixes to the .NET builder / Angular builder / tester; the approval call stays with the human reviewer.
+
+### T010 · attempt 2 · human-in-session · session
+Conventions read: none (this repo has no documentation/conventions/); CLAUDE.md and the S101 §1-§2 instead.
+built T010 attempt 2 (human task, built in the session that directs the run), against P8 review round 1
+- Fail 1 (a damaged history line dropped by a repair): Read-Lines now reads every <li> of a history list; one that no longer matches the template is read from what is left of it (its attributes, its text with the date and person stripped) and marked damaged; -Read lists "a history line of X is damaged" (and for the register's own lines); -Repair proposes restoring it (after = the text read, unasked); the repair clears the mark. A test damages RISK-001's change line and removes RISK-002's impact: the line is read, reported, and kept through the repair.
+- Fail 2 and 3 (two risks added the same day folded into one by a merge): a risk's first history line now carries its name ("Created: <name>. Impact ..."), and the merge's identity is the identifier, the created date and that line; a test merges two branches that each add a different RISK-003 on the same day by the same person with the same impact and probability, applies the repair, and finds both risks, one renumbered RISK-004 with a renumber line, no markers left.
+- Histories are joined, not unioned by key: the lines both sides share are their common start (oldest first) and are kept once; every line after it is a side's own and is kept, even one identical to the other side's. The register's own lines now say what they are about ("RISK-003 registered: <name>.", "RISK-002 changed: <field> a -> b.", "RISK-002 resolved: <reason>."), so two sides writing on one day stay two lines; the test checks both "registered" lines survive. Lines identical in every field on both sides beyond the shared start remain indistinguishable without a base: they are kept as two.
+- Opt-out sides: two opt-outs merge into an opt-out (ours); a side with risks makes the register kept.
+- The merge's question note now says the field differs between the sides and that, with no common base, either side may have changed it.
+- Problems with no repair entry: a risk with no RISK-NNN identifier gets the next free one; an opt-out page holding risks becomes a kept register (a risk is never deleted); an opt-out missing its reason, decider, date or place is asked; a repair that can settle nothing while problems remain says so ("cannot settle this by itself", exit 1) instead of "needs no repair".
+- Change keys carry the risk's place on the page ("RISK-007#3/impact"), so two risks under one identifier never share an answer; answers are matched ordinally.
+- -View shows a register whose problems are a missing field or person or a damaged line, and refuses (run -Repair first) conflict markers, a risk with no identifier or state, and a broken opt-out; the StrictMode exception on an opt-out page without its section is gone.
+- -contains/-notcontains replaced by the case-sensitive forms in the merge, -Finish's diff and the field and reason lists; the dead renumber line in the review removed.
+- Tests added in "Review guards" for the rulings (a review refuses duplicates and points to -Repair; an empty area shows "area none written") and P7's fixes (a place ending in a full stop is not doubled; an elsewhere opt-out with no place is a problem; an opt-out over a register says what stops it), plus the damaged-line and same-day-merge tests above.
+- Done-when 1 and 2: Pester 5.9.1, 75 passed, 0 failed on PowerShell 7.6.7 (1 min 6 s) and 5.1 (1 min 58 s).
+gaps: 0 · flags: 1
+- flag: the two rulings of attempt 1 and the new first-line and register-line texts are not in the D101 yet.
+
+### review
+Conventions read: `CLAUDE.md` (repo root, as the repo's conventions; this repo has no `documentation/conventions/`), `plugins/asimov-plugin/skills/artifact-s102-validation/scripts/validate-s102.ps1` (PowerShell house style). Also read: S102-010, the ledger's "T010 · attempt 2" entry, the script and tests whole.
+
+Reviewing: HEAD (uncommitted work), round 2 — 2 files (`risk-log.ps1`, `risk-log.Tests.ps1`); the ledger edit is the run's own.
+
+Pester 5.9.1, as the done-whens write it: 75 passed / 0 failed on pwsh 7 and 75 passed / 0 failed on Windows PowerShell 5.1. Probed by hand in scratch git repos with real `-Repair`/`-Apply` calls.
+
+Of your three Fails: the same-day merge fold is closed for new registers, and the damaged-line case you reproduced is closed — but two narrower forms of the damaged-line loss remain, and a third Fail turned up that round 1 missed: a merge with nothing to ask cannot be repaired at all.
+
+**Conventions**
+
+| File:line | Severity | Reason |
+|---|---|---|
+| risk-log.ps1 (whole diff) | Pass | House style kept: `Exit-Refused` helpers, ordinal compares via `Test-Same`, pure ASCII, one path for both editions, only the two owned files changed. |
+| risk-log.ps1:772, :788, :941, :1034, :602 | Pass | Round-1 Flag closed: `-ccontains`/`-cnotcontains` replace the case-insensitive forms in the merge, `-Finish`'s diff and the field/reason lists. |
+| risk-log.ps1:706 | Pass | Round-1 Flag closed: the dead renumber line in `Invoke-Review` is gone. |
+| risk-log.Tests.ps1 | Pass | Round-1 Flag closed: the rulings (review refuses duplicates → `-Repair`; "area none written") and the three P7 fixes (doubled full stop, "elsewhere" with no place, opt-out-over-register message) each have a test. |
+| ledger T010 attempt 2 flag | Flag | The two rulings and the new texts ("Created: <name>. Impact …", "RISK-003 registered: <name>.", "RISK-002 changed: <field> a → b.") are still not in the D101 (RL4, S2, the history-line texts) — hard rule 6 drift; the ledger already names it. |
+
+**Correctness & safety**
+
+| File:line | Severity | Reason |
+|---|---|---|
+| risk-log.ps1:795-803, :909-920 | Fail | A conflicted page whose sides merge with nothing to ask and no duplicate to renumber cannot be repaired: `Get-RepairPlan` returns no changes, so `-Apply repair` exits 1 "cannot settle this by itself … Edit the page by hand" and the merge is never written. Reproduced: one branch registered a risk, the other recorded a review — the commonest merge shape, since every write puts a line at the top of the register history. Same for two opt-outs. The focus line "a repair that merges both sides" is unserved there. Give the merge its own unasked change entry whenever markers are present. |
+| risk-log.ps1:298-314 (`Read-Lines`) | Fail | Damage the new reader cannot see still rewrites a line, with `-Read` reporting no problem: (1) a history `<li>` whose `data-date` was lost but whose inner text is intact reads as matching with `date = ''`, and the repair writes an empty `<time></time>` although the date sat in the page; (2) a missing `</li>` makes the lazy `<li>…</li>` match swallow the next line into the first one's text as raw `<li data-date=…>` markup — two lines read as one, nothing marked damaged, and after the repair the second line's date/person/kind are gone. Both reproduced. (The stripped-`who`-span case from round 1 is closed.) Read an empty attribute from the `<time>`/`who` text and flag an empty date/kind; mark a line whose inner text holds `<li` as damaged. |
+| risk-log.ps1:767-775 (`Merge-Sides`) | Flag | The same-day fold is fixed only for first lines that carry the name. A register written before this change has "Created. Impact …" with no name, so two different risks added the same day by the same person still fold into one (reproduced: the name asked as "differs between the sides", one risk lost). Treating a name difference as two risks would be safe (renumbering loses nothing). |
+| risk-log.ps1:746-756, :764, :784 (`Join-Histories`) | Pass | Round-1 history loss fixed: shared start kept once, each side's own lines all kept, so two identical same-day lines stay two. Probed a confirmed field-conflict merge: both sides' change lines and register lines survive, the repair line records the answers. |
+| risk-log.ps1:821, :841-853 | Pass | Round-1 dead ends closed: missing identifier → next free one; opt-out page holding risks → kept register; broken opt-out → asked. Probed all. A repair that can settle nothing now says why. |
+| risk-log.ps1:821 | Flag | A risk with no identifier gets the history line "Renumbered from " with nothing after it. |
+| risk-log.ps1:1011-1016 (`Invoke-View`) | Pass | The StrictMode crash and the silently dropped risk are gone: broken opt-out, missing state/identifier and conflict markers are refused; a risk with no impact still shows no score; a damaged line shows normally. |
+| risk-log.ps1:816-820 | Pass | Round-1 key collision closed: every key carries the risk's place on the page ("RISK-007#3/impact"). |
+| risk-log.ps1:574, :582 | Pass | The first history line and the register line now carry the name, which is what fixes the fold for new registers; the only earlier assertion on the old text was in the tests and was updated. |
+| risk-log.Tests.ps1 | Flag | The focus scenario "Conflict markers after a merge become a repair" still checks only the proposal (as the S102 words it); the new same-day test does exercise a confirmed merge, but a confirmed merge with an answered field conflict is still untested (probed by hand — works), and the two repros above are untested — the missing "nothing to ask" merge is the one that would have caught the first Fail. |
+
+**Against the spec**
+
+| File:line | S102 · line | Severity | Reason |
+|---|---|---|---|
+| both files | owns | Pass | Only the owned script and its test file changed. |
+| risk-log.ps1:909-920 | S102-010 · §2 scenario "Conflict markers after a merge become a repair" + §1 | Fail | A merge with no questions and no duplicates is never written (first Correctness Fail). |
+| risk-log.ps1:298-314 | S102-010 · §4 Must not (remove or rewrite a history line) + §1 "loses nothing" | Fail | A line with a lost `data-date`, or one fused by a missing `</li>`, is rewritten without its date or without its own structure (second Correctness Fail). |
+| risk-log.ps1:298-314, :830 | S102-010 · §4 Must not ("restored from the page's own content or listed in the proposal") | Pass | A line with no `who` span is now read, listed in the proposal as an unasked change with its restored text, and kept — test covers it. |
+| risk-log.ps1:767-775 | S102-010 · §1 "a confirmed repair loses nothing" | Flag | The fold persists for legacy first lines (Merge-Sides Flag). |
+| risk-log.ps1 / Tests | S102-010 · §2 scenarios 1, 2, the leftover outline, "A risk with no impact shows no score" | Pass | Each has a test, one per example row; behaviour unchanged by the rebuild. |
+| risk-log.ps1:704-706, :995 + Tests | Ledger rulings by SimonVilandt | Pass | Both are what the code does and now have tests; still not in the D101. |
+
+Findings only — no approval verdict. Route fixes to the .NET builder / Angular builder / tester; the approval call stays with the human reviewer.
+
+### T010 · attempt 3 · human-in-session · session
+Conventions read: none (this repo has no documentation/conventions/); CLAUDE.md and the S101 §1-§2 instead.
+built T010 attempt 3 (human task, built in the session that directs the run), against P8 review round 2
+- Fail (a merge with nothing to ask is never written): a page with conflict markers now always gets an unasked change of its own ("register merge: two sides of a git merge -> one register"), so the joined register is written whether or not anything is asked. A test merges a branch that registered a risk with one that recorded a review; the repair writes both (three risks, the review line, the registration line).
+- Fail (damage the reader could not see): Read-Lines now splits a history list at every opening <li, so a lost </li> can no longer fold the next line into this one; a line without its closing tag is damaged; a lost data-date is read back from the line's own <time> and the line marked damaged; a line with no kind or no valid date is damaged too, and the repair asks for what the page no longer holds (Get-LineRepair: the restore unasked, a kind or date question when needed). A two-row test (lost date, lost closing tag) reads both lines, reports the damage, and keeps both lines with their dates and kinds through the repair. In a repair, the check lets a line regain a lost person, kind or date, and nothing else (Test-LineKept -Fill per field).
+- Flag (legacy first lines fold the same day): the merge's identity is now the identifier, the created date, the name and the first history line; risks differing in name are two risks (renumbering loses nothing), so registers written before the name entered the first line are safe too. Consequence, accepted: a risk renamed on one side of a merge comes out as two risks, one renumbered, for the person to resolve.
+- Flag (an empty "Renumbered from "): a risk that had no identifier gets "Renumbered from no identifier".
+- Flag (tests): a confirmed merge with an answered field conflict is now tested (the answer is taken and both sides' change lines kept), and so are the two round-2 repros and the nothing-to-ask merge.
+- Done-when 1 and 2: Pester 5.9.1, 79 passed, 0 failed on PowerShell 7.6.7 (1 min 44 s) and 5.1 (2 min 8 s).
+gaps: 0 · flags: 1
+- flag: the rulings and the history texts ("Created: <name>. ...", "RISK-nnn registered: <name>.", "RISK-nnn changed: ...") and the merge's identity rule are not in the D101 yet.
+
+### review
+Conventions read: `CLAUDE.md` (repo root, as the repo's conventions; this repo has no `documentation/conventions/`), `plugins/asimov-plugin/skills/artifact-s102-validation/scripts/validate-s102.ps1` (PowerShell house style). Also read: S102-010, the ledger's "T010 · attempt 3" entry, the changed parts of the script and tests (`Read-Lines`, `Test-LineKept`, `Merge-Sides`, `Get-RepairPlan`, `Get-LineRepair`, `Set-Repair`, `Invoke-RepairWrite`).
+
+Reviewing: HEAD (uncommitted work), round 3 — 2 files (`risk-log.ps1`, `risk-log.Tests.ps1`); the ledger edit is the run's own.
+
+Pester 5.9.1, run one edition after the other: 79 passed / 0 failed on pwsh 7 and 79 passed / 0 failed on Windows PowerShell 5.1. Probed by hand in scratch git repos with real `-Repair`/`-Apply` calls.
+
+Both round-2 Fails are closed; no Fail found this round. On your question: the renamed-risk consequence loses no data, but it leaves a twin the person can never delete and is not told about (Flag below).
+
+**Conventions**
+
+| File:line | Severity | Reason |
+|---|---|---|
+| risk-log.ps1 (whole diff) | Pass | House style kept: `Exit-Refused` helpers, ordinal `Test-Same`, case-sensitive list tests, pure ASCII, one path for both editions, only the two owned files changed. |
+| risk-log.Tests.ps1 | Pass | Round-2 Flag closed: tests now cover the nothing-to-ask merge, the lost date and the lost closing tag (two rows), and a confirmed merge with an answered field conflict. |
+| ledger T010 attempt 3 flag | Flag | The two rulings, the history texts ("Created: <name>. …", "RISK-nnn registered: <name>.", "RISK-nnn changed: …") and the merge's identity rule are still not in the D101 — hard-rule-6 drift; the ledger names it. |
+
+**Correctness & safety**
+
+| File:line | Severity | Reason |
+|---|---|---|
+| risk-log.ps1:855-856, :908 | Pass | Round-2 Fail 1 closed: a conflicted page always gets an unasked `register/merge` change. Reproduced the previously stuck case (one branch registered a risk, the other recorded a review) — the repair wrote both, no markers left. Two opt-outs on separate branches also repair (to an opt-out with both decision lines kept). |
+| risk-log.ps1:298-328 (`Read-Lines`) | Pass | Round-2 Fail 2 closed: split at every opening `<li`; a lost `data-date` is read back from the line's `<time>` and marked damaged; a lost `</li>` no longer folds the next line in (first or last line); a missing `data-kind` or invalid date is damaged and asked. Reproduced lost date, lost closing tag (both positions) and lost kind — every line kept its date, person and kind; `-Read` reports "a history line of RISK-001 is damaged"; the proposal lists the restore. |
+| risk-log.ps1:503-508 (`Test-LineKept`) | Pass | In a repair a line may only gain a field it lost (person/kind/date); anything it held must be equal — a repair cannot rewrite a field the page held. |
+| risk-log.ps1:784-790 (`Merge-Sides`) | Pass | Round-2 Flag closed: identity now includes the name, so legacy "Created. Impact …" registers no longer fold two same-day risks (reproduced the earlier legacy case: both risks now kept). |
+| risk-log.ps1:784-790 + :823-831 (a risk renamed on one side) | Flag | Nothing is lost: merging a branch that renamed RISK-001 with one that changed RISK-002 yields RISK-001 "Orig" and RISK-003 "Renamed", each with full history (incl. the rename line) and a `renumber` line. But the stale twin stays — the old identifier now carries the old name, and since a risk is never deleted the person can only Resolve it. The proposal says only "the same identifier twice", with no hint that the two look like one risk renamed, so the person gets no choice. A note naming the shared created date and first line would let them see it; a rename on a branch followed by any conflict will produce this. Accepted on purpose by the builder, so Flag, not Fail. |
+| risk-log.ps1:309-322 (`Read-Lines`) | Flag | A lost `data-by` with the `<span class="who">` intact is not recovered — it reports "names no person" and the repair asks for the person, although the page still holds the name. Date got the recovery; person didn't. Avoidable, harmless (nothing lost), but an answer different from the span would overwrite what the page held. |
+| risk-log.ps1:795-799 | Flag | Unchanged: a field changed on only one side of a merge is asked (no base — `:2:`/`:3:` only, as the S102 requires); the note says either side may have changed it. |
+| risk-log.ps1:922-923 | Pass | Round-2 Flag closed: a risk with no identifier gets "Renumbered from no identifier". |
+
+**Against the spec**
+
+| File:line | S102 · line | Severity | Reason |
+|---|---|---|---|
+| both files | owns | Pass | Only the owned script and its test file changed. |
+| risk-log.ps1:298-328, :503-508 | S102-010 · §4 Must not (remove or rewrite a history line) + §1 "a confirmed repair loses nothing" | Pass | A damaged line is read from what is left of it, listed in the proposal, kept with its date, person and kind; only a field the page no longer holds is asked. |
+| risk-log.ps1:855-856 | S102-010 · §2 scenario "Conflict markers after a merge become a repair" | Pass | The merge is written whether or not anything is asked; the focus scenario's test checks the proposal as the S102 words it, and the written merge has its own tests. |
+| risk-log.ps1 / Tests | S102-010 · §2 scenarios 1, 2, leftover outline, "A risk with no impact shows no score" | Pass | Each still has a test and its behaviour is unchanged by the rebuild. |
+| risk-log.ps1 | S102-010 · §4 Stops | Pass | A page with a problem the repair cannot settle says so and exits 1; every problem I reproduced across the three rounds (missing identifier, opt-out problem, nothing-to-ask merge) now has a repair path. |
+
+Findings only — no approval verdict. Route fixes to the .NET builder / Angular builder / tester; the approval call stays with the human reviewer.
+
+### verify
+Verifying P8: 1 task spec, 2 done-whens, checkpoint "An unreadable register gets a repair shown as before and after and loses nothing once confirmed, a leftover write is finished or discarded, and the script's tests prove it."
+
+Environment: PSModulePath exported in Bash before the Pester runs as ruled (Machine PSModulePath from `powershell -NoProfile` + `C:\Users\sva\AppData\Local\PowerShell\Modules`). The two commands run sequentially, exactly as written, from the repo root.
+
+| Task | Check | Result | Evidence |
+|---|---|---|---|
+| T010 | done-when 1: `risk-log.Tests.ps1` green under the `pwsh -NoProfile -Command 'Import-Module Pester -MinimumVersion 5.0; exit (Invoke-Pester ... FailedCount + FailedContainersCount)'` command, T003–T009 tests still green, one test per scenario of §2 | pass | `pwsh ...` → "Tests Passed: 79, Failed: 0, Skipped: 0, Inconclusive: 0, NotRun: 0" in 101.3 s, exit 0. The five required tests are in the test file's Context 'Repair and finish interrupted writes' (see below); the earlier contexts (Register a risk on a new page, Read/number/score, Change a risk's fields, Decide a risk's state, Hand open risks to an owner, Review view and confirmed review, Opt out and replace it) are in the same 79-test run, which had no failure. |
+| T010 | done-when 2: green under the `powershell -NoProfile -ExecutionPolicy Bypass -Command '...'` command | pass | `powershell ...` → "Tests Passed: 79, Failed: 0, Skipped: 0, Inconclusive: 0, NotRun: 0" in 127.3 s, exit 0 |
+| P8 | checkpoint: the "Check" command (both editions chained with `&&`) | met | the two halves above are the check's two parts; each exited 0, so the `&&` chain exits 0 |
+
+Test names vs §2 scenarios (read from the file, since Pester's default output doesn't list individual tests — Context 'Repair and finish interrupted writes', lines 808–931):
+- 'An unreadable register is not written to and gets a repair proposal' (line 819)
+- 'A confirmed repair loses nothing' (line 834)
+- 'A leftover new file is finished or discarded (<case>)' (line 856) — `-ForEach` rows `passes` and `fails, having dropped a history line`, i.e. one test per example row
+- 'A risk with no impact shows no score' (line 890, tag review-focus)
+- 'Conflict markers after a merge become a repair' (line 900, tag review-focus)
+
+The "Review guards" context (line 933 on) holds extra tests belonging to no task spec, as stated.
+
+Working tree unchanged: `git status --short` identical before and after my runs (the three files already modified at start — risk-log.ps1, risk-log.Tests.ps1, the ledger — stayed so).
+
+Verified: 2 pass · 0 fail · checkpoint met
