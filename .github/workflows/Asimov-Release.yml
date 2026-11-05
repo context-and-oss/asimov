@@ -103,7 +103,9 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           # The $TAG tag already exists (created above), so release from it directly.
-          gh release create "$TAG" "$ZIP" \
+          # The NuGet packages ride along as release assets, so a consumer that cannot read
+          # GitHub Packages across organisations can still fetch them by plain HTTPS.
+          gh release create "$TAG" "$ZIP" packages/out/*.nupkg \
             --title "Release $TAG - $DATE" \
             --generate-notes
 
