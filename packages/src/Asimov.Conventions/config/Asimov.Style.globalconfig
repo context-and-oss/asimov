@@ -1,0 +1,80 @@
+# Asimov.Style — how code is laid out: options and naming rules, no severities.
+# Why: the IDE rules in Asimov.Formatting enforce these options; dotnet format and the editors read them from here.
+is_global = true
+global_level = 100
+
+# Layout
+csharp_prefer_braces = true
+csharp_style_namespace_declarations = file_scoped
+csharp_using_directive_placement = outside_namespace
+dotnet_sort_system_directives_first = true
+dotnet_separate_import_directive_groups = false
+dotnet_style_namespace_match_folder = true
+
+# Naming — most specific first. IDE1006 (in Asimov.Formatting) reports a violation.
+
+# Constants: PascalCase
+dotnet_naming_rule.constants_pascal_case.symbols = constants
+dotnet_naming_rule.constants_pascal_case.style = pascal_case
+dotnet_naming_rule.constants_pascal_case.severity = error
+dotnet_naming_symbols.constants.applicable_kinds = field
+dotnet_naming_symbols.constants.applicable_accessibilities = *
+dotnet_naming_symbols.constants.required_modifiers = const
+
+# Static readonly fields: PascalCase
+dotnet_naming_rule.static_readonly_fields_pascal_case.symbols = static_readonly_fields
+dotnet_naming_rule.static_readonly_fields_pascal_case.style = pascal_case
+dotnet_naming_rule.static_readonly_fields_pascal_case.severity = error
+dotnet_naming_symbols.static_readonly_fields.applicable_kinds = field
+dotnet_naming_symbols.static_readonly_fields.applicable_accessibilities = *
+dotnet_naming_symbols.static_readonly_fields.required_modifiers = static, readonly
+
+# Private and internal fields: camelCase, no underscore
+dotnet_naming_rule.private_fields_camel_case.symbols = private_fields
+dotnet_naming_rule.private_fields_camel_case.style = camel_case
+dotnet_naming_rule.private_fields_camel_case.severity = error
+dotnet_naming_symbols.private_fields.applicable_kinds = field
+dotnet_naming_symbols.private_fields.applicable_accessibilities = private, internal, private_protected
+
+# Public and protected fields: PascalCase
+dotnet_naming_rule.public_fields_pascal_case.symbols = public_fields
+dotnet_naming_rule.public_fields_pascal_case.style = pascal_case
+dotnet_naming_rule.public_fields_pascal_case.severity = error
+dotnet_naming_symbols.public_fields.applicable_kinds = field
+dotnet_naming_symbols.public_fields.applicable_accessibilities = public, protected, protected_internal
+
+# Interfaces: I prefix
+dotnet_naming_rule.interfaces_prefixed.symbols = interfaces
+dotnet_naming_rule.interfaces_prefixed.style = i_prefix_pascal_case
+dotnet_naming_rule.interfaces_prefixed.severity = error
+dotnet_naming_symbols.interfaces.applicable_kinds = interface
+dotnet_naming_symbols.interfaces.applicable_accessibilities = *
+
+# Type parameters: T prefix
+dotnet_naming_rule.type_parameters_prefixed.symbols = type_parameters
+dotnet_naming_rule.type_parameters_prefixed.style = t_prefix_pascal_case
+dotnet_naming_rule.type_parameters_prefixed.severity = error
+dotnet_naming_symbols.type_parameters.applicable_kinds = type_parameter
+dotnet_naming_symbols.type_parameters.applicable_accessibilities = *
+
+# Parameters and locals: camelCase
+dotnet_naming_rule.parameters_and_locals_camel_case.symbols = parameters_and_locals
+dotnet_naming_rule.parameters_and_locals_camel_case.style = camel_case
+dotnet_naming_rule.parameters_and_locals_camel_case.severity = error
+dotnet_naming_symbols.parameters_and_locals.applicable_kinds = parameter, local
+dotnet_naming_symbols.parameters_and_locals.applicable_accessibilities = *
+
+# Everything else: PascalCase
+dotnet_naming_rule.members_and_types_pascal_case.symbols = members_and_types
+dotnet_naming_rule.members_and_types_pascal_case.style = pascal_case
+dotnet_naming_rule.members_and_types_pascal_case.severity = error
+dotnet_naming_symbols.members_and_types.applicable_kinds = namespace, class, struct, enum, delegate, event, method, property, local_function
+dotnet_naming_symbols.members_and_types.applicable_accessibilities = *
+
+# Styles
+dotnet_naming_style.pascal_case.capitalization = pascal_case
+dotnet_naming_style.camel_case.capitalization = camel_case
+dotnet_naming_style.i_prefix_pascal_case.capitalization = pascal_case
+dotnet_naming_style.i_prefix_pascal_case.required_prefix = I
+dotnet_naming_style.t_prefix_pascal_case.capitalization = pascal_case
+dotnet_naming_style.t_prefix_pascal_case.required_prefix = T

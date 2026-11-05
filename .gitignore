@@ -6,6 +6,7 @@ Desktop.ini
 
 # Editor / IDE
 .vscode/
+.vs/
 .idea/
 *.swp
 *.swo
@@ -47,3 +48,11 @@ specs/*/design.md
 # SDD specs and plans — working documents that drive a change, not toolkit
 # content. They belong to the session that produced them, not to the repo.
 docs/superpowers/
+
+# .NET packages under packages/ — build output and the local feed verify.sh packs into
+bin/
+obj/
+packages/.local-feed/
+packages/out/
+packages/.sample-packages/
+packages/test/Asimov.Conventions.Sample/.editorconfig

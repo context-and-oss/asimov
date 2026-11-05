@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Asimov.Conventions.Patterns — Roslyn analyzers for the architectural patterns a product opts into
+    (builder, mapper, repository, composition root, ...). Every rule is disabled by default; a product's
+    convention package turns on the patterns it uses through its globalconfig, the same way Sonar and
+    Meziantou rules are turned on by Asimov.Conventions' category files. Product-specific names (type
+    suffixes, the unit-of-work interface) are analyzer options with defaults; see PatternOptions.cs.
+  -->
+  <PropertyGroup Label="Analyzer build">
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <IsRoslynComponent>true</IsRoslynComponent>
+    <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+    <RootNamespace>Asimov.Conventions.Patterns</RootNamespace>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Package">
+    <PackageId>Asimov.Conventions.Patterns</PackageId>
+    <Version>1.0.0</Version>
+    <Description>Roslyn analyzers for the architectural patterns a .NET product opts into: builder, mapper, repository, service, composition root and more. Rules are disabled by default and turned on by a product's convention package.</Description>
+    <PackageTags>analyzers;conventions;patterns</PackageTags>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <IncludeSymbols>false</IncludeSymbols>
+    <DevelopmentDependency>true</DevelopmentDependency>
+    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+    <NoPackageAnalysis>true</NoPackageAnalysis>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.8.0" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.4" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup Label="Package layout">
+    <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+    <None Include="README.md" Pack="true" PackagePath="" />
+  </ItemGroup>
+
+</Project>
