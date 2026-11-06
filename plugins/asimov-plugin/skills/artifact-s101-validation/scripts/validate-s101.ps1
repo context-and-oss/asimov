@@ -548,6 +548,8 @@ for ($i = 0; $i -lt $Phases.Count; $i++) {
     # test-first (a ticket's slice, a maintenance slice, a stack with no tester role: definition section 3 and
     # 4.4) and, in full mode, its S102 must own a test file. A slice of test-first builders alone is a slice.
     foreach ($b in $builders) {
+      # a human task has no stack, so no tester and no test file: it counts for the slice and its sequencing only
+      if ($b.Role -eq 'human') { continue }
       $sameStack = @($testers | Where-Object { (Stack-Of $_.Role) -eq (Stack-Of $b.Role) })
       if ($sameStack.Count -eq 0) {
         $TestFirstBuilders += $b.Id

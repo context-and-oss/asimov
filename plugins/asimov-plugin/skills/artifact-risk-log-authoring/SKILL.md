@@ -47,7 +47,7 @@ pwsh -NoProfile -File "${CLAUDE_PLUGIN_ROOT}/skills/artifact-risk-log-authoring/
 2. **Build the change** from `said`, one verb, the fields of the change file the script's help lists:
    - **add**: name, owner, impact, probability; area, description, mitigation when given; `language` on the first write only.
    - **change**: `target` and only the fields that change.
-   - **state**: `target` and `state` `{ to, reason, decider }`.
+   - **state**: `target` and `state` `{ to, reason, decider, mitigation }`; `mitigation` only with `to: Mitigated`, when the risk has none yet (the script writes it in the same write), `decider` only with `Accepted`.
    - **handover**: `target` (the leaving owner) and `to` (the person taking over).
    - **review**: `with` (who took part), possibly empty.
    - **optout**: `opt-out` `{ reason: elsewhere | not-worked, where, decider }`, `language` on the first write.

@@ -488,6 +488,25 @@ Describe 'risk-log.ps1' {
       Get-PageHash $root | Should -Be $before
     }
 
+    It 'Mitigated is set with the mitigation given in the same write' {
+      $root = New-StateRegister 'set-mitigated-with-text' 'Active' $false
+      $r = Invoke-State $root 'RISK-002' ([ordered]@{ to = 'Mitigated'; reason = 'pairing in place'; mitigation = 'Pair on every module.' })
+      $r.Code | Should -Be 0 -Because $r.Output
+      $risk = @((Invoke-Read $root).risks) | Where-Object { $_.id -eq 'RISK-002' }
+      $risk.state | Should -Be 'Mitigated'
+      $risk.mitigation | Should -Be 'Pair on every module.'
+      @($risk.history)[-1].text | Should -Match 'Pair on every module'
+      (Read-Page $root) | Should -Match 'Pair on every module\.'
+    }
+
+    It 'A mitigation given with a state other than Mitigated is refused' {
+      $root = New-StateRegister 'mitigation-with-resolved' 'Active' $false
+      $before = Get-PageHash $root
+      $r = Invoke-State $root 'RISK-002' ([ordered]@{ to = 'Resolved'; reason = 'done'; mitigation = 'Pair on every module.' })
+      $r.Code | Should -Be 1 -Because $r.Output
+      Get-PageHash $root | Should -Be $before
+    }
+
     It 'The mitigation of a Mitigated risk cannot be emptied' {
       $root = New-Register 'empty-mitigation' (1..3 | ForEach-Object { [ordered]@{ name = "Risk $_"; owner = 'Jonas Berg'; impact = 2; probability = 2; mitigation = 'Pair on every module.' } })
       Set-PageText $root (Set-RiskAttr (Read-Page $root) 'RISK-003' 'data-state' 'Mitigated')

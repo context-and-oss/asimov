@@ -32,7 +32,7 @@
     verb      add | change | state | handover | review | optout | repair
     target    RISK-NNN, or the leaving owner for handover
     fields    name, owner, impact, probability, area, description, mitigation
-    state     { to, reason, decider }
+    state     { to, reason, decider, mitigation }; mitigation only with to = Mitigated, when the risk has none yet
     with      [participants], for a review
     to        the new owner, for a handover
     opt-out   { reason, where, decider }
@@ -649,8 +649,9 @@ function Invoke-Change([string]$Page, $ChangeData, [string]$Person) {
   Write-Output "$target written."
 }
 
-# Every state is a person's decision with a reason; Mitigated needs a mitigation, Accepted a decider;
-# any state can be set from any other, under the same identifier (RL5, RL6, RL7, RL17).
+# Every state is a person's decision with a reason; Mitigated needs a mitigation (on the risk, or given
+# with the state and written in the same write), Accepted a decider; any state can be set from any other,
+# under the same identifier (RL5, RL6, RL7, RL17).
 function Invoke-State([string]$Page, $ChangeData, [string]$Person) {
   Test-NoScore $ChangeData
   if (-not (Test-Path -LiteralPath $Page)) { Exit-Refused 'There is no register yet; register a risk first. Nothing written.' }
@@ -660,6 +661,7 @@ function Invoke-State([string]$Page, $ChangeData, [string]$Person) {
   $to = Get-Text (Get-Field $state 'to')
   $reason = Get-Text (Get-Field $state 'reason')
   $decider = Get-Text (Get-Field $state 'decider')
+  $mitigation = Get-Text (Get-Field $state 'mitigation')
   $match = @($States | Where-Object { Test-Same $_ $to })
   if ($match.Count -eq 0) { Exit-Refused ("The state is one of " + ($States -join ', ') + "; not '$to'. Nothing written.") }
   $current = Get-Current $Page $Person
@@ -669,11 +671,18 @@ function Invoke-State([string]$Page, $ChangeData, [string]$Person) {
   $risk = $risk[0]
   if (Test-Same $risk.state $to) { Exit-Refused "$target is already $to. Nothing written." }
   if (-not $reason) { Exit-Refused "Setting $target to $to needs a reason. Nothing written." }
-  if ($to -eq 'Mitigated' -and -not $risk.mitigation) { Exit-Refused "Setting $target to Mitigated needs its mitigation written first. Nothing written." }
+  if ($mitigation -and $to -ne 'Mitigated') { Exit-Refused "A mitigation comes with Mitigated, not with $to; change the field instead. Nothing written." }
+  if ($to -eq 'Mitigated' -and -not $risk.mitigation -and -not $mitigation) { Exit-Refused "Setting $target to Mitigated needs its mitigation written first. Nothing written." }
   if ($to -eq 'Accepted' -and -not $decider) { Exit-Refused "Setting $target to Accepted needs the name of the person who decided it. Nothing written." }
   $text = "$($risk.state) $Arrow ${to}: $reason"
   if ($text -notmatch '[.?!]$') { $text += '.' }
   if ($decider) { $text += " Decided by $decider." }
+  if ($mitigation -and -not (Test-Same $risk.mitigation $mitigation)) {
+    $old = if ($risk.mitigation) { $risk.mitigation } else { 'none' }
+    $text += " Mitigation $old $Arrow $mitigation"
+    if ($text -notmatch '[.?!]$') { $text += '.' }
+    $risk.mitigation = $mitigation
+  }
   $risk.state = $to
   $risk.changed = $Today
   $risk.history = @($risk.history) + @([ordered]@{ date = $Today; by = $Person; kind = 'state'; text = $text })
