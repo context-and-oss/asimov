@@ -1,0 +1,107 @@
+<!--
+  SCENE — two panels, before and after. Asimov skin.
+
+  USE WHEN:      "What changes?" The reader must see two states of the same thing side by
+                 side: how work happens today and how it happens after; where decisions live
+                 now and where they will live; one way of working against another. The left
+                 panel is the state the reader knows, the right the one you propose.
+  DO NOT USE:    for an ordered run of steps (track-template.svg); for parts and how they
+                 relate (map-template.svg); for a notation a reviewer must name, a sequence,
+                 a state machine, a flowchart (resources/diagrams/).
+  BUDGET:        two panels, never three; at most five glyphs per panel; one caption per
+                 panel, one sentence; one kicker per panel, three words. Over budget: the
+                 figure is two figures, or it is a map.
+  ELEMENTS:      panel (rounded card, the card surface, hairline border); kicker (mono, upper
+                 case, top-left; the right panel's in the brand colour); glyphs from
+                 glyphs.svg placed with <use>; thin connectors with the fg-arr head; labels
+                 under glyphs (mono, upper case, text-mute); one caption per panel (sans,
+                 text-dim); the arrow between the panels in the brand colour. Fade a thing
+                 that is being lost with opacity, as the chat bubbles here.
+  COLOUR:        as glyphs.svg: green = a person decides, cyan / brand = the toolkit writes,
+                 amber = it reads or builds, text-dim = a person who only does. The left panel
+                 is quieter than the right: fewer colours, the right carries the green.
+  GEOMETRY:      viewBox 900 × 300; panels at x 1 and x 481, 418 wide, 298 high, rx 10; the
+                 kicker at y 28; the content band y 48..240; the caption at y 272, centred on
+                 the panel; the arrow between at x 426..466, y 138. Every coordinate
+                 divisible by 2 but the panels' 1 px inset. Keep the aspect when scaling a
+                 glyph.
+  ANTI-PATTERNS: - a third panel (that is a track or a map);
+                 - text inside a panel beyond labels and the caption (the slide's h2 and lead
+                   carry the argument, the figure shows it);
+                 - a glyph in a colour that says what it is instead of what it means;
+                 - the same glyph count and layout in both panels, so nothing visibly changed;
+                 - an arrow between the panels that means "then" (it means "instead").
+
+  The first child is a background rect filling the viewBox with the card token; keep it.
+  Placeholders: {{…}}. The ids are prefixed sc-; suffix them if a page holds two scenes.
+-->
+<svg viewBox="0 0 900 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="{{What the two panels show, as a sentence: left the state today, right the state proposed}}">
+  <rect x="0" y="0" width="900" height="300" fill="var(--bg-card, #14253f)"/>
+  <defs>
+    <marker id="sc-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="var(--border-2, #3b5e8f)"/></marker>
+    <symbol id="sc-person" viewBox="0 0 64 72">
+      <circle cx="32" cy="16" r="14" fill="none" stroke="currentColor" stroke-width="2.5"/>
+      <path d="M4 70a28 28 0 0 1 56 0" fill="none" stroke="currentColor" stroke-width="2.5"/>
+    </symbol>
+    <symbol id="sc-person-check" viewBox="0 0 64 72">
+      <circle cx="32" cy="16" r="14" fill="none" stroke="currentColor" stroke-width="2.5"/>
+      <path d="M4 70a28 28 0 0 1 56 0" fill="none" stroke="currentColor" stroke-width="2.5"/>
+      <path d="M20 46l8 8 14-16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="sc-ai" viewBox="0 0 28 28">
+      <circle cx="14" cy="14" r="12" fill="currentColor" fill-opacity="0.13" stroke="currentColor" stroke-width="1.5"/>
+      <text x="14" y="17.5" text-anchor="middle" font-family="var(--mono, 'JetBrains Mono', ui-monospace, monospace)" font-size="9" font-weight="700" fill="currentColor">AI</text>
+    </symbol>
+    <symbol id="sc-doc" viewBox="0 0 80 100">
+      <rect x="1" y="1" width="78" height="98" rx="6" fill="var(--bg-card, #14253f)" stroke="currentColor" stroke-width="1.5"/>
+      <rect x="12" y="14" width="36" height="6" rx="2" fill="currentColor"/>
+      <g fill="var(--border-2, #3b5e8f)">
+        <rect x="12" y="30" width="56" height="4" rx="2"/><rect x="12" y="42" width="44" height="4" rx="2"/>
+        <rect x="12" y="54" width="56" height="4" rx="2"/><rect x="12" y="66" width="30" height="4" rx="2"/><rect x="12" y="78" width="48" height="4" rx="2"/>
+      </g>
+    </symbol>
+    <symbol id="sc-result" viewBox="0 0 52 66">
+      <rect x="1" y="1" width="50" height="64" rx="6" fill="currentColor" fill-opacity="0.13" stroke="currentColor" stroke-width="1.5"/>
+      <g fill="currentColor" fill-opacity="0.5">
+        <rect x="10" y="14" width="32" height="4" rx="2"/><rect x="10" y="25" width="22" height="4" rx="2"/>
+        <rect x="10" y="36" width="32" height="4" rx="2"/><rect x="10" y="47" width="18" height="4" rx="2"/>
+      </g>
+    </symbol>
+    <symbol id="sc-bubble" viewBox="0 0 200 48">
+      <rect x="1" y="1" width="198" height="46" rx="10" fill="var(--bg3, #1b2e4d)" stroke="var(--border, #2b4a73)" stroke-width="1.5"/>
+      <rect x="16" y="14" width="150" height="5" rx="2.5" fill="var(--border-2, #3b5e8f)"/>
+      <rect x="16" y="28" width="112" height="5" rx="2.5" fill="var(--border-2, #3b5e8f)"/>
+    </symbol>
+  </defs>
+
+  <!-- Left panel: the state the reader knows -->
+  <rect x="1" y="1" width="418" height="298" rx="10" fill="var(--bg-card, #14253f)" stroke="var(--border, #2b4a73)" stroke-width="1.5"/>
+  <text x="20" y="28" font-family="var(--mono, 'JetBrains Mono', ui-monospace, monospace)" font-size="11" letter-spacing="0.08em" fill="var(--text-mute, #6b7a93)">{{BEFORE · KICKER}}</text>
+  <use href="#sc-person" x="40" y="88" width="64" height="72" color="var(--text-dim, #a8b8d0)"/>
+  <text x="72" y="184" text-anchor="middle" font-family="var(--mono, 'JetBrains Mono', ui-monospace, monospace)" font-size="10" letter-spacing="0.08em" fill="var(--text-mute, #6b7a93)">{{WRITES}}</text>
+  <path d="M116 124h30" fill="none" stroke="var(--border-2, #3b5e8f)" stroke-width="2" marker-end="url(#sc-arr)"/>
+  <g opacity="1"><use href="#sc-bubble" x="160" y="56" width="200" height="48"/></g>
+  <g opacity="0.6"><use href="#sc-bubble" x="200" y="112" width="200" height="48"/></g>
+  <g opacity="0.3"><use href="#sc-bubble" x="160" y="168" width="200" height="48"/></g>
+  <text x="210" y="272" text-anchor="middle" font-family="var(--sans, Inter, system-ui, sans-serif)" font-size="13" fill="var(--text-dim, #a8b8d0)">{{One sentence on what is lost in the left state.}}</text>
+
+  <!-- Between: instead, not then -->
+  <g transform="translate(426,138)" fill="none" stroke="var(--cyan, #4fc3f7)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h38M30 3l10 9-10 9"/></g>
+
+  <!-- Right panel: the state proposed -->
+  <rect x="481" y="1" width="418" height="298" rx="10" fill="var(--bg-card, #14253f)" stroke="var(--border, #2b4a73)" stroke-width="1.5"/>
+  <text x="500" y="28" font-family="var(--mono, 'JetBrains Mono', ui-monospace, monospace)" font-size="11" letter-spacing="0.08em" fill="var(--cyan, #4fc3f7)">{{AFTER · KICKER}}</text>
+  <use href="#sc-person-check" x="500" y="88" width="64" height="72" color="var(--green, #66bb6a)"/>
+  <text x="532" y="184" text-anchor="middle" font-family="var(--mono, 'JetBrains Mono', ui-monospace, monospace)" font-size="10" letter-spacing="0.08em" fill="var(--green, #66bb6a)">{{APPROVES}}</text>
+  <path d="M576 124h30" fill="none" stroke="var(--border-2, #3b5e8f)" stroke-width="2" marker-end="url(#sc-arr)"/>
+  <use href="#sc-doc" x="616" y="74" width="80" height="100" color="var(--cyan, #4fc3f7)"/>
+  <text x="656" y="196" text-anchor="middle" font-family="var(--mono, 'JetBrains Mono', ui-monospace, monospace)" font-size="10" letter-spacing="0.08em" fill="var(--cyan, #4fc3f7)">{{THE DESIGN}}</text>
+  <path d="M704 124h30" fill="none" stroke="var(--border-2, #3b5e8f)" stroke-width="2" marker-end="url(#sc-arr)"/>
+  <use href="#sc-ai" x="746" y="76" width="28" height="28" color="var(--cyan, #4fc3f7)"/>
+  <use href="#sc-ai" x="746" y="110" width="28" height="28" color="var(--cyan, #4fc3f7)"/>
+  <use href="#sc-ai" x="746" y="144" width="28" height="28" color="var(--cyan, #4fc3f7)"/>
+  <path d="M782 124h24" fill="none" stroke="var(--border-2, #3b5e8f)" stroke-width="2" marker-end="url(#sc-arr)"/>
+  <use href="#sc-result" x="816" y="92" width="52" height="66" color="var(--green, #66bb6a)"/>
+  <text x="806" y="196" text-anchor="middle" font-family="var(--mono, 'JetBrains Mono', ui-monospace, monospace)" font-size="10" letter-spacing="0.08em" fill="var(--text-mute, #6b7a93)">{{AGENTS BUILD}}</text>
+  <text x="690" y="272" text-anchor="middle" font-family="var(--sans, Inter, system-ui, sans-serif)" font-size="13" fill="var(--text-dim, #a8b8d0)">{{One sentence on what the right state gives.}}</text>
+</svg>

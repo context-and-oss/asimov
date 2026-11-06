@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="{{LANG}}">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{DECK_TITLE}}</title>
+<!--
+  deck-template.html — the skeleton every deck is written from: one HTML file, one slide per
+  <section>, a theme pasted in at the top of the <style>, speaker notes under N, a PDF with
+  one landscape page per slide under Ctrl+P. Nothing else is needed to present or to send it.
+
+  ─── Ground rules ───────────────────────────────────────────────────────────────────────────
+   1. One slide, one message. The <h2> is the message, written as a sentence a listener could
+      repeat; everything else on the slide proves it. A slide with two messages is two slides.
+   2. Budget: one slide per ninety seconds, the cover and the ask counted among them, never
+      fewer than four: five slides for five minutes, seven for ten, nine for a quarter hour.
+      A figure slide carries no list, a list slide no figure. Three to five points on a list.
+   3. The page is 1180 × 740 CSS px (16:10). On screen a slide grows to the viewport; in the
+      PDF it is cut at the page. Design for the page: what overflows it is gone in print.
+   4. The header comment (the block right under <title>) carries, in this order: the file
+      name and one line on what the deck is for; the audience and the occasion; the length;
+      the line of the deck in one sentence; the slide list, one line per slide; the version
+      log, newest first, one line per version opening with its number, v1 for the first,
+      saying what changed and why. The comment is the deck's memory: the next version is
+      written from it. It replaces this comment: a finished deck carries no ground rules.
+   5. Every slide has an <aside class="notes">: what to say, not what is on the slide. The
+      notes toggle with N and never print.
+   6. Styling is the theme's. Paste one themes/<slug>.css whole at the THEME placeholder and nothing else.
+      The deck adds no colour of its own: a tint is color-mix() of a token, a new shade is a
+      change to the theme file. The alias block below maps the names the site's figures use
+      onto the contract, so a figure pasted from a site or a D101 takes the theme as it is.
+   7. Figures are inline SVG, borrowed or drawn; keep every id unique across the page. No
+      image files, no external script, no framework: the fonts the theme links are the one
+      thing the file fetches.
+   8. The script and the print block are the mechanics; copy them unchanged. Keys: → ↓ Space
+      PageDown next · ← ↑ PageUp previous · Home / End · N notes · Ctrl+P PDF.
+   9. BRAND is the nav word and the cover kicker: the theme's header says it (brand:) when
+      the theme is a brand's own; a shipped theme says brand: none, and the word is then the
+      organisation or product the deck speaks for, from the request or the repo's name. WHAT
+      is the deck's own short name, lower case. The counter's text is the slide count; each
+      slide's HTML comment is its number and its message, rewritten per slide.
+  10. The cover carries the title, one tagline and who is presenting (name, role, contact).
+      The last slide is the ask or the next step, never "Questions?".
+  11. The file is named for the occasion, or for the topic when no occasion is named, in
+      kebab-case (aalborg-ai-session.html, specs-move.html); a new version overwrites it, the
+      old one goes to old/<name>-v<N>.html beside it.
+  12. The slides speak the language of the request and the <html lang> says which; the header
+      comment is English, because the next writer may not share the room's language.
+  13. Opened with ?pages after the file name, every slide is shown at page size, one under the
+      other: a screenshot of that view at 1180 x (740 x slides) is the check that nothing
+      overflows a page. The script adds the class; the rules sit above the print block.
+
+  ─── Component catalogue ─────────────────────────────────────────────────────────────────
+   .slide.cover      title, tagline, who                       one per deck, first
+   .slide (statement) .kicker + <h2> + .lead                   the default slide
+   .points            an <ul> of three to five <li>, <strong> opens each
+   .cards             a grid of .card (h3 + p), two to four across
+   .figure            a wrapper for one inline SVG, .caption under it
+   .slide.ask         the closing slide: <h2> + .lead + .who
+   .tag               a small mono label; .ok / .warn / .bad / .brand set its colour
+   .notes             speaker notes, one per slide
+
+  ─── Token contract (what a theme must define, all of them) ──────────────────────────────
+   --bg --bg-alt --surface            page, alternate band, card
+   --border --border-strong           hairline, emphasised line
+   --text --text-dim --text-mute      three strengths of text
+   --brand --brand-2                  the brand colour and its companion
+   --ok --warn --bad --extra          green-ish, amber-ish, red-ish, one more accent
+   --sans --mono                      the two font stacks (the theme links the fonts)
+   --nav-bg                           the top bar's translucent background
+   --on-brand                         text placed on a brand-coloured fill
+  The alias block in this file maps the figure names (--cyan --teal --green --amber --gold
+  --violet --coral --bg2 --bg3 --bg-card --border-2 --text-muted) onto the contract. A theme
+  never defines those; a deck never uses them outside a pasted figure.
+
+  Placeholders: LANG and DECK_TITLE in the head, THEME in the style, SLIDES in the nav, WHAT,
+  BRAND and the slide text in the body, each in double braces and none in this comment.
+  Replace all. Two things are rewritten without braces: each slide's HTML comment (its
+  number and its message) and this comment, which the header comment of rule 4 replaces.
+-->
+<style>
+/* ── Theme: themes/<slug>.css pasted whole, nothing added ── */
+{{THEME}}
+
+/* ── Alias block: the names figures from the site and the D101s use ── */
+:root {
+  --cyan: var(--brand); --teal: var(--brand-2); --green: var(--ok); --amber: var(--warn);
+  --gold: var(--warn); --violet: var(--extra); --coral: var(--bad);
+  --bg2: var(--bg-alt); --bg3: var(--bg-alt); --bg-card: var(--surface);
+  --border-2: var(--border-strong); --text-muted: var(--text-mute);
+}
+
+/* ── Base ── */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-snap-type: y mandatory; scroll-behavior: smooth; }
+body { background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 16px; line-height: 1.5; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+h1, h2, h3 { text-wrap: balance; }
+code, .mono { font-family: var(--mono); }
+svg { display: block; }
+
+/* ── Top bar ── */
+.top-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: var(--nav-bg); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 0.6rem 2rem; display: flex; gap: 1.4rem; align-items: center; font-size: 0.82rem; }
+.top-nav .brand { font-family: var(--mono); font-weight: 700; color: var(--brand); letter-spacing: 0.04em; }
+.top-nav .brand .sep { color: var(--border-strong); margin: 0 0.5rem; }
+.top-nav .brand .what { color: var(--text-dim); font-weight: 500; }
+.top-nav .spacer { flex: 1; }
+.top-nav .hint { color: var(--text-mute); font-family: var(--mono); font-size: 0.7rem; }
+.top-nav .hint kbd { border: 1px solid var(--border-strong); border-radius: 4px; padding: 0 0.35rem; color: var(--text-dim); }
+.top-nav .counter { font-family: var(--mono); font-size: 0.7rem; font-weight: 700; color: var(--brand); background: color-mix(in srgb, var(--brand) 8%, transparent); border: 1px solid color-mix(in srgb, var(--brand) 30%, transparent); border-radius: 999px; padding: 0.25rem 0.7rem; font-variant-numeric: tabular-nums; }
+
+/* ── Slides ── */
+.slide { min-height: 100vh; scroll-snap-align: start; display: flex; flex-direction: column; justify-content: center; padding: 5rem 2rem 3rem; position: relative; }
+.slide.alt { background: var(--bg-alt); }
+.slide-inner { width: 100%; max-width: 1100px; margin: 0 auto; }
+.kicker { font-family: var(--mono); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--brand); margin-bottom: 1rem; }
+.slide h2 { font-size: clamp(1.9rem, 3.8vw, 3.2rem); font-weight: 800; letter-spacing: -0.03em; line-height: 1.08; color: var(--text); max-width: 26ch; }
+.slide h2 em { font-style: normal; color: var(--brand); }
+.lead { margin-top: 1.6rem; font-size: clamp(1.05rem, 1.6vw, 1.35rem); color: var(--text-dim); max-width: 60ch; line-height: 1.5; }
+.lead strong { color: var(--text); font-weight: 600; }
+
+/* Points */
+.points { list-style: none; margin-top: 2rem; display: flex; flex-direction: column; gap: 1rem; max-width: 70ch; }
+.points li { font-size: clamp(1.05rem, 1.5vw, 1.3rem); color: var(--text-dim); line-height: 1.45; padding-left: 1.6rem; position: relative; }
+.points li::before { content: ''; position: absolute; left: 0; top: 0.62em; width: 0.65rem; height: 0.65rem; border-radius: 50%; background: var(--brand); }
+.points li strong { color: var(--text); font-weight: 700; }
+
+/* Cards */
+.cards { margin-top: 2.2rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.2rem; }
+.card { background: var(--surface); border: 1px solid var(--border); border-top: 4px solid var(--brand); border-radius: 14px; padding: 1.3rem 1.3rem 1.4rem; }
+.card.ok { border-top-color: var(--ok); } .card.warn { border-top-color: var(--warn); } .card.bad { border-top-color: var(--bad); } .card.extra { border-top-color: var(--extra); }
+.card h3 { font-size: 1.15rem; font-weight: 800; letter-spacing: -0.01em; color: var(--text); }
+.card p { margin-top: 0.5rem; font-size: 0.98rem; color: var(--text-dim); line-height: 1.45; }
+.card .num { font-family: var(--mono); font-size: 2.4rem; font-weight: 800; letter-spacing: -0.03em; color: var(--brand); line-height: 1; margin-bottom: 0.5rem; }
+
+/* Figure */
+.figure { margin-top: 2.2rem; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.2rem; overflow-x: auto; }
+.figure svg { width: 100%; height: auto; }
+.figure .caption { margin-top: 0.8rem; font-size: 0.88rem; color: var(--text-mute); }
+
+/* Tags */
+.tag { display: inline-block; font-family: var(--mono); font-size: 0.62rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; padding: 0.18rem 0.5rem; border-radius: 4px; border: 1px solid; white-space: nowrap; color: var(--text-dim); border-color: var(--border-strong); }
+.tag.brand { color: var(--brand); border-color: color-mix(in srgb, var(--brand) 30%, transparent); background: color-mix(in srgb, var(--brand) 8%, transparent); }
+.tag.ok { color: var(--ok); border-color: color-mix(in srgb, var(--ok) 30%, transparent); background: color-mix(in srgb, var(--ok) 8%, transparent); }
+.tag.warn { color: var(--warn); border-color: color-mix(in srgb, var(--warn) 30%, transparent); background: color-mix(in srgb, var(--warn) 8%, transparent); }
+.tag.bad { color: var(--bad); border-color: color-mix(in srgb, var(--bad) 30%, transparent); background: color-mix(in srgb, var(--bad) 8%, transparent); }
+
+/* Cover and ask */
+.cover h1 { font-size: clamp(3.6rem, 9vw, 7.5rem); font-weight: 900; letter-spacing: -0.04em; line-height: 0.95; color: var(--text); }
+.cover h1 em { font-style: normal; color: var(--brand); }
+.cover .tagline { font-size: clamp(1.3rem, 2.4vw, 2rem); color: var(--text); font-weight: 600; letter-spacing: -0.01em; margin-top: 1.4rem; line-height: 1.3; max-width: 30ch; }
+.cover .sub { font-size: 1.05rem; color: var(--text-dim); margin-top: 0.9rem; max-width: 48ch; }
+.who { margin-top: 2.4rem; display: flex; gap: 0.9rem; flex-wrap: wrap; align-items: baseline; font-size: 0.95rem; color: var(--text-dim); }
+.who b { color: var(--text); font-weight: 700; }
+.who > * + *::before { content: '·'; margin-right: 0.9rem; color: var(--text-mute); }
+.who .mail { font-family: var(--mono); font-size: 0.82rem; }
+
+/* Speaker notes: hidden until N, never printed */
+.notes { display: none; margin-top: 1.6rem; border: 1px dashed var(--border-strong); border-radius: 10px; padding: 0.9rem 1.2rem; background: color-mix(in srgb, var(--warn) 5%, transparent); font-size: 0.9rem; color: var(--text-dim); line-height: 1.55; max-width: 90ch; }
+.notes::before { content: 'Speaker notes'; display: block; font-family: var(--mono); font-size: 0.62rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--warn); margin-bottom: 0.4rem; }
+body.show-notes .notes { display: block; }
+
+/* ── Pages view (?pages): every slide at page size, for the render check ── */
+body.pages .slide, body.pages .slide.alt { height: 740px; min-height: 0; padding: 2.4rem 3rem; overflow: hidden; }
+body.pages .slide-inner { max-width: none; }
+body.pages .top-nav { position: absolute; }
+
+/* ── Print: one slide per page, the page is the slide ── */
+@media print {
+  @page { size: 1180px 740px; margin: 0; }
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  html { scroll-snap-type: none; background: var(--bg); }
+  body { background: var(--bg); width: 1180px; }
+  .top-nav, .notes { display: none !important; }
+  .slide, .slide.alt { width: 1180px; height: 740px; min-height: 0; padding: 2.4rem 3rem; overflow: hidden; break-after: page; page-break-after: always; break-inside: avoid; }
+  .slide:last-child { break-after: auto; page-break-after: auto; }
+  .slide-inner { max-width: none; }
+  .slide h2 { font-size: 2.6rem; }
+  .lead { margin-top: 1.4rem; font-size: 1.15rem; }
+  .points { margin-top: 1.6rem; gap: 0.8rem; } .points li { font-size: 1.12rem; }
+  .cards, .figure { margin-top: 1.6rem; }
+  .cover h1 { font-size: 6.5rem; }
+  .cover .tagline { font-size: 1.8rem; }
+}
+</style>
+</head>
+<body>
+
+<nav class="top-nav" aria-label="Deck">
+  <span class="brand">{{BRAND}}<span class="sep">/</span><span class="what">{{WHAT}}</span></span>
+  <span class="spacer"></span>
+  <span class="hint"><kbd>←</kbd> <kbd>→</kbd> slides &nbsp;·&nbsp; <kbd>N</kbd> notes &nbsp;·&nbsp; <kbd>Ctrl</kbd>+<kbd>P</kbd> pdf</span>
+  <span class="counter" id="counter">1 / {{SLIDES}}</span>
+</nav>
+
+<!-- 1 · Cover -->
+<section class="slide cover" id="s1">
+  <div class="slide-inner">
+    <div class="kicker">{{BRAND}}</div>
+    <h1>{{Title}}</h1>
+    <p class="tagline">{{One tagline: the promise of the deck in a sentence.}}</p>
+    <p class="sub">{{One line on what this is and for whom.}}</p>
+    <div class="who"><b>{{Name}}</b><span>{{Role}}</span><span class="mail">{{contact}}</span></div>
+    <aside class="notes">{{How to open. What to say before the first real slide.}}</aside>
+  </div>
+</section>
+
+<!-- 2 · A statement with points -->
+<section class="slide" id="s2">
+  <div class="slide-inner">
+    <div class="kicker">{{Section word}}</div>
+    <h2>{{The message of this slide, as a sentence, with <em>one emphasis</em>.}}</h2>
+    <ul class="points">
+      <li><strong>{{Point one.}}</strong> {{One sentence that proves it.}}</li>
+      <li><strong>{{Point two.}}</strong> {{One sentence that proves it.}}</li>
+      <li><strong>{{Point three.}}</strong> {{One sentence that proves it.}}</li>
+    </ul>
+    <aside class="notes">{{What to say, not what is on the slide.}}</aside>
+  </div>
+</section>
+
+<!-- 3 · A statement with a figure or cards -->
+<section class="slide alt" id="s3">
+  <div class="slide-inner">
+    <div class="kicker">{{Section word}}</div>
+    <h2>{{The message of this slide.}}</h2>
+    <div class="cards">
+      <div class="card"><div class="num">{{1}}</div><h3>{{Card title}}</h3><p>{{One or two sentences.}}</p></div>
+      <div class="card ok"><div class="num">{{2}}</div><h3>{{Card title}}</h3><p>{{One or two sentences.}}</p></div>
+      <div class="card warn"><div class="num">{{3}}</div><h3>{{Card title}}</h3><p>{{One or two sentences.}}</p></div>
+    </div>
+    <!-- Or, instead of .cards, one figure:
+    <div class="figure">
+      <svg viewBox="0 0 1000 400" role="img" aria-label="{{What the figure shows}}"> … </svg>
+      <p class="caption">{{One line under the figure.}}</p>
+    </div>
+    -->
+    <aside class="notes">{{What to say.}}</aside>
+  </div>
+</section>
+
+<!-- 4 · The ask -->
+<section class="slide ask" id="s4">
+  <div class="slide-inner">
+    <div class="kicker">{{Next}}</div>
+    <h2>{{The ask, or the next step, as a sentence.}}</h2>
+    <p class="lead">{{What happens if they say yes, and by when.}}</p>
+    <div class="who"><b>{{Name}}</b><span class="mail">{{contact}}</span></div>
+    <aside class="notes">{{How to close. The one thing they should leave with.}}</aside>
+  </div>
+</section>
+
+<script>
+(function () {
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var counter = document.getElementById('counter');
+  var current = 0;
+  if (location.search === '?pages') document.body.classList.add('pages');
+  function go(i) { i = Math.max(0, Math.min(slides.length - 1, i)); slides[i].scrollIntoView({ block: 'start' }); }
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { if (e.isIntersecting) { current = slides.indexOf(e.target); counter.textContent = (current + 1) + ' / ' + slides.length; } });
+    }, { threshold: 0.55 });
+    slides.forEach(function (s) { io.observe(s); });
+  }
+  document.addEventListener('keydown', function (e) {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    switch (e.key) {
+      case 'ArrowRight': case 'ArrowDown': case 'PageDown': case ' ': e.preventDefault(); go(current + 1); break;
+      case 'ArrowLeft': case 'ArrowUp': case 'PageUp': e.preventDefault(); go(current - 1); break;
+      case 'Home': e.preventDefault(); go(0); break;
+      case 'End': e.preventDefault(); go(slides.length - 1); break;
+      case 'n': case 'N': document.body.classList.toggle('show-notes'); break;
+    }
+  });
+})();
+</script>
+</body>
+</html>
