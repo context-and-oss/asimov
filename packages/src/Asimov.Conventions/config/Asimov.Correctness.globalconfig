@@ -1,0 +1,6 @@
+# Asimov.Correctness — code that is wrong regardless of style: it compiles and does not do what it reads as doing.
+# Why: these are bug patterns, not preferences; Minimum mode includes them because a build with them in it is not safe.
+is_global = true
+global_level = 100
+
+dotnet_diagnostic.S1764.severity = error    # identical expressions on both sides of a binary operator

@@ -1,0 +1,7 @@
+# Asimov.Baseline — every analyzer rule is off unless a category file names it.
+# Why: bulk configuration has the lowest precedence, so the SDK's Recommended CA set (named rule by rule
+# in the SDK's own globalconfig) survives, while Sonar, Meziantou and IDE rules are on only by choice.
+is_global = true
+global_level = 100
+
+dotnet_analyzer_diagnostic.severity = none

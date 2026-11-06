@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="src/Asimov.Conventions/Asimov.Conventions.csproj" />
+  <Project Path="src/Asimov.TestConventions/Asimov.TestConventions.csproj" />
+  <Project Path="src/Asimov.Conventions.Patterns/Asimov.Conventions.Patterns.csproj" />
+  <Project Path="test/Asimov.Conventions.Patterns.Tests/Asimov.Conventions.Patterns.Tests.csproj" />
+</Solution>

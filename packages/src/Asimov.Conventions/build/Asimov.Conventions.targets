@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+
+  <!--
+    Asimov.Conventions — everything the package does to a build when AsimovAnalysisMode is not None.
+    Imported after the project body, so the mode set in a .csproj or Directory.Build.props is known here.
+
+    1. Forces the SDK analyzer properties and treats warnings as errors: a rule is error or off.
+    2. Injects the package's .globalconfig files: Baseline + Style + Rejected always, plus the category
+       files the mode selects. Precedence: a repo .editorconfig entry still wins over these for the same
+       rule, which is what the drift guard exists to police.
+    3. Injects every registered contributor's globalconfig for the mode and level. A contributor is a
+       product-convention package; it registers itself from its own props file:
+
+         <ItemGroup>
+           <AsimovConventionsContributor Include="Contoso.Conventions"
+               ConfigDirectory="$(MSBuildThisFileDirectory)../config/"
+               LatestLevel="1" />
+         </ItemGroup>
+
+       and ships <ConfigDirectory>/<Name>.<level>-<mode>.globalconfig for every mode it supports, at
+       global_level 200 so it can override a generic rule. A missing file fails the build (ASV0001).
+       An optional <ConfigDirectory>/<Name>.Legacy.globalconfig (global_level 150) carries the rules the
+       product's code is not ready for yet; it is injected in every mode but None.
+  -->
+
+  <PropertyGroup Label="Forced when a mode is set" Condition="'$(AsimovAnalysisMode)' != 'None'">
+    <AnalysisMode>Recommended</AnalysisMode>
+    <AnalysisLevel>latest</AnalysisLevel>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Mode to category mapping">
+    <_AsimovValidModes>None;Minimum;Recommended;All</_AsimovValidModes>
+    <_AsimovConfigDirectory>$(MSBuildThisFileDirectory)../config/</_AsimovConfigDirectory>
+    <_AsimovCategories_Minimum>Formatting;Async;Correctness</_AsimovCategories_Minimum>
+    <_AsimovCategories_Recommended>Formatting;Async;Correctness</_AsimovCategories_Recommended>
+    <_AsimovCategories_All>Formatting;Async;Correctness</_AsimovCategories_All>
+  </PropertyGroup>
+
+  <Target Name="AsimovConventions_Configure" BeforeTargets="CoreCompile" Condition="'$(AsimovAnalysisMode)' != 'None'">
+
+    <Error Code="ASV0001"
+           Condition="'$(AsimovAnalysisMode)' != 'Minimum' and '$(AsimovAnalysisMode)' != 'Recommended' and '$(AsimovAnalysisMode)' != 'All'"
+           Text="Asimov.Conventions: unknown AsimovAnalysisMode '$(AsimovAnalysisMode)'. Valid: $(_AsimovValidModes.Replace(';', ', '))." />
+
+    <PropertyGroup>
+      <_AsimovCategories Condition="'$(AsimovAnalysisMode)' == 'Minimum'">$(_AsimovCategories_Minimum)</_AsimovCategories>
+      <_AsimovCategories Condition="'$(AsimovAnalysisMode)' == 'Recommended'">$(_AsimovCategories_Recommended)</_AsimovCategories>
+      <_AsimovCategories Condition="'$(AsimovAnalysisMode)' == 'All'">$(_AsimovCategories_All)</_AsimovCategories>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <_AsimovCategory Include="$(_AsimovCategories)" />
+      <EditorConfigFiles Include="$(_AsimovConfigDirectory)Asimov.Baseline.globalconfig" />
+      <EditorConfigFiles Include="$(_AsimovConfigDirectory)Asimov.Style.globalconfig" />
+      <EditorConfigFiles Include="@(_AsimovCategory->'$(_AsimovConfigDirectory)Asimov.%(Identity).globalconfig')" />
+      <EditorConfigFiles Include="$(_AsimovConfigDirectory)Asimov.Rejected.globalconfig" Condition="Exists('$(_AsimovConfigDirectory)Asimov.Rejected.globalconfig')" />
+    </ItemGroup>
+
+    <!-- Contributors: resolve <ConfigDirectory>/<Name>.<level>-<mode>.globalconfig, level "latest" meaning the contributor's LatestLevel. -->
+    <ItemGroup>
+      <_AsimovContributorConfig Condition="'$(AsimovAnalysisLevel)' == 'latest'" Include="@(AsimovConventionsContributor->'%(ConfigDirectory)%(Identity).%(LatestLevel)-$(AsimovAnalysisMode).globalconfig')" />
+      <_AsimovContributorConfig Condition="'$(AsimovAnalysisLevel)' != 'latest'" Include="@(AsimovConventionsContributor->'%(ConfigDirectory)%(Identity).$(AsimovAnalysisLevel)-$(AsimovAnalysisMode).globalconfig')" />
+      <_AsimovMissingContributorConfig Include="@(_AsimovContributorConfig)" Condition="!Exists('%(Identity)')" />
+      <_AsimovContributorLegacy Include="@(AsimovConventionsContributor->'%(ConfigDirectory)%(Identity).Legacy.globalconfig')" Condition="Exists('%(ConfigDirectory)%(Identity).Legacy.globalconfig')" />
+    </ItemGroup>
+
+    <Error Code="ASV0001"
+           Condition="'@(_AsimovMissingContributorConfig)' != ''"
+           Text="Asimov.Conventions: a contributor has no configuration for AsimovAnalysisMode='$(AsimovAnalysisMode)' at AsimovAnalysisLevel='$(AsimovAnalysisLevel)'. Expected: @(_AsimovMissingContributorConfig, ', ')" />
+
+    <ItemGroup>
+      <EditorConfigFiles Include="@(_AsimovContributorConfig->Distinct())" />
+      <EditorConfigFiles Include="@(_AsimovContributorLegacy->Distinct())" />
+    </ItemGroup>
+
+  </Target>
+
+</Project>
