@@ -1,6 +1,7 @@
 name: Proposal
 description: Propose a new command, subagent, standard persona, or a change to a definition or template. Open this before writing a D101.
-labels: [proposal]
+type: Feature
+labels: ["status: new"]
 body:
   - type: dropdown
     id: kind
