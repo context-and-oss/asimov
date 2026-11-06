@@ -1,0 +1,12 @@
+# Asimov.Formatting — rules with a reliable code fix. Always on, always error.
+# Why: nobody types these by hand; dotnet format applies them (editor on save, agent after edit, CI verify).
+is_global = true
+global_level = 100
+
+dotnet_diagnostic.IDE0005.severity = error   # remove unnecessary using directives (needs GenerateDocumentationFile at build)
+dotnet_diagnostic.IDE0011.severity = error   # add braces (csharp_prefer_braces)
+dotnet_diagnostic.IDE0055.severity = error   # fix formatting: whitespace, indentation, new lines
+dotnet_diagnostic.IDE0065.severity = error   # using directive placement (csharp_using_directive_placement)
+dotnet_diagnostic.IDE0130.severity = error   # namespace does not match folder structure
+dotnet_diagnostic.IDE0161.severity = error   # use file-scoped namespace
+dotnet_diagnostic.IDE1006.severity = error   # naming rule violation (rules in Asimov.Style)

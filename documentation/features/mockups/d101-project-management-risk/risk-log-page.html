@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mockup — the risk log page (project/risk-log.html)</title>
+<style>
+/* Tokens and chrome mirror plugins/asimov-plugin/artifacts/documentation/site/_chrome.css;
+   the real page links that file and carries no script. The scenario bar at the top is mockup chrome only. */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+:root { --bg:#0a1424; --bg2:#122039; --bg3:#1b2e4d; --bg-card:#14253f; --border:#2b4a73; --border-2:#3b5e8f; --text:#fff; --text-dim:#a8b8d0; --text-mute:#6b7a93; --cyan:#4fc3f7; --teal:#26c6da; --green:#66bb6a; --amber:#ffb74d; --coral:#ef5350; --gold:#ffd54f; --violet:#ab47bc; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:var(--text); font-family:'Inter',sans-serif; font-size:15px; line-height:1.6; }
+a { color:var(--cyan); text-decoration:none; }
+code, .mono { font-family:'JetBrains Mono',monospace; font-size:0.88em; }
+
+/* mockup-only scenario bar */
+.mock-bar { position:sticky; top:0; z-index:200; display:flex; gap:0.4rem; align-items:center; flex-wrap:wrap; padding:0.45rem 1rem; background:#05101e; border-bottom:1px dashed var(--border-2); font-family:'JetBrains Mono',monospace; font-size:0.72rem; color:var(--text-mute); }
+.mock-bar button { font:inherit; color:var(--text-dim); background:transparent; border:1px solid var(--border); border-radius:6px; padding:0.2rem 0.6rem; cursor:pointer; }
+.mock-bar button.on { color:#fff; border-color:var(--cyan); background:#4fc3f714; }
+
+/* site chrome (_chrome.css) */
+.top-nav { position:sticky; top:31px; z-index:100; background:rgba(10,20,36,0.92); border-bottom:1px solid var(--border); padding:0.55rem 2rem; display:flex; gap:1.4rem; align-items:center; font-size:0.82rem; }
+.top-nav .brand { font-family:'JetBrains Mono',monospace; font-weight:700; color:var(--cyan); letter-spacing:0.04em; }
+.top-nav .brand .sep { color:var(--border); margin:0 0.5rem; }
+.top-nav a { color:var(--text-dim); font-weight:500; }
+.top-nav a.active { color:var(--cyan); }
+.page { max-width:1100px; margin:0 auto; padding:1.6rem 2rem 3rem; }
+.doc-kicker { display:inline-block; font-family:'JetBrains Mono',monospace; font-size:0.72rem; font-weight:600; letter-spacing:0.18em; text-transform:uppercase; color:var(--cyan); padding:0.3rem 0.8rem; border-radius:999px; border:1px solid #4fc3f744; background:#4fc3f711; margin-bottom:0.8rem; }
+h1 { font-size:2.3rem; font-weight:800; letter-spacing:-0.02em; line-height:1.15; background:linear-gradient(135deg,#fff 0%,var(--cyan) 70%,var(--teal) 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+h2 { font-size:1.25rem; font-weight:700; margin:2rem 0 0.7rem; padding-bottom:0.35rem; border-bottom:1px solid var(--border); }
+.site-footer { max-width:1100px; margin:3rem auto 0; padding:1.6rem 2rem; border-top:1px solid var(--border); text-align:center; color:var(--text-mute); font-size:0.8rem; }
+
+/* page components (inline in the real page) */
+.status-line { display:flex; flex-wrap:wrap; gap:0.6rem 1.2rem; align-items:center; margin-top:0.9rem; color:var(--text-dim); font-size:0.9rem; }
+.updated { position:relative; }
+.updated details { display:inline-block; }
+.updated summary { list-style:none; cursor:pointer; display:inline-flex; gap:0.4rem; align-items:center; }
+.updated summary::-webkit-details-marker { display:none; }
+.updated .i { display:inline-flex; width:17px; height:17px; border-radius:50%; border:1px solid var(--border-2); color:var(--text-mute); font-size:0.7rem; font-weight:700; align-items:center; justify-content:center; font-family:'JetBrains Mono',monospace; }
+.updated details[open] .i { border-color:var(--cyan); color:var(--cyan); }
+.reg-history { position:absolute; top:1.8rem; left:0; z-index:20; min-width:420px; background:var(--bg2); border:1px solid var(--border-2); border-radius:8px; padding:0.7rem 0.9rem; box-shadow:0 10px 30px #0008; }
+.reg-history .hd { font-family:'JetBrains Mono',monospace; font-size:0.66rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--text-mute); margin-bottom:0.4rem; }
+.reg-history ol, .history { list-style:none; }
+.reg-history li, .history li { font-size:0.82rem; color:var(--text-dim); padding:0.18rem 0; }
+.reg-history time, .history time { font-family:'JetBrains Mono',monospace; font-size:0.78rem; color:var(--text); margin-right:0.5rem; }
+.who { color:var(--cyan); }
+.counts { display:flex; gap:0.4rem; flex-wrap:wrap; }
+.chip { font-family:'JetBrains Mono',monospace; font-size:0.7rem; font-weight:700; padding:0.15rem 0.55rem; border-radius:999px; border:1px solid; letter-spacing:0.04em; }
+.chip.Active { color:var(--amber); border-color:#ffb74d55; background:#ffb74d14; }
+.chip.Mitigated { color:var(--cyan); border-color:#4fc3f755; background:#4fc3f714; }
+.chip.Accepted { color:var(--violet); border-color:#ab47bc66; background:#ab47bc18; }
+.chip.Occurred { color:var(--coral); border-color:#ef535055; background:#ef535014; }
+.chip.Resolved { color:var(--green); border-color:#66bb6a55; background:#66bb6a14; }
+.anchors { margin-top:1.2rem; background:var(--bg-card); border:1px solid var(--border); border-radius:10px; }
+.anchors summary { cursor:pointer; padding:0.6rem 1rem; font-size:0.85rem; color:var(--text-dim); }
+.anchors .body { padding:0 1rem 0.9rem; font-size:0.85rem; color:var(--text-dim); }
+.anchors table { width:100%; border-collapse:collapse; margin:0.4rem 0 0.6rem; }
+.anchors td, .anchors th { padding:0.35rem 0.6rem; border-bottom:1px solid var(--border); text-align:left; }
+.anchors th { font-family:'JetBrains Mono',monospace; font-size:0.68rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-mute); }
+.caveat { border-left:3px solid var(--gold); padding:0.4rem 0.7rem; background:#ffd54f10; color:var(--text); }
+table.summary { width:100%; border-collapse:collapse; background:var(--bg-card); border:1px solid var(--border); border-radius:8px; overflow:hidden; font-size:0.85rem; }
+table.summary th { background:var(--bg2); font-family:'JetBrains Mono',monospace; font-size:0.68rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-mute); text-align:left; padding:0.5rem 0.7rem; }
+table.summary td { padding:0.5rem 0.7rem; border-top:1px solid var(--border); color:var(--text-dim); vertical-align:top; }
+table.summary td.id a { font-family:'JetBrains Mono',monospace; font-size:0.8rem; }
+table.summary td.num { font-family:'JetBrains Mono',monospace; text-align:right; }
+table.summary td.score { font-weight:700; color:#fff; }
+table.summary tr.group td { background:var(--bg2); font-family:'JetBrains Mono',monospace; font-size:0.68rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--text-mute); padding:0.3rem 0.7rem; }
+article.risk { background:var(--bg-card); border:1px solid var(--border); border-radius:10px; padding:1rem 1.2rem; margin:0.8rem 0; scroll-margin-top:110px; }
+article.risk:target { border-color:var(--cyan); box-shadow:0 0 0 1px var(--cyan); }
+article.risk h3 { font-size:1.02rem; font-weight:700; display:flex; gap:0.6rem; align-items:center; flex-wrap:wrap; }
+article.risk h3 .rid { font-family:'JetBrains Mono',monospace; color:var(--cyan); font-size:0.88rem; }
+article.risk h3 .sc { font-family:'JetBrains Mono',monospace; font-size:0.72rem; color:var(--text-mute); margin-left:auto; }
+.fields { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:1px; background:var(--border); border:1px solid var(--border); border-radius:6px; overflow:hidden; margin:0.7rem 0; }
+.fields div { background:var(--bg2); padding:0.4rem 0.6rem; font-size:0.82rem; }
+.fields .l { display:block; font-family:'JetBrains Mono',monospace; font-size:0.6rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--text-mute); }
+.risk p { font-size:0.88rem; color:var(--text-dim); margin:0.3rem 0; }
+.risk .lbl { font-family:'JetBrains Mono',monospace; font-size:0.66rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--text-mute); margin-top:0.6rem; }
+.risk .none { color:var(--text-mute); font-style:italic; }
+details.resolved-group > summary { cursor:pointer; color:var(--text-dim); font-size:0.9rem; padding:0.4rem 0; }
+.empty-note { background:var(--bg-card); border:1px solid var(--border); border-radius:10px; padding:0.9rem 1.1rem; color:var(--text-dim); margin-top:0.8rem; }
+.optout { background:var(--bg-card); border:1px solid var(--border); border-left:4px solid var(--violet); border-radius:10px; padding:1.2rem 1.4rem; margin-top:1.4rem; }
+.optout dl { display:grid; grid-template-columns:140px 1fr; gap:0.4rem 1rem; margin-top:0.8rem; font-size:0.9rem; }
+.optout dt { font-family:'JetBrains Mono',monospace; font-size:0.7rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--text-mute); padding-top:0.2rem; }
+.optout dd { color:var(--text); }
+.optout p { color:var(--text-dim); margin-top:1rem; font-size:0.88rem; }
+@media (max-width:760px) { .fields { grid-template-columns:repeat(2,1fr); } .reg-history { min-width:280px; } .optout dl { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<div class="mock-bar">
+  <span>Mockup state</span>
+  <button data-s="open" class="on">Register with risks</button>
+  <button data-s="allres">Every risk resolved</button>
+  <button data-s="optout">Opt-out</button>
+</div>
+
+<nav class="top-nav">
+  <span class="brand">product<span class="sep">/</span>docs</span>
+  <a href="#">Architecture</a><a href="#">Features</a><a href="#">Conventions</a><a href="#">Reference</a><a class="active" href="#">Project</a>
+</nav>
+
+<main class="page" id="page"></main>
+<footer class="site-footer">← Documentation home · <span class="mono">project/risk-log.html</span></footer>
+
+<script>
+(function () {
+  // Sample engagement; fictional people, no product entity.
+  const RISKS = [
+    { id:'RISK-001', name:'Sponsor changes mid-engagement', owner:'Maja Holm', area:'Governance', i:4, p:3, state:'Active', created:'2026-09-02', changed:'2026-10-06',
+      desc:'The sponsor has announced a reorganisation; a new sponsor may reopen scope.', mit:'Brief the deputy sponsor on every steering decision so the context survives a change.',
+      hist:[['2026-09-02','Maja Holm','Created. Impact 3, Probability 3 (score 9).'],['2026-10-06','Maja Holm','Impact 3 → 4: reorganisation confirmed for Q1.']] },
+    { id:'RISK-002', name:'Customer test environment arrives late', owner:'Jonas Berg', area:'Schedule', i:3, p:4, state:'Occurred', created:'2026-09-09', changed:'2026-10-13',
+      desc:'', mit:'', hist:[['2026-09-09','Jonas Berg','Created. Impact 3, Probability 4 (score 12).'],['2026-10-13','Jonas Berg','Active → Occurred: the environment arrived 2026-10-13, three weeks late; re-planned in the weekly plan.']] },
+    { id:'RISK-003', name:'Key developer leaves before handover', owner:'Maja Holm', area:'Resources', i:5, p:2, state:'Mitigated', created:'2026-09-02', changed:'2026-09-23',
+      desc:'', mit:'Pair on every module; handover notes written weekly, not at the end.',
+      hist:[['2026-09-02','Maja Holm','Created. Impact 5, Probability 2 (score 10).'],['2026-09-16','Maja Holm','Mitigation written.'],['2026-09-23','Maja Holm','Active → Mitigated: pairing in place on all three modules.']] },
+    { id:'RISK-004', name:'Third-party API pricing changes', owner:'Jonas Berg', area:'Cost', i:2, p:3, state:'Accepted', created:'2026-09-09', changed:'2026-09-30',
+      desc:'The vendor has signalled a new price model from next year.', mit:'',
+      hist:[['2026-09-09','Jonas Berg','Created. Impact 2, Probability 3 (score 6).'],['2026-09-30','Erik Lund','Active → Accepted: the customer carries API costs under the contract. Decided by Erik Lund.']] },
+    { id:'RISK-005', name:'Unclear specifications slow the build agents', owner:'Sara Nygaard', area:'Quality', i:4, p:4, state:'Active', created:'2026-09-16', changed:'2026-10-12',
+      desc:'Two features reached the build with open questions the design had not closed.', mit:'Gap-review every design before planning; no plan from a design with open business questions.',
+      hist:[['2026-09-16','Sara Nygaard','Created. Impact 4, Probability 3 (score 12).'],['2026-10-12','Sara Nygaard','Probability 3 → 4: second feature returned to design.']] },
+    { id:'RISK-006', name:'Data migration exceeds the cut-over window', owner:'Jonas Berg', area:'Schedule', i:4, p:2, state:'Resolved', created:'2026-09-02', changed:'2026-10-06',
+      desc:'', mit:'Full rehearsal on production-sized data two weeks before cut-over.',
+      hist:[['2026-09-02','Jonas Berg','Created. Impact 4, Probability 2 (score 8).'],['2026-09-20','Jonas Berg','Mitigation written.'],['2026-10-06','Jonas Berg','Active → Resolved: rehearsal finished in 3 h of a 6 h window.']] }
+  ];
+  const REG_HISTORY = [
+    ['2026-10-13','Maja Holm','Reviewed, with Erik Lund, Jonas Berg.'],
+    ['2026-10-13','Jonas Berg','RISK-002 occurred.'],
+    ['2026-10-12','Sara Nygaard','RISK-005 changed.'],
+    ['2026-10-06','Jonas Berg','RISK-006 resolved.'],
+    ['2026-10-06','Maja Holm','RISK-001 changed.'],
+    ['2026-09-30','Erik Lund','RISK-004 accepted.'],
+    ['2026-09-02','Maja Holm','Register created. Project language: English.']
+  ];
+  const ORDER = ['Active','Mitigated','Accepted','Occurred','Resolved'];
+  const score = r => r.i * r.p;
+  const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  const sorted = list => list.slice().sort((a,b) => ORDER.indexOf(a.state)-ORDER.indexOf(b.state) || score(b)-score(a) || a.id.localeCompare(b.id));
+
+  function header(list, updated, hist) {
+    const n = s => list.filter(r => r.state === s).length;
+    let h = '<div class="doc-kicker">Project · Risk log</div><h1>Risk log</h1>';
+    h += '<div class="status-line"><span class="updated"><details><summary>Last updated <span class="mono" style="color:#fff">' + updated + '</span> <span class="i" title="Who updated the register, and when">i</span></summary>';
+    h += '<div class="reg-history"><div class="hd">Register history</div><ol>' + hist.map(x => '<li><time>' + x[0] + '</time><span class="who">' + x[1] + '</span> · ' + esc(x[2]) + '</li>').join('') + '</ol></div></details></span>';
+    h += '<span class="counts">' + ORDER.map(s => '<span class="chip ' + s + '">' + n(s) + ' ' + s + '</span>').join('') + '</span></div>';
+    h += '<details class="anchors"><summary>How risks are scored</summary><div class="body"><table><tr><th></th><th>1</th><th>5</th></tr>' +
+      '<tr><td>Impact</td><td>A nuisance, absorbed within the week</td><td>Threatens the engagement’s goal or its contract</td></tr>' +
+      '<tr><td>Probability</td><td>Would surprise us</td><td>Expected unless we act</td></tr></table>' +
+      '<div class="caveat">The score ranks risks against each other. It does not tell you what to do.</div></div></details>';
+    return h;
+  }
+
+  function summary(list) {
+    let h = '<h2>Summary</h2><table class="summary"><tr><th>ID</th><th>Risk</th><th>Owner</th><th>Area</th><th>I</th><th>P</th><th>Score</th><th>Changed</th></tr>';
+    let last = '';
+    sorted(list).forEach(r => {
+      if (r.state !== last) { h += '<tr class="group"><td colspan="8">' + r.state + '</td></tr>'; last = r.state; }
+      h += '<tr><td class="id"><a href="#' + r.id + '">' + r.id + '</a></td><td>' + esc(r.name) + '</td><td>' + r.owner + '</td><td>' + (r.area || '') + '</td><td class="num">' + r.i + '</td><td class="num">' + r.p + '</td><td class="num score">' + score(r) + '</td><td class="mono">' + r.changed + '</td></tr>';
+    });
+    return h + '</table>';
+  }
+
+  function article(r) {
+    let h = '<article class="risk" id="' + r.id + '"><h3><span class="rid">' + r.id + '</span>' + esc(r.name) + ' <span class="chip ' + r.state + '">' + r.state + '</span><span class="sc">score ' + score(r) + '</span></h3>';
+    h += '<div class="fields"><div><span class="l">Owner</span>' + r.owner + '</div><div><span class="l">Area</span>' + (r.area || '<span class="none">—</span>') + '</div><div><span class="l">Impact</span>' + r.i + '</div><div><span class="l">Probability</span>' + r.p + '</div><div><span class="l">Created</span><span class="mono">' + r.created + '</span></div><div><span class="l">Changed</span><span class="mono">' + r.changed + '</span></div></div>';
+    if (r.desc) h += '<p>' + esc(r.desc) + '</p>';
+    h += '<div class="lbl">Mitigation</div><p>' + (r.mit ? esc(r.mit) : '<span class="none">None written yet.</span>') + '</p>';
+    h += '<div class="lbl">History</div><ol class="history">' + r.hist.map(x => '<li><time>' + x[0] + '</time><span class="who">' + x[1] + '</span> · ' + esc(x[2]) + '</li>').join('') + '</ol></article>';
+    return h;
+  }
+
+  function risks(list) {
+    let h = '<h2>Risks</h2>';
+    const open = sorted(list).filter(r => r.state !== 'Resolved');
+    const res = sorted(list).filter(r => r.state === 'Resolved');
+    if (!open.length) h += '<div class="empty-note">No open risks. Every registered risk is resolved; they stay below with their history.</div>';
+    open.forEach(r => { h += article(r); });
+    if (res.length) h += '<details class="resolved-group"><summary>Resolved (' + res.length + ')</summary>' + res.map(article).join('') + '</details>';
+    return h;
+  }
+
+  function render(s) {
+    const page = document.getElementById('page');
+    if (s === 'optout') {
+      page.innerHTML = '<div class="doc-kicker">Project · Risk log</div><h1>No risk register kept here</h1>' +
+        '<div class="optout"><dl><dt>Reason</dt><dd>Handled elsewhere</dd><dt>Where</dt><dd>The customer’s project tool, PMO board, “Risks” list</dd>' +
+        '<dt>Decided by</dt><dd>Erik Lund</dd><dt>Date</dt><dd class="mono">2026-09-30</dd><dt>Language</dt><dd>English</dd></dl>' +
+        '<p>Registering a risk replaces this page with a register, and the register’s first history line names this opt-out.</p></div>';
+      return;
+    }
+    const list = s === 'allres' ? RISKS.map(r => r.state === 'Resolved' ? r : Object.assign({}, r, { state:'Resolved', changed:'2026-11-28',
+      hist: r.hist.concat([['2026-11-28','Maja Holm', r.state + ' → Resolved: no longer relevant after go-live.']]) })) : RISKS;
+    const hist = s === 'allres' ? [['2026-11-28','Maja Holm','RISK-001 to RISK-005 resolved.']].concat(REG_HISTORY) : REG_HISTORY;
+    page.innerHTML = header(list, s === 'allres' ? '2026-11-28' : '2026-10-13', hist) + summary(list) + risks(list);
+  }
+
+  document.querySelectorAll('.mock-bar button').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('.mock-bar button').forEach(x => x.classList.toggle('on', x === b));
+    render(b.dataset.s);
+  }));
+  render('open');
+})();
+</script>
+</body>
+</html>

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Project management · Asimov</title>
-<meta name="description" content="How an engagement runs, and what the plugin knows about it: the delivery model, the advisor that reads it, and the artifacts to come.">
+<meta name="description" content="How an engagement runs, and what the plugin knows about it: the delivery model, the advisor that reads it, and the risk log that lands in your repo.">
 <link rel="stylesheet" href="../site.css">
 </head>
 <body class="has-subnav">
@@ -112,11 +112,26 @@
     <li><strong>It recommends; you decide.</strong> What the choice depends on, not a verdict.</li>
     <li><strong>It never writes.</strong> Nothing lands in your repo from asking.</li>
     <li><strong>It calls the model a working draft.</strong> In use, not a ratified standard.</li>
-    <li><strong>More skills are planned</strong> around the same model, as a <code>pm-*</code> family.</li>
   </ul>
 
   <h2 id="artifacts">What lands in your repo</h2>
-  <p>Nothing yet. A risk log and its kin land under <a href="../artifacts/project-management/index.html">Artifacts → Project management</a> when a command produces them.</p>
+  <p><strong>A risk log</strong>, at <code>project/risk-log.html</code>: one page per repo that holds every risk of the engagement, who owns it, how likely and how bad it is, and what changed since last week.</p>
+  <div style="overflow-x:auto">
+  <table>
+    <tr><th>You say</th><th>It does</th></tr>
+    <tr><td><code>/asimov-project risk log</code></td><td>Shows the register, sorted by state and score, and asks whether to mark it reviewed today.</td></tr>
+    <tr><td><code>/asimov-project risk log, add …</code></td><td>Asks for name, owner, impact and probability, then gives the risk the next number.</td></tr>
+    <tr><td><code>/asimov-project risk log, accept RISK-004</code></td><td>Records the decision, its reason and who took it. Mitigated, occurred and resolved work the same way.</td></tr>
+  </table>
+  </div>
+  <ul>
+    <li><strong>Every decision has a name on it.</strong> Every change of state carries a reason and the person who made it; an acceptance also names who decided it.</li>
+    <li><strong>History only grows.</strong> Every change is a dated line with who made it; nothing is deleted.</li>
+    <li><strong>The score ranks; it does not decide.</strong> Impact times probability orders the review, nothing more.</li>
+    <li><strong>Not keeping one is a decision too.</strong> An opt-out is recorded with its reason, in the register's place.</li>
+    <li>In Codex: <code>$asimov-plugin:asimov-project risk log</code>.</li>
+  </ul>
+  <p>More of the Project frame follows: a closure report and project setup are next. See <a href="../artifacts/project-management/index.html">Artifacts → Project management</a>.</p>
 
   <p><a href="https://github.com/context-and-oss/asimov/blob/main/plugins/asimov-plugin/processes/delivery-model-framework.md">Read the delivery model</a></p>
 

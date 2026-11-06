@@ -62,3 +62,15 @@ jobs:
             echo "ok: $f"
           done
           exit $fail
+
+      - name: Set up .NET for the packages
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: packages/global.json
+
+      - name: Packages build, test and pack
+        run: |
+          set -euo pipefail
+          dotnet test packages/Asimov.Packages.slnx -c Release --nologo
+          dotnet pack packages/Asimov.Packages.slnx -c Release -o packages/out --no-build --nologo
+          ls -1 packages/out

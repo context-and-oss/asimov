@@ -1,6 +1,6 @@
 # Contributing to Asimov
 
-Asimov is a Claude Code plugin: slash commands, subagents, skills, definitions and templates. There is no compiled code. A contribution is a change to a prompt, a definition, a template or a document, and it is reviewed like code.
+Asimov is a Claude Code plugin: slash commands, subagents, skills, definitions and templates. The plugin has no compiled code; the NuGet packages under `packages/` (Asimov.Conventions and its siblings) do, with their tests under `packages/test/`, and `dotnet test packages/Asimov.Packages.slnx` is their check. A contribution is a change to a prompt, a definition, a template or a document, and it is reviewed like code.
 
 ## What belongs here
 
