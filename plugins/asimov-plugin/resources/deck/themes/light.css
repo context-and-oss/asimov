@@ -1,0 +1,21 @@
+/*
+  theme: light
+  brand: none
+  The neutral light theme: a white page, dark text, one plain blue. Use it when the room
+  is bright or the deck is printed, and as the starting point for a brand theme: copy this
+  file, set brand: and --brand and the fonts, keep the rest until the brand says otherwise.
+  A shipped theme carries no brand word: the deck takes it from the request or the repo.
+  Fills the token contract of deck-template.html and nothing else.
+*/
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+:root {
+  --bg: #fafafa; --bg-alt: #f4f4f6; --surface: #ffffff;
+  --border: #e4e4ea; --border-strong: #c9c9d0;
+  --text: #111116; --text-dim: #55555e; --text-mute: #8a8a93;
+  --brand: #1a56db; --brand-2: #0e7490;
+  --ok: #2f9e52; --warn: #c98b00; --bad: #d73a38; --extra: #7c3aed;
+  --sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, Consolas, monospace;
+  --nav-bg: rgba(255, 255, 255, 0.9);
+  --on-brand: #ffffff;
+}
