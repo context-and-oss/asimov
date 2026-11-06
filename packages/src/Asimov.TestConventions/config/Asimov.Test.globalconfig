@@ -1,0 +1,31 @@
+# Asimov.Test — the generic rules adjusted for test code.
+# Why: a test is read top to bottom once and never called by production code; API-shape and
+# defensive-coding rules add noise there, while "does this test assert anything" is the rule that matters.
+is_global = true
+global_level = 110
+
+# --- Off in test code, with the reason
+dotnet_diagnostic.CA1707.severity = none   # underscores: Method_Scenario_Expectation test names are the convention
+dotnet_diagnostic.CA1062.severity = none   # null checks on public arguments: tests have no callers to defend against
+dotnet_diagnostic.CA1515.severity = none   # make types internal: test classes must be public for the runner
+dotnet_diagnostic.CA1822.severity = none   # mark members static: test methods are instance methods by framework design
+dotnet_diagnostic.MA0051.severity = none   # method too long: an arrange/act/assert test is allowed to be long and flat
+
+# --- On in test code
+dotnet_diagnostic.S2699.severity = error   # Sonar: tests should include assertions
+
+# xunit.analyzers ship with xunit itself; these are off by the Baseline unless named here.
+dotnet_diagnostic.xUnit1004.severity = error   # test methods should not be skipped without a reason
+dotnet_diagnostic.xUnit1008.severity = error   # test data attribute should only be used on a Theory
+dotnet_diagnostic.xUnit1010.severity = error   # InlineData value type must match the parameter
+dotnet_diagnostic.xUnit1011.severity = error   # InlineData has extra values
+dotnet_diagnostic.xUnit1012.severity = error   # null should not be used for value-type parameters
+dotnet_diagnostic.xUnit1013.severity = error   # public method should be marked as a test
+dotnet_diagnostic.xUnit1026.severity = error   # Theory methods should use all of their parameters
+dotnet_diagnostic.xUnit2000.severity = error   # expected value should be the first argument
+dotnet_diagnostic.xUnit2003.severity = error   # do not use Assert.Equal to check for null
+dotnet_diagnostic.xUnit2004.severity = error   # do not use Assert.Equal to check boolean conditions
+dotnet_diagnostic.xUnit2009.severity = error   # do not use boolean checks to check for substrings
+dotnet_diagnostic.xUnit2012.severity = error   # do not use boolean checks to check for Any
+dotnet_diagnostic.xUnit2013.severity = error   # do not use Assert.Equal to check collection size
+dotnet_diagnostic.xUnit2017.severity = error   # do not use Contains to check an item is in a collection
