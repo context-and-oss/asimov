@@ -1,0 +1,124 @@
+<!--
+  TRACK — a row of steps with the decisions marked. Asimov skin.
+
+  USE WHEN:      "How does it get from here to there?" One thing travels left to right
+                 through a few steps, and the reader must see where people decide and where
+                 the toolkit works. The compact picture of a process for a slide: eight
+                 glyphs, one line of labels, one line of commentary.
+  DO NOT USE:    when the reader must see WHO owns each step (resources/diagrams/
+                 activity-swimlane-template.svg); when two actors exchange messages
+                 (sequence); when it is a before/after (scene-template.svg); when steps
+                 branch (resources/diagrams/flowchart-template.svg).
+  BUDGET:        max 8 stations, 3 decisions. Over budget: the figure is an overview track
+                 plus a detail track, or it is a swimlane.
+  ELEMENTS:      station (a glyph with a label under it: person, doc, doc-stack, ai, result);
+                 decision (the diamond, always green, its label green); connector (thin,
+                 border-2, fg-arr head); a bracket over a span with a mono caption (what the
+                 span is); one commentary line under the track (mono, text-mute).
+  COLOUR:        as glyphs.svg. Decisions are green and only decisions are green; what the
+                 toolkit writes is cyan / brand; a person who only acts is text-dim.
+  GEOMETRY:      viewBox 700 × 300; the track's centre line at y 150; stations centred at
+                 x 50, 151, 240, 338, 430, 500, 575, 650 here (the pitch follows the glyph
+                 widths, a connector of 26 between neighbours); labels at y 216;
+                 the bracket at y 64..72 with its caption at y 54; the commentary at y 262;
+                 connectors 26 long between stations. Every coordinate divisible by 2.
+  VARIANT:       the timeline: when the stations have nothing to show (a plan of steps, a
+                 week), draw dots on one line instead of glyphs, the decisions still
+                 diamonds, a label above each dot (mono) and the command or the actor under
+                 it, and brackets under the line grouping the dots into phases. Same grid,
+                 same colours, no glyphs: a track with the pictures taken out.
+  ANTI-PATTERNS: - a numbered box for every station (that is the old flowchart habit; a
+                   station is a glyph, the thing itself);
+                 - a decision drawn as a box, or a box drawn as a diamond;
+                 - labels in sentence case or two lines (one word, two at most, upper case);
+                 - the commentary repeating the labels;
+                 - a station for a thing that does not change the travelling object.
+
+  The first child is a background rect filling the viewBox with the card token; keep it.
+  Placeholders: {{…}}. The ids are prefixed tr-; suffix them if a page holds two tracks.
+-->
+<svg viewBox="0 0 700 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="{{What travels, through which steps, and where people decide, as a sentence}}">
+  <rect x="0" y="0" width="700" height="300" fill="var(--bg-card, #14253f)"/>
+  <defs>
+    <marker id="tr-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="var(--border-2, #3b5e8f)"/></marker>
+    <symbol id="tr-person" viewBox="0 0 64 72">
+      <circle cx="32" cy="16" r="14" fill="none" stroke="currentColor" stroke-width="2.5"/>
+      <path d="M4 70a28 28 0 0 1 56 0" fill="none" stroke="currentColor" stroke-width="2.5"/>
+    </symbol>
+    <symbol id="tr-ai" viewBox="0 0 28 28">
+      <circle cx="14" cy="14" r="12" fill="currentColor" fill-opacity="0.13" stroke="currentColor" stroke-width="1.5"/>
+      <text x="14" y="17.5" text-anchor="middle" font-family="var(--mono, 'JetBrains Mono', ui-monospace, monospace)" font-size="9" font-weight="700" fill="currentColor">AI</text>
+    </symbol>
+    <symbol id="tr-doc" viewBox="0 0 80 100">
+      <rect x="1" y="1" width="78" height="98" rx="6" fill="var(--bg-card, #14253f)" stroke="currentColor" stroke-width="1.5"/>
+      <rect x="12" y="14" width="36" height="6" rx="2" fill="currentColor"/>
+      <g fill="var(--border-2, #3b5e8f)">
+        <rect x="12" y="30" width="56" height="4" rx="2"/><rect x="12" y="42" width="44" height="4" rx="2"/>
+        <rect x="12" y="54" width="56" height="4" rx="2"/><rect x="12" y="66" width="30" height="4" rx="2"/><rect x="12" y="78" width="48" height="4" rx="2"/>
+      </g>
+    </symbol>
+    <symbol id="tr-doc-stack" viewBox="0 0 96 114">
+      <rect x="15" y="1" width="78" height="98" rx="6" fill="var(--bg-card, #14253f)" stroke="currentColor" stroke-width="1.5" stroke-opacity="0.4"/>
+      <rect x="8" y="7" width="78" height="98" rx="6" fill="var(--bg-card, #14253f)" stroke="currentColor" stroke-width="1.5" stroke-opacity="0.7"/>
+      <rect x="1" y="13" width="78" height="98" rx="6" fill="var(--bg-card, #14253f)" stroke="currentColor" stroke-width="1.5"/>
+      <rect x="12" y="26" width="36" height="6" rx="2" fill="currentColor"/>
+      <g fill="var(--border-2, #3b5e8f)">
+        <rect x="12" y="42" width="56" height="4" rx="2"/><rect x="12" y="54" width="44" height="4" rx="2"/>
+        <rect x="12" y="66" width="56" height="4" rx="2"/><rect x="12" y="78" width="30" height="4" rx="2"/>
+      </g>
+    </symbol>
+    <symbol id="tr-decision" viewBox="0 0 36 36">
+      <path d="M18 2l16 16-16 16L2 18z" fill="currentColor" fill-opacity="0.18" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="tr-result" viewBox="0 0 52 66">
+      <rect x="1" y="1" width="50" height="64" rx="6" fill="currentColor" fill-opacity="0.13" stroke="currentColor" stroke-width="1.5"/>
+      <g fill="currentColor" fill-opacity="0.5">
+        <rect x="10" y="14" width="32" height="4" rx="2"/><rect x="10" y="25" width="22" height="4" rx="2"/>
+        <rect x="10" y="36" width="32" height="4" rx="2"/><rect x="10" y="47" width="18" height="4" rx="2"/>
+      </g>
+    </symbol>
+  </defs>
+
+  <!-- A bracket over the span that matters, with what it is -->
+  <path d="M112 72v-8h326v8" fill="none" stroke="var(--cyan, #4fc3f7)" stroke-width="1.5"/>
+  <text x="275" y="54" text-anchor="middle" font-family="var(--mono, 'JetBrains Mono', ui-monospace, monospace)" font-size="10" letter-spacing="0.08em" fill="var(--cyan, #4fc3f7)">{{WHAT THIS SPAN IS · IN FIVE WORDS}}</text>
+
+  <!-- Stations, left to right -->
+  <g font-family="var(--mono, 'JetBrains Mono', ui-monospace, monospace)" font-size="10" letter-spacing="0.08em" text-anchor="middle" fill="var(--text-mute, #6b7a93)">
+    <use href="#tr-person" x="18" y="100" width="64" height="72" color="var(--text-dim, #a8b8d0)"/>
+    <text x="50" y="216">{{DESCRIBE}}</text>
+    <path d="M80 150h26" fill="none" stroke="var(--border-2, #3b5e8f)" stroke-width="2" marker-end="url(#tr-arr)"/>
+
+    <use href="#tr-doc" x="112" y="100" width="78" height="100" color="var(--cyan, #4fc3f7)"/>
+    <text x="151" y="216" fill="var(--cyan, #4fc3f7)">{{DESIGN}}</text>
+    <path d="M194 150h26" fill="none" stroke="var(--border-2, #3b5e8f)" stroke-width="2" marker-end="url(#tr-arr)"/>
+
+    <use href="#tr-decision" x="222" y="132" width="36" height="36" color="var(--green, #66bb6a)"/>
+    <text x="240" y="216" fill="var(--green, #66bb6a)">{{SIGNED}}</text>
+    <path d="M260 150h26" fill="none" stroke="var(--border-2, #3b5e8f)" stroke-width="2" marker-end="url(#tr-arr)"/>
+
+    <use href="#tr-doc-stack" x="290" y="88" width="96" height="114" color="var(--cyan, #4fc3f7)"/>
+    <text x="338" y="216" fill="var(--cyan, #4fc3f7)">{{PLAN}}</text>
+    <path d="M384 150h26" fill="none" stroke="var(--border-2, #3b5e8f)" stroke-width="2" marker-end="url(#tr-arr)"/>
+
+    <use href="#tr-decision" x="412" y="132" width="36" height="36" color="var(--green, #66bb6a)"/>
+    <text x="430" y="216" fill="var(--green, #66bb6a)">{{GO}}</text>
+    <path d="M450 150h26" fill="none" stroke="var(--border-2, #3b5e8f)" stroke-width="2" marker-end="url(#tr-arr)"/>
+
+    <use href="#tr-ai" x="486" y="104" width="28" height="28" color="var(--cyan, #4fc3f7)"/>
+    <use href="#tr-ai" x="486" y="136" width="28" height="28" color="var(--cyan, #4fc3f7)"/>
+    <use href="#tr-ai" x="486" y="168" width="28" height="28" color="var(--cyan, #4fc3f7)"/>
+    <text x="500" y="216">{{BUILD}}</text>
+    <path d="M520 150h26" fill="none" stroke="var(--border-2, #3b5e8f)" stroke-width="2" marker-end="url(#tr-arr)"/>
+
+    <use href="#tr-result" x="550" y="118" width="50" height="64" color="var(--green, #66bb6a)"/>
+    <text x="575" y="216">{{PULL REQ.}}</text>
+    <path d="M604 150h26" fill="none" stroke="var(--border-2, #3b5e8f)" stroke-width="2" marker-end="url(#tr-arr)"/>
+
+    <use href="#tr-decision" x="632" y="132" width="36" height="36" color="var(--green, #66bb6a)"/>
+    <text x="650" y="216" fill="var(--green, #66bb6a)">{{APPROVED}}</text>
+  </g>
+
+  <!-- One line of commentary: what the colour says, or the rule the track proves -->
+  <text x="350" y="262" text-anchor="middle" font-family="var(--mono, 'JetBrains Mono', ui-monospace, monospace)" font-size="10" letter-spacing="0.08em" fill="var(--text-mute, #6b7a93)">{{GREEN: A PERSON DECIDES · ONE LINE, NOT A SENTENCE OF THE SLIDE}}</text>
+</svg>

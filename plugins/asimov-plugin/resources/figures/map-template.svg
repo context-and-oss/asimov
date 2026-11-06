@@ -1,0 +1,106 @@
+<!--
+  MAP — the parts of a thing, in lanes inside one frame, with a key. Asimov skin.
+
+  USE WHEN:      "What is it made of, and how do the parts relate?" An architecture, a
+                 landscape, a document model: boxes grouped in lanes, arrows that mean one
+                 thing each, a frame that says what the whole is, and a key that names the
+                 colours. The reader scans it; it is not read in order.
+  DO NOT USE:    for a change of state (scene-template.svg); for a process (track-template.svg
+                 or a swimlane); for a data model or a system boundary, which are notations
+                 this toolkit does not draw yet (resources/diagrams/README.md).
+  BUDGET:        max 3 lanes, 4 columns, 12 boxes, 2 arrow meanings, 4 entries in the key. Over
+                 budget: an overview map plus one detail map per lane, never a bigger map.
+  ELEMENTS:      frame (rounded, hairline, a header band with a mono title and a plain
+                 subtitle); lane label (mono, upper case, in the lane's colour, with a plain
+                 sub-line); box (rounded, tinted in its lane's colour: a mono head and a
+                 plain one-line sub); arrow (thin, in the colour of the lane it ENTERS, fg-arr
+                 head in that colour); landing band (dashed, under the frame: where it all
+                 ends up). The key is the page's, not the SVG's: a .flow-legend in a D101, a
+                 .caption in a deck, one entry per colour used and nothing unused; opened
+                 standalone, the frame title and the lane labels are the key.
+  COLOUR:        each lane has one colour and every box in it takes that colour; an arrow
+                 takes the colour of the lane it enters, so colour reads as "becomes". The
+                 meanings are glyphs.svg's: amber = what you use / the toolkit reads and
+                 builds, cyan / brand = the method, the toolkit writes, green = yours, the
+                 data, the decision. The frame is neutral.
+  GEOMETRY:      viewBox 1200 × 396; the frame at (8,8) 1184 × 326, rx 12, its header band
+                 28 high; lane labels at x 24, y 78 / 178 / 278; boxes 242 × 68, rx 10, at
+                 x 165 / 419 / 673 / 927 and y 50 / 150 / 250; the arrows drop from a box's
+                 bottom centre to the next lane's top (28 long); the landing band at y 356,
+                 34 high. Every coordinate even.
+  ANTI-PATTERNS: - a box whose colour is not its lane's (the lane IS the colour);
+                 - an arrow with a third meaning, or arrows that cross;
+                 - a key entry for a colour the map does not use;
+                 - more than one line of sub-text in a box (the box names, the slide explains);
+                 - a map with no frame title: the reader must know what the whole is.
+
+  The first child is a background rect filling the viewBox with the card token; keep it.
+  Placeholders: {{…}}. The ids are prefixed mp-; suffix them if a page holds two maps.
+  Delete a column or a lane whole; never leave an empty box.
+-->
+<svg viewBox="0 0 1200 396" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="{{What the frame is, its lanes top to bottom, and what the arrows mean, as a sentence}}">
+  <rect x="0" y="0" width="1200" height="396" fill="var(--bg-card, #14253f)"/>
+  <defs>
+    <marker id="mp-arr-cyan" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="var(--cyan, #4fc3f7)"/></marker>
+    <marker id="mp-arr-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="var(--green, #66bb6a)"/></marker>
+  </defs>
+
+  <!-- Frame -->
+  <rect x="8" y="8" width="1184" height="326" rx="12" fill="none" stroke="var(--border-2, #3b5e8f)" stroke-width="1.5"/>
+  <path d="M20 8h1160a12 12 0 0 1 12 12v16H8V20a12 12 0 0 1 12-12z" fill="var(--border-2, #3b5e8f)" fill-opacity="0.2"/>
+  <text x="24" y="27" font-family="var(--mono, 'JetBrains Mono', ui-monospace, monospace)" font-size="11" font-weight="700" letter-spacing="0.1em" fill="var(--text, #fff)">{{THE FRAME · WHAT THE WHOLE IS}}<tspan dx="14" font-weight="400" letter-spacing="0.02em" fill="var(--text-dim, #a8b8d0)">{{one plain sub-line}}</tspan></text>
+
+  <!-- Lane labels -->
+  <g font-family="var(--mono, 'JetBrains Mono', ui-monospace, monospace)" font-size="11" font-weight="700" letter-spacing="0.14em">
+    <text x="24" y="78" fill="var(--amber, #ffb74d)">{{LANE ONE}}</text>
+    <text x="24" y="178" fill="var(--cyan, #4fc3f7)">{{LANE TWO}}</text>
+    <text x="24" y="278" fill="var(--green, #66bb6a)">{{LANE THREE}}</text>
+  </g>
+  <g font-family="var(--sans, Inter, system-ui, sans-serif)" font-size="11" fill="var(--text-dim, #a8b8d0)">
+    <text x="24" y="98">{{what it is}}</text>
+    <text x="24" y="198">{{what it is}}</text>
+    <text x="24" y="298">{{what it is}}</text>
+  </g>
+
+  <!-- Lane one: amber -->
+  <g fill="var(--amber, #ffb74d)" fill-opacity="0.1" stroke="var(--amber, #ffb74d)" stroke-width="1.5">
+    <rect x="165" y="50" width="242" height="68" rx="10"/><rect x="419" y="50" width="242" height="68" rx="10"/><rect x="673" y="50" width="242" height="68" rx="10"/><rect x="927" y="50" width="242" height="68" rx="10"/>
+  </g>
+  <!-- Lane two: cyan -->
+  <g fill="var(--cyan, #4fc3f7)" fill-opacity="0.1" stroke="var(--cyan, #4fc3f7)" stroke-width="1.5">
+    <rect x="165" y="150" width="242" height="68" rx="10"/><rect x="419" y="150" width="242" height="68" rx="10"/><rect x="673" y="150" width="242" height="68" rx="10"/><rect x="927" y="150" width="242" height="68" rx="10"/>
+  </g>
+  <!-- Lane three: green -->
+  <g fill="var(--green, #66bb6a)" fill-opacity="0.1" stroke="var(--green, #66bb6a)" stroke-width="1.5">
+    <rect x="165" y="250" width="242" height="68" rx="10"/><rect x="419" y="250" width="242" height="68" rx="10"/><rect x="673" y="250" width="242" height="68" rx="10"/><rect x="927" y="250" width="242" height="68" rx="10"/>
+  </g>
+
+  <!-- Box text: a mono head, a plain sub -->
+  <g font-family="var(--mono, 'JetBrains Mono', ui-monospace, monospace)" font-size="11" font-weight="700" letter-spacing="0.1em" fill="var(--text, #fff)">
+    <text x="181" y="76">{{HEAD}}</text><text x="435" y="76">{{HEAD}}</text><text x="689" y="76">{{HEAD}}</text><text x="943" y="76">{{HEAD}}</text>
+    <text x="181" y="176">{{HEAD}}</text><text x="435" y="176">{{HEAD}}</text><text x="689" y="176">{{HEAD}}</text><text x="943" y="176">{{HEAD}}</text>
+    <text x="181" y="276">{{HEAD}}</text><text x="435" y="276">{{HEAD}}</text><text x="689" y="276">{{HEAD}}</text><text x="943" y="276">{{HEAD}}</text>
+  </g>
+  <g font-family="var(--sans, Inter, system-ui, sans-serif)" font-size="11" fill="var(--text-dim, #a8b8d0)">
+    <text x="181" y="99">{{one line}}</text><text x="435" y="99">{{one line}}</text><text x="689" y="99">{{one line}}</text><text x="943" y="99">{{one line}}</text>
+    <text x="181" y="199">{{one line}}</text><text x="435" y="199">{{one line}}</text><text x="689" y="199">{{one line}}</text><text x="943" y="199">{{one line}}</text>
+    <text x="181" y="299">{{one line}}</text><text x="435" y="299">{{one line}}</text><text x="689" y="299">{{one line}}</text><text x="943" y="299">{{one line}}</text>
+  </g>
+
+  <!-- Arrows: the colour of the lane they enter -->
+  <g fill="none" stroke="var(--cyan, #4fc3f7)" stroke-width="1.5" marker-end="url(#mp-arr-cyan)">
+    <path d="M286 118V146"/><path d="M540 118V146"/><path d="M794 118V146"/><path d="M1048 118V146"/>
+  </g>
+  <g fill="none" stroke="var(--green, #66bb6a)" stroke-width="1.5" marker-end="url(#mp-arr-green)">
+    <path d="M286 218V246"/><path d="M540 218V246"/><path d="M794 218V246"/><path d="M1048 218V246"/>
+    <path d="M286 334V352"/><path d="M540 334V352"/><path d="M794 334V352"/><path d="M1048 334V352"/>
+  </g>
+
+  <!-- Landing band: where it all ends up -->
+  <rect x="165" y="356" width="1004" height="34" rx="8" fill="var(--green, #66bb6a)" fill-opacity="0.05" stroke="var(--green, #66bb6a)" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <text x="181" y="378" font-family="var(--mono, 'JetBrains Mono', ui-monospace, monospace)" font-size="11" font-weight="700" letter-spacing="0.1em" fill="var(--green, #66bb6a)">{{WHERE IT LANDS}}<tspan dx="14" font-weight="400" letter-spacing="0.02em" fill="var(--text-dim, #a8b8d0)">{{one plain line}}</tspan></text>
+
+  <!-- Key: one swatch per colour used, under the band at the left; drawn by the page, as the
+       D101 template's .flow-legend or the deck's .caption, when the figure sits in HTML.
+       Opened standalone, the frame title and the lane labels are the key. -->
+</svg>
