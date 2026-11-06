@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+
+  <!--
+    Asimov.TestConventions — injects the test adjustments when AsimovAnalysisMode is not None.
+    The knob and every forced property come from Asimov.Conventions; this file adds one globalconfig
+    at global_level 110: above the category files (100), below Legacy (150) and a contributor (200).
+  -->
+  <PropertyGroup>
+    <_AsimovTestConfigDirectory>$(MSBuildThisFileDirectory)../config/</_AsimovTestConfigDirectory>
+  </PropertyGroup>
+
+  <Target Name="AsimovTestConventions_Configure" BeforeTargets="CoreCompile" Condition="'$(AsimovAnalysisMode)' != 'None'">
+    <ItemGroup>
+      <EditorConfigFiles Include="$(_AsimovTestConfigDirectory)Asimov.Test.globalconfig" />
+    </ItemGroup>
+  </Target>
+
+</Project>

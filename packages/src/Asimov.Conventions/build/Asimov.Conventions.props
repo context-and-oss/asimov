@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+
+  <!--
+    Asimov.Conventions — defaults for the two opt-in properties.
+    Mirrors the .NET SDK's AnalysisMode / AnalysisLevel.
+
+      AsimovAnalysisMode   None | Minimum | Recommended | All   (which categories of rules are errors)
+      AsimovAnalysisLevel  latest | 1 | 2 ...                   (which generation of a contributor's rules a project knows)
+
+    Set them in Directory.Build.props for the repo default and in a .csproj to raise or lower one project.
+    Both default to "changes nothing": None / latest. Everything else the package does is in the .targets
+    file and conditioned on the mode, so adding the package to a repo is safe before anything is turned on.
+  -->
+  <PropertyGroup>
+    <AsimovAnalysisMode Condition="'$(AsimovAnalysisMode)' == ''">None</AsimovAnalysisMode>
+    <AsimovAnalysisLevel Condition="'$(AsimovAnalysisLevel)' == ''">latest</AsimovAnalysisLevel>
+  </PropertyGroup>
+
+</Project>

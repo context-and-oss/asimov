@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Project management · Asimov</title>
-<meta name="description" content="Project-management artifacts: nothing has landed in this area yet.">
+<meta name="description" content="Project-management artifacts: the risk log, kept in your repo's project/ through asimov-project.">
 <link rel="stylesheet" href="../../site.css">
 </head>
 <body>
@@ -26,9 +26,16 @@
 
 <main class="page">
   <h1>Project management</h1>
-  <p class="lede">The artifacts that run an engagement, a risk log among them; none has landed yet. <span class="chip planned">planned</span></p>
+  <p class="lede">The artifacts that run an engagement. They land in your repo's <code>project/</code>, beside <code>documentation/</code> and <code>specs/</code>, and are kept through <code>asimov-project</code>.</p>
 
-  <p>Until then, the delivery model behind them is described under <a href="../../inside/project-management.html">What's inside → Project management</a>.</p>
+  <h2 id="risk-log">Risk log</h2>
+  <p>What could derail the engagement, who owns it, and what changed since last week. One page per repo, reviewed weekly. <span class="chip assess">assess</span></p>
+  <dl class="meta">
+    <dt>Produced by</dt><dd><code>/asimov-project risk log</code> (<code>$asimov-plugin:asimov-project risk log</code> in Codex): register, change, decide, hand over, review or opt out, each written on your go.</dd>
+    <dt>Lands in</dt><dd><code>project/risk-log.html</code>, beside <code>documentation/</code> and <code>specs/</code>.</dd>
+    <dt>Source</dt><dd><a href="https://github.com/context-and-oss/asimov/blob/main/plugins/asimov-plugin/artifacts/project/risk-log/risk-log-definition.md">Definition</a> · <a href="https://github.com/context-and-oss/asimov/blob/main/plugins/asimov-plugin/artifacts/project/risk-log/risk-log-template.html">Template</a></dd>
+  </dl>
+  <p>What it keeps and how is described under <a href="../../inside/project-management.html#artifacts">What's inside → Project management</a>. Next in the Project frame: the closure report and project setup.</p>
 
 </main>
 <footer class="foot"><div class="in">

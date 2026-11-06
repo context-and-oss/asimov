@@ -134,6 +134,16 @@ plugins/asimov-plugin/                    the plugin (install scope)
 │       ├── deck-template.html
 │       └── themes/                       asimov.css · light.css (brand themes live in the product repo)
 └── processes/                            the Delivery Model corpus pm-advisor reads (generated export)
+
+packages/                                 NuGet packages, released with the plugin under the same version
+├── Asimov.Packages.slnx
+├── src/
+│   ├── Asimov.Conventions/               the analyzers a .NET product uses and their whole configuration; one reference, one mode
+│   ├── Asimov.TestConventions/           the test layer on top of it
+│   └── Asimov.Conventions.Patterns/      analyzers for the patterns a product opts into (builder, mapper, ...), off by default
+└── test/
+    └── Asimov.Conventions.Patterns.Tests/
+
 documentation/                            repo docs (not inside install scope)
 ├── D100-Asimov-architecture.md            why + how
 ├── model-choice.md                        which model runs which command/subagent (maintainer contract)
