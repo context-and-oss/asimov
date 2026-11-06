@@ -112,7 +112,14 @@ documentation/                                 ← repo-level docs (NOT inside i
 ├── _chrome.css                                ← rendered site chrome (copy of artifacts/documentation/site/_chrome.css)
 ├── features/D101-*.html                       ← per-feature D101s (authored as HTML)
 └── research/                                  ← research notes that informed design decisions
+packages/                                      ← NuGet packages, released with the plugin under the same version (Asimov-Release.yml)
+├── Asimov.Packages.slnx                       ← the .NET solution; `dotnet test packages/Asimov.Packages.slnx` is the check (Asimov-PR.yml)
+├── src/Asimov.Conventions/                    ← the analyzers a .NET product uses and their whole configuration: build/ (props: the AsimovAnalysisMode knob; targets: forced properties, globalconfig injection, contributors), config/ (Baseline, Style, Formatting, Async, Correctness)
+├── src/Asimov.TestConventions/                ← the test layer: Asimov.Test.globalconfig at global_level 110
+├── src/Asimov.Conventions.Patterns/           ← Roslyn analyzers for the patterns a product opts into; one folder per pattern (README, one .md per rule, one analyzer per rule); product names are asimov_patterns.* options
+└── test/Asimov.Conventions.Patterns.Tests/    ← the pattern analyzer tests (Roslyn test harness)
 ```
+
 
 ## Key documents — read these first
 
@@ -252,6 +259,17 @@ A **contract** under `plugins/asimov-plugin/contracts/` says what one stage's ou
 ## How to add a design form
 
 A new kind of design (a page in another tool, another tracker) needs no new skill. Either its definition states how it provides every member of `contracts/design.md`, as the D101 definition §3.1 does, or `asimov-spec` normalises it into `specs/<slug>/design.md` in the shape the S101 definition §9 fixes. The only code-like change is the fetch: `asimov-spec` Step 01 says what it can read where; pasted text is the baseline every form has.
+
+## How to add a NuGet package
+
+A package is generic tooling a product repo consumes by reference; it carries no product identifiers (hard rules 7 and 8).
+
+1. Create `packages/src/<Package>/` with its csproj; a package with code gets `packages/test/<Package>.Tests/`.
+2. Add both to `packages/Asimov.Packages.slnx`; `dotnet test packages/Asimov.Packages.slnx` must stay green.
+3. A pattern rule goes in `Asimov.Conventions.Patterns/<Pattern>/`: `ASVnnnn-<Name>.md`, `<Name>Analyzer.cs`, a row in the pattern README and in `AnalyzerReleases.Unshipped.md`, tests beside it. Rules are disabled by default; a product's convention package turns them on.
+4. A product-specific name becomes an `asimov_patterns.*` option in `PatternOptions.cs` with a default, never a literal in a rule.
+5. Versions are not set by hand: `Asimov-Release.yml` packs every package at the release tag and pushes to GitHub Packages.
+6. Sync: D100 §4.8 and §5, the quick map above, and the package README.
 
 ## How to test the plugin locally
 

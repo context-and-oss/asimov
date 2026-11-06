@@ -176,6 +176,18 @@ The `processes/` corpus `pm-advisor` reads is exported from the Learn/Engineer/D
 
 The plugin ships one hook manifest, `plugins/asimov-plugin/hooks/hooks.json`, read by both harnesses, and one script it fires, `hooks/scripts/asimov-log.ps1`. Together they are the **run log** (§4.5): on SessionStart, the invocation of an `asimov-*` skill (a typed `/asimov-*` is a `UserPromptExpansion` event, a Skill call a `PreToolUse` one), SubagentStart, SubagentStop and SessionEnd, the script reads the payload from stdin and appends one line to `.asimov/log/<date>-<session>.log` under the repo the payload names. It runs async, prints nothing and exits 0 whatever happens, so a hook can never block a run or reach the chat; it keeps a small state file beside the log for the stage, the feature and the running agents, deleted at session end. The hooks are the only mechanical observer of a run: a skill that wants something recorded writes the ledger, never the log. Codex has no `UserPromptExpansion` event, so a Codex session logs no invocation line until the first Codex run says what it does send (D101 Q2); the manifest names `${CLAUDE_PLUGIN_ROOT}`, which Codex does not substitute but exports as an environment alias, so the shell expands it. The hooks need Git Bash or PowerShell 7 as the hook shell: the command is a `pwsh … || powershell …` chain. Design: `features/D101-asimov-log.html`.
 
+### 4.8 NuGet packages
+
+The toolkit's second delivery channel, beside the plugin: `.NET` packages under `packages/`, consumed by a product repo as ordinary package references and released with the plugin under the same version (`Asimov-Release.yml` packs and pushes them to GitHub Packages under `context-and-oss`). They are generic (hard rules 7 and 8): a product's own rules live in the product's convention package, which plugs into these.
+
+| Package | Purpose | Design |
+|---|---|---|
+| `Asimov.Conventions` | Owns the analyzers a .NET product uses (SDK CA/IDE, Sonar, Meziantou, Patterns) and their whole configuration: one reference, one `AsimovAnalysisMode`. Injects purpose-named globalconfigs, forces warnings to errors, registers product *contributors*. | in the package README |
+| `Asimov.TestConventions` | The test layer: adjusts the generic rules for test code. | in the package README |
+| `Asimov.Conventions.Patterns` | Roslyn analyzers for the architectural patterns a product opts into (builder, mapper, …), disabled by default, product names as `asimov_patterns.*` options. | in the package README |
+
+Decided 2026-11-05: product-convention packages keep only product-specific rules; the pattern rules move here one pattern at a time, with their tests and product-free docs.
+
 ## 5. Repo layout
 
 ```
@@ -399,6 +411,7 @@ Planned components that slot into the structure above when added:
 | Item | Adds to layout |
 |---|---|
 | `/conventions-check` slash command | `plugins/asimov-plugin/commands/conventions-check.md` |
+| The remaining pattern rules of `Asimov.Conventions.Patterns` (repository, service, function, view model, composition root, layering, tests) and the drift guard `ASV0002` | `packages/src/Asimov.Conventions.Patterns/<Pattern>/`, `packages/src/Asimov.Conventions/build/Asimov.Conventions.targets` |
 | The Project frame's first artifact, the risk log (`features/D101-project-management-risk.html`, in flight) | `plugins/asimov-plugin/skills/asimov-project/`, `skills/artifact-risk-log-authoring/`, `skills/artifact-risk-log-view/`, `artifacts/project/risk-log/`; `project/risk-log.html` in a product repo |
 
 **The D101 §7 boundary is settled by the S102 definition.** §7 Implementation was the *interim* home for code-grounded build-readiness notes (project layout, reuse-vs-new, method-level wiring). That is S102 content (`s102-task-spec-definition.md` §3): a feature that has an S101 marks §7 N/A and points at its `specs/<feature-slug>/` folder. §7 stays in the template for repos and features not yet on the Spec stage (`d101-feature-design-definition.md` §4.8). Research and decisions: `documentation/research/S101-S102-spec-stage-research.md`.

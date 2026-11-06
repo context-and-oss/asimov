@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: write
+  packages: write
 
 concurrency:
   group: release
@@ -72,6 +73,23 @@ jobs:
           git push origin "refs/tags/$TAG"
           git push -f origin refs/tags/latest
 
+      - name: Set up .NET for the packages
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: packages/global.json
+
+      - name: Build, test and pack the NuGet packages at the release version
+        run: |
+          # The packages carry the plugin's release version: one release, one number.
+          dotnet test packages/Asimov.Packages.slnx -c Release -p:Version="$TAG" --nologo
+          dotnet pack packages/Asimov.Packages.slnx -c Release -p:Version="$TAG" -o packages/out --no-build --nologo
+          ls -1 packages/out
+
+      - name: Publish the NuGet packages to GitHub Packages
+        run: |
+          # No --skip-duplicate: a version that already exists must fail, like the tag check above.
+          dotnet nuget push "packages/out/*.nupkg"             --source "https://nuget.pkg.github.com/${GITHUB_REPOSITORY_OWNER}/index.json"             --api-key "${{ secrets.GITHUB_TOKEN }}"
+
       - name: Create source archive
         run: |
           name="${GITHUB_REPOSITORY##*/}"
@@ -85,7 +103,9 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           # The $TAG tag already exists (created above), so release from it directly.
-          gh release create "$TAG" "$ZIP" \
+          # The NuGet packages ride along as release assets, so a consumer that cannot read
+          # GitHub Packages across organisations can still fetch them by plain HTTPS.
+          gh release create "$TAG" "$ZIP" packages/out/*.nupkg \
             --title "Release $TAG - $DATE" \
             --generate-notes
 
@@ -95,3 +115,6 @@ jobs:
           echo "Published **$TAG** from \`${sha:0:7}\`" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "https://github.com/$GITHUB_REPOSITORY/releases/tag/$TAG" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "NuGet packages $TAG: Asimov.Conventions, Asimov.TestConventions, Asimov.Conventions.Patterns" >> "$GITHUB_STEP_SUMMARY"
+          echo "https://github.com/orgs/$GITHUB_REPOSITORY_OWNER/packages?repo_name=${GITHUB_REPOSITORY##*/}" >> "$GITHUB_STEP_SUMMARY"

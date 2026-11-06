@@ -1,0 +1,43 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Asimov.Conventions is a configuration package: no compiled code.
+    It ships build/ (props + targets) and config/ (.globalconfig files) and,
+    later, the third-party analyzers as NuGet dependencies.
+  -->
+  <PropertyGroup Label="Build">
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <IncludeSymbols>false</IncludeSymbols>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Package">
+    <PackageId>Asimov.Conventions</PackageId>
+    <Version>1.0.0</Version>
+    <Description>Owns the code analyzers a .NET product uses and their complete configuration, so a product repo carries one package reference and one mode property instead of analyzer references and severity lines.</Description>
+    <PackageTags>analyzers;conventions;msbuild</PackageTags>
+    <DevelopmentDependency>true</DevelopmentDependency>
+    <NoPackageAnalysis>true</NoPackageAnalysis>
+  </PropertyGroup>
+
+  <!--
+    The third-party analyzers a consumer gets through this package. PrivateAssets="none" is deliberate:
+    the default (contentfiles;analyzers;build) would write exclude="Build,Analyzers" into the nuspec
+    and consumers would receive the packages without their analyzers.
+  -->
+  <ItemGroup Label="Analyzer dependencies">
+    <PackageReference Include="SonarAnalyzer.CSharp" Version="10.35.0.4138" PrivateAssets="none" />
+    <PackageReference Include="Meziantou.Analyzer" Version="3.0.320" PrivateAssets="none" />
+    <!-- A ProjectReference packs as a dependency on Asimov.Conventions.Patterns at its own version. -->
+    <ProjectReference Include="..\Asimov.Conventions.Patterns\Asimov.Conventions.Patterns.csproj" PrivateAssets="none" />
+  </ItemGroup>
+
+  <ItemGroup Label="Package layout">
+    <!-- buildTransitive, not build: the props/targets must also import when this package arrives through a product-convention package. -->
+    <None Include="build\**" Pack="true" PackagePath="buildTransitive" />
+    <None Include="config\**" Pack="true" PackagePath="config" />
+    <None Include="README.md" Pack="true" PackagePath="" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Asimov.TestConventions is the test layer on top of Asimov.Conventions: no compiled code, one
+    globalconfig that adjusts the generic rules for test code. A test project references this package
+    (or a product's test-convention package that depends on it) and gets Asimov.Conventions transitively.
+  -->
+  <PropertyGroup Label="Build">
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <IncludeSymbols>false</IncludeSymbols>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Package">
+    <PackageId>Asimov.TestConventions</PackageId>
+    <Version>1.0.0</Version>
+    <Description>Adjusts the Asimov.Conventions analyzer configuration for test projects: rules that do not apply to test code are off, rules that only matter in tests are on. Depends on Asimov.Conventions.</Description>
+    <PackageTags>analyzers;conventions;msbuild;tests</PackageTags>
+    <DevelopmentDependency>true</DevelopmentDependency>
+    <NoPackageAnalysis>true</NoPackageAnalysis>
+  </PropertyGroup>
+
+  <ItemGroup Label="Dependencies">
+    <!-- A ProjectReference packs as a dependency on Asimov.Conventions at its own version. -->
+    <ProjectReference Include="..\Asimov.Conventions\Asimov.Conventions.csproj" PrivateAssets="none" />
+  </ItemGroup>
+
+  <ItemGroup Label="Package layout">
+    <None Include="buildTransitive\**" Pack="true" PackagePath="buildTransitive" />
+    <None Include="config\**" Pack="true" PackagePath="config" />
+    <None Include="README.md" Pack="true" PackagePath="" />
+  </ItemGroup>
+
+</Project>

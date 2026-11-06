@@ -1,0 +1,6 @@
+# Asimov.Async — what goes wrong around Task and threading.
+# Why: blocking on tasks, dropped cancellation and sync-over-async are the async mistakes agents make most; they compile and fail under load.
+is_global = true
+global_level = 100
+
+dotnet_diagnostic.CA1849.severity = error   # call async methods when in an async method (no .Wait()/.Result/sync overload)
