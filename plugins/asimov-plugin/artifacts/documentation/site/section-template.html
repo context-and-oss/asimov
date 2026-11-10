@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{TITLE}} — {{REPO-NAME}} docs</title>
+<link rel="stylesheet" href="../_chrome.css">
+<!--
+  A section page or a group page of an Asimov-rendered documentation site, under
+  documentation/_site/. Written whole by artifact-site-authoring (scripts/site.ps1); the
+  site owns every file under _site/.
+
+  A SECTION PAGE is the overview of one top-level section (Architecture, Environments,
+  Features, Testing, Project, Reference): one card per child, where a child is a document
+  (the card links the document) or a group (the card links the group page and counts its
+  documents). A GROUP PAGE lists the documents of one group, one card each, or renders a
+  table read from a document (the environments of one area).
+
+  HOW THE SCRIPT USES THIS FILE
+  - Substitute the {{PLACEHOLDERS}}; repeat each BEGIN/END block once per item; drop this
+    leading comment. {{NAV}} is the nav block rendered for this page (its section active,
+    and on a group page its child active).
+  - `crumb` is present on a group page only: {{SECTION-HREF}} {{SECTION}} {{CHILD}}.
+  - {{INTRO}} is optional HTML placed between the head and the grid: a `figure` block (the
+    drawing a section opens with, read from the landscape architecture document's first
+    image) or one or more `table` blocks (an area's environments). Empty otherwise.
+  - `card`: one per document or group. {{HREF}} {{TYPE}} (D100, D101, E100, T100, T101,
+    Release, Convention, Index, Template, Analysis, Reference, Group, …) {{TITLE}} {{DESC}};
+    the `fmt` block only for a file that is not a page (png, pdf, yaml, md left unrendered);
+    the `chips` block only for a document with a phase or a status (a D101).
+  - `group-head`: on a page that holds several groups under one another (the conventions
+    per stack), one before each group's cards: {{ID}} {{LABEL}} {{DESC}}.
+  - `empty`: the body of a section or group page that has no documents yet. The site never
+    drops a section: an empty one is a page that says what belongs there and how it comes
+    to be ({{WHAT}} and {{HOW}} are the fixed lines the definition states per section).
+  - `table` and `row`: an environments table. {{HEADING}} is the table's heading in the
+    document (Components, Resources); {{COLUMNS}} the header cells; `row` one per row,
+    {{NAME}} then {{CELLS}} as the document had them.
+  - No JavaScript. The chrome is linked, never inlined.
+-->
+</head>
+<body>
+
+{{NAV}}
+
+<main class="page wide">
+<header class="head">
+<!-- BEGIN crumb -->
+  <div class="crumb"><a href="{{SECTION-HREF}}">{{SECTION}}</a> / {{CHILD}}</div>
+<!-- END crumb -->
+  <h1>{{TITLE}}</h1>
+  <p class="lede">{{LEDE}}</p>
+</header>
+{{INTRO}}
+{{BODY}}
+</main>
+
+<footer class="site-footer">
+  <div><span class="mono">documentation/</span> · {{REPO-NAME}} · <a href="../index.html">Home</a></div>
+</footer>
+
+</body>
+</html>
+
+<!-- BEGIN figure -->
+<div class="figure">
+  <a href="{{SRC}}"><img src="{{SRC}}" alt="{{ALT}}"></a>
+  <div class="figure-cap">{{CAPTION}}</div>
+</div>
+<!-- END figure -->
+
+<!-- BEGIN grid -->
+<div class="grid">
+{{CARDS}}
+</div>
+<!-- END grid -->
+
+<!-- BEGIN card -->
+  <a class="card" href="{{HREF}}">
+    <div class="card-head"><span class="type">{{TYPE}}</span><!-- BEGIN fmt --><span class="fmt">{{FMT}}</span><!-- END fmt --></div>
+    <div class="t">{{TITLE}}</div>
+    <div class="d">{{DESC}}</div>
+<!-- BEGIN chips -->
+    <div class="chips">{{CHIPS}}</div>
+<!-- END chips -->
+  </a>
+<!-- END card -->
+
+<!-- BEGIN group-head -->
+<h2 id="{{ID}}">{{LABEL}}</h2>
+<p class="note" style="margin-top:0.3rem">{{DESC}}</p>
+<!-- END group-head -->
+
+<!-- BEGIN empty -->
+<div class="empty">
+  <p class="what">{{WHAT}}</p>
+  <p class="how">{{HOW}}</p>
+</div>
+<!-- END empty -->
+
+<!-- BEGIN note -->
+<p class="note">{{TEXT}}</p>
+<!-- END note -->
+
+<!-- BEGIN table -->
+<h2>{{HEADING}}</h2>
+<table class="plain">
+<thead><tr>{{COLUMNS}}</tr></thead>
+<tbody>
+{{ROWS}}
+</tbody>
+</table>
+<!-- END table -->
+
+<!-- BEGIN row -->
+<tr><th scope="row">{{NAME}}</th>{{CELLS}}</tr>
+<!-- END row -->

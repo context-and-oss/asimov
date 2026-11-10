@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="{{LANG}}">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Project info — {{REPO-NAME}} docs</title>
+<link rel="stylesheet" href="../documentation/_chrome.css">
+<!--
+  Page template for the project info, the project's record: what the project is, who it is
+  for, and its areas with the repository that holds each. Rendered by
+  `skills/artifact-project-info-authoring/scripts/project-info.ps1` to `project/info.html`
+  in a product repo (beside `documentation/`, so the shared chrome is
+  `../documentation/_chrome.css`). The script is the only writer. The page is the one file:
+  no source beside it, so nothing can drift.
+
+  HOW THE SCRIPT USES THIS FILE
+  - Read at every write. Substitute the {{PLACEHOLDERS}}; repeat each block between a
+    `BEGIN <name>` and `END <name>` comment once per item; drop this comment.
+  - Read back by the same script and by the site's script: everything they read is the
+    text of a table cell or a paragraph named below. Nothing else on the page is read.
+
+  THE PAGE IS THE RECORD
+  - Read back: `html[lang]`; `h1` (the project's name); `p.lead` (its one line);
+    `table.kv tbody tr` (th = field, td = value; "not set" is the empty value);
+    `table.areas tbody tr` (th = area, td = repository; a `.this` mark inside the cell
+    means this repository); `p.shared` (what is shared across areas, free text).
+  - Rendered only, never read back: the links on an area's name, the mark's styling,
+    the headings, the footer. A hand edit of those is overwritten by the next write;
+    a hand edit of a cell's text is kept.
+  - The nav block between `asimov-nav:start` and `asimov-nav:end` is the site's and is
+    written by the site's script; this template carries an empty pair of markers for it.
+  - No script element, no event-handler attribute.
+
+  PLACEHOLDERS
+    {{LANG}}        the project language as a BCP 47 tag (en, da)
+    {{REPO-NAME}}   the repository's name, for the <title> and footer
+    {{NAME}}        the project's name
+    {{LEDE}}        the project's one line: what it does, for whom
+    In `field`: {{FIELD}} {{VALUE}} ({{VALUE-CLASS}} is ` class="unset"` when not set)
+    In `area`:  {{AREA-HTML}} (the name, linked to its architecture document when the
+                area is held here and the document exists; the plain name otherwise)
+                {{REPO-HTML}} (the repository in <code>, with the `this` mark when it is
+                this repository; "not decided" with class unset when none)
+                {{ROW-CLASS}} (` class="here"` on an area held here)
+    {{SHARED}}      the shared line, or the `shared` block is dropped
+    {{LANDSCAPE-HREF}} the landscape architecture document, or the `landscape` block is dropped
+
+  REPEATED BLOCKS
+    field   one per row of the identity table, in the definition's order:
+            Project number, Customer, Language, then every person by role
+    area    one per area, in the order given
+    shared  present when a shared line is set
+    landscape present when a landscape architecture document exists in documentation/
+-->
+<style>
+/* Project-info components; tokens, chrome and tables come from _chrome.css. */
+.page { max-width: 760px; }
+.meta { margin-top: 2rem; font-size: 0.76rem; color: var(--text-mute); font-family: 'JetBrains Mono', 'JetBrains Mono Fallback', monospace; }
+.meta a { color: var(--text-mute); text-decoration: underline; }
+table.kv tbody th { color: var(--text-mute); }
+table.kv td { color: #fff; font-weight: 500; }
+</style>
+</head>
+<body>
+
+<!-- asimov-nav:start -->
+<!-- asimov-nav:end -->
+
+<main class="page">
+<header class="head">
+  <div class="kicker">Project</div>
+  <h1>{{NAME}}</h1>
+  <p class="lede lead">{{LEDE}}</p>
+</header>
+
+<table class="plain kv">
+<tbody>
+<!-- BEGIN field -->
+  <tr><th scope="row">{{FIELD}}</th><td{{VALUE-CLASS}}>{{VALUE}}</td></tr>
+<!-- END field -->
+</tbody>
+</table>
+
+<h2>Areas</h2>
+<table class="plain areas">
+<thead><tr><th>Area</th><th>Repository</th></tr></thead>
+<tbody>
+<!-- BEGIN area -->
+  <tr{{ROW-CLASS}}><th scope="row">{{AREA-HTML}}</th><td>{{REPO-HTML}}</td></tr>
+<!-- END area -->
+</tbody>
+</table>
+<!-- BEGIN shared -->
+<p class="note shared">{{SHARED}}</p>
+<!-- END shared -->
+
+<p class="meta">The project's record, kept in the repository that holds the landscape architecture; the other repositories carry a copy.<!-- BEGIN landscape --> The landscape: <a href="{{LANDSCAPE-HREF}}">architecture</a>.<!-- END landscape --></p>
+</main>
+
+<footer class="site-footer">
+  <div><span class="mono">project/</span> · {{REPO-NAME}} · <a href="../documentation/index.html">Home</a></div>
+</footer>
+
+</body>
+</html>

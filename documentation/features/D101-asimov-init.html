@@ -587,7 +587,7 @@ footer.site-footer a { color: var(--cyan); }
       <div class="f-body">
         <div class="f-name">Documentation site</div>
         <div class="f-question">"Where do the repo's docs live as a browsable landing page?"</div>
-        <div class="f-rule">Write <code>documentation/index.html</code> (six-bucket taxonomy) and <code>_chrome.css</code> — the catalogue behaviour inherited verbatim from <code>/docs-init</code> (R10–R12).</div>
+        <div class="f-rule">Invoke <code>artifact-site-authoring</code>, which writes <code>documentation/index.html</code>, <code>_chrome.css</code>, <code>_site/</code> and the nav block of every indexed document, whole (R10–R12 as redefined in <code>site-definition.md</code>, 2026-11-10). When <code>project/info.html</code> is missing, <code>artifact-project-info-authoring</code> writes it first, from the person's answers.</div>
         <ul class="bullets">
           <li>One card per unique doc; empty buckets dropped; sources never edited</li>
           <li>Optionally fronted by an intro zone — overview prose / flow band / entity gallery — when the repo supports it (R17–R20, §6.4)</li>
@@ -961,7 +961,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="codemap-row"><div class="what">Codex subagent shells (copied verbatim by the Codex skill)</div><div class="where">plugins/asimov-plugin/agents/*.toml</div></div>
     <div class="codemap-row"><div class="what">Asimov context template — body of asimov.md and of the AGENTS.md region (read at run-time)</div><div class="where">plugins/asimov-plugin/artifacts/root/asimov-md/asimov-md-template.md</div></div>
     <div class="codemap-row"><div class="what">Convention read-list skeleton (read at run-time)</div><div class="where">plugins/asimov-plugin/artifacts/documentation/conventions/conventions-readme-template.md</div></div>
-    <div class="codemap-row"><div class="what">Index visual contract (read at run-time)</div><div class="where">plugins/asimov-plugin/artifacts/documentation/site/site-template.html</div></div>
+    <div class="codemap-row"><div class="what">Site templates (read at run-time by the site skill's script)</div><div class="where">plugins/asimov-plugin/artifacts/documentation/site/ (nav-, home-, section-, document-template.html)</div></div>
     <div class="codemap-row"><div class="what">Shared chrome stylesheet (copied verbatim)</div><div class="where">plugins/asimov-plugin/artifacts/documentation/site/_chrome.css</div></div>
     <div class="codemap-row"><div class="what">asimov.md definition — standard + maturity level (read at run-time)</div><div class="where">plugins/asimov-plugin/artifacts/root/asimov-md/asimov-md-definition.md</div></div>
     <div class="codemap-row"><div class="what">Convention read-list definition — standard + maturity level (read at run-time)</div><div class="where">plugins/asimov-plugin/artifacts/documentation/conventions/conventions-definition.md</div></div>
@@ -1254,7 +1254,7 @@ footer.site-footer a { color: var(--cyan); }
         <li>plugins/asimov-plugin/agents/*.toml</li>
         <li>plugins/asimov-plugin/artifacts/root/asimov-md/asimov-md-template.md</li>
         <li>plugins/asimov-plugin/artifacts/documentation/conventions/conventions-readme-template.md</li>
-        <li>plugins/asimov-plugin/artifacts/documentation/site/site-template.html</li>
+        <li>plugins/asimov-plugin/artifacts/documentation/site/ (nav-, home-, section-, document-template.html)</li>
         <li>plugins/asimov-plugin/artifacts/documentation/site/_chrome.css</li>
         <li>plugins/asimov-plugin/artifacts/root/asimov-md/asimov-md-definition.md</li>
         <li>plugins/asimov-plugin/artifacts/documentation/conventions/conventions-definition.md</li>

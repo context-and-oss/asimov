@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{REPO-NAME}} — Documentation</title>
+<link rel="stylesheet" href="_chrome.css">
+<!--
+  The front page of an Asimov-rendered documentation site, documentation/index.html.
+  Written whole by artifact-site-authoring (scripts/site.ps1) on every run; the site owns it.
+  It orients and points: two sentences, the areas table, the what-is-where table. Never a
+  catalogue, never a status, never a diagram: those live in the sections, where they are
+  generated and cannot go stale.
+
+  HOW THE SCRIPT USES THIS FILE
+  - Substitute the {{PLACEHOLDERS}}; repeat each BEGIN/END block once per item; drop this
+    leading comment.
+  - {{NAV}} is the nav block from nav-template.html, rendered for the home page (no sub-nav).
+  - {{PROJECT-NAME}}, {{LEDE}} and the `area-row` block come from the project info page,
+    project/info.html, when the repo has one: the lede is the project's one line followed by
+    the sentence naming the areas this repository holds. Without project info, the lede is
+    the repo name alone and the `no-areas` block takes the place of `areas`: it says that
+    the project has no project info yet and how it is written. The site works from the first
+    run; what is missing is said, never hidden.
+  - `area-row`: {{AREA}} is the area's name, linked to its architecture document when that
+    document is in this repository ({{AREA-HTML}} carries the link or the plain name);
+    {{WHAT}} the one line the area's architecture document opens with, or empty; {{WHERE}}
+    "this repository" (class `where here`), the repository's name, or "not decided".
+  - `section-row`: one per section the site rendered, in the taxonomy's order, then the
+    repo's readme as "Readme" when the repo has one. {{HREF}} {{LABEL}} {{WHAT}}; the WHAT lines are the fixed
+    ones the definition states, the same on every site.
+  - No JavaScript. Static HTML and CSS only; the chrome is linked, never inlined.
+-->
+</head>
+<body class="no-subnav">
+
+{{NAV}}
+
+<main class="page">
+
+<header class="head">
+  <div class="kicker">{{PROJECT-NAME}} · documentation</div>
+  <h1>{{TITLE}}</h1>
+  <p class="lede">{{LEDE}}</p>
+</header>
+
+<!-- BEGIN areas -->
+<h2>Areas</h2>
+<table class="plain">
+<tbody>
+<!-- BEGIN area-row -->
+  <tr{{ROW-CLASS}}><th scope="row">{{AREA-HTML}}</th><td>{{WHAT}}</td><td class="{{WHERE-CLASS}}">{{WHERE}}</td></tr>
+<!-- END area-row -->
+</tbody>
+</table>
+<p class="more"><a href="../project/info.html">Project info</a>{{LANDSCAPE-LINK}}</p>
+<!-- END areas -->
+<!-- BEGIN no-areas -->
+<h2>Areas</h2>
+<div class="empty">
+  <p class="what">The project's areas and the repository that holds each are read from the project info page, which this repository does not have yet.</p>
+  <p class="how">Write it with <code>/asimov-project project info</code>; it lands at <code>project/info.html</code> and this table fills from it.</p>
+</div>
+<!-- END no-areas -->
+
+<h2>What is where</h2>
+<table class="plain">
+<tbody>
+<!-- BEGIN section-row -->
+  <tr><th scope="row"><a href="{{HREF}}">{{LABEL}}</a></th><td>{{WHAT}}</td></tr>
+<!-- END section-row -->
+</tbody>
+</table>
+
+</main>
+
+<footer class="site-footer">
+  <div><span class="mono">documentation/</span> · {{REPO-NAME}}</div>
+  <div style="margin-top: 0.4rem">
+    When documents disagree: <code>conventions/</code>, then <code>D100-*</code> and <code>D101-*</code>, then the code. When the code disagrees with a convention, flag it.
+  </div>
+</footer>
+
+</body>
+</html>

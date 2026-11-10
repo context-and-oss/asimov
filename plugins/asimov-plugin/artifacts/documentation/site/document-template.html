@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{TITLE}} — {{REPO-NAME}} docs</title>
+<link rel="stylesheet" href="{{PREFIX}}_chrome.css">
+<!--
+  The page a markdown document is rendered into, under documentation/_site/doc/ at the
+  document's own relative path with .html for .md (conventions/dotnet/naming.md renders to
+  _site/doc/conventions/dotnet/naming.html). Written whole by artifact-site-authoring
+  (scripts/site.ps1) on every run; the markdown stays the record and the rendering can
+  never drift from it, because it is never edited and always regenerated.
+
+  HOW THE SCRIPT USES THIS FILE
+  - Substitute the {{PLACEHOLDERS}}; repeat `toc-item` once per h2 of the body; drop this
+    leading comment. {{NAV}} is the nav block for the document's section and child.
+  - {{PREFIX}} is the path from the page to documentation/ ("../../" for a page directly
+    under _site/doc/, one more "../" per folder of the document's path).
+  - {{TITLE}} is the document's first heading, removed from the body; {{KIND}} the
+    document family read from the file name (D100, Convention, …); {{SOURCE}} the path of
+    the markdown, relative to documentation/, linked so a reader can open the record.
+  - {{BODY}} is the markdown rendered to HTML by ConvertFrom-Markdown (Markdig), with
+    links to a sibling markdown document that the site rendered pointed at its rendering,
+    and images pointed back at the document's own folder.
+  - No JavaScript. The chrome is linked, never inlined.
+-->
+</head>
+<body>
+
+{{NAV}}
+
+<div class="layout-doc">
+  <aside class="side-nav">
+    <div class="side-head">On this page</div>
+    <ul>
+<!-- BEGIN toc-item -->
+      <li><a href="#{{ID}}">{{TEXT}}</a></li>
+<!-- END toc-item -->
+    </ul>
+  </aside>
+  <main class="content">
+    <article class="md-content">
+      <header class="doc-head">
+        <div class="crumb"><a href="{{SECTION-HREF}}">{{SECTION}}</a> / {{CHILD}}</div>
+        <h1>{{TITLE}}</h1>
+        <div class="src">{{KIND}} · source <a href="{{SOURCE-HREF}}">{{SOURCE}}</a></div>
+      </header>
+{{BODY}}
+    </article>
+  </main>
+</div>
+
+<footer class="site-footer">
+  <div><span class="mono">documentation/</span> · {{REPO-NAME}} · <a href="{{PREFIX}}index.html">Home</a></div>
+</footer>
+
+</body>
+</html>

@@ -10,7 +10,8 @@ You are the `/asimov-init` command in Asimov. Your job is to make the active pro
 1. **`asimov.md`** at the repo root — the Asimov/L3 context file (Asimov-owned, regenerated wholesale).
 2. **The `CLAUDE.md` import** — ensure `CLAUDE.md` contains a single `@asimov.md` line so the context reaches Claude at session start.
 3. **Convention read-lists** — `documentation/conventions/<stack>/README.md` for each detected stack (the load-bearing read-list the build subagents load).
-4. **The documentation site** — `documentation/index.html` + `documentation/_chrome.css` (the behaviour formerly in `/docs-init`).
+4. **The project info** — `project/info.html`, the project's record (its areas and the repository holding each), written through `artifact-project-info-authoring` when the repo has none.
+5. **The documentation site** — `documentation/index.html`, `_chrome.css`, `_site/` and the nav block in every document, written whole through `artifact-site-authoring`.
 
 You are **read-only on every other file** in the repo. Your only edits to a pre-existing file are: the additive `CLAUDE.md` import line, and a confirmed managed region inside an existing convention README. The design for this command is [`documentation/features/D101-asimov-init.html`](../../../documentation/features/D101-asimov-init.html).
 
@@ -24,7 +25,7 @@ $ARGUMENTS
 
 # Step 1 — Load the templates
 
-Use the **Read** tool to load these seven files. `${CLAUDE_PLUGIN_ROOT}` is the plugin root directory, substituted to the real path before this prompt reaches you. The file-in-the-plugin is the run-time source of truth — re-read every invocation; never render from memory.
+Use the **Read** tool to load these three files. `${CLAUDE_PLUGIN_ROOT}` is the plugin root directory, substituted to the real path before this prompt reaches you. The file-in-the-plugin is the run-time source of truth — re-read every invocation; never render from memory.
 
 1. **Asimov context template** — the body of `asimov.md`:
    ```
@@ -34,19 +35,12 @@ Use the **Read** tool to load these seven files. `${CLAUDE_PLUGIN_ROOT}` is the 
    ```
    ${CLAUDE_PLUGIN_ROOT}/artifacts/documentation/conventions/conventions-readme-template.md
    ```
-3. **Index template** — visual contract for the landing page:
-   ```
-   ${CLAUDE_PLUGIN_ROOT}/artifacts/documentation/site/site-template.html
-   ```
-4. **Shared chrome stylesheet** — copied verbatim to the consumer repo:
-   ```
-   ${CLAUDE_PLUGIN_ROOT}/artifacts/documentation/site/_chrome.css
-   ```
-5. **The three definitions** — the written standard each rendered file must meet, and the home of each artifact's maturity level (Step 1b):
+3. **The four definitions** — the written standard each rendered file must meet, and the home of each artifact's maturity level (Step 1b):
    ```
    ${CLAUDE_PLUGIN_ROOT}/artifacts/root/asimov-md/asimov-md-definition.md
    ${CLAUDE_PLUGIN_ROOT}/artifacts/documentation/conventions/conventions-definition.md
    ${CLAUDE_PLUGIN_ROOT}/artifacts/documentation/site/site-definition.md
+   ${CLAUDE_PLUGIN_ROOT}/artifacts/project/project-info/project-info-definition.md
    ```
 
 If any file cannot be read, **stop and report which path failed.** Do not write anything without its template.
@@ -55,9 +49,9 @@ Each `.md` template begins with an HTML authoring comment (`<!-- ... -->`) addre
 
 # Step 1b — Maturity notice
 
-The three definitions you loaded each open with a YAML block — `artifact`, `maturity`, `since` — the artifact's maturity level (design: `documentation/features/D101-artifact-maturity.html` in the Asimov repo). Resolve them to **one chat line per level present**, printed before Step 2 begins. Name the artifacts at that level as *asimov.md*, *the convention read-list* and *the documentation site*; e.g. for three at `assess`:
+The four definitions you loaded each open with a YAML block — `artifact`, `maturity`, `since` — the artifact's maturity level (design: `documentation/features/D101-artifact-maturity.html` in the Asimov repo). Resolve them to **one chat line per level present**, printed before Step 2 begins. Name the artifacts at that level as *asimov.md*, *the convention read-list*, *the project info* and *the documentation site*; e.g. for three at `assess`:
 
-> *asimov.md, the convention read-list and the documentation site are assess-level artifacts: their definitions are untried and may change without notice. Feedback is welcome.*
+> *asimov.md, the convention read-list, the project info and the documentation site are assess-level artifacts: their definitions are untried and may change without notice. Feedback is welcome.*
 
 | `maturity` | Wording |
 |---|---|
@@ -89,30 +83,12 @@ Determine which stacks the repo uses, to decide which convention read-lists to s
 
 **Flag, don't guess (D100 §7.2.1).** Detect from real markers only. The `test` stack fires only on a test marker (above), never merely because another stack was found. If **no** stack is found, scaffold no convention folder and record "no stack detected" for the report — do not invent a default stack.
 
-# Step 4 — Scan the documentation/ folder (for the site)
+# Step 4 — The project info and the site
 
-Use **Glob** to enumerate everything under `documentation/`. Build six buckets — each becomes one section of the index. **A bucket with zero docs is omitted entirely** (no empty grids).
+The site's scan is the site skill's, not yours. Two checks only:
 
-| Bucket | Pattern | Section |
-|---|---|---|
-| Architecture | `documentation/D100-*.md`, `documentation/D100-*.html` (root only) | §1 |
-| Features | `documentation/features/D101-*.md`, `documentation/features/D101-*.html` | §2 |
-| Environments | `documentation/E100-*.md`, `documentation/E100-*.html` (root only) | §3 |
-| Conventions | `documentation/conventions/**/*.md`, `documentation/conventions/**/*.html` | §4 |
-| Reference | `documentation/reference/**/*.md`, `documentation/reference/**/*.html` | §5 |
-| Diagrams | `documentation/*.png`, `documentation/*.pdf` (root only) | §6 |
-
-**Always exclude:** `documentation/index.html` (the file being written), `documentation/_chrome.css`, any `documentation/`-level file whose name starts with `_`, any `*.generated.html`, and a stray `d101-feature-design-template.html` copied into the repo.
-
-**De-duplication (CRITICAL).** A doc is its base name without extension. If both `D101-foo.md` and `D101-foo.html` exist, that's ONE doc — emit ONE card with the **HTML badge only**. If only one format exists, emit that format's badge.
-
-**Title + description.** For each carded doc, **Read** the first ~30 lines and extract a **title** (the `# H1` for `.md`, the `<h1>` text for `.html`) and a one-sentence **description** (first table "Feature"/"Purpose" cell, else first non-heading paragraph, else `.tagline` for `.html`, else infer from the title). Keep descriptions under ~180 chars; code-format identifiers and paths. For PNG/PDF, infer a one-line description from the filename.
-
-**Intro zone (optional, additive).** Between the hero and the catalogue the template offers three optional blocks. Emit only those the repo actually supports; drop the rest. A repo that supports none goes straight hero → catalogue.
-
-- **Overview prose.** Derive 2–3 short orientation paragraphs from, in order: the `README.md` intro, then a charter/overview doc under `documentation/`, then the D100 **Purpose** section. Omit if the repo has none. Note the source used for the Step 8 report.
-- **Flow band.** A typed pipeline. Emit **only** if the architecture doc (D100) has an **explicit pipeline** — a numbered flow or an ordered sequence of named stages — that reads directly into ordered nodes. Architecture described only in prose, with no orderable sequence → omit. Build one `.flow-track` per pipeline; type each node with a **repo-defined** kind (`.k-*`) — the colour encodes *what a node is* (e.g. device / compute / messaging / data / external, or client / service / store / job — kinds drawn from the repo's own component vocabulary), and the `.flow-legend` lists the kinds used. If you cannot derive an accurate flow, **omit it and note it as a suggested manual enhancement — never invent one** (a wrong diagram is worse than none).
-- **Entity gallery.** A tile per sibling when `documentation/features/` holds **3+** D101s sharing a common name prefix or a stated category (e.g. `D101-protocol-*`). Each tile links to that doc (HTML badge when an `.html` exists, else MD); label the section heading and its nav anchor for the actual cast. Fewer than three, or no shared category → omit.
+- **Project info.** Does `project/info.html` exist? When it does, invoke `artifact-project-info-authoring` with the verb `read` and keep its answer (the project's name, its areas and which are held here) for the plan. When it does not, the plan gets a `NEW` project info, and Step 7 asks the person for it before the site is written: the site groups by the project info's areas and says on its front page when there is none.
+- **The site.** Invoke `artifact-site-authoring` with the verb `plan` and keep its answer: the sections with their children and document counts, the files that fit no section, and the number of files a run writes. The site is written whole on every run; there is no `OVERWRITE` question for it.
 
 # Step 5 — Resolve each target's action
 
@@ -121,8 +97,8 @@ Inspect what already exists so the write plan can label each target. Use **Read*
 - **`asimov.md`** → `NEW` if absent, `OVERWRITE` if present (it is regenerated wholesale either way).
 - **`CLAUDE.md` import** → `SKIP` if any line already references `asimov.md` (e.g. `@asimov.md`); `APPEND` if `CLAUDE.md` exists without it; `NEW` if `CLAUDE.md` is absent (you'll create a minimal one).
 - **Each detected stack `README.md`** → `NEW` (scaffold from template) if absent; `MERGE` if present **with** an `<!-- asimov:start -->`…`<!-- asimov:end -->` region (refresh only that region; the read-list below the end marker is the team's and is never written); `MERGE — read-list moved below the markers` if that region still holds `@`-reference lines (a file scaffolded before the read-list became user-owned): the run moves those lines out of the region before refreshing it; `ASK` if present **without** markers (do not modify until the developer agrees to inserting a region).
-- **`index.html`** → `NEW` if absent, `OVERWRITE` if present.
-- **`_chrome.css`** → `NEW` if absent; `SKIP` if present and byte-identical to the template; `ASK` (overwrite/keep/diff) if present and different.
+- **`project/info.html`** → `NEW` if absent (asked for in Step 7); `SKIP — present` otherwise.
+- **The site** (`documentation/index.html`, `_chrome.css`, `_site/`, the nav blocks) → `WRITE — whole` always; the skill writes only what changed and removes stale pages.
 - **`.gitignore`** → the five Asimov patterns below: `NEW` if the file is absent; `APPEND` if it exists and any pattern is missing (only the missing ones are added, under one comment line); `SKIP` if every pattern is already there.
 
 # Step 6 — Confirm
@@ -135,20 +111,20 @@ About to make this repo Asimov-ready:
   asimov.md                                  (NEW | OVERWRITE — regenerated)
   CLAUDE.md                                  (NEW | APPEND @asimov.md | SKIP — already imported)
   documentation/conventions/<stack>/README.md  (NEW | MERGE | ASK)  — one line per detected stack
-  documentation/index.html                   (NEW | OVERWRITE)
-  documentation/_chrome.css                  (NEW | SKIP — identical | ASK — differs)
+  project/info.html                          (NEW — asked below | SKIP — present)
+  documentation site                         (WRITE — whole: index.html, _chrome.css, _site/, nav blocks)
   .gitignore                                 (NEW | APPEND <n> Asimov patterns | SKIP — all present)
 
 Stacks detected:  <list, or "none — no convention folder will be scaffolded">
 Repo:             <REPO-NAME>
-Site sections:    §1 N · §2 N · §4 N · …   (only non-empty buckets)
-Docs:             <TOTAL> total · <HTML-COUNT> HTML · <MD-COUNT> MD
-Intro zone:       overview <drafted from SOURCE | omitted> · flow band <yes | none> · entity gallery <yes | none>
+Project info:     <name>, <n> areas, <k> held here | none yet — asked before the site is written
+Site:             Architecture N · Environments N · Features N · Testing N · Project N · Reference N; <F> files
+Fits no section:  <paths, or none>
 
-Reply 'yes' to write, 'preview' to see asimov.md / index.html first, or describe what to change.
+Reply 'yes' to write, 'preview' to see asimov.md first, or describe what to change.
 ```
 
-Resolve any `ASK` items in this exchange (existing convention README without markers; differing `_chrome.css`).
+Resolve any `ASK` items in this exchange (existing convention README without markers).
 
 # Step 7 — Write the targets
 
@@ -164,8 +140,8 @@ Only after confirmation. Apply each target's rule:
    - Present with `asimov:start`/`asimov:end` markers → replace **only** the text between the markers, wholesale; **change no line outside them**. The read-list is outside; it keeps whatever the team wrote, example lines included.
    - Present with `@`-reference lines **inside** the markers (scaffolded before the read-list moved out) → first move every `@`-reference line, in order, to just below the end marker under a `## Convention files (read-list)` heading (reuse the heading if one already exists below the markers), then replace the region. Report the move in Step 8. Never drop a line.
    - Present without markers (and the developer agreed in Step 6) → insert the marker block above the existing text; the existing text becomes the user-owned part. Otherwise skip and note it.
-4. **`index.html`** — render `site-template.html` per the rendering rules below; **Write** to `documentation/index.html`.
-5. **`_chrome.css`** — **Write** to `documentation/_chrome.css` only if the Step 5 action was `NEW` or a confirmed overwrite. Never bump mtime on an identical file.
+4. **Project info** — when `project/info.html` is absent, ask the person, in one message, for: the project's name, its one line (what it does, for whom), its areas (for a product spanning several systems, the systems) with the repository holding each, and the fixed people (project lead, product owner; may be skipped). The repository this run is in is the one that holds the areas documented here. Then invoke `artifact-project-info-authoring` with the verb `create`, confirm what it says will be stored, and let it write. Present → nothing.
+5. **The site** — invoke `artifact-site-authoring` with the verb `write`; relay its report. It writes `index.html`, `_chrome.css`, `_site/` and the nav block of every document the site indexes, whole, and removes stale pages; nothing else.
 6. **`.gitignore`** — the Design- and Spec-stage caches the toolkit writes beside its artifacts, the run log its hooks write under `.asimov/`, and a risk-log write interrupted before its rename (`project/*.new`), must never be committed; they are a run's working state, not a record. Add the patterns that are missing, verbatim, after one comment line, at the end of the file (or as a new file holding only this block). **Change no other line.**
 
    ```
@@ -177,9 +153,7 @@ Only after confirmation. Apply each target's rule:
    project/*.new
    ```
 
-If `documentation/` does not exist, create it as part of writing the site files. Don't pre-create empty `features/`, `reference/`, etc.
-
-**Index rendering rules.** Copy the template's `<head>` (incl. inline `<style>`, **minus the leading `<!-- … -->` authoring comment** — it is authoring guidance and must never reach the rendered page), `<nav class="top-nav">`, `<header class="hero">`, and `<footer class="site-footer">` shells verbatim, adapting placeholders from Steps 2 + 4. The hero tagline is **one sentence**. Then emit the optional intro-zone blocks the repo supports (Step 4): `<section class="overview">` if an orientation source was found; `<section class="s" id="flow">` if you derived an accurate flow band; `<section class="s" id="entities">` if there's a real entity cast — drop each block otherwise, **and drop its `top-nav` anchor too**. Render one `<section class="s" id="sN">` per **non-empty** bucket in §1..§6 order; in §4 use `.conv-group` full-width labels to group convention cards by stack when more than one stack exists. Per card: a `.doc-type` badge (`D100`/`D101`/`E100` cyan, `Convention` violet, `Reference` teal, `Diagram`/`PDF` mute), a `.format-badges` row applying the de-dup rule (link to actual paths relative to `documentation/`), the `.doc-title`, `.doc-desc`, and `.doc-path` (link to the `.html` when both formats exist). `index.html` `<link>`s to `_chrome.css` — never inline the chrome CSS; use `.site-footer`, not a bare `<footer>`. No JavaScript beyond the template's own.
+If `documentation/` does not exist, the site skill creates it with its own files; don't pre-create empty `features/`, `reference/`, etc.
 
 # Step 8 — Report
 
@@ -187,8 +161,8 @@ After writing, report:
 
 1. Each target written / skipped, with the action and (for skips) the reason.
 2. The set of stacks detected (or "none detected — scaffold conventions manually when a stack lands").
-3. One-line site stats: `<N> docs across <K> sections; <H>/<T> hand-crafted HTML`.
-4. Any files under `documentation/` that fit no bucket — `Uncategorised — name & path:` one per line, with the most likely intended bucket.
+3. The site skill's report as it printed it: files written and unchanged, documents per section, markdown rendered or left, files that fit no section.
+4. The project info: written now, present already, or still missing (then the front page says so).
 5. A reminder that `asimov.md` reaches Claude on the **next** session (CLAUDE.md `@`-imports load at session start), and a suggestion to open `documentation/index.html` in a browser.
 
 # Hard rules
