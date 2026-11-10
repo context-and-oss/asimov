@@ -16,6 +16,19 @@ Asimov ships **generic** tooling for the AI-assisted stages of the L3 pipeline (
 
 **Small fixes go straight to a pull request**: typos, broken links, a wrong path, a clarification that does not change what a command does.
 
+## How an issue is triaged
+
+Every issue carries two things: a **type** and a **status**.
+
+- **Type** is the GitHub issue type, set by the template: *Bug* (does something other than its documentation says), *Feature* (a proposal: new behaviour, or a change to a bar, a rule or a template), *Task* (work with a known shape and no design question, such as a verification run).
+- **Status** is one `status:` label, moved by a maintainer:
+  - `status: new` — opened, not yet read by a maintainer. The template sets it.
+  - `status: accepted` — a maintainer wants it. A Feature may now get its D101; a Bug or Task may be picked up. Accepted is not planned: nobody is assigned and no date is promised.
+  - `status: parked` — kept for discussion, not to be built until the evidence it names is in. The issue says what would move it.
+  - `status: declined` — closed as *not planned*. The reason is in the closing comment; the issue is not deleted.
+
+An issue closed by a pull request needs no status label; the pull request is the record. A maintainer other than the author moves a Feature to `accepted`.
+
 ## How a change is made
 
 Every command and subagent in Asimov has a design document (a D101) before it has a prompt. Contributions follow the same path:
