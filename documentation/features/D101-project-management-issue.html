@@ -270,7 +270,7 @@ footer.site-footer a { color: var(--cyan); }
   <a href="../index.html#s6">Diagrams</a>
   <span class="spacer"></span>
   <span class="phase-chip full">Full design</span>
-  <span class="status-chip draft">Draft v0.2</span>
+  <span class="status-chip draft">Draft v0.3</span>
 </nav>
 
 <div class="layout-doc">
@@ -361,7 +361,7 @@ footer.site-footer a { color: var(--cyan); }
   <h2 class="section-title"><span class="sec-ref">§3</span>Requirements</h2>
   <p class="section-desc">Everything here ships in the first slice: a log is trusted only if its history, its closes and its integrity hold from the first week.</p>
 
-  <div class="subhead">Functional — 48</div>
+  <div class="subhead">Functional — 49</div>
   <div class="req-list">
     <div class="req"><div class="id">R1</div><div class="body">The issue log lands in the product repo at <code>project/issue-log.html</code>, the Project frame's folder beside <code>documentation/</code> and <code>specs/</code> (D100 §3).</div></div>
     <div class="req"><div class="id">R2</div><div class="body">The issue log is maintained through the frame's entry point <code>asimov-project</code>, in Claude Code and in Codex alike (D100 §4.3).</div></div>
@@ -406,11 +406,12 @@ footer.site-footer a { color: var(--cyan); }
     <div class="req"><div class="id">R41</div><div class="body">A person can record that no issue log is kept, with the reason <em>handled elsewhere</em> (naming where) or <em>not worked with on this engagement</em>.</div></div>
     <div class="req"><div class="id">R42</div><div class="body">A recorded opt-out names the person who decided it.</div></div>
     <div class="req"><div class="id">R43</div><div class="body">Registering an entry after an opt-out replaces the opt-out with a log.</div></div>
-    <div class="req"><div class="id">R44</div><div class="body">When a risk is set to Occurred, the person is offered an issue-log entry that references the risk.</div></div>
+    <div class="req"><div class="id">R44</div><div class="body">When a risk is set to Occurred and the issue log is not opted out, the person is offered an issue-log entry that references the risk.</div></div>
     <div class="req"><div class="id">R45</div><div class="body">An entry registered from that offer is recorded as where the occurred risk is handled.</div></div>
     <div class="req"><div class="id">R46</div><div class="body">The log shows how many entries are open and how many are overdue.</div></div>
     <div class="req"><div class="id">R47</div><div class="body">On the page, overdue is computed from the day the page is opened.</div></div>
     <div class="req"><div class="id">R48</div><div class="body">Without its scripts, the page shows overdue as of its last update and says so.</div></div>
+    <div class="req"><div class="id">R49</div><div class="body">When a risk is set to Occurred and the issue log is opted out, no issue-log entry is offered.</div></div>
   </div>
 
   <div class="subhead">Non-functional — 7</div>
@@ -490,14 +491,13 @@ footer.site-footer a { color: var(--cyan); }
     <div class="row cols-2"><div class="label-cell">Name</div><div>What is asked or what is to be done, written so that it can be answered or done.</div></div>
     <div class="row cols-2"><div class="label-cell">Assignee</div><div>The named person who answers the question or does the action; a role is not an assignee.</div></div>
     <div class="row cols-2"><div class="label-cell">Owner</div><div>For a question, the named person on our side who chases the answer; the person who registers the question unless another is named.</div></div>
-    <div class="row cols-2"><div class="label-cell">Needed-by / Due</div><div>The date the answer is needed by, for a question, or the date the action is due, for an action.</div></div>
+    <div class="row cols-2"><div class="label-cell">Needed-by / Due</div><div>The date the answer is needed by, for a question, or the date the action is due, for an action; with no real deadline, the date it will next be chased.</div></div>
     <div class="row cols-2"><div class="label-cell">Consequence</div><div>For a question, what happens without an answer, which turns the question into a decision for the customer.</div></div>
     <div class="row cols-2"><div class="label-cell">Reference</div><div>A link to another entry or to a risk, by its identifier.</div></div>
-    <div class="row cols-2"><div class="label-cell">Outcome</div><div>What came of the entry: the answer to a question, the result of an action.</div></div>
+    <div class="row cols-2"><div class="label-cell">Outcome</div><div>What came of the entry: the answer to a question, or the answer so far while it is still Open, and the result of an action.</div></div>
     <div class="row cols-2"><div class="label-cell">Decided by</div><div>For a question, the named person who gave the answer, which makes the answered questions the engagement's record of decisions.</div></div>
     <div class="row cols-2"><div class="label-cell">State</div><div>One of <em>Open</em>, <em>Done</em> or <em>Cancelled</em>; Done and Cancelled are a person's decision.</div></div>
     <div class="row cols-2"><div class="label-cell">Overdue</div><div>An Open entry whose date has passed; it is shown and never entered.</div></div>
-    <div class="row cols-2"><div class="label-cell">Open entry</div><div>An entry in the state Open.</div></div>
     <div class="row cols-2"><div class="label-cell">History</div><div>The dated, signed lines that record every change to one entry, or every update to the log, and only ever grow.</div></div>
     <div class="row cols-2"><div class="label-cell">Dates</div><div>An entry has <em>created</em> and <em>changed</em>; the log has <em>last updated</em>.</div></div>
     <div class="row cols-2"><div class="label-cell">Review</div><div>A person has read the log and confirmed it, which updates the log without changing any entry.</div></div>
@@ -529,6 +529,16 @@ footer.site-footer a { color: var(--cyan); }
     <li><strong>Find it on the Asimov website.</strong> The Project frame's pages say what the issue log does.</li>
   </ul>
 
+  <div class="subhead">A week with the issue log</div>
+  <p class="section-desc" style="margin-bottom:0.4rem">One engagement's week, the flows below in the order they happen.</p>
+  <ul class="bullets">
+    <li><strong>Monday.</strong> After the workshop Maja Holm registers three questions: test data (Allan Borup, by 2026-11-20), the go-live window (nobody knows who decides yet, so Maja is both owner and assignee), and the archive rules (Allan Borup, chased again on 2026-11-18 since there is no real deadline).</li>
+    <li><strong>Tuesday.</strong> She adds an action for herself: call the meeting that settles the go-live window, due 2026-11-14, referencing that question.</li>
+    <li><strong>Wednesday.</strong> Allan answers "production data, but legal must confirm the anonymising"; the answer so far goes in the outcome, the question stays Open, and its date moves to 2026-11-24.</li>
+    <li><strong>Thursday.</strong> The meeting is held; the action is Done with "the steering group decides, Erik Lund", and the go-live question is reassigned to Erik Lund.</li>
+    <li><strong>Friday.</strong> The weekly review shows three open entries, none overdue; Maja confirms it with Erik Lund taking part, and hands her entries to Jonas Berg for the week she is away, role by role.</li>
+  </ul>
+
   <div class="subhead">F1 · Register an entry</div>
   <p class="section-desc" style="margin-bottom:0.4rem"><em>"We need the customer to confirm the test data by Friday."</em> — the type is read from the words or asked when unclear; the type's required fields are asked for and the optional ones offered.</p>
   <ul class="bullets">
@@ -537,6 +547,8 @@ footer.site-footer a { color: var(--cyan); }
     <li>When an opt-out stands, the log replaces it and its first history line names the opt-out it replaced (R43).</li>
     <li>Told in another language than the project's, the entry is shown as it will be stored and written only once the person confirms or corrects it (IL18).</li>
     <li>A required field still missing, or an assignee or owner given as a role: nothing is written, and the person is told what is missing (IL1).</li>
+    <li>Nobody knows yet who will answer: the owner is also the assignee, and finding the right person is part of the owner's chase (IL1).</li>
+    <li>No real deadline: the date given is the day the question will next be chased, so overdue still means "chase it now".</li>
     <li>A reference to an entry that does not exist, or to a risk that is not in the risk log: nothing is written, and the person is told which identifier is unknown (IL15).</li>
   </ul>
 
@@ -553,6 +565,7 @@ footer.site-footer a { color: var(--cyan); }
   <p class="section-desc" style="margin-bottom:0.4rem"><em>"The customer answered: production data, anonymised."</em>, <em>"Meeting held."</em> or <em>"Not needed any more."</em> — the person sets Done, Cancelled, or back to Open.</p>
   <ul class="bullets">
     <li>Done on a question needs the outcome and the person who decided; without them the entry stays Open, and the person is told what is missing (IL7).</li>
+    <li>A partial answer ("probably, but legal must confirm"): written into the outcome as the answer so far, the question stays Open, and its date moves to when the rest is expected (IL7).</li>
     <li>Done on an action with no outcome: the person is asked once, <em>"What came of it?"</em>, and if they decline the entry is Done and shows <em>no outcome written</em> (IL8).</li>
     <li>Cancelled needs a reason, and so does reopening, which keeps the identifier (IL9).</li>
     <li>Outcome: the new state, a history line with the outcome or reason and the person, and the entry's changed date moved to today.</li>
@@ -603,13 +616,14 @@ footer.site-footer a { color: var(--cyan); }
 
 <section class="s" id="s4-4">
   <h2 class="section-title"><span class="sec-ref">§4.4</span>Rules</h2>
-  <p class="section-desc">What governs every entry and every change, each with the adjacent case it does not cover. Rules marked <em>as RLn</em> work as the risk log's rule of that number, with entries in place of risks.</p>
+  <p class="section-desc">What governs every entry and every change, each with the adjacent case it does not cover. A rule that ends <em>(as the risk log's RLn)</em> works as that rule of the risk log, with entries in place of risks.</p>
 
   <div class="subhead">IL1 · An entry needs its type's required fields</div>
   <p class="section-desc" style="margin-bottom:0.4rem">A question is written only with a name, an assignee, an owner and a needed-by date; an action only with a name, an assignee and a due date; every person is a named person.</p>
   <ul class="bullets">
     <li>Question "Which test data may the team use?", assignee Allan Borup, needed-by 2026-11-20: written, with the registrant as owner.</li>
     <li>The same question with "the customer's architect" as assignee, or with no needed-by date: not written; the person is asked for a name or a date.</li>
+    <li>Nobody knows yet who will answer: the owner is named as the assignee too, and is reassigned when the name is known; no placeholder is written.</li>
   </ul>
 
   <div class="subhead">IL2 · The owner defaults to the registrant, on questions only</div>
@@ -634,7 +648,7 @@ footer.site-footer a { color: var(--cyan); }
   </ul>
 
   <div class="subhead">IL5 · Duplicates are renumbered by the tool</div>
-  <p class="section-desc" style="margin-bottom:0.4rem">As RL4: when two entries share an identifier, the next write first gives the later-created one the highest identifier plus one, with a <em>Renumbered from</em> line, and only then makes its own change.</p>
+  <p class="section-desc" style="margin-bottom:0.4rem">When two entries share an identifier, the next write first gives the later-created one the highest identifier plus one, with a <em>Renumbered from</em> line, and only then makes its own change (as the risk log's RL4).</p>
   <ul class="bullets">
     <li>Two branches each added ISSUE-007 and both were merged, ISSUE-008 exists: the later one becomes ISSUE-009.</li>
     <li>No identifier is shared: nothing is renumbered, and a gap in the series is never closed.</li>
@@ -652,6 +666,7 @@ footer.site-footer a { color: var(--cyan); }
   <ul class="bullets">
     <li>"Production data, anonymised before it leaves the customer. Allan Borup": Done, and the history line names both.</li>
     <li>Outcome "resolved" or "answered", or no decider: not set; the person is asked what was decided and by whom.</li>
+    <li>An answer so far, written while the question stays Open: kept in the outcome, and the question is still Open and still counted as open.</li>
   </ul>
 
   <div class="subhead">IL8 · An action's outcome is asked for once</div>
@@ -669,28 +684,28 @@ footer.site-footer a { color: var(--cyan); }
   </ul>
 
   <div class="subhead">IL10 · An entry's dates</div>
-  <p class="section-desc" style="margin-bottom:0.4rem">As RL8: an entry's created date is set once; its changed date moves on anything that touches that entry, its fields, its state or its identifier.</p>
+  <p class="section-desc" style="margin-bottom:0.4rem">An entry's created date is set once; its changed date moves on anything that touches that entry, its fields, its state or its identifier (as the risk log's RL8).</p>
   <ul class="bullets">
     <li>A new assignee is set: changed moves to today, created stays.</li>
     <li>A confirmed review: no entry's changed date moves.</li>
   </ul>
 
   <div class="subhead">IL11 · The log's date</div>
-  <p class="section-desc" style="margin-bottom:0.4rem">As RL9: the log's last-updated date moves on every write and on every confirmed review, and each move adds a line, with the person, to the log's history.</p>
+  <p class="section-desc" style="margin-bottom:0.4rem">The log's last-updated date moves on every write and on every confirmed review, and each move adds a line, with the person, to the log's history (as the risk log's RL9).</p>
   <ul class="bullets">
     <li>"Yes, mark it reviewed", with Erik Lund taking part: last updated is today, and the log's history gains <em>Reviewed by Maja Holm with Erik Lund</em>.</li>
     <li>The log shown and the question answered no: nothing moves.</li>
   </ul>
 
   <div class="subhead">IL12 · History only grows</div>
-  <p class="section-desc" style="margin-bottom:0.4rem">As RL10: every change adds a dated line naming the person, and no action removes or rewrites a line.</p>
+  <p class="section-desc" style="margin-bottom:0.4rem">Every change adds a dated line naming the person, and no action removes or rewrites a line (as the risk log's RL10).</p>
   <ul class="bullets">
     <li>Closing a question adds a line; the lines before it stand.</li>
     <li>A typo in an entry's name is corrected: a new line records the correction, and the earlier lines still show the old name.</li>
   </ul>
 
   <div class="subhead">IL13 · An unreadable log is repaired, never overwritten</div>
-  <p class="section-desc" style="margin-bottom:0.4rem">As RL11: a log the tool cannot read in full is not written to; the tool proposes a repair as before and after and writes it only when the person confirms, losing nothing the log held.</p>
+  <p class="section-desc" style="margin-bottom:0.4rem">A log the tool cannot read in full is not written to; the tool proposes a repair as before and after and writes it only when the person confirms, losing nothing the log held (as the risk log's RL11).</p>
   <ul class="bullets">
     <li>An entry lost its type in a hand edit: the proposal shows <em>ISSUE-005 type: (missing) → asked</em> and waits for the value and the go.</li>
     <li>A log that reads in full: no repair is proposed.</li>
@@ -718,14 +733,14 @@ footer.site-footer a { color: var(--cyan); }
   </ul>
 
   <div class="subhead">IL17 · An opt-out needs its reason and decider</div>
-  <p class="section-desc" style="margin-bottom:0.4rem">As RL15: an opt-out is written only with one of the two reasons, the person who decided and, for <em>handled elsewhere</em>, the place.</p>
+  <p class="section-desc" style="margin-bottom:0.4rem">An opt-out is written only with one of the two reasons, the person who decided and, for <em>handled elsewhere</em>, the place (as the risk log's RL15).</p>
   <ul class="bullets">
     <li>"Handled in the customer's tracker; Allan Borup": written.</li>
     <li>"Handled elsewhere" with no place: not written.</li>
   </ul>
 
   <div class="subhead">IL18 · Content is kept in the project's language</div>
-  <p class="section-desc" style="margin-bottom:0.4rem">As RL16: when a person writes in another language, the tool shows the text it will store and writes it only once the person has confirmed or corrected it; the language is asked for when the log or an opt-out is first written.</p>
+  <p class="section-desc" style="margin-bottom:0.4rem">When a person writes in another language, the tool shows the text it will store and writes it only once the person has confirmed or corrected it; the language is asked for when the log or an opt-out is first written (as the risk log's RL16).</p>
   <ul class="bullets">
     <li>An English project, "kunden skal bekræfte testdata inden fredag": shown as "The customer must confirm the test data by Friday. Correct?" and written only after the answer.</li>
     <li>Written in the project's language: no translation step; names of people and systems are never translated.</li>
@@ -775,7 +790,10 @@ footer.site-footer a { color: var(--cyan); }
     <div class="decision-row"><div class="decided">An occurred risk offers an issue entry, and creates the log when needed, but not over an opt-out</div><div class="alt">No link, the place as free text; an entry created automatically</div><div class="why">Free text can point at nothing, and an automatic entry picks the type for the person and writes two pages from one skill.</div></div>
     <div class="decision-row"><div class="decided">The actions are a recorded departure from the discipline</div><div class="alt">Edit the discipline in the corpus; leave actions out</div><div class="why">The corpus is a generated export, and the engagement's follow-ups need a home.</div></div>
     <div class="decision-row"><div class="decided">The issue log's definition and template sit in <code>artifacts/project/issue-log/</code></div><div class="alt"><code>artifacts/documentation/issue-log/</code></div><div class="why">The plugin's folders mirror where an artifact lands, and the page lands in <code>project/</code> (D100 §4.5).</div></div>
-    <div class="decision-row"><div class="decided">Everything ships in the first slice</div><div class="alt">A first slice, with the filter and the handover later</div><div class="why">As for the risk log: the log is trusted only if its history and its closes hold from the first week.</div></div>
+    <div class="decision-row"><div class="decided">A partial answer is kept in the outcome while the question stays Open</div><div class="alt">A state of its own, <em>Partly answered</em></div><div class="why">A fourth state is one more thing every reader must learn, and the date already says when the rest is expected.</div></div>
+    <div class="decision-row"><div class="decided">When nobody knows who will answer, the owner is also the assignee</div><div class="alt">A placeholder assignee that the review flags</div><div class="why">A placeholder is a role in disguise, and finding the person is exactly the owner's chase.</div></div>
+    <div class="decision-row"><div class="decided">With no real deadline, the date is the day the entry will next be chased</div><div class="alt">An optional date for such entries</div><div class="why">An entry with no date drifts, and a chase date keeps overdue meaning "chase it now".</div></div>
+    <div class="decision-row"><div class="decided">Everything ships in the first slice; if the budget is halved, the overdue recompute, the type filter, the role-by-role handover and the occurred-risk offer are cut first, in that order</div><div class="alt">A first slice, with the filter and the handover later; no stated cut order</div><div class="why">As for the risk log, the log is trusted only if its history and its closes hold from the first week, and a sponsor needs to know what goes first if money runs short (Q5).</div></div>
     <div class="decision-row"><div class="decided">The log is not listed on the product's documentation site, for now (OOS11)</div><div class="alt">The site generator also reads <code>project/</code></div><div class="why">The site needs changes before a page outside <code>documentation/</code> belongs on it, as decided for the risk log on 2026-10-29.</div></div>
     <div class="decision-row"><div class="decided">The website's project-management pages change in the same slice</div><div class="alt">Wait until the issue log reaches trial</div><div class="why">A public page that contradicts the plugin is worse than none.</div></div>
   </div>
@@ -797,8 +815,15 @@ footer.site-footer a { color: var(--cyan); }
     <li>The ⓘ beside the last-updated date unfolds the log's own history: every update and every confirmed review, with date and person.</li>
     <li>Done and Cancelled entries sit last and folded, behind their count.</li>
     <li>The type filter has two buttons, <em>Questions</em> and <em>Actions</em>; when one type alone is shown its button is marked, and when both are shown neither is.</li>
-    <li>The filter moves between three views: from <em>both</em>, Questions shows only questions and Actions only actions; from <em>only questions</em>, Questions shows both and Actions only actions; from <em>only actions</em>, Actions shows both and Questions only questions.</li>
     <li>The filter applies to the list, the summary table, the counts and the closed count alike.</li>
+  </ul>
+  <div class="data-table" style="margin-top:0.8rem">
+    <div class="row head cols-3"><div>Shown now</div><div>Click Questions</div><div>Click Actions</div></div>
+    <div class="row cols-3"><div class="label-cell">Both (the page opens here)</div><div>Only questions</div><div>Only actions</div></div>
+    <div class="row cols-3"><div class="label-cell">Only questions</div><div>Both</div><div>Only actions</div></div>
+    <div class="row cols-3"><div class="label-cell">Only actions</div><div>Only questions</div><div>Both</div></div>
+  </div>
+  <ul class="bullets">
     <li>Overdue is recomputed from the day the page is opened; without scripts the page shows overdue as of its last update and says so.</li>
     <li>Switch the state at the top of the mockup: a log with open and overdue entries, a log where every entry is closed, and an opt-out.</li>
   </ul>
@@ -809,7 +834,9 @@ footer.site-footer a { color: var(--cyan); }
   </div>
   <ul class="bullets">
     <li>One fixed text layout, 80 columns: the header line with the last-updated date and the counts, then every Open entry in full, then the closed entries as a count, then the closing question.</li>
-    <li>Each Open entry: identifier, type, the marker <em>OVERDUE</em> when it applies, and name; then assignee, owner for a question, and date; then consequence, description and reference; each entry closed by a horizontal rule.</li>
+    <li>An Open entry's first line: identifier, type, the marker <em>OVERDUE</em> when it applies, and name.</li>
+    <li>Its next lines: assignee, owner for a question, and date; then consequence, description, reference and any answer so far.</li>
+    <li>Each entry is closed by a horizontal rule, so entries are easy to tell apart.</li>
     <li>An empty description or consequence shows as <em>none written</em>, and the chat has no filter: it always shows both types.</li>
     <li>The chat's own words follow the conversation's language; an entry's content is shown as it is kept.</li>
     <li>Scenarios: a question registered and later answered, an action closed without an outcome, a review confirmed with participants, a handover gone through role by role, an occurred risk that becomes an entry, an opt-out, and an unreadable log with its repair shown as before and after.</li>
@@ -857,7 +884,7 @@ footer.site-footer a { color: var(--cyan); }
   <div class="subhead">Technical decisions</div>
   <div class="decisions">
     <div class="decisions-head"><div>Decided</div><div>Alternative considered</div><div>Why rejected</div></div>
-    <div class="decision-row"><div class="decided">A shared core as a library of helper functions in <code>resources/project-log/</code></div><div class="alt">A copy of the risk log's script per log; a generic engine driven by a schema per artifact</div><div class="why">Copies fork the safe write, the history check and the repair, and an engine must hold two quite different rule sets.</div></div>
+    <div class="decision-row"><div class="decided">A shared core as a library of helper functions in <code>resources/project-log/</code></div><div class="alt">A copy of the risk log's script per log; a generic engine driven by a schema per artifact</div><div class="why">Copies fork the safe write, the history check and the repair, which by an estimate from its function list are about two thirds of the functions in <code>risk-log.ps1</code>, and an engine must hold two quite different rule sets.</div></div>
     <div class="decision-row"><div class="decided">The core knows pages, entries, identifiers, histories and the safe write; each script knows its fields, states, rules, order and view</div><div class="alt">The core also holds field validation and the view</div><div class="why">Those are where the two logs differ, and putting them in the core would make it the engine rejected above.</div></div>
     <div class="decision-row"><div class="decided">Each script imports the core by the plugin root it derives from its own location</div><div class="alt">A PowerShell module installed on the machine; a path relative to the working directory</div><div class="why">Nothing is installed beyond the plugin, and Codex resolves relative paths from the working directory (<code>D101-codex-support.html</code> §6.2).</div></div>
     <div class="decision-row"><div class="decided">The risk log's script moves onto the core in the issue log's plan, before any issue-log code</div><div class="alt">Only the issue log uses the core, and the risk log keeps its own copy</div><div class="why">Two copies of the safe write and the repair would remain, and the first fix to one would miss the other.</div></div>
@@ -1037,6 +1064,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="row cols-2"><div class="label-cell">h3</div><div>The name; the type label and the overdue marker beside it are rendered.</div></div>
     <div class="row cols-2"><div class="label-cell">.entry-consequence · .entry-desc · .entry-outcome</div><div>The text of each, absent when empty; a Done action with no outcome renders <em>no outcome written</em> in a rendered element that is never read.</div></div>
     <div class="row cols-2"><div class="label-cell">ol.entry-history</div><div>One <code>li</code> per change, with <code>data-date</code>, <code>data-by</code> and <code>data-kind</code> (<code>created</code>, <code>change</code>, <code>state</code>, <code>renumber</code>, <code>repair</code>, <code>handover</code>); only ever appended to.</div></div>
+    <div class="row cols-2"><div class="label-cell">The reason of a state change</div><div>The text of its <code>state</code> line in <code>ol.entry-history</code>, which the page shows; a Cancelled entry's reason and a reopening's reason have no element of their own.</div></div>
   </div>
 
   <div class="subhead">Where the core ends and a log's script begins</div>
@@ -1049,12 +1077,14 @@ footer.site-footer a { color: var(--cyan); }
     <div class="row cols-2"><div class="label-cell">The opt-out page and its rules</div><div>The opt-out page's title in its own words.</div></div>
     <div class="row cols-2"><div class="label-cell">The person from <code>git config user.name</code>, wrapping text at 80 columns</div><div>Its view's layout, its verbs and its rendering from its template.</div></div>
     <div class="row cols-2"><div class="label-cell">The identifiers on another log's page, by a scan</div><div>Which other log it may reference: the issue log, the risk log.</div></div>
+    <div class="row cols-2"><div class="label-cell">Results returned or errors thrown, never an exit</div><div>Every exit code (0–3), decided from what the core returned or threw.</div></div>
+    <div class="row cols-2"><div class="label-cell">Two names compared: trimmed, inner spaces collapsed, case ignored, whole names only</div><div>Which of its fields hold people.</div></div>
   </div>
 
   <div class="subhead">The change file <code>-Apply</code> takes</div>
   <ul class="gps-paths">
     <li>verb: add | change | state | handover | review | optout | repair</li>
-    <li>target: ISSUE-NNN (or the leaving person, for handover)</li>
+    <li>target: ISSUE-NNN (absent for add, review, optout and handover; a handover's leaving person is <code>handover.from</code> alone)</li>
     <li>type: question | action (add only)</li>
     <li>fields: name · assignee · owner · date · consequence · description · ref</li>
     <li>state: { to: open | done | cancelled, reason, outcome, decided_by }</li>
@@ -1067,7 +1097,7 @@ footer.site-footer a { color: var(--cyan); }
 <section class="s" id="s6-5">
   <h2 class="section-title"><span class="sec-ref">§6.5</span>APIs &amp; contracts</h2>
   <div class="callout">
-    One script, <code>issue-log.ps1 -Path project/issue-log.html</code> plus one action: <code>-Read</code> (data model and problems as JSON; with <code>-Person &lt;name&gt;</code> also every Open role that person holds, the list a handover goes through), <code>-View</code> (the fixed 80-column text), <code>-Apply -Change &lt;file&gt;</code> (write, check, rename), <code>-Repair</code> (a proposal as JSON, from problems or conflict markers) and <code>-Finish</code> (an interrupted write). Exit codes as the risk log's: 0 done, 1 refused by a rule (the rule on stdout), 2 an input could not be read (the core included), 3 no person (<code>git config user.name</code> unset and no <code>-By</code>). <code>-PluginRoot</code> defaults to three folders above the script and is where both the template and the core are read from. The core is a module of functions, not a command; <code>risk-log.ps1</code>'s interface does not change.
+    One script, <code>issue-log.ps1 -Path project/issue-log.html</code> plus one action: <code>-Read</code> (data model, problems and the people named in the log as JSON; with <code>-Person &lt;name&gt;</code> also every Open role that person holds, the list a handover goes through, the name matched as the core compares names, and the names in use returned when none matches), <code>-View</code> (the fixed 80-column text), <code>-Apply -Change &lt;file&gt;</code> (write, check, rename), <code>-Repair</code> (a proposal as JSON, from problems or conflict markers) and <code>-Finish</code> (an interrupted write). Exit codes as the risk log's: 0 done, 1 refused by a rule (the rule on stdout), 2 an input could not be read (the core included), 3 no person (<code>git config user.name</code> unset and no <code>-By</code>). <code>-PluginRoot</code> defaults to three folders above the script and is where both the template and the core are read from. The core is a module of functions, not a command; <code>risk-log.ps1</code>'s interface does not change.
   </div>
 </section>
 
@@ -1112,6 +1142,12 @@ footer.site-footer a { color: var(--cyan); }
   </div>
   <div class="callout warn">
     <strong>The core reads nothing from its caller's scope.</strong> Every value it needs (the page, the prefix, the person, today) is a parameter; a script variable reached by scope works in one script and breaks in the other.
+  </div>
+  <div class="callout warn">
+    <strong>The core never calls <code>exit</code>.</strong> The risk log's <code>Exit-Refused</code> and <code>Exit-Unreadable</code> stay in the scripts; inside a module an <code>exit</code> no longer ends the script the way the exit codes of §6.5 and the unchanged suite of NF7 require.
+  </div>
+  <div class="callout warn">
+    <strong>The page's today is built from local parts.</strong> The overdue script forms the date from the browser's local year, month and day; <code>toISOString()</code> gives the UTC date and would mark entries overdue a day early for a reader west of UTC in the evening.
   </div>
   <div class="callout">
     <strong>Two "todays".</strong> A reader east of the person who wrote the page can see an entry overdue that the chat showed as due today; both are right for their reader.
@@ -1177,7 +1213,7 @@ footer.site-footer a { color: var(--cyan); }
   <div class="data-table impl-table">
     <div class="row head"><div>Aspect</div><div>Build</div><div>Details</div></div>
     <div class="row"><div class="label-cell">Source</div><div><span class="tag reuse">reuse</span></div><div><ul><li>The risk-free functions of <code>risk-log.ps1</code>: HTML and attribute helpers, history reading, the safe write and its kept-check, numbering and renumbering, the repair's sides and merge, Finish, the opt-out, wrapping, the person.</li></ul></div></div>
-    <div class="row"><div class="label-cell">Bound</div><div><span class="tag note">note</span></div><div><ul><li>Every value comes in as a parameter; no script-scope variable is read, and nothing risk- or issue-specific is named in it.</li></ul></div></div>
+    <div class="row"><div class="label-cell">Bound</div><div><span class="tag note">note</span></div><div><ul><li>Every value comes in as a parameter; no script-scope variable is read, nothing risk- or issue-specific is named in it, and no function in it calls <code>exit</code>.</li></ul></div></div>
     <div class="row"><div class="label-cell">Enforce</div><div><span class="tag new">new</span></div><div><ul><li>The risk log's Pester suite passes unchanged on 5.1 and 7 once <code>risk-log.ps1</code> imports the core (NF7, AC36); this is the first phase of the plan.</li></ul></div></div>
   </div>
 
@@ -1193,7 +1229,7 @@ footer.site-footer a { color: var(--cyan); }
   <div class="data-table impl-table">
     <div class="row head"><div>Aspect</div><div>Build</div><div>Details</div></div>
     <div class="row"><div class="label-cell">Source</div><div><span class="tag reuse">reuse</span></div><div><ul><li>The risk log's template and the S1 mockup (<code>mockups/d101-project-management-issue/issue-log-page.html</code>), whose filter already follows the three-view table.</li></ul></div></div>
-    <div class="row"><div class="label-cell">Bound</div><div><span class="tag note">note</span></div><div><ul><li>Two inline scripts and no other; no external source; the page reads in full with both turned off.</li></ul></div></div>
+    <div class="row"><div class="label-cell">Bound</div><div><span class="tag note">note</span></div><div><ul><li>Two inline scripts and no other; no external source; the page reads in full with both turned off; the overdue script's today is built from local date parts.</li></ul></div></div>
     <div class="row"><div class="label-cell">Enforce</div><div><span class="tag new">new</span></div><div><ul><li>Its leading comment names every element and attribute the script reads back, as the risk log's does.</li></ul></div></div>
   </div>
 
@@ -1262,15 +1298,16 @@ footer.site-footer a { color: var(--cyan); }
     <div class="ac-row"><div class="ac-id">AC29</div><div class="ac-verifies"><span class="verify-chip">NF5</span><span class="verify-chip">R48</span></div><div>With scripts turned off, every entry is shown, and the overdue markers carry the line saying they are as of the log's last update.</div></div>
     <div class="ac-row"><div class="ac-id">AC30</div><div class="ac-verifies"><span class="verify-chip">NF6</span><span class="verify-chip">IL19</span></div><div>The page reads back to the same entries whatever the filter and the recompute have shown.</div></div>
     <div class="ac-row"><div class="ac-id">AC31</div><div class="ac-verifies"><span class="verify-chip">R36</span><span class="verify-chip">R37</span></div><div>The review in the chat shows each Open entry's description, consequence and reference, with <em>none written</em> where they are empty.</div></div>
-    <div class="ac-row"><div class="ac-id">AC32</div><div class="ac-verifies"><span class="verify-chip">R38</span><span class="verify-chip">R39</span><span class="verify-chip">R40</span><span class="verify-chip">IL16</span></div><div>A handover lists each role the leaving person holds on Open entries; stopped midway it writes nothing; completed, it writes once with a line on each changed entry, and closed entries keep their people.</div></div>
+    <div class="ac-row"><div class="ac-id">AC32</div><div class="ac-verifies"><span class="verify-chip">R38</span><span class="verify-chip">R39</span><span class="verify-chip">R40</span><span class="verify-chip">IL16</span></div><div>A handover lists each role the leaving person holds on Open entries; stopped midway it writes nothing; completed, it writes once with a line on each changed entry, and closed entries keep their people; a leaving person named with other case or spacing matches, and a name that matches no one returns the names in use.</div></div>
     <div class="ac-row"><div class="ac-id">AC33</div><div class="ac-verifies"><span class="verify-chip">R41</span><span class="verify-chip">R42</span><span class="verify-chip">IL17</span></div><div>An opt-out with no decider, or "handled elsewhere" with no place, is not written; with both, the log's page states the opt-out, its reason, decider and date.</div></div>
     <div class="ac-row"><div class="ac-id">AC34</div><div class="ac-verifies"><span class="verify-chip">R43</span></div><div>The first entry after an opt-out replaces it, and the log's first history line names the opt-out.</div></div>
-    <div class="ac-row"><div class="ac-id">AC35</div><div class="ac-verifies"><span class="verify-chip">R44</span><span class="verify-chip">R45</span><span class="verify-chip">IL20</span></div><div>A risk set Occurred offers an entry; accepted in a repo with no issue log, the log is created and the risk's place names the new identifier; under an issue-log opt-out nothing is offered.</div></div>
+    <div class="ac-row"><div class="ac-id">AC35</div><div class="ac-verifies"><span class="verify-chip">R44</span><span class="verify-chip">R45</span><span class="verify-chip">R49</span><span class="verify-chip">IL20</span></div><div>A risk set Occurred offers an entry; accepted in a repo with no issue log, the log is created and the risk's place names the new identifier; under an issue-log opt-out nothing is offered.</div></div>
     <div class="ac-row"><div class="ac-id">AC36</div><div class="ac-verifies"><span class="verify-chip">NF7</span></div><div>The risk log's existing tests pass unchanged.</div></div>
     <div class="ac-row"><div class="ac-id">AC37</div><div class="ac-verifies"><span class="verify-chip">NF2</span><span class="verify-chip">IL13</span></div><div>A write stopped before it completes leaves the page as it was; a page that cannot be read in full gets a repair proposal and no write.</div></div>
     <div class="ac-row"><div class="ac-id">AC38</div><div class="ac-verifies"><span class="verify-chip">NF3</span></div><div>A leftover from an interrupted write in <code>project/</code> is ignored by git in a repo set up by <code>asimov-init</code> or <code>asimov-project</code>.</div></div>
     <div class="ac-row"><div class="ac-id">AC39</div><div class="ac-verifies"><span class="verify-chip">IL18</span></div><div>Manual step: an entry told in Danish in an English project is shown in English and written only after the person confirms it.</div></div>
     <div class="ac-row"><div class="ac-id">AC40</div><div class="ac-verifies"><span class="verify-chip">NF1</span></div><div>Manual step: the page opens in a browser in the documentation site's look and reads as one page.</div></div>
+    <div class="ac-row"><div class="ac-id">AC41</div><div class="ac-verifies"><span class="verify-chip">R19</span><span class="verify-chip">IL7</span></div><div>A question given an outcome while it stays Open is still Open, is listed among the open entries, and is counted as open, not closed.</div></div>
   </div>
 </section>
 
@@ -1297,6 +1334,11 @@ footer.site-footer a { color: var(--cyan); }
       <div class="q-head"><span class="q-id">Q4</span><span class="q-decider">Simon Vilandt</span></div>
       <div class="q-body">Should a reference also point at a design or a ticket, since the discipline says an answer feeds the specification when it changes what is built?</div>
       <div class="q-resolution">Resolution path: decided after the first engagement's use; until then a reference names an entry or a risk only (R20).</div>
+    </div>
+    <div class="q-card">
+      <div class="q-head"><span class="q-id">Q5</span><span class="q-decider">Simon Vilandt</span></div>
+      <div class="q-body">What does the issue log cost to build, and does that cost hold against the cut order in §4.5?</div>
+      <div class="q-resolution">Resolution path: estimated from the plan's tasks once <code>asimov-spec</code> has cut this design; the cut order in §4.5 says what goes first if the estimate is too high.</div>
     </div>
   </div>
 </section>
@@ -1361,7 +1403,7 @@ footer.site-footer a { color: var(--cyan); }
     · <span class="mono">features/D101-project-management-issue.html</span>
   </div>
   <div style="margin-top: 0.4rem">
-    D101 · Project management: issue log · asimov-plugin · Draft v0.2 · 2026-11-11
+    D101 · Project management: issue log · asimov-plugin · Draft v0.3 · 2026-11-11
   </div>
 </footer>
 
