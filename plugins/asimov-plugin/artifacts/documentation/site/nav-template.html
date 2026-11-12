@@ -1,0 +1,68 @@
+<!--
+  The nav block every page of an Asimov-rendered documentation site carries, between
+  `<!-- asimov-nav:start -->` and `<!-- asimov-nav:end -->`. Written by artifact-site-authoring
+  (scripts/site.ps1) into index.html, every page under _site/, every rendered document and
+  every authored document the site indexes (a D101, a T100, a project page). The site owns
+  the block and rewrites it whole on every run; it touches nothing outside the markers.
+
+  HOW THE SCRIPT USES THIS FILE
+  - Everything between BEGIN block and END block is the block; the comment you are
+    reading never reaches a page.
+  - {{PREFIX}} is the path from the page to documentation/ ("" for index.html, "../" for a
+    page under _site/ or features/, "../documentation/" for a page under project/).
+  - The `top-item` block repeats once per section of the site, in the taxonomy's order (Home
+    first); nothing else is in the top nav;
+    the `sub-item` block once per child of the active section. {{ACTIVE}} is ` class="active"`
+    on the current section or child, empty otherwise.
+  - The `sub-nav` block is dropped on pages with no second level: index.html, which gets
+    `class="no-subnav"` on its body instead. The `chips` block holds the phase and status
+    chips read from the document's own nav before this block replaced it; dropped when
+    the document has none.
+  - The <style> element carries the sub-nav rules for pages that inline their own CSS
+    and do not link _chrome.css. A page that links the chrome gets the same rules twice,
+    which is harmless; keeping the block identical on every page is what lets a re-run
+    replace it without looking.
+-->
+<!-- BEGIN block -->
+<!-- asimov-nav:start -->
+<style>
+/* site frame (asimov-nav); the same rules live in _chrome.css */
+html { overflow-y: scroll; }
+body { padding-top: 84px; }
+body.no-subnav { padding-top: 56px; }
+.top-nav { height: 46px; padding: 0 2rem; }
+.side-nav { top: 100px; max-height: calc(100vh - 114px); }
+.sub-nav { position: fixed; top: 46px; left: 0; right: 0; z-index: 99; height: 38px; padding: 0 2rem; background: rgba(18,32,57,0.92); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); display: flex; gap: 1.3rem; align-items: center; font-size: 0.8rem; overflow-x: auto; white-space: nowrap; }
+.sub-nav .section { font-family: 'JetBrains Mono', 'JetBrains Mono Fallback', monospace; font-size: 0.66rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-mute); margin-right: 0.3rem; min-width: 9.5rem; }
+.sub-nav a { color: var(--text-dim); text-decoration: none; padding: 0.2rem 0; border-bottom: 2px solid transparent; }
+.sub-nav a:hover { color: #fff; }
+.sub-nav a.active { color: #fff; border-bottom-color: var(--cyan); }
+.sub-nav .spacer { flex: 1; }
+.sub-nav .status-chip, .sub-nav .phase-chip { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.25rem 0.7rem; border-radius: 999px; font-family: 'JetBrains Mono', 'JetBrains Mono Fallback', monospace; font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 700; margin-left: 0.5rem; }
+.sub-nav .status-chip { background: #ffd54f15; border: 1px solid #ffd54f44; color: var(--gold); }
+.sub-nav .status-chip::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--gold); }
+.sub-nav .phase-chip { background: #4fc3f715; border: 1px solid #4fc3f744; color: var(--cyan); }
+.sub-nav .phase-chip::before { content: ''; width: 6px; height: 6px; border-radius: 1px; background: var(--cyan); }
+.sub-nav .phase-chip.full { background: #66bb6a15; border-color: #66bb6a44; color: var(--green); }
+.sub-nav .phase-chip.full::before { background: var(--green); }
+</style>
+<nav class="top-nav">
+  <span class="brand"><a href="{{PREFIX}}index.html">{{REPO-NAME}}</a></span>
+<!-- BEGIN top-item -->
+  <a{{ACTIVE}} href="{{HREF}}">{{LABEL}}</a>
+<!-- END top-item -->
+</nav>
+<!-- BEGIN sub-nav -->
+<nav class="sub-nav">
+  <span class="section">{{SECTION}}</span>
+<!-- BEGIN sub-item -->
+  <a{{ACTIVE}} href="{{HREF}}">{{LABEL}}</a>
+<!-- END sub-item -->
+<!-- BEGIN chips -->
+  <span class="spacer"></span>
+  {{CHIPS}}
+<!-- END chips -->
+</nav>
+<!-- END sub-nav -->
+<!-- asimov-nav:end -->
+<!-- END block -->

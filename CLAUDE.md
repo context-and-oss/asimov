@@ -16,7 +16,7 @@ plugins/asimov-plugin/                         ← the plugin (install scope)
 │   ├── hooks.json                             ← six registrations, one async command: the run log (D101-asimov-log)
 │   └── scripts/asimov-log.ps1                 ← the log writer: payload in, one line out, a state file; never a skill or a model
 ├── commands/                                  ← slash commands (auto-discovered; Claude Code only)
-│   └── asimov-init.md                         ← bootstraps a repo for Asimov (asimov.md + CLAUDE.md + conventions + site)
+│   └── asimov-init.md                         ← bootstraps a repo for Asimov (asimov.md + CLAUDE.md + conventions + project info + site, the last two through their artifact skills)
 ├── agents/                                    ← subagent shells: identity + harness fields only; the method is a role skill. One .md (Claude Code) + one .toml (Codex, prototype) per subagent
 │   ├── giskard-the-dotnet-developer.{md,toml} ← .NET developer (Giskard) → skills/role-dotnet-builder — D101-subagents
 │   ├── daneel-the-angular-developer.{md,toml} ← Angular developer (Daneel) → skills/role-angular-builder
@@ -53,6 +53,10 @@ plugins/asimov-plugin/                         ← the plugin (install scope)
 │   ├── artifact-risk-log-authoring/SKILL.md   ← artifact skill: the risk log's only writer — what a person said to one change file, returned questions instead of asking; fallback rules without PowerShell
 │   │   └── scripts/risk-log.ps1               ← reads, renders, checks and writes project/risk-log.html through a .new and one rename; -Read/-View/-Apply/-Repair/-Finish (PowerShell 5.1 and 7, Pester 5 tests beside it)
 │   ├── artifact-risk-log-view/SKILL.md        ← artifact skill: the risk log's fixed 80-column view, through the script; writes nothing
+│   ├── artifact-project-info-authoring/SKILL.md ← artifact skill: the project info's only writer — the answers to one change file; no view skill, the site shows the page
+│   │   └── scripts/project-info.ps1           ← renders, reads back and writes project/info.html through a .new and one rename; -Read/-Apply/-Render (PowerShell 5.1 and 7)
+│   ├── artifact-site-authoring/SKILL.md       ← artifact skill: the documentation site's only writer; runs the script, relays the report, authors nothing
+│   │   └── scripts/site.ps1                   ← scans documentation/, reads project/info.html, fills the site templates, writes index.html, _chrome.css, _site/ and the nav blocks whole; -Plan/-Check
 │   ├── asimov-project/                        ← asimov-skill (user-invoked): the Project frame's one entry point; the artifact and the action from the message; the risk log its first row and section (verbs, questions, the go, the review)
 │   ├── tool-deck-authoring/SKILL.md           ← tool skill (model-invoked): write a slide deck from resources/deck/; triggers on "a presentation", "slides", "a pitch"
 │   └── codex-asimov-init/SKILL.md             ← Codex-only setup entry point ($asimov-plugin:codex-asimov-init), counterpart of commands/asimov-init.md
@@ -70,9 +74,12 @@ plugins/asimov-plugin/                         ← the plugin (install scope)
 │   │   ├── s101-ledger/                       ← the ledger artifact (Build stage): the run state of one plan, committed with each phase
 │   │   │   ├── s101-ledger-definition.md      ← the resumable bar; statuses, append-only body, five checks
 │   │   │   └── s101-ledger-template.md        ← frontmatter as machine state, body as the record
-│   │   ├── site/                              ← the documentation/ landing site (asimov-init)
-│   │   │   ├── site-definition.md             ← what the rendered site must contain
-│   │   │   ├── site-template.html            ← landing-page template
+│   │   ├── site/                              ← the documentation site (artifact-site-authoring; asimov-init calls it)
+│   │   │   ├── site-definition.md             ← the taxonomy, the front page, the card, the nav block, the rules S1–S8
+│   │   │   ├── nav-template.html              ← the nav block every page carries between the asimov-nav markers
+│   │   │   ├── home-template.html             ← the front page: two sentences, two tables
+│   │   │   ├── section-template.html          ← a section or group page and the blocks it is built from
+│   │   │   ├── document-template.html         ← the frame a markdown document renders into under _site/doc/
 │   │   │   └── _chrome.css                    ← shared site chrome, copied verbatim
 │   │   └── conventions/                       ← documentation/conventions/ (asimov-init)
 │   │       ├── conventions-definition.md      ← what a per-stack read-list must contain
@@ -89,9 +96,12 @@ plugins/asimov-plugin/                         ← the plugin (install scope)
 │   │   └── asimov-log/                        ← the run log: one text line per harness event, written by hooks/scripts/asimov-log.ps1
 │   │       └── asimov-log-definition.md       ← the file, the line, the five events, the rules; no template (the definition is the schema)
 │   └── project/                               ← artifacts that land in the product repo's project/ (the Project frame); one folder per artifact
-│       └── risk-log/                          ← the risk log: definition + template; the page lands at project/risk-log.html
-│           ├── risk-log-definition.md         ← fields, five states, RL1–RL17, the bar (kept), where it departs from the Risk management discipline
-│           └── risk-log-template.html         ← the kept register and the opt-out page; the elements and attributes the script reads back, named in its leading comment
+│       ├── risk-log/                          ← the risk log: definition + template; the page lands at project/risk-log.html
+│       │   ├── risk-log-definition.md         ← fields, five states, RL1–RL17, the bar (kept), where it departs from the Risk management discipline
+│       │   └── risk-log-template.html         ← the kept register and the opt-out page; the elements and attributes the script reads back, named in its leading comment
+│       └── project-info/                      ← the project info: definition + template; the page lands at project/info.html, canonical in the repo with the landscape D100
+│           ├── project-info-definition.md     ← identity and areas, PI1–PI6, the bar (current)
+│           └── project-info-template.html     ← the two tables the script renders and reads back; an empty asimov-nav pair the site fills
 ├── contracts/                                 ← stage handoffs: what one stage's output must contain for the next stage to consume it. Not artifacts; read by skills by path
 │   ├── design.md                              ← what a design must contain, nothing about who reads it or how; a design skill's output, a spec skill's input
 │   └── specification.md                       ← what a specification (one plan, one or more tasks) must contain before Build; the line: names and signatures are the spec's, every body and test the builder's
@@ -243,7 +253,7 @@ An **advisory skill** answers questions from a body of reference material shippe
 
 ## How to add a project artifact
 
-The **Project frame** is the engagement the stages run inside (D100 §3): not an L3 stage, never a link in the chain from design to code, kept while the stages run. It is one column with the same four bands as a stage: the entry point `asimov-project`, you in your own session (no agent), the project artifact skills plus `pm-advisor`, and the product repo's `project/`, a folder **beside** `documentation/` and `specs/`, one page per artifact. The risk log is the first artifact, built (its D101, `documentation/features/D101-project-management-risk.html`; its plan and ledger under `specs/project-management-risk/`); a closure report and the project setup are the next two it names.
+The **Project frame** is the engagement the stages run inside (D100 §3): not an L3 stage, never a link in the chain from design to code, kept while the stages run. It is one column with the same four bands as a stage: the entry point `asimov-project`, you in your own session (no agent), the project artifact skills plus `pm-advisor`, and the product repo's `project/`, a folder **beside** `documentation/` and `specs/`, one page per artifact. The risk log is the first artifact, built (its D101, `documentation/features/D101-project-management-risk.html`; its plan and ledger under `specs/project-management-risk/`). The project info is the second (2026-11-10, from a hand spike, no D101 yet: `artifacts/project/project-info/`, `artifact-project-info-authoring`; it has no view skill, since the site shows the page). A closure report is the next the risk log names.
 
 1. Design the artifact in its own D101, `documentation/features/D101-project-management-<artifact>.html`, with `/asimov-design` as for any feature. The column has no shared D101: its rules live in D100 §3/§4.3 and here.
 2. Author the artifact pair under `plugins/asimov-plugin/artifacts/project/<artifact-slug>/`: `<artifact-slug>-definition.md` (with its maturity block) and `<artifact-slug>-template.<ext>`, side by side, as every artifact.

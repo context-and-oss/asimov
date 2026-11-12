@@ -50,11 +50,11 @@ Do not restate the template's leading comment here or in an asimov-skill — it 
 
 ## Rendering procedure
 
-**Verbatim shells** — copy from the template, substituting placeholder text only: `<!DOCTYPE html>` + `<head>` (including the full `<style>` block); `<nav class="top-nav">` with **both** chips; `<div class="layout-doc">` + `<aside class="side-nav">` + `<article class="content">`; `<header class="hero">` (kicker, h1, tagline); `<div class="meta-strip">` (6 cells from §1); `<div class="doc-scope">`; `<footer class="site-footer">`. No `<script>` anywhere in the D101 page.
+**Verbatim shells** — copy from the template, substituting placeholder text only: `<!DOCTYPE html>` + `<head>` (including the full `<style>` block); the nav block between `<!-- asimov-nav:start -->` and `<!-- asimov-nav:end -->` with **both** chips (the minimal block as the template has it; `artifact-site-authoring` rewrites it on every site run, so never add links to it); `<div class="layout-doc">` + `<aside class="side-nav">` + `<article class="content">`; `<header class="hero">` (kicker, h1, tagline); `<div class="meta-strip">` (6 cells from §1); `<div class="doc-scope">`; `<footer class="site-footer">`. No `<script>` anywhere in the D101 page.
 
 **Top-level substitutions:**
 
-- `<title>` → `D101 — {feature name} — {repo} docs`. `.brand a` href stays `../index.html`.
+- `<title>` → `D101 — {feature name} — {repo} docs`. `.brand a` href stays `../index.html` and its text is the repo name alone.
 - `.phase-chip` → `Business design`, or `Full design` with the `.full` class (ground rule 12).
 - `.status-chip` → class per §1 Status (`.draft` for Draft; default for Approved); text is the Status value plus the version, e.g. `Draft v0.1`. **Every write bumps the minor version.** `Draft` stays `Draft` — approval is the business approver's move, never recorded by an author or a tool.
 - Hero `.kicker` → `D101 · Feature design · {scope}`; `<h1>` → the feature name (a `<br>` for a natural two-line break is fine); `.tagline` → a one-paragraph paraphrase of §2 Purpose.

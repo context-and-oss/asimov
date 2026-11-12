@@ -103,7 +103,7 @@ plugins/asimov-plugin/                    the plugin (install scope)
 │   │   │   └── d101-feature-design-template.html
 │   │   ├── site/                         the documentation/ landing site (/asimov-init)
 │   │   │   ├── site-definition.md
-│   │   │   ├── site-template.html
+│   │   │   ├── nav-template.html, home-template.html, section-template.html, document-template.html
 │   │   │   └── _chrome.css
 │   │   └── conventions/                  documentation/conventions/<stack>/README.md (/asimov-init)
 │   │       ├── conventions-definition.md
