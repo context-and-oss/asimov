@@ -726,12 +726,15 @@ function Render-Markdown([string]$rel) {
     if ($href -match '^(https?:|mailto:|#|/)') { return $m.Value }
     $frag = ''; $i = $href.IndexOf('#'); if ($i -ge 0) { $frag = $href.Substring($i); $href = $href.Substring(0, $i) }
     if (-not $href) { return $m.Value }
-    $targetRel = [System.IO.Path]::GetFullPath((Join-Path (Join-Path $Root $docDir) $href))
-    $targetRel = Rel $Root $targetRel
+    # relative to documentation/ again, ../ kept for a target above it; another drive stays as written
+    $full = [System.IO.Path]::GetFullPath((Join-Path (Join-Path $Root $docDir) $href))
+    $targetRel = [System.IO.Path]::GetRelativePath($Root, $full) -replace '\\', '/'
+    if ([System.IO.Path]::IsPathRooted($targetRel)) { return $m.Value }
     $shown = $null
     if ($targetRel.EndsWith('.md')) {
       $html = $targetRel.Substring(0, $targetRel.Length - 3) + '.html'
-      if ($Docs.ContainsKey($html)) { $shown = $html } elseif ($Docs.ContainsKey($targetRel)) { $shown = Render-Path $targetRel } else { $shown = $targetRel }
+      # rendered only when placed in a section, the same test the renderer below uses
+      if ($Docs.ContainsKey($html)) { $shown = $html } elseif ($Placement.ContainsKey($targetRel)) { $shown = Render-Path $targetRel } else { $shown = $targetRel }
     } else { $shown = $targetRel }
     return '](' + $prefix + $shown + $frag + $titlePart + ')'
   })
@@ -821,7 +824,7 @@ foreach ($k in $Out.Keys) {
   $text = $Out[$k]
   $existing = $null
   if (Test-Path -LiteralPath $path) { $existing = Norm ([System.IO.File]::ReadAllText($path, [System.Text.Encoding]::UTF8)) }
-  if ($existing -eq $text) { $Same++; continue }
+  if ($existing -ceq $text) { $Same++; continue }
   [void]$Changed.Add($k)
   if ($Check) { continue }
   $dir = Split-Path -Parent $path

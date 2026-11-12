@@ -10,8 +10,8 @@
   the rules the definition states (PI1-PI6) are checked here.
 
   Every call does one action on -Path. A write goes to <page>.new beside the page, is read back
-  and compared with what was intended, then replaces the page by one rename; a failed check
-  deletes the .new. There is no history and no date: project info is metadata (PI5).
+  and compared with what was intended, then replaces the page by one rename; a failed check,
+  or any exit before the rename, deletes the .new. There is no history and no date: project info is metadata (PI5).
 
   Written for Windows PowerShell 5.1 and PowerShell 7 alike; pure ASCII on purpose. The page is
   written as UTF-8 without a byte-order mark.
@@ -214,7 +214,6 @@ function Compare-Model([hashtable]$want, [hashtable]$got) {
   for ($i = 0; $i -lt $wf.Count; $i++) { if ($gf[$i].field -ne $wf[$i].field -or $gf[$i].value -ne $wf[$i].value) { return "field '$($wf[$i].field)' differs after render" } }
   if ($got.shared -ne $want.shared) { return 'shared line differs after render' }
   if ($got.problems.Count -gt 0) { return "rendered page has problems: $($got.problems -join '; ')" }
-  if ((Read-Text $Path) -match '\{\{[A-Z-]+\}\}') { return 'a placeholder was left on the page' }
   return $null
 }
 function Write-Checked([hashtable]$model) {
@@ -228,13 +227,17 @@ function Write-Checked([hashtable]$model) {
   if (-not (Test-Path -LiteralPath $ProjectDir)) { [void](New-Item -ItemType Directory -Path $ProjectDir -Force) }
   $new = "$Path.new"
   [System.IO.File]::WriteAllText($new, $html, $Utf8)
-  # read the .new back through the same reader
-  $saved = $Path; $script:Path = $new
-  $got = Read-Page
-  $script:Path = $saved
-  $problem = Compare-Model $model $got
-  if ($problem) { Remove-Item -LiteralPath $new -Force; Write-Output "refused: $problem"; exit 1 }
-  Move-Item -LiteralPath $new -Destination $Path -Force
+  try {
+    # read the .new back through the same reader
+    $saved = $Path; $script:Path = $new
+    try { $got = Read-Page } finally { $script:Path = $saved }
+    $problem = Compare-Model $model $got
+    if ($problem) { Write-Output "refused: $problem"; exit 1 }
+    Move-Item -LiteralPath $new -Destination $Path -Force
+  } finally {
+    # any exit before the rename leaves no .new behind
+    if (Test-Path -LiteralPath $new) { Remove-Item -LiteralPath $new -Force -ErrorAction SilentlyContinue }
+  }
 }
 
 # ---------------------------------------------------------------------------------------------
@@ -251,7 +254,7 @@ if ($Render) {
   if ($model.problems.Count -gt 0) { Write-Output "refused: the page does not read in full: $($model.problems -join '; ')"; exit 1 }
   $before = Read-Text $Path
   Write-Checked $model
-  if ((Read-Text $Path) -eq $before) { Write-Output 'project info: already in the current shape' } else { Write-Output 'project info: rendered again from the current template' }
+  if ((Read-Text $Path) -ceq $before) { Write-Output 'project info: already in the current shape' } else { Write-Output 'project info: rendered again from the current template' }
   exit 0
 }
 
