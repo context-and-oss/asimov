@@ -75,4 +75,4 @@ A markdown document gets a page under `_site/doc/` at its own relative path, fro
 | `skills/artifact-site-authoring/SKILL.md` and `scripts/site.ps1` | The only writer |
 | `artifacts/project/project-info/` | The project info the site reads for its areas and front page |
 | `artifacts/documentation/d101-feature-design/d101-feature-design-template.html` | Authors the minimal nav block between the markers; the site rewrites it |
-| `documentation/features/D101-asimov-init.html` | The command whose site target calls the skill |
+| `documentation/features/D101-asimov-init.html` | The setup skill whose site target calls this skill |

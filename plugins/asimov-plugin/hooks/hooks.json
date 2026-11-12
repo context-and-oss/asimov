@@ -1,5 +1,5 @@
 {
-  "description": "The Asimov run log: one text line per harness event, appended by hooks/scripts/asimov-log.ps1 to .asimov/log/<date>-<session>.log in the product repo (artifacts/dot-asimov/asimov-log/asimov-log-definition.md). Never blocks, never prints.",
+  "description": "Two hooks, both harnesses: the run log (hooks/scripts/asimov-log.ps1, one line per event to .asimov/log/ in the product repo) and the Asimov context (hooks/asimov-context, the using-asimov skill at SessionStart and a note at SubagentStart, only where asimov.md at the repo root says asimov: true). Codex reads hooks-codex.json instead, the context hooks alone.",
   "hooks": {
     "SessionStart": [
       {
@@ -11,11 +11,23 @@
             "timeout": 10
           }
         ]
+      },
+      {
+        "matcher": "startup|resume|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/run-hook.cmd\" asimov-context",
+            "shell": "bash",
+            "async": false,
+            "timeout": 15
+          }
+        ]
       }
     ],
     "UserPromptExpansion": [
       {
-        "matcher": "^(asimov-plugin:)?(asimov-[a-z-]+|codex-asimov-init)$",
+        "matcher": "^(asimov-plugin:)?asimov-[a-z-]+$",
         "hooks": [
           {
             "type": "command",
@@ -49,6 +61,17 @@
             "timeout": 10
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/run-hook.cmd\" asimov-context",
+            "shell": "bash",
+            "async": false,
+            "timeout": 15
+          }
+        ]
       }
     ],
     "SubagentStop": [
@@ -69,7 +92,7 @@
           {
             "type": "command",
             "command": "pwsh -NoProfile -File \"${CLAUDE_PLUGIN_ROOT}/hooks/scripts/asimov-log.ps1\" || powershell -NoProfile -ExecutionPolicy Bypass -File \"${CLAUDE_PLUGIN_ROOT}/hooks/scripts/asimov-log.ps1\"; exit 0",
-            "timeout": 10
+            "timeout": 3
           }
         ]
       }

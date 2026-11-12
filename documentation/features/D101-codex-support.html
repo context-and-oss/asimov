@@ -271,7 +271,7 @@ footer.site-footer a { color: var(--cyan); }
   <a href="../index.html#s6">Diagrams</a>
   <span class="spacer"></span>
   <span class="phase-chip full">Full design</span>
-  <span class="status-chip draft">Draft v0.12</span>
+  <span class="status-chip draft">Draft v0.13</span>
 </nav>
 
 <div class="layout-doc">
@@ -318,7 +318,7 @@ footer.site-footer a { color: var(--cyan); }
 <header class="hero">
   <div class="kicker">D101 · Feature design · asimov-plugin</div>
   <h1>Codex support</h1>
-  <p class="tagline">One plugin folder that Claude Code and Codex both install. Each tool reads its own manifest, both load the plugin's skills, and the setup has one entry point per tool: the <code>/asimov-init</code> command in Claude Code and the <code>codex-asimov-init</code> skill in Codex, which works out where the plugin is by itself.</p>
+  <p class="tagline">One plugin folder that Claude Code and Codex both install. Each tool reads its own manifest, both load the plugin's skills, and the setup is one asimov-skill both tools read, <code>asimov-init</code>, which works out where the plugin is by itself in Codex (since 2026-11-12; until then a Codex-only <code>codex-asimov-init</code> stood beside the Claude Code command).</p>
 </header>
 
 <div class="meta-strip">
@@ -326,12 +326,12 @@ footer.site-footer a { color: var(--cyan); }
   <div class="meta-cell"><div class="label">Business approver</div><div class="value">Allan Borup</div></div>
   <div class="meta-cell"><div class="label">Tools</div><div class="value mono">Claude Code · Codex</div></div>
   <div class="meta-cell"><div class="label">Files added</div><div class="value mono">4</div></div>
-  <div class="meta-cell"><div class="label">Last updated</div><div class="value mono">2026-10-02</div></div>
+  <div class="meta-cell"><div class="label">Last updated</div><div class="value mono">2026-11-12</div></div>
   <div class="meta-cell"><div class="label">Build step</div><div class="value">None</div></div>
 </div>
 
 <div class="doc-scope">
-  <strong>Scope:</strong> installing the Asimov plugin in Codex beside Claude Code from one plugin folder — the Codex marketplace listing and plugin manifest, the Codex setup entry point and how it finds the plugin's files, the convention that keeps a Codex-only skill out of Claude Code, and what stays Claude Code only. What the setup writes into a repository, target by target, is designed in <a href="D101-asimov-init.html">D101-asimov-init.html</a> and not repeated here.
+  <strong>Scope:</strong> installing the Asimov plugin in Codex beside Claude Code from one plugin folder — the Codex marketplace listing and plugin manifest, the setup entry point (one asimov-skill for both tools since 2026-11-12) and how it finds the plugin's files in Codex, the convention that keeps a Codex-only skill out of Claude Code, and what stays Claude Code only. What the setup writes into a repository, target by target, is designed in <a href="D101-asimov-init.html">D101-asimov-init.html</a> and not repeated here.
 </div>
 
 <section class="s" id="s2">
@@ -357,11 +357,11 @@ footer.site-footer a { color: var(--cyan); }
     <div class="req"><div class="id">R4</div><div class="body">A Codex user runs the setup from the installed plugin.</div></div>
     <div class="req"><div class="id">R5</div><div class="body">The Codex setup entry point finds the plugin's templates without a variable the tool must fill in.</div></div>
     <div class="req"><div class="id">R6</div><div class="body">When the Codex setup entry point cannot find the plugin's templates, it writes nothing and reports what it looked for.</div></div>
-    <div class="req"><div class="id">R7</div><div class="body">Claude Code neither lists nor runs the Codex setup entry point.</div></div>
+    <div class="req"><div class="id">R7</div><div class="body">Claude Code lists and runs the same setup entry point as Codex; no tool's model starts it on its own.</div></div>
     <div class="req"><div class="id">R8</div><div class="body">Codex starts the Codex setup entry point only when the developer invokes it.</div></div>
     <div class="req"><div class="id">R9</div><div class="body">The Codex setup writes the Asimov context where a Codex session reads it.</div></div>
     <div class="req"><div class="id">R10</div><div class="body">The Codex setup delivers the plugin's Codex subagent shells into the repository.</div></div>
-    <div class="req"><div class="id">R11</div><div class="body">Each Claude Code command behaves as before this change.</div></div>
+    <div class="req"><div class="id">R11</div><div class="body">Each Claude Code entry point behaves as before this change.</div></div>
   </div>
 
   <div class="subhead">Non-functional — 3</div>
@@ -373,7 +373,7 @@ footer.site-footer a { color: var(--cyan); }
 
   <div class="subhead">Out of scope — 4</div>
   <div class="req-list">
-    <div class="req oos"><div class="id">OOS1</div><div class="body">Running the five other slash commands in Codex — Codex does not load <code>commands/</code>; how a Codex user reaches them is Q1.</div></div>
+    <div class="req oos"><div class="id">OOS1</div><div class="body">Running a slash command in Codex — Codex does not load <code>commands/</code>; every entry point is an asimov-skill instead (Q1, resolved).</div></div>
     <div class="req oos"><div class="id">OOS2</div><div class="body">Making the three skills that still address plugin files through the Claude Code variable work in Codex — the setup skill shows the method; applying it to them is Q2.</div></div>
     <div class="req oos"><div class="id">OOS3</div><div class="body">Choosing a model for a Codex subagent — organisations reach different Codex models, so any pin would fail somewhere; the Codex shells name none.</div></div>
     <div class="req oos"><div class="id">OOS4</div><div class="body">Custom personas for Codex — <code>artifact-persona-authoring</code> runs in Codex since 2026-10-02, but writes into <code>.claude/skills/</code>, a Claude Code location; where a Codex user would keep one is not designed.</div></div>  </div>
@@ -421,9 +421,9 @@ footer.site-footer a { color: var(--cyan); }
     <div class="row head cols-3"><div>Action</div><div>Claude Code</div><div>Codex</div></div>
     <div class="row cols-3"><div class="label-cell">Add the marketplace</div><div>As before.</div><div><code>codex plugin marketplace add context-and-oss/asimov</code>, or a local clone's path.</div></div>
     <div class="row cols-3"><div class="label-cell">Install the plugin</div><div>As before.</div><div><code>codex plugin add asimov-plugin@asimov-marketplace</code>.</div></div>
-    <div class="row cols-3"><div class="label-cell">Set up a repository</div><div><code>/asimov-init</code>, as before.</div><div><code>$asimov-plugin:codex-asimov-init</code>.</div></div>
-    <div class="row cols-3"><div class="label-cell">Run a slash command</div><div>The five others, as before.</div><div>Not available; Codex does not load <code>commands/</code> (Q1).</div></div>
-    <div class="row cols-3"><div class="label-cell">Use a skill</div><div>Every shipped skill except the Codex-only one.</div><div>Every shipped skill; three of them cannot find their plugin files (Q2).</div></div>
+    <div class="row cols-3"><div class="label-cell">Set up a repository</div><div><code>/asimov-init</code>, as before.</div><div><code>$asimov-plugin:asimov-init</code>, the same file.</div></div>
+    <div class="row cols-3"><div class="label-cell">Run an entry point</div><div><code>/asimov-&lt;name&gt;</code>, an asimov-skill.</div><div><code>$asimov-plugin:asimov-&lt;name&gt;</code>, the same file; no slash command ships (Q1).</div></div>
+    <div class="row cols-3"><div class="label-cell">Use a skill</div><div>Every shipped skill.</div><div>Every shipped skill; one that addresses plugin files derives the root (Q2).</div></div>
     <div class="row cols-3"><div class="label-cell">Codex subagent shells</div><div>Not used; Claude Code has its own shells.</div><div>Copied into the repository's <code>.codex/agents/</code> by the setup; the shells themselves are a prototype (see <a href="D101-subagents.html">D101-subagents.html</a>).</div></div>
     <div class="row cols-3"><div class="label-cell">Read the Asimov context</div><div>From <code>asimov.md</code>, through the import in <code>CLAUDE.md</code>.</div><div>From the managed region in <code>AGENTS.md</code>.</div></div>
   </div>
@@ -443,14 +443,14 @@ footer.site-footer a { color: var(--cyan); }
   <div class="subhead">Rule 2 — A Codex-only skill is marked, not hidden</div>
   <p class="section-desc" style="margin-bottom:0.4rem">A skill meant for Codex alone stays in the shared <code>skills/</code> folder and carries the two frontmatter switches (<code>disable-model-invocation</code>, <code>user-invocable</code>) that make Claude Code ignore it.</p>
   <ul class="bullets">
-    <li><code>codex-asimov-init</code> carries both switches, so Claude Code neither lists it, runs it when typed, nor lets the model start it.</li>
+    <li>Example: <code>codex-asimov-init</code> carried both switches until 2026-11-12, when it was folded into <code>asimov-init</code>; no Codex-only skill ships today, and the rule stays for the next one.</li>
     <li>Counter-example: the role skills carry neither switch and load in both tools.</li>
   </ul>
 
   <div class="subhead">Rule 3 — Only the developer starts the Codex setup</div>
   <p class="section-desc" style="margin-bottom:0.4rem">The Codex setup skill runs when the developer invokes it; Codex never starts it on its own.</p>
   <ul class="bullets">
-    <li>A developer types <code>$asimov-plugin:codex-asimov-init</code>, and the run opens with one sentence on what it will do, then a write plan.</li>
+    <li>A developer types <code>$asimov-plugin:asimov-init</code>, and the run opens with one sentence on what it will do, then a write plan.</li>
     <li>Counter-example: asked to "set up the repo", Codex does not start the skill; it names the invocation for the developer to type.</li>
   </ul>
 
@@ -519,7 +519,7 @@ footer.site-footer a { color: var(--cyan); }
 <section class="s" id="s6-1">
   <h2 class="section-title"><span class="sec-ref">§6.1</span>Platform</h2>
   <p style="color: var(--text-dim); font-size: 0.95rem; line-height: 1.65;">
-    The plugin folder <code>plugins/asimov-plugin/</code> holds a manifest per tool: <code>.claude-plugin/plugin.json</code> for Claude Code and <code>.codex-plugin/plugin.json</code> for Codex. The repository root holds a marketplace listing per tool: <code>.claude-plugin/marketplace.json</code> and <code>.agents/plugins/marketplace.json</code>, both named <code>asimov-marketplace</code> and both pointing at the same folder. Claude Code loads <code>commands/</code>, <code>agents/*.md</code> and <code>skills/</code>. Codex loads <code>skills/</code> and caches the installed plugin under <code>~/.codex/plugins/cache/&lt;marketplace&gt;/&lt;plugin&gt;/&lt;version&gt;/</code>. The Claude Code setup is the command <code>commands/asimov-init.md</code>; the Codex setup is the skill <code>skills/codex-asimov-init/</code>.
+    The plugin folder <code>plugins/asimov-plugin/</code> holds a manifest per tool: <code>.claude-plugin/plugin.json</code> for Claude Code and <code>.codex-plugin/plugin.json</code> for Codex. The repository root holds a marketplace listing per tool: <code>.claude-plugin/marketplace.json</code> and <code>.agents/plugins/marketplace.json</code>, both named <code>asimov-marketplace</code> and both pointing at the same folder. Claude Code loads <code>commands/</code> (empty since 2026-11-12), <code>agents/*.md</code> and <code>skills/</code>. Codex loads <code>skills/</code> and caches the installed plugin under <code>~/.codex/plugins/cache/&lt;marketplace&gt;/&lt;plugin&gt;/&lt;version&gt;/</code>. The setup in both tools is the asimov-skill <code>skills/asimov-init/</code>.
   </p>
 </section>
 
@@ -538,7 +538,7 @@ footer.site-footer a { color: var(--cyan); }
       <!-- start terminator -->
       <g>
         <rect x="72" y="48" width="136" height="56" rx="28" fill="#66bb6a22" stroke="#66bb6a"/>
-        <text x="140" y="72" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">codex-asimov-init</text>
+        <text x="140" y="72" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">asimov-init</text>
         <text x="140" y="88" text-anchor="middle" fill="#a8b8d0" font-family="Inter, sans-serif" font-size="10">Step 1 begins</text>
       </g>
 
@@ -626,10 +626,10 @@ footer.site-footer a { color: var(--cyan); }
     </div>
   </div>
   <div class="principles" style="margin-top:1rem">
-    <div class="principle"><div class="num">1</div><div class="text"><strong>Derive root.</strong> Take the skill's file path from Codex's skill list and cut it before <code>skills/codex-asimov-init</code>; every plugin path is built from the result, absolute.</div></div>
+    <div class="principle"><div class="num">1</div><div class="text"><strong>Derive root.</strong> Take the skill's file path from Codex's skill list and cut it before <code>skills/asimov-init</code>; every plugin path is built from the result, absolute.</div></div>
     <div class="principle"><div class="num">2</div><div class="text"><strong>Read file 1.</strong> Read <code>artifacts/root/asimov-md/asimov-md-template.md</code> under that root; a successful read verifies it.</div></div>
     <div class="principle"><div class="num">3</div><div class="text"><strong>Search cache.</strong> If the read fails, Glob <code>&lt;home&gt;/.codex/plugins/cache/**/artifacts/root/asimov-md/asimov-md-template.md</code>; several matches — take the longest shared prefix with the skill path; none — stop, report the derived path and the search, write nothing.</div></div>
-    <div class="principle"><div class="num">4</div><div class="text"><strong>Load templates.</strong> Read the four templates and three definitions and list <code>agents/*.toml</code>; from here the run follows <a href="D101-asimov-init.html">D101-asimov-init.html</a>.</div></div>
+    <div class="principle"><div class="num">4</div><div class="text"><strong>Load templates.</strong> Read the two templates and four definitions and list <code>agents/*.toml</code>; from here the run follows <a href="D101-asimov-init.html">D101-asimov-init.html</a>.</div></div>
   </div>
 </section>
 
@@ -638,9 +638,8 @@ footer.site-footer a { color: var(--cyan); }
   <div class="codemap">
     <div class="codemap-row"><div class="what">Codex marketplace listing (new)</div><div class="where">.agents/plugins/marketplace.json</div></div>
     <div class="codemap-row"><div class="what">Codex plugin manifest (new)</div><div class="where">plugins/asimov-plugin/.codex-plugin/plugin.json</div></div>
-    <div class="codemap-row"><div class="what">Codex setup entry point (new)</div><div class="where">plugins/asimov-plugin/skills/codex-asimov-init/SKILL.md</div></div>
-    <div class="codemap-row"><div class="what">Codex invocation policy for it (new)</div><div class="where">plugins/asimov-plugin/skills/codex-asimov-init/agents/openai.yaml</div></div>
-    <div class="codemap-row"><div class="what">Claude Code setup command (unchanged)</div><div class="where">plugins/asimov-plugin/commands/asimov-init.md</div></div>
+    <div class="codemap-row"><div class="what">Setup entry point, both tools (new as codex-asimov-init; the asimov-skill asimov-init since 2026-11-12)</div><div class="where">plugins/asimov-plugin/skills/asimov-init/SKILL.md</div></div>
+    <div class="codemap-row"><div class="what">Codex invocation policy for it (new)</div><div class="where">plugins/asimov-plugin/skills/asimov-init/agents/openai.yaml</div></div>
     <div class="codemap-row"><div class="what">Claude Code manifests (unchanged)</div><div class="where">.claude-plugin/marketplace.json · plugins/asimov-plugin/.claude-plugin/plugin.json</div></div>
     <div class="codemap-row"><div class="what">Codex agent shells the setup copies (unchanged)</div><div class="where">plugins/asimov-plugin/agents/*.toml</div></div>
     <div class="codemap-row"><div class="what">Install guide, a block per tool</div><div class="where">README.md</div></div>
@@ -670,23 +669,23 @@ footer.site-footer a { color: var(--cyan); }
     <div class="row cols-2"><div class="label-cell">interface</div><div><code>displayName</code>, <code>shortDescription</code>, <code>developerName</code>, <code>category</code>.</div></div>
   </div>
 
-  <div class="subhead">Codex setup skill</div>
+  <div class="subhead">The setup skill in Codex</div>
   <div class="data-table">
     <div class="row head cols-2"><div>Element</div><div>Value</div></div>
-    <div class="row cols-2"><div class="label-cell">SKILL.md frontmatter</div><div><code>name: codex-asimov-init</code>, <code>disable-model-invocation: true</code>, <code>user-invocable: false</code>, <code>allowed-tools</code>; no model.</div></div>
+    <div class="row cols-2"><div class="label-cell">SKILL.md frontmatter</div><div><code>name: asimov-init</code>, <code>disable-model-invocation: true</code>, <code>allowed-tools</code>, and a <code>model</code> only Claude Code binds; Codex runs the session's.</div></div>
     <div class="row cols-2"><div class="label-cell">agents/openai.yaml</div><div>A display name and short description, and <code>policy.allow_implicit_invocation: false</code>; Claude Code ignores this file.</div></div>
-    <div class="row cols-2"><div class="label-cell">Invocation</div><div><code>$asimov-plugin:codex-asimov-init</code>, by the developer; the text after it is the input (a repository-name override, or nothing).</div></div>
+    <div class="row cols-2"><div class="label-cell">Invocation</div><div><code>$asimov-plugin:asimov-init</code>, by the developer; the text after it is the input (a repository-name override, or nothing).</div></div>
     <div class="row cols-2"><div class="label-cell">Plugin root</div><div>Derived once and verified (§6.2); never <code>${CLAUDE_PLUGIN_ROOT}</code>, never a <code>..</code> path.</div></div>
     <div class="row cols-2"><div class="label-cell">Per-target rules</div><div>In <a href="D101-asimov-init.html">D101-asimov-init.html</a>, not repeated here.</div></div>
   </div>
 
-  <div class="subhead">What the Codex setup writes</div>
+  <div class="subhead">What the setup writes in Codex</div>
   <ul class="bullets">
-    <li>The <code>AGENTS.md</code> managed region, rendered directly from <code>asimov-md-template.md</code> and fenced by <code>&lt;!-- asimov:start — managed by codex-asimov-init. … --&gt;</code> and <code>&lt;!-- asimov:end --&gt;</code>.</li>
+    <li>The <code>AGENTS.md</code> managed region, rendered directly from <code>asimov-md-template.md</code> and fenced by <code>&lt;!-- asimov:start — managed by asimov-init. … --&gt;</code> and <code>&lt;!-- asimov:end --&gt;</code>.</li>
     <li>Byte-for-byte copies of the plugin's <code>agents/*.toml</code> into <code>.codex/agents/</code>.</li>
     <li><code>documentation/conventions/&lt;stack&gt;/README.md</code> for each detected stack.</li>
     <li>The <code>documentation/</code> landing site.</li>
-    <li>Read-only on every other file. <code>asimov.md</code> and the <code>@asimov.md</code> import in <code>CLAUDE.md</code> are written by <code>/asimov-init</code> in Claude Code only.</li>
+    <li><code>asimov.md</code> and the <code>@asimov.md</code> import in <code>CLAUDE.md</code>, in the same run, so the repo opens in Claude Code too. Read-only on every other file.</li>
   </ul>
 </section>
 
@@ -706,7 +705,6 @@ footer.site-footer a { color: var(--cyan); }
     <div class="failures-head"><div>Failure</div><div>Effect</div><div>Severity</div><div>Recovery</div></div>
     <div class="failure-row"><div>The derived root is wrong: the first template cannot be read</div><div>The skill searches the cache</div><div><span class="sev low">Low</span></div><div>The longest-prefix match becomes the root; nothing is written before the root is verified.</div></div>
     <div class="failure-row"><div>Nothing matches in the cache</div><div>The skill stops before writing</div><div><span class="sev low">Low</span></div><div>It reports the derived path and the search it ran; the developer resolves where the plugin is.</div></div>
-    <div class="failure-row"><div>A Claude Code user types <code>/codex-asimov-init</code></div><div>Nothing runs</div><div><span class="sev low">Low</span></div><div>Expected; the Claude Code setup is <code>/asimov-init</code>.</div></div>
     <div class="failure-row"><div>A skill run in Codex reads a plugin file through <code>${CLAUDE_PLUGIN_ROOT}</code></div><div>The path stays literal; the file is not found</div><div><span class="sev med">Med</span></div><div>The three affected skills are Q2; the setup skill avoids the variable.</div></div>
     <div class="failure-row"><div>Manifest versions disagree</div><div>The two tools report different versions</div><div><span class="sev low">Low</span></div><div>Fixed by hand (Q3).</div></div>
   </div>
@@ -716,7 +714,7 @@ footer.site-footer a { color: var(--cyan); }
   <h2 class="section-title"><span class="sec-ref">§6.8</span>Known constraints &amp; gotchas</h2>
   <div class="callout warn"><strong>Plugin-root variable in skills.</strong> <code>artifact-d101-authoring</code>, <code>artifact-d101-gap-review</code> and <code>pm-advisor</code> address their files through <code>${CLAUDE_PLUGIN_ROOT}</code>. Claude Code substitutes it in skill, command and agent content (<a href="https://code.claude.com/docs/en/plugins-reference">plugins reference</a>); Codex leaves it literal (<a href="https://github.com/openai/codex/issues/19582">codex#19582</a>) and sets <code>PLUGIN_ROOT</code>/<code>PLUGIN_DATA</code>, with <code>CLAUDE_PLUGIN_*</code> aliases, only as environment variables for hook commands (<a href="https://developers.openai.com/plugins/build/plugins">build plugins</a>). In Codex these three skills cannot find their files (Q2).</div>
   <div class="callout warn"><strong>Why the root is derived, verified and searched.</strong> Codex resolves a relative path in a plugin file from the working directory (<a href="https://github.com/openai/codex/issues/22842">codex#22842</a>), shows the model each skill's file path (<a href="https://learn.chatgpt.com/docs/build-skills">build skills</a>), and caches plugins at <code>~/.codex/plugins/cache/&lt;marketplace&gt;/&lt;plugin&gt;/&lt;version&gt;/</code>, older versions included (<a href="https://developers.openai.com/plugins/build/plugins">build plugins</a>).</div>
-  <div class="callout"><strong>Commands are Claude Code only.</strong> Codex loads a plugin's <code>skills/</code> folder (<a href="https://developers.openai.com/plugins/build/plugins">build plugins</a>), not <code>commands/</code>; the five slash commands run in Claude Code alone (Q1).</div>
+  <div class="callout"><strong>Commands are Claude Code only.</strong> Codex loads a plugin's <code>skills/</code> folder (<a href="https://developers.openai.com/plugins/build/plugins">build plugins</a>), not <code>commands/</code>; every entry point is an asimov-skill since 2026-11-12, so nothing is lost (Q1).</div>
   <div class="callout"><strong>Marking a Codex-only skill.</strong> <code>disable-model-invocation</code> and <code>user-invocable: false</code> are Claude Code's switches, and <code>skillOverrides</code> does not apply to plugin skills (<a href="https://code.claude.com/docs/en/skills">skills</a>); <code>allow_implicit_invocation: false</code> is Codex's, and <code>$</code>-invocation still works (<a href="https://learn.chatgpt.com/docs/build-skills">build skills</a>).</div>
   <div class="callout"><strong>Manifest location.</strong> The Codex documentation names a root <code>plugin.json</code> as the portable manifest and keeps <code>.codex-plugin/plugin.json</code> as a compatibility fallback (<a href="https://developers.openai.com/plugins/build/plugins">build plugins</a>); the plugin uses the fallback location today.</div>
 </section>
@@ -737,7 +735,7 @@ footer.site-footer a { color: var(--cyan); }
   <ul class="bullets">
     <li><span class="em">New — Codex marketplace listing.</span> <code>.agents/plugins/marketplace.json</code>, on the §6.4 shape (R2, R3).</li>
     <li><span class="em">New — Codex plugin manifest.</span> <code>plugins/asimov-plugin/.codex-plugin/plugin.json</code>, on the §6.4 shape (R2).</li>
-    <li><span class="em">New — Codex setup skill.</span> <code>skills/codex-asimov-init/SKILL.md</code> and its <code>agents/openai.yaml</code> (R4–R10).</li>
+    <li><span class="em">New — Codex setup skill.</span> <code>skills/codex-asimov-init/SKILL.md</code> and its <code>agents/openai.yaml</code> (R4–R10); folded into <code>skills/asimov-init/</code> on 2026-11-12.</li>
     <li><span class="em">Reuse — the templates and definitions under <code>artifacts/</code>.</span> The skill reads the same files the <code>/asimov-init</code> command reads.</li>
     <li><span class="em">Reuse — <code>agents/*.toml</code>.</span> Copied by the skill, not changed.</li>
     <li><span class="em">Edit — <code>README.md</code>.</span> The Install section gains a Codex block beside the Claude Code block.</li>
@@ -750,14 +748,14 @@ footer.site-footer a { color: var(--cyan); }
     <div class="row head cols-2"><div>Folder</div><div>What it holds</div></div>
     <div class="row cols-2"><div class="label-cell">.agents/plugins/</div><div>The Codex marketplace listing, beside <code>.claude-plugin/</code> at the repository root.</div></div>
     <div class="row cols-2"><div class="label-cell">plugins/asimov-plugin/.codex-plugin/</div><div>The Codex plugin manifest, beside <code>.claude-plugin/</code> in the plugin folder.</div></div>
-    <div class="row cols-2"><div class="label-cell">plugins/asimov-plugin/skills/codex-asimov-init/</div><div>The Codex setup skill and its <code>agents/openai.yaml</code>, in the shared <code>skills/</code> folder.</div></div>
+    <div class="row cols-2"><div class="label-cell">plugins/asimov-plugin/skills/asimov-init/</div><div>The setup skill for both tools and its <code>agents/openai.yaml</code>, in the shared <code>skills/</code> folder.</div></div>
   </div>
 </section>
 
 <section class="s" id="s7-5">
   <h2 class="section-title"><span class="sec-ref">§7.5</span>Cross-cutting</h2>
   <ul class="bullets">
-    <li><span class="em">Drift sweep.</span> When a file in §6.3 moves, grep the repository for <code>codex-asimov-init</code>, <code>.codex-plugin</code> and <code>.agents/plugins</code> and fix what remains. The derived-root step of §6.2 also lives in the five Spec-stage skills (<code>asimov-spec</code> and the four <code>artifact-s10x-*</code> skills, since 2026-10-02); a change to the method changes all six.</li>
+    <li><span class="em">Drift sweep.</span> When a file in §6.3 moves, grep the repository for <code>asimov-init</code>, <code>.codex-plugin</code> and <code>.agents/plugins</code> and fix what remains. The derived-root step of §6.2 also lives in the five Spec-stage skills (<code>asimov-spec</code> and the four <code>artifact-s10x-*</code> skills, since 2026-10-02); a change to the method changes all six.</li>
     <li><span class="em">Versions move together.</span> When a release bumps the plugin version, both manifests take the new number (Q3).</li>
     <li class="warn"><span class="em">Nothing is verified in Codex.</span> No run of the skill or install in Codex has been recorded; the acceptance criteria in §8 are what such a run would check.</li>
   </ul>
@@ -767,15 +765,15 @@ footer.site-footer a { color: var(--cyan); }
   <h2 class="section-title"><span class="sec-ref">§8</span>Acceptance criteria</h2>
   <div class="ac-table">
     <div class="ac-head"><div>#</div><div>Verifies</div><div>Description</div></div>
-    <div class="ac-row"><div class="ac-id">AC1</div><div class="ac-verifies"><span class="verify-chip">R1</span></div><div>In Claude Code, adding the marketplace and installing the plugin uses the same commands as before, and the installed plugin lists the six commands, five subagents and every shipped skill but one; <code>codex-asimov-init</code> is not among them.</div></div>
-    <div class="ac-row"><div class="ac-id">AC2</div><div class="ac-verifies"><span class="verify-chip">R2</span><span class="verify-chip">R3</span></div><div>In Codex, adding the same repository and installing <code>asimov-plugin@asimov-marketplace</code> succeeds, and the installed plugin lists every shipped skill, <code>codex-asimov-init</code> among them.</div></div>
-    <div class="ac-row"><div class="ac-id">AC3</div><div class="ac-verifies"><span class="verify-chip">R4</span><span class="verify-chip">R8</span><span class="verify-chip">Rule 3</span></div><div>In Codex, <code>$asimov-plugin:codex-asimov-init</code> opens with one sentence on what it will do and then a write plan, and the skill is not among those Codex may start from a prompt.</div></div>
+    <div class="ac-row"><div class="ac-id">AC1</div><div class="ac-verifies"><span class="verify-chip">R1</span></div><div>In Claude Code, adding the marketplace and installing the plugin uses the same commands as before, and the installed plugin lists no slash command, five subagents and every shipped skill, <code>asimov-init</code> among them.</div></div>
+    <div class="ac-row"><div class="ac-id">AC2</div><div class="ac-verifies"><span class="verify-chip">R2</span><span class="verify-chip">R3</span></div><div>In Codex, adding the same repository and installing <code>asimov-plugin@asimov-marketplace</code> succeeds, and the installed plugin lists every shipped skill, <code>asimov-init</code> among them.</div></div>
+    <div class="ac-row"><div class="ac-id">AC3</div><div class="ac-verifies"><span class="verify-chip">R4</span><span class="verify-chip">R8</span><span class="verify-chip">Rule 3</span></div><div>In Codex, <code>$asimov-plugin:asimov-init</code> opens with one sentence on what it will do and then a write plan, and the skill is not among those Codex may start from a prompt.</div></div>
     <div class="ac-row"><div class="ac-id">AC4</div><div class="ac-verifies"><span class="verify-chip">R5</span><span class="verify-chip">Rule 4</span></div><div>The skill's text contains neither <code>${CLAUDE_PLUGIN_ROOT}</code> nor a <code>..</code> path segment, and its first plugin read is the template at the derived root.</div></div>
     <div class="ac-row"><div class="ac-id">AC5</div><div class="ac-verifies"><span class="verify-chip">R6</span></div><div>With the template absent at the derived root and absent from the cache, the skill stops, reports the derived path and the search it ran, and the repository is unchanged.</div></div>
-    <div class="ac-row"><div class="ac-id">AC6</div><div class="ac-verifies"><span class="verify-chip">R7</span><span class="verify-chip">Rule 2</span></div><div>In Claude Code, the <code>/</code> menu does not list <code>codex-asimov-init</code>, a typed <code>/codex-asimov-init</code> does nothing, and the skill is absent from the model's skill list.</div></div>
-    <div class="ac-row"><div class="ac-id">AC7</div><div class="ac-verifies"><span class="verify-chip">R9</span></div><div>After a run, <code>AGENTS.md</code> holds exactly one marker pair whose content is the rendered <code>asimov-md-template.md</code>, and <code>asimov.md</code> and <code>CLAUDE.md</code> are unchanged.</div></div>
+    <div class="ac-row"><div class="ac-id">AC6</div><div class="ac-verifies"><span class="verify-chip">R7</span><span class="verify-chip">Rule 2</span></div><div>In Claude Code, the <code>/</code> menu lists <code>/asimov-init</code>, and the model never starts it on its own (<code>disable-model-invocation</code>).</div></div>
+    <div class="ac-row"><div class="ac-id">AC7</div><div class="ac-verifies"><span class="verify-chip">R9</span></div><div>After a run, <code>AGENTS.md</code> holds exactly one marker pair whose content is the rendered <code>asimov-md-template.md</code>, and <code>asimov.md</code> and the <code>CLAUDE.md</code> import are written in the same run.</div></div>
     <div class="ac-row"><div class="ac-id">AC8</div><div class="ac-verifies"><span class="verify-chip">R10</span></div><div>After a run with the write allowed, <code>.codex/agents/</code> holds a byte-identical copy of each <code>agents/*.toml</code> in the plugin.</div></div>
-    <div class="ac-row"><div class="ac-id">AC9</div><div class="ac-verifies"><span class="verify-chip">R11</span></div><div><code>git diff main -- plugins/asimov-plugin/commands/</code> is empty.</div></div>
+    <div class="ac-row"><div class="ac-id">AC9</div><div class="ac-verifies"><span class="verify-chip">R11</span></div><div>No slash command ships: <code>plugins/asimov-plugin/commands/</code> does not exist, and every entry point behaves in Claude Code as it did as a command.</div></div>
     <div class="ac-row"><div class="ac-id">AC10</div><div class="ac-verifies"><span class="verify-chip">NF1</span></div><div>A search of the plugin for a product repository's name and entities finds nothing.</div></div>
     <div class="ac-row"><div class="ac-id">AC11</div><div class="ac-verifies"><span class="verify-chip">NF2</span></div><div>Each tool manifest is a hand-edited file under 40 lines, and no script in the repository writes it.</div></div>
     <div class="ac-row"><div class="ac-id">AC12</div><div class="ac-verifies"><span class="verify-chip">NF3</span></div><div>A search of the plugin finds no Codex model name.</div></div>
@@ -786,10 +784,10 @@ footer.site-footer a { color: var(--cyan); }
 <section class="s" id="s9">
   <h2 class="section-title"><span class="sec-ref">§9</span>Open questions</h2>
   <div class="q-grid">
-    <div class="q-card">
+    <div class="q-card resolved">
       <div class="q-head"><span class="q-id">Q1</span><span class="q-decider">Christian Kaysen</span></div>
       <div class="q-body">How does a Codex user reach the five other slash commands, which Codex does not load?</div>
-      <div class="q-resolution">Resolution path: decided after this round; until then they are Claude Code only.</div>
+      <div class="q-resolution"><strong>Decision:</strong> every entry point became an asimov-skill, one file both tools read — the Design stage on 2026-10-02, Spec and Build after, and the setup itself on 2026-11-12, when <code>codex-asimov-init</code> was folded into <code>asimov-init</code>; no slash command ships.</div>
     </div>
     <div class="q-card">
       <div class="q-head"><span class="q-id">Q2</span><span class="q-decider">Christian Kaysen</span></div>
@@ -848,7 +846,7 @@ footer.site-footer a { color: var(--cyan); }
     · <span class="mono">features/D101-codex-support.html</span>
   </div>
   <div style="margin-top: 0.4rem">
-    D101 · Codex support · asimov-plugin · Draft v0.12 · 2026-10-02
+    D101 · Codex support · asimov-plugin · Draft v0.13 · 2026-11-12
   </div>
 </footer>
 

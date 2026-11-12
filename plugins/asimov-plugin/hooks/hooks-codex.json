@@ -1,0 +1,35 @@
+{
+  "description": "The Asimov context in Codex: hooks/asimov-context through run-hook.ps1 (Codex's Windows hook shell is PowerShell) and run-hook.cmd — the using-asimov skill at SessionStart and a short note at SubagentStart, injected only where asimov.md at the repo root says asimov: true. The run log stays in hooks.json for Claude Code until its Codex matching is verified (D101-asimov-log Q2).",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/run-hook.cmd\" asimov-context",
+            "shell": "bash",
+            "async": false,
+            "timeout": 15,
+            "statusMessage": "Asimov: context for the session",
+            "commandWindows": "powershell -NoProfile -ExecutionPolicy Bypass -File \"${CLAUDE_PLUGIN_ROOT}/hooks/run-hook.ps1\" asimov-context"
+          }
+        ]
+      }
+    ],
+    "SubagentStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/run-hook.cmd\" asimov-context",
+            "shell": "bash",
+            "async": false,
+            "timeout": 15,
+            "statusMessage": "Asimov: note for the subagent",
+            "commandWindows": "powershell -NoProfile -ExecutionPolicy Bypass -File \"${CLAUDE_PLUGIN_ROOT}/hooks/run-hook.ps1\" asimov-context"
+          }
+        ]
+      }
+    ]
+  }
+}

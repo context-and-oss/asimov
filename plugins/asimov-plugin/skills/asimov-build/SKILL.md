@@ -72,7 +72,7 @@ If any cannot be read, stop and report the path. Pass `<plugin-root>` to every a
 | The default branch is checked out | `git rev-parse --abbrev-ref HEAD` equals the remote's HEAD branch (`git remote show origin`), or `main` / `master` when there is no remote | *"On the default branch; check out a feature branch and run this again. A build never lands on <branch> unreviewed."* |
 | The working tree is dirty beyond the specs folder | `git status --porcelain` lists a path outside `specs/<slug>/` | *"Uncommitted changes outside the specs folder; commit or stash them first."* |
 | The baseline does not build (first run only, before `start`) | the first phase's `check` command from the S101 tree, run as written on HEAD through Bash, exits non-zero | *"The baseline does not build before any task is built: `<the command>` → `<its last line>`. Fix that first; a builder cannot tell its own failure from the repo's."* |
-| An agent cannot be spawned here | the harness has no Agent tool, or Codex has no `.codex/agents/` shells | *"This session cannot spawn <agent>; in Codex run `$asimov-plugin:codex-asimov-init` first, and start the run in a session that can spawn agents."* |
+| An agent cannot be spawned here | the harness has no Agent tool, or Codex has no `.codex/agents/` shells | *"This session cannot spawn <agent>; in Codex run `$asimov-plugin:asimov-init` first, and start the run in a session that can spawn agents."* |
 
 **Warn, do not refuse**, on a stale branch: `git rev-list --count HEAD..origin/<default branch>` above 50 prints one line, *"This branch is <n> commits behind <default>; a build on it may not merge. Rebase first, or say go on."*, and the run waits for the word.
 

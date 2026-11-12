@@ -41,14 +41,14 @@
   <ul>
     <li>Update later with <code>/plugin marketplace update asimov-marketplace</code>. No auto-update.</li>
     <li>Versions are major-only. Any release may change a bar or a template, so read the release notes before updating a repo with designs in flight.</li>
-    <li>Needs access to the models the commands pin, mapped in <a href="https://github.com/context-and-oss/asimov/blob/main/documentation/model-choice.md">model-choice.md</a>.</li>
+    <li>Needs access to the models the skills pin, mapped in <a href="https://github.com/context-and-oss/asimov/blob/main/documentation/model-choice.md">model-choice.md</a>.</li>
   </ul>
   <h3>Codex</h3>
   <pre class="mono" style="color:#fff;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:1rem;overflow-x:auto">codex plugin marketplace add context-and-oss/asimov
 codex plugin add asimov-plugin@asimov-marketplace</pre>
   <ul>
     <li>Update with <code>codex plugin marketplace upgrade asimov-marketplace</code>, then start a new session.</li>
-    <li>Codex loads the plugin's skills, not its slash commands. Set a repo up with <code>$asimov-plugin:codex-asimov-init</code>; plan a feature with <code>$asimov-plugin:asimov-spec</code>. Design a feature with <code>$asimov-plugin:asimov-design</code> and review it with <code>$asimov-plugin:asimov-design-review</code>; only <code>asimov-init</code> is Claude Code only.</li>
+    <li>Codex loads the plugin's skills, the entry points among them. Set a repo up with <code>$asimov-plugin:asimov-init</code>, design a feature with <code>$asimov-plugin:asimov-design</code>, review it with <code>$asimov-plugin:asimov-design-review</code>, plan it with <code>$asimov-plugin:asimov-spec</code>. Same files as in Claude Code.</li>
   </ul>
 
   <h2>Your first feature</h2>
@@ -129,7 +129,7 @@ codex plugin add asimov-plugin@asimov-marketplace</pre>
   <div style="overflow-x:auto">
   <table>
     <tr><th>Step</th><th>You type</th><th>What happens</th><th>Who decides</th></tr>
-    <tr><td>Wire up</td><td><code>/asimov-init</code></td><td><code>asimov.md</code>, one import line in <code>CLAUDE.md</code>, a convention read-list per stack, the docs landing page</td><td>—</td></tr>
+    <tr><td>Wire up</td><td><code>/asimov-init</code></td><td><code>asimov.md</code> with one import line in <code>CLAUDE.md</code>, the same context in <code>AGENTS.md</code>, the Codex agent shells, a convention read-list per stack, the project info, the docs site</td><td>—</td></tr>
     <tr><td>Describe</td><td><code>/asimov-design</code></td><td>The business design in <code>documentation/features/</code>, technical section declared open</td><td>—</td></tr>
     <tr><td>Read</td><td><code>/asimov-design-review</code></td><td>Findings in a sibling <code>.review.md</code> the next run picks up</td><td>—</td></tr>
     <tr><td>Sign</td><td>—</td><td>The business approver signs the what and why. No technology chosen yet.</td><td>Business approver</td></tr>

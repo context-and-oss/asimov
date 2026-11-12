@@ -1,6 +1,6 @@
 <!--
   conventions/<stack>/README.md template — the load-bearing read-list the Asimov setup
-  (/asimov-init, codex-asimov-init) scaffolds for each DETECTED stack (D101-asimov-init R7).
+  (asimov-init) scaffolds for each DETECTED stack (D101-asimov-init R7).
   The build subagents read this file to load the active repo's convention overlay (D100 §7.2.1).
 
   HOW THE SETUP USES THIS FILE

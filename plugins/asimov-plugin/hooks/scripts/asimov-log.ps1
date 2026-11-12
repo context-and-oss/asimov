@@ -75,7 +75,6 @@ function Write-State([string]$path, $s) {
 function Get-Stage([string]$skill) {
   switch -Regex ($skill) {
     '^asimov-init$'             { return 'init' }
-    '^codex-asimov-init$'       { return 'init' }
     '^asimov-design(-review)?$' { return 'design' }
     '^asimov-spec$'             { return 'spec' }
     '^asimov-build$'            { return 'build' }
@@ -85,7 +84,8 @@ function Get-Stage([string]$skill) {
 
 function Get-Harness {
   if ($env:CLAUDECODE) { return 'claude-code' }
-  if ($env:CODEX_HOME -or $env:CODEX_SANDBOX -or ($env:PLUGIN_ROOT -and -not $env:CLAUDE_PROJECT_DIR)) { return 'codex' }
+  # Codex (verified 2026-11-12, desktop app on Windows) sets CODEX_SHELL, CODEX_APP_RUNTIME_CLI_PATH and PLUGIN_ROOT, no CODEX_HOME.
+  if ($env:CODEX_SHELL -or $env:CODEX_HOME -or $env:CODEX_SANDBOX -or $env:CODEX_APP_RUNTIME_CLI_PATH -or ($env:PLUGIN_ROOT -and -not $env:CLAUDE_PROJECT_DIR)) { return 'codex' }
   if ($env:CLAUDE_PLUGIN_ROOT) { return 'claude-code' }
   return 'unknown'
 }
