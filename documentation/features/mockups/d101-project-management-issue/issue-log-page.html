@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mockup — the issue log page (project/issue-log.html)</title>
+<style>
+/* Tokens and chrome mirror plugins/asimov-plugin/artifacts/documentation/site/_chrome.css, as the risk log's mockup does.
+   The real page links that file; its only scripts are the type filter and the overdue recompute (NF4).
+   The scenario bar at the top is mockup chrome only. */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+:root { --bg:#0a1424; --bg2:#122039; --bg3:#1b2e4d; --bg-card:#14253f; --border:#2b4a73; --border-2:#3b5e8f; --text:#fff; --text-dim:#a8b8d0; --text-mute:#6b7a93; --cyan:#4fc3f7; --teal:#26c6da; --green:#66bb6a; --amber:#ffb74d; --coral:#ef5350; --gold:#ffd54f; --violet:#ab47bc; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:var(--text); font-family:'Inter',sans-serif; font-size:15px; line-height:1.6; }
+a { color:var(--cyan); text-decoration:none; }
+code, .mono { font-family:'JetBrains Mono',monospace; font-size:0.88em; }
+
+/* mockup-only scenario bar */
+.mock-bar { position:sticky; top:0; z-index:200; display:flex; gap:0.4rem; align-items:center; flex-wrap:wrap; padding:0.45rem 1rem; background:#05101e; border-bottom:1px dashed var(--border-2); font-family:'JetBrains Mono',monospace; font-size:0.72rem; color:var(--text-mute); }
+.mock-bar button { font:inherit; color:var(--text-dim); background:transparent; border:1px solid var(--border); border-radius:6px; padding:0.2rem 0.6rem; cursor:pointer; }
+.mock-bar button.on { color:#fff; border-color:var(--cyan); background:#4fc3f714; }
+
+/* site chrome (_chrome.css) */
+.top-nav { position:sticky; top:31px; z-index:100; background:rgba(10,20,36,0.92); border-bottom:1px solid var(--border); padding:0.55rem 2rem; display:flex; gap:1.4rem; align-items:center; font-size:0.82rem; }
+.top-nav .brand { font-family:'JetBrains Mono',monospace; font-weight:700; color:var(--cyan); letter-spacing:0.04em; }
+.top-nav .brand .sep { color:var(--border); margin:0 0.5rem; }
+.top-nav a { color:var(--text-dim); font-weight:500; }
+.top-nav a.active { color:var(--cyan); }
+.page { max-width:1100px; margin:0 auto; padding:1.6rem 2rem 3rem; }
+.doc-kicker { display:inline-block; font-family:'JetBrains Mono',monospace; font-size:0.72rem; font-weight:600; letter-spacing:0.18em; text-transform:uppercase; color:var(--cyan); padding:0.3rem 0.8rem; border-radius:999px; border:1px solid #4fc3f744; background:#4fc3f711; margin-bottom:0.8rem; }
+h1 { font-size:2.3rem; font-weight:800; letter-spacing:-0.02em; line-height:1.15; background:linear-gradient(135deg,#fff 0%,var(--cyan) 70%,var(--teal) 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+h2 { font-size:1.25rem; font-weight:700; margin:2rem 0 0.7rem; padding-bottom:0.35rem; border-bottom:1px solid var(--border); }
+.site-footer { max-width:1100px; margin:3rem auto 0; padding:1.6rem 2rem; border-top:1px solid var(--border); text-align:center; color:var(--text-mute); font-size:0.8rem; }
+
+/* page components (inline in the real page) */
+.status-line { display:flex; flex-wrap:wrap; gap:0.6rem 1.2rem; align-items:center; margin-top:0.9rem; color:var(--text-dim); font-size:0.9rem; }
+.updated { position:relative; }
+.updated details { display:inline-block; }
+.updated summary { list-style:none; cursor:pointer; display:inline-flex; gap:0.4rem; align-items:center; }
+.updated summary::-webkit-details-marker { display:none; }
+.updated .i { display:inline-flex; width:17px; height:17px; border-radius:50%; border:1px solid var(--border-2); color:var(--text-mute); font-size:0.7rem; font-weight:700; align-items:center; justify-content:center; font-family:'JetBrains Mono',monospace; }
+.updated details[open] .i { border-color:var(--cyan); color:var(--cyan); }
+.reg-history { position:absolute; top:1.8rem; left:0; z-index:20; min-width:420px; background:var(--bg2); border:1px solid var(--border-2); border-radius:8px; padding:0.7rem 0.9rem; box-shadow:0 10px 30px #0008; }
+.reg-history .hd { font-family:'JetBrains Mono',monospace; font-size:0.66rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--text-mute); margin-bottom:0.4rem; }
+.reg-history ol, .history { list-style:none; }
+.reg-history li, .history li { font-size:0.82rem; color:var(--text-dim); padding:0.18rem 0; }
+.reg-history time, .history time { font-family:'JetBrains Mono',monospace; font-size:0.78rem; color:var(--text); margin-right:0.5rem; }
+.who { color:var(--cyan); }
+.counts { display:flex; gap:0.4rem; flex-wrap:wrap; }
+.chip { font-family:'JetBrains Mono',monospace; font-size:0.7rem; font-weight:700; padding:0.15rem 0.55rem; border-radius:999px; border:1px solid; letter-spacing:0.04em; white-space:nowrap; }
+.chip.Open { color:var(--amber); border-color:#ffb74d55; background:#ffb74d14; }
+.chip.Overdue { color:var(--coral); border-color:#ef535055; background:#ef535014; }
+.chip.Done { color:var(--green); border-color:#66bb6a55; background:#66bb6a14; }
+.chip.Cancelled { color:var(--text-mute); border-color:#6b7a9355; background:#6b7a9314; }
+.chip.Question { color:var(--cyan); border-color:#4fc3f755; background:#4fc3f714; }
+.chip.Action { color:var(--violet); border-color:#ab47bc66; background:#ab47bc18; }
+.chip.Count { color:var(--text-dim); border-color:var(--border-2); background:transparent; }
+.noscript-note { margin-top:0.6rem; font-size:0.82rem; color:var(--gold); }
+
+/* the type filter (NF4: one of the page's two scripts) */
+.filter { display:flex; gap:0.4rem; align-items:center; margin-top:1rem; font-size:0.82rem; color:var(--text-mute); }
+.filter button { font-family:'JetBrains Mono',monospace; font-size:0.74rem; font-weight:600; color:var(--text-dim); background:var(--bg-card); border:1px solid var(--border); border-radius:999px; padding:0.25rem 0.85rem; cursor:pointer; }
+.filter button[aria-pressed="true"] { color:#fff; border-color:var(--cyan); background:#4fc3f71f; box-shadow:0 0 0 1px var(--cyan) inset; }
+.filter .shown { margin-left:0.4rem; font-family:'JetBrains Mono',monospace; font-size:0.7rem; }
+
+table.summary { width:100%; border-collapse:collapse; background:var(--bg-card); border:1px solid var(--border); border-radius:8px; overflow:hidden; font-size:0.85rem; }
+table.summary th { background:var(--bg2); font-family:'JetBrains Mono',monospace; font-size:0.68rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-mute); text-align:left; padding:0.5rem 0.7rem; }
+table.summary td { padding:0.5rem 0.7rem; border-top:1px solid var(--border); color:var(--text-dim); vertical-align:top; }
+table.summary td.id a { font-family:'JetBrains Mono',monospace; font-size:0.8rem; }
+table.summary tr.group td { background:var(--bg2); font-family:'JetBrains Mono',monospace; font-size:0.68rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--text-mute); padding:0.3rem 0.7rem; }
+article.entry { background:var(--bg-card); border:1px solid var(--border); border-radius:10px; padding:1rem 1.2rem; margin:0.8rem 0; scroll-margin-top:110px; }
+article.entry.is-overdue { border-left:4px solid var(--coral); }
+article.entry:target { border-color:var(--cyan); box-shadow:0 0 0 1px var(--cyan); }
+article.entry h3 { font-size:1.02rem; font-weight:700; display:flex; gap:0.6rem; align-items:center; flex-wrap:wrap; }
+article.entry h3 .rid { font-family:'JetBrains Mono',monospace; color:var(--cyan); font-size:0.88rem; }
+.fields { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:1px; background:var(--border); border:1px solid var(--border); border-radius:6px; overflow:hidden; margin:0.7rem 0; }
+.fields div { background:var(--bg2); padding:0.4rem 0.6rem; font-size:0.82rem; }
+.fields .l { display:block; font-family:'JetBrains Mono',monospace; font-size:0.6rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--text-mute); }
+.entry p { font-size:0.88rem; color:var(--text-dim); margin:0.3rem 0; }
+.entry .lbl { font-family:'JetBrains Mono',monospace; font-size:0.66rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--text-mute); margin-top:0.6rem; }
+.entry .none { color:var(--text-mute); font-style:italic; }
+.outcome { border-left:3px solid var(--green); padding:0.35rem 0.7rem; background:#66bb6a10; margin-top:0.3rem; }
+.outcome.cancel { border-left-color:var(--text-mute); background:#6b7a9310; }
+details.closed-group > summary { cursor:pointer; color:var(--text-dim); font-size:0.9rem; padding:0.4rem 0; }
+.empty-note { background:var(--bg-card); border:1px solid var(--border); border-radius:10px; padding:0.9rem 1.1rem; color:var(--text-dim); margin-top:0.8rem; }
+.optout { background:var(--bg-card); border:1px solid var(--border); border-left:4px solid var(--violet); border-radius:10px; padding:1.2rem 1.4rem; margin-top:1.4rem; }
+.optout dl { display:grid; grid-template-columns:140px 1fr; gap:0.4rem 1rem; margin-top:0.8rem; font-size:0.9rem; }
+.optout dt { font-family:'JetBrains Mono',monospace; font-size:0.7rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--text-mute); padding-top:0.2rem; }
+.optout dd { color:var(--text); }
+.optout p { color:var(--text-dim); margin-top:1rem; font-size:0.88rem; }
+[hidden] { display:none !important; }
+@media (max-width:760px) { .fields { grid-template-columns:repeat(2,1fr); } .reg-history { min-width:280px; } .optout dl { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<div class="mock-bar">
+  <span>Mockup state</span>
+  <button data-s="open" class="on">Log with open and overdue entries</button>
+  <button data-s="allclosed">Everything closed</button>
+  <button data-s="optout">Opt-out</button>
+  <span style="margin-left:auto">Overdue is computed from the day you open this page</span>
+</div>
+
+<nav class="top-nav">
+  <span class="brand">product<span class="sep">/</span>docs</span>
+  <a href="#">Architecture</a><a href="#">Features</a><a href="#">Conventions</a><a href="#">Reference</a><a class="active" href="#">Project</a>
+</nav>
+
+<main class="page" id="page">
+  <noscript><p class="noscript-note">Overdue as of 2026-11-09, the log's last update. Every entry is shown.</p></noscript>
+</main>
+<footer class="site-footer">← Documentation home · <span class="mono">project/issue-log.html</span></footer>
+
+<script>
+(function () {
+  // Sample engagement; the people are the risk log D101's examples, no product entity.
+  // Dates are data; "overdue" is never stored: it is recomputed from today on open (R47, IL6).
+  const ENTRIES = [
+    { id:'ISSUE-001', type:'Question', name:'Which test data may the build use?', assignee:'Allan Borup', owner:'Simon Vilandt', date:'2026-11-04', state:'Open',
+      consequence:'Without an answer by 4 November, the import feature cannot start next sprint.', desc:'Production data needs the customer’s data protection sign-off; synthetic data needs a week to build.', ref:'',
+      created:'2026-10-21', changed:'2026-10-21', hist:[['2026-10-21','Simon Vilandt','Created. Needed by 2026-11-04.']] },
+    { id:'ISSUE-002', type:'Question', name:'Are invoices shown in DKK only?', assignee:'Allan Borup', owner:'Maja Holm', date:'2026-10-24', state:'Done',
+      consequence:'', desc:'', ref:'', outcome:'DKK only in the first release; EUR follows in the second.', decidedBy:'Allan Borup',
+      created:'2026-10-14', changed:'2026-10-22', hist:[['2026-10-14','Maja Holm','Created. Needed by 2026-10-24.'],['2026-10-22','Maja Holm','Open → Done. Outcome: DKK only in the first release; EUR follows in the second. Decided by Allan Borup.']] },
+    { id:'ISSUE-003', type:'Action', name:'Call a meeting to settle the test data', assignee:'Maja Holm', date:'2026-11-06', state:'Open',
+      desc:'Allan Borup asked for a meeting with the customer’s data protection officer before he answers.', ref:'ISSUE-001',
+      created:'2026-10-28', changed:'2026-10-28', hist:[['2026-10-28','Simon Vilandt','Created. Due 2026-11-06. Reference ISSUE-001.']] },
+    { id:'ISSUE-004', type:'Action', name:'Request access to the staging tenant', assignee:'Jonas Berg', date:'2026-10-30', state:'Done',
+      desc:'', ref:'', outcome:'',
+      created:'2026-10-20', changed:'2026-10-29', hist:[['2026-10-20','Jonas Berg','Created. Due 2026-10-30.'],['2026-10-29','Jonas Berg','Open → Done. No outcome written.']] },
+    { id:'ISSUE-005', type:'Action', name:'Re-plan the integration tests around the late environment', assignee:'Jonas Berg', date:'2026-11-13', state:'Open',
+      desc:'The customer’s test environment arrived three weeks late; the tests that need it move to the next two sprints.', ref:'RISK-002',
+      created:'2026-11-02', changed:'2026-11-02', hist:[['2026-11-02','Jonas Berg','Created from RISK-002 occurred. Due 2026-11-13.']] },
+    { id:'ISSUE-006', type:'Question', name:'Who signs the data processing agreement?', assignee:'Erik Lund', owner:'Jonas Berg', date:'2026-11-20', state:'Open',
+      consequence:'', desc:'', ref:'',
+      created:'2026-11-03', changed:'2026-11-09', hist:[['2026-11-03','Simon Vilandt','Created. Needed by 2026-11-20. Owner Simon Vilandt.'],['2026-11-09','Simon Vilandt','Handover: owner Simon Vilandt → Jonas Berg.']] },
+    { id:'ISSUE-007', type:'Question', name:'Does the first release need a Danish UI?', assignee:'Erik Lund', owner:'Maja Holm', date:'2026-10-31', state:'Cancelled',
+      consequence:'', desc:'', ref:'', outcome:'Scope changed: the customer’s users work in English.', cancel:true,
+      created:'2026-10-10', changed:'2026-10-27', hist:[['2026-10-10','Maja Holm','Created. Needed by 2026-10-31.'],['2026-10-27','Maja Holm','Open → Cancelled: scope changed, the customer’s users work in English.']] },
+    { id:'ISSUE-008', type:'Action', name:'Book the steering demo', assignee:'Simon Vilandt', date:'2026-11-27', state:'Open',
+      desc:'', ref:'',
+      created:'2026-11-05', changed:'2026-11-05', hist:[['2026-11-05','Simon Vilandt','Created. Due 2026-11-27.']] }
+  ];
+  const LOG_HISTORY = [
+    ['2026-11-09','Simon Vilandt','Handover from Simon Vilandt: ISSUE-006 owner to Jonas Berg.'],
+    ['2026-11-05','Simon Vilandt','ISSUE-008 registered.'],
+    ['2026-11-03','Maja Holm','Reviewed, with Allan Borup, Jonas Berg.'],
+    ['2026-11-03','Simon Vilandt','ISSUE-006 registered.'],
+    ['2026-11-02','Jonas Berg','ISSUE-005 registered from RISK-002.'],
+    ['2026-10-29','Jonas Berg','ISSUE-004 done.'],
+    ['2026-10-10','Maja Holm','Log created. Project language: English.']
+  ];
+  const UPDATED = '2026-11-09';
+
+  // Today as YYYY-MM-DD in local time: the recompute (R47).
+  const d = new Date();
+  const TODAY = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  const isOpen = e => e.state === 'Open';
+  const overdue = e => isOpen(e) && e.date < TODAY;            // IL6: due today is not overdue
+  const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  // IL14: open before closed; open by earliest date, then identifier (overdue entries come first by date alone).
+  const sorted = list => list.slice().sort((a,b) => (isOpen(b) - isOpen(a)) || a.date.localeCompare(b.date) || a.id.localeCompare(b.id));
+
+  // The type filter: three views, 'both' | 'Question' | 'Action'. Always opens on 'both' (R35, IL19).
+  let view = 'both';
+  let list = ENTRIES, hist = LOG_HISTORY, updated = UPDATED;
+  const shown = e => view === 'both' || e.type === view;
+
+  function dateLabel(e) { return e.type === 'Question' ? 'Needed by' : 'Due'; }
+
+  function header() {
+    const vis = list.filter(shown);
+    const open = vis.filter(isOpen);
+    let h = '<div class="doc-kicker">Project · Issue log</div><h1>Issue log</h1>';
+    h += '<div class="status-line"><span class="updated"><details><summary>Last updated <span class="mono" style="color:#fff">' + updated + '</span> <span class="i" title="Who updated the log, and when">i</span></summary>';
+    h += '<div class="reg-history"><div class="hd">Log history</div><ol>' + hist.map(x => '<li><time>' + x[0] + '</time><span class="who">' + x[1] + '</span> · ' + esc(x[2]) + '</li>').join('') + '</ol></div></details></span>';
+    h += '<span class="counts"><span class="chip Open">' + open.length + ' open</span><span class="chip Overdue">' + open.filter(overdue).length + ' overdue</span>';
+    if (view !== 'Action') h += '<span class="chip Question">' + open.filter(e => e.type === 'Question').length + ' questions</span>';
+    if (view !== 'Question') h += '<span class="chip Action">' + open.filter(e => e.type === 'Action').length + ' actions</span>';
+    h += '</span></div>';
+    h += '<div class="filter" role="group" aria-label="Show entries of type">Show' +
+      '<button type="button" data-t="Question" aria-pressed="' + (view === 'Question') + '">Questions</button>' +
+      '<button type="button" data-t="Action" aria-pressed="' + (view === 'Action') + '">Actions</button>' +
+      '<span class="shown">' + (view === 'both' ? 'showing both types' : view === 'Question' ? 'showing questions only' : 'showing actions only') + '</span></div>';
+    return h;
+  }
+
+  function stateChips(e) {
+    return '<span class="chip ' + e.state + '">' + e.state + '</span>' + (overdue(e) ? ' <span class="chip Overdue">Overdue</span>' : '');
+  }
+
+  function summary() {
+    const vis = sorted(list.filter(shown));
+    let h = '<h2>Summary</h2><table class="summary"><tr><th>ID</th><th>Type</th><th>Name</th><th>Assignee</th><th>Date</th><th>State</th></tr>';
+    let last = '';
+    vis.forEach(e => {
+      const g = isOpen(e) ? 'Open' : 'Closed';
+      if (g !== last) { h += '<tr class="group"><td colspan="6">' + g + '</td></tr>'; last = g; }
+      h += '<tr><td class="id"><a href="#' + e.id + '">' + e.id + '</a></td><td><span class="chip ' + e.type + '">' + e.type + '</span></td><td>' + esc(e.name) + '</td><td>' + e.assignee + '</td><td class="mono">' + e.date + '</td><td>' + stateChips(e) + '</td></tr>';
+    });
+    return h + '</table>';
+  }
+
+  const none = '<span class="none">None written.</span>';
+  const refLink = r => r ? '<a class="mono" href="' + (r.startsWith('RISK-') ? 'risk-log.html#' : '#') + r + '">' + r + '</a>' : '<span class="none">—</span>';
+
+  function article(e) {
+    let h = '<article class="entry' + (overdue(e) ? ' is-overdue' : '') + '" id="' + e.id + '"><h3><span class="rid">' + e.id + '</span><span class="chip ' + e.type + '">' + e.type + '</span>' + esc(e.name) + ' ' + stateChips(e) + '</h3>';
+    h += '<div class="fields"><div><span class="l">Assignee</span>' + e.assignee + '</div>';
+    h += '<div><span class="l">Owner</span>' + (e.type === 'Question' ? e.owner : '<span class="none">—</span>') + '</div>';
+    h += '<div><span class="l">' + dateLabel(e) + '</span><span class="mono">' + e.date + '</span></div>';
+    h += '<div><span class="l">Created</span><span class="mono">' + e.created + '</span></div><div><span class="l">Changed</span><span class="mono">' + e.changed + '</span></div></div>';
+    if (e.type === 'Question') h += '<div class="lbl">Consequence</div><p>' + (e.consequence ? esc(e.consequence) : none) + '</p>';
+    h += '<div class="lbl">Description</div><p>' + (e.desc ? esc(e.desc) : none) + '</p>';
+    h += '<div class="lbl">Reference</div><p>' + refLink(e.ref) + '</p>';
+    if (e.state === 'Done') {
+      h += '<div class="lbl">Outcome</div><p class="outcome">' + (e.outcome ? esc(e.outcome) : '<span class="none">No outcome written.</span>') + '</p>';
+      if (e.type === 'Question') h += '<div class="lbl">Decided by</div><p>' + e.decidedBy + '</p>';
+    }
+    if (e.state === 'Cancelled') h += '<div class="lbl">Reason</div><p class="outcome cancel">' + esc(e.outcome) + '</p>';
+    h += '<div class="lbl">History</div><ol class="history">' + e.hist.map(x => '<li><time>' + x[0] + '</time><span class="who">' + x[1] + '</span> · ' + esc(x[2]) + '</li>').join('') + '</ol></article>';
+    return h;
+  }
+
+  function entries() {
+    const vis = sorted(list.filter(shown));
+    const open = vis.filter(isOpen), closed = vis.filter(e => !isOpen(e));
+    let h = '<h2>Entries</h2>';
+    if (!open.length) h += '<div class="empty-note">No open ' + (view === 'both' ? 'entries' : view === 'Question' ? 'questions' : 'actions') + '. Closed entries stay below with their history.</div>';
+    open.forEach(e => { h += article(e); });
+    if (closed.length) h += '<details class="closed-group"><summary>Done and cancelled (' + closed.length + ')</summary>' + closed.map(article).join('') + '</details>';
+    return h;
+  }
+
+  function draw() {
+    const page = document.getElementById('page');
+    page.innerHTML = header() + summary() + entries();
+    page.querySelectorAll('.filter button').forEach(b => b.addEventListener('click', () => {
+      // The three-view table: clicking the type shown alone returns to both; any other click shows that type alone.
+      view = (view === b.dataset.t) ? 'both' : b.dataset.t;
+      draw();
+    }));
+  }
+
+  function render(s) {
+    view = 'both';
+    const page = document.getElementById('page');
+    if (s === 'optout') {
+      page.innerHTML = '<div class="doc-kicker">Project · Issue log</div><h1>No issue log kept here</h1>' +
+        '<div class="optout"><dl><dt>Reason</dt><dd>Handled elsewhere</dd><dt>Where</dt><dd>The customer’s Jira, project PMO, issue type “Clarification”</dd>' +
+        '<dt>Decided by</dt><dd>Simon Vilandt</dd><dt>Date</dt><dd class="mono">2026-10-10</dd><dt>Language</dt><dd>English</dd></dl>' +
+        '<p>Registering a question or an action replaces this page with a log, and the log’s first history line names this opt-out.</p></div>';
+      return;
+    }
+    if (s === 'allclosed') {
+      list = ENTRIES.map(e => isOpen(e) ? Object.assign({}, e, { state:'Done', changed:'2026-12-04',
+        outcome: e.type === 'Question' ? 'Answered at the steering meeting.' : '', decidedBy: e.type === 'Question' ? 'Allan Borup' : undefined,
+        hist: e.hist.concat([['2026-12-04','Maja Holm','Open → Done.' + (e.type === 'Question' ? ' Outcome: answered at the steering meeting. Decided by Allan Borup.' : ' No outcome written.')]]) }) : e);
+      hist = [['2026-12-04','Maja Holm','ISSUE-001, ISSUE-003, ISSUE-005, ISSUE-006, ISSUE-008 done.']].concat(LOG_HISTORY);
+      updated = '2026-12-04';
+    } else { list = ENTRIES; hist = LOG_HISTORY; updated = UPDATED; }
+    draw();
+  }
+
+  document.querySelectorAll('.mock-bar button').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('.mock-bar button').forEach(x => x.classList.toggle('on', x === b));
+    render(b.dataset.s);
+  }));
+  render('open');
+})();
+</script>
+</body>
+</html>
