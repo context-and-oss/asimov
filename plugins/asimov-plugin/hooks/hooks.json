@@ -1,5 +1,5 @@
 {
-  "description": "Two hooks, both harnesses: the run log (hooks/scripts/asimov-log.ps1, one line per event to .asimov/log/ in the product repo) and the Asimov context (hooks/asimov-context, the using-asimov skill at SessionStart and a note at SubagentStart, only where asimov.md at the repo root says asimov: true). Codex reads hooks-codex.json instead, the context hooks alone.",
+  "description": "Two hooks, both harnesses: the run log (hooks/scripts/asimov-log.ps1, one line per event to .asimov/log/ in the product repo) and the Asimov context (hooks/asimov-context, the using-asimov skill at SessionStart and a note at SubagentStart, only where asimov.md at the repo root says asimov: true). Codex reads hooks-codex.json instead, which carries both since 2026-11-13.",
   "hooks": {
     "SessionStart": [
       {

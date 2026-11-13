@@ -20,7 +20,8 @@
   always exits 0, and writes nothing outside .asimov/. No skill and no model calls it: the harness does.
 
   Set ASIMOV_LOG_RAW=1 in the environment to also append every payload, verbatim, to
-  .asimov/log/raw-<id8>.jsonl: the way to read what a harness hands over (D101-asimov-log Q1, Q2).
+  .asimov/log/raw-<id8>.jsonl before any filter, where .asimov/log/ already exists: the way to read
+  what a harness hands over (D101-asimov-log Q1, Q2).
   Off by default, since a raw payload carries prompt text the log never may.
 
   Written for Windows PowerShell 5.1 and PowerShell 7 alike; pure ASCII on purpose.
@@ -121,6 +122,9 @@ function Invoke-Log {
   $dir = Join-Path $root '.asimov/log'
   $statePath = Join-Path $dir ".$id8.state"
 
+  # The raw dump, before any filter: every payload the harness hands over, where the folder already exists (Q1, Q2).
+  if ($env:ASIMOV_LOG_RAW -eq '1' -and (Test-Path -LiteralPath $dir)) { Write-Retry (Join-Path $dir "raw-$id8.jsonl") (($raw -replace "`r?`n", ' ') + "`n") $true }
+
   # Only an asimov-* invocation creates the folder; every other event logs only where it already exists.
   if ($event -ne 'PreToolUse' -and $event -ne 'UserPromptExpansion' -and -not (Test-Path -LiteralPath $dir)) { return }
 
@@ -204,7 +208,6 @@ function Invoke-Log {
   if (-not (Test-Path -LiteralPath $dir)) { New-Item -ItemType Directory -Path $dir -Force | Out-Null }
   $selfIgnore = Join-Path (Split-Path -Parent $dir) '.gitignore'
   if (-not (Test-Path -LiteralPath $selfIgnore)) { Write-Retry $selfIgnore "*`n" $false }
-  if ($env:ASIMOV_LOG_RAW -eq '1') { Write-Retry (Join-Path $dir "raw-$id8.jsonl") (($raw -replace "`r?`n", ' ') + "`n") $true }
   Write-Retry (Join-Path $dir $state.file) $line $true
   if ($saveState) { Write-State $statePath $state }
   elseif (Test-Path -LiteralPath $statePath) { Remove-Item -LiteralPath $statePath -Force -ErrorAction SilentlyContinue }
