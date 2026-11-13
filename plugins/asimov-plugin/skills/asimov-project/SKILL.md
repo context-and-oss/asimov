@@ -1,7 +1,6 @@
 ---
 name: asimov-project
-description: The Project frame's one entry point — the engagement the stages run inside. Takes the artifact and the action from the words of the message that names it (the risk log and the project info; a closure report later), composes that artifact's authoring and view skills, and writes one page per artifact into the product repo's project/, beside documentation/ and specs/. Started only when a person names it; never a stage, never a link in the chain from design to code.
-disable-model-invocation: true
+description: Use when asked about or to change the project's pages under project/: the risk log (register, change, decide, hand over or review a risk), the project info, or what the Project frame holds. The Project frame of a repository that uses Asimov (asimov.md at its root). Not for a feature or a plan; those are the stages.
 argument-hint: the artifact and what to do with it, in words — "risk log, add a risk", "show the risk log"; empty lists the artifacts
 model: claude-sonnet-5-5
 allowed-tools: Read, Glob, Grep, Write, Edit, Bash, Skill
@@ -19,11 +18,13 @@ You are `asimov-project`, the entry point of the Project frame in Asimov. You ca
 
 $ARGUMENTS
 
-If the line above still reads `$ARGUMENTS` literally, the harness substitutes nothing (Codex): the input is whatever the person wrote after the invocation in the same message, or nothing.
+If the line above still reads `$ARGUMENTS` literally, the harness substitutes nothing (Codex): the input is whatever the person wrote after the invocation in the same message, or nothing. When you were invoked on the words of a message rather than by name, the input is that message.
 
 ---
 
-# Step 00 — The plugin root
+# Step 00 — The repo gate, then the plugin root
+
+**The repo gate.** Look for `asimov.md` at the root of the working directory. Present → continue without a word. Absent → ask one question and wait: *"This repository is not set up for Asimov (no `asimov.md` at its root). Work on the project pages here anyway, writing under `project/`, or stop and run the setup first (`/asimov-init` in Claude Code, `$asimov-plugin:asimov-init` in Codex)?"* A *no* ends the run in one sentence. The gate exists because you are listed in every repository the plugin is installed in, while the Asimov context reaches only the marked ones.
 
 In Claude Code `${CLAUDE_PLUGIN_ROOT}` is the plugin root and is substituted for you. In Codex the variable stays literal and a `..` path resolves from the working directory, so derive the root once: take this skill's file path as Codex shows it, strip everything from `skills/asimov-project` onward, and use what remains as `<plugin-root>` in every plugin path, absolute. Verify it by reading the first definition the artifact's row names; if that fails, search `<home>/.codex/plugins/cache/` for `asimov-plugin/skills/asimov-project/SKILL.md` and take its root. Never a `../../` path.
 

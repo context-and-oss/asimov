@@ -1,7 +1,6 @@
 ---
 name: asimov-spec
-description: Turn one design, a D101 at Full design or an approved Jira ticket, into its implementation plan (S101) and task specs (S102s) under specs/<slug>/ — read the design and the repo, ask at most five questions with defaults, cut and check the plan in one writer subagent that stays alive for the whole run, show the cut as the plan view with what the checks left and wait for the author's go, which approves the plan; then have the same writer write the task specs phase by phase, the tester first, check each one's shape with the validate-s102 script run inline, check the plan with the validate-s101 script run inline, one line in chat per call, mark every clean task spec validated, and set the plan ready when the approval still matches it; on a ready plan edited by hand it re-checks every task spec and the plan and asks for the approval again. Invoked by name only, the target in the same message (a D101 slug or path, a Jira link or key, or pasted ticket text); "/asimov-spec" in Claude Code, "$asimov-plugin:asimov-spec" in Codex; never selected by the model. Refuses a D101 not at Full design and a ticket that misses a required member of contracts/design.md; never prints a report row; never approves a plan on its own.
-disable-model-invocation: true
+description: Use when asked to plan a feature or a ticket into tasks, to write, re-cut or re-check an implementation plan (S101) and its task specs (S102s) under specs/<slug>/, from a D101 at Full design, a Jira ticket or pasted ticket text. The Spec stage of a repository that uses Asimov (asimov.md at its root).
 argument-hint: a D101 slug or path, a Jira link or key, or the ticket text — empty lists what the skill accepts
 model: claude-sonnet-5-5
 allowed-tools: Read, Glob, Grep, Write, Edit, Bash, Skill, Agent, mcp__.*Atlassian.*__getJiraIssue
@@ -29,11 +28,13 @@ The model is passed on the Agent call that spawns the writer (`model: opus`, `ef
 
 $ARGUMENTS
 
-If the line above still reads `$ARGUMENTS` literally, the harness substitutes nothing (Codex): the input is whatever the author wrote after the invocation.
+If the line above still reads `$ARGUMENTS` literally, the harness substitutes nothing (Codex): the input is whatever the author wrote after the invocation. When you were invoked on the words of a message rather than by name, the input is that message.
 
 ---
 
-# Step 00 — Load the standards and the contract
+# Step 00 — The repo gate, then the standards and the contract
+
+**The repo gate.** Look for `asimov.md` at the root of the working directory. Present → continue without a word. Absent → ask one question and wait: *"This repository is not set up for Asimov (no `asimov.md` at its root). Plan here anyway, writing under `specs/`, or stop and run the setup first (`/asimov-init` in Claude Code, `$asimov-plugin:asimov-init` in Codex)?"* A *no* ends the run in one sentence. The gate exists because you are listed in every repository the plugin is installed in, while the Asimov context reaches only the marked ones.
 
 `${CLAUDE_PLUGIN_ROOT}` is substituted in Claude Code. In Codex it stays literal: derive `<plugin-root>` from this skill's own path (strip everything from `skills/asimov-spec` onward), verify by reading file 1, else Glob `<home>/.codex/plugins/cache/**/s101-implementation-plan-definition.md` and take the match that shares the longest prefix with the skill path; with no match, stop and report (`D101-codex-support.html` §6.2). Pass `<plugin-root>` to every subagent prompt and `-PluginRoot <plugin-root>` to every script call in Codex.
 

@@ -238,7 +238,7 @@ footer.site-footer a { color: var(--cyan); }
   <a href="../index.html#s6">Diagrams</a>
   <span class="spacer"></span>
   <span class="phase-chip full">Full design</span>
-  <span class="status-chip">Draft v0.18</span>
+  <span class="status-chip">Draft v0.19</span>
 </nav>
 
 <div class="layout-doc">
@@ -291,8 +291,8 @@ footer.site-footer a { color: var(--cyan); }
   <div class="meta-cell"><div class="label">Business approver</div><div class="value">Allan Borup</div></div>
   <div class="meta-cell"><div class="label">L3 stage</div><div class="value mono">Spec</div></div>
   <div class="meta-cell"><div class="label">Writes to</div><div class="value mono">specs/&lt;slug&gt;/</div></div>
-  <div class="meta-cell"><div class="label">Last updated</div><div class="value mono">2026-10-07</div></div>
-  <div class="meta-cell"><div class="label">Status</div><div class="value">Draft v0.18</div></div>
+  <div class="meta-cell"><div class="label">Last updated</div><div class="value mono">2026-11-13</div></div>
+  <div class="meta-cell"><div class="label">Status</div><div class="value">Draft v0.19</div></div>
 </div>
 
 <div class="doc-scope">
@@ -360,7 +360,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="req"><div class="id">NF2</div><div class="body">Specs are Markdown with YAML frontmatter; the task graph is machine-readable in the S101 frontmatter.</div></div>
     <div class="req"><div class="id">NF3</div><div class="body">Skills read the definitions and templates by path at run-time, relative to the plugin, in whichever harness runs them (hard rule 3).</div></div>
     <div class="req"><div class="id">NF4</div><div class="body">The Spec workflow writes only under <code>specs/&lt;slug&gt;/</code>.</div></div>
-    <div class="req"><div class="id">NF5</div><div class="body">The two asimov-skills start only when a person names them; no harness selects them for the model.</div></div>
+    <div class="req"><div class="id">NF5</div><div class="body">The asimov-skill starts when a person names it or when the words of a message match its description; in a repository without <code>asimov.md</code> it asks before writing (the repo gate, since 2026-11-13; until then only a person could start it).</div></div>
     <div class="req"><div class="id">NF6</div><div class="body">One file per skill serves both Claude Code and Codex; nothing in the Spec workflow exists twice.</div></div>
   </div>
 
@@ -425,7 +425,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="row cols-2"><div class="label-cell">Buildable blind</div><div>The S102 bar: a builder with no conversation history builds it and knows when it is done.</div></div>
     <div class="row cols-2"><div class="label-cell">Spec workflow</div><div>Design → S101, checked and approved by the author at the cut → S102s, each validated by a fresh agent → <code>ready</code>; this document.</div></div>
     <div class="row cols-2"><div class="label-cell">Build workflow</div><div>Ready S101 → phase by phase → builders → verification → review → checkpoint; out of scope.</div></div>
-    <div class="row cols-2"><div class="label-cell">Asimov-skill</div><div>An entry-point skill: it composes the artifact skills and carries the conversation, never a method. Whether the model may start it is a per-skill decision; this one only a person invokes, by name (NF5). <code>/asimov-spec</code> in Claude Code, <code>$asimov-plugin:asimov-spec</code> in Codex.</div></div>
+    <div class="row cols-2"><div class="label-cell">Asimov-skill</div><div>An entry-point skill: it composes the artifact skills and carries the conversation, never a method. Model-invocable since 2026-11-13, with a repo gate on <code>asimov.md</code> in its Step 00 (NF5). <code>/asimov-spec</code> in Claude Code, <code>$asimov-plugin:asimov-spec</code> in Codex.</div></div>
     <div class="row cols-2"><div class="label-cell">Harness</div><div>The tool that runs a skill: Claude Code or Codex. A skill is one file for both; the manifest, the invocation syntax, the model and the tool budget differ per harness, the method never.</div></div>
   </div>
 </section>
@@ -1102,12 +1102,12 @@ footer.site-footer a { color: var(--cyan); }
     <div class="row cols-3"><div class="label-cell">artifact-s102-authoring</div><div>Skill</div><div>One S102 from one graph entry.</div></div>
     <div class="row cols-3"><div class="label-cell">artifact-s101-validation</div><div>Skill</div><div>The S101 checks as a fixed checklist, in two modes: graph-only on the S101 alone, full with every S102.</div></div>
     <div class="row cols-3"><div class="label-cell">artifact-s102-validation</div><div>Skill</div><div>The S102 checks for one file; loaded by the blind subagent.</div></div>
-    <div class="row cols-3"><div class="label-cell">asimov-spec</div><div>Asimov-skill</div><div>The conversation, the gate and the loop; finishes once. Invoked only by name (NF5).</div></div>
+    <div class="row cols-3"><div class="label-cell">asimov-spec</div><div>Asimov-skill</div><div>The conversation, the gate and the loop; finishes once. Model-invocable, a repo gate on <code>asimov.md</code> (NF5).</div></div>
       </div>
   <div class="subhead" style="margin-top:2rem">Two harnesses, one file</div>
   <ul class="bullets">
     <li><strong>Invocation.</strong> <code>/asimov-spec &lt;slug&gt;</code> in Claude Code; <code>$asimov-plugin:asimov-spec</code> with the slug in the same message in Codex, whose skills take no arguments and carry the plugin prefix (D101-codex-support Rule 3). Step 01 resolves the target from the words either way; with no target it lists the candidates and finishes, so the gate stays the run's one wait.</li>
-    <li><strong>Only by name.</strong> Claude Code reads <code>disable-model-invocation</code> in the SKILL.md frontmatter; Codex reads <code>policy.allow_implicit_invocation: false</code> in the skill's <code>agents/openai.yaml</code>. Both files ship with the skill (NF5).</li>
+    <li><strong>Model-invocable.</strong> No <code>disable-model-invocation</code> in the SKILL.md frontmatter and no <code>policy.allow_implicit_invocation: false</code> in <code>agents/openai.yaml</code>; the repo gate in Step 00 asks before writing in a repository without <code>asimov.md</code> (NF5, reversed 2026-11-13).</li>
     <li><strong>Model.</strong> The frontmatter model binds in Claude Code; Codex ignores it and runs the session's model. <code>model-choice.md</code> marks the two rows as Claude Code only.</li>
     <li><strong>The subagents.</strong> Every skill call runs in each harness's generic fresh agent: a writer for the authoring skills, with the file tools; a validator for the validation skills, read-only by tool restriction where the harness has one, by prompt otherwise (§6.6, §6.7). No Asimov name: a context boundary, not a role (R30).</li>
     <li><strong>Jira.</strong> Where the harness has the Atlassian connector, <code>asimov-spec</code> fetches the ticket and its comments itself; where it has not (Codex today), the author pastes the ticket text after the skill's name. Either way the text lands in the cache (§6.8) and the run is the same from there (R27). The connector's read tool is pre-approved in both asimov-skills' <code>allowed-tools</code>, matched by the connector name, so a ticket run has no permission stop; that pattern is the one install-specific literal in the skills, and no Jira write tool is ever listed.</li>
@@ -1728,7 +1728,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="ac-row"><div class="ac-id">AC18</div><div class="ac-verifies"><span class="verify-chip">R24</span></div><div>The transcript shows the cut as the plan view with no raw report row before the first S102 file exists; a free-text correction yields a new cut with still no S102 written; a hand edit of the S101 followed by <em>read again</em> shows the edited graph unchanged; <em>stop</em> leaves the S101 on disk and no S102.</div></div>
     <div class="ac-row"><div class="ac-id">AC19</div><div class="ac-verifies"><span class="verify-chip">R25</span></div><div>Run against an S101 with no S102s, <code>asimov-spec</code> shows the cut and waits for the go before any S102 file appears.</div></div>
     <div class="ac-row"><div class="ac-id">AC20</div><div class="ac-verifies"><span class="verify-chip">NF6</span></div><div>The plugin tree holds one <code>SKILL.md</code> per skill and no per-harness copy; installed in Claude Code and in Codex, <code>asimov-spec</code> run on the same D101 writes an S101 with the same task graph in both.</div></div>
-    <div class="ac-row"><div class="ac-id">AC21</div><div class="ac-verifies"><span class="verify-chip">NF5</span></div><div>A message that describes planning a feature without naming the skill starts neither asimov-skill in either harness; naming it does.</div></div>
+    <div class="ac-row"><div class="ac-id">AC21</div><div class="ac-verifies"><span class="verify-chip">NF5</span></div><div>A message that asks to plan a feature or a ticket into tasks, without naming the skill, starts <code>asimov-spec</code> in either harness in a repository with <code>asimov.md</code>; in one without, the skill asks before writing.</div></div>
     <div class="ac-row"><div class="ac-id">AC22</div><div class="ac-verifies"><span class="verify-chip">R1</span><span class="verify-chip">R27</span></div><div>Named in a message together with the link of a ticket that meets the bar, <code>asimov-spec</code> writes an S101 whose header links the ticket and whose coverage map carries every assigned id with the ticket's wording, plus its S102s; <code>git status</code> afterwards shows the plan and the task specs, and neither the design cache nor the sidecar.</div></div>
     <div class="ac-row"><div class="ac-id">AC23</div><div class="ac-verifies"><span class="verify-chip">R26</span></div><div>Named in a message with no D101, link, key or ticket text, <code>asimov-spec</code> prints what it accepts and finishes without asking a question; named with the ticket text pasted after it, the run proceeds as with a fetched ticket; named with a link alone in a harness without the Jira connector, it says it cannot reach Jira, asks for the text, and finishes.</div></div>
     <div class="ac-row"><div class="ac-id">AC24</div><div class="ac-verifies"><span class="verify-chip">§4.1-10</span></div><div>Named with a ticket whose decision needs one task, <code>asimov-spec</code> writes an S101 with one task and one S102; no S102 file exists in the repo without an S101 beside it.</div></div>
@@ -1876,7 +1876,7 @@ footer.site-footer a { color: var(--cyan); }
     · <span class="mono">features/D101-spec-stage.html</span>
   </div>
   <div style="margin-top: 0.4rem">
-    D101 · Spec stage · Asimov plugin · Draft v0.18 · 2026-10-07
+    D101 · Spec stage · Asimov plugin · Draft v0.19 · 2026-11-13
   </div>
 </footer>
 

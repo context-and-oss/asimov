@@ -1,11 +1,9 @@
 # Codex metadata for the asimov-init asimov-skill (D101-asimov-init §6.1; D100 §4.3).
 # The conversation lives in ../SKILL.md, the same file Claude Code reads.
 # Codex skills take no arguments: a repo-name override, if any, is the text after the invocation.
+# Implicit invocation is allowed: the description in ../SKILL.md is the trigger, and nothing is written before
+# the person confirms the write plan (Step 6).
 interface:
   display_name: "Asimov · Init"
   short_description: "Make a repo Asimov-ready for Claude Code and Codex: context, shells, conventions, project info, site"
   default_prompt: "Use $asimov-plugin:asimov-init to make this repo Asimov-ready."
-
-policy:
-  # Only a person sets a repo up; the model never selects this skill.
-  allow_implicit_invocation: false

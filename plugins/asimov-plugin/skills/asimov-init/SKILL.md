@@ -1,7 +1,6 @@
 ---
 name: asimov-init
-description: Bootstrap a product repo to use the Asimov toolkit, for Claude Code and Codex in one run — writes the asimov.md marker the plugin's hooks read at session start, delivers the Codex subagent shells to .codex/agents/, scaffolds detected-stack convention read-lists, asks for the project info when the repo has none, and generates the documentation/ site. Read-only on every other file. Invoked by name only, "/asimov-init" in Claude Code and "$asimov-plugin:asimov-init" in Codex; never selected by the model. Supersedes the /asimov-init command and the codex-asimov-init skill.
-disable-model-invocation: true
+description: Use when asked to set a repository up for Asimov, make it Asimov-ready, or refresh its Asimov setup: the asimov.md marker, the Codex subagent shells, the convention read-lists, the project info and the documentation site, for Claude Code and Codex in one run. Not for a repository's own build or tooling setup.
 argument-hint: (optional) repo name override — empty auto-detects from git remote or folder name
 model: claude-opus-5-5
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash, Skill
@@ -26,7 +25,7 @@ You are **read-only on every other file** in the repo. Your only edits to a pre-
 
 $ARGUMENTS
 
-If the line above still reads `$ARGUMENTS` literally, the harness substitutes nothing (Codex): the input is whatever the developer wrote after the invocation — a repo name override, or nothing.
+If the line above still reads `$ARGUMENTS` literally, the harness substitutes nothing (Codex): the input is whatever the developer wrote after the invocation — a repo name override, or nothing. When you were invoked on the words of a message rather than by name, the input is that message; the write plan of Step 6 still precedes every write.
 
 ---
 

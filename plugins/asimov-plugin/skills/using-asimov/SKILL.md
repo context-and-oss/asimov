@@ -15,15 +15,15 @@ Each stage this repository uses has one skill. When the person's words match a s
 - **Design** — {{INVOKE:asimov-design}}: a feature to design, a D101 under `documentation/features/` to write, continue, edit or review, a legacy markdown D101 to render. In your skill list; invoke it when the words match.
 <!-- /part -->
 <!-- part: spec -->
-- **Spec** — {{INVOKE:asimov-spec}}: plan a Full-design D101 or an approved ticket into `specs/<slug>/`; the person's go approves the plan. Only a person starts it; it is not in your skill list, so name it instead of starting it.
+- **Spec** — {{INVOKE:asimov-spec}}: plan a Full-design D101 or an approved ticket into `specs/<slug>/`; the person's go approves the plan. In your skill list; invoke it when the words match.
 <!-- /part -->
 <!-- part: build -->
-- **Build** — {{INVOKE:asimov-build}}: build a `ready` plan phase by phase with the agents; the person's go commits each phase. Only a person starts it; name it instead of starting it.
+- **Build** — {{INVOKE:asimov-build}}: build a `ready` plan phase by phase with the agents; the person's go commits each phase. In your skill list; invoke it when the words match.
 <!-- /part -->
 <!-- part: project -->
-- **Project** — {{INVOKE:asimov-project}}: the project pages under `project/`, the risk log and the project info; `pm-advisor` answers questions about the delivery model. Only a person starts it; name it instead of starting it.
+- **Project** — {{INVOKE:asimov-project}}: the project pages under `project/`, the risk log and the project info; `pm-advisor` answers questions about the delivery model. In your skill list; invoke it when the words match.
 <!-- /part -->
-- **Setup** — {{INVOKE:asimov-init}}: refresh this repo's Asimov setup: the marker, conventions, project info, site. Only a person starts it; name it instead of starting it.
+- **Setup** — {{INVOKE:asimov-init}}: refresh this repo's Asimov setup: the marker, conventions, project info, site. In your skill list; invoke it when asked to set the repo up or refresh it.
 
 <!-- part: build -->
 ## Agents — delegate code changes to them
@@ -37,7 +37,7 @@ For a change to source or test files, in this order:
 3. For a prominent change (several files, a new public surface, a new feature) ask the person whether they want a full testing pass and whether Baley should review. Never schedule a review on your own.
 4. Findings from Baley go back to the person before any builder loops.
 
-Edit inline, no delegation: config files, documentation, plan and spec files, one-line mechanical fixes. When a `ready` plan exists under `specs/`, do not build it by hand; say so and name {{INVOKE:asimov-build}}.
+Edit inline, no delegation: config files, documentation, plan and spec files, one-line mechanical fixes. When a `ready` plan exists under `specs/`, do not build it by hand; say so and invoke {{INVOKE:asimov-build}}.
 
 <!-- /part -->
 ## Layout

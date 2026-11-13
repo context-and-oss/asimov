@@ -1,7 +1,6 @@
 ---
 name: asimov-build
-description: Build one ready plan — specs/<slug>/S101-<slug>.md with its validated task specs — phase by phase, where each task goes to the Asimov agent its role names, fresh at its first attempt and continued by message after, with its task spec as the only brief; once a phase is built Baley reviews its diff against the task specs and Powell runs every done-when and the checkpoint; the run records everything in the ledger beside the plan, shows the checkpoint and waits for your go, which commits the phase. Resumes from the ledger; stops on a third failure, a builder's flag or a design gap, and you rule. Invoked by name only, the slug in the same message; "/asimov-build" in Claude Code, "$asimov-plugin:asimov-build" in Codex; never selected by the model. Refuses a plan that is not ready, an approval that no longer matches, the default branch and a dirty tree; never opens a PR, never pushes.
-disable-model-invocation: true
+description: Use when asked to build, implement or resume a ready implementation plan under specs/<slug>/ with the Asimov agents, to continue a stopped build, or to see where a build stands. The Build stage of a repository that uses Asimov (asimov.md at its root). Not for a change that has no plan.
 argument-hint: the slug of a ready plan under specs/ — empty lists the plans and their status
 model: claude-sonnet-5-5
 allowed-tools: Read, Glob, Grep, Write, Edit, Bash, Skill, Agent
@@ -37,11 +36,13 @@ pwsh -NoProfile -File "${CLAUDE_PLUGIN_ROOT}/skills/artifact-s101-ledger/scripts
 
 $ARGUMENTS
 
-If the line above still reads `$ARGUMENTS` literally, the harness substitutes nothing (Codex): the input is whatever the person wrote after the invocation in the same message, or nothing.
+If the line above still reads `$ARGUMENTS` literally, the harness substitutes nothing (Codex): the input is whatever the person wrote after the invocation in the same message, or nothing. When you were invoked on the words of a message rather than by name, the input is that message.
 
 ---
 
-# Step 00 — Load the standards
+# Step 00 — The repo gate, then the standards
+
+**The repo gate.** Look for `asimov.md` at the root of the working directory. Present → continue without a word. Absent → ask one question and wait: *"This repository is not set up for Asimov (no `asimov.md` at its root). Build here anyway, or stop and run the setup first (`/asimov-init` in Claude Code, `$asimov-plugin:asimov-init` in Codex)?"* A *no* ends the run in one sentence. The gate exists because you are listed in every repository the plugin is installed in, while the Asimov context reaches only the marked ones.
 
 In Claude Code `${CLAUDE_PLUGIN_ROOT}` is the plugin root and is substituted for you. In Codex the variable stays literal and a `..` path resolves from the working directory, so derive the root once: take this skill's file path as Codex shows it, strip everything from `skills/asimov-build` onward, and use what remains as `<plugin-root>` in every plugin path, absolute. Verify it by reading file 1; if that fails, Glob `<home>/.codex/plugins/cache/**/s101-ledger-definition.md`, take the match whose path shares the longest prefix with the skill path, and if nothing matches stop and report the path you derived and the search you ran (the method of `D101-codex-support.html` §6.2). Read with the file-read tool:
 

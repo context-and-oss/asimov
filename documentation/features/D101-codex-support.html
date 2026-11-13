@@ -271,7 +271,7 @@ footer.site-footer a { color: var(--cyan); }
   <a href="../index.html#s6">Diagrams</a>
   <span class="spacer"></span>
   <span class="phase-chip full">Full design</span>
-  <span class="status-chip draft">Draft v0.14</span>
+  <span class="status-chip draft">Draft v0.15</span>
 </nav>
 
 <div class="layout-doc">
@@ -684,8 +684,8 @@ footer.site-footer a { color: var(--cyan); }
   <div class="subhead">The setup skill in Codex</div>
   <div class="data-table">
     <div class="row head cols-2"><div>Element</div><div>Value</div></div>
-    <div class="row cols-2"><div class="label-cell">SKILL.md frontmatter</div><div><code>name: asimov-init</code>, <code>disable-model-invocation: true</code>, <code>allowed-tools</code>, and a <code>model</code> only Claude Code binds; Codex runs the session's.</div></div>
-    <div class="row cols-2"><div class="label-cell">agents/openai.yaml</div><div>A display name and short description, and <code>policy.allow_implicit_invocation: false</code>; Claude Code ignores this file.</div></div>
+    <div class="row cols-2"><div class="label-cell">SKILL.md frontmatter</div><div><code>name: asimov-init</code>, <code>allowed-tools</code>, and a <code>model</code> only Claude Code binds; Codex runs the session's.</div></div>
+    <div class="row cols-2"><div class="label-cell">agents/openai.yaml</div><div>A display name, a short description and a default prompt, no <code>policy</code> block; Claude Code ignores this file.</div></div>
     <div class="row cols-2"><div class="label-cell">Invocation</div><div><code>$asimov-plugin:asimov-init</code>, by the developer; the text after it is the input (a repository-name override, or nothing).</div></div>
     <div class="row cols-2"><div class="label-cell">Plugin root</div><div>Derived once and verified (§6.2); never <code>${CLAUDE_PLUGIN_ROOT}</code>, never a <code>..</code> path.</div></div>
     <div class="row cols-2"><div class="label-cell">Per-target rules</div><div>In <a href="D101-asimov-init.html">D101-asimov-init.html</a>, not repeated here.</div></div>
@@ -870,7 +870,7 @@ footer.site-footer a { color: var(--cyan); }
     · <span class="mono">features/D101-codex-support.html</span>
   </div>
   <div style="margin-top: 0.4rem">
-    D101 · Codex support · asimov-plugin · Draft v0.14 · 2026-11-13
+    D101 · Codex support · asimov-plugin · Draft v0.15 · 2026-11-13
   </div>
 </footer>
 

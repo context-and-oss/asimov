@@ -301,7 +301,7 @@ footer.site-footer a { color: var(--cyan); }
   <a href="../index.html#s6">Diagrams</a>
   <span class="spacer"></span>
   <span class="phase-chip full">Full design</span>
-  <span class="status-chip draft">Draft v0.8</span>
+  <span class="status-chip draft">Draft v0.9</span>
 </nav>
 
 <div class="layout-doc">
@@ -456,7 +456,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="req"><div class="id">NF6</div><div class="body">The skill's frontmatter pins <code>claude-opus-5-5</code>, matching its row in <code>model-choice.md §1</code>; Claude Code binds it, Codex ignores the key and runs the session's model.</div></div>
     <div class="req"><div class="id">NF7</div><div class="body">The Asimov-managed region in an existing convention README is delimited by explicit <code>&lt;!-- asimov:start --&gt;</code>/<code>&lt;!-- asimov:end --&gt;</code> markers so a re-run refreshes exactly that region. The same markers delimited the <code>AGENTS.md</code> region until 2026-11-13; a run now recognises them only to remove it (R4).</div></div>
     <div class="req"><div class="id">NF9</div><div class="body">The context hook is bash with builtins only, started through <code>run-hook.cmd</code> (and <code>run-hook.ps1</code> where the hook shell is PowerShell); it reads the marker and the conventions folders and nothing else, never waits on stdin longer than five seconds, always exits 0, and prints nothing where no marker is.</div></div>
-    <div class="req"><div class="id">NF8</div><div class="body">Only a person starts the skill: its frontmatter carries <code>disable-model-invocation: true</code>, Claude Code's switch, and its <code>agents/openai.yaml</code> sets <code>allow_implicit_invocation: false</code>, Codex's, so neither tool's model selects it.</div></div>
+    <div class="req"><div class="id">NF8</div><div class="body">The skill is model-invocable: its frontmatter carries no <code>disable-model-invocation</code> and its <code>agents/openai.yaml</code> no <code>allow_implicit_invocation: false</code>; the write plan of Step 6 precedes every write, whoever started the run (reversed 2026-11-13).</div></div>
   </div>
 
   <div class="req-list" data-tab="oos" style="display:none">
@@ -868,7 +868,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="row cols-3"><div class="label-cell">Model</div><div><code>claude-opus-5-5</code> in frontmatter (NF6)</div><div>The same frontmatter, ignored; Codex runs the session's model</div></div>
     <div class="row cols-3"><div class="label-cell">Finds the plugin</div><div><code>${CLAUDE_PLUGIN_ROOT}</code>, which Claude Code substitutes with the real path before the prompt runs</div><div>Derives <code>&lt;plugin-root&gt;</code> from its own file path — two levels above the skill folder — and verifies it by reading the first template; on a miss, a Glob search under <code>&lt;home&gt;/.codex/plugins/cache/</code> for that template, then stop and report</div></div>
     <div class="row cols-3"><div class="label-cell">Targets</div><div>Every target of §4.3</div><div>Every target of §4.3; the <code>.codex/agents/</code> write waits for the developer's approval in the sandbox</div></div>
-    <div class="row cols-3"><div class="label-cell">Started only by a person</div><div><code>disable-model-invocation: true</code> in the frontmatter (NF8)</div><div><code>allow_implicit_invocation: false</code> in <code>openai.yaml</code>, Codex's own switch (NF8)</div></div>
+    <div class="row cols-3"><div class="label-cell">Model-invocable</div><div>No <code>disable-model-invocation</code> in the frontmatter; the write plan is the gate (NF8)</div><div>No <code>policy</code> block in <code>openai.yaml</code>, so Codex may select it too (NF8)</div></div>
     <div class="row cols-3"><div class="label-cell">Context hook file</div><div><code>hooks/hooks.json</code>, beside the run log's six registrations</div><div><code>hooks/hooks-codex.json</code>, named by the <code>hooks</code> key of <code>.codex-plugin/plugin.json</code>; the two context hooks only, so the Codex app lists two, not eight</div></div>
     <div class="row cols-3"><div class="label-cell">Hook shell</div><div>Git Bash: <code>"${CLAUDE_PLUGIN_ROOT}/hooks/run-hook.cmd" asimov-context</code> with <code>shell: bash</code>; the <code>.cmd</code> is a polyglot shim that finds bash on Windows and execs it elsewhere</div><div>PowerShell on Windows, where <code>"path" arg</code> is a syntax error, so <code>commandWindows</code> runs <code>run-hook.ps1</code>, which pipes the payload through the shim to Git Bash; bash directly on other platforms</div></div>
     <div class="row cols-3"><div class="label-cell">Hook trust</div><div>Installed with the plugin</div><div>Per hook hash, approved in the app; a changed hook asks again, and the app caches registrations until it restarts</div></div>
@@ -1282,7 +1282,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="ac-row"><div class="ac-id">AC29</div><div class="ac-verifies"><span class="verify-chip">R24</span></div><div>After a Codex run, <code>.codex/agents/</code> holds one <code>.toml</code> per file in the plugin's <code>agents/</code>, each byte-identical to its source; editing a copy and re-running restores it.</div></div>
     <div class="ac-row"><div class="ac-id">AC30</div><div class="ac-verifies"><span class="verify-chip">NF1</span></div><div>A Claude Code <code>/asimov-init</code> run and a Codex <code>$asimov-plugin:asimov-init</code> run produce byte-identical files for every target, the marker and the <code>.codex/agents/</code> copies included.</div></div>
     <div class="ac-row"><div class="ac-id">AC31</div><div class="ac-verifies"><span class="verify-chip">NF6</span></div><div>A Codex run of the skill, whose frontmatter reads <code>model: claude-opus-5-5</code>, does not fail on the key and runs on the session's model.</div></div>
-    <div class="ac-row"><div class="ac-id">AC32</div><div class="ac-verifies"><span class="verify-chip">NF8</span></div><div>The skill's frontmatter carries <code>disable-model-invocation: true</code> and its <code>agents/openai.yaml</code> carries <code>allow_implicit_invocation: false</code>; it appears in Claude Code's <code>/</code> menu and in Codex's skill list, and neither tool's model starts it on its own.</div></div>
+    <div class="ac-row"><div class="ac-id">AC32</div><div class="ac-verifies"><span class="verify-chip">NF8</span></div><div>The skill's frontmatter carries no <code>disable-model-invocation</code> and its <code>agents/openai.yaml</code> no <code>allow_implicit_invocation: false</code>; it appears in Claude Code's <code>/</code> menu and skill listing and in Codex's skill list, a message asking to set the repo up for Asimov starts it in either tool, and the write plan still precedes every write.</div></div>
     <div class="ac-row"><div class="ac-id">AC33</div><div class="ac-verifies"><span class="verify-chip">R25</span></div><div>The plan shows the four entry points with the current marker's values as the default; answering with one to disable writes that key <code>disabled</code> and the others <code>enabled</code>; answering <code>none</code> writes all four <code>disabled</code>.</div></div>
   </div>
 </section>
@@ -1373,7 +1373,7 @@ footer.site-footer a { color: var(--cyan); }
     · <span class="mono">features/D101-asimov-init.html</span>
   </div>
   <div style="margin-top: 0.4rem">
-    D101 · asimov-init · Asimov plugin · Full design · Draft v0.8 · 2026-11-13
+    D101 · asimov-init · Asimov plugin · Full design · Draft v0.9 · 2026-11-13
   </div>
 </footer>
 
