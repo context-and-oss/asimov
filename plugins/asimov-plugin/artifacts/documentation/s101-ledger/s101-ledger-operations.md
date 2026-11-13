@@ -1,21 +1,18 @@
----
-name: artifact-s101-ledger
-description: Read and write the run state of one build — the ledger specs/<slug>/S101-<slug>.ledger.md beside a ready S101 — so a run can start, record every attempt, report and ruling, resume where it stopped, and refuse when the plan changed. Use inside asimov-build for every ledger operation (start, position, record, discard, close), and by hand when asked "where did the build stop", "what did Powell say about P1", "resume the build". Its method is the script scripts/ledger.ps1 beside this file, run inline through Bash, one call per operation; the table here is the script's specification and the fallback where no PowerShell exists. The only writer of the ledger; never writes a spec, never runs an agent, never commits.
----
-
 # S101 ledger
 
-The method for the one file that holds a build's run state. `asimov-build` calls it and never touches the ledger itself; it writes the ledger and nothing else. The bar, the keys, the statuses and the five checks are the definition's (`${CLAUDE_PLUGIN_ROOT}/artifacts/documentation/s101-ledger/s101-ledger-definition.md`); the shape is the template's beside it.
+*The ledger operations of the S101 ledger artifact, beside its definition and template. `asimov-build` runs their script, `scripts/ledger.ps1` beside this file, one call per operation, and reads this file by path only where no PowerShell exists. A file, not a skill: nothing is substituted in it, so a sibling is named by its file name and anything else is `<plugin-root>/…`, the plugin root three folders above this file.*
 
-**The method is a script.** Every operation below is implemented in `scripts/ledger.ps1`, and the caller runs it inline through Bash: no skill text to load, no definition to re-read, no whole-file rewrite in the conversation. The first build run did these eleven operations by hand, each one a read of the definition, the template, the S101 and the ledger and a write of the whole file; the script does the same in one call and the same way twice. The table stays here as the script's specification and as the fallback where no PowerShell exists.
+The method for the one file that holds a build's run state. `asimov-build` calls it and never touches the ledger itself; it writes the ledger and nothing else. The bar, the keys, the statuses and the five checks are the definition's (`s101-ledger-definition.md`, beside this file); the shape is the template's beside it.
+
+**The method is a script.** Every operation below is implemented in `scripts/ledger.ps1`, and the caller runs it inline through Bash: no method text to load, no definition to re-read, no whole-file rewrite in the conversation. The first build run did these eleven operations by hand, each one a read of the definition, the template, the S101 and the ledger and a write of the whole file; the script does the same in one call and the same way twice. The table stays here as the script's specification and as the fallback where no PowerShell exists.
 
 ## The call
 
 ```
-pwsh -NoProfile -File "${CLAUDE_PLUGIN_ROOT}/skills/artifact-s101-ledger/scripts/ledger.ps1" -Op <operation> -S101 specs/<slug>/S101-<slug>.md [the operation's inputs]
+pwsh -NoProfile -File "<plugin-root>/artifacts/documentation/s101-ledger/scripts/ledger.ps1" -Op <operation> -S101 specs/<slug>/S101-<slug>.md [the operation's inputs]
 ```
 
-`pwsh` (PowerShell 7) or `powershell` (Windows PowerShell 5.1; add `-ExecutionPolicy Bypass`), whichever the machine has; the script runs on both. The ledger's path is derived from the S101's (`S101-<slug>.ledger.md` beside it) and the repo root from the folder above `specs/`, so the script runs from any working directory. In Codex, where `${CLAUDE_PLUGIN_ROOT}` is not substituted, derive the plugin root from this skill's own path (strip everything from `skills/artifact-s101-ledger` onward) and use it in the path; the script itself reads nothing of the plugin.
+`pwsh` (PowerShell 7) or `powershell` (Windows PowerShell 5.1; add `-ExecutionPolicy Bypass`), whichever the machine has; the script runs on both. The ledger's path is derived from the S101's (`S101-<slug>.ledger.md` beside it) and the repo root from the folder above `specs/`, so the script runs from any working directory; the script itself reads nothing of the plugin.
 
 **Text goes in through a file or stdin, never as an argument.** A builder's summary or a report is multi-line: write it to a file and pass `-TextFile <path>`, or pipe it on stdin with a heredoc (`… -Op review -S101 … -Phase P1 <<'EOF'` … `EOF`). `-Text` is for a one-liner.
 

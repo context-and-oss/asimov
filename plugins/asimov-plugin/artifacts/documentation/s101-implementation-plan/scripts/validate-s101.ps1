@@ -3,7 +3,8 @@
   The plan check of one S101 implementation plan, as a script.
 
 .DESCRIPTION
-  Implements the checklist of skills/artifact-s101-validation/SKILL.md: the nine
+  Implements the checklist of artifacts/documentation/s101-implementation-plan/
+  s101-implementation-plan-validation.md (beside this script's folder): the nine
   graph rows (G1-G9), the four cross-file rows (F2-F5, full mode) and the ten rows
   of s101-implementation-plan-definition.md section 8, answered by enumeration
   from the files' text and from lookups only (an id is in the design, a path
@@ -32,7 +33,7 @@
   graph-only, full, or auto (the default): auto is full when every task's S102 is
   on disk, else graph-only.
 .PARAMETER PluginRoot
-  The plugin root. Defaults to three folders above this script (skills/<skill>/scripts/).
+  The plugin root. Defaults to four folders above this script (artifacts/documentation/<artifact>/scripts/).
 .PARAMETER RepoRoot
   The product repo root every repo-relative path resolves against. Defaults to the
   current directory.
@@ -54,7 +55,7 @@ Set-StrictMode -Version 2
 $ErrorActionPreference = 'Stop'
 try { [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 } catch { }
 
-if ($PluginRoot -eq '') { $PluginRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $PSScriptRoot)) }  # skills/<skill>/scripts/ -> the plugin root
+if ($PluginRoot -eq '') { $PluginRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $PSScriptRoot))) }  # artifacts/documentation/<artifact>/scripts/ -> the plugin root
 if ($RepoRoot -eq '') {
   # The plan lives at <repo>/specs/<slug>/S101-<slug>.md, so the repo root is two folders
   # above it; derived from the S101 path so the script gives the same answer from any working directory.

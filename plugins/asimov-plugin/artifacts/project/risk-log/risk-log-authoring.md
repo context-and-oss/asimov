@@ -1,35 +1,34 @@
----
-name: artifact-risk-log-authoring
-description: The only writer of the risk log, project/risk-log.html — turn what a person said about the engagement's risks into one change file (register, change, decide a state, hand over, review, opt out, repair), in the project's language, with the reason and decider the state needs, and hand it to the risk-log script, which reads, checks and writes the page. Use inside asimov-project for every risk-log write, and by hand when asked to "add a risk to the register", "set RISK-004 to Accepted", "repair the risk log". Returns what is missing to its caller instead of asking; never edits the page in place, never calls another skill.
----
-
 # Risk log authoring
+
+*The authoring method of the risk log, beside its definition and template. `asimov-project` reads it by path at every register write and follows it as written. A file, not a skill: nothing is substituted in it, so a sibling is named by its file name and anything else is `<plugin-root>/…`, the plugin root three folders above this file.*
 
 You turn what was said into one change and hand it to the script. The script reads the page, applies the change, checks the result against what the page held and writes it; you decide only what the change is. You are the only writer of the register: nothing else writes `project/risk-log.html`.
 
 ## Read first
 
-Load with the file-read tool. In Claude Code `${CLAUDE_PLUGIN_ROOT}` is the plugin root and is substituted for you. In Codex the variable stays literal and a `..` path resolves from the working directory, so derive the root once: take this skill's file path as Codex shows it, strip everything from `skills/artifact-risk-log-authoring` onward, and use what remains as `<plugin-root>` in every path below, absolute. Verify it by reading file 1; if that fails, Glob `<home>/.codex/plugins/cache/**/risk-log-definition.md`, take the match whose path shares the longest prefix with the skill path, and if nothing matches stop and report the path you derived and the search you ran (the method of `D101-codex-support.html` §6.2).
+Load with the file-read tool. Both files sit beside this file, in the folder you read it from; never a relative path in a tool call, since the working directory is the product repo. If file 1 cannot be read, stop and report the path.
 
 1. **The definition**: the fields, the five states and what each requires, the rules RL1–RL17, the bar.
 
    ```
-   ${CLAUDE_PLUGIN_ROOT}/artifacts/project/risk-log/risk-log-definition.md
+   risk-log-definition.md — beside this file
    ```
 
 2. **The template**, only where no PowerShell runs (the fallback below): its leading comment names every element and attribute the page holds.
 
    ```
-   ${CLAUDE_PLUGIN_ROOT}/artifacts/project/risk-log/risk-log-template.html
+   risk-log-template.html — beside this file
    ```
 
 ## The script
 
+The script is `scripts/risk-log.ps1` beside this file; a command line names it absolute, under `<plugin-root>`, the plugin root the caller derived:
+
 ```
-pwsh -NoProfile -File "${CLAUDE_PLUGIN_ROOT}/skills/artifact-risk-log-authoring/scripts/risk-log.ps1" -Path project/risk-log.html <action>
+pwsh -NoProfile -File "<plugin-root>/artifacts/project/risk-log/scripts/risk-log.ps1" -Path project/risk-log.html <action>
 ```
 
-(`powershell -NoProfile -ExecutionPolicy Bypass -File …` with only Windows PowerShell; in Codex `<plugin-root>` replaces the variable.) One action per call: `-Read` (with `-Area <text>` to learn the areas nearly the same), `-View`, `-Apply -Change <file>`, `-Repair`, `-Finish`; `-By <name>` when the caller passes a person. Exit codes: 0 done, 1 refused by a rule (the rule on stdout, nothing written), 2 an input could not be read, 3 no person (`git config user.name` unset and no `-By`). Relay the line the script prints; never reword a refusal into a success.
+(`powershell -NoProfile -ExecutionPolicy Bypass -File …` with only Windows PowerShell.) One action per call: `-Read` (with `-Area <text>` to learn the areas nearly the same), `-View`, `-Apply -Change <file>`, `-Repair`, `-Finish`; `-By <name>` when the caller passes a person. Exit codes: 0 done, 1 refused by a rule (the rule on stdout, nothing written), 2 an input could not be read, 3 no person (`git config user.name` unset and no `-By`). Relay the line the script prints; never reword a refusal into a success.
 
 ## Inputs from the caller
 

@@ -1,21 +1,18 @@
----
-name: artifact-s101-validation
-description: Validate an S101 implementation plan against its bar, dispatch-ready, in one of two modes — graph-only on the S101 alone (frontmatter parses as the phase tree, no cycle, tester before builder in every slice, every slice task after the Foundation where the plan has one, contracts table consistent, coverage both ways against the design), used at the cut before any S102 exists; or full with every S102 in the folder (the graph checks again, then disjoint owned sets and interface closure from the S102 headers, no contradicted constraint, every S102 header equal to its task line) — then the ten checks of the S101 definition §8, one row each, Pass / Flag / Fail / Warn / not yet with one sentence. Use when asked to "validate this plan", "run the graph checks on the cut", "is this S101 dispatch-ready", or inside asimov-spec (steps 03 and 07, and the re-check of a ready plan). Its method is the script skills/artifact-s101-validation/scripts/validate-s101.ps1, run inline through Bash; the checklist here is the script's specification and the fallback where no PowerShell exists. It edits nothing, proposes no fix, moves no status.
----
-
 # S101 validation
 
-The check of the plan: does it clear its bar, and does it agree with itself and with its task specs. Its checks are cross-file and mechanical, a schema check across several files: every row is answered by enumeration (list the ids, list the pairs, compare the sets), never by judgement. The verdict stays the author's; this skill answers rows. **It runs nothing**: no build, no test; it looks a thing up (an id in the design, a path on disk, a package in a project file, a file in the folder). **It opens nothing the plan or a task spec does not name.**
+*The validation method of the S101 artifact, beside its definition and template. `asimov-spec` runs its script, `scripts/validate-s101.ps1` beside this file, at the cut and at the end of a run, and reads this file by path only where no PowerShell exists. A file, not a skill: nothing is substituted in it, so a sibling is named by its file name and anything else is `<plugin-root>/…`, the plugin root three folders above this file.*
 
-**The check is a script.** Every row below is implemented, row for row, in `skills/artifact-s101-validation/scripts/validate-s101.ps1`, and the caller runs it inline through Bash; no subagent is spawned for it. The checklist stays here as the script's specification and as the fallback where no PowerShell exists. Two LLM validators per run on Opus cost a developer's two-task run 120k tokens and gave different answers on unchanged text; the script answers in a second and the same way twice.
+The check of the plan: does it clear its bar, and does it agree with itself and with its task specs. Its checks are cross-file and mechanical, a schema check across several files: every row is answered by enumeration (list the ids, list the pairs, compare the sets), never by judgement. The verdict stays the author's; this method answers rows. **It runs nothing**: no build, no test; it looks a thing up (an id in the design, a path on disk, a package in a project file, a file in the folder). **It opens nothing the plan or a task spec does not name.**
+
+**The check is a script.** Every row below is implemented, row for row, in `scripts/validate-s101.ps1` beside this file, and the caller runs it inline through Bash; no subagent is spawned for it. The checklist stays here as the script's specification and as the fallback where no PowerShell exists. Two LLM validators per run on Opus cost a developer's two-task run 120k tokens and gave different answers on unchanged text; the script answers in a second and the same way twice.
 
 ## The call
 
 ```
-pwsh -NoProfile -File "${CLAUDE_PLUGIN_ROOT}/skills/artifact-s101-validation/scripts/validate-s101.ps1" -S101 <S101 path> [-Mode graph-only | full] [-Design <design path>]
+pwsh -NoProfile -File "<plugin-root>/artifacts/documentation/s101-implementation-plan/scripts/validate-s101.ps1" -S101 <S101 path> [-Mode graph-only | full] [-Design <design path>]
 ```
 
-`pwsh` (PowerShell 7) or `powershell` (Windows PowerShell 5.1; add `-ExecutionPolicy Bypass`), whichever the machine has; the script runs on both. The repo-relative paths resolve against the product repo root, derived from the S101 path (`<root>/specs/<slug>/`), so the script runs from any working directory (`-RepoRoot` overrides it); `-PluginRoot <plugin-root>` in Codex, where the variable is not substituted. Without `-Mode` the folder decides (full when every task's S102 is on disk). Without `-Design` the script reads the S101's `design` line: the cache when there is one, else the ref when it is a file in the repo.
+`pwsh` (PowerShell 7) or `powershell` (Windows PowerShell 5.1; add `-ExecutionPolicy Bypass`), whichever the machine has; the script runs on both. The repo-relative paths resolve against the product repo root, derived from the S101 path (`<root>/specs/<slug>/`), so the script runs from any working directory (`-RepoRoot` overrides it); the plugin root it derives from its own location, four folders above it, `-PluginRoot <plugin-root>` overrides. Without `-Mode` the folder decides (full when every task's S102 is on disk). Without `-Design` the script reads the S101's `design` line: the cache when there is one, else the ref when it is a file in the repo.
 
 **Return the script's output verbatim** and nothing else. Exit code 2 means an input could not be read; the one line it prints says which, and that line is the report. **Never** "correct" a row, add a row, or soften one.
 
@@ -28,7 +25,7 @@ pwsh -NoProfile -File "${CLAUDE_PLUGIN_ROOT}/skills/artifact-s101-validation/scr
 | **graph-only** | At the cut: the S101 exists and no S102 does. Also what a cut gets on a re-check. | The S101 and the design. |
 | **full** | Every task in the tree has its S102 on disk. | The S101, every S102 in the folder, the design. |
 
-The design is what the S101 header's `design` line names: a repo file at `design.ref` (a D101), or the normalised cache at `design.cache` (`specs/<slug>/design.md`, in the shape the S101 definition §9 fixes). Read `${CLAUDE_PLUGIN_ROOT}/contracts/design.md` first; you check the design through its members.
+The design is what the S101 header's `design` line names: a repo file at `design.ref` (a D101), or the normalised cache at `design.cache` (`specs/<slug>/design.md`, in the shape the S101 definition §9 fixes). Read `<plugin-root>/contracts/design.md` first; you check the design through its members.
 
 The caller states the mode; absent that, the folder decides: no `S102-*.md` → graph-only; every task's file present (`S102-<slug>-<NNN>-*.md`, NNN the task's number) → full; some present, some not → graph-only, and G9 names the missing ones. In graph-only mode a check that needs the S102s is reported **not yet**, never Pass.
 
@@ -36,18 +33,18 @@ The caller states the mode; absent that, the folder decides: no `S102-*.md` → 
 
 ## Read first (the fallback; the script reads the same and nothing else)
 
-Load with the file-read tool. In Claude Code `${CLAUDE_PLUGIN_ROOT}` is the plugin root and is substituted for you. In Codex the variable stays literal and a `..` path resolves from the working directory, so derive the root once: take this skill's file path as Codex shows it, strip everything from `skills/artifact-s101-validation` onward, and use what remains as `<plugin-root>` in every path below, absolute. Verify it by reading file 1; if that fails, Glob `<home>/.codex/plugins/cache/**/s101-implementation-plan-definition.md`, take the match whose path shares the longest prefix with the skill path, and if nothing matches stop and report the path you derived and the search you ran (the method of `D101-codex-support.html` §6.2). If 1 cannot be read either way, stop and report the path.
+Load with the file-read tool. Files 1 and 2 sit beside this file, in the folder you read it from; never a relative path in a tool call, since the working directory is the product repo. If 1 cannot be read, stop and report the path.
 
 1. **The S101 definition, §8.1 only** — the thresholds block (search for `thresholds:`); the rest of the definition is rationale this checklist already carries:
 
    ```
-   ${CLAUDE_PLUGIN_ROOT}/artifacts/documentation/s101-implementation-plan/s101-implementation-plan-definition.md
+   s101-implementation-plan-definition.md — beside this file
    ```
 
 2. **The S101 template** — the frontmatter keys, the role and tier values in its leading comment, and the body sections a conforming plan has (the template is the schema):
 
    ```
-   ${CLAUDE_PLUGIN_ROOT}/artifacts/documentation/s101-implementation-plan/s101-implementation-plan-template.md
+   s101-implementation-plan-template.md — beside this file
    ```
 
 3. **The target S101**, whole: parse the frontmatter as YAML before anything else. **The design** it names: a D101's every R, NF and AC id in §3 and §8 and its §6 numbers, or the cache's every R, NF, AC and OOS item. **In full mode**, every S102 in the folder, whole; their headers carry `owns`, `consumes` and `produces`. **The repo**, for paths the contracts table links. Every row is answered against the code on disk.
@@ -73,9 +70,9 @@ Run first, in this order, every time, from the frontmatter alone plus the design
 | # | Item | Result rule |
 |---|---|---|
 | F2 | Header equals task line | Per S102: `task`, `title`, `role`, `tier`, `after`, `traces` equal its line in the tree (lists compared as sets). A difference → **Fail**, naming the task and the field. |
-| F3 | Interface closure across headers | Every entry in an S102's `consumes` is one of three: a row of §1 whose *Produced by* is a task this one comes after (no column records the consumer; the header is the record); existing code in the form `<Name> (<repo-relative path>)` whose path exists on disk (the blind check verified the member; here the path suffices); or a package type in the form `<Name> (package <PackageId>)` where **any** project file in the repo references that package (a `PackageReference` or `PackageVersion` with that id, or a `package.json` entry); the owned project need not reference it directly, since a test project reaches most packages through a project reference, and this is the lookup `skills/artifact-s102-validation/scripts/validate-s102.ps1` makes. Every name in an S102's `produces` is a row of §1 whose *Produced by* names that task. Otherwise **Fail**, naming the task and the name. |
+| F3 | Interface closure across headers | Every entry in an S102's `consumes` is one of three: a row of §1 whose *Produced by* is a task this one comes after (no column records the consumer; the header is the record); existing code in the form `<Name> (<repo-relative path>)` whose path exists on disk (the blind check verified the member; here the path suffices); or a package type in the form `<Name> (package <PackageId>)` where **any** project file in the repo references that package (a `PackageReference` or `PackageVersion` with that id, or a `package.json` entry); the owned project need not reference it directly, since a test project reaches most packages through a project reference, and this is the lookup the S102 artifact's `scripts/validate-s102.ps1` makes. Every name in an S102's `produces` is a row of §1 whose *Produced by* names that task. Otherwise **Fail**, naming the task and the name. |
 | F4 | Constraints | Line against line, on subject and value, as the S102 validation's row 10: an S102 §4 line that requires what an S101 §2 line forbids on the same subject (the same abstraction, layer, dependency, value or file), or the reverse → **Fail**, quoting both; a §4 line whose subject and value are a §2 line's with nothing added for the task → **Flag**, quoting both; a line that narrows a §2 line to its task, or that shares words but not subject and value → no finding. |
-| F5 | S102 bars | Every S102 the tree names carries `status: validated` with a date in `validated` → **Pass**; one still `draft` → **Fail** naming the tasks (its blind check has not cleared, or a rewrite reset it). The mark is asimov-spec's record of the clean blind report; this skill never re-runs that check. |
+| F5 | S102 bars | Every S102 the tree names carries `status: validated` with a date in `validated` → **Pass**; one still `draft` → **Fail** naming the tasks (its blind check has not cleared, or a rewrite reset it). The mark is asimov-spec's record of the clean blind report; this method never re-runs that check. |
 
 **Name the source of a Fail.** When a plan defect cannot be fixed in the plan because the design does not settle it (a criterion with no observable outcome, so no checkpoint can name a test; a requirement no task can serve because the D101 or the ticket never says what would satisfy it), begin the sentence with `design:`. Everything else is the plan's or a task's. The caller stops on `design:` and routes the rest.
 
@@ -133,7 +130,7 @@ One sentence per reason, naming the task, pair, file or id it is about, so the c
 - **Mark a row Pass in graph-only mode when it needs the S102s.** *not yet* is the honest value.
 - **Fail what would stop no builder.** A long title, a command inside a checkpoint sentence, a restated constraint are Flags.
 - **Re-run the S102 validation.** F5 reads the `validated` marks; it never produces them.
-- **Render the plan** for a person; artifact-s101-view does.
+- **Render the plan** for a person; `s101-implementation-plan-view.md` does.
 - **Move a status**, or write the sidecar; the asimov-skills write `S101-<slug>.review.md`, you return text.
 
 ## Used by

@@ -1,21 +1,18 @@
----
-name: artifact-s102-validation
-description: Validate one S102 task spec against its shape, the way a JSON file is checked against its schema — header keys present and equal to the task line in the S101 tree, owned paths that exist or are created upstream, consumed names in a plan row, declared at their path or in a referenced package, no placeholder, no code block but Gherkin, no done-when that greps the source, a builder's done-when naming its tester's tests, counts against the size thresholds. The check is a script, skills/artifact-s102-validation/scripts/validate-s102.ps1, run inline with no subagent; it reads the files and looks things up, never runs code and never judges content, and two runs on unchanged files agree. Use when asked to "validate this S102", "check this task spec's shape", "does task T003 conform", inside asimov-spec after every write and on every task spec in a re-check, or on a hand-edited S102. Read-only, run-nothing; it edits nothing, proposes no fix, decides nothing.
----
-
 # S102 validation
+
+*The validation method of the S102 artifact, beside its definition and template. `asimov-spec` runs its script, `scripts/validate-s102.ps1` beside this file, after every task spec write and on every re-check (the authoring file runs the same script on its own output), and reads this file by path only where no PowerShell exists. A file, not a skill: nothing is substituted in it, so a sibling is named by its file name and anything else is `<plugin-root>/…`, the plugin root three folders above this file.*
 
 The shape check of one task spec. It answers one question: **does this file conform to the S102 form**, the way a schema check answers whether a file is valid JSON. Every row is answered by reading text and looking something up: a key is present, a path exists, a name is declared in the file the header points at, an id is in the design, a test name matches the tester's list, a count is under a threshold. No row is answered by judgement, and none by running anything. Whether the scenarios are the *right* ones is the author's question at the cut and the reviewer's at the PR; whether the code *works* is the verifier's after the build. This check asks neither.
 
-**The check is a script.** The S102 definition §8 says a script replaces the checklist when two runs disagree, and the first runs disagreed (a row went Flag to Pass on unchanged text) while costing some 70,000 tokens per check. So the checklist below is implemented, row for row, in `skills/artifact-s102-validation/scripts/validate-s102.ps1`, and this skill's job is to run it and return what it prints. The checklist stays here as the specification of the script and as the fallback where no PowerShell exists.
+**The check is a script.** The S102 definition §8 says a script replaces the checklist when two runs disagree, and the first runs disagreed (a row went Flag to Pass on unchanged text) while costing some 70,000 tokens per check. So the checklist below is implemented, row for row, in `scripts/validate-s102.ps1` beside this file, and the caller's job is to run it and return what it prints. The checklist stays here as the specification of the script and as the fallback where no PowerShell exists.
 
 ## The call
 
 ```
-pwsh -NoProfile -File "${CLAUDE_PLUGIN_ROOT}/skills/artifact-s102-validation/scripts/validate-s102.ps1" -S102 <S102 path> -S101 <S101 path> -Design <design path>
+pwsh -NoProfile -File "<plugin-root>/artifacts/documentation/s102-task-spec/scripts/validate-s102.ps1" -S102 <S102 path> -S101 <S101 path> -Design <design path>
 ```
 
-`pwsh` (PowerShell 7) or `powershell` (Windows PowerShell 5.1; add `-ExecutionPolicy Bypass`), whichever the machine has; the script runs on both. The paths are repo-relative to the product repo root, which the script derives from the S101 path (`<root>/specs/<slug>/`), so it runs from any working directory; `-RepoRoot` overrides it. The design path is the D101 (`documentation/features/D101-<slug>.html`) or the normalised design (`specs/<slug>/design.md`); the S101 header's `design` line says which: `ref` for a repo file, `cache` for a normalised one. The script finds the plugin root from its own location; in Codex, where `${CLAUDE_PLUGIN_ROOT}` is not substituted, derive the root once (take this skill's file path as Codex shows it, strip everything from `skills/artifact-s102-validation` onward; if the script is not under it, Glob `<home>/.codex/plugins/cache/**/scripts/validate-s102.ps1` and take the match whose path shares the longest prefix with the skill path) and pass `-PluginRoot <root>`.
+`pwsh` (PowerShell 7) or `powershell` (Windows PowerShell 5.1; add `-ExecutionPolicy Bypass`), whichever the machine has; the script runs on both. The paths are repo-relative to the product repo root, which the script derives from the S101 path (`<root>/specs/<slug>/`), so it runs from any working directory; `-RepoRoot` overrides it. The design path is the D101 (`documentation/features/D101-<slug>.html`) or the normalised design (`specs/<slug>/design.md`); the S101 header's `design` line says which: `ref` for a repo file, `cache` for a normalised one. The script finds the plugin root from its own location, four folders above it; `-PluginRoot <plugin-root>` overrides it.
 
 **Return the script's output verbatim** and nothing else. Exit code 2 means an input could not be read; the one line it prints says which, and that line is the report. **Never** "correct" a row, add a row, or soften one.
 
@@ -26,14 +23,14 @@ pwsh -NoProfile -File "${CLAUDE_PLUGIN_ROOT}/skills/artifact-s102-validation/scr
 1. **The S102 template**, for the header keys and the section order a conforming file has (the template is the schema), and the **S101 template**'s leading comment for the role and tier values:
 
    ```
-   ${CLAUDE_PLUGIN_ROOT}/artifacts/documentation/s102-task-spec/s102-task-spec-template.md
-   ${CLAUDE_PLUGIN_ROOT}/artifacts/documentation/s101-implementation-plan/s101-implementation-plan-template.md
+   s102-task-spec-template.md — beside this file
+   <plugin-root>/artifacts/documentation/s101-implementation-plan/s101-implementation-plan-template.md
    ```
 
 2. **The thresholds**, the `thresholds:` block of §8.1 of the S101 definition:
 
    ```
-   ${CLAUDE_PLUGIN_ROOT}/artifacts/documentation/s101-implementation-plan/s101-implementation-plan-definition.md
+   <plugin-root>/artifacts/documentation/s101-implementation-plan/s101-implementation-plan-definition.md
    ```
 
 3. **The target S102**, whole.
@@ -113,11 +110,11 @@ One sentence per reason. No summary line, no verdict, no suggestion of a fix. Th
 - **Open a file the spec does not name**, read a file's logic, or read the design beyond finding an id.
 - **Judge content**: whether the scenarios are the right ones, whether a test would pass today, whether the task fits one sitting, whether a command is the conventions'. The author judged at the cut; the reviewer judges at the PR; the verifier runs the code after the build.
 - **Change a row the script returned**, soften a Fail, or add a finding of your own.
-- **Edit** the S102, the S101, the design or any file. **Propose** no fix; the authoring skill decides how to clear a row.
+- **Edit** the S102, the S101, the design or any file. **Propose** no fix; the authoring file decides how to clear a row.
 - **Return anything but the report** and the template findings.
 
 ## Used by
 
 - asimov-spec, step 06, inline through **Bash** (no subagent), after every S102 write; asimov-spec in mode recheck, the same call per S102 in the folder.
-- A hand-edited S102, by skill name, before it goes to review.
+- A hand-edited S102, by the script, before it goes to review.
 - The maintainer, to regression-test the script: a fixture repo with a plan and two task specs is enough.

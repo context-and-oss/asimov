@@ -3,7 +3,8 @@
   The project info's script: read, render, check and write the project's record, project/info.html.
 
 .DESCRIPTION
-  Implements the method of skills/artifact-project-info-authoring/SKILL.md on the one file that
+  Implements the method of project-info-authoring.md, the file one folder above this script
+  (artifacts/project/project-info/, beside the definition), on the one file that
   holds a project's metadata. The page is the record: the script reads it back from the table
   cells and paragraphs the template names (artifacts/project/project-info/project-info-template.html)
   and renders the links and marks without ever reading them. The model decides only the change;
@@ -41,7 +42,8 @@
   The name of the repository the page is in, to mark the areas held here. Defaults to the git
   remote's repository name, then the folder name.
 .PARAMETER PluginRoot
-  The plugin root, where the template is read from. Defaults to three folders above this script.
+  The plugin root, where the template is read from. Defaults to four folders above this script
+  (scripts/ -> project-info -> project -> artifacts -> the plugin root).
 
 .OUTPUTS
   Exit codes:
@@ -69,7 +71,7 @@ Set-StrictMode -Version 2.0
 $ErrorActionPreference = 'Stop'
 try { [Console]::OutputEncoding = New-Object System.Text.UTF8Encoding $false } catch { }
 
-if (-not $PluginRoot) { $PluginRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $PSScriptRoot)) }
+if (-not $PluginRoot) { $PluginRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $PSScriptRoot))) }
 $TemplatePath = Join-Path $PluginRoot 'artifacts/project/project-info/project-info-template.html'
 $Utf8 = New-Object System.Text.UTF8Encoding $false
 

@@ -6,20 +6,21 @@
 <title>D101 — {{Feature name}} — {{Repo}} docs</title>
 <!--
   D101 HTML template — the visual + structural contract for D101 feature
-  designs. Read at run-time by two skills and, through them, two asimov-skills:
-    artifact-d101-authoring  — the rendering procedure + authoring invariants; drafts
-                               by it: asimov-design (interview → new D101; a named
+  designs. Read at run-time through the two method files beside it and, through
+  them, by the asimov-design skill:
+    d101-feature-design-authoring.md — the rendering procedure + authoring invariants;
+                               drafts by it: asimov-design (interview → new D101; a named
                                legacy markdown path → HTML), and any hand edit of a D101
-    artifact-d101-gap-review — judges a draft against this comment's ground rules +
+    d101-feature-design-review.md    — judges a draft against this comment's ground rules +
                                component catalogue and the definition's bars;
-                               asimov-design's review path delegates its gap review to it
+                               asimov-design's review path (Step 10) runs it
   This comment is the single home of the component catalogue, the N/A policy, the
-  selection principles and the style rules — the skills and asimov-skills reference it,
-  never restate it.
+  selection principles and the style rules — the method files and asimov-design reference
+  it, never restate it.
 
   HOW TO USE
-  - This file is a working, render-faithful example. The skills above
-    read it at run-time to learn the visual language; they produce or
+  - This file is a working, render-faithful example. asimov-design
+    reads it at run-time to learn the visual language; they produce or
     judge HTML files using the same CSS and the same component classes.
   - When rendering a real D101, replace placeholder values like {{X}} and
     keep the structural shells (top-nav, layout-doc grid + sidebar, hero,

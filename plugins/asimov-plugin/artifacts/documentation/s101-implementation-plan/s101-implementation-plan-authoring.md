@@ -1,20 +1,17 @@
----
-name: artifact-s101-authoring
-description: How to cut one design that meets contracts/design.md, a D101 at Full design or a normalised design cache, into one S101 implementation plan (specs/<slug>/S101-<slug>.md) — the plan part of a specification under contracts/specification.md: slices from the acceptance criteria, a Foundation phase 0 only when the plan needs one (the contracts as code, whatever every slice builds against), a tester task before the builder tasks in every slice that adds behaviour and one test-first builder per stack in a maintenance slice, a close phase when the run needs one, the contracts stated once, the constraints the design imposes, the coverage map, the assumptions — and write it from the template. Use when asked to "cut this D101 into a plan", "write the S101 for this feature", "re-cut the plan with this correction", or inside asimov-spec at every cut round. Writes the S101 only; never an S102, never a question, never the view (artifact-s101-view prints the plan); it runs the graph script on its own cut before returning.
----
-
 # S101 authoring
 
-One design in, one S101 draft out. This skill owns what the plan says and how it is written. asimov-spec owns the conversation, `skills/artifact-s101-validation/scripts/validate-s101.ps1` the bar, artifact-s101-view the rendering. A skill is a leaf: it reads artifacts and calls no other skill.
+*The method file of the S101 artifact, beside its definition and template. The plan writer subagent `asimov-spec` spawns reads it by path at every cut, re-cut and finalise and follows it as written. A file, not a skill: nothing is substituted in it, so a sibling is named by its file name and anything else is `<plugin-root>/…`, the plugin root three folders above this file.*
+
+One design in, one S101 draft out. This file owns what the plan says and how it is written. asimov-spec owns the conversation, `scripts/validate-s101.ps1` beside this file the bar, `s101-implementation-plan-view.md` the rendering. A method file is a leaf: it reads artifacts and calls no skill.
 
 ## Read first
 
-`${CLAUDE_PLUGIN_ROOT}` is substituted in Claude Code. In Codex it stays literal: derive `<plugin-root>` from this skill's own path (strip everything from `skills/artifact-s101-authoring` onward), verify by reading file 1, else Glob `<home>/.codex/plugins/cache/**/s101-implementation-plan-template.md` and take the match that shares the longest prefix with the skill path; with no match, stop and report (`D101-codex-support.html` §6.2). If 1 or 2 cannot be read, stop and report the path; never plan from a remembered shape.
+Files 1 and 2 sit beside this file, in the folder you read it from; never a relative path in a tool call, since the working directory is the product repo. If 1 or 2 cannot be read, stop and report the path; never plan from a remembered shape.
 
-**This skill is the method, the template is the shape, the script is the bar.** Do not read the definitions or the contracts: what they require is in the steps below, the template's leading comment and the script's rows. The definitions are cited by section where a rule comes from.
+**This file is the method, the template is the shape, the script is the bar.** Do not read the definitions or the contracts: what they require is in the steps below, the template's leading comment and the script's rows. The definitions are cited by section where a rule comes from.
 
-1. **The S101 template**, whole: `${CLAUDE_PLUGIN_ROOT}/artifacts/documentation/s101-implementation-plan/s101-implementation-plan-template.md`
-2. **The thresholds**: in `${CLAUDE_PLUGIN_ROOT}/artifacts/documentation/s101-implementation-plan/s101-implementation-plan-definition.md`, the `thresholds:` block and the ten lines after it, nothing more of the file.
+1. **The S101 template**, whole: `s101-implementation-plan-template.md`, beside this file
+2. **The thresholds**: in `s101-implementation-plan-definition.md`, beside this file, the `thresholds:` block and the ten lines after it, nothing more of the file.
 3. **The design**, whole. A D101: §3 (R, NF, out of scope), §4.5 rules, §6 contracts by number, §8 acceptance criteria, §9 open questions; its `.phase-chip` must read `Full design`, else return *refused: not at Full design* and write nothing. A normalised design (`specs/<slug>/design.md`): one section per contract member; a required member missing → *refused: design incomplete* naming it, nothing written.
 4. **The conventions**: `documentation/conventions/<stack>/README.md` per stack the design touches, and of the files it lists only those that give the build and test commands, the runner and the layering (the Read tool does not expand `@`-imports). Never copied into the plan: the builder loads them.
 5. **The repo, by a list, in one turn.** List first, from the design and the conventions: each file the design names or the criteria will change; one search per existing name a task must use, to place its declaring file; the test class of the code a slice changes; the project file of the owned project, for package ids. Then issue every read in **one message** as parallel tool calls, and every search in a second. Nothing else: no callers, no neighbouring folders, no file opened to see how it works, no second read. You are planning, not building; a ticket-sized cut is about fifteen tool calls after these.
@@ -61,7 +58,7 @@ Missing inputs take the default in brackets.
 12. **Check your own graph.** Through Bash:
 
    ```
-   pwsh -NoProfile -File "${CLAUDE_PLUGIN_ROOT}/skills/artifact-s101-validation/scripts/validate-s101.ps1" -S101 <the S101> -Mode graph-only
+   pwsh -NoProfile -File "<plugin-root>/artifacts/documentation/s101-implementation-plan/scripts/validate-s101.ps1" -S101 <the S101> -Mode graph-only
    ```
 
    (`powershell -NoProfile -ExecutionPolicy Bypass -File …` with only Windows PowerShell; `-PluginRoot <plugin-root>` in Codex.) Fix every Fail the plan can fix (a builder not after its tester, a cross-slice `after`, a coverage row missing or naming an id the design lacks, a command in a `checkpoint`, a title over the length) and run it again, at most twice. A `design:` row is not yours to fix: it becomes a `design:` assumption. Flags and Warns are left. With no PowerShell, skip and say so in the return line. The caller's run is the record.
@@ -93,9 +90,9 @@ Missing inputs take the default in brackets.
 - Invent a stack, a runner, a path or a signature: what you cannot ground is an assumption with its options, or a `design:` row.
 - Read the ticket anywhere but the cache, or fix the cache: a defect in it is a `design:` row.
 - Touch a task in `keep`, or anything but §1, §3 and §6 in `finalise`.
-- Bake a product entity into this skill.
+- Bake a product entity into this file.
 
 ## Used by
 
 - asimov-spec: step 02 per cut round; step 07 with a plan-level row as `cut_feedback` and every clearing task in `keep`; step 08 in mode `finalise`.
-- A hand run: print the plan with artifact-s101-view before calling artifact-s102-authoring per task.
+- A hand run: print the plan with `s101-implementation-plan-view.md` before following `s102-task-spec-authoring.md` (in the S102 artifact's folder, `<plugin-root>/artifacts/documentation/s102-task-spec/`) per task.

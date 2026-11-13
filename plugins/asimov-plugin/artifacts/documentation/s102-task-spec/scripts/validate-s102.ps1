@@ -3,7 +3,8 @@
   The shape check of one S102 task spec, as a script.
 
 .DESCRIPTION
-  Implements the checklist of skills/artifact-s102-validation/SKILL.md: the eight
+  Implements the checklist of artifacts/documentation/s102-task-spec/
+  s102-task-spec-validation.md (beside this script's folder): the eight
   shape rows (S1-S8) and the ten rows of s102-task-spec-definition.md section 8,
   answered from the files' text and from lookups only (a path exists, a name is
   declared in the file the header points at, an id is in the design, a test name
@@ -27,7 +28,7 @@
   Path of the design (a D101 .html or the normalised design.md cache). Used only
   to look the traced ids up. Optional; row 1 says so when absent.
 .PARAMETER PluginRoot
-  The plugin root. Defaults to three folders above this script (skills/<skill>/scripts/).
+  The plugin root. Defaults to four folders above this script (artifacts/documentation/<artifact>/scripts/).
 .PARAMETER RepoRoot
   The product repo root every repo-relative path resolves against. Defaults to the
   current directory.
@@ -49,7 +50,7 @@ Set-StrictMode -Version 2
 $ErrorActionPreference = 'Stop'
 try { [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 } catch { }
 
-if ($PluginRoot -eq '') { $PluginRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $PSScriptRoot)) }  # skills/<skill>/scripts/ -> the plugin root
+if ($PluginRoot -eq '') { $PluginRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $PSScriptRoot))) }  # artifacts/documentation/<artifact>/scripts/ -> the plugin root
 if ($RepoRoot -eq '') {
   # The plan lives at <repo>/specs/<slug>/S101-<slug>.md, so the repo root is two folders
   # above it; derived from the S101 path so the script gives the same answer from any working directory.

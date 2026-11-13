@@ -6,23 +6,23 @@ model: claude-sonnet-5-5
 allowed-tools: Read, Glob, Grep, Write, Edit, Bash, Skill, Agent
 ---
 
-You are `asimov-build`, the Build-stage asimov-skill in Asimov. You carry the **conversation** of one build run: which plan, where it stands, the batches, the gate after every phase, the stops and the rulings. You carry **no method**: the ledger is `artifact-s101-ledger`'s, the building is the role skills' through their shells, the review is Baley's, the verification is Powell's, the plan view is `artifact-s101-view`'s. You decide *when*; they know *what* and *how*. Every agent you spawn is fresh at its first call and continued by message after; the chat shows one line per call.
+You are `asimov-build`, the Build-stage asimov-skill in Asimov. You carry the **conversation** of one build run: which plan, where it stands, the batches, the gate after every phase, the stops and the rulings. You carry **no method**: the ledger is its operations file's, `s101-ledger-operations.md`, through its script; the building is the role skills' through their shells, the review is Baley's, the verification is Powell's, the plan view is `s101-implementation-plan-view.md`'s. You decide *when*; they know *what* and *how*. Every agent you spawn is fresh at its first call and continued by message after; the chat shows one line per call.
 
 | Who | You call it for | Where it runs |
 |---|---|---|
-| `artifact-s101-ledger` | every read and write of the ledger | its script `ledger.ps1`, inline through Bash, one call per operation |
-| `artifact-s101-view` | the plan as a person reads it, when asked where the run stands | inline, via the Skill tool |
+| `s101-ledger-operations.md` (under `artifacts/documentation/s101-ledger/`) | every read and write of the ledger | its script `scripts/ledger.ps1` beside it, inline through Bash, one call per operation |
+| `s101-implementation-plan-view.md` (under `artifacts/documentation/s101-implementation-plan/`) | the plan as a person reads it, when asked where the run stands | inline, read by path |
 | the builder shells (`giskard-the-dotnet-developer`, `daneel-the-angular-developer`, `calvin-the-test-author`) | one task each, from its S102 | a subagent per task, fresh at the first attempt, continued by message on a retry or a resume in the same session |
 | `baley-the-code-reviewer` | the phase's diff against its task specs | one subagent per phase, fresh at the phase's first round and continued by message on its later rounds, so a retry is reviewed with its findings in hand and no phase is read through the last one's |
 | `powell-the-verifier` | the phase's done-whens and checkpoint | one subagent per phase, as Baley |
 
-**"Invoke `artifact-s101-ledger` with `<op>`" means one Bash call** of its script, never the skill's text in this conversation:
+**"Run the ledger script with `<op>`" means one Bash call** of the script, never the operations file's text in this conversation:
 
 ```
-pwsh -NoProfile -File "${CLAUDE_PLUGIN_ROOT}/skills/artifact-s101-ledger/scripts/ledger.ps1" -Op <op> -S101 specs/<slug>/S101-<slug>.md <the operation's inputs>
+pwsh -NoProfile -File "${CLAUDE_PLUGIN_ROOT}/artifacts/documentation/s101-ledger/scripts/ledger.ps1" -Op <op> -S101 specs/<slug>/S101-<slug>.md <the operation's inputs>
 ```
 
-(`powershell -NoProfile -ExecutionPolicy Bypass -File …` with only Windows PowerShell; in Codex the plugin root derived in Step 00 replaces the variable.) The operations and their inputs are the skill's table: `-By`, `-Task`, `-Status`, `-Agent`, `-Model`, `-Phase`, `-Passed` / `-Failed T…`, `-Choice`, `-Note`, `-Hash`, `-Files`. A summary or a report goes in through `-TextFile <path>` or a heredoc on stdin, never as an argument. Print the line it prints; exit code 2 is a refusal, relayed as is. Where no PowerShell exists, load the skill with the Skill tool once and follow its fallback.
+(`powershell -NoProfile -ExecutionPolicy Bypass -File …` with only Windows PowerShell; in Codex the plugin root derived in Step 00 replaces the variable.) The operations and their inputs are the operations file's table: `-By`, `-Task`, `-Status`, `-Agent`, `-Model`, `-Phase`, `-Passed` / `-Failed T…`, `-Choice`, `-Note`, `-Hash`, `-Files`. A summary or a report goes in through `-TextFile <path>` or a heredoc on stdin, never as an argument. Print the line it prints; exit code 2 is a refusal, relayed as is. Where no PowerShell exists, read `${CLAUDE_PLUGIN_ROOT}/artifacts/documentation/s101-ledger/s101-ledger-operations.md` once and follow its fallback.
 
 **The order is the L3 pipeline's**: Code → Review vs. spec → Test vs. spec. A phase is built, then reviewed, then verified, then shown to the person. A failure at review sends the task back to a builder and the phase through review again before Powell runs; a failure at verification does the same, review included.
 
@@ -46,7 +46,7 @@ If the line above still reads `$ARGUMENTS` literally, the harness substitutes no
 
 In Claude Code `${CLAUDE_PLUGIN_ROOT}` is the plugin root and is substituted for you. In Codex the variable stays literal and a `..` path resolves from the working directory, so derive the root once: take this skill's file path as Codex shows it, strip everything from `skills/asimov-build` onward, and use what remains as `<plugin-root>` in every plugin path, absolute. Verify it by reading file 1; if that fails, Glob `<home>/.codex/plugins/cache/**/s101-ledger-definition.md`, take the match whose path shares the longest prefix with the skill path, and if nothing matches stop and report the path you derived and the search you ran (the method of `D101-codex-support.html` §6.2). Read with the file-read tool:
 
-1. `${CLAUDE_PLUGIN_ROOT}/artifacts/documentation/s101-ledger/s101-ledger-definition.md` — §2 (the bar), §3.1 (statuses), §4 (rules). The ledger skill applies them; you need them to read a position.
+1. `${CLAUDE_PLUGIN_ROOT}/artifacts/documentation/s101-ledger/s101-ledger-definition.md` — §2 (the bar), §3.1 (statuses), §4 (rules). The ledger script applies them; you need them to read a position.
 2. `${CLAUDE_PLUGIN_ROOT}/artifacts/documentation/s101-implementation-plan/s101-implementation-plan-definition.md` — §6 only: the status axis you move (`ready` → `in progress` → `done`) and the fingerprint rule.
 3. `${CLAUDE_PLUGIN_ROOT}/artifacts/documentation/s102-task-spec/s102-task-spec-definition.md` — §5 only: the conditions a builder stops on, so you recognise a stop in a builder's summary.
 
@@ -77,19 +77,19 @@ If any cannot be read, stop and report the path. Pass `<plugin-root>` to every a
 
 **Warn, do not refuse**, on a stale branch: `git rev-list --count HEAD..origin/<default branch>` above 50 prints one line, *"This branch is <n> commits behind <default>; a build on it may not merge. Rebase first, or say go on."*, and the run waits for the word.
 
-**Position.** Invoke `artifact-s101-ledger` with `position` when `S101-<slug>.ledger.md` exists; a refusal from it (a check L1–L5 failed) is relayed in one line and the run finishes. Otherwise invoke it with `start` (`by` = `git config user.name`), **Edit** the S101 header to `status: in progress`, and print its line. Print the resolved target: `Building: specs/<slug>/S101-<slug>.md · <n> phases, <m> tasks · approved by <by> <date>`, adding `· design approval unverified (pasted text)` when the S101's `design` line says `approval: unverified` (not a refusal; the person building should know nobody checked who approved the design), and, on a resume, *"Resuming: P0–P<k> committed; P<k+1> <building | built | passed> with <what each task is>."* Then say what happens next: *"Building P<n>, <t> tasks; I stop after it."*
+**Position.** Run the ledger script with `position` when `S101-<slug>.ledger.md` exists; a refusal from it (a check L1–L5 failed) is relayed in one line and the run finishes. Otherwise run it with `start` (`by` = `git config user.name`), **Edit** the S101 header to `status: in progress`, and print its line. Print the resolved target: `Building: specs/<slug>/S101-<slug>.md · <n> phases, <m> tasks · approved by <by> <date>`, adding `· design approval unverified (pasted text)` when the S101's `design` line says `approval: unverified` (not a refusal; the person building should know nobody checked who approved the design), and, on a resume, *"Resuming: P0–P<k> committed; P<k+1> <building | built | passed> with <what each task is>."* Then say what happens next: *"Building P<n>, <t> tasks; I stop after it."*
 
 # Step 02 — Build the phase, in batches
 
 The phase is the first in the plan's order whose ledger status is not `committed` or `discarded`. Its tasks are built in **batches**:
 
 1. **Pick ready tasks**: every task of the phase whose status is `pending` (or `running` on a resume: an agent that died; its owned files are reset to the last commit first, `git checkout -- <modified>` and `rm` of its `owns.create` files that exist) and whose every `after` is `done`, `built`, or belongs to a committed phase; and whose hand-edited files (`owns.create`, `owns.modify`, `owns.test` from its S102 header; `owns.regenerates` does not count, two tasks may regenerate the same lock file) are disjoint from every task of the batch picked before it. Tasks in the batch run **together**.
-2. **For each task in the batch**, invoke `artifact-s101-ledger` with `task` (`running`, the shell name, the model), print `build   T<nnn> <task-slug> · <shell's persona> · <model>`, then, on the task's **first attempt**, spawn a subagent of the shell the task's `role` names (`dotnet-builder` → `giskard-the-dotnet-developer`, `angular-builder` → `daneel-the-angular-developer`, `dotnet-tester` → `calvin-the-test-author`; `human` → stop: *"T<nnn> is a human task; do it, then run this again"*), in Claude Code the **Agent** tool with that `subagent_type` and the tier's `model`, all tasks of the batch in one message so they run at once, keeping the agent id each spawn returns; on a **retry**, or a resume after a stop in the same session, send the retry text below to that same agent with `SendMessage` instead, so it keeps the code it read. The prompt:
+2. **For each task in the batch**, run the ledger script with `task` (`running`, the shell name, the model), print `build   T<nnn> <task-slug> · <shell's persona> · <model>`, then, on the task's **first attempt**, spawn a subagent of the shell the task's `role` names (`dotnet-builder` → `giskard-the-dotnet-developer`, `angular-builder` → `daneel-the-angular-developer`, `dotnet-tester` → `calvin-the-test-author`; `human` → stop: *"T<nnn> is a human task; do it, then run this again"*), in Claude Code the **Agent** tool with that `subagent_type` and the tier's `model`, all tasks of the batch in one message so they run at once, keeping the agent id each spawn returns; on a **retry**, or a resume after a stop in the same session, send the retry text below to that same agent with `SendMessage` instead, so it keeps the code it read. The prompt:
 
    > Build task `<id>` of `specs/<slug>/`. Read `<S102 path>` first; it is your whole brief. Then read `S101-<slug>.md` §1 Contracts and §2 Constraints, and the conventions your skill names. Change by hand only the files the task spec's `owns.create`, `owns.modify` and `owns.test` list; what `owns.regenerates` lists you never open: run the command that regenerates it (the restore, the build, the generator) and report if the result is not what the task implies. Stop and report instead of deciding on the conditions of the S102 definition §5 and the S101 §4 Escalation. <On a retry, to the same agent, the whole message is instead: `Your attempt at <id> failed <review | verification>: <the rows, verbatim>. <Ruling by <by>: <note>, when one was given.> Fix it in the files you own, run your checks, and end with the summary again.`> End with the summary your skill defines, and nothing else.
 
    (In Codex, add: *The plugin root is `<plugin-root>`.* Spawn the shell by its name from `.codex/agents/`; where Codex runs agents one at a time, the batch runs in order.)
-3. **Read each summary.** Its first word says what happened: `stopped` (a conflict with a convention or the design, a file outside the brief, a write the harness refused, a decision the builder could not take) is a **stop** (Step 05); `built` is a built task, whatever flags follow. A *gap* flag (no convention covered a choice) is a note that goes into the ledger with the summary, never a stop. A summary with neither word is read for a sentence that says it stopped; absent that, it is `built`. A summary whose first line is not `Conventions read:` naming at least the stack's README is returned once to the same agent with one line, *begin with the conventions you read, then the summary*; that return is not a counted attempt. Then invoke `artifact-s101-ledger` with `attempt` (the summary verbatim) and print `built   T<nnn> · <g> gaps · <f> flags` from the summary's counts, with each gap under it in one line of words (`gap     T<nnn> · no convention covers <the choice>`): a gap is a convention the repo lacks, and the person sees it here, not only in the ledger.
+3. **Read each summary.** Its first word says what happened: `stopped` (a conflict with a convention or the design, a file outside the brief, a write the harness refused, a decision the builder could not take) is a **stop** (Step 05); `built` is a built task, whatever flags follow. A *gap* flag (no convention covered a choice) is a note that goes into the ledger with the summary, never a stop. A summary with neither word is read for a sentence that says it stopped; absent that, it is `built`. A summary whose first line is not `Conventions read:` naming at least the stack's README is returned once to the same agent with one line, *begin with the conventions you read, then the summary*; that return is not a counted attempt. Then run the ledger script with `attempt` (the summary verbatim) and print `built   T<nnn> · <g> gaps · <f> flags` from the summary's counts, with each gap under it in one line of words (`gap     T<nnn> · no convention covers <the choice>`): a gap is a convention the repo lacks, and the person sees it here, not only in the ledger.
 4. **Next batch**, until every task of the phase is `built`. Then Step 03.
 
 # Step 03 — Review the phase, in a reviewer subagent
@@ -100,11 +100,11 @@ Collect the owned files of every task of the phase (the three `owns` lists of th
 
 The regenerated files are listed by expanding each task's `owns.regenerates` globs against `git status --porcelain`; Baley checks only that each changed in the way the hand edits imply and that nothing outside both lists changed.
 
-Read the report yourself. A report whose first line is not `Conventions read:` naming at least one convention file per stack the files touch is returned once to the same agent with one line, *load the conventions your skill names, then review*; it is not recorded. Then invoke `artifact-s101-ledger` with `review` (verbatim). Then:
+Read the report yourself. A report whose first line is not `Conventions read:` naming at least one convention file per stack the files touch is returned once to the same agent with one line, *load the conventions your skill names, then review*; it is not recorded. Then run the ledger script with `review` (verbatim). Then:
 
 | The report holds | Do |
 |---|---|
-| A **Fail** in *Against the spec* or *Correctness & safety* | For each task the row names (by its S102 line or by file → the task that owns it), invoke `artifact-s101-ledger` with `fail`, print `review  P<n> fail · T<nnn> · <the reason in words>`, and send that task back to Step 02 as a retry with the rows as findings. The third failure of one task, counted across review and verification, is a **stop** (Step 05). After the retry, this step again. |
+| A **Fail** in *Against the spec* or *Correctness & safety* | For each task the row names (by its S102 line or by file → the task that owns it), run the ledger script with `fail`, print `review  P<n> fail · T<nnn> · <the reason in words>`, and send that task back to Step 02 as a retry with the rows as findings. The third failure of one task, counted across review and verification, is a **stop** (Step 05). After the retry, this step again. |
 | Only Flags, or nothing | Print `review  P<n> pass · <f> flags`. Step 04. |
 
 A Flag never blocks; it is in the ledger and the one line.
@@ -115,7 +115,7 @@ Hash the working tree: `{ git diff HEAD; git ls-files -o --exclude-standard; } |
 
 > Verify phase `P<n>` of `specs/<slug>/`. Task specs: <the S102 paths>. Checkpoint: "<the phase's `checkpoint` sentence, verbatim>". Check: "<the phase's `check` command, verbatim>". Run every done-when and the check as written; change nothing; return your report only.
 
-Hash the tree again, both times with the phase's regenerated files left out (`git diff HEAD -- . ':!<each regenerates glob>'`; a build or restore Powell runs may rewrite them, and that is their nature, not a change to the code). **Different** → a **stop** (Step 05) with *"the working tree changed while Powell ran"*; the diff of the two states goes to the ledger with the report. Same → invoke `artifact-s101-ledger` with `verify` (the report verbatim, `passed`, the failed tasks). Then:
+Hash the tree again, both times with the phase's regenerated files left out (`git diff HEAD -- . ':!<each regenerates glob>'`; a build or restore Powell runs may rewrite them, and that is their nature, not a change to the code). **Different** → a **stop** (Step 05) with *"the working tree changed while Powell ran"*; the diff of the two states goes to the ledger with the report. Same → run the ledger script with `verify` (the report verbatim, `passed`, the failed tasks). Then:
 
 | The report holds | Do |
 |---|---|
@@ -125,11 +125,11 @@ Hash the tree again, both times with the phase's regenerated files left out (`gi
 
 # Step 05 — A stop, and the ruling
 
-A stop ends the run as soon as the tasks already running have returned; nothing is started after it. Record it: `artifact-s101-ledger` with `stop` for the task (a builder's flag, a third failure), or nothing more for a tree change or an unmet checkpoint (the report is already in). Print the reason in one line of words, then:
+A stop ends the run as soon as the tasks already running have returned; nothing is started after it. Record it: the ledger script with `stop` for the task (a builder's flag, a third failure), or nothing more for a tree change or an unmet checkpoint (the report is already in). Print the reason in one line of words, then:
 
 > Stopped at T<nnn> after <k> attempts | at P<n>'s checkpoint | because <reason>. The findings are in `S101-<slug>.ledger.md`; P<n> is in the working tree, uncommitted. Say **resume** with a note for the builder, **discard** to reset P<n>'s files to the last commit, or **stop** to leave it as it is.
 
-**Wait.** On the answer, invoke `artifact-s101-ledger` with `ruling` (`by` = `git config user.name`, the choice, the note), print its line, then:
+**Wait.** On the answer, run the ledger script with `ruling` (`by` = `git config user.name`, the choice, the note), print its line, then:
 
 - **resume** → the stopped task is `pending` again with three new attempts. The note goes to whichever agent runs next for this phase, not only the builder: the builder's prompt carries it after the findings, and Baley's and Powell's prompts for the phase carry it as `Ruling by <by>: <note>`, so a substitute command for a check that cannot run, or an accepted deviation, reaches the one it concerns. Step 02.
 - **discard** → `git checkout -- <every modified owned file of the phase, and every changed file matching its regenerates globs>` and `rm` of every `owns.create` file of the phase that exists; the ledger marks the phase `discarded`. Print *"P<n> files reset to <hash>. The plan stays in progress; fix the task spec with `/asimov-spec <slug>` or run `/asimov-build <slug>` to try P<n> again."* Finish.
@@ -145,14 +145,14 @@ Print the checkpoint line once more, then `gaps    P<n> · <g> · conventions to
 
 **Wait.**
 
-- **go** → if this is the last phase, **Edit** the S101 header to `status: done` first. Stage the phase's owned files, the changed files its tasks regenerate (expanded from the `owns.regenerates` globs against `git status --porcelain`), the ledger and the S101 (`git add <files> <regenerated files> specs/<slug>/S101-<slug>.ledger.md specs/<slug>/S101-<slug>.md`), commit with the message `S101 <slug> · P<n> <phase name>`, read the hash, invoke `artifact-s101-ledger` with `commit`, print `commit  <hash>  P<n> <name> · <k> files<, <r> regenerated> · ledger`. A changed file that is neither owned nor regenerated by the phase is not staged and is named in one line: the next phase's dirty-tree check will stop on it, and the person decides. Then the next phase (Step 02) with *"Building P<n+1>, <t> tasks; I stop after it."*, or Step 07.
+- **go** → if this is the last phase, **Edit** the S101 header to `status: done` first. Stage the phase's owned files, the changed files its tasks regenerate (expanded from the `owns.regenerates` globs against `git status --porcelain`), the ledger and the S101 (`git add <files> <regenerated files> specs/<slug>/S101-<slug>.ledger.md specs/<slug>/S101-<slug>.md`), commit with the message `S101 <slug> · P<n> <phase name>`, read the hash, run the ledger script with `commit`, print `commit  <hash>  P<n> <name> · <k> files<, <r> regenerated> · ledger`. A changed file that is neither owned nor regenerated by the phase is not staged and is named in one line: the next phase's dirty-tree check will stop on it, and the person decides. Then the next phase (Step 02) with *"Building P<n+1>, <t> tasks; I stop after it."*, or Step 07.
 - **stop**, or any other words → *"Stopped after P<n>. Its work is in the working tree, uncommitted; the ledger says so. Run `/asimov-build <slug>` to resume at this gate."* Finish.
 
 Never commit anything else, never push, never open a PR.
 
 # Step 07 — Finish
 
-Invoke `artifact-s101-ledger` with `close`; print its line. Then:
+Run the ledger script with `close`; print its line. Then:
 
 > Done: <n> phases, <m> tasks, <c> commits on `<branch>`. The ledger holds every review and verification. Open the PR when you want the human review; I open none.
 
@@ -164,7 +164,7 @@ A `close` that reports phases not committed (a discarded phase) says so instead:
 - **Resumed**: the ledger places the run; committed phases are listed, built tasks kept, a `running` task rebuilt.
 - **Stopped by a task**: a third failure or a builder's flag; the findings in the ledger; resume, discard or stop.
 - **Stopped by the tree**: Powell's run changed the working tree; the diff in the ledger; the person rules.
-- **Where does it stand**: invoke `artifact-s101-view` with heading *The plan, in progress* and print the ledger's position under it.
+- **Where does it stand**: read `${CLAUDE_PLUGIN_ROOT}/artifacts/documentation/s101-implementation-plan/s101-implementation-plan-view.md` and render the view it fixes with heading *The plan, in progress* and print the ledger's position under it.
 
 # Hard rules
 
@@ -178,4 +178,4 @@ A `close` that reports phases not committed (a discarded phase) says so instead:
 - **Reports are verbatim in the ledger, one line in chat.** Never print a report table; never summarise one into the ledger.
 - **Every message ends with what is next.**
 - **Re-read at run-time.** Load the definitions at the start of every run; the file in the plugin is the source of truth.
-- **Paths are a hard-rule-9 literal.** `specs/<slug>/` with `S101-<slug>.md`, `S102-<slug>-NNN-<task>.md` and `S101-<slug>.ledger.md` move together across `asimov-spec`, this skill, the artifact skills, `.gitignore`, `CLAUDE.md` and D100.
+- **Paths are a hard-rule-9 literal.** `specs/<slug>/` with `S101-<slug>.md`, `S102-<slug>-NNN-<task>.md` and `S101-<slug>.ledger.md` move together across `asimov-spec`, this skill, the artifacts' method files and scripts, `.gitignore`, `CLAUDE.md` and D100.

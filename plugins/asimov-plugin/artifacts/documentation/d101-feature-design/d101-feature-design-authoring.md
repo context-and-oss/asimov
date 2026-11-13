@@ -1,29 +1,26 @@
----
-name: artifact-d101-authoring
-description: Use when writing, rendering, editing or fixing any part of a D101 feature design (documentation/features/D101-*.html) or its mockups, inside asimov-design at every write or by hand when no design run is open. Not a trigger for designing a feature; that is asimov-design.
----
-
 # D101 authoring
 
-The method for producing or modifying a D101. It is the layer between the **contract** (the definition and the template, read from disk) and the **conversation** (the asimov-design interview, phases and stops). This skill owns neither: it tells you what to read, how to render, and which invariants hold whenever a D101 changes — by a command or by hand.
+*The method file of the D101 artifact, beside its definition and template. `asimov-design` reads it by path at every write, render or edit and follows it as written. A file, not a skill: nothing is substituted in it, so a sibling is named and anything else is `<plugin-root>/…`, the plugin root three folders above this file.*
+
+The method for producing or modifying a D101. It is the layer between the **contract** (the definition and the template, read from disk) and the **conversation** (the asimov-design interview, phases and stops). This file owns neither: it tells you what to read, how to render, and which invariants hold whenever a D101 changes — by a command or by hand.
 
 ## Read first
 
-Load these with the file-read tool before touching a D101. In Claude Code `${CLAUDE_PLUGIN_ROOT}` is the plugin root and is substituted for you. In Codex the variable stays literal and a `..` path resolves from the working directory, so derive the root once: take this skill's file path as Codex shows it, strip everything from `skills/artifact-d101-authoring` onward, and use what remains as `<plugin-root>` in every path below, absolute. Verify it by reading file 1; if that fails, Glob `<home>/.codex/plugins/cache/**/d101-feature-design-definition.md`, take the match whose path shares the longest prefix with the skill path, and if nothing matches stop and report the path you derived and the search you ran (the method of `D101-codex-support.html` §6.2). If 1 or 2 cannot be read either way, stop and report the path — never author from memory; the file in the plugin is the run-time source of truth and drafting from a remembered copy is how the bars and the visual language drift.
+Load these with the file-read tool before touching a D101. Files 1 and 2 sit beside this file, in the folder you read it from; file 3 is under `<plugin-root>`, the plugin root three folders above this file (the caller derived it in its Step 00: substituted in Claude Code, cut from the skill's own path in Codex). Never a relative path in a tool call: the working directory is the product repo. If 1 or 2 cannot be read, stop and report the path — never author from memory; the file in the plugin is the run-time source of truth and drafting from a remembered copy is how the bars and the visual language drift.
 
 1. **The definition** — the two bars (§2.1 business-complete, §2.2 gap-free), the phase/status axes (§2.3), requirement quality (§5), verification (§6), anti-patterns (§7), the checks (§8), the open-§6 block (§4.6), §6-vs-§7 (§4.8), accepted deviations (§4.9), review notes (§4.10):
 
    ```
-   ${CLAUDE_PLUGIN_ROOT}/artifacts/documentation/d101-feature-design/d101-feature-design-definition.md
+   d101-feature-design-definition.md — beside this file
    ```
 
 2. **The HTML template** — its leading comment is normative: authoring ground rules 1–14, the archetypes, the N/A policy (N/A / OPEN / PENDING / ACCEPTED / conditional-omit), the component selection principles, the component catalogue, the non-canonical section types, and the hard style rules. Its body holds the structural shells you copy:
 
    ```
-   ${CLAUDE_PLUGIN_ROOT}/artifacts/documentation/d101-feature-design/d101-feature-design-template.html
+   d101-feature-design-template.html — beside this file
    ```
 
-3. **Best effort — the diagram and figure templates**, read when you draw: the routing table at `${CLAUDE_PLUGIN_ROOT}/resources/diagrams/README.md` and the notation template it points you at for anything a reviewer must check; `${CLAUDE_PLUGIN_ROOT}/resources/figures/README.md` and its pattern (a scene, a track, a map) for an illustration the reader must see, a §2 purpose picture for one. If unreadable, draw a plain flowchart, say so in chat, and carry on — never stop over a template.
+3. **Best effort — the diagram and figure templates**, read when you draw: the routing table at `<plugin-root>/resources/diagrams/README.md` and the notation template it points you at for anything a reviewer must check; `<plugin-root>/resources/figures/README.md` and its pattern (a scene, a track, a map) for an illustration the reader must see, a §2 purpose picture for one. If unreadable, draw a plain flowchart, say so in chat, and carry on — never stop over a template.
 
 4. **The repo's `CLAUDE.md`**, if present — repo-specific layout or naming you should respect. Absent is not an error.
 
@@ -31,7 +28,7 @@ Load these with the file-read tool before touching a D101. In Claude Code `${CLA
 
 ## What lives where
 
-Do not restate the template's leading comment here or in an asimov-skill — it is read at run-time. This skill adds only what the template does not say: the rendering procedure, the mockup rules, and the invariants.
+Do not restate the template's leading comment here or in an asimov-skill — it is read at run-time. This file adds only what the template does not say: the rendering procedure, the mockup rules, and the invariants.
 
 | Question | Answer lives in |
 |---|---|
@@ -40,7 +37,7 @@ Do not restate the template's leading comment here or in an asimov-skill — it 
 | What must §2/§4 sound like? What is a good requirement, rule, AC, open question? | Template comment: *ground rules*; definition §5–§7 |
 | Which sections may be omitted, which are stubbed? | Template comment: *N/A policy* exception |
 | Bullets, symbols, badges, scripts, external refs? | Template comment: *hard style rules* |
-| How do I assemble the page, the chips, the side-nav, the mockups? What may I never do? | **This skill** |
+| How do I assemble the page, the chips, the side-nav, the mockups? What may I never do? | **This file** |
 
 ## Paths
 

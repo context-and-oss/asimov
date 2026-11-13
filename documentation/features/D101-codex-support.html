@@ -271,7 +271,7 @@ footer.site-footer a { color: var(--cyan); }
   <a href="../index.html#s6">Diagrams</a>
   <span class="spacer"></span>
   <span class="phase-chip full">Full design</span>
-  <span class="status-chip draft">Draft v0.15</span>
+  <span class="status-chip draft">Draft v0.16</span>
 </nav>
 
 <div class="layout-doc">
@@ -727,7 +727,7 @@ footer.site-footer a { color: var(--cyan); }
 
 <section class="s" id="s6-8">
   <h2 class="section-title"><span class="sec-ref">§6.8</span>Known constraints &amp; gotchas</h2>
-  <div class="callout warn"><strong>Plugin-root variable in skills.</strong> <code>artifact-d101-authoring</code>, <code>artifact-d101-gap-review</code> and <code>pm-advisor</code> address their files through <code>${CLAUDE_PLUGIN_ROOT}</code>. Claude Code substitutes it in skill, command and agent content (<a href="https://code.claude.com/docs/en/plugins-reference">plugins reference</a>); Codex leaves it literal (<a href="https://github.com/openai/codex/issues/19582">codex#19582</a>) and sets <code>PLUGIN_ROOT</code>/<code>PLUGIN_DATA</code>, with <code>CLAUDE_PLUGIN_*</code> aliases, only as environment variables for hook commands (<a href="https://developers.openai.com/plugins/build/plugins">build plugins</a>). In Codex these three skills cannot find their files (Q2).</div>
+  <div class="callout warn"><strong>Plugin-root variable in skills.</strong> <code>pm-advisor</code> addresses its corpus through <code>${CLAUDE_PLUGIN_ROOT}</code> (the two D101 artifact skills did too until 2026-11-13; as method files, <code>d101-feature-design-authoring.md</code> and <code>d101-feature-design-review.md</code> name their siblings by file name and the rest as <code>&lt;plugin-root&gt;/…</code>, three folders above them, so nothing in them is substituted). Claude Code substitutes it in skill, command and agent content (<a href="https://code.claude.com/docs/en/plugins-reference">plugins reference</a>); Codex leaves it literal (<a href="https://github.com/openai/codex/issues/19582">codex#19582</a>) and sets <code>PLUGIN_ROOT</code>/<code>PLUGIN_DATA</code>, with <code>CLAUDE_PLUGIN_*</code> aliases, only as environment variables for hook commands (<a href="https://developers.openai.com/plugins/build/plugins">build plugins</a>). In Codex this skill cannot find its files (Q2).</div>
   <div class="callout warn"><strong>Why the root is derived, verified and searched.</strong> Codex resolves a relative path in a plugin file from the working directory (<a href="https://github.com/openai/codex/issues/22842">codex#22842</a>), shows the model each skill's file path (<a href="https://learn.chatgpt.com/docs/build-skills">build skills</a>), and caches plugins at <code>~/.codex/plugins/cache/&lt;marketplace&gt;/&lt;plugin&gt;/&lt;version&gt;/</code>, older versions included (<a href="https://developers.openai.com/plugins/build/plugins">build plugins</a>).</div>
   <div class="callout"><strong>Commands are Claude Code only.</strong> Codex loads a plugin's <code>skills/</code> folder (<a href="https://developers.openai.com/plugins/build/plugins">build plugins</a>), not <code>commands/</code>; every entry point is an asimov-skill since 2026-11-12, so nothing is lost (Q1).</div>
   <div class="callout"><strong>Marking a Codex-only skill.</strong> <code>disable-model-invocation</code> and <code>user-invocable: false</code> are Claude Code's switches, and <code>skillOverrides</code> does not apply to plugin skills (<a href="https://code.claude.com/docs/en/skills">skills</a>); <code>allow_implicit_invocation: false</code> is Codex's, and <code>$</code>-invocation still works (<a href="https://learn.chatgpt.com/docs/build-skills">build skills</a>).</div>
@@ -811,7 +811,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="q-card">
       <div class="q-head"><span class="q-id">Q2</span><span class="q-decider">Christian Kaysen</span></div>
       <div class="q-body">The three skills that address plugin files through <code>${CLAUDE_PLUGIN_ROOT}</code> cannot find them in Codex — do they adopt the derived-root method of §6.2?</div>
-      <div class="q-resolution">Resolution path: decided when the first of them is wanted in Codex; the setup skill is the worked example. The five Spec-stage skills built after this document (<code>asimov-spec</code>, <code>artifact-s101-authoring</code>, <code>artifact-s102-authoring</code>, <code>artifact-s101-validation</code>, <code>artifact-s102-validation</code>) adopted §6.2 from the start (2026-10-02, D101-spec-stage Q11); the three named here still wait.</div>
+      <div class="q-resolution">Resolution path: decided when the first of them is wanted in Codex; the setup skill is the worked example. The five Spec-stage skills built after this document (<code>asimov-spec</code> and the four artifact skills that became the method files <code>s101-implementation-plan-authoring.md</code>, <code>s102-task-spec-authoring.md</code>, <code>s101-implementation-plan-validation.md</code>, <code>s102-task-spec-validation.md</code> on 2026-11-13) adopted §6.2 from the start (2026-10-02, D101-spec-stage Q11); of the three named here only <code>pm-advisor</code> still waits.</div>
     </div>
     <div class="q-card">
       <div class="q-head"><span class="q-id">Q3</span><span class="q-decider">Christian Kaysen</span></div>
@@ -870,7 +870,7 @@ footer.site-footer a { color: var(--cyan); }
     · <span class="mono">features/D101-codex-support.html</span>
   </div>
   <div style="margin-top: 0.4rem">
-    D101 · Codex support · asimov-plugin · Draft v0.15 · 2026-11-13
+    D101 · Codex support · asimov-plugin · Draft v0.16 · 2026-11-13
   </div>
 </footer>
 

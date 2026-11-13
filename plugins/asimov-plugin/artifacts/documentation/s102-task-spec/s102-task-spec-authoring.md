@@ -1,19 +1,16 @@
----
-name: artifact-s102-authoring
-description: How to write one S102 task spec (specs/<slug>/S102-<slug>-NNN-<task>.md) for one builder role from one task line in an S101 tree — the task part of a specification under contracts/specification.md: header copied from the task line plus the owned files and the contract names it consumes and produces, intent, behaviour as Gherkin or an explicit none, done-when as named tests and commands, task-specific constraints and stops, out of scope — so that a builder with no conversation history can build it and decide every line of code itself. Use when asked to "write the S102 for task T003", "write a task spec for this ticket", "rewrite this S102 against these findings", or inside asimov-spec at every task. Writes one S102; never the S101, never another S102, never a method body, a test body or a step, never a placeholder.
----
-
 # S102 authoring
 
-One task line in, one task spec out. The S102 is the whole brief a fresh builder receives: write for a reader with nothing else open but the repo, the design, the S101 and this file. The spec fixes the files, the public names, the behaviour and the check; the builder owns every method body, every private name and every test's code. The cut was artifact-s101-authoring's; the judgement is the shape script's. A skill is a leaf: it calls no other skill.
+*The method file of the S102 artifact, beside its definition and template. The plan writer subagent `asimov-spec` spawns reads it by path for every task spec and every rewrite and follows it as written. A file, not a skill: nothing is substituted in it, so a sibling is named by its file name and anything else is `<plugin-root>/…`, the plugin root three folders above this file.*
+
+One task line in, one task spec out. The S102 is the whole brief a fresh builder receives: write for a reader with nothing else open but the repo, the design, the S101 and this file. The spec fixes the files, the public names, the behaviour and the check; the builder owns every method body, every private name and every test's code. The cut was `s101-implementation-plan-authoring.md`'s (in the S101 artifact's folder); the judgement is the shape script's, `scripts/validate-s102.ps1` beside this file. A method file is a leaf: it calls no skill.
 
 ## Read first
 
-`${CLAUDE_PLUGIN_ROOT}` is substituted in Claude Code. In Codex it stays literal: derive `<plugin-root>` from this skill's own path (strip everything from `skills/artifact-s102-authoring` onward), verify by reading file 1, else Glob `<home>/.codex/plugins/cache/**/s102-task-spec-template.md` and take the match that shares the longest prefix with the skill path; with no match, stop and report (`D101-codex-support.html` §6.2).
+File 1 sits beside this file, in the folder you read it from; never a relative path in a tool call, since the working directory is the product repo. If it cannot be read, stop and report the path.
 
-**This skill is the method, the template is the shape, the script is the bar.** Do not read the S102 definition or the contracts: what they require is in the steps below, the template's leading comment (above all *names, not bodies* and *the check is described, not written*, and *THE SHAPE CHECK*) and the script's rows.
+**This file is the method, the template is the shape, the script is the bar.** Do not read the S102 definition or the contracts: what they require is in the steps below, the template's leading comment (above all *names, not bodies* and *the check is described, not written*, and *THE SHAPE CHECK*) and the script's rows.
 
-1. **The S102 template**, whole: `${CLAUDE_PLUGIN_ROOT}/artifacts/documentation/s102-task-spec/s102-task-spec-template.md`
+1. **The S102 template**, whole: `s102-task-spec-template.md`, beside this file
 2. **The S101**: the task's line (title, role, tier, after, traces) and the body it inherits: §1 (the rows this task produces, and every row whose producer it comes after), §2, §4, §5 (a line pinned to this task becomes a scenario).
 3. **The design, by the ids in `traces`**: a D101's requirement wording, §6 contract, rule with its counter-example and acceptance criterion; or the cache's R, NF, AC and OOS items and Interfaces section.
 4. **What you read for the cut**, when you are the writer that cut this plan: it is in your context, and you read none of it again. A writer that did not cut the plan (a rollover, a hand run) first reads the S101 whole and every S102 already written in the folder.
@@ -49,7 +46,7 @@ One task line in, one task spec out. The S102 is the whole brief a fresh builder
 8. **Check your own shape.** Through Bash, one call per file:
 
    ```
-   pwsh -NoProfile -File "${CLAUDE_PLUGIN_ROOT}/skills/artifact-s102-validation/scripts/validate-s102.ps1" -S102 <the file> -S101 <the S101> -Design <the D101 path, or the cache the S101's design line names>
+   pwsh -NoProfile -File "<plugin-root>/artifacts/documentation/s102-task-spec/scripts/validate-s102.ps1" -S102 <the file> -S101 <the S101> -Design <the D101 path, or the cache the S101's design line names>
    ```
 
    (`powershell -NoProfile -ExecutionPolicy Bypass -File …` with only Windows PowerShell; `-PluginRoot <plugin-root>` in Codex.) Fix every Fail the file can fix (a done-when without a code span and a result word, a missing header key, a template sentence left in, a count) and run it again, at most twice. A Fail beginning `design:` or `S101:` is not yours: it becomes a *cannot write*. Flags and Warns are left. With no PowerShell, skip and say so. You never mark the file validated: the caller's run is the record.
@@ -79,7 +76,7 @@ or `S101:` (a name §1 lacks, a producer this task does not come after, two para
 - Open a section with the template's sentence.
 - Touch the S101 or another S102: a mismatch is reported, never patched.
 - Mark your own output validated, set a status other than `draft`, change a copied header field, or call any skill.
-- Bake a product entity into this skill.
+- Bake a product entity into this file.
 
 ## Used by
 

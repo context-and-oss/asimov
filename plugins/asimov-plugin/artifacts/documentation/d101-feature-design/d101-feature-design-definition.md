@@ -8,7 +8,7 @@ since: 2026-09-10
 
 The written standard a D101 (feature design document) must meet before downstream work — Spec (S101/S102), Code, Review+Test — can act on it. This document defines the Design stage's **two bars**: the **business-complete bar**, which a D101 clears before any technical design exists, and the **gap-free bar**, which it clears before an implementer can act on it (§2).
 
-Read both by humans (authors, reviewers) and by the `asimov-design` asimov-skill (its design and review paths) at run-time, through the `artifact-d101-*` skills.
+Read both by humans (authors, reviewers) and by the `asimov-design` asimov-skill (its design and review paths) at run-time, through the authoring and review files beside it (`d101-feature-design-authoring.md`, `d101-feature-design-review.md`).
 
 ---
 

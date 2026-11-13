@@ -7,8 +7,9 @@
   "dispatch-ready": s101-implementation-plan-definition.md §2.
 
   WHO READS THIS FILE
-  - Agents. artifact-s101-authoring writes it, artifact-s101-validation checks
-    it, the orchestrator reads it as its control document. A person sees the
+  - Agents. s101-implementation-plan-authoring.md writes it, validate-s101.ps1
+    checks it (both beside this file, the script under scripts/), the
+    orchestrator reads it as its control document. A person sees the
     plan through the view asimov-spec prints at the cut and at the end, and
     asimov-spec prints on a re-check; nobody is meant to read the
     raw file. Keep it exact, keep it short.

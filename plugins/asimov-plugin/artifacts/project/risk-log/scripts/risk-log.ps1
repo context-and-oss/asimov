@@ -3,7 +3,8 @@
   The risk log's script: read, render, check and write one register page, project/risk-log.html.
 
 .DESCRIPTION
-  Implements the method of skills/artifact-risk-log-authoring/SKILL.md on the one file that holds
+  Implements the method of risk-log-authoring.md, the file one folder above this script
+  (artifacts/project/risk-log/, beside the definition), on the one file that holds
   an engagement's risks. The page is the record: the script reads it back from the attributes and
   lists the template names (artifacts/project/risk-log/risk-log-template.html), and renders the
   score, the summary table and the counts without ever reading them. The model decides only the
@@ -44,7 +45,8 @@
 .PARAMETER By
   The person making the change. Defaults to git config user.name.
 .PARAMETER PluginRoot
-  The plugin root, where the template is read from. Defaults to three folders above this script.
+  The plugin root, where the template is read from. Defaults to four folders above this script
+  (scripts/ -> risk-log -> project -> artifacts -> the plugin root).
 
 .OUTPUTS
   Exit codes:
@@ -76,7 +78,7 @@ Set-StrictMode -Version 2.0
 $ErrorActionPreference = 'Stop'
 try { [Console]::OutputEncoding = New-Object System.Text.UTF8Encoding $false } catch { }
 
-if (-not $PluginRoot) { $PluginRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $PSScriptRoot)) }
+if (-not $PluginRoot) { $PluginRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $PSScriptRoot))) }
 
 $Utf8 = New-Object System.Text.UTF8Encoding $false
 $Dot = [string][char]0x00B7

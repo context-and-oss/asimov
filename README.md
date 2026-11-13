@@ -92,12 +92,14 @@ plugins/asimov-plugin/                    the plugin (install scope)
 ├── .codex-plugin/plugin.json             plugin manifest (Codex)
 ├── hooks/                               asimov-context + run-hook.cmd/.ps1 — the Asimov context injected at session start where asimov.md marks the repo (hooks.json for Claude Code, hooks-codex.json for Codex); scripts/asimov-log.ps1 — the run log
 ├── agents/                               subagent shells (Giskard, Daneel, Calvin, Baley) — .md for Claude Code, .toml for Codex
-├── skills/                               role-* (the subagents' methods), artifact-d101-* (D101 authoring + gap review), artifact-persona-authoring (custom persona authoring), artifact-s101-*/artifact-s102-* (Spec-stage authoring + validation), asimov-init (setup entry point, both harnesses), using-asimov (the context the hooks inject), asimov-design (Design-stage entry point, both harnesses; the review a path of it), asimov-spec (Spec-stage entry point, both harnesses), asimov-build (Build-stage entry point), persona-* (Poseidon, Athena, Hermes), pm-advisor
-├── artifacts/                            one folder per artifact the toolkit writes into a product repo, grouped by where it lands
+├── skills/                               role-* (the subagents' methods), artifact-persona-authoring (custom persona authoring), artifact-site-authoring (the documentation site), asimov-init (setup entry point, both harnesses), using-asimov (the context the hooks inject), asimov-design (Design-stage entry point, both harnesses; the review a path of it), asimov-spec (Spec-stage entry point, both harnesses), asimov-build (Build-stage entry point), persona-* (Poseidon, Athena, Hermes), pm-advisor
+├── artifacts/                            one folder per artifact the toolkit writes into a product repo, grouped by where it lands; its method files (-authoring.md, -view.md, -validation.md, scripts/) beside definition and template
 │   ├── documentation/                    lands in the product repo's documentation/
-│   │   ├── d101-feature-design/          the D101 artifact: definition + template side by side
+│   │   ├── d101-feature-design/          the D101 artifact: definition, template and method files side by side
 │   │   │   ├── d101-feature-design-definition.md
-│   │   │   └── d101-feature-design-template.html
+│   │   │   ├── d101-feature-design-template.html
+│   │   │   ├── d101-feature-design-authoring.md   how to write/change a D101
+│   │   │   └── d101-feature-design-review.md      the gap review
 │   │   ├── site/                         the documentation/ landing site (asimov-init)
 │   │   │   ├── site-definition.md
 │   │   │   ├── nav-template.html, home-template.html, section-template.html, document-template.html

@@ -1,35 +1,34 @@
----
-name: artifact-project-info-authoring
-description: The only writer of the project info, project/info.html — the project's record (name, one line, number, customer, language, people, and its areas with the repository that holds each). Turns the answers a person gave into one change file and hands it to the project-info script, which renders the page from the template, reads it back and writes it; re-renders an existing page when the template changed. Use inside asimov-project for every project-info write, by asimov-init when a repo has no project info yet, and by hand when asked to "write the project info", "add an area to the project", "rename the Backend area". Returns what is missing to its caller instead of asking; never edits the page in place, never calls another skill.
----
-
 # Project info authoring
+
+*The authoring method of the project info, beside its definition and template. `asimov-project` reads it by path at every write, and `asimov-init` when a repo has no project info yet; both follow it as written. A file, not a skill: nothing is substituted in it, so a sibling is named by its file name and anything else is `<plugin-root>/…`, the plugin root three folders above this file.*
 
 You turn what was said into one change and hand it to the script. The script renders the page from the template, reads it back and checks that it says what was intended; you decide only what the change is. You are the only writer of the project info: nothing else writes `project/info.html`. The page is the one file: there is no source beside it (PI1), and a copy in another repository is made by copying it, never by editing it (PI2).
 
 ## Read first
 
-Load with the file-read tool. In Claude Code `${CLAUDE_PLUGIN_ROOT}` is the plugin root and is substituted for you. In Codex the variable stays literal and a `..` path resolves from the working directory, so derive the root once: take this skill's file path as Codex shows it, strip everything from `skills/artifact-project-info-authoring` onward, and use what remains as `<plugin-root>` in every path below, absolute. Verify it by reading file 1; if that fails, Glob `<home>/.codex/plugins/cache/**/project-info-definition.md`, take the match whose path shares the longest prefix with the skill path, and if nothing matches stop and report the path you derived and the search you ran.
+Load with the file-read tool. Both files sit beside this file, in the folder you read it from; never a relative path in a tool call, since the working directory is the product repo. If file 1 cannot be read, stop and report the path.
 
 1. **The definition**: the fields, the areas table, the rules PI1–PI6, the bar.
 
    ```
-   ${CLAUDE_PLUGIN_ROOT}/artifacts/project/project-info/project-info-definition.md
+   project-info-definition.md — beside this file
    ```
 
 2. **The template**, only where no PowerShell runs (the fallback below): its leading comment names every element the page holds and which are read back.
 
    ```
-   ${CLAUDE_PLUGIN_ROOT}/artifacts/project/project-info/project-info-template.html
+   project-info-template.html — beside this file
    ```
 
 ## The script
 
+The script is `scripts/project-info.ps1` beside this file; a command line names it absolute, under `<plugin-root>`, the plugin root the caller derived:
+
 ```
-pwsh -NoProfile -File "${CLAUDE_PLUGIN_ROOT}/skills/artifact-project-info-authoring/scripts/project-info.ps1" -Path project/info.html <action>
+pwsh -NoProfile -File "<plugin-root>/artifacts/project/project-info/scripts/project-info.ps1" -Path project/info.html <action>
 ```
 
-(`powershell -NoProfile -ExecutionPolicy Bypass -File …` with only Windows PowerShell; in Codex `<plugin-root>` replaces the variable.) One action per call: `-Read`, `-Apply -Change <file>`, `-Render`; `-Repo <name>` when the repository's name is not what the git remote says. Exit codes: 0 done, 1 refused by a rule (the rule on stdout, nothing written), 2 an input could not be read. Relay the line the script prints; never reword a refusal into a success.
+(`powershell -NoProfile -ExecutionPolicy Bypass -File …` with only Windows PowerShell.) One action per call: `-Read`, `-Apply -Change <file>`, `-Render`; `-Repo <name>` when the repository's name is not what the git remote says. Exit codes: 0 done, 1 refused by a rule (the rule on stdout, nothing written), 2 an input could not be read. Relay the line the script prints; never reword a refusal into a success.
 
 ## Inputs from the caller
 

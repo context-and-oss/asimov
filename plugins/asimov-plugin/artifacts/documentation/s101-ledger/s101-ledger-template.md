@@ -1,10 +1,10 @@
 <!--
   S101 LEDGER template. The run state of one build of one ready S101, written
-  only by the skill artifact-s101-ledger on behalf of asimov-build. The bar is
-  "resumable": s101-ledger-definition.md §2.
+  only by the ledger script, scripts/ledger.ps1 beside this file, on behalf of
+  asimov-build. The bar is "resumable": s101-ledger-definition.md §2.
 
   WHO READS THIS FILE
-  - asimov-build, through artifact-s101-ledger, to resume and to record.
+  - asimov-build, through scripts/ledger.ps1, to resume and to record.
   - The PR reviewer, for what was verified and reviewed in each phase.
   - Written to specs/{{SLUG}}/S101-{{SLUG}}.ledger.md, beside the
     plan; committed with each phase's go.

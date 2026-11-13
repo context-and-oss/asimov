@@ -1,26 +1,23 @@
----
-name: artifact-d101-gap-review
-description: Use when a D101 feature design must be gap-reviewed against its bar (§8a while §6 is open, §8b once written), inside asimov-design's review path or when asked directly to check a D101 against the bar. Findings only, never a verdict, never an edit.
----
-
 # D101 gap review
 
-The method for judging one D101 against its contract. It answers *is the contract complete for the phase the document stands in?* — never *is it approved?* The bar verdicts belong to people: §8a to the author, §8b to a human reviewer who is not the author (definition §2). Automating either would collapse the reviewer-not-author gate, so this skill previews; it never decides.
+*The review method of the D101 artifact, beside its definition and template. `asimov-design`'s review path (Step 10) reads it by path and runs it as written. A file, not a skill: nothing is substituted in it, so a sibling is named by its file name.*
+
+The method for judging one D101 against its contract. It answers *is the contract complete for the phase the document stands in?* — never *is it approved?* The bar verdicts belong to people: §8a to the author, §8b to a human reviewer who is not the author (definition §2). Automating either would collapse the reviewer-not-author gate, so this method previews; it never decides.
 
 ## Read first
 
-Load with the file-read tool. In Claude Code `${CLAUDE_PLUGIN_ROOT}` is the plugin root and is substituted for you. In Codex the variable stays literal and a `..` path resolves from the working directory, so derive the root once: take this skill's file path as Codex shows it, strip everything from `skills/artifact-d101-gap-review` onward, and use what remains as `<plugin-root>` in every path below, absolute. Verify it by reading file 1; if that fails, Glob `<home>/.codex/plugins/cache/**/d101-feature-design-definition.md`, take the match whose path shares the longest prefix with the skill path, and if nothing matches stop and report the path you derived and the search you ran (the method of `D101-codex-support.html` §6.2). If 1 or 2 cannot be read either way, stop and report the path — never review against a remembered bar.
+Load with the file-read tool. Files 1 and 2 sit beside this file, in the folder you read it from; never a relative path in a tool call, since the working directory is the product repo. If 1 or 2 cannot be read, stop and report the path — never review against a remembered bar.
 
 1. **The definition** — §2 (the bars and the two axes), §4.6 (open §6), §4.8 (§6 vs §7), §4.9 (accepted deviations), §5 (requirement quality), §6 (verification), §7 (anti-patterns), §8 (the ten checks and their bars):
 
    ```
-   ${CLAUDE_PLUGIN_ROOT}/artifacts/documentation/d101-feature-design/d101-feature-design-definition.md
+   d101-feature-design-definition.md — beside this file
    ```
 
 2. **The HTML template** — the leading comment's ground rules, N/A policy, selection principles, catalogue and style rules are what a section is judged against; the body is the canonical layout:
 
    ```
-   ${CLAUDE_PLUGIN_ROOT}/artifacts/documentation/d101-feature-design/d101-feature-design-template.html
+   d101-feature-design-template.html — beside this file
    ```
 
 3. **The target D101** — the whole file, never a snippet: a review covers every section.

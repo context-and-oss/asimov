@@ -1,20 +1,17 @@
----
-name: artifact-s101-view
-description: Render one S101 implementation plan (specs/<slug>/S101-<slug>.md) as the fixed plan view a person reads in chat — the phase tree with what each phase delivers, its checkpoint and one line per task, the coverage line, the assumptions line, the design gaps — in the language of the conversation. Use when a person must see a plan: the cut and the end of a run inside asimov-spec, the re-check of a ready plan, a run's position inside asimov-build, or when asked to "show me the plan", "what does the cut look like". Reads the S101 and, when present, the S102 headers; prints text; writes nothing and judges nothing.
----
-
 # S101 view
+
+*The view of the S101 artifact, beside its definition and template. `asimov-spec` and `asimov-build` read it by path whenever a person must see the plan and render the view it fixes. A file, not a skill: nothing is substituted in it, so a sibling is named by its file name and anything else is `<plugin-root>/…`, the plugin root three folders above this file.*
 
 The S101 file is written for agents; a person sees the plan through this view. One layout, every time, so a reader learns it once. The view says nothing about the plan that is not in the files, and it carries no verdict: the caller prints the validation rows under it if it has them.
 
 ## Read first
 
-Load with the file-read tool. In Claude Code `${CLAUDE_PLUGIN_ROOT}` is the plugin root and is substituted for you. In Codex the variable stays literal and a `..` path resolves from the working directory, so derive the root once: take this skill's file path as Codex shows it, strip everything from `skills/artifact-s101-view` onward, and use what remains as `<plugin-root>` in every path below, absolute. Verify it by reading file 1; if that fails, Glob `<home>/.codex/plugins/cache/**/s101-implementation-plan-template.md`, take the match whose path shares the longest prefix with the skill path, and if nothing matches stop and report the path you derived and the search you ran (the method of `D101-codex-support.html` §6.2).
+Load with the file-read tool. File 1 sits beside this file, in the folder you read it from; never a relative path in a tool call, since the working directory is the product repo. If it cannot be read, stop and report the path.
 
 1. **The S101 template** — the frontmatter keys and the body sections you read:
 
    ```
-   ${CLAUDE_PLUGIN_ROOT}/artifacts/documentation/s101-implementation-plan/s101-implementation-plan-template.md
+   s101-implementation-plan-template.md — beside this file
    ```
 
 2. **The target S101**, whole; parse the frontmatter as YAML. **The S102 headers** in the same folder, when any exist (`S102-<slug>-NNN-*.md`), for the task count that is written.
@@ -74,7 +71,7 @@ Return the block as chat text and nothing before or after it.
 ## Never
 
 - **Write** a file, or change one.
-- **Judge** the plan, mark a row, or add a finding. A gap in the tree (a phase without a task, an id that repeats) is printed as the file has it; the validation skill reports it.
+- **Judge** the plan, mark a row, or add a finding. A gap in the tree (a phase without a task, an id that repeats) is printed as the file has it; the validation script, `scripts/validate-s101.ps1` beside this file, reports it.
 - **Invent** a label or a column. The layout is fixed; a plan that does not fit it is a finding for the maintainer, not a reason to improvise.
 - **Print the frontmatter** or any YAML. The person never reads the file's form.
 - **Print a phase's `check`**, a file list, or the repo notes. The person reads the sentence; the agents run the command.

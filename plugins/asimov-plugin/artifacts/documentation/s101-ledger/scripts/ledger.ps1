@@ -3,7 +3,8 @@
   The build ledger's operations, as a script: start, position, record, rule, commit, close.
 
 .DESCRIPTION
-  Implements the operations of skills/artifact-s101-ledger/SKILL.md on the one file that holds a
+  Implements the operations of artifacts/documentation/s101-ledger/s101-ledger-operations.md
+  (beside this script's folder) on the one file that holds a
   build's run state, specs/<slug>/S101-<slug>.ledger.md, beside the plan it belongs
   to (s101-ledger-definition.md). The frontmatter is machine state and is rewritten with the
   statuses moved; the body is the record and is only ever appended to. Every call does one
