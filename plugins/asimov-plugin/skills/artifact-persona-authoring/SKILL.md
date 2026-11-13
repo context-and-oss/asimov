@@ -1,6 +1,6 @@
 ---
 name: artifact-persona-authoring
-description: Author a custom persona review skill for the product repo — interview the author for the five persona fields (identity, knows cold, does not know, has, is reviewing to), check the reader against the persona-review quality bar, then render the persona template into a self-contained SKILL.md at .claude/skills/persona-<slug>/. Use when asked to "author a persona", "add a reader", "make a persona for our <role>", "new persona", or to see which personas exist before adding one; also runnable by name in Claude Code and Codex. One reader per run; the quality check is advisory; nothing is written before the author confirms a plan. Never writes a standard persona and never edits one that exists.
+description: Use when asked to author a persona, add a reader, make a persona for a role, or to see which personas exist. Interviews for one custom reader and writes a persona skill into the product repo's .claude/skills/. Never writes a standard persona or edits one; writes nothing before the plan is confirmed.
 ---
 
 # Persona authoring

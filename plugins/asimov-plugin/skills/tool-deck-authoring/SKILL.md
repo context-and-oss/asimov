@@ -1,6 +1,6 @@
 ---
 name: tool-deck-authoring
-description: How to write a slide deck as one self-contained HTML file from the plugin's deck resource (resources/deck/) — presented in a browser, speaker notes under N, a PDF under Ctrl+P, styled by one theme file. Use whenever someone asks for a presentation, a deck, slides, a pitch, a talk, a session, a briefing, "slides for Monday", "a short deck for the leadership group", a new version of an existing deck, or a deck in another brand's theme. Not for an A100 or any artifact with its own template; those build on the resource through their own skill.
+description: Use when asked for a presentation, a deck, slides, a pitch, a talk, a briefing, a new version of an existing deck, or a deck in another brand's theme. Writes one self-contained HTML deck from the plugin's deck resource, styled by one theme file. Not for an A100 or any artifact with its own template.
 ---
 
 # Deck authoring

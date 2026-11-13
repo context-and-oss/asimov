@@ -1,6 +1,6 @@
 ---
 name: asimov-init
-description: Use when asked to set a repository up for Asimov, make it Asimov-ready, or refresh its Asimov setup: the asimov.md marker, the Codex subagent shells, the convention read-lists, the project info and the documentation site, for Claude Code and Codex in one run. Not for a repository's own build or tooling setup.
+description: Use when asked to set a repository up for Asimov, make it Asimov-ready, or refresh its Asimov setup (the asimov.md marker, the Codex shells, the convention read-lists, the project info and the site), for Claude Code and Codex in one run. Not for a repository's own build or tooling setup.
 argument-hint: (optional) repo name override — empty auto-detects from git remote or folder name
 model: claude-opus-5-5
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash, Skill

@@ -1,6 +1,6 @@
 ---
 name: artifact-site-authoring
-description: The only writer of a product repo's documentation site — documentation/index.html, documentation/_chrome.css, every page under documentation/_site/ and the nav block between the asimov-nav markers in every document the site indexes. Runs the site script, which scans documentation/, reads the project info for the areas, fills the plugin's templates and writes the whole site again, so one run also brings an older site to the current shape. Use inside asimov-init (the site target), by hand when asked to "refresh the site", "rebuild the documentation site", "add this document to the site", "is the site up to date", and after any document is added, renamed or removed. Never authors a document, never edits a document outside the nav block, never calls another skill.
+description: Use when asked to refresh, rebuild or check the documentation site, after a document is added, renamed or removed, and inside asimov-init. Runs the site script, the only writer of documentation/index.html, _site/ and the nav blocks; never authors a document or edits one beyond its nav block.
 ---
 
 # Documentation site authoring

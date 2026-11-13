@@ -1,6 +1,6 @@
 ---
 name: asimov-project
-description: Use when asked about or to change the project's pages under project/: the risk log (register, change, decide, hand over or review a risk), the project info, or what the Project frame holds. The Project frame of a repository that uses Asimov (asimov.md at its root). Not for a feature or a plan; those are the stages.
+description: Use when asked about or to change the project's pages under project/, the risk log (register, change, decide, hand over or review a risk) and the project info. The Project frame of a repository that uses Asimov (asimov.md at its root). Not for a feature or a plan; those are the stages.
 argument-hint: the artifact and what to do with it, in words — "risk log, add a risk", "show the risk log"; empty lists the artifacts
 model: claude-sonnet-5-5
 allowed-tools: Read, Glob, Grep, Write, Edit, Bash, Skill

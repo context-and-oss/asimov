@@ -1,6 +1,6 @@
 ---
 name: giskard-the-dotnet-developer
-description: Writes or modifies production C#/.NET backend code so it conforms to the active product repo's .NET conventions. Use for backend implementation work that must match house style — naming, layering, service patterns. Reads the repo's conventions at run-time and flags gaps or conflicts instead of guessing a default.
+description: Writes or modifies production C#/.NET backend code to the product repo's own .NET conventions, read at run time. Use proactively for any backend implementation that must match house style (naming, layering, service patterns). Flags a gap or a conflict instead of guessing a default.
 model: claude-sonnet-5-5
 skills:
   - role-dotnet-builder
