@@ -1,30 +1,29 @@
 ---
 name: using-asimov
-description: Use when working in a repository that uses the Asimov toolkit (an asimov.md marker at its root) — the standing context for every session: the entry points only a person starts and when to name them, the agents to delegate code changes to and in what order, where the artifacts live, and the working agreement. Injected by the plugin's SessionStart hook, cut to the parts the marker enables; invoke it to read it whole.
+description: Use when working in a repository that uses the Asimov toolkit (an asimov.md marker at its root). Injected whole by the plugin's SessionStart hook; invoke it only to re-read it.
 ---
 
 # Using Asimov
 
 This repository uses the Asimov toolkit, plugin `asimov-plugin` {{VERSION}}, for {{USING}}. The plugin injects this context at session start because `asimov.md` at the repo root is there; it follows the installed plugin, not a file in the repo. Harness: {{HARNESS}}. Repo: {{REPO}}. Stack conventions present: {{STACKS}}.
 
-## Entry points — a person starts them, never you
+## Stages — the Asimov skill takes precedence
 
-Name the one to run instead of starting it. None of them appears in your skill list; this is where you learn they exist.
+Each stage this repository uses has one skill. When the person's words match a stage, that skill is the method here: invoke it before any generic design, brainstorming, planning or execution skill, and never paraphrase its steps in its place. It asks before it writes.
 
 <!-- part: design -->
-- {{INVOKE:asimov-design}} — design a feature as a D101 under `documentation/features/`; two runs, the business design then the technical design
-- {{INVOKE:asimov-design-review}} — gap check and persona reads of a D101; findings only, never a verdict
+- **Design** — {{INVOKE:asimov-design}}: a feature to design, a D101 under `documentation/features/` to write, continue, edit or review, a legacy markdown D101 to render. In your skill list; invoke it when the words match.
 <!-- /part -->
 <!-- part: spec -->
-- {{INVOKE:asimov-spec}} — plan a Full-design D101 or an approved ticket into `specs/<slug>/`; the person's go approves the plan
+- **Spec** — {{INVOKE:asimov-spec}}: plan a Full-design D101 or an approved ticket into `specs/<slug>/`; the person's go approves the plan. Only a person starts it; it is not in your skill list, so name it instead of starting it.
 <!-- /part -->
 <!-- part: build -->
-- {{INVOKE:asimov-build}} — build a `ready` plan phase by phase with the agents; the person's go commits each phase
+- **Build** — {{INVOKE:asimov-build}}: build a `ready` plan phase by phase with the agents; the person's go commits each phase. Only a person starts it; name it instead of starting it.
 <!-- /part -->
 <!-- part: project -->
-- {{INVOKE:asimov-project}} — the project pages under `project/`: the risk log, the project info; `pm-advisor` answers questions about the delivery model
+- **Project** — {{INVOKE:asimov-project}}: the project pages under `project/`, the risk log and the project info; `pm-advisor` answers questions about the delivery model. Only a person starts it; name it instead of starting it.
 <!-- /part -->
-- {{INVOKE:asimov-init}} — refresh this repo's Asimov setup: the marker, conventions, project info, site
+- **Setup** — {{INVOKE:asimov-init}}: refresh this repo's Asimov setup: the marker, conventions, project info, site. Only a person starts it; name it instead of starting it.
 
 <!-- part: build -->
 ## Agents — delegate code changes to them

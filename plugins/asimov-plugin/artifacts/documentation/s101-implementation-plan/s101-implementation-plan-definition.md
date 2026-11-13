@@ -270,7 +270,7 @@ Approval: <who> · <YYYY-MM-DD> · <where: a comment, a status> · verified | un
 
 `asimov-spec` writes it at the start of a run from the fetch or from pasted text, and rewrites it when it is missing on a re-check; the authoring and validation skills read it as the design. It is never committed and never edited by hand: a correction goes into the source, and the next run reads it.
 
-Beside the plan, both asimov-skills write one gitignored sidecar, `S101-<feature-slug>.review.md`. Overwritten by the next run, read by no skill, never a record; the same role as `asimov-design-review`'s `D101-<slug>.review.md`. One shape, so a reader learns it once:
+Beside the plan, both asimov-skills write one gitignored sidecar, `S101-<feature-slug>.review.md`. Overwritten by the next run, read by no skill, never a record; the same role as `asimov-design`'s review notes, `D101-<slug>.review.md`. One shape, so a reader learns it once:
 
 ```markdown
 # Validation — S101-<feature-slug>

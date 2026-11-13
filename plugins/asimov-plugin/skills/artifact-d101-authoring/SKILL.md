@@ -1,6 +1,6 @@
 ---
 name: artifact-d101-authoring
-description: How to write or change a D101 feature-design file (documentation/features/D101-*.html and its mockups under documentation/features/mockups/d101-*/) so it still meets the D101 contract — the definition's bars and the HTML template's structure. Use whenever you create, render, edit, or fix any part of a D101, whether or not asimov-design is running — "update §4.4 of this D101", "add a decision row", "render this as a D101", "fix the side-nav" — and inside asimov-design when it writes or renders. Carries the rendering procedure and the authoring invariants; the contract itself is read from the plugin at run-time.
+description: Use when writing, rendering, editing or fixing any part of a D101 feature design (documentation/features/D101-*.html) or its mockups, inside asimov-design at every write or by hand when no design run is open. Not a trigger for designing a feature; that is asimov-design.
 ---
 
 # D101 authoring
@@ -46,7 +46,7 @@ Do not restate the template's leading comment here or in an asimov-skill — it 
 
 - The D101: `documentation/features/D101-<slug>.html` (kebab-case slug, no `D101-` repeated). A legacy `.md` sibling is left alone.
 - Its mockups: `documentation/features/mockups/d101-<slug>/<surface>.html`, parallel to `documentation/features/images/<doc-slug>/` for screenshots.
-- Its review notes, when `asimov-design-review` has run: `documentation/features/D101-<slug>.review.md`. Read-only for you; `asimov-design` consumes and deletes them (definition §4.10).
+- Its review notes, when a review run of `asimov-design` has written them: `documentation/features/D101-<slug>.review.md`. Read-only for you; the next design run consumes and deletes them (definition §4.10).
 
 ## Rendering procedure
 

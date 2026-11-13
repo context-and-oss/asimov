@@ -6,8 +6,8 @@
     inject the using-asimov skill at session start and the subagent note at subagent start, from
     the installed plugin; nothing imports this file (no `@asimov.md` in CLAUDE.md, no region in
     AGENTS.md). Its keys name the entry points the repo uses, and the hook cuts the context to
-    them: `enabled` or `disabled`, one per line, absent meaning enabled. asimov-design-review
-    follows asimov-design; asimov-init is always in. All four disabled is the opt-out: the marker
+    them: `enabled` or `disabled`, one per line, absent meaning enabled.
+    asimov-init is always in. All four disabled is the opt-out: the marker
     stays, nothing is loaded.
   - The body is three lines for people. The hook reads nothing else: the repo name comes from
     the folder, the stacks from documentation/conventions/.

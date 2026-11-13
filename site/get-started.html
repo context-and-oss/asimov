@@ -48,7 +48,7 @@
 codex plugin add asimov-plugin@asimov-marketplace</pre>
   <ul>
     <li>Update with <code>codex plugin marketplace upgrade asimov-marketplace</code>, then start a new session.</li>
-    <li>Codex loads the plugin's skills, the entry points among them. Set a repo up with <code>$asimov-plugin:asimov-init</code>, design a feature with <code>$asimov-plugin:asimov-design</code>, review it with <code>$asimov-plugin:asimov-design-review</code>, plan it with <code>$asimov-plugin:asimov-spec</code>. Same files as in Claude Code.</li>
+    <li>Codex loads the plugin's skills, the entry points among them. Set a repo up with <code>$asimov-plugin:asimov-init</code>, design and review a feature with <code>$asimov-plugin:asimov-design</code>, plan it with <code>$asimov-plugin:asimov-spec</code>. Same files as in Claude Code.</li>
   </ul>
 
   <h2>Your first feature</h2>
@@ -106,7 +106,7 @@ codex plugin add asimov-plugin@asimov-marketplace</pre>
       <g fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" text-anchor="middle">
         <text x="60" y="120">/asimov-init</text>
         <text x="180" y="120">/asimov-design</text>
-        <text x="300" y="120">/asimov-design-review</text>
+        <text x="300" y="120">/asimov-design review</text>
         <text x="540" y="120">/asimov-design</text>
         <text x="780" y="120">/asimov-spec</text>
         <text x="1020" y="120">agents by name</text>
@@ -131,7 +131,7 @@ codex plugin add asimov-plugin@asimov-marketplace</pre>
     <tr><th>Step</th><th>You type</th><th>What happens</th><th>Who decides</th></tr>
     <tr><td>Wire up</td><td><code>/asimov-init</code></td><td>The <code>asimov.md</code> marker, the Codex agent shells, a convention read-list per stack, the project info, the docs site. From then on every session gets the Asimov context from the plugin itself</td><td>—</td></tr>
     <tr><td>Describe</td><td><code>/asimov-design</code></td><td>The business design in <code>documentation/features/</code>, technical section declared open</td><td>—</td></tr>
-    <tr><td>Read</td><td><code>/asimov-design-review</code></td><td>Findings in a sibling <code>.review.md</code> the next run picks up</td><td>—</td></tr>
+    <tr><td>Read</td><td><code>/asimov-design review …</code></td><td>Findings in a sibling <code>.review.md</code> the next run picks up</td><td>—</td></tr>
     <tr><td>Sign</td><td>—</td><td>The business approver signs the what and why. No technology chosen yet.</td><td>Business approver</td></tr>
     <tr><td>Design the how</td><td><code>/asimov-design</code> again</td><td>The technical design in the same file. Phase moves to full design.</td><td>—</td></tr>
     <tr><td>Check it is gap-free</td><td>—</td><td>A gap-free verdict. Status can move to approved now that the estimate holds.</td><td>A reviewer who is not the author; the business approver for status</td></tr>

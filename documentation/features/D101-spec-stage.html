@@ -425,7 +425,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="row cols-2"><div class="label-cell">Buildable blind</div><div>The S102 bar: a builder with no conversation history builds it and knows when it is done.</div></div>
     <div class="row cols-2"><div class="label-cell">Spec workflow</div><div>Design → S101, checked and approved by the author at the cut → S102s, each validated by a fresh agent → <code>ready</code>; this document.</div></div>
     <div class="row cols-2"><div class="label-cell">Build workflow</div><div>Ready S101 → phase by phase → builders → verification → review → checkpoint; out of scope.</div></div>
-    <div class="row cols-2"><div class="label-cell">Asimov-skill</div><div>A skill only a person invokes, by name: it composes the artifact skills and carries the conversation, never a method. <code>/asimov-spec</code> in Claude Code, <code>$asimov-plugin:asimov-spec</code> in Codex.</div></div>
+    <div class="row cols-2"><div class="label-cell">Asimov-skill</div><div>An entry-point skill: it composes the artifact skills and carries the conversation, never a method. Whether the model may start it is a per-skill decision; this one only a person invokes, by name (NF5). <code>/asimov-spec</code> in Claude Code, <code>$asimov-plugin:asimov-spec</code> in Codex.</div></div>
     <div class="row cols-2"><div class="label-cell">Harness</div><div>The tool that runs a skill: Claude Code or Codex. A skill is one file for both; the manifest, the invocation syntax, the model and the tool budget differ per harness, the method never.</div></div>
   </div>
 </section>
@@ -1791,7 +1791,7 @@ footer.site-footer a { color: var(--cyan); }
     </div>
     <div class="q-card resolved">
       <div class="q-head"><span class="q-id">Q4</span><span class="q-decider">Resolved 2026-09-29</span></div>
-      <div class="q-body">Where a run's findings and assumptions land: chat only, or a sidecar like <code>asimov-design-review</code>'s <code>.review.md</code>.</div>
+      <div class="q-body">Where a run's findings and assumptions land: chat only, or a sidecar like <code>asimov-design</code>'s review notes, <code>.review.md</code>.</div>
       <div class="q-resolution"><strong>Decision:</strong> assumptions in the S101 body, findings in a gitignored <code>S101-&lt;slug&gt;.review.md</code> (§6.8).</div>
     </div>
     <div class="q-card resolved">

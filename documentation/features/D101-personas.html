@@ -369,7 +369,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="req"><div class="id">R10</div><div class="body"><code>artifact-persona-authoring</code> reads the persona-review standard and the persona template at run time rather than from memory; the roster it shows first reads neither — see R12.</div></div>
     <div class="req"><div class="id">R11</div><div class="body">The roster <code>artifact-persona-authoring</code> shows before its interview lists <strong>both</strong> the standard personas (shipped with the toolkit) and the custom personas (in the repo), labelling which is which, and writes nothing; asked only who exists, the skill stops there.</div></div>
     <div class="req"><div class="id">R12</div><div class="body">The roster globs <code>persona-*/SKILL.md</code> in both sources and reads each skill's <strong>frontmatter only</strong> (<code>name</code> + <code>description</code>) — never the body, never the standard or the template.</div></div>
-    <div class="req"><div class="id">R13</div><div class="body"><code>asimov-design-review</code> discovers the same roster, sorts each persona into a <strong>business</strong> or <strong>technical</strong> bucket by what it declares it does not know (definition §7), and runs a picked persona review by invoking the skill through the Skill tool — never by re-implementing the method (<code>D101-design-stage.html</code>).</div></div>
+    <div class="req"><div class="id">R13</div><div class="body"><code>asimov-design</code>'s review path discovers the same roster, sorts each persona into a <strong>business</strong> or <strong>technical</strong> bucket by what it declares it does not know (definition §7), and runs a picked persona review by invoking the skill through the Skill tool — never by re-implementing the method (<code>D101-design-stage.html</code>).</div></div>
     <div class="req"><div class="id">R14</div><div class="body"><code>artifact-persona-authoring</code> prints the persona-review artifact's maturity level as at most one chat line before its first question, read from the definition's <code>maturity:</code> block — nothing for <code>adopt</code> (<code>D101-artifact-maturity.html</code>).</div></div>
   </div>
 
@@ -379,7 +379,7 @@ footer.site-footer a { color: var(--cyan); }
   </div>
 
   <div class="req-list" data-tab="oos" style="display:none">
-    <div class="req oos"><div class="id">OOS1</div><div class="body">Running a persona review from <code>artifact-persona-authoring</code> — the review is the skill's job, invoked by name ("review as &lt;name&gt;") or delegated by <code>asimov-design-review</code> (R13); the authoring skill authors and lists, keeping authoring and reviewing separate.</div></div>
+    <div class="req oos"><div class="id">OOS1</div><div class="body">Running a persona review from <code>artifact-persona-authoring</code> — the review is the skill's job, invoked by name ("review as &lt;name&gt;") or delegated by <code>asimov-design</code>'s review path (R13); the authoring skill authors and lists, keeping authoring and reviewing separate.</div></div>
     <div class="req oos"><div class="id">OOS2</div><div class="body">Interactive partial editing of an existing persona skill — v1 regenerates wholesale or the author edits the file by hand; bounds the first version.</div></div>
     <div class="req oos"><div class="id">OOS3</div><div class="body">Persona reviews of code — persona reviews target design documents (business and technical); code review is Baley's job.</div></div>
     <div class="req oos"><div class="id">OOS4</div><div class="body"><code>artifact-persona-authoring</code> creating or editing the standard set — standard personas are curated in the toolkit for consistency, not interview-generated per repo.</div></div>
@@ -423,7 +423,7 @@ footer.site-footer a { color: var(--cyan); }
     </div>
     <div class="principle">
       <div class="num">6</div>
-      <div class="text"><strong>Create, then hand off.</strong> <code>artifact-persona-authoring</code> shows the roster and creates a custom reader; running the review is the skill's job, reached by name or through <code>asimov-design-review</code> — authoring never reviews.</div>
+      <div class="text"><strong>Create, then hand off.</strong> <code>artifact-persona-authoring</code> shows the roster and creates a custom reader; running the review is the skill's job, reached by name or through <code>asimov-design</code>'s review path — authoring never reviews.</div>
     </div>
   </div>
 </section>
@@ -724,7 +724,7 @@ footer.site-footer a { color: var(--cyan); }
   <h2 class="section-title"><span class="sec-ref">§6.3</span>Code map</h2>
   <div class="codemap">
     <div class="codemap-row"><div class="what">Show the roster, interview, render, write a custom skill</div><div class="where">plugins/asimov-plugin/skills/artifact-persona-authoring/SKILL.md</div></div>
-    <div class="codemap-row"><div class="what">Discover, bucket and delegate persona reviews (Step 2 / Step 4)</div><div class="where">plugins/asimov-plugin/skills/asimov-design-review/SKILL.md</div></div>
+    <div class="codemap-row"><div class="what">Discover, bucket and delegate persona reviews (the review path, Step 10)</div><div class="where">plugins/asimov-plugin/skills/asimov-design/SKILL.md</div></div>
     <div class="codemap-row"><div class="what">Persona form, rendered for a custom skill</div><div class="where">plugins/asimov-plugin/artifacts/skills/persona-review/persona-review-template.md</div></div>
     <div class="codemap-row"><div class="what">Standard, read at run time</div><div class="where">plugins/asimov-plugin/artifacts/skills/persona-review/persona-review-definition.md</div></div>
     <div class="codemap-row"><div class="what">Standard set, shipped</div><div class="where">plugins/asimov-plugin/skills/persona-{poseidon,athena,hermes}/SKILL.md</div></div>
@@ -744,14 +744,14 @@ footer.site-footer a { color: var(--cyan); }
     <div class="row cols-2"><div class="label-cell">body</div><div>The five fields, a persona-tailored fail/reward list drawn from the catalogue, and the output shape the definition assigns the persona's kind (<code>Cuts:</code> for a business reader, <code>Concerns:</code> for the feasibility reader — definition §6).</div></div>
   </div>
 
-  <div class="subhead">What the roster and asimov-design-review read — two sources, one roster</div>
+  <div class="subhead">What the roster and the review path read — two sources, one roster</div>
   <ul class="gps-paths">
     <li>plugins/asimov-plugin/skills/persona-*/SKILL.md   — standard (shipped)</li>
     <li>.claude/skills/persona-*/SKILL.md                 — custom (this repo)</li>
   </ul>
   <ul class="bullets">
     <li>The <code>persona-</code> name prefix is the recognition signature; the source path is what labels each row <em>standard</em> or <em>custom</em>.</li>
-    <li>The roster reads frontmatter only (R12). <code>asimov-design-review</code> reads each body to bucket it — <em>business</em> if the persona declares it does not know the mechanism, <em>technical</em> if it does (definition §7) — then invokes the picked bucket's skills by <code>name</code> via the Skill tool (R13).</li>
+    <li>The roster reads frontmatter only (R12). <code>asimov-design</code>'s review path reads each body to bucket it — <em>business</em> if the persona declares it does not know the mechanism, <em>technical</em> if it does (definition §7) — then invokes the picked bucket's skills by <code>name</code> via the Skill tool (R13).</li>
     <li class="warn">A custom slug that collides with a shipped one is listed under both, labelled — final resolution is §8 Q3.</li>
   </ul>
 </section>
@@ -770,9 +770,9 @@ footer.site-footer a { color: var(--cyan); }
   <p class="section-desc">What the skill declares, and the two baked paths — in two files — a layout fork must change.</p>
   <div class="history-grid">
     <div class="hist-card"><div class="h-label">model</div><div class="h-value">the session's</div><div class="h-desc">A skill declares none; the interview runs on whatever model the session has, in either harness.</div></div>
-    <div class="hist-card"><div class="h-label">allowed-tools</div><div class="h-value">none declared</div><div class="h-desc">A skill restricts no tools; the one-file write scope is prompt discipline, as in asimov-design-review.</div></div>
-    <div class="hist-card flag"><div class="h-label">Custom output path (fork)</div><div class="h-value">.claude/skills/</div><div class="h-desc">Baked literal in <code>artifact-persona-authoring/SKILL.md</code> and <code>asimov-design-review/SKILL.md</code>; forking the layout means changing both in lockstep.</div></div>
-    <div class="hist-card flag"><div class="h-label">Standard set path (fork)</div><div class="h-value">skills/persona-*</div><div class="h-desc">The plugin folder the shipped set lives in and the roster and <code>asimov-design-review</code> scan; a fork changes it in both files, alongside the output path.</div></div>
+    <div class="hist-card"><div class="h-label">allowed-tools</div><div class="h-value">none declared</div><div class="h-desc">A skill restricts no tools; the one-file write scope is prompt discipline, as in asimov-design's review path.</div></div>
+    <div class="hist-card flag"><div class="h-label">Custom output path (fork)</div><div class="h-value">.claude/skills/</div><div class="h-desc">Baked literal in <code>artifact-persona-authoring/SKILL.md</code> and <code>asimov-design/SKILL.md</code>; forking the layout means changing both in lockstep.</div></div>
+    <div class="hist-card flag"><div class="h-label">Standard set path (fork)</div><div class="h-value">skills/persona-*</div><div class="h-desc">The plugin folder the shipped set lives in and the roster and <code>asimov-design</code>'s review path scan; a fork changes it in both files, alongside the output path.</div></div>
   </div>
 </section>
 
@@ -804,7 +804,7 @@ footer.site-footer a { color: var(--cyan); }
     </div>
     <div class="problem-card">
       <div class="pc-head"><div class="pc-num">03</div><div class="pc-title">Two baked paths, three files</div></div>
-      <div class="pc-body"><code>.claude/skills/</code> (custom) and <code>skills/persona-*</code> (standard) are literals in <code>artifact-persona-authoring/SKILL.md</code> and <code>asimov-design-review/SKILL.md</code>; a layout fork must change both files in lockstep.</div>
+      <div class="pc-body"><code>.claude/skills/</code> (custom) and <code>skills/persona-*</code> (standard) are literals in <code>artifact-persona-authoring/SKILL.md</code> and <code>asimov-design/SKILL.md</code>; a layout fork must change both files in lockstep.</div>
     </div>
   </div>
 </section>
@@ -877,7 +877,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="ac-row">
       <div class="ac-id">AC13</div>
       <div class="ac-verifies"><span class="verify-chip">R13</span></div>
-      <div>In a repo with a business persona and the feasibility persona, <code>asimov-design-review</code> names each in the right bucket on its menu; picking a persona review produces one <code>## Review, as &lt;Persona&gt;</code> block per persona in that bucket, emitted by invoking the skill — the asimov-skill contains no copy of the persona method.</div>
+      <div>In a repo with a business persona and the feasibility persona, <code>asimov-design</code>'s review menu names each in the right bucket; picking a persona review produces one <code>## Review, as &lt;Persona&gt;</code> block per persona in that bucket, emitted by invoking the skill — the asimov-skill contains no copy of the persona method.</div>
     </div>
     <div class="ac-row">
       <div class="ac-id">AC14</div>
@@ -936,7 +936,7 @@ footer.site-footer a { color: var(--cyan); }
       <h4>Implements to</h4>
       <ul>
         <li>skills/artifact-persona-authoring/SKILL.md</li>
-        <li>skills/asimov-design-review/SKILL.md (Step 2 roster + Step 4 delegation)</li>
+        <li>skills/asimov-design/SKILL.md (Step 10: roster + delegation)</li>
         <li>skills/persona-* (standard set)</li>
       </ul>
     </div>

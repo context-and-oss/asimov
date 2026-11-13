@@ -2,10 +2,9 @@
 
 Plugin for Claude Code and Codex. Feature design docs done properly, plus subagents that code and review the way your repo already does.
 
-- `/asimov-design` – interviews you, writes a D101 (feature design) as HTML to `documentation/features/`
-- `/asimov-design-review` – checks a D101 against its bar, lists what's missing
+- `/asimov-design` – interviews you, writes a D101 (feature design) as HTML to `documentation/features/`; name a D101 and *review* and it checks it against its bar, lists what's missing
 - `/asimov-init` – sets up a repo for both tools in one run: the `asimov.md` marker, the Codex agent shells, convention read-lists, project info, docs site. The Asimov context itself comes from the plugin at session start, wherever the marker is
-- Personas: ops, architect and sponsor readers ship as skills; `artifact-persona-authoring` interviews you for one of your own. `/asimov-design-review` reads a design as them
+- Personas: ops, architect and sponsor readers ship as skills; `artifact-persona-authoring` interviews you for one of your own. `/asimov-design` reads a design as them on a review
 - Subagents: Giskard (.NET), Daneel (Angular), Calvin (tests), Baley (code review). They read your repo's convention files at run-time, no guessing.
 
 Why: agents write decent code when the design is actually written down. Most design docs aren't written for that. A D101 has a definition with two bars. The author clears the first before writing the technical part. Someone else decides the second.
@@ -38,30 +37,29 @@ codex plugin add asimov-plugin@asimov-marketplace
 ```
 /asimov-init
 /asimov-design
-/asimov-design-review
+/asimov-design review D101-<slug>
 ```
 
 - First one wires up the repo.
 - Second one interviews you and writes the D101. Stops after the business design; run it again for the technical design.
-- Third one tells you what the document still lacks. Can also run the persona reviews.
+- Third one, the same skill with *review* in the words, tells you what the document still lacks. Can also run the persona reviews.
 
 <!-- TODO: screenshot of a rendered D101 -->
 
 ## Status
 
 - Releases: [releases page](../../releases). Major-only versions (`1.0.0`, `2.0.0`, …), any release may change a bar or a template. The marketplace follows the `latest` tag.
-- Built: the Design stage (`asimov-design` and `asimov-design-review`, user-invoked skills for both harnesses), the five subagents (each a `role-*` skill plus a thin shell per harness), the two D101 artifact skills, persona reviews, the `pm-advisor` skill (delivery-model advice), the Spec stage: `asimov-spec` (a user-invoked skill, one file for Claude Code and Codex) over the S101/S102 definitions, templates and four `artifact-s10x-*` skills, planning from a Full-design D101 or from an approved Jira ticket. Untried outside this repo as of 2026-10-02.
+- Built: the Design stage (`asimov-design`, one skill for both harnesses, the review a path of it since 2026-11-13), the five subagents (each a `role-*` skill plus a thin shell per harness), the two D101 artifact skills, persona reviews, the `pm-advisor` skill (delivery-model advice), the Spec stage: `asimov-spec` (a user-invoked skill, one file for Claude Code and Codex) over the S101/S102 definitions, templates and four `artifact-s10x-*` skills, planning from a Full-design D101 or from an approved Jira ticket. Untried outside this repo as of 2026-10-02.
 - Planned: `/conventions-check`. See [D100 §9](documentation/D100-Asimov-architecture.md#9-not-yet-built).
 - Every artifact carries a maturity level (`assess` / `trial` / `adopt` / `hold`). The producing skill or command tells you if it's not at `adopt`.
 - Needs PowerShell for the Spec- and Build-stage checks, the ledger script and the run-log hooks: `pwsh` (PowerShell 7, on Windows, Linux and macOS) or Windows PowerShell 5.1. Without it those checks cannot run and the run log stays empty; nothing else is affected.
-- Requires Claude Code with plugin support and access to the models the skills and commands pin. Map in [model-choice.md](documentation/model-choice.md). Codex with plugin support runs the same entry points (`$asimov-plugin:asimov-init`, `$asimov-plugin:asimov-design`, `$asimov-plugin:asimov-design-review`, `$asimov-plugin:asimov-spec`, `$asimov-plugin:asimov-build`); none of them binds a model in Codex, which runs the session's.
+- Requires Claude Code with plugin support and access to the models the skills and commands pin. Map in [model-choice.md](documentation/model-choice.md). Codex with plugin support runs the same entry points (`$asimov-plugin:asimov-init`, `$asimov-plugin:asimov-design`, `$asimov-plugin:asimov-spec`, `$asimov-plugin:asimov-build`); none of them binds a model in Codex, which runs the session's.
 
 ## Skills and commands you type
 
 | Name | Stage | What it does |
 |---|---|---|
-| `/asimov-design` | Design | Interview → D101 as self-contained HTML. Three phases, hard stop after the business design. Name a legacy `.md` and it renders it to HTML instead. Both harnesses (`$asimov-plugin:asimov-design` in Codex). |
-| `/asimov-design-review` | Design | Reads a D101, resolves its phase, offers the gap check (§8a or §8b) and the persona reads, runs what you pick and leaves the findings in a gitignored `.review.md` beside the file for `/asimov-design` to pick up. Never edits the D101, no verdict. Both harnesses. |
+| `/asimov-design` | Design | Interview → D101 as self-contained HTML. Three phases, hard stop after the business design. Name a legacy `.md` and it renders it to HTML instead. Name a D101 and *review* and it resolves the phase, offers the gap check (§8a or §8b) and the persona reads, runs what you pick and leaves the findings in a gitignored `.review.md` beside the file for the next design run; no edit, no verdict. Starts on your words too, in a repo with `asimov.md`. Both harnesses (`$asimov-plugin:asimov-design` in Codex). |
 | `/asimov-init` | Setup | Writes the `asimov.md` marker (which entry points the repo uses), copies the Codex agent shells into `.codex/agents/`, scaffolds `documentation/conventions/<stack>/`, asks for the project info, generates the docs site; touches neither `CLAUDE.md` nor `AGENTS.md`. One run readies the repo for both harnesses (`$asimov-plugin:asimov-init` in Codex); the context reaches every session from the plugin's hooks. |
 | `artifact-persona-authoring` | Design | Shows the persona roster (standard + custom), interviews you for a custom reader, writes it to `.claude/skills/persona-<slug>/`. A skill, both harnesses. |
 
@@ -94,7 +92,7 @@ plugins/asimov-plugin/                    the plugin (install scope)
 ├── .codex-plugin/plugin.json             plugin manifest (Codex)
 ├── hooks/                               asimov-context + run-hook.cmd/.ps1 — the Asimov context injected at session start where asimov.md marks the repo (hooks.json for Claude Code, hooks-codex.json for Codex); scripts/asimov-log.ps1 — the run log
 ├── agents/                               subagent shells (Giskard, Daneel, Calvin, Baley) — .md for Claude Code, .toml for Codex
-├── skills/                               role-* (the subagents' methods), artifact-d101-* (D101 authoring + gap review), artifact-persona-authoring (custom persona authoring), artifact-s101-*/artifact-s102-* (Spec-stage authoring + validation), asimov-init (setup entry point, both harnesses), using-asimov (the context the hooks inject), asimov-design + asimov-design-review (Design-stage entry points, both harnesses), asimov-spec (Spec-stage entry point, both harnesses), asimov-build (Build-stage entry point), persona-* (Poseidon, Athena, Hermes), pm-advisor
+├── skills/                               role-* (the subagents' methods), artifact-d101-* (D101 authoring + gap review), artifact-persona-authoring (custom persona authoring), artifact-s101-*/artifact-s102-* (Spec-stage authoring + validation), asimov-init (setup entry point, both harnesses), using-asimov (the context the hooks inject), asimov-design (Design-stage entry point, both harnesses; the review a path of it), asimov-spec (Spec-stage entry point, both harnesses), asimov-build (Build-stage entry point), persona-* (Poseidon, Athena, Hermes), pm-advisor
 ├── artifacts/                            one folder per artifact the toolkit writes into a product repo, grouped by where it lands
 │   ├── documentation/                    lands in the product repo's documentation/
 │   │   ├── d101-feature-design/          the D101 artifact: definition + template side by side

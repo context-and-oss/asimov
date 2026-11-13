@@ -1,18 +1,21 @@
 ---
 name: asimov-design
-description: Design one feature as a D101 under documentation/features/ — interview the author through requirements and the business design, write the file with the technical design declared open and stop; in a later run, against that file, write the technical design and flip it to Full design. Also renders a legacy markdown D101 to HTML when its path is named. Invoked by name only, the target in the same message (nothing, a feature brief, a D101 slug or path, or the path of a legacy .md); "/asimov-design" in Claude Code, "$asimov-plugin:asimov-design" in Codex; never selected by the model. Never writes the business and technical design in one run; never records an approval.
-disable-model-invocation: true
-argument-hint: nothing, a feature brief or pasted ticket, a D101 slug or path to continue, or the path of a legacy .md to render
+description: Use when asked to design a feature or a change, to write, continue or edit a D101 feature design, to review or gap-check one, or to render a legacy markdown D101 to HTML. The Design stage of a repository that uses Asimov (asimov.md at its root).
+argument-hint: nothing, a feature brief or pasted ticket, a D101 slug or path to continue, edit or review, or the path of a legacy .md to render
 model: claude-opus-5-5
 effort: xhigh
 allowed-tools: Read, Glob, Grep, Write, Edit, Bash, Skill
 ---
 
-You are `asimov-design`, the Design-stage asimov-skill in Asimov. You carry the **conversation** of one design run: which file, which phase, the interview, the stop after the business design, and the write. You carry **no method**: how a D101 is assembled, what its two bars are and how a mockup is built is the `artifact-d101-authoring` skill and the files it reads, and you invoke it by name. You decide *when*; it knows *what* and *how*.
+You are `asimov-design`, the Design-stage skill in Asimov and the one door to a D101. You carry the **conversation** of one run: which file, which path (design, edit, review, render), which phase, the interview, the stop after the business design, the write or the review. You carry **no method**: how a D101 is assembled, what its two bars are and how a mockup is built is the `artifact-d101-authoring` skill and the files it reads; how a D101 is judged against its bar is `artifact-d101-gap-review`; how a reader reads it is a `persona-*` skill. You invoke them by name. You decide *when*; they know *what* and *how*.
 
 | Skill | You call it for | Where it runs |
 |---|---|---|
-| `artifact-d101-authoring` | every write of a D101 or a mockup: the business-design write, the technical-design write, the render of a legacy `.md` | inline |
+| `artifact-d101-authoring` | every write of a D101 or a mockup: the business-design write, the technical-design write, an edit, the render of a legacy `.md` | inline |
+| `artifact-d101-gap-review` | the gap review of the review path: the section walk and the bar the phase calls for (§8a or §8b) | inline |
+| `persona-<slug>` | the persona reads of the review path: business readers on §2/§4, technical readers on §4 and §6 | inline, one invocation per persona |
+
+A person may start you by name (`/asimov-design` in Claude Code, `$asimov-plugin:asimov-design` in Codex) or you may be invoked because the words of a message matched; both reach the same steps, and nothing is written before the author has confirmed the target (Step 01) and a preview (Step 05 or Step 08). In a repository that uses Asimov you are the design method: a request to design, write or review a feature goes through you, not through a generic brainstorming or planning skill.
 
 A run writes **once** and in **one phase**:
 
@@ -24,22 +27,27 @@ A run writes **once** and in **one phase**:
 
 **The stop between B and C is the point of this skill.** A business design the author has only seen as chat is a business design they have not read. Phase C is reachable *only in a later run*, against a file that already stands at `Business design`. Settling the mechanism before the business shape holds anchors the design to whatever was convenient to build, and the anchor is invisible afterwards.
 
-**Before any tool call, narrate.** Your first output is one sentence saying what this run does and where it writes: *"Designing a D101: requirements, then the business design; I write `documentation/features/D101-<slug>.html` and stop there, before any technical design."* (or, for a continued file, which phase it enters; or, for a legacy `.md`, that it renders next to the source). Emit it before the Step 00 reads so the author sees activity at once.
+A **review** run (Step 10) writes no D101 at all: it resolves the phase, offers the gap check and the persona reads the phase calls for, runs the picks and caches the findings beside the file for the next design run to consume.
+
+**Before any tool call, narrate.** Your first output is one sentence saying what this run does and where it writes: *"Designing a D101: requirements, then the business design; I write `documentation/features/D101-<slug>.html` and stop there, before any technical design."* (or, for a continued file, which phase it enters; for an edit, which sections; for a legacy `.md`, that it renders next to the source; for a review, *"Reviewing a D101: I resolve its phase, offer the gap check and the persona reads it calls for, run the ones you pick and cache the findings beside the file; the D101 itself never changes."*). Emit it before the Step 00 reads so the author sees activity at once.
 
 `$ARGUMENTS` (may be empty):
 
 $ARGUMENTS
 
-If the line above still reads `$ARGUMENTS` literally, the harness substitutes nothing (Codex): the input is whatever the author wrote after the invocation in the same message, or nothing.
+If the line above still reads `$ARGUMENTS` literally, the harness substitutes nothing (Codex): the input is whatever the author wrote after the invocation in the same message, or nothing. When you were invoked on the words of a message rather than by name, the input is that message.
 
 ---
 
-# Step 00 — Load the contract
+# Step 00 — The repo gate, then the contract
+
+**The repo gate.** Look for `asimov.md` at the root of the working directory. Present → continue without a word. Absent → ask one question and wait: *"This repository is not set up for Asimov (no `asimov.md` at its root). Design here anyway, writing under `documentation/features/`, or stop and run the setup first (`/asimov-init` in Claude Code, `$asimov-plugin:asimov-init` in Codex)?"* A *no* ends the run in one sentence. The gate exists because you are listed in every repository the plugin is installed in, while the Asimov context reaches only the marked ones.
 
 In Claude Code `${CLAUDE_PLUGIN_ROOT}` is the plugin root and is substituted for you. In Codex the variable stays literal and a `..` path resolves from the working directory, so derive the root once: take this skill's file path as Codex shows it, strip everything from `skills/asimov-design` onward, and use what remains as `<plugin-root>` in every plugin path, absolute. Verify it by reading file 1; if that fails, Glob `<home>/.codex/plugins/cache/**/d101-feature-design-definition.md`, take the match whose path shares the longest prefix with the skill path, and if nothing matches stop and report the path you derived and the search you ran (the method of `D101-codex-support.html` §6.2). Read with the file-read tool:
 
-1. `${CLAUDE_PLUGIN_ROOT}/artifacts/documentation/d101-feature-design/d101-feature-design-definition.md` — §2 (the two bars and the phase/status axes), §4.6 (the open §6), §4.8 (§6 versus §7), §4.9 (accepted deviations), §4.10 (review notes), §8 (which check belongs to which bar). You need these for the conversation: where to stop, what to push back on, what to preview. The checks themselves are applied through the authoring skill's preview and the review skill, never from memory.
+1. `${CLAUDE_PLUGIN_ROOT}/artifacts/documentation/d101-feature-design/d101-feature-design-definition.md` — §2 (the two bars and the phase/status axes), §4.6 (the open §6), §4.8 (§6 versus §7), §4.9 (accepted deviations), §4.10 (review notes), §8 (which check belongs to which bar). You need these for the conversation: where to stop, what to push back on, what to preview, what to offer in a review. The checks themselves are applied through the authoring skill's preview and the gap-review skill, never from memory.
 2. The repo's `CLAUDE.md` in the working directory, if it exists — repo-specific layout or naming to respect. Absent is not an error.
+3. **Review runs only, best effort:** `${CLAUDE_PLUGIN_ROOT}/artifacts/skills/persona-review/persona-review-definition.md` — §7, the business-versus-feasibility split the roster is bucketed by. Unreadable → offer the gap review alone and say the persona reads are unavailable.
 
 If file 1 cannot be read, stop and report the path. The template, the diagram templates and the rest of the definition are read by `artifact-d101-authoring` when you invoke it (Step 05, Step 07, Step 08); you never paste their content into a call.
 
@@ -49,16 +57,18 @@ If file 1 cannot be read, stop and report the path. The template, the diagram te
 
 **List first.** Glob `documentation/features/D101-*.html` and `documentation/features/D101-*.md`, de-duplicated by base name (both present → one entry, the `.html` path, marked *legacy .md also present*), most recent first, each with its phase chip. An empty or missing folder is said in one line (*"No D101 in this repo yet; this would be the first."*).
 
-**Then read the words.** The input is whatever the message carries besides your name. Decide which of four it is, and say so in one line:
+**Then read the words.** The input is whatever the message carries besides your name. Decide which of six it is, and say so in one line:
 
 | The words hold | It is | Then |
 |---|---|---|
-| Nothing | No target yet | Print the list and ask: *"Continue one of these (number, name or path), or start fresh? If fresh, tell me about the feature: paste a ticket, notes, or a sentence."* Wait. The reply is read by this same table. |
+| Nothing | No target yet | Print the list and ask: *"Continue one of these (number, name or path), review one, or start fresh? If fresh, tell me about the feature: paste a ticket, notes, or a sentence."* Wait. The reply is read by this same table. |
 | A number from the list, a D101 slug, or a path to a `D101-*.html` | A D101 to continue | Read it; resolve the phase (below). |
-| A path to a `D101-*.md` | A legacy markdown D101 | Step 09, the render. No interview. |
+| A D101 **and** sections to change (*"update §4.4"*, *"add a decision row"*, *"fix the side-nav"*) | An edit | Read it; resolve the phase; the sections named are the agenda, no question about what to work on. `Business design` → Phase B against the file (Step 04 onward); `Full design` → the update (Step 08). |
+| A D101 **and** a request to review, gap-check, check against the bar, or read it as a persona | A review | Read it; resolve the phase; Step 10. No interview. |
+| A path to a `D101-*.md` without such a request | A legacy markdown D101 | Step 09, the render. No interview. |
 | Anything else: a sentence, a pasted ticket, meeting notes | A new feature | Phase A. The slug is settled in Step 02. |
 
-Never read a flag or an argument order; there are none. The author may pivot after your one line; accept it.
+Never read a flag or an argument order; there are none. The author may pivot after your one line; accept it. A review asked for with no D101 in the repo is answered in one line and an offer to start Phase A.
 
 **Resolve the phase of a continued file**, by the same signals the authoring and review skills use (template ground rule 12):
 
@@ -66,25 +76,25 @@ Never read a flag or an argument order; there are none. The author may pivot aft
 |---|---|
 | `.phase-chip` reads `Business design`, or a `#s6-open` *Still to write* section is present | `Business design` |
 | `.phase-chip` reads `Full design` and §6.1+ are populated with no open block | `Full design` |
-| Chip-less `.html` | `Full design`, said once in one sentence |
+| Chip-less `.html`, or a legacy `.md` named for review | `Full design`, said once in one sentence |
 
-If chip and body disagree, the body decides; say so. Then route:
+If chip and body disagree, the body decides; say so (in a review, leave the contradiction to the gap review, which records it as a §6 Fail). Note the **status chip's literal text**, version included (e.g. `Draft v0.3`), and the meta-strip *Last updated* date; the review notes need them and you never read the file a second time for them. Then route a continued file with no edit or review in the words:
 
 - **`Business design`** → ask: *"This D101 stands at `Business design`: §2–§5 are written, §6 is declared open. Keep working on §2–§5, or move on to the technical design?"* The first re-enters Phase B (Step 03 onward, against the file); the second enters Phase C (Step 07). Wait.
 - **`Full design`** → a normal update. Ask which sections to change and work only those; the write is Step 08's, the version bumps, the phase stays.
 
 **Never enter Phase C against a file that has not been written at `Business design` or beyond.** A technical design asked for on a feature with no file is answered with why §6 comes in a second run, and an offer to start Phase A now.
 
-**Check for review notes.** Once the target is an *existing* file, Glob for `D101-<slug>.review.md` in the *same directory* as the target (definition §4.10). If present:
+**Check for review notes.** Once the target is an *existing* file and the run is not a review, Glob for `D101-<slug>.review.md` in the *same directory* as the target (definition §4.10). If present:
 
 1. Read it, and read the target's meta-strip date, phase chip and the status chip's **literal text, version included** (e.g. `Draft v0.2`): the version moves on every write, so it catches a same-day edit the date would miss.
 2. Compare the notes' three fingerprint lines (*Last updated*, *Phase*, *Status*) with those values.
-   - Match → *"Found review notes from `asimov-design-review`, written against this same version; use them as input for this session?"*
+   - Match → *"Found review notes written against this same version; use them as input for this session?"*
    - Mismatch → *"Found review notes, but the document has changed since (recorded: `<old>`, now: `<current>`); some findings may no longer apply. Use them anyway, or ignore them?"*
 3. Accepted → fold every finding into this run's agenda the way a remark in chat would be: a §4.4 rule without a counter-example becomes a question about that rule, a check-9 concern about §6 a question about §6. Never transcribe the notes into the D101.
 4. Consumed notes are **deleted after this run writes the D101** (Step 06 or Step 08), by you, with the file tool. Declined, or a run that writes nothing (Phase A), leaves them in place.
 
-Print the target on one line once it is pinned: `Designing: documentation/features/D101-<slug>.html` (or `Rendering: <path>.md → <path>.html`). Do not re-derive it later.
+Print the target on one line once it is pinned: `Designing: documentation/features/D101-<slug>.html` (or `Reviewing: <path>`, with the real extension, or `Rendering: <path>.md → <path>.html`). Do not re-derive it later.
 
 # Step 02 — Frame a new feature
 
@@ -112,7 +122,7 @@ Two to four questions at a time, in conversation. **End of Phase A:** summarise 
 
 # Step 04 — Phase B: business design
 
-Work §4 with its subsections, then §5 *UI design*, then §8 *Acceptance criteria*, then §9 *Open questions*, then circle back for §1. Same infer-first discipline as Phase A, plus push back on:
+Work §4 with its subsections, then §5 *UI design*, then §8 *Acceptance criteria*, then §9 *Open questions*, then circle back for §1. An edit names its sections; work only those, and still keep the chips, the side-nav and the date consistent through the authoring skill. Same infer-first discipline as Phase A, plus push back on:
 
 - a business rule without its counter-example (definition §6.3), the adjacent case where it does *not* fire;
 - an anonymous TBD; name the decider from Step 02;
@@ -139,7 +149,7 @@ When §8a is plausibly met: summarise the business design in five to ten bullets
 2. **Overwrite check.** A file already at `Business design` → a short diff summary (sections changed, count, size delta), then **overwrite** (default), **other path**, or **cancel**; wait. A new file → proceed.
 3. **Invoke `artifact-d101-authoring`** via the **Skill** tool with everything the interview settled, the open-§6 list, the mockup brief (surfaces, states, interactions, style source) and the accepted deviations with their accepters, for a write at `Business design`: the `#s6-open` section with the list, the `#s7-pending` stub, §5 populated or stubbed, §10 as thin as it is. The skill owns the shells, chips, side-nav, the version bump and the mockups. Relay a refusal as is.
 4. **Report the path.** Consumed review notes are deleted now (Step 01).
-5. **Stop the run.** Tell the author, in this order: the path, to open in a browser, and the mockup files if any; that `asimov-design-review` gives §8a findings on it; that a persona review reads §2/§4 as one of the document's readers, a complement to the bar, not a substitute (the review menu offers them; `artifact-persona-authoring` authors a product-specific one); that iterating on §2–§5 is running this skill again against the file; that §6 is running it again and choosing *move on to the technical design*.
+5. **Stop the run.** Tell the author, in this order: the path, to open in a browser, and the mockup files if any; that a review of the file (*"review D101-<slug>"*, this skill's Step 10) gives §8a findings on it and offers the persona reads, which read §2/§4 as one of the document's readers, a complement to the bar, not a substitute (`artifact-persona-authoring` authors a product-specific one); that iterating on §2–§5 is naming the file again, with or without the sections to change; that §6 is naming it again and choosing *move on to the technical design*.
 
 **Do not begin Phase C in this run**, even asked directly. One sentence why, the business design needs to be read as a document, not as chat, and an offer to keep working on §2–§5. Asked twice, hold the phase but offer to park the mechanism they have in mind as a §9 question or an open-§6 item, so nothing is lost.
 
@@ -155,13 +165,60 @@ Push back on: mechanism that contradicts §4 (the business design won; §6 confo
 
 Summarise §6 in five to ten bullets; run the **§8b checks** (definition §8: 1, 2, 3, 4, 5, 6, 7, 8 if user-facing, 10) as a preview. Check 6, *could an S102 be written without going back to the business?*, is the one this phase exists for. **§7 is not in §8b**: a thin or N/A §7 never fails the check. Ask the author to confirm, then **invoke `artifact-d101-authoring`** for the write at `Full design`: `#s6-open` removed and §6.1–§6.8 emitted, `#s7-pending` removed and §7 emitted or stubbed, the side-nav nested, the chip flipped with `.full`, the version bumped, `Draft` staying `Draft`. Consumed review notes are deleted now.
 
-Report the path. Suggest `asimov-design-review`, which now offers the §8b gap check and the persona reads (business readers on §2/§4; a feasibility reader on §4 and §6), then the document and an estimate to the business approver named in §1. The §8b verdict is the human reviewer's (≠ author, ≠ you); never declare the document gap-free.
+Report the path. Suggest a review of the file (Step 10), which now offers the §8b gap check and the persona reads (business readers on §2/§4; a feasibility reader on §4 and §6), then the document and an estimate to the business approver named in §1. The §8b verdict is the human reviewer's (≠ author, ≠ you); never declare the document gap-free.
 
-A `Full design` update (Step 01) is this step without the phase flip: the sections the author named, the version bumped, nothing else moved.
+A `Full design` update or edit (Step 01) is this step without the phase flip: the sections the author named, the version bumped, nothing else moved.
 
 # Step 09 — Render a legacy markdown D101
 
 No interview. The output is the source path with `.md` swapped for `.html`, next to the source; an existing `.html` there gets the Step 06 overwrite check. **Invoke `artifact-d101-authoring`** with the source path for a render: it keeps every paragraph, row, requirement, decision, criterion and question in the same count, order and wording, derives the chips from the source (the §1 status plus version; `Full design` when the technical design is populated, else `Business design` with the open-§6 block built only from what the source leaves undecided, never invented), maps the legacy numbering to the current template's (the legacy §5 technical design is today's §6, §6 acceptance is §8, and so on, as the authoring skill states), and never authors a mockup. Never edit the `.md`. Report the path, a one-line size summary, and any section the skill rendered as plain prose for want of a component, so the catalogue can grow. Suggest opening it in a browser; fixes to the content are a run of this skill against the new `.html`.
+
+# Step 10 — Review a D101
+
+Entered from Step 01 with the target pinned, read whole and its phase resolved. In this path the D101 never changes and neither axis moves; the only write is the notes file. A D101 matures through two bars (definition §2), and which one the gap review applies is a property of the **document**, not of the reviewer's mood: `Business design` is checked against **§8a**, `Full design` against **§8b**. Reviewing a `Business design` document against §8b fails it for exactly what it has deliberately not done yet.
+
+**Discover and bucket the roster.** Glob `${CLAUDE_PLUGIN_ROOT}/skills/persona-*/SKILL.md` (standard, shipped) and `.claude/skills/persona-*/SKILL.md` in the working directory (custom, this repo). Read each and sort it by persona-review definition §7: a persona that declares it **does not know the codebase or mechanism** → **business**; one that declares it **does know the mechanism and reads §6** → **technical**. Bucket by what the persona says of itself, never by its name; a genuinely ambiguous one goes to business, noted. Keep each skill's frontmatter `name`; that is what you invoke.
+
+**Offer the menu**, only what the phase allows, naming the personas in each bucket, marking an empty bucket as such (picking it points at `artifact-persona-authoring`, it produces no read):
+
+- **`Business design`:** 1. gap review against §8a *(recommended)* · 2. business-persona reads of §2/§4, personas `<names>` *(recommended)* · 3. technical-persona reads of §4, feasibility of the intent, §6 not written yet, personas `<names>`.
+- **`Full design`:** 1. gap review against §8b *(recommended)* · 2. business-persona reads of §2/§4, personas `<names>` *(recommended)* · 3. technical-persona reads of §4 and §6, personas `<names>` *(recommended)*.
+
+Ask for one, several or all (numbers, names, or *all*). **Wait.** Run nothing unpicked; never silently run all three. When the words already picked (*"gap-check it"*, *"read it as Poseidon"*), skip the menu, say in one line what you run, and run that.
+
+**The gap review, if picked.** Invoke **`artifact-d101-gap-review`** via the **Skill** tool with the path, the resolved phase and the status chip's text. It owns the section walk, the five severities, the phase-dependent §6/§7 rules, the accepted-deviation validity check, the bar and the two report tables. Print what it returns verbatim under its own headings (the `Phase:` line, `## Gap review — section walk`, `## §8a — business-complete check` or `## §8b — gap-free check`). If the skill is unavailable, say so and run only the persona reads that were picked; never improvise a gap review from memory of the bar.
+
+**The persona reads, if picked.** For each picked bucket, invoke every persona in it via the **Skill** tool by its `name` (e.g. `persona-poseidon`): the business bucket reads the **business design, §2/§4**; the technical bucket reads **§4 for feasibility of intent**, plus **§6** when the phase is `Full design`. Each skill carries its method and output shape. Print each under `## Review, as <Persona>`, verbatim; never merge personas with one another or with the gap tables, never soften one. An empty picked bucket is one line pointing at `artifact-persona-authoring`, not a blank report. A persona skill that errors is skipped and named; one broken reader does not sink the roster. A persona's verdict belongs to the reader it stands in for, never to you.
+
+**Write the notes, then stop.** Write `D101-<slug>.review.md` **in the same directory as the target**, its base name with `.html` or `.md` swapped for `.review.md` (a target at a non-standard path gets its notes beside it, never redirected), carrying everything just printed, so it survives this session as input to a later design run (definition §4.10). Overwrite one that exists: a new review supersedes the old findings in full. Do it by default and say that you did.
+
+```markdown
+# Review notes — D101-<slug>
+
+Reviewed: <path>
+Last updated (at review time): <the meta-strip date>
+Phase (at review time): <Business design | Full design>
+Status (at review time): <the status chip's literal text, version included>
+
+## Gap review — section walk
+<verbatim, if picked>
+
+## §8a / §8b — … check
+<verbatim, if picked>
+
+## Review, as <Persona>
+<verbatim, one heading per persona, only the buckets picked>
+```
+
+The three fingerprint lines are what Step 01 compares against the document's current date and chips to see that it has moved on since this review.
+
+Then the footer, matching the phase, and stop. No fixes, no verdict, nothing beyond the one line:
+
+> *(Business design)* Findings only, printed above and cached in `D101-<slug>.review.md`; the next design run against this file offers them as input and deletes them once used. Whether §2–§5 are settled enough to move to §6 is the author's call.
+
+> *(Full design)* Findings only, printed above and cached in `D101-<slug>.review.md`; the next design run against this file offers them as input and deletes them once used. The gap-free verdict stays with the human reviewer.
+
+Asked in the review to *"just fix it"*: that is a design run against the file. Say so, and that naming the file with the findings to act on starts one; never edit the D101 inside the review.
 
 # States you may be asked about
 
@@ -169,15 +226,18 @@ No interview. The output is the source path with `.md` swapped for `.html`, next
 - **Refused Phase C**: no file at `Business design` yet; Phase A offered instead.
 - **Returned to Phase B**: a §6 question changed the business design; nothing written, the author decides where to resume.
 - **Rendered**: a legacy `.md` has an `.html` beside it; the `.md` is untouched.
-- **Review**: not yours; `asimov-design-review` reads, you write.
+- **Reviewed**: findings printed and cached in `D101-<slug>.review.md`; the D101 unchanged; the next design run offers the notes.
 
 # Hard rules
 
-- **One write per run, one phase per run.** Phase A writes nothing. The file after Phase B is a deliberate, marked-incomplete deliverable, not a half-draft. **Never Phase B and Phase C in one run**: the stop is the mechanism this skill exists for.
-- **Write only the D101, its mockups, and the notes you consume.** `documentation/features/D101-<slug>.html`, `documentation/features/mockups/d101-<slug>/`, and the deletion of `D101-<slug>.review.md` after a write that used it. Never a legacy `.md`, never a file elsewhere.
+- **One write per run, one phase per run.** Phase A writes nothing. The file after Phase B is a deliberate, marked-incomplete deliverable, not a half-draft. **Never Phase B and Phase C in one run**: the stop is the mechanism this skill exists for. A review run writes only the notes.
+- **Write only the D101, its mockups, and the notes.** `documentation/features/D101-<slug>.html`, `documentation/features/mockups/d101-<slug>/`, the `D101-<slug>.review.md` a review writes beside its target, and the deletion of those notes after a write that used them. Never a legacy `.md`, never a file elsewhere.
+- **A review is read-only on the D101.** In Step 10 never call Edit, and Write targets only the target's `.review.md` sibling, same directory, same slug; never a fixed `documentation/features/` location regardless of where the target lives. `Write` is a tool-level grant, not a path-level one; the scope is your discipline to keep, checked by `git diff` on the target after a run (definition §4.10).
+- **Resolve the phase before offering or judging anything.** The menu and the bar depend on it. A `Business design` document is never reviewed against §8b; an open §6 is *Open*, never Fail.
+- **Run only what was picked.** Menu, wait, run the picks. Never all three unasked. Reviews stay distinct: no persona read in the gap tables, no combined verdict or score across reviews.
 - **Delete review notes only after consuming them**, in the same run that used them and wrote the D101. Never on a declined offer, never in a run that writes nothing.
-- **Orchestrate, never reimplement.** Every write is an invocation of `artifact-d101-authoring`; the template's leading comment is the one home of the component catalogue, the definition the one home of the bars. Never paste either into a prompt; never assemble a D101 from memory of the template.
-- **The authoring invariants bind here.** No fabrication, no mechanism invented to fill §6, no template or definition drift, the status axis never moved, stop at Design, no verdict, never a maturity level in the document: defined once in `artifact-d101-authoring` (*Invariants*), never restated here. This file adds only the sequence rules above.
-- **Never record an approval.** The business approver's name in §1 is a target. `Draft` is the only status you ever cause to be written.
+- **Orchestrate, never reimplement.** Every write is an invocation of `artifact-d101-authoring`, the gap review is `artifact-d101-gap-review`, each persona read its `persona-*` skill; the template's leading comment is the one home of the component catalogue, the definition the one home of the bars. Never paste either into a prompt; never assemble a D101 from memory of the template; never paraphrase a report, add a row or soften a Fail.
+- **The authoring and review invariants bind here.** No fabrication, no mechanism invented to fill §6, no template or definition drift, the status axis never moved, stop at Design, no verdict or aggregated score, no invented findings, never author or propose an acceptance, never a maturity level in the document: defined once in `artifact-d101-authoring` and `artifact-d101-gap-review` (*Invariants*), never restated here. This file adds only the sequence rules above.
+- **Never record an approval.** The business approver's name in §1 is a target. `Draft` is the only status you ever cause to be written. You set no phase in a review and show the status without changing it (definition §2.3).
 - **Re-read at run-time.** Load the definition at the start of every run; the authoring skill loads the template on every call. The file in the plugin is the source of truth.
-- **Paths are a hard-rule-9 literal.** `documentation/features/D101-<slug>.html`, its `mockups/d101-<slug>/` sibling and the `D101-<slug>.review.md` notes move together across `asimov-design`, `asimov-design-review`, `artifact-d101-authoring`, `artifact-d101-gap-review`, `.gitignore`, the template's leading comment, `asimov-md-template.md`, `CLAUDE.md` and D100. A repo without `documentation/features/` or a `D100-*` still gets its D101: draft anyway, mark missing cross-references `TBD — verify` in §10 and raise them in §9; an author who wants to stop because the repo is not ready is not pushed past their stop.
+- **Paths are a hard-rule-9 literal.** `documentation/features/D101-<slug>.html`, its `mockups/d101-<slug>/` sibling, the `D101-<slug>.review.md` notes and the persona paths `skills/persona-*` and `.claude/skills/persona-*` move together across `asimov-design`, `artifact-d101-authoring`, `artifact-d101-gap-review`, `artifact-persona-authoring`, `.gitignore`, the template's leading comment, `asimov-md-template.md`, `CLAUDE.md` and D100. A repo without `documentation/features/` or a `D100-*` still gets its D101: draft anyway, mark missing cross-references `TBD — verify` in §10 and raise them in §9; an author who wants to stop because the repo is not ready is not pushed past their stop.

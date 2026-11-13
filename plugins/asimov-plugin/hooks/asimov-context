@@ -13,7 +13,7 @@
 # version and cut to the parts the marker's frontmatter enables, one key per entry point:
 #
 #     asimov-design: enabled      asimov-spec: enabled      asimov-build: enabled      asimov-project: enabled
-#     (absent -> enabled; asimov-design-review follows asimov-design; all four disabled -> opt-out)
+#     (absent -> enabled; all four disabled -> opt-out)
 #
 # A block between <!-- part: X --> and <!-- /part --> stays only when its part is enabled; the marker
 # lines never reach the model. {{INVOKE:<skill>}} is spelled for the harness that runs the hook
@@ -64,7 +64,7 @@ marker="${cwd}/asimov.md"
 [ -r "$marker" ] || exit 0
 
 # The marker's frontmatter, one key per entry point, absent -> enabled:
-#     asimov-design: enabled | disabled      (asimov-design-review follows it)
+#     asimov-design: enabled | disabled
 #     asimov-spec: ...  asimov-build: ...  asimov-project: ...
 ALL_PARTS="design spec build project"
 using="$ALL_PARTS"
@@ -134,7 +134,7 @@ fi
 
 text="${text#"${text%%[![:space:]]*}"}"   # no leading blank line after the dropped frontmatter
 using_text="${using// /, }"; using_text="${using_text:-nothing}"
-for s in asimov-init asimov-design asimov-design-review asimov-spec asimov-build asimov-project; do
+for s in asimov-init asimov-design asimov-spec asimov-build asimov-project; do
   text="${text//\{\{INVOKE:$s\}\}/$prefix$s}"
 done
 text="${text//\{\{VERSION\}\}/$version}"

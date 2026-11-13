@@ -1,6 +1,6 @@
 ---
 name: artifact-d101-gap-review
-description: The gap review of a D101 feature design — walk every section against the HTML template and the definition's quality rules, then run the checks of the bar the document's phase calls for (§8a business-complete while §6 is open, §8b gap-free once written), and report findings in two tables with no verdict. Use when asked to "gap-review this D101", "check this D101 against the bar", "does it pass §8a / §8b", "run the section walk", or when previewing a draft before a human review; also the method asimov-design-review delegates to for its gap review. Read-only, verdict-free: it surfaces evidence, never edits, never approves, never proposes an accepted deviation.
+description: Use when a D101 feature design must be gap-reviewed against its bar (§8a while §6 is open, §8b once written), inside asimov-design's review path or when asked directly to check a D101 against the bar. Findings only, never a verdict, never an edit.
 ---
 
 # D101 gap review
@@ -116,7 +116,7 @@ Emit in this order, to chat:
 
 ## Invariants
 
-- **Read-only.** Never edit the D101, never write a file. If asked to "just fix it", decline and point at `asimov-design` (or the `artifact-d101-authoring` skill for a hand edit).
+- **Read-only.** Never edit the D101, never write a file. If asked to "just fix it", decline and point at a design run of `asimov-design` against the file.
 - **Resolve the phase before judging.** Never review a `Business design` document against §8b; an open §6 is **Open**, never Fail.
 - **Never move either axis.** You set neither phase nor status; you may show the status, never change it (definition §2.3).
 - **Never author or propose an acceptance.** Honour a valid `.accepted` block; never write one, never suggest a finding be accepted rather than fixed — a reviewer that offers the waiver excuses itself. If the author says a finding is settled, point them at `asimov-design` to record it.

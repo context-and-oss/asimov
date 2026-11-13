@@ -110,10 +110,9 @@
     <text class="head mono" x="220" y="166">COMMANDS<tspan class="go" dx="8">→</tspan></text>
     <text class="sub" x="220" y="186">what you type, in either tool</text>
     <text class="mono" x="220" y="212" style="font-size:12px">/asimov-design</text>
-    <text class="mono" x="220" y="234" style="font-size:12px">/asimov-design-review</text>
-    <text class="mono" x="220" y="256" style="font-size:12px">/asimov-spec</text>
-    <text class="mono" x="220" y="278" style="font-size:12px">/asimov-build</text>
-    <text class="mono" x="220" y="300" style="font-size:12px">/asimov-init</text>
+    <text class="mono" x="220" y="234" style="font-size:12px">/asimov-spec</text>
+    <text class="mono" x="220" y="256" style="font-size:12px">/asimov-build</text>
+    <text class="mono" x="220" y="278" style="font-size:12px">/asimov-init</text>
   </a>
 
   <!-- ─── your repository, with the artifacts inside ─── -->
@@ -202,7 +201,7 @@
   <p>Asimov-skills and agents on top: the conversation and the identity, nothing else. Skills in the middle: every method, one family per column. At the bottom, what each skill works on: role skills on your code, artifact skills on your documents, both in your repository; the advisor on the delivery model. Personas have nothing of their own; they read the artifacts the artifact skills write. The same skill works whichever tool runs it, and when you do the step by hand. <a href="../inside/skills.html">What a skill is, family by family →</a></p>
 
   <div class="figure">
-<svg class="insidemap layers" viewBox="0 0 1200 520" style="min-width:900px" role="img" aria-label="Layer diagram, three bands. Top band, what you use: agents (Giskard, Daneel, Calvin, Baley, Powell), the asimov-skills you type (/asimov-design, /asimov-design-review, /asimov-spec, /asimov-build, /asimov-init), and plain questions to a persona or the delivery model. Middle band, skills: role skills for the agents, artifact skills for writing and checking a D101, an S101, an S102 and the build ledger, the standard persona skills, the pm-advisor. Bottom band, what each skill works on: your code under the role skills and your artifacts under the artifact skills, both inside your repository; the delivery model under the advisor; the personas read your artifacts too. Every box opens its page.">
+<svg class="insidemap layers" viewBox="0 0 1200 520" style="min-width:900px" role="img" aria-label="Layer diagram, three bands. Top band, what you use: agents (Giskard, Daneel, Calvin, Baley, Powell), the asimov-skills you type (/asimov-design, /asimov-spec, /asimov-build, /asimov-init), and plain questions to a persona or the delivery model. Middle band, skills: role skills for the agents, artifact skills for writing and checking a D101, an S101, an S102 and the build ledger, the standard persona skills, the pm-advisor. Bottom band, what each skill works on: your code under the role skills and your artifacts under the artifact skills, both inside your repository; the delivery model under the advisor; the personas read your artifacts too. Every box opens its page.">
   <style>
     .layers .skill rect { fill: var(--violet, #ab47bc); fill-opacity: 0.14; stroke: var(--violet, #ab47bc); stroke-width: 1.5; }
     .layers .skill .go, .layers .skill .head { fill: var(--violet, #ab47bc); }
@@ -273,7 +272,7 @@
     <rect x="608" y="44" width="270" height="100" rx="10"/>
     <text class="head mono" x="624" y="70">YOU ASK<tspan class="go" dx="8">→</tspan></text>
     <text class="mono" x="624" y="94" style="font-size:12px">"review this as Athena"</text>
-    <text class="sub" x="624" y="118">or pick the readers in /asimov-design-review</text>
+    <text class="sub" x="624" y="118">or pick the readers in /asimov-design review</text>
   </a>
   <a class="skill" href="../inside/personas.html">
     <title>Open Personas — the reader skills</title>
@@ -368,7 +367,7 @@
   <p>Design, specification, build. Each phase is one asimov-skill you name (design has a second one for the review), standing on its own skills and its own piece of your repository. One D101 becomes one S101 and its S102s, and those become code. The fourth column is the frame around them: project management, kept while the phases run.</p>
 
   <div class="figure wide">
-<svg class="insidemap phases" viewBox="0 0 1596 876" style="min-width:1200px" role="img" aria-label="Phase diagram, three phase columns, a fourth column for the frame, and four bands. Top band, what you type: asimov-design and asimov-design-review; asimov-spec; asimov-build; asimov-project. Second band, who runs it: you in your own session for design; you plus a fresh blind subagent per S102 for specification; the named agents Giskard, Daneel, Calvin, Baley and Powell for build; you in your own session for project. Third band, skills: the artifact and persona skills for design, the five S101 and S102 skills for specification, the role skills for build, the risk-log artifact skills and pm-advisor for project. Bottom band, your repository: the D101 under documentation/features, the S101, S102s and ledger under specs, your code and tests under src and test, and the project pages under project, both beside documentation. A chain under it reads: one D101 becomes one S101 and N S102s becomes code, tests and the ledger; the project column is kept across the chain. Around the phases: asimov-init.">
+<svg class="insidemap phases" viewBox="0 0 1596 876" style="min-width:1200px" role="img" aria-label="Phase diagram, three phase columns, a fourth column for the frame, and four bands. Top band, what you type: asimov-design; asimov-spec; asimov-build; asimov-project. Second band, who runs it: you in your own session for design; you plus a fresh blind subagent per S102 for specification; the named agents Giskard, Daneel, Calvin, Baley and Powell for build; you in your own session for project. Third band, skills: the artifact and persona skills for design, the five S101 and S102 skills for specification, the role skills for build, the risk-log artifact skills and pm-advisor for project. Bottom band, your repository: the D101 under documentation/features, the S101, S102s and ledger under specs, your code and tests under src and test, and the project pages under project, both beside documentation. A chain under it reads: one D101 becomes one S101 and N S102s becomes code, tests and the ledger; the project column is kept across the chain. Around the phases: asimov-init.">
   <style>
     .phases .skill rect { fill: var(--violet, #ab47bc); fill-opacity: 0.14; stroke: var(--violet, #ab47bc); stroke-width: 1.5; }
     .phases .skill .go, .phases .skill .head { fill: var(--violet, #ab47bc); }
@@ -391,7 +390,7 @@
     <rect x="24" y="44" width="360" height="120" rx="10"/>
     <text class="head mono" x="40" y="70">DESIGN<tspan class="go" dx="8">→</tspan></text>
     <text class="mono" x="40" y="94" style="font-size:12px">asimov-design</text>
-    <text class="mono" x="40" y="112" style="font-size:12px">asimov-design-review</text>
+    <text class="mono" x="40" y="112" style="font-size:12px">asimov-design review</text>
     <text class="sub" x="40" y="138">the interview, the stop after the business design,</text>
     <text class="sub" x="40" y="154">the review menu</text>
   </a>
