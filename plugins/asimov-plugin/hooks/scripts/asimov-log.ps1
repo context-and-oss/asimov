@@ -56,19 +56,20 @@ function Write-Retry([string]$path, [string]$text, [bool]$append) {
 }
 
 function Read-State([string]$path) {
-  $s = @{ stage = 'session'; feature = '-'; file = ''; agents = @() }
+  $s = @{ stage = 'session'; feature = '-'; file = ''; agents = @(); lastSkill = '' }
   if (-not (Test-Path -LiteralPath $path)) { return $s }
   foreach ($line in [System.IO.File]::ReadAllLines($path)) {
     if ($line -match '^stage=(.*)$')   { $s.stage = $Matches[1]; continue }
     if ($line -match '^feature=(.*)$') { $s.feature = $Matches[1]; continue }
     if ($line -match '^file=(.*)$')    { $s.file = $Matches[1]; continue }
+    if ($line -match '^skill=(.*)$')   { $s.lastSkill = $Matches[1]; continue }
     if ($line -match '^agent=(.*)$')   { $s.agents += $Matches[1]; continue }
   }
   return $s
 }
 
 function Write-State([string]$path, $s) {
-  $lines = @("stage=$($s.stage)", "feature=$($s.feature)", "file=$($s.file)")
+  $lines = @("stage=$($s.stage)", "feature=$($s.feature)", "file=$($s.file)", "skill=$($s.lastSkill)")
   foreach ($a in $s.agents) { $lines += "agent=$a" }
   Write-Retry $path (($lines -join "`n") + "`n") $false
 }
@@ -149,10 +150,23 @@ function Invoke-Log {
     { $_ -eq 'PreToolUse' -or $_ -eq 'UserPromptExpansion' } {
       $skill = $null; $argText = $null
       if ($event -eq 'PreToolUse') {
-        if ([string](Get-Field $payload 'tool_name') -ne 'Skill') { return }
+        $tool = [string](Get-Field $payload 'tool_name')
         $ti = Get-Field $payload 'tool_input'
-        foreach ($k in 'skill', 'name', 'skill_name', 'command') { if (-not $skill) { $skill = [string](Get-Field $ti $k) } }
-        foreach ($k in 'args', 'arguments', 'input') { if ($null -eq $argText) { $argText = Get-Field $ti $k } }
+        if ($tool -eq 'Skill') {
+          foreach ($k in 'skill', 'name', 'skill_name', 'command') { if (-not $skill) { $skill = [string](Get-Field $ti $k) } }
+          foreach ($k in 'args', 'arguments', 'input') { if ($null -eq $argText) { $argText = Get-Field $ti $k } }
+        } else {
+          # Codex has no Skill tool (verified 2026-11-13): the model starts a skill by reading its SKILL.md,
+          # with Bash or a file-read tool. The first read of skills/asimov-<x>/SKILL.md is the invocation; the
+          # words that started it never reach this hook, so the line carries no argument.
+          $text = ''
+          foreach ($k in 'command', 'file_path', 'path', 'filePath') { $v = [string](Get-Field $ti $k); if ($v) { $text += ' ' + $v } }
+          if ($text -notmatch 'skills[\\/](asimov-[a-z-]+)[\\/]SKILL\.md') { return }
+          $skill = $Matches[1]
+          if ($state.stage -eq (Get-Stage $skill) -and $state.lastSkill -eq $skill) { return }   # one line per start, not per re-read
+          $state.lastSkill = $skill
+          $argText = ''
+        }
       } else {
         foreach ($k in 'command_name', 'skill_name', 'skill', 'name', 'command') { if (-not $skill) { $skill = [string](Get-Field $payload $k) } }
         foreach ($k in 'command_args', 'args', 'arguments', 'prompt') { if ($null -eq $argText) { $argText = Get-Field $payload $k } }
