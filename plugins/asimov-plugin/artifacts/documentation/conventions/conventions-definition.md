@@ -6,7 +6,7 @@ since: 2026-09-10
 
 # Definition of the convention read-list
 
-`documentation/conventions/<stack>/README.md`: one per stack the repo uses, scaffolded by `/asimov-init` from `conventions-readme-template.md` in this folder. The build subagents read it at run-time as their convention overlay (D100 §7.2.1). Design: `documentation/features/D101-asimov-init.html`.
+`documentation/conventions/<stack>/README.md`: one per stack the repo uses, scaffolded by `asimov-init` from `conventions-readme-template.md` in this folder. The build subagents read it at run-time as their convention overlay (D100 §7.2.1). Design: `documentation/features/D101-asimov-init.html`.
 
 ## 1. What it is for
 
@@ -32,5 +32,5 @@ A subagent writing code for a stack needs the repo's own rules — naming, layer
 | File | Role |
 |---|---|
 | `conventions-readme-template.md` | The skeleton, with the managed-region markers |
-| `documentation/features/D101-asimov-init.html` | The command that scaffolds it (R6–R9, NF7, OOS2) |
+| `documentation/features/D101-asimov-init.html` | The skill that scaffolds it (R6–R9, NF7, OOS2) |
 | `documentation/features/D101-subagents.html`, D100 §7.2.1 | The subagents that read it |

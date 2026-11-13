@@ -8,7 +8,7 @@ since: 2026-11-10
 
 The project's record: what the project is and for whom, its number, customer, language and the people in its fixed roles, and its **areas** with the repository that holds each. One page, `project/info.html`, beside `documentation/` and `specs/`, kept in the repository that holds the landscape architecture document; every other repository of the project carries a copy. It is the second artifact of the Project frame (D100 §3), after the risk log, and the first thing the documentation site reads.
 
-Read by agents: `asimov-project` through `artifact-project-info-authoring`, the only writer; `artifact-site-authoring`, which reads the areas and the one line for the front page and groups the site by area; `artifact-risk-log-authoring`, which takes the project language from it and offers its areas for a risk's area. Read by people: anyone opening the site, where it is the first page of the Project section.
+Read by agents: `asimov-project` through `project-info-authoring.md` beside it, the only writer; `artifact-site-authoring`, which reads the areas and the one line for the front page and groups the site by area; the risk log's authoring file (`artifacts/project/risk-log/risk-log-authoring.md`), which takes the project language from it and offers its areas for a risk's area. Read by people: anyone opening the site, where it is the first page of the Project section.
 
 Design: spiked in a product repo on 2026-11-10 (its `documentation/analysis/2026-10-29-site-spike/`); the D101 is `documentation/features/D101-project-management-info.html` when written.
 
@@ -62,6 +62,6 @@ A **shared** line under the table names what is shared across areas (a common li
 | File | Role |
 |---|---|
 | `project-info-template.html` | The page the script renders and reads back; its leading comment names every element read |
-| `skills/artifact-project-info-authoring/SKILL.md` and `scripts/project-info.ps1` | The only writer: turns the answers to its questions into the page, re-renders a page in the current template |
+| `project-info-authoring.md` and `scripts/project-info.ps1`, beside it | The only writer: turns the answers to its questions into the page, re-renders a page in the current template |
 | `artifacts/documentation/site/` | The site reads the page for the front page's lede and areas table and to group the sections by area |
 | `artifacts/project/risk-log/risk-log-definition.md` | The risk log takes the project language (its Q2) and offers the areas (RL13) from this page when it exists |

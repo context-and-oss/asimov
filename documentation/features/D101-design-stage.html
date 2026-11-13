@@ -270,7 +270,7 @@ footer.site-footer a { color: var(--cyan); }
   <a href="../index.html#s6">Diagrams</a>
   <span class="spacer"></span>
   <span class="phase-chip full">Full design</span>
-  <span class="status-chip draft">Draft v0.3</span>
+  <span class="status-chip draft">Draft v0.5</span>
 </nav>
 
 <div class="layout-doc">
@@ -311,20 +311,20 @@ footer.site-footer a { color: var(--cyan); }
 <header class="hero">
   <div class="kicker">D101 · Feature design · asimov-plugin</div>
   <h1>Design stage</h1>
-  <p class="tagline">One artifact, two bars, two axes. The definition and template are the contract, two skills the method, two asimov-skills the conversation.</p>
+  <p class="tagline">One artifact, two bars, two axes. The definition and template are the contract, two skills the method, one asimov-skill the conversation.</p>
 </header>
 
 <div class="meta-strip">
   <div class="meta-cell"><div class="label">Owner</div><div class="value">Allan Borup</div></div>
   <div class="meta-cell"><div class="label">Business approver</div><div class="value">Allan Borup</div></div>
   <div class="meta-cell"><div class="label">Maturity</div><div class="value mono">trial</div></div>
-  <div class="meta-cell"><div class="label">Pieces</div><div class="value mono">2 asimov-skills · 2 skills</div></div>
-  <div class="meta-cell"><div class="label">Last updated</div><div class="value mono">2026-10-02</div></div>
-  <div class="meta-cell"><div class="label">Models</div><div class="value">Opus 5.5 · Sonnet 5.5</div></div>
+  <div class="meta-cell"><div class="label">Pieces</div><div class="value mono">1 asimov-skill · 2 skills</div></div>
+  <div class="meta-cell"><div class="label">Last updated</div><div class="value mono">2026-11-13</div></div>
+  <div class="meta-cell"><div class="label">Models</div><div class="value">Opus 5.5</div></div>
 </div>
 
 <div class="doc-scope">
-  <strong>Scope:</strong> the Design stage: the D101 artifact, its contract, its skills and the two asimov-skills that carry the conversation, and the mechanisms they share. Supersedes the five D101s listed in §10. Personas: <em>D101-personas</em>.
+  <strong>Scope:</strong> the Design stage: the D101 artifact, its contract, its skills and the one asimov-skill that carries the conversation, and the mechanisms they share. Supersedes the five D101s listed in §10. Personas: <em>D101-personas</em>.
 </div>
 
 <section class="s" id="s2">
@@ -477,10 +477,9 @@ footer.site-footer a { color: var(--cyan); }
     <div class="row head cols-3"><div>Piece</div><div>Kind</div><div>Owns</div></div>
     <div class="row cols-3"><div class="label-cell">Definition</div><div>Contract</div><div>Bars, axes, checks, open §6, deviations, review notes.</div></div>
     <div class="row cols-3"><div class="label-cell">Template</div><div>Contract</div><div>Ground rules, N/A policy, component catalogue, shells.</div></div>
-    <div class="row cols-3"><div class="label-cell"><code>artifact-d101-authoring</code></div><div>Skill</div><div>How to assemble or change a D101; fires on any edit.</div></div>
-    <div class="row cols-3"><div class="label-cell"><code>artifact-d101-gap-review</code></div><div>Skill</div><div>Section walk, bar per phase, severities, report.</div></div>
-    <div class="row cols-3"><div class="label-cell"><code>asimov-design</code></div><div>Asimov-skill</div><div>The interview, the stop, the notes offer; a legacy render when a <code>.md</code> is named.</div></div>
-    <div class="row cols-3"><div class="label-cell"><code>asimov-design-review</code></div><div>Asimov-skill</div><div>Target, phase, menu, delegation, the notes file.</div></div>
+    <div class="row cols-3"><div class="label-cell"><code>d101-feature-design-authoring.md</code></div><div>Method file</div><div>How to assemble or change a D101; read by path by <code>asimov-design</code> and any hand edit.</div></div>
+    <div class="row cols-3"><div class="label-cell"><code>d101-feature-design-review.md</code></div><div>Method file</div><div>Section walk, bar per phase, severities, report.</div></div>
+    <div class="row cols-3"><div class="label-cell"><code>asimov-design</code></div><div>Asimov-skill</div><div>The interview, the stop, the notes offer; a legacy render when a <code>.md</code> is named; the review path (Step 10): target, phase, menu, delegation, the notes file. Model-invocable, gated on <code>asimov.md</code>.</div></div>
   </div>
 </section>
 
@@ -509,6 +508,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="decision-row"><div class="decided">Notes as a disposable cache</div><div class="alt">Review log; chat only</div><div class="why">A log is unneeded state; chat-only loses findings.</div></div>
     <div class="decision-row"><div class="decided">Asimov-skills, not commands</div><div class="alt">A command per harness</div><div class="why">Codex loads no <code>commands/</code>; a skill a person names is what both share.</div></div>
     <div class="decision-row"><div class="decided">Legacy render inside <code>asimov-design</code></div><div class="alt">Its own asimov-skill</div><div class="why">The method was already the authoring skill's; a <code>.md</code> path is one more thing the words can hold.</div></div>
+    <div class="decision-row"><div class="decided">One door, model-invocable, a repo gate (2026-11-13)</div><div class="alt">A review sibling, both started by name only</div><div class="why">A description is a trigger the model may act on (the skill-listing brief of 2026-11-13); the review is one more thing the words can hold; the gate on <code>asimov.md</code> keeps it out of repos that do not use Asimov.</div></div>
   </div>
 </section>
 
@@ -541,7 +541,7 @@ footer.site-footer a { color: var(--cyan); }
 <section class="s" id="s6-2">
   <h2 class="section-title"><span class="sec-ref">§6.2</span>The lifecycle</h2>
   <div class="flow-wrap">
-    <svg viewBox="0 0 980 488" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Activity diagram: a D101 from brief to full design across author, asimov-design, asimov-design-review and files">
+    <svg viewBox="0 0 980 488" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Activity diagram: a D101 from brief to full design across author, the design and review paths of asimov-design, and files">
       <rect x="0" y="0" width="980" height="488" fill="#14253f"/>
       <defs>
         <marker id="act-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
@@ -625,7 +625,7 @@ footer.site-footer a { color: var(--cyan); }
   </div>
   <ol class="principles">
     <li>Phases A and B interview, preview §8a, write <code>Business design</code>, end the run.</li>
-    <li>The author reads the page; <code>asimov-design-review</code> runs §8a and the business personas, writes the notes.</li>
+    <li>The author reads the page; a review run of <code>asimov-design</code> runs §8a and the business personas, writes the notes.</li>
     <li>Phase C offers the notes, works the open-§6 list, previews §8b, writes <code>Full design</code>, deletes the notes.</li>
     <li>A second review runs §8b; the non-author reviewer and the approver decide.</li>
   </ol>
@@ -635,8 +635,8 @@ footer.site-footer a { color: var(--cyan); }
   <h2 class="section-title"><span class="sec-ref">§6.3</span>Code map</h2>
   <div class="codemap">
     <div class="codemap-row"><div class="what">Definition · template</div><div class="where">plugins/asimov-plugin/artifacts/documentation/d101-feature-design/</div></div>
-    <div class="codemap-row"><div class="what">Skills</div><div class="where">plugins/asimov-plugin/skills/artifact-d101-{authoring,gap-review}/SKILL.md</div></div>
-    <div class="codemap-row"><div class="what">Asimov-skills</div><div class="where">plugins/asimov-plugin/skills/asimov-design{,-review}/{SKILL.md,agents/openai.yaml}</div></div>
+    <div class="codemap-row"><div class="what">Method files</div><div class="where">plugins/asimov-plugin/artifacts/documentation/d101-feature-design/d101-feature-design-{authoring,review}.md</div></div>
+    <div class="codemap-row"><div class="what">Asimov-skill</div><div class="where">plugins/asimov-plugin/skills/asimov-design/{SKILL.md,agents/openai.yaml}</div></div>
     <div class="codemap-row"><div class="what">Diagram notations</div><div class="where">plugins/asimov-plugin/resources/diagrams/</div></div>
   </div>
 </section>
@@ -726,6 +726,7 @@ footer.site-footer a { color: var(--cyan); }
       <ul>
         <li>Merged 2026-09-28: D101-d101-feature-design v0.6 · D101-d101-review v0.16 · D101-d101-convert-to-html v0.5 · D101-accepted-deviations v0.2 · D101-review-handoff v0.5</li>
         <li>Renamed 2026-10-02 from D101-d101-feature-design v0.2, when the three commands became the two asimov-skills; Q3 (Codex equivalents) closed by it.</li>
+        <li>2026-11-13: <code>asimov-design-review</code> folded into <code>asimov-design</code> as its review path (Step 10); the one skill became model-invocable with a repo gate on <code>asimov.md</code>.</li>
       </ul>
     </div>
   </div>
@@ -740,7 +741,7 @@ footer.site-footer a { color: var(--cyan); }
     · <span class="mono">features/D101-design-stage.html</span>
   </div>
   <div style="margin-top: 0.4rem">
-    D101 · Design stage · asimov-plugin · Draft v0.3 · 2026-10-02
+    D101 · Design stage · asimov-plugin · Draft v0.5 · 2026-11-13
   </div>
 </footer>
 

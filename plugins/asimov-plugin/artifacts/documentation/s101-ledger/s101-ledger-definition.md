@@ -8,7 +8,7 @@ since: 2026-10-07
 
 The run state of one build: what `asimov-build` did with one `ready` S101, task by task and phase by phase, and what the person ruled when it stopped. It exists because the plan never changes under a build: the S101 and its S102s stay the text the person approved, and everything that happens while they are built is written here instead (`s101-implementation-plan-definition.md` §6: *plan ≠ ledger*).
 
-Read by agents: `asimov-build` through the skill `artifact-s101-ledger`, which is the only writer. Read by people: the PR reviewer, who finds the verification and review of every phase in the PR, and the colleague who resumes a run. A person reads the body; an agent trusts the frontmatter.
+Read by agents: `asimov-build` through the operations file beside this one, `s101-ledger-operations.md`, and its script `scripts/ledger.ps1`, which is the only writer. Read by people: the PR reviewer, who finds the verification and review of every phase in the PR, and the colleague who resumes a run. A person reads the body; an agent trusts the frontmatter.
 
 Design: `documentation/features/D101-build-stage.html` §4.2, §6.4.
 
@@ -72,7 +72,7 @@ A phase with several review or verify rounds has several such headings; nothing 
 
 ## 6. The checks
 
-Run by `artifact-s101-ledger` before every resume; a Fail refuses the run.
+Run by the ledger script, `scripts/ledger.ps1` beside this file, before every resume; a Fail refuses the run.
 
 | # | Check | Tests |
 |---|---|---|

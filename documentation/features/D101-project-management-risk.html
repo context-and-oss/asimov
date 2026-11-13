@@ -270,7 +270,7 @@ footer.site-footer a { color: var(--cyan); }
   <a href="../index.html#s6">Diagrams</a>
   <span class="spacer"></span>
   <span class="phase-chip full">Full design</span>
-  <span class="status-chip draft">Draft v0.9</span>
+  <span class="status-chip draft">Draft v0.10</span>
 </nav>
 
 <div class="layout-doc">
@@ -328,7 +328,7 @@ footer.site-footer a { color: var(--cyan); }
   <div class="meta-cell"><div class="label">Business approver</div><div class="value">Allan Borup</div></div>
   <div class="meta-cell"><div class="label">Frame</div><div class="value mono">Project (D100 §3)</div></div>
   <div class="meta-cell"><div class="label">Pieces</div><div class="value mono">a path of asimov-project · 2 skills · 1 script</div></div>
-  <div class="meta-cell"><div class="label">Last updated</div><div class="value mono">2026-10-29</div></div>
+  <div class="meta-cell"><div class="label">Last updated</div><div class="value mono">2026-11-13</div></div>
   <div class="meta-cell"><div class="label">Lands in</div><div class="value mono">project/</div></div>
 </div>
 
@@ -785,7 +785,7 @@ footer.site-footer a { color: var(--cyan); }
 <section class="s" id="s6-1">
   <h2 class="section-title"><span class="sec-ref">§6.1</span>Platform</h2>
   <p style="color: var(--text-dim); font-size: 0.95rem; line-height: 1.65;">
-    Everything ships in the plugin and runs in Claude Code and Codex alike: a row and a section in the Project frame's entry point <code>asimov-project</code>, two artifact skills (<code>artifact-risk-log-authoring</code>, <code>artifact-risk-log-view</code>), one script beside the authoring skill (<code>skills/artifact-risk-log-authoring/scripts/risk-log.ps1</code>, Windows PowerShell 5.1 and PowerShell 7), and the artifact's definition and template under <code>artifacts/project/risk-log/</code>. In a product repo it writes one file, <code>project/risk-log.html</code>, and while a write is in flight its sibling <code>risk-log.html.new</code>. The script reads, renders and checks the page and compares areas; the skills hold the conversation and decide what changes. There is no service, no store beside the page and no network call.
+    Everything ships in the plugin and runs in Claude Code and Codex alike: a row and a section in the Project frame's entry point <code>asimov-project</code>, two method files (<code>risk-log-authoring.md</code>, <code>risk-log-view.md</code>), one script beside them (<code>scripts/risk-log.ps1</code>, Windows PowerShell 5.1 and PowerShell 7), and the artifact's definition and template, all under <code>artifacts/project/risk-log/</code>. In a product repo it writes one file, <code>project/risk-log.html</code>, and while a write is in flight its sibling <code>risk-log.html.new</code>. The script reads, renders and checks the page and compares areas; the method files decide what changes, the entry point holds the conversation. There is no service, no store beside the page and no network call.
   </p>
   <div class="callout warn">
     <strong>⚠ Lockstep gates.</strong> <code>project/</code> is a literal of hard rule 9, the <code>project/*.new</code> pattern joins the <code>.gitignore</code> block written by both init entry points and appended by <code>asimov-project</code>, and the artifact's <code>assess</code> level is mirrored in D100 §4.5 in the same commit (hard rule 10).
@@ -924,7 +924,7 @@ footer.site-footer a { color: var(--cyan); }
   <div class="principles" style="margin-top:1rem">
     <div class="principle"><div class="num">1</div><div class="text"><strong>Start.</strong> <code>asimov-project</code> reads the risk log's row, prints the maturity line, adds the four cache patterns and <code>project/*.new</code> to <code>.gitignore</code> when missing, and runs <code>-Finish</code> if a <code>.new</code> is left from an earlier run.</div></div>
     <div class="principle"><div class="num">2</div><div class="text"><strong>Read.</strong> <code>-Read</code> parses the page into a data model and a list of problems; any problem, conflict markers included, turns the run into a repair (<code>-Repair</code>, RL11) before anything else.</div></div>
-    <div class="principle"><div class="num">3</div><div class="text"><strong>Decide.</strong> <code>artifact-risk-log-authoring</code> turns what the person said into one change file: the fields, the state change with its reason and decider, and every free text already in the project's language.</div></div>
+    <div class="principle"><div class="num">3</div><div class="text"><strong>Decide.</strong> <code>risk-log-authoring.md</code> turns what the person said into one change file: the fields, the state change with its reason and decider, and every free text already in the project's language.</div></div>
     <div class="principle"><div class="num">4</div><div class="text"><strong>Confirm.</strong> <code>asimov-project</code> shows the change as it will be stored, translation included; a correction replaces the proposed text as written.</div></div>
     <div class="principle"><div class="num">5</div><div class="text"><strong>Apply.</strong> <code>-Apply</code> renumbers duplicates first, applies the change, appends the history lines with the person from <code>git config user.name</code>, renders the page from the template to <code>risk-log.html.new</code>, checks it against the current page, and renames it into place.</div></div>
     <div class="principle"><div class="num">6</div><div class="text"><strong>Refuse.</strong> A failed check deletes the <code>.new</code>, leaves the page as it was, and returns the rule that refused it.</div></div>
@@ -937,12 +937,12 @@ footer.site-footer a { color: var(--cyan); }
   <h2 class="section-title"><span class="sec-ref">§6.3</span>Code map</h2>
   <div class="codemap">
     <div class="codemap-row"><div class="what">The conversation: the risk log's row in Step 01 and its section (verbs, questions, confirmations, the leftover-write check, the <code>.gitignore</code> pattern)</div><div class="where">plugins/asimov-plugin/skills/asimov-project/SKILL.md</div></div>
-    <div class="codemap-row"><div class="what">The method: from what was said to one change file</div><div class="where">plugins/asimov-plugin/skills/artifact-risk-log-authoring/SKILL.md</div></div>
-    <div class="codemap-row"><div class="what">The read: prints the fixed view, writes nothing</div><div class="where">plugins/asimov-plugin/skills/artifact-risk-log-view/SKILL.md</div></div>
-    <div class="codemap-row"><div class="what">Read, render, check, view, repair, finish</div><div class="where">plugins/asimov-plugin/skills/artifact-risk-log-authoring/scripts/risk-log.ps1</div></div>
+    <div class="codemap-row"><div class="what">The method: from what was said to one change file</div><div class="where">plugins/asimov-plugin/artifacts/project/risk-log/risk-log-authoring.md</div></div>
+    <div class="codemap-row"><div class="what">The read: prints the fixed view, writes nothing</div><div class="where">plugins/asimov-plugin/artifacts/project/risk-log/risk-log-view.md</div></div>
+    <div class="codemap-row"><div class="what">Read, render, check, view, repair, finish</div><div class="where">plugins/asimov-plugin/artifacts/project/risk-log/scripts/risk-log.ps1</div></div>
     <div class="codemap-row"><div class="what">The contract: fields, states, rules, the bar, the divergence from the discipline</div><div class="where">plugins/asimov-plugin/artifacts/project/risk-log/risk-log-definition.md</div></div>
     <div class="codemap-row"><div class="what">The shape the script renders</div><div class="where">plugins/asimov-plugin/artifacts/project/risk-log/risk-log-template.html</div></div>
-    <div class="codemap-row"><div class="what">The <code>project/*.new</code> pattern in the <code>.gitignore</code> block both init entry points write</div><div class="where">plugins/asimov-plugin/commands/asimov-init.md · plugins/asimov-plugin/skills/codex-asimov-init/SKILL.md</div></div>
+    <div class="codemap-row"><div class="what">The <code>project/*.new</code> pattern in the <code>.gitignore</code> block the init entry point writes</div><div class="where">plugins/asimov-plugin/skills/asimov-init/SKILL.md</div></div>
     <div class="codemap-row"><div class="what">The Project frame's pages on the website</div><div class="where">site/inside/project-management.html · site/artifacts/project-management/index.html</div></div>
     <div class="codemap-row"><div class="what">The register, in a product repo</div><div class="where">project/risk-log.html</div></div>
   </div>
@@ -1022,7 +1022,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="failure-row"><div>The page cannot be read in full (a hand edit)</div><div>No write</div><div><span class="sev med">Med</span></div><div><code>-Repair</code> proposes each change as before and after; confirmed, it is applied like any write (RL11).</div></div>
     <div class="failure-row"><div>Git conflict markers after a merge</div><div>No write</div><div><span class="sev med">Med</span></div><div>The repair merges both sides by identifier, renumbers true duplicates (RL4) and asks the person for each field changed differently on both sides.</div></div>
     <div class="failure-row"><div>No person (<code>user.name</code> unset)</div><div>The script stops with exit 3</div><div><span class="sev low">Low</span></div><div><code>asimov-project</code> asks for the name once and passes it as <code>-By</code> for the rest of the run.</div></div>
-    <div class="failure-row"><div>No PowerShell on the machine</div><div>The script cannot run</div><div><span class="sev med">Med</span></div><div>The skills apply the rules the script implements, which live in <code>artifact-risk-log-authoring</code> (read, apply, check, areas) and <code>artifact-risk-log-view</code> (the view's layout), and say plainly that no script ran the check.</div></div>
+    <div class="failure-row"><div>No PowerShell on the machine</div><div>The script cannot run</div><div><span class="sev med">Med</span></div><div>The method files apply the rules the script implements, which live in <code>risk-log-authoring.md</code> (read, apply, check, areas) and <code>risk-log-view.md</code> (the view's layout), and say plainly that no script ran the check.</div></div>
     <div class="failure-row"><div>A translation is wrong</div><div>Caught before it is stored</div><div><span class="sev low">Low</span></div><div>The confirmation shows it; the person corrects it in the project's language (RL16).</div></div>
   </div>
 </section>
@@ -1064,11 +1064,11 @@ footer.site-footer a { color: var(--cyan); }
   </div>
   <div class="data-table">
     <div class="row head" style="grid-template-columns: 1.2fr 0.4fr 2fr;"><div>Item</div><div>Build</div><div>Pattern</div></div>
-    <div class="row" style="grid-template-columns: 1.2fr 0.4fr 2fr;"><div class="label-cell">risk-log.ps1</div><div><span class="tag new">new</span></div><div>Shape of <code>skills/artifact-s102-validation/scripts/validate-s102.ps1</code>: comment-based help, pure ASCII, 5.1 and 7, template as schema, exit codes.</div></div>
+    <div class="row" style="grid-template-columns: 1.2fr 0.4fr 2fr;"><div class="label-cell">risk-log.ps1</div><div><span class="tag new">new</span></div><div>Shape of <code>artifacts/documentation/s102-task-spec/scripts/validate-s102.ps1</code>: comment-based help, pure ASCII, 5.1 and 7, template as schema, exit codes.</div></div>
     <div class="row" style="grid-template-columns: 1.2fr 0.4fr 2fr;"><div class="label-cell">risk-log definition + template</div><div><span class="tag new">new</span></div><div>Shape of <code>artifacts/documentation/s101-ledger/</code>: maturity block, bar, required content, append-only rules.</div></div>
     <div class="row" style="grid-template-columns: 1.2fr 0.4fr 2fr;"><div class="label-cell">asimov-project: the risk log</div><div><span class="tag new">new</span></div><div>The skeleton's commented example row made real in Step 01, and the risk log's section below it, following Step 02's rules.</div></div>
-    <div class="row" style="grid-template-columns: 1.2fr 0.4fr 2fr;"><div class="label-cell">artifact-risk-log-authoring</div><div><span class="tag new">new</span></div><div>Shape of <code>skills/artifact-s101-ledger/SKILL.md</code>: the only writer, read first, never writes elsewhere.</div></div>
-    <div class="row" style="grid-template-columns: 1.2fr 0.4fr 2fr;"><div class="label-cell">artifact-risk-log-view</div><div><span class="tag new">new</span></div><div>Shape of <code>skills/artifact-s101-view/SKILL.md</code>: prints, writes nothing, judges nothing.</div></div>
+    <div class="row" style="grid-template-columns: 1.2fr 0.4fr 2fr;"><div class="label-cell">risk-log-authoring.md</div><div><span class="tag new">new</span></div><div>Shape of <code>s101-ledger-operations.md</code>: the only writer, read first, never writes elsewhere.</div></div>
+    <div class="row" style="grid-template-columns: 1.2fr 0.4fr 2fr;"><div class="label-cell">risk-log-view.md</div><div><span class="tag new">new</span></div><div>Shape of <code>s101-implementation-plan-view.md</code>: prints, writes nothing, judges nothing.</div></div>
     <div class="row" style="grid-template-columns: 1.2fr 0.4fr 2fr;"><div class="label-cell">The entry point</div><div><span class="tag reuse">reuse</span></div><div><code>asimov-project</code>, its frontmatter, derived root, maturity notice and model row, as they stand on <code>main</code>.</div></div>
     <div class="row" style="grid-template-columns: 1.2fr 0.4fr 2fr;"><div class="label-cell">Identity</div><div><span class="tag reuse">reuse</span></div><div>The ledger's <code>git config user.name</code>.</div></div>
   </div>
@@ -1080,10 +1080,8 @@ footer.site-footer a { color: var(--cyan); }
   <p class="section-desc" style="margin-bottom:0.9rem">Where the new files sit in the plugin.</p>
   <div class="data-table">
     <div class="row head" style="grid-template-columns: 0.9fr 2fr;"><div>Folder</div><div>What it holds</div></div>
-    <div class="row" style="grid-template-columns: 0.9fr 2fr;"><div class="label-cell">artifacts/project/risk-log/</div><div>risk-log-definition.md · risk-log-template.html</div></div>
+    <div class="row" style="grid-template-columns: 0.9fr 2fr;"><div class="label-cell">artifacts/project/risk-log/</div><div>risk-log-definition.md · risk-log-template.html · risk-log-authoring.md · risk-log-view.md (the method files) · scripts/risk-log.ps1, risk-log.Tests.ps1 beside it</div></div>
     <div class="row" style="grid-template-columns: 0.9fr 2fr;"><div class="label-cell">skills/asimov-project/</div><div>SKILL.md: one row in Step 01, one section below it (existing file)</div></div>
-    <div class="row" style="grid-template-columns: 0.9fr 2fr;"><div class="label-cell">skills/artifact-risk-log-authoring/</div><div>SKILL.md · scripts/risk-log.ps1</div></div>
-    <div class="row" style="grid-template-columns: 0.9fr 2fr;"><div class="label-cell">skills/artifact-risk-log-view/</div><div>SKILL.md</div></div>
   </div>
 </section>
 
@@ -1108,19 +1106,19 @@ footer.site-footer a { color: var(--cyan); }
     <div class="row"><div class="label-cell">Enforce</div><div><span class="tag new">new</span></div><div><ul><li><code>-Finish</code> before any verb; the confirmation shows the stored text before every write.</li></ul></div></div>
   </div>
 
-  <div class="subhead" id="s7-4-3"><span class="s-ref">§7.4.3</span><code>artifact-risk-log-authoring</code> · contract <a href="#s6-4">§6.4</a></div>
+  <div class="subhead" id="s7-4-3"><span class="s-ref">§7.4.3</span><code>risk-log-authoring.md</code> · contract <a href="#s6-4">§6.4</a></div>
   <div class="data-table impl-table">
     <div class="row head"><div>Aspect</div><div>Build</div><div>Details</div></div>
-    <div class="row"><div class="label-cell">Source</div><div><span class="tag reuse">reuse</span></div><div><ul><li>The frame of <code>artifact-s101-ledger</code>: read first, the only writer, never another file.</li></ul></div></div>
+    <div class="row"><div class="label-cell">Source</div><div><span class="tag reuse">reuse</span></div><div><ul><li>The frame of <code>s101-ledger-operations.md</code>: read first, the only writer, never another file.</li></ul></div></div>
     <div class="row"><div class="label-cell">Bound</div><div><span class="tag note">note</span></div><div><ul><li>Produces one change file per write; holds the rules the script implements, as its specification and the fallback.</li></ul></div></div>
     <div class="row"><div class="label-cell">Enforce</div><div><span class="tag new">new</span></div><div><ul><li>Free text in the project's language before it reaches the change file; a decider and a reason where the target state needs them.</li></ul></div></div>
   </div>
 
-  <div class="subhead" id="s7-4-4"><span class="s-ref">§7.4.4</span><code>artifact-risk-log-view</code> · contract <a href="#s6-5">§6.5</a></div>
+  <div class="subhead" id="s7-4-4"><span class="s-ref">§7.4.4</span><code>risk-log-view.md</code> · contract <a href="#s6-5">§6.5</a></div>
   <div class="data-table impl-table">
     <div class="row head"><div>Aspect</div><div>Build</div><div>Details</div></div>
-    <div class="row"><div class="label-cell">Source</div><div><span class="tag reuse">reuse</span></div><div><ul><li>The frame of <code>artifact-s101-view</code>: prints, writes nothing, judges nothing.</li></ul></div></div>
-    <div class="row"><div class="label-cell">Bound</div><div><span class="tag note">note</span></div><div><ul><li>Calls <code>-View</code> on the authoring skill's script by its full path, as <code>artifact-s101-ledger</code>'s callers reach <code>ledger.ps1</code>, and prints its text unchanged; holds the view's layout as the specification and the fallback.</li></ul></div></div>
+    <div class="row"><div class="label-cell">Source</div><div><span class="tag reuse">reuse</span></div><div><ul><li>The frame of <code>s101-implementation-plan-view.md</code>: prints, writes nothing, judges nothing.</li></ul></div></div>
+    <div class="row"><div class="label-cell">Bound</div><div><span class="tag note">note</span></div><div><ul><li>Calls <code>-View</code> on the script beside it by its full path, as <code>s101-ledger-operations.md</code>'s callers reach <code>ledger.ps1</code>, and prints its text unchanged; holds the view's layout as the specification and the fallback.</li></ul></div></div>
     <div class="row"><div class="label-cell">Enforce</div><div><span class="tag new">new</span></div><div><ul><li>Nothing written, ever, including the review date; the confirmation is <code>asimov-project</code>'s.</li></ul></div></div>
   </div>
 </section>
@@ -1273,17 +1271,16 @@ footer.site-footer a { color: var(--cyan); }
         <li><a href="../../site/inside/project-management.html">site/inside/project-management.html</a></li>
         <li><a href="../../site/artifacts/project-management/index.html">site/artifacts/project-management/index.html</a></li>
         <li><a href="../../plugins/asimov-plugin/skills/asimov-project/SKILL.md">plugins/asimov-plugin/skills/asimov-project/SKILL.md</a> (the risk log's row and section)</li>
-        <li><a href="../../plugins/asimov-plugin/commands/asimov-init.md">plugins/asimov-plugin/commands/asimov-init.md</a> (the <code>.gitignore</code> block)</li>
-        <li><a href="../../plugins/asimov-plugin/skills/codex-asimov-init/SKILL.md">plugins/asimov-plugin/skills/codex-asimov-init/SKILL.md</a></li>
+        <li><a href="../../plugins/asimov-plugin/skills/asimov-init/SKILL.md">plugins/asimov-plugin/skills/asimov-init/SKILL.md</a> (the <code>.gitignore</code> block)</li>
       </ul>
     </div>
     <div class="refs-block">
       <h4>Patterns reused</h4>
       <ul>
-        <li><a href="../../plugins/asimov-plugin/skills/artifact-s102-validation/scripts/validate-s102.ps1">plugins/asimov-plugin/skills/artifact-s102-validation/scripts/validate-s102.ps1</a> (script shape)</li>
+        <li><a href="../../plugins/asimov-plugin/artifacts/documentation/s102-task-spec/scripts/validate-s102.ps1">plugins/asimov-plugin/artifacts/documentation/s102-task-spec/scripts/validate-s102.ps1</a> (script shape)</li>
         <li><a href="../../plugins/asimov-plugin/artifacts/documentation/s101-ledger/s101-ledger-definition.md">s101-ledger-definition.md</a> (append-only state, git identity)</li>
-        <li><a href="../../plugins/asimov-plugin/skills/artifact-s101-ledger/scripts/ledger.ps1">plugins/asimov-plugin/skills/artifact-s101-ledger/scripts/ledger.ps1</a> (a script beside its skill, called by full path)</li>
-        <li><a href="../../plugins/asimov-plugin/skills/artifact-s101-view/SKILL.md">plugins/asimov-plugin/skills/artifact-s101-view/SKILL.md</a> (the fixed view)</li>
+        <li><a href="../../plugins/asimov-plugin/artifacts/documentation/s101-ledger/scripts/ledger.ps1">plugins/asimov-plugin/artifacts/documentation/s101-ledger/scripts/ledger.ps1</a> (a script beside its method file, called by full path)</li>
+        <li><a href="../../plugins/asimov-plugin/artifacts/documentation/s101-implementation-plan/s101-implementation-plan-view.md">plugins/asimov-plugin/artifacts/documentation/s101-implementation-plan/s101-implementation-plan-view.md</a> (the fixed view)</li>
         <li><a href="../../plugins/asimov-plugin/skills/asimov-spec/SKILL.md">plugins/asimov-plugin/skills/asimov-spec/SKILL.md</a> (scripts through Bash, the .gitignore append)</li>
         <li><a href="../model-choice.md">documentation/model-choice.md</a></li>
         <li><a href="../../plugins/asimov-plugin/resources/diagrams/README.md">resources/diagrams/README.md</a> (§6.2 notation)</li>
@@ -1301,7 +1298,7 @@ footer.site-footer a { color: var(--cyan); }
     · <span class="mono">features/D101-project-management-risk.html</span>
   </div>
   <div style="margin-top: 0.4rem">
-    D101 · Project management: risk log · asimov-plugin · Draft v0.9 · 2026-10-29
+    D101 · Project management: risk log · asimov-plugin · Draft v0.10 · 2026-11-13
   </div>
 </footer>
 

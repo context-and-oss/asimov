@@ -513,7 +513,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="row cols-2"><div class="label-cell">conventions-definition.md</div><div>New, <code>artifact: conventions</code>.</div></div>
     <div class="row cols-2"><div class="label-cell">asimov-design/SKILL.md</div><div>In Step 00, a <strong>maturity notice</strong>: read the block from the definition just loaded, resolve to the §6.2 notice line, print it before the first question. Add the hard rule <em>never write the level into the D101</em>.</div></div>
     <div class="row cols-2"><div class="label-cell">artifact-persona-authoring/SKILL.md</div><div>Same notice before its first question, reading the persona definition.</div></div>
-    <div class="row cols-2"><div class="label-cell">asimov-init.md</div><div>Loads the three definitions in Step 1; same step after it, one line per level present, artifacts named. Its index rendering rule strips the template's leading comment explicitly.</div></div>
+    <div class="row cols-2"><div class="label-cell">asimov-init/SKILL.md</div><div>Loads the four definitions in Step 1; same step after it, one line per level present, artifacts named. Its index rendering rule strips the template's leading comment explicitly.</div></div>
     <div class="row cols-2"><div class="label-cell">D100 §4.5</div><div>Add the <strong>Maturity</strong> column; one paragraph under the table pointing at this D101.</div></div>
     <div class="row cols-2"><div class="label-cell">CLAUDE.md</div><div>Under Conventions: the three fields and four levels, one line each. Hard rule 10: <em>the level block and the D100 §4.5 column change in the same commit</em>, modelled on hard rule 2.</div></div>
     <div class="row cols-2"><div class="label-cell">.github/workflows/Asimov-PR.yml</div><div>One step on every PR to <code>main</code>: each <code>artifacts/*/*/*-definition.md</code> opens with frontmatter carrying <code>maturity: assess|trial|adopt|hold</code>, else the PR fails. It checks presence only — not that <code>artifact</code> equals the folder slug (R2), that <code>since</code> is a date (R4), that templates carry no block (R3), or that D100 §4.5 moved with the level (R10). Those stay manual.</div></div>
@@ -546,7 +546,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="q-card resolved">
       <div class="q-head"><span class="q-id">Q2</span><span class="q-decider">Resolved 2026-09-10</span></div>
       <div class="q-body">Is the frontmatter-to-D100 lockstep a <code>CLAUDE.md</code> hard rule, a grep in <code>asimov-design-review</code>, or both?</div>
-      <div class="q-resolution"><strong>Decision:</strong> a hard rule, modelled on hard rule 2 (model frontmatter and <code>model-choice.md</code> move together). <code>asimov-design-review</code> reviews D101s, not D100, so a grep there would be off-topic. Reopens if the column drifts anyway. 2026-09-15: the presence check also runs in CI (<code>.github/workflows/Asimov-PR.yml</code>); the mirror half stays a hard rule.</div>
+      <div class="q-resolution"><strong>Decision:</strong> a hard rule, modelled on hard rule 2 (model frontmatter and <code>model-choice.md</code> move together). <code>asimov-design</code>'s review path reviews D101s, not D100, so a grep there would be off-topic. Reopens if the column drifts anyway. 2026-09-15: the presence check also runs in CI (<code>.github/workflows/Asimov-PR.yml</code>); the mirror half stays a hard rule.</div>
     </div>
     <div class="q-card">
       <div class="q-head"><span class="q-id">Q3</span><span class="q-decider">Allan Borup</span></div>
@@ -579,7 +579,7 @@ footer.site-footer a { color: var(--cyan); }
       <h4>Files touched</h4>
       <ul>
         <li>plugins/asimov-plugin/artifacts/**/*-definition.md</li>
-        <li>plugins/asimov-plugin/skills/asimov-design/SKILL.md · plugins/asimov-plugin/skills/artifact-persona-authoring/SKILL.md · plugins/asimov-plugin/commands/asimov-init.md</li>
+        <li>plugins/asimov-plugin/skills/asimov-design/SKILL.md · plugins/asimov-plugin/skills/artifact-persona-authoring/SKILL.md · plugins/asimov-plugin/skills/asimov-init/SKILL.md</li>
         <li>.github/workflows/Asimov-PR.yml</li>
       </ul>
     </div>

@@ -41,14 +41,14 @@
   <ul>
     <li>Update later with <code>/plugin marketplace update asimov-marketplace</code>. No auto-update.</li>
     <li>Versions are major-only. Any release may change a bar or a template, so read the release notes before updating a repo with designs in flight.</li>
-    <li>Needs access to the models the commands pin, mapped in <a href="https://github.com/context-and-oss/asimov/blob/main/documentation/model-choice.md">model-choice.md</a>.</li>
+    <li>Needs access to the models the skills pin, mapped in <a href="https://github.com/context-and-oss/asimov/blob/main/documentation/model-choice.md">model-choice.md</a>.</li>
   </ul>
   <h3>Codex</h3>
   <pre class="mono" style="color:#fff;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:1rem;overflow-x:auto">codex plugin marketplace add context-and-oss/asimov
 codex plugin add asimov-plugin@asimov-marketplace</pre>
   <ul>
     <li>Update with <code>codex plugin marketplace upgrade asimov-marketplace</code>, then start a new session.</li>
-    <li>Codex loads the plugin's skills, not its slash commands. Set a repo up with <code>$asimov-plugin:codex-asimov-init</code>; plan a feature with <code>$asimov-plugin:asimov-spec</code>. Design a feature with <code>$asimov-plugin:asimov-design</code> and review it with <code>$asimov-plugin:asimov-design-review</code>; only <code>asimov-init</code> is Claude Code only.</li>
+    <li>Codex loads the plugin's skills, the entry points among them. Set a repo up with <code>$asimov-plugin:asimov-init</code>, design and review a feature with <code>$asimov-plugin:asimov-design</code>, plan it with <code>$asimov-plugin:asimov-spec</code>. Same files as in Claude Code.</li>
   </ul>
 
   <h2>Your first feature</h2>
@@ -106,7 +106,7 @@ codex plugin add asimov-plugin@asimov-marketplace</pre>
       <g fill="#fff" font-family="JetBrains Mono, monospace" font-size="11" text-anchor="middle">
         <text x="60" y="120">/asimov-init</text>
         <text x="180" y="120">/asimov-design</text>
-        <text x="300" y="120">/asimov-design-review</text>
+        <text x="300" y="120">/asimov-design review</text>
         <text x="540" y="120">/asimov-design</text>
         <text x="780" y="120">/asimov-spec</text>
         <text x="1020" y="120">agents by name</text>
@@ -129,9 +129,9 @@ codex plugin add asimov-plugin@asimov-marketplace</pre>
   <div style="overflow-x:auto">
   <table>
     <tr><th>Step</th><th>You type</th><th>What happens</th><th>Who decides</th></tr>
-    <tr><td>Wire up</td><td><code>/asimov-init</code></td><td><code>asimov.md</code>, one import line in <code>CLAUDE.md</code>, a convention read-list per stack, the docs landing page</td><td>—</td></tr>
+    <tr><td>Wire up</td><td><code>/asimov-init</code></td><td>The <code>asimov.md</code> marker, the Codex agent shells, a convention read-list per stack, the project info, the docs site. From then on every session gets the Asimov context from the plugin itself</td><td>—</td></tr>
     <tr><td>Describe</td><td><code>/asimov-design</code></td><td>The business design in <code>documentation/features/</code>, technical section declared open</td><td>—</td></tr>
-    <tr><td>Read</td><td><code>/asimov-design-review</code></td><td>Findings in a sibling <code>.review.md</code> the next run picks up</td><td>—</td></tr>
+    <tr><td>Read</td><td><code>/asimov-design review …</code></td><td>Findings in a sibling <code>.review.md</code> the next run picks up</td><td>—</td></tr>
     <tr><td>Sign</td><td>—</td><td>The business approver signs the what and why. No technology chosen yet.</td><td>Business approver</td></tr>
     <tr><td>Design the how</td><td><code>/asimov-design</code> again</td><td>The technical design in the same file. Phase moves to full design.</td><td>—</td></tr>
     <tr><td>Check it is gap-free</td><td>—</td><td>A gap-free verdict. Status can move to approved now that the estimate holds.</td><td>A reviewer who is not the author; the business approver for status</td></tr>

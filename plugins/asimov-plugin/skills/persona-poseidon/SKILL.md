@@ -1,6 +1,6 @@
 ---
 name: persona-poseidon
-description: Review a document as Poseidon — a frontline operator who runs the work every day, knows how it really happens and where it breaks, and has never opened the codebase. Use before taking a design, analysis, or proposal to sign-off, to find where it describes a tidy process no one actually follows. Triggers on "review as Poseidon", "read this as Poseidon", "would Poseidon recognise this".
+description: Use when asked to review or read a design or proposal as Poseidon, or whether the people doing the work would recognise it. A frontline operator who runs the work daily and never opened the codebase reads it for the tidy process nobody follows. Findings as that reader; no edit, no approval.
 ---
 
 # Review as Poseidon

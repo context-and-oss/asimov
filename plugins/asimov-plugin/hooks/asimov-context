@@ -1,0 +1,160 @@
+#!/usr/bin/env bash
+# Inject the Asimov context from the plugin, the way superpowers injects its using-superpowers skill.
+#
+# Fired by hooks/hooks.json (Claude Code) and hooks/hooks-codex.json (Codex) on SessionStart and
+# SubagentStart through run-hook.cmd. Reads the event's JSON from stdin, looks for asimov.md at the
+# payload's cwd — the marker: its presence is the switch — and prints the hook JSON that adds the
+# Asimov context to the model's conversation:
+#
+#     {"hookSpecificOutput":{"hookEventName":"<event>","additionalContext":"<text>"}}
+#
+# The text is the body of skills/using-asimov/SKILL.md (SessionStart) or
+# skills/using-asimov/subagent.md (SubagentStart), rendered from the plugin at its installed
+# version and cut to the parts the marker's frontmatter enables, one key per entry point:
+#
+#     asimov-design: enabled      asimov-spec: enabled      asimov-build: enabled      asimov-project: enabled
+#     (absent -> enabled; all four disabled -> opt-out)
+#
+# A block between <!-- part: X --> and <!-- /part --> stays only when its part is enabled; the marker
+# lines never reach the model. {{INVOKE:<skill>}} is spelled for the harness that runs the hook
+# (/<skill> in Claude Code, $asimov-plugin:<skill> in Codex); the repo name is the cwd's folder
+# and the stacks are the folders under documentation/conventions/ — nothing else is read from the
+# marker, so a marker without frontmatter (the old full context file) counts as all four enabled.
+# No asimov.md -> prints nothing, so a repo Asimov was never set up in gets no context. Always
+# exits 0. Design: documentation/features/D101-asimov-init.html.
+#
+# Bash builtins only (no jq, sed, grep, cat): a SessionStart hook can run with a broken PATH.
+# Verified 2026-11-12 in Claude Code (--plugin-dir) and in the Codex desktop app on Windows.
+
+set -uo pipefail
+
+# Plugin root from this script's own path, as run-hook.cmd finds us.
+case "$0" in
+  */*|*\\*) SCRIPT_DIR="$(cd "${0%[/\\]*}" && pwd)" ;;
+  *) SCRIPT_DIR="$(pwd)" ;;
+esac
+PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+
+# Slurp stdin with the read builtin: /dev/stdin does not exist when cmd.exe starts bash.
+input=""
+IFS= read -r -d '' -t 5 input || true   # -t: never hang if a harness leaves stdin open
+[ -n "$input" ] || exit 0
+
+# One string field out of the flat JSON payload; JSON escapes \\ and \/ unescaped.
+field() {
+  local re="\"$1\"[[:space:]]*:[[:space:]]*\"([^\"]*)\""
+  if [[ "$input" =~ $re ]]; then
+    local v="${BASH_REMATCH[1]}"
+    v="${v//\\\\/\\}"; v="${v//\\\//\/}"
+    printf '%s' "$v"
+  fi
+}
+
+event="$(field hook_event_name)"
+[ "$event" = "SessionStart" ] || [ "$event" = "SubagentStart" ] || exit 0
+
+cwd="$(field cwd)"
+[ -n "$cwd" ] || cwd="${CLAUDE_PROJECT_DIR:-}"
+[ -n "$cwd" ] || exit 0
+cwd="${cwd//\\//}"
+case "$cwd" in [A-Za-z]:/*) cwd="/${cwd:0:1}${cwd:2}" ;; esac   # D:/x -> /D/x for Git Bash
+cwd="${cwd%/}"
+
+marker="${cwd}/asimov.md"
+[ -r "$marker" ] || exit 0
+
+# The marker's frontmatter, one key per entry point, absent -> enabled:
+#     asimov-design: enabled | disabled
+#     asimov-spec: ...  asimov-build: ...  asimov-project: ...
+ALL_PARTS="design spec build project"
+using="$ALL_PARTS"
+first=""; IFS= read -r first < "$marker" || true; first="${first%$''}"
+if [ "$first" = "---" ]; then
+  n=0
+  while IFS= read -r line || [ -n "$line" ]; do
+    n=$((n+1)); [ $n -eq 1 ] && continue
+    line="${line%$''}"
+    [ "$line" = "---" ] && break
+    if [[ "$line" =~ ^[[:space:]]*asimov-(design|spec|build|project)[[:space:]]*:[[:space:]]*([A-Za-z]+) ]]; then
+      p="${BASH_REMATCH[1]}"; v="${BASH_REMATCH[2]}"
+      case "$v" in disabled|Disabled|DISABLED|false|False|off|no) using=" $using "; using="${using// $p / }"; using="${using# }"; using="${using% }";; esac
+    fi
+  done < "$marker"
+fi
+has_part() { case " $using " in *" $1 "*) return 0;; esac; return 1; }
+
+# Harness: Claude Code sets CLAUDECODE. Codex (verified 2026-11-12, desktop app on Windows) sets CODEX_SHELL=1,
+# CODEX_APP_RUNTIME_CLI_PATH and PLUGIN_ROOT, plus CLAUDE_PLUGIN_ROOT for compatibility, and no CODEX_HOME.
+harness="unknown"
+if [ -n "${CLAUDECODE:-}" ]; then harness="claude-code"
+elif [ -n "${CODEX_SHELL:-}" ] || [ -n "${CODEX_HOME:-}" ] || [ -n "${CODEX_SANDBOX:-}" ] || [ -n "${CODEX_APP_RUNTIME_CLI_PATH:-}" ] || [ -n "${PLUGIN_ROOT:-}" ]; then harness="codex"
+elif [ -n "${CLAUDE_PLUGIN_ROOT:-}" ]; then harness="claude-code"
+fi
+prefix="/"; [ "$harness" = "codex" ] && prefix='$asimov-plugin:'
+
+version="?"
+if [ -r "${PLUGIN_ROOT}/.claude-plugin/plugin.json" ]; then
+  pj="$(<"${PLUGIN_ROOT}/.claude-plugin/plugin.json")"
+  [[ "$pj" =~ \"version\"[[:space:]]*:[[:space:]]*\"([^\"]+)\" ]] && version="${BASH_REMATCH[1]}"
+fi
+
+repo="${cwd##*/}"
+stacks=""
+for d in "${cwd}"/documentation/conventions/*/README.md; do
+  [ -r "$d" ] || continue
+  d="${d%/README.md}"; stacks="${stacks:+$stacks, }${d##*/}"
+done
+[ -n "$stacks" ] || stacks="none yet"
+agent="$(field agent_type)"; [ -n "$agent" ] || agent="unknown"
+
+# The opt-out: a marker that names no part.
+if [ -z "$using" ]; then
+  if [ "$event" = "SessionStart" ]; then
+    text="Asimov: the plugin is installed and asimov.md marks this repository, but its \`using\` names no part, so no Asimov context is loaded. Edit the marker or run ${prefix}asimov-init to change that."
+  else exit 0; fi
+else
+  # The session text is the using-asimov skill's body (frontmatter dropped), as superpowers injects using-superpowers;
+  # the subagent note sits beside it in the same skill folder.
+  if [ "$event" = "SessionStart" ]; then tpl="${PLUGIN_ROOT}/skills/using-asimov/SKILL.md"; else tpl="${PLUGIN_ROOT}/skills/using-asimov/subagent.md"; fi
+  [ -r "$tpl" ] || exit 0
+  raw="$(<"$tpl")"
+  if [ "${raw:0:3}" = "---" ]; then rest="${raw#---}"; rest="${rest#*$'\n---'}"; raw="${rest#$'\n'}"; fi
+
+  # Keep only the enabled parts; drop the marker lines; collapse the blank lines a dropped block leaves.
+  text=""; keep=1; blank=0
+  while IFS= read -r line || [ -n "$line" ]; do
+    line="${line%$'\r'}"
+    if [[ "$line" =~ ^\<!--\ part:\ ([a-z]+)\ --\>$ ]]; then keep=0; has_part "${BASH_REMATCH[1]}" && keep=1; continue; fi
+    if [ "$line" = "<!-- /part -->" ]; then keep=1; continue; fi
+    [ $keep -eq 1 ] || continue
+    if [ -z "$line" ]; then [ $blank -eq 1 ] && continue; blank=1; else blank=0; fi
+    text="${text}${line}"$'\n'
+  done <<< "$raw"
+fi
+
+text="${text#"${text%%[![:space:]]*}"}"   # no leading blank line after the dropped frontmatter
+using_text="${using// /, }"; using_text="${using_text:-nothing}"
+for s in asimov-init asimov-design asimov-spec asimov-build asimov-project; do
+  text="${text//\{\{INVOKE:$s\}\}/$prefix$s}"
+done
+text="${text//\{\{VERSION\}\}/$version}"
+text="${text//\{\{HARNESS\}\}/$harness}"
+text="${text//\{\{REPO\}\}/$repo}"
+text="${text//\{\{STACKS\}\}/$stacks}"
+text="${text//\{\{USING\}\}/$using_text}"
+text="${text//\{\{AGENT\}\}/$agent}"
+
+# JSON string escaping with parameter substitution, as superpowers does.
+s="$text"
+s="${s//\\/\\\\}"; s="${s//\"/\\\"}"; s="${s//$'\n'/\\n}"; s="${s//$'\r'/\\r}"; s="${s//$'\t'/\\t}"
+
+emit_json() {
+  # shellcheck disable=SC2059
+  if command -v cat >/dev/null 2>&1; then printf "$@" | cat; else printf "$@"; fi
+}
+# Claude Code and Codex both read hookSpecificOutput.additionalContext; other harnesses the SDK's top-level field.
+case "$harness" in
+  claude-code|codex) emit_json '{"hookSpecificOutput":{"hookEventName":"%s","additionalContext":"%s"}}\n' "$event" "$s" ;;
+  *)                 emit_json '{"additionalContext":"%s"}\n' "$s" ;;
+esac
+exit 0

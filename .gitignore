@@ -21,7 +21,7 @@ Desktop.ini
 # only promoted+renamed images get committed)
 documentation/**/images/_raw/
 
-# asimov-design-review notes — a disposable cache asimov-design consumes and
+# asimov-design review notes — a disposable cache the next design run consumes and
 # deletes (d101-feature-design-definition §4.10, D101-design-stage.html R10–R11). Not a design
 # artifact; committing it would duplicate a PR's own review thread.
 documentation/features/*.review.md

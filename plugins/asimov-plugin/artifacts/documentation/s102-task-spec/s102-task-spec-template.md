@@ -6,8 +6,8 @@
 
   WHO READS THIS FILE
   - The builder, as its brief; the author, to see what the builder will be told;
-    artifact-s102-authoring writes it, artifact-s102-validation checks it in a
-    fresh subagent. The file in the plugin is the source of truth (D100 §7.4).
+    s102-task-spec-authoring.md writes it, scripts/validate-s102.ps1 checks it,
+    both beside this file. The file in the plugin is the source of truth (D100 §7.4).
   - Written to specs/{{SLUG}}/S102-{{SLUG}}-{{NNN}}-{{TASK-SLUG}}.md,
     beside the S101 whose task line it expands; {{NNN}} is the task id's
     number, T003 → 003; {{TASK-SLUG}} is three to five words of the title in
@@ -86,7 +86,7 @@
   No section opens with a sentence from this template; the rendered file holds
   content only.
 
-  THE SHAPE CHECK (skills/artifact-s102-validation/scripts/validate-s102.ps1): what it needs beyond the above
+  THE SHAPE CHECK (scripts/validate-s102.ps1, beside this file): what it needs beyond the above
   - Header: every key of this template, owns with its four lists (regenerates:
     [] when nothing is regenerated); after and traces equal to the task line.
   - 2 Behaviour: one scenario tagged @review-focus (the tag on the line above

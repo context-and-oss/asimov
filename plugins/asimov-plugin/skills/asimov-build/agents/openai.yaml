@@ -1,11 +1,9 @@
 # Codex metadata for the asimov-build asimov-skill (D101-build-stage §6.1).
 # The conversation lives in ../SKILL.md, the same file Claude Code reads.
 # Codex skills take no arguments: the person names the plan's slug in the same message.
+# Implicit invocation is allowed: the description in ../SKILL.md is the trigger, and the skill's own
+# repo gate asks before writing in a repository that has no asimov.md marker.
 interface:
   display_name: "Asimov · Build"
   short_description: "Build a ready plan phase by phase with the Asimov agents; your go commits each phase"
   default_prompt: "Use $asimov-plugin:asimov-build to build the plan specs/<slug>/S101-<slug>.md."
-
-policy:
-  # Only a person starts a build; the model never selects this skill.
-  allow_implicit_invocation: false
