@@ -18,9 +18,9 @@ Design: `documentation/features/D101-asimov-log.html`.
 
 `.asimov/log/<YYYY-MM-DD>-<id8>.log` under the repo root the hook payload names (`cwd`, so a worktree logs into itself). One file per session, named by the date of its first line and the first eight characters of the session id; append only; UTF-8; gitignored as `.asimov/`, and `.asimov/.gitignore` holds `*`, so git never lists the folder in a repo whose own `.gitignore` predates it. Two sessions in one repo write two files. A session past midnight keeps its file.
 
-Beside it, `.asimov/log/.<id8>.state` holds the session's current stage and feature, its log file name, and one line per running agent (id, start time, shell). It is the hook's own memory and is deleted at session end; one a session end could not delete (the harness gives SessionEnd hooks 1.5 s) is swept by the next session start once it is twelve hours old.
+`.asimov/log/` holds the log files and nothing else. `.asimov/state/<id8>.state` holds the session's current stage and feature, its log file name, and one line per running agent (id, start time, shell). It is the hook's own memory and is deleted at session end; one a session end could not delete (the harness gives SessionEnd hooks 1.5 s) is swept by the next session start once it is twelve hours old.
 
-With `ASIMOV_LOG_RAW=1` in the environment the hook also appends every payload, verbatim, to `.asimov/log/raw-<id8>.jsonl`: the way to read what a harness hands over. Off by default, since a payload carries prompt text the log never may.
+With `ASIMOV_LOG_RAW=1` in the environment the hook also appends every payload, verbatim, to `.asimov/raw/<id8>.jsonl`: the way to read what a harness hands over. Off by default, since a payload carries prompt text the log never may.
 
 ## 2. The line
 

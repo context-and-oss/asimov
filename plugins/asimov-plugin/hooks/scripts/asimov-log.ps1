@@ -10,7 +10,7 @@
 
       YYYY-MM-DD HH:MM  <stage>  <feature>  <who>  <sentence>
 
-  Its own memory is .asimov/log/.<id8>.state (stage, feature, log file name, one line per running
+  Its own memory is .asimov/state/<id8>.state (stage, feature, log file name, one line per running
   agent), deleted at session end; a state file a session end could not delete (the harness gives
   SessionEnd hooks 1.5 s) is swept by the next SessionStart once it is over twelve hours old.
   Hooks run in parallel, so the read-modify-write of the state file holds a named mutex per
@@ -20,7 +20,7 @@
   always exits 0, and writes nothing outside .asimov/. No skill and no model calls it: the harness does.
 
   Set ASIMOV_LOG_RAW=1 in the environment to also append every payload, verbatim, to
-  .asimov/log/raw-<id8>.jsonl before any filter, where .asimov/log/ already exists: the way to read
+  .asimov/raw/<id8>.jsonl before any filter, where .asimov/log/ already exists: the way to read
   what a harness hands over (D101-asimov-log Q1, Q2).
   Off by default, since a raw payload carries prompt text the log never may.
 
@@ -100,7 +100,7 @@ function Format-Line([string]$stage, [string]$feature, [string]$who, [string]$se
 function Remove-StaleState([string]$dir, [string]$keep) {
   try {
     $limit = (Get-Date).AddHours(-12)
-    foreach ($f in Get-ChildItem -LiteralPath $dir -Filter '.*.state' -Force -File -ErrorAction SilentlyContinue) {
+    foreach ($f in Get-ChildItem -LiteralPath $dir -Filter '*.state' -Force -File -ErrorAction SilentlyContinue) {
       if ($f.Name -ne $keep -and $f.LastWriteTime -lt $limit) { Remove-Item -LiteralPath $f.FullName -Force -ErrorAction SilentlyContinue }
     }
   } catch { }
@@ -121,10 +121,12 @@ function Invoke-Log {
   $id8 = $sid.Substring(0, [Math]::Min(8, $sid.Length))
 
   $dir = Join-Path $root '.asimov/log'
-  $statePath = Join-Path $dir ".$id8.state"
+  $stateDir = Join-Path $root '.asimov/state'   # the hook's memory; log/ holds only what a person reads
+  $statePath = Join-Path $stateDir "$id8.state"
+  $rawDir = Join-Path $root '.asimov/raw'
 
   # The raw dump, before any filter: every payload the harness hands over, where the folder already exists (Q1, Q2).
-  if ($env:ASIMOV_LOG_RAW -eq '1' -and (Test-Path -LiteralPath $dir)) { Write-Retry (Join-Path $dir "raw-$id8.jsonl") (($raw -replace "`r?`n", ' ') + "`n") $true }
+  if ($env:ASIMOV_LOG_RAW -eq '1' -and (Test-Path -LiteralPath $dir)) { if (-not (Test-Path -LiteralPath $rawDir)) { New-Item -ItemType Directory -Path $rawDir -Force | Out-Null }; Write-Retry (Join-Path $rawDir "$id8.jsonl") (($raw -replace "`r?`n", ' ') + "`n") $true }
 
   # Only an asimov-* invocation creates the folder; every other event logs only where it already exists.
   if ($event -ne 'PreToolUse' -and $event -ne 'UserPromptExpansion' -and -not (Test-Path -LiteralPath $dir)) { return }
@@ -223,9 +225,9 @@ function Invoke-Log {
   $selfIgnore = Join-Path (Split-Path -Parent $dir) '.gitignore'
   if (-not (Test-Path -LiteralPath $selfIgnore)) { Write-Retry $selfIgnore "*`n" $false }
   Write-Retry (Join-Path $dir $state.file) $line $true
-  if ($saveState) { Write-State $statePath $state }
+  if ($saveState) { if (-not (Test-Path -LiteralPath $stateDir)) { New-Item -ItemType Directory -Path $stateDir -Force | Out-Null }; Write-State $statePath $state }
   elseif (Test-Path -LiteralPath $statePath) { Remove-Item -LiteralPath $statePath -Force -ErrorAction SilentlyContinue }
-  if ($event -eq 'SessionStart') { Remove-StaleState $dir ".$id8.state" }
+  if ($event -eq 'SessionStart') { Remove-StaleState $stateDir "$id8.state" }
   } catch { }
   finally {
     if ($mutex) { try { $mutex.ReleaseMutex() } catch { }; $mutex.Dispose() }
