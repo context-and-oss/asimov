@@ -8,7 +8,7 @@ since: 2026-10-22
 
 One text line per harness event, written into the product repo by the plugin's hooks and by nothing else. It exists so that what Asimov did during a run can be read afterwards without reconstructing it from transcripts.
 
-Written by: `hooks/scripts/asimov-log.ps1`, fired by `hooks/hooks.json` in both harnesses. Read by: a person, by eye, after a run. No skill, no agent and no model writes a line (D101 R5); the *why* of a run lives in the ledger (`s101-ledger-definition.md`), never here.
+Written by: `hooks/scripts/asimov-log.ps1`, fired by `hooks/hooks.json` in Claude Code; Codex reads `hooks/hooks-codex.json`, which carries the plugin's context hooks and not yet the log (D101 Q2). Read by: a person, by eye, after a run. No skill, no agent and no model writes a line (D101 R5); the *why* of a run lives in the ledger (`s101-ledger-definition.md`), never here.
 
 Design: `documentation/features/D101-asimov-log.html`.
 
@@ -57,6 +57,6 @@ An invocation sets stage and feature for the rest of the session. Seconds are th
 - A hook always exits 0 and prints nothing: a failing hook never blocks a run and never reaches the chat (D101 R6); the hook command itself ends in `exit 0`, so a machine without PowerShell gets an empty log and no hook notice. A read-only folder loses the session's lines.
 - Hooks run in parallel: the state file is read, changed and written under a named mutex per session, so a batch of agents starting at once loses no start.
 - Only an `asimov-*` invocation creates the folder, and with it `.asimov/.gitignore`; every other event writes a line only where the folder exists. A repo Asimov never ran in gets no folder, and a repo's first session logs from its first invocation.
-- The hook command is a `pwsh … || powershell …` chain: the hook shell must be Git Bash or PowerShell 7, and a typed `/asimov-*` reaches the hook as a `UserPromptExpansion` event, a Skill call as `PreToolUse`.
+- The hook command is a `pwsh … || powershell …` chain: the hook shell must be Git Bash or PowerShell 7, and a typed `/asimov-*` reaches the hook as a `UserPromptExpansion` event, a Skill call as `PreToolUse`. Codex on Windows runs hooks through PowerShell, which the chain does not parse, so the log waits for a `commandWindows` there.
 - A missing state file is recreated from the event at hand: stage and feature read `-`, a stop carries no seconds.
 - The log is working state, never a record: it is not committed, not rotated and not read by any skill (D101 OOS3, OOS4).

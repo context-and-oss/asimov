@@ -129,7 +129,7 @@ codex plugin add asimov-plugin@asimov-marketplace</pre>
   <div style="overflow-x:auto">
   <table>
     <tr><th>Step</th><th>You type</th><th>What happens</th><th>Who decides</th></tr>
-    <tr><td>Wire up</td><td><code>/asimov-init</code></td><td><code>asimov.md</code> with one import line in <code>CLAUDE.md</code>, the same context in <code>AGENTS.md</code>, the Codex agent shells, a convention read-list per stack, the project info, the docs site</td><td>—</td></tr>
+    <tr><td>Wire up</td><td><code>/asimov-init</code></td><td>The <code>asimov.md</code> marker, the Codex agent shells, a convention read-list per stack, the project info, the docs site. From then on every session gets the Asimov context from the plugin itself</td><td>—</td></tr>
     <tr><td>Describe</td><td><code>/asimov-design</code></td><td>The business design in <code>documentation/features/</code>, technical section declared open</td><td>—</td></tr>
     <tr><td>Read</td><td><code>/asimov-design-review</code></td><td>Findings in a sibling <code>.review.md</code> the next run picks up</td><td>—</td></tr>
     <tr><td>Sign</td><td>—</td><td>The business approver signs the what and why. No technology chosen yet.</td><td>Business approver</td></tr>

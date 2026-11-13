@@ -41,7 +41,7 @@
   <div style="overflow-x:auto">
   <table>
     <tr><th>Command</th><th>Stage</th><th>What it does</th></tr>
-    <tr><td><code>/asimov-init</code></td><td>Setup</td><td>Writes <code>asimov.md</code> and imports it from <code>CLAUDE.md</code>, writes the same context into an <code>AGENTS.md</code> region, copies the Codex agent shells into <code>.codex/agents/</code>, scaffolds convention read-lists, asks for the project info, generates the docs site. One run readies the repo for both tools.</td></tr>
+    <tr><td><code>/asimov-init</code></td><td>Setup</td><td>Writes the <code>asimov.md</code> marker, copies the Codex agent shells into <code>.codex/agents/</code>, scaffolds convention read-lists, asks for the project info, generates the docs site; touches neither <code>CLAUDE.md</code> nor <code>AGENTS.md</code>. One run readies the repo for both tools; the context reaches every session from the plugin's hooks.</td></tr>
     <tr><td><code>/asimov-design</code></td><td>Design</td><td>Interview → D101 as HTML. Stops after the business design; run again for the technical design. Name a legacy markdown D101 and it renders it to HTML instead.</td></tr>
     <tr><td><code>/asimov-design-review</code></td><td>Design</td><td>Gap check against the bar plus persona reads. Never edits, never approves.</td></tr>
     <tr><td><code>artifact-persona-authoring</code></td><td>Design</td><td>Shows the persona roster, then interview → a custom persona skill in your repo.</td></tr>

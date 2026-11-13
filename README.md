@@ -4,7 +4,7 @@ Plugin for Claude Code and Codex. Feature design docs done properly, plus subage
 
 - `/asimov-design` – interviews you, writes a D101 (feature design) as HTML to `documentation/features/`
 - `/asimov-design-review` – checks a D101 against its bar, lists what's missing
-- `/asimov-init` – sets up a repo for both tools in one run: `asimov.md` and an `AGENTS.md` region, the Codex agent shells, convention read-lists, project info, docs site
+- `/asimov-init` – sets up a repo for both tools in one run: the `asimov.md` marker, the Codex agent shells, convention read-lists, project info, docs site. The Asimov context itself comes from the plugin at session start, wherever the marker is
 - Personas: ops, architect and sponsor readers ship as skills; `artifact-persona-authoring` interviews you for one of your own. `/asimov-design-review` reads a design as them
 - Subagents: Giskard (.NET), Daneel (Angular), Calvin (tests), Baley (code review). They read your repo's convention files at run-time, no guessing.
 
@@ -31,7 +31,7 @@ codex plugin add asimov-plugin@asimov-marketplace
 
 - Local clone: `codex plugin marketplace add <path-to-clone>`
 - Update: `codex plugin marketplace upgrade asimov-marketplace`, then start a new session
-- Codex loads the plugin's skills, the entry points among them. Run the setup as `$asimov-plugin:asimov-init` — the same skill as `/asimov-init`; one run writes `asimov.md` and the `CLAUDE.md` import for Claude Code and the `AGENTS.md` region plus the agent shells in `.codex/agents/` for Codex (Codex asks before that write). See [D101-codex-support](documentation/features/D101-codex-support.html).
+- Codex loads the plugin's skills, the entry points among them, and its hooks: approve the plugin's two hooks when the app asks, then every session in a repo with `asimov.md` gets the Asimov context. Run the setup as `$asimov-plugin:asimov-init` — the same skill as `/asimov-init`; it writes the marker, the conventions, the project info, the site and the agent shells in `.codex/agents/` (Codex asks before that write). See [D101-codex-support](documentation/features/D101-codex-support.html).
 
 ## Try it
 
@@ -62,7 +62,7 @@ codex plugin add asimov-plugin@asimov-marketplace
 |---|---|---|
 | `/asimov-design` | Design | Interview → D101 as self-contained HTML. Three phases, hard stop after the business design. Name a legacy `.md` and it renders it to HTML instead. Both harnesses (`$asimov-plugin:asimov-design` in Codex). |
 | `/asimov-design-review` | Design | Reads a D101, resolves its phase, offers the gap check (§8a or §8b) and the persona reads, runs what you pick and leaves the findings in a gitignored `.review.md` beside the file for `/asimov-design` to pick up. Never edits the D101, no verdict. Both harnesses. |
-| `/asimov-init` | Setup | Writes `asimov.md` and imports it from `CLAUDE.md`, writes the same context into an `AGENTS.md` region, copies the Codex agent shells into `.codex/agents/`, scaffolds `documentation/conventions/<stack>/`, asks for the project info, generates the docs site. One run readies the repo for both harnesses (`$asimov-plugin:asimov-init` in Codex). |
+| `/asimov-init` | Setup | Writes the `asimov.md` marker (which entry points the repo uses), copies the Codex agent shells into `.codex/agents/`, scaffolds `documentation/conventions/<stack>/`, asks for the project info, generates the docs site; touches neither `CLAUDE.md` nor `AGENTS.md`. One run readies the repo for both harnesses (`$asimov-plugin:asimov-init` in Codex); the context reaches every session from the plugin's hooks. |
 | `artifact-persona-authoring` | Design | Shows the persona roster (standard + custom), interviews you for a custom reader, writes it to `.claude/skills/persona-<slug>/`. A skill, both harnesses. |
 
 ## Subagents
@@ -92,9 +92,9 @@ A persona review reads a D101 as one of its intended readers and reports where t
 plugins/asimov-plugin/                    the plugin (install scope)
 ├── .claude-plugin/plugin.json            plugin manifest (Claude Code)
 ├── .codex-plugin/plugin.json             plugin manifest (Codex)
-├── hooks/                               hooks.json + scripts/asimov-log.ps1 — the run log, one line per harness event (both harnesses)
+├── hooks/                               asimov-context + run-hook.cmd/.ps1 — the Asimov context injected at session start where asimov.md marks the repo (hooks.json for Claude Code, hooks-codex.json for Codex); scripts/asimov-log.ps1 — the run log
 ├── agents/                               subagent shells (Giskard, Daneel, Calvin, Baley) — .md for Claude Code, .toml for Codex
-├── skills/                               role-* (the subagents' methods), artifact-d101-* (D101 authoring + gap review), artifact-persona-authoring (custom persona authoring), artifact-s101-*/artifact-s102-* (Spec-stage authoring + validation), asimov-init (setup entry point, both harnesses), asimov-design + asimov-design-review (Design-stage entry points, both harnesses), asimov-spec (Spec-stage entry point, both harnesses), asimov-build (Build-stage entry point), persona-* (Poseidon, Athena, Hermes), pm-advisor
+├── skills/                               role-* (the subagents' methods), artifact-d101-* (D101 authoring + gap review), artifact-persona-authoring (custom persona authoring), artifact-s101-*/artifact-s102-* (Spec-stage authoring + validation), asimov-init (setup entry point, both harnesses), using-asimov (the context the hooks inject), asimov-design + asimov-design-review (Design-stage entry points, both harnesses), asimov-spec (Spec-stage entry point, both harnesses), asimov-build (Build-stage entry point), persona-* (Poseidon, Athena, Hermes), pm-advisor
 ├── artifacts/                            one folder per artifact the toolkit writes into a product repo, grouped by where it lands
 │   ├── documentation/                    lands in the product repo's documentation/
 │   │   ├── d101-feature-design/          the D101 artifact: definition + template side by side
@@ -113,7 +113,7 @@ plugins/asimov-plugin/                    the plugin (install scope)
 │   │       └── persona-review-template.md       SKILL.md skeleton for a persona review skill
 │   ├── dot-asimov/                       lands in the product repo's .asimov/ — the run log's definition
 │   └── root/                             lands at the product repo's root
-│       └── asimov-md/                    the asimov.md context file (asimov-init)
+│       └── asimov-md/                    the asimov.md marker (asimov-init); the context is skills/using-asimov
 │           ├── asimov-md-definition.md
 │           └── asimov-md-template.md
 ├── contracts/                            stage handoffs — design.md: what a design must contain for Spec to plan from it
