@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mockup — Project management on the Asimov website, with the issue log</title>
+<style>
+/* Tokens and rules mirror site/site.css; the toggle bar at the top is mockup chrome only. */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
+:root { --bg:#0a1424; --bg2:#122039; --bg3:#1b2e4d; --bg-card:#14253f; --border:#2b4a73; --border-2:#3b5e8f; --text:#fff; --text-dim:#a8b8d0; --text-mute:#6b7a93; --cyan:#4fc3f7; --teal:#26c6da; --green:#66bb6a; --amber:#ffb74d; --gold:#ffd54f; --violet:#ab47bc;
+  --mono:'JetBrains Mono', ui-monospace, Consolas, monospace; --sans:'Inter', system-ui, sans-serif; --w:1100px; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:var(--text); font-family:var(--sans); font-size:16px; line-height:1.55; }
+a { color:var(--cyan); text-decoration:none; }
+code { font-family:var(--mono); font-size:0.92em; }
+.mock-bar { position:sticky; top:0; z-index:200; display:flex; gap:0.4rem; align-items:center; flex-wrap:wrap; padding:0.45rem 1rem; background:#05101e; border-bottom:1px dashed var(--border-2); font-family:var(--mono); font-size:0.72rem; color:var(--text-mute); }
+.mock-bar button { font:inherit; color:var(--text-dim); background:transparent; border:1px solid var(--border); border-radius:6px; padding:0.2rem 0.6rem; cursor:pointer; }
+.mock-bar button.on { color:#fff; border-color:var(--cyan); background:#4fc3f714; }
+.nav { background:rgba(10,20,36,0.92); border-bottom:1px solid var(--border); }
+.nav .in { max-width:var(--w); margin:0 auto; padding:0.7rem 1.5rem; display:flex; gap:1.05rem; align-items:center; flex-wrap:wrap; }
+.nav .brand { font-family:var(--mono); font-weight:700; color:var(--cyan); letter-spacing:0.04em; margin-right:auto; }
+.nav a { color:var(--text-dim); font-size:0.9rem; font-weight:500; white-space:nowrap; }
+.nav a.on { color:#fff; border-bottom:2px solid var(--cyan); }
+.nav .grp { font-family:var(--mono); font-size:0.66rem; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:var(--text-mute); }
+.subnav { background:var(--bg2); border-bottom:1px solid var(--border); }
+.subnav .in { max-width:var(--w); margin:0 auto; padding:0.45rem 1.5rem; display:flex; gap:1.1rem; }
+.subnav a { color:var(--text-dim); font-size:0.82rem; font-weight:500; cursor:pointer; }
+.subnav a.on { color:#fff; border-bottom:2px solid var(--cyan); }
+.page { max-width:var(--w); margin:0 auto; padding:2.4rem 1.5rem 3rem; }
+h1 { font-size:2.6rem; font-weight:800; line-height:1.08; letter-spacing:-0.02em; }
+h2 { font-size:1.6rem; font-weight:800; margin:2.4rem 0 0.8rem; letter-spacing:-0.02em; }
+p, li { color:var(--text-dim); max-width:68ch; }
+p strong, li strong { color:#fff; font-weight:600; }
+.lede { font-size:1.2rem; margin-top:1rem; }
+ul { padding-left:1.2rem; margin:0.6rem 0; }
+li { margin:0.3rem 0; }
+p { margin:0.6rem 0; }
+.elided { margin:1.6rem 0; padding:0.8rem 1rem; border:1px dashed var(--border); border-radius:10px; color:var(--text-mute); font-family:var(--mono); font-size:0.75rem; }
+table { border-collapse:collapse; width:100%; margin:1.2rem 0; font-size:0.92rem; }
+th, td { text-align:left; padding:0.55rem 0.7rem; border-bottom:1px solid var(--border); vertical-align:top; color:var(--text-dim); }
+th { font-family:var(--mono); font-size:0.66rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--text-mute); }
+td:first-child { color:#fff; white-space:nowrap; }
+.chip { display:inline-block; font-family:var(--mono); font-size:0.66rem; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; padding:0.12rem 0.5rem; border-radius:999px; border:1px solid; vertical-align:middle; }
+.chip.assess { color:var(--amber); border-color:#ffb74d55; background:#ffb74d12; }
+.chip.new { color:var(--green); border-color:#66bb6a55; background:#66bb6a12; }
+dl.meta { display:grid; grid-template-columns:max-content 1fr; gap:0.35rem 1rem; margin:0.8rem 0; max-width:820px; }
+dl.meta dt { font-family:var(--mono); font-size:0.7rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--text-mute); padding-top:0.2rem; }
+dl.meta dd { color:var(--text-dim); }
+.added { border-left:3px solid var(--green); padding-left:0.9rem; margin-left:-1rem; }
+.foot { border-top:1px solid var(--border); color:var(--text-mute); font-size:0.82rem; }
+.foot .in { max-width:var(--w); margin:0 auto; padding:1.2rem 1.5rem; }
+.hidden { display:none; }
+</style>
+</head>
+<body>
+<div class="mock-bar">
+  <span>Mockup</span>
+  <button data-v="today">Today</button>
+  <button data-v="after" class="on">After this design</button>
+  <span style="margin-left:1rem">Page</span>
+  <button data-p="inside" class="on">What's inside → Project management</button>
+  <button data-p="artifacts">Artifacts → Project management</button>
+  <span style="margin-left:1rem" class="v-after">green bar = new</span>
+</div>
+
+<nav class="nav"><div class="in">
+  <span class="brand">ASIMOV</span>
+  <a href="#">Home</a><a href="#">Why</a><a href="#">How it works</a><a id="nav-inside" class="on" href="#">What's inside</a>
+  <span class="grp">Artifacts:</span><a href="#">Documentation</a><a id="nav-art" href="#">Project management</a><a href="#">General</a>
+</div></nav>
+<nav class="subnav" id="subnav"><div class="in">
+  <a>Overview</a><a>Commands</a><a>Skills</a><a>Personas</a><a>Agents</a><a class="on">Project management</a>
+</div></nav>
+
+<!-- What's inside → Project management -->
+<main class="page" id="p-inside">
+  <h1>Project management</h1>
+  <p class="lede">How an engagement runs, and what the plugin knows about it.</p>
+  <div class="elided">… “The delivery model” and “Ask it” sections, unchanged; the phase diagram on What's inside gains no box …</div>
+
+  <h2>What lands in your repo</h2>
+  <p><strong>A risk log</strong>, at <code>project/risk-log.html</code>: one page per repo that holds every risk of the engagement, who owns it, how likely and how bad it is, and what changed since last week.</p>
+  <table>
+    <tr><th>You say</th><th>It does</th></tr>
+    <tr><td><code>/asimov-project risk log</code></td><td>Shows the register, sorted by state and score, and asks whether to mark it reviewed today.</td></tr>
+    <tr><td><code>/asimov-project risk log, add …</code></td><td>Asks for name, owner, impact and probability, then gives the risk the next number.</td></tr>
+    <tr><td><code>/asimov-project risk log, accept RISK-004</code></td><td>Records the decision, its reason and who took it. Mitigated, occurred and resolved work the same way.<span class="v-after hidden"> When a risk has occurred, it offers an issue-log entry to handle it.</span></td></tr>
+  </table>
+  <ul>
+    <li><strong>Every decision has a name on it.</strong> Every change of state carries a reason and the person who made it; an acceptance also names who decided it.</li>
+    <li><strong>History only grows.</strong> Every change is a dated line with who made it; nothing is deleted.</li>
+    <li><strong>The score ranks; it does not decide.</strong> Impact times probability orders the review, nothing more.</li>
+    <li><strong>Not keeping one is a decision too.</strong> An opt-out is recorded with its reason, in the register's place.</li>
+    <li>In Codex: <code>$asimov-plugin:asimov-project risk log</code>.</li>
+  </ul>
+
+  <div class="v-after hidden added">
+    <p><strong>An issue log</strong>, at <code>project/issue-log.html</code>: one page per repo that holds every question the engagement waits on and every action it needs done, outside the product's backlog, in one list by date.</p>
+    <table>
+      <tr><th>You say</th><th>It does</th></tr>
+      <tr><td><code>/asimov-project issue log</code></td><td>Shows every open question and action, overdue first, and asks whether to mark the log reviewed today.</td></tr>
+      <tr><td><code>/asimov-project issue log, question for …</code></td><td>Asks who answers it, who chases it and by when, then gives it the next ISSUE number.</td></tr>
+      <tr><td><code>/asimov-project issue log, action: …</code></td><td>Asks who does it and by when. A meeting to settle a question is an action that points at it.</td></tr>
+      <tr><td><code>/asimov-project issue log, ISSUE-007 answered</code></td><td>Records the answer and who decided it. An action closes with what came of it.</td></tr>
+    </table>
+    <ul>
+      <li><strong>Every entry is chaseable.</strong> A named person and a date, never a role and never "sometime".</li>
+      <li><strong>The answer, not "resolved".</strong> A question closes with what was decided and by whom, so the log is also the engagement's decision trace.</li>
+      <li><strong>One list, most urgent first.</strong> Questions and actions together, by date; the page can filter to questions or actions.</li>
+      <li><strong>It follows a conversation, it never replaces one.</strong> Ask first; the log is the reminder.</li>
+      <li>In Codex: <code>$asimov-plugin:asimov-project issue log</code>.</li>
+    </ul>
+  </div>
+
+  <p class="v-today">More of the Project frame follows: a closure report and project setup are next. See <a href="#">Artifacts → Project management</a>.</p>
+  <p class="v-after hidden">More of the Project frame follows: a status report, a closure report and project setup. See <a href="#">Artifacts → Project management</a>.</p>
+</main>
+
+<!-- Artifacts → Project management -->
+<main class="page hidden" id="p-art">
+  <h1>Project management</h1>
+  <p class="lede">The artifacts that run an engagement. They land in your repo's <code>project/</code>, beside <code>documentation/</code> and <code>specs/</code>, and are kept through <code>asimov-project</code>.</p>
+
+  <h2>Risk log</h2>
+  <p>What could derail the engagement, who owns it, and what changed since last week. One page per repo, reviewed weekly. <span class="chip assess">assess</span></p>
+  <dl class="meta">
+    <dt>Produced by</dt><dd><code>/asimov-project risk log</code> (<code>$asimov-plugin:asimov-project risk log</code> in Codex): register, change, decide, hand over, review or opt out, each written on your go.</dd>
+    <dt>Lands in</dt><dd><code>project/risk-log.html</code>, beside <code>documentation/</code> and <code>specs/</code>.</dd>
+    <dt>Source</dt><dd><a href="#">Definition</a> · <a href="#">Template</a></dd>
+  </dl>
+
+  <div class="v-after hidden added">
+    <h2>Issue log <span class="chip new">new</span></h2>
+    <p>The questions the engagement waits on and the actions it needs done, each with a named person and a date, and the answers that were decided. One page per repo, reviewed weekly. <span class="chip assess">assess</span></p>
+    <dl class="meta">
+      <dt>Produced by</dt><dd><code>/asimov-project issue log</code> (<code>$asimov-plugin:asimov-project issue log</code> in Codex): register, change, close or reopen, hand over, review or opt out, each written on your go.</dd>
+      <dt>Lands in</dt><dd><code>project/issue-log.html</code>, beside <code>risk-log.html</code>.</dd>
+      <dt>Source</dt><dd><a href="#">Definition</a> · <a href="#">Template</a></dd>
+    </dl>
+  </div>
+
+  <p class="v-today">What it keeps and how is described under <a href="#">What's inside → Project management</a>. Next in the Project frame: the closure report and project setup.</p>
+  <p class="v-after hidden">What they keep and how is described under <a href="#">What's inside → Project management</a>. Next in the Project frame: the status report, the closure report and project setup.</p>
+</main>
+
+<footer class="foot"><div class="in">Asimov · by Context&amp; · GitHub · Contributing · MIT licence</div></footer>
+
+<script>
+(function () {
+  let v = 'after', p = 'inside';
+  function show() {
+    document.getElementById('p-inside').classList.toggle('hidden', p !== 'inside');
+    document.getElementById('p-art').classList.toggle('hidden', p !== 'artifacts');
+    document.getElementById('subnav').classList.toggle('hidden', p !== 'inside');
+    document.getElementById('nav-inside').classList.toggle('on', p === 'inside');
+    document.getElementById('nav-art').classList.toggle('on', p === 'artifacts');
+    document.querySelectorAll('.v-today').forEach(e => e.classList.toggle('hidden', v !== 'today'));
+    document.querySelectorAll('.v-after').forEach(e => e.classList.toggle('hidden', v !== 'after'));
+  }
+  document.querySelectorAll('.mock-bar button').forEach(b => b.addEventListener('click', () => {
+    if (b.dataset.v) { v = b.dataset.v; document.querySelectorAll('[data-v]').forEach(x => x.classList.toggle('on', x === b)); }
+    if (b.dataset.p) { p = b.dataset.p; document.querySelectorAll('[data-p]').forEach(x => x.classList.toggle('on', x === b)); }
+    show();
+  }));
+  show();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mockup — what /asimov-project prints for the issue log</title>
+<style>
+/* Styled after the risk log's chat mockup (mockups/d101-project-management-risk/risk-run.html). */
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap');
+:root { --bg:#1b1b1f; --bg2:#232329; --line:#34343c; --fg:#e6e6e6; --dim:#9a9aa6; --mute:#6c6c78; --user:#d7ba7d; --ok:#8fd18f; --warn:#f0b35a; --bad:#f28b82; --acc:#7cc4ff; --vio:#c58af9; }
+* { box-sizing:border-box; margin:0; padding:0; }
+html, body { height:100%; }
+body { background:var(--bg); color:var(--fg); font-family:'JetBrains Mono', ui-monospace, Consolas, monospace; font-size:12.5px; line-height:1.55; display:flex; flex-direction:column; }
+.bar { display:flex; gap:0.4rem; align-items:center; padding:0.5rem 0.8rem; background:var(--bg2); border-bottom:1px solid var(--line); flex-wrap:wrap; }
+.bar .lbl { color:var(--mute); font-size:11px; margin-right:0.3rem; }
+.bar button { font:inherit; font-size:11px; color:var(--dim); background:transparent; border:1px solid var(--line); border-radius:6px; padding:0.25rem 0.6rem; cursor:pointer; }
+.bar button.on { color:var(--fg); border-color:var(--acc); background:#7cc4ff14; }
+.term { flex:1; overflow:auto; padding:0.9rem 1rem 1.2rem; }
+.line { white-space:pre-wrap; word-break:break-word; margin:0 0 0.15rem; }
+.u { color:var(--user); }
+.u::before { content:'❯ '; color:var(--mute); }
+.a::before { content:'● '; color:var(--acc); }
+.a.ok::before { color:var(--ok); }
+.a.warn::before { color:var(--warn); }
+.a.bad::before { color:var(--bad); }
+.dim { color:var(--dim); }
+.mute { color:var(--mute); }
+pre.view { margin:0.4rem 0 0.6rem 1.2rem; padding:0.6rem 0.8rem; border-left:2px solid var(--line); color:var(--fg); white-space:pre; overflow-x:auto; font:inherit; }
+pre.view .h { color:var(--fg); font-weight:700; }
+pre.view .m { color:var(--mute); }
+pre.view .t-Question { color:var(--acc); }
+pre.view .t-Action { color:var(--vio); }
+pre.view .od { color:var(--bad); font-weight:700; }
+pre.view .s-Open { color:var(--warn); }
+pre.view .s-Closed { color:var(--ok); }
+.diff { margin:0.3rem 0 0.5rem 1.2rem; }
+.diff .b { color:var(--bad); }
+.diff .f { color:var(--ok); }
+.gate { margin:0.6rem 0 0.4rem 1.2rem; padding:0.6rem 0.8rem; border:1px solid var(--line); border-radius:8px; background:var(--bg2); }
+.gate .q { color:var(--fg); margin-bottom:0.45rem; }
+.gate .row { display:flex; gap:0.45rem; flex-wrap:wrap; }
+.gate button { font:inherit; font-size:12px; color:var(--fg); background:#2d2d35; border:1px solid var(--line); border-radius:6px; padding:0.3rem 0.7rem; cursor:pointer; }
+.gate button.go { border-color:var(--ok); color:var(--ok); }
+.gate button:disabled { opacity:0.45; cursor:default; }
+</style>
+</head>
+<body>
+<div class="bar">
+  <span class="lbl">Scenario</span>
+  <button data-s="review" class="on">Weekly review</button>
+  <button data-s="question">Register and answer a question</button>
+  <button data-s="action">Close an action</button>
+  <button data-s="handover">Hand entries over</button>
+  <button data-s="occurred">From an occurred risk</button>
+  <button data-s="optout">Opt-out stands</button>
+  <button data-s="repair">Unreadable log</button>
+</div>
+<div class="term" id="term"></div>
+
+<script>
+(function () {
+  const term = document.getElementById('term');
+  const TODAY = '2026-11-09';
+  const MATURITY = 'The issue log is an assess-level artifact: the definition is untried and may change without notice. Feedback is welcome.';
+  // [id, type, name, assignee, owner, date, state, consequence, description, reference]
+  const ENTRIES = [
+    ['ISSUE-003','Question','Which test data may the build use?','Allan Borup','Simon Vilandt','2026-11-06','Open',
+      'Without an answer by 2026-11-06 the import feature cannot start next sprint.',
+      '', ''],
+    ['ISSUE-005','Action','Call a meeting to settle the test data question','Maja Holm','','2026-11-07','Open',
+      '', 'Allan Borup has not answered by mail; a short meeting is faster than another reminder.', 'ISSUE-003'],
+    ['ISSUE-006','Question','Who signs off the cut-over plan?','Erik Lund','Maja Holm','2026-11-14','Open',
+      '', 'The steering group has not named an approver for the cut-over.', ''],
+    ['ISSUE-007','Action','Re-plan the test window after the late environment','Jonas Berg','','2026-11-20','Open',
+      '', '', 'RISK-002'],
+    ['ISSUE-001','Question','Is single sign-on in scope for the first release?','Erik Lund','Simon Vilandt','2026-10-20','Done','','',''],
+    ['ISSUE-002','Action','Send the data processing agreement for signature','Maja Holm','','2026-10-24','Done','','',''],
+    ['ISSUE-004','Question','Can the old portal be switched off in December?','Allan Borup','Simon Vilandt','2026-11-01','Cancelled','','','']
+  ];
+  const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  const IND = ' '.repeat(16);
+  const overdue = e => e[6] === 'Open' && e[5] < TODAY;
+  // Wrap text to 80 columns, every line after the first indented to the text column.
+  function wrap(text, first) {
+    const words = text.split(' '); const lines = []; let line = first;
+    words.forEach(w => { if ((line + w).length > 80) { lines.push(line.replace(/\s+$/, '')); line = IND; } line += w + ' '; });
+    lines.push(line.replace(/\s+$/, ''));
+    return lines.map(esc).join('\n') + '\n';
+  }
+
+  // The fixed view, as artifact-issue-log-view prints it: 80 columns, the header counts,
+  // every open entry in full by earliest date then identifier (overdue therefore first),
+  // closed entries only as a count. No filter in the chat.
+  function view(entries, updated) {
+    const open = entries.filter(e => e[6] === 'Open').sort((x, y) => x[5] < y[5] ? -1 : x[5] > y[5] ? 1 : (x[0] < y[0] ? -1 : 1));
+    const closed = entries.filter(e => e[6] !== 'Open');
+    const od = open.filter(overdue).length;
+    const q = open.filter(e => e[1] === 'Question').length;
+    let h = '<span class="h">Issue log · project/issue-log.html</span>\n';
+    h += '<span class="m">Updated ' + updated + ' · ' + entries.length + ' entries</span>\n';
+    h += '<span class="m">' + open.length + ' open · </span><span class="od">' + od + ' overdue</span><span class="m"> · ' + q + ' questions · ' + (open.length - q) + ' actions</span>\n\n';
+    h += '<span class="s-Open">Open</span>\n';
+    open.forEach(e => {
+      const isQ = e[1] === 'Question';
+      h += '  ' + e[0] + '  <span class="t-' + e[1] + '">' + e[1].padEnd(8) + '</span>' + (overdue(e) ? '  <span class="od">OVERDUE</span>' : '') + '\n';
+      h += wrap(e[2], IND);
+      h += IND + '<span class="m">' + esc('Assigned ' + e[3] + (isQ ? ' · owner ' + e[4] + ' · needed by ' : ' · due ') + e[5]) + '</span>\n';
+      if (isQ) h += e[7] ? wrap(e[7], '    Consequence ') : '    Consequence <span style="color:var(--warn)">none written</span>\n';
+      h += e[8] ? wrap(e[8], '    Description ') : '    Description <span style="color:var(--warn)">none written</span>\n';
+      if (e[9]) h += '      Reference ' + e[9] + '\n';
+      h += '<span class="m">  ' + '─'.repeat(78) + '</span>\n';
+    });
+    h += '\n<span class="s-Closed">Closed (' + closed.length + ')</span>\n';
+    return '<pre class="view">' + h + '</pre>';
+  }
+
+  function clear() { term.innerHTML = ''; }
+  function add(html) { const d = document.createElement('div'); d.innerHTML = html; while (d.firstChild) term.appendChild(d.firstChild); term.scrollTop = term.scrollHeight; }
+  const u = t => '<div class="line u">' + esc(t) + '</div>';
+  const a = (t, c) => '<div class="line a ' + (c || '') + '">' + t + '</div>';
+  const dim = t => '<div class="line dim" style="margin-left:1.2rem">' + t + '</div>';
+
+  function gate(q, buttons) {
+    const g = document.createElement('div'); g.className = 'gate';
+    g.innerHTML = '<div class="q">' + q + '</div><div class="row"></div>';
+    const row = g.querySelector('.row');
+    buttons.forEach(([label, cls, fn]) => {
+      const b = document.createElement('button'); b.textContent = label; if (cls) b.className = cls;
+      b.addEventListener('click', () => { row.querySelectorAll('button').forEach(x => x.disabled = true); add(u(label)); fn(); });
+      row.appendChild(b);
+    });
+    term.appendChild(g);
+  }
+
+  const S = {
+    review() {
+      add(u('/asimov-project issue log'));
+      add(a('Showing the issue log; I ask at the end whether to mark it reviewed.'));
+      add(a(MATURITY, 'warn'));
+      add(view(ENTRIES, '2026-11-02'));
+      gate('Mark the log as reviewed today?', [
+        ['Yes', 'go', () => gate('Who took part? (skip to record only you)', [
+          ['Erik Lund, Jonas Berg', 'go', () => add(a('Log reviewed ' + TODAY + ' by Maja Holm with Erik Lund, Jonas Berg. No entry changed.', 'ok'))],
+          ['Skip', '', () => add(a('Log reviewed ' + TODAY + ' by Maja Holm. No entry changed.', 'ok'))]
+        ])],
+        ['No', '', () => add(a('Nothing written.'))]
+      ]);
+    },
+    question() {
+      add(u('/asimov-project issue log: spørgsmål til Allan om vi må bruge produktionsdata anonymiseret, skal bruges senest 20. november'));
+      add(a('Jeg registrerer et spørgsmål i project/issue-log.html. Projektets sprog er engelsk, så jeg viser den engelske tekst, før noget gemmes.'));
+      add(a(MATURITY, 'warn'));
+      add(a('Hvad sker der, hvis svaret ikke kommer? <span class="dim">(valgfrit — det gør spørgsmålet til en beslutning for kunden)</span>'));
+      add(u('så kan testen af importen ikke starte i uge 48'));
+      add(a('Sådan gemmes det, på engelsk. Ejer er dig, fordi du registrerer det:'));
+      add(dim('Type         Question<br>Name         May the build use anonymised production data?<br>Assigned     Allan Borup · owner Simon Vilandt · needed by 2026-11-20<br>Consequence  Without an answer the import test cannot start in week 48.'));
+      gate('Gem ISSUE-008 sådan, eller ret den engelske tekst?', [
+        ['Gem det', 'go', () => {
+          add(a('ISSUE-008 gemt, Open. Historik: ' + TODAY + ' · Simon Vilandt · Created.', 'ok'));
+          add('<div class="line mute" style="margin:0.6rem 0 0.3rem">— nine days later —</div>');
+          add(u('/asimov-project issue log: ISSUE-008 er løst'));
+          add(a('A question is closed with its answer and who gave it; "resolved" says neither. What did Allan Borup answer, and is he the one who decided?', 'warn'));
+          add(u('ja, anonymiseret produktionsdata må bruges, Allan har besluttet det'));
+          add(dim('Outcome      Anonymised production data may be used.<br>Decided by   Allan Borup'));
+          gate('Sæt ISSUE-008 til Done med dette svar?', [
+            ['Sæt Done', 'go', () => add(a('ISSUE-008 Done. Historik: 2026-11-18 · Simon Vilandt · Open → Done: Anonymised production data may be used. Decided by Allan Borup.', 'ok'))],
+            ['Annullér', '', () => add(a('Intet skrevet.'))]
+          ]);
+        }],
+        ['Ret teksten', '', () => {
+          add(a('Skriv navnet, som det skal stå på engelsk:'));
+          add(u('Can we test with anonymised production data?'));
+          add(a('ISSUE-008 gemt med dit navn: “Can we test with anonymised production data?”. Open.', 'ok'));
+        }]
+      ]);
+    },
+    action() {
+      add(u('/asimov-project issue log: ISSUE-005 is done, the meeting was held'));
+      add(a('Setting ISSUE-005 Call a meeting to settle the test data question from Open to Done.'));
+      add(a(MATURITY, 'warn'));
+      add(a('What came of it? <span class="dim">(recommended — say so if there is nothing to add)</span>'));
+      gate('Outcome for ISSUE-005', [
+        ['Nothing to add', '', () => add(a('ISSUE-005 Done. History: ' + TODAY + ' · Maja Holm · Open → Done. The log shows “no outcome written”.', 'ok'))],
+        ['Allan answers ISSUE-003 by Friday', 'go', () => add(a('ISSUE-005 Done. History: ' + TODAY + ' · Maja Holm · Open → Done: Allan answers ISSUE-003 by Friday.', 'ok'))]
+      ]);
+    },
+    handover() {
+      add(u('/asimov-project issue log: Jonas Berg rolls off on Friday, Maja Holm takes over'));
+      add(a('Going through Jonas Berg\'s open entries role by role; nothing is written until the list is done.'));
+      add(a(MATURITY, 'warn'));
+      add(a('Jonas Berg holds three roles on open entries. Done and Cancelled entries keep their people.'));
+      const steps = [
+        ['ISSUE-007 Re-plan the test window · assigned'],
+        ['ISSUE-009 Which environment hosts the demo? · assigned'],
+        ['ISSUE-009 Which environment hosts the demo? · owner']
+      ];
+      const picks = [];
+      function step(i) {
+        if (i === steps.length) {
+          add(dim(picks.join('<br>')));
+          gate('Write these ' + picks.length + ' choices in one write?', [
+            ['Write', 'go', () => add(a('Handover written. ISSUE-007 and ISSUE-009 each gain a history line naming the handover; changed moves to ' + TODAY + '.', 'ok'))],
+            ['Stop', '', () => add(a('Nothing written.'))]
+          ]);
+          return;
+        }
+        gate(steps[i][0], [
+          ['Move to Maja Holm', 'go', () => { picks.push(steps[i][0] + ' → Maja Holm'); step(i + 1); }],
+          ['Keep Jonas Berg', '', () => { picks.push(steps[i][0] + ' → kept (Jonas Berg)'); step(i + 1); }],
+          ['Move to Erik Lund', '', () => { picks.push(steps[i][0] + ' → Erik Lund'); step(i + 1); }]
+        ]);
+      }
+      step(0);
+    },
+    occurred() {
+      add(u('/asimov-project risk log: RISK-002 happened, the test environment arrived three weeks late'));
+      add(a('Setting RISK-002 Customer test environment arrives late from Active to Occurred.'));
+      add(a('The risk log is an assess-level artifact: the definition is untried and may change without notice. Feedback is welcome.', 'warn'));
+      add(a('Occurred needs what happened and where it is handled now.'));
+      add(u('arrived 2026-11-17, three weeks late'));
+      gate('Register an issue entry for it? There is no issue log yet; this creates project/issue-log.html.', [
+        ['Yes, an action', 'go', () => {
+          add(a('Which language is the project kept in? <span class="dim">(the risk log keeps English)</span>'));
+          add(u('English'));
+          add(dim('Type       Action<br>Name       Re-plan the test window after the late environment<br>Assigned   Jonas Berg · due 2026-11-20<br>Reference  RISK-002'));
+          gate('Write ISSUE-001 to the new issue log?', [
+            ['Write it', 'go', () => {
+              add(a('Issue log created; ISSUE-001 Open, reference RISK-002.', 'ok'));
+              gate('Set RISK-002 Occurred · what happened: arrived 2026-11-17, three weeks late · handled in ISSUE-001?', [
+                ['Set it', 'go', () => add(a('RISK-002 Occurred. History: ' + TODAY + ' · Maja Holm · Active → Occurred: arrived 2026-11-17, three weeks late; handled in ISSUE-001.', 'ok'))],
+                ['Cancel', '', () => add(a('RISK-002 unchanged. ISSUE-001 stays in the issue log.'))]
+              ]);
+            }],
+            ['Stop', '', () => add(a('No issue log written. Where is RISK-002 handled now? (free text)'))]
+          ]);
+        }],
+        ['Yes, a question', '', () => add(a('Who must answer it, who chases it, and by when?'))],
+        ['No', '', () => add(a('Where is RISK-002 handled now? (free text, as before)'))]
+      ]);
+    },
+    optout() {
+      add(u('/asimov-project issue log'));
+      add(a('Showing the issue log.'));
+      add(a(MATURITY, 'warn'));
+      add('<pre class="view"><span class="h">Issue log · project/issue-log.html</span>\n<span class="s-Open">No issue log kept here</span>\nHandled elsewhere: the customer’s Jira, project PORTAL\n<span class="m">Decided by Erik Lund · 2026-10-30</span></pre>');
+      add(a('Registering an entry replaces the opt-out with a log; while it stands, the risk log offers no issue entry at Occurred.'));
+    },
+    repair() {
+      add(u('/asimov-project issue log'));
+      add(a('Reading project/issue-log.html.'));
+      add(a(MATURITY, 'warn'));
+      add(a('The log cannot be read in full, so I will not write to it. Proposed repair:', 'bad'));
+      add('<div class="diff">' +
+        '<div class="line">ISSUE-006 needed-by   <span class="b">14 Nov</span> → <span class="f">2026-11-14</span></div>' +
+        '<div class="line">ISSUE-007 type        <span class="b">(missing)</span> → <span class="f">asked: question or action?</span></div>' +
+        '</div>');
+      add(u('action'));
+      gate('Write the repair? Every entry and history line is kept; the log gains a “Repaired” line.', [
+        ['Write the repair', 'go', () => { add(a('Log repaired. History: ' + TODAY + ' · Maja Holm · Repaired: ISSUE-006 needed-by 14 Nov → 2026-11-14; ISSUE-007 type (missing) → Action.', 'ok')); add(view(ENTRIES, TODAY)); }],
+        ['Not now', '', () => add(a('Nothing written. The log stays unreadable until it is repaired, here or by hand.'))]
+      ]);
+    }
+  };
+
+  function run(s) { clear(); S[s](); }
+  document.querySelectorAll('.bar button').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('.bar button').forEach(x => x.classList.toggle('on', x === b));
+    run(b.dataset.s);
+  }));
+  run('review');
+})();
+</script>
+</body>
+</html>
