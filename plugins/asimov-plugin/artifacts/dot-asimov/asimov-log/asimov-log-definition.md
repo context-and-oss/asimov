@@ -8,7 +8,7 @@ since: 2026-10-22
 
 One text line per harness event, written into the product repo by the plugin's hooks and by nothing else. It exists so that what Asimov did during a run can be read afterwards without reconstructing it from transcripts.
 
-Written by: `hooks/scripts/asimov-log.ps1`, fired by `hooks/hooks.json` in both harnesses. Read by: a person, by eye, after a run. No skill, no agent and no model writes a line (D101 R5); the *why* of a run lives in the ledger (`s101-ledger-definition.md`), never here.
+Written by: `hooks/scripts/asimov-log.ps1`, fired by `hooks/hooks.json` in Claude Code and by `hooks/hooks-codex.json` in Codex (since 2026-11-13; which events Codex fires is read from the raw dump, D101 Q2). Read by: a person, by eye, after a run. No skill, no agent and no model writes a line (D101 R5); the *why* of a run lives in the ledger (`s101-ledger-definition.md`), never here.
 
 Design: `documentation/features/D101-asimov-log.html`.
 
@@ -18,9 +18,9 @@ Design: `documentation/features/D101-asimov-log.html`.
 
 `.asimov/log/<YYYY-MM-DD>-<id8>.log` under the repo root the hook payload names (`cwd`, so a worktree logs into itself). One file per session, named by the date of its first line and the first eight characters of the session id; append only; UTF-8; gitignored as `.asimov/`, and `.asimov/.gitignore` holds `*`, so git never lists the folder in a repo whose own `.gitignore` predates it. Two sessions in one repo write two files. A session past midnight keeps its file.
 
-Beside it, `.asimov/log/.<id8>.state` holds the session's current stage and feature, its log file name, and one line per running agent (id, start time, shell). It is the hook's own memory and is deleted at session end; one a session end could not delete (the harness gives SessionEnd hooks 1.5 s) is swept by the next session start once it is twelve hours old.
+`.asimov/log/` holds the log files and nothing else. `.asimov/state/<id8>.state` holds the session's current stage and feature, its log file name, and one line per running agent (id, start time, shell). It is the hook's own memory and is deleted at session end; one a session end could not delete (the harness gives SessionEnd hooks 1.5 s) is swept by the next session start once it is twelve hours old.
 
-With `ASIMOV_LOG_RAW=1` in the environment the hook also appends every payload, verbatim, to `.asimov/log/raw-<id8>.jsonl`: the way to read what a harness hands over. Off by default, since a payload carries prompt text the log never may.
+With `ASIMOV_LOG_RAW=1` in the environment the hook also appends every payload, verbatim, to `.asimov/raw/<id8>.jsonl`: the way to read what a harness hands over. Off by default, since a payload carries prompt text the log never may.
 
 ## 2. The line
 
@@ -46,6 +46,7 @@ The list is closed: only a harness event makes a line.
 |---|---|---|
 | `SessionStart` | session | `started (<harness>)`, `claude-code` or `codex`; `started (<harness>, <source>)` on a resume, clear or compact |
 | A typed `/asimov-*` (`UserPromptExpansion`) or a Skill call of one (`PreToolUse`) | skill | `<skill> invoked: <word>`; input of more than one word → `(text, <n> chars)` |
+| In Codex, which has no Skill tool: the first read of `skills/asimov-<x>/SKILL.md` by any tool (`PreToolUse`) | skill | `<skill> invoked: -`; the words that started it never reach the hook, and a re-read in the same stage adds no line |
 | `SubagentStart` | shell | `started` |
 | `SubagentStop` | shell | `stopped after <s> s`; `stopped` when no start was seen |
 | `SessionEnd` | session | `ended (<reason>)` |
@@ -57,6 +58,6 @@ An invocation sets stage and feature for the rest of the session. Seconds are th
 - A hook always exits 0 and prints nothing: a failing hook never blocks a run and never reaches the chat (D101 R6); the hook command itself ends in `exit 0`, so a machine without PowerShell gets an empty log and no hook notice. A read-only folder loses the session's lines.
 - Hooks run in parallel: the state file is read, changed and written under a named mutex per session, so a batch of agents starting at once loses no start.
 - Only an `asimov-*` invocation creates the folder, and with it `.asimov/.gitignore`; every other event writes a line only where the folder exists. A repo Asimov never ran in gets no folder, and a repo's first session logs from its first invocation.
-- The hook command is a `pwsh … || powershell …` chain: the hook shell must be Git Bash or PowerShell 7, and a typed `/asimov-*` reaches the hook as a `UserPromptExpansion` event, a Skill call as `PreToolUse`.
+- The hook command is a `pwsh … || powershell …` chain: the hook shell must be Git Bash or PowerShell 7, and a typed `/asimov-*` reaches the hook as a `UserPromptExpansion` event, a Skill call as `PreToolUse`. Codex on Windows runs hooks through PowerShell, which the chain does not parse, so the log waits for a `commandWindows` there. In Codex there is neither a `UserPromptExpansion` nor a Skill tool: the model starts a skill by reading its `SKILL.md`, and that read is the invocation.
 - A missing state file is recreated from the event at hand: stage and feature read `-`, a stop carries no seconds.
 - The log is working state, never a record: it is not committed, not rotated and not read by any skill (D101 OOS3, OOS4).

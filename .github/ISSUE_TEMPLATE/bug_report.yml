@@ -7,7 +7,7 @@ body:
     id: component
     attributes:
       label: Component
-      description: The command, subagent, skill or file. For example `asimov-design-review` or `d101-feature-design-template.html`.
+      description: The command, subagent, skill or file. For example `asimov-design` or `d101-feature-design-template.html`.
     validations:
       required: true
   - type: textarea

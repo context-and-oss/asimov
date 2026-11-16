@@ -32,8 +32,9 @@ jobs:
       - name: Command, asimov-skill and subagent models match model-choice.md (hard rule 2)
         run: |
           set -euo pipefail
+          shopt -s nullglob
           fail=0
-          # Commands and agent shells must declare a model. Skills normally declare none;
+          # Commands (none ship today) and agent shells must declare a model. Skills normally declare none;
           # an asimov-skill (skills/asimov-*/SKILL.md) does, and is checked by its folder name.
           for f in plugins/asimov-plugin/commands/*.md plugins/asimov-plugin/agents/*.md plugins/asimov-plugin/skills/asimov-*/SKILL.md; do
             case "$f" in

@@ -1,6 +1,6 @@
 ---
 name: artifact-persona-authoring
-description: Author a custom persona review skill for the product repo — interview the author for the five persona fields (identity, knows cold, does not know, has, is reviewing to), check the reader against the persona-review quality bar, then render the persona template into a self-contained SKILL.md at .claude/skills/persona-<slug>/. Use when asked to "author a persona", "add a reader", "make a persona for our <role>", "new persona", or to see which personas exist before adding one; also runnable by name in Claude Code and Codex. One reader per run; the quality check is advisory; nothing is written before the author confirms a plan. Never writes a standard persona and never edits one that exists.
+description: Use when asked to author a persona, add a reader, make a persona for a role, or to see which personas exist. Interviews for one custom reader and writes a persona skill into the product repo's .claude/skills/. Never writes a standard persona or edits one; writes nothing before the plan is confirmed.
 ---
 
 # Persona authoring
@@ -76,7 +76,7 @@ Create the folder if absent, write the `SKILL.md`, report the path.
 
 ## Step 6 — Report, then stop
 
-Name the written path and say the reader can now be invoked by name, *"review as <name>"*, on any document, and that `asimov-design-review` will list it in its menu from the next run. If Step 3 raised a warning the author overrode, say in one line what risk the persona carries. Then stop.
+Name the written path and say the reader can now be invoked by name, *"review as <name>"*, on any document, and that `asimov-design`'s review menu will list it from the next run. If Step 3 raised a warning the author overrode, say in one line what risk the persona carries. Then stop.
 
 ## Invariants
 
@@ -86,4 +86,4 @@ Name the written path and say the reader can now be invoked by name, *"review as
 - **One persona per run.** A counterpart who reads the same way is their own run and their own `persona-<slug>`; never two readers in one file.
 - **Self-contained output.** The generated skill inlines its method and catalogue and names no plugin path.
 - **Re-read at run-time.** Load the definition and the template on every run.
-- **Paths are a hard-rule-9 literal.** `.claude/skills/persona-*` (custom) and `skills/persona-*` (standard) are shared with `asimov-design-review`, which discovers the roster from the same two paths; a fork that uses another layout changes both files in lockstep (D101-personas §6.6).
+- **Paths are a hard-rule-9 literal.** `.claude/skills/persona-*` (custom) and `skills/persona-*` (standard) are shared with `asimov-design`, whose review path discovers the roster from the same two paths; a fork that uses another layout changes both files in lockstep (D101-personas §6.6).

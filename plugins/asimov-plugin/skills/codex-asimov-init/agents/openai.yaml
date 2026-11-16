@@ -1,5 +1,0 @@
-interface:
-  display_name: "Asimov init"
-  short_description: "Make this repo Asimov-ready"
-policy:
-  allow_implicit_invocation: false

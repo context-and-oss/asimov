@@ -1,6 +1,7 @@
 ---
 name: role-code-reviewer
-description: The code-reviewer method — review the current branch's diff against its base, or a named set of files against the task specs they were built from (review vs. spec, inside asimov-build), for conformance to the active product repo's own conventions (read at run-time from documentation/conventions/<stack>/README.md for the stacks the diff touches) plus correctness and safety, and emit a structured pass/flag/fail finding report. Read-only, verdict-free — reports findings, never edits code, never approves. Use for an automated first-pass code review before a human reviewer opens the diff, after a phase is built inside asimov-build, and when asked to "review this the Asimov way", "as the code reviewer", "check the diff against the conventions" or "review this against the task specs".
+description: Use to review a branch's diff against its base, or built files against their task specs inside asimov-build, for the product repo's own conventions, correctness and safety; also when asked to review "the Asimov way" or as the code reviewer. Findings as pass, flag or fail; read-only, never approves.
+user-invocable: false
 ---
 
 # Code reviewer

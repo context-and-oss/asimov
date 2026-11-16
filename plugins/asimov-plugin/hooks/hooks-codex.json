@@ -1,0 +1,100 @@
+{
+  "description": "The Asimov context and the run log in Codex. The context: hooks/asimov-context through run-hook.ps1 (Codex's Windows hook shell is PowerShell) and run-hook.cmd — the using-asimov skill at SessionStart and a short note at SubagentStart, only where asimov.md marks the repo. The log: hooks/scripts/asimov-log.ps1 on SessionStart, PreToolUse, SubagentStart, SubagentStop and SessionEnd, registered 2026-11-13 so a Codex run leaves a trace; which events Codex fires and what a skill call looks like in its payload is read from the ASIMOV_LOG_RAW dump (D101-asimov-log Q2). Codex has no UserPromptExpansion.",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pwsh -NoProfile -File \"${CLAUDE_PLUGIN_ROOT}/hooks/scripts/asimov-log.ps1\" || powershell -NoProfile -ExecutionPolicy Bypass -File \"${CLAUDE_PLUGIN_ROOT}/hooks/scripts/asimov-log.ps1\"; exit 0",
+            "timeout": 10,
+            "statusMessage": "Asimov: log the session start",
+            "commandWindows": "powershell -NoProfile -ExecutionPolicy Bypass -File \"${CLAUDE_PLUGIN_ROOT}/hooks/scripts/asimov-log.ps1\"",
+            "async": true
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/run-hook.cmd\" asimov-context",
+            "shell": "bash",
+            "async": false,
+            "timeout": 15,
+            "statusMessage": "Asimov: context for the session",
+            "commandWindows": "powershell -NoProfile -ExecutionPolicy Bypass -File \"${CLAUDE_PLUGIN_ROOT}/hooks/run-hook.ps1\" asimov-context"
+          }
+        ]
+      }
+    ],
+    "SubagentStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pwsh -NoProfile -File \"${CLAUDE_PLUGIN_ROOT}/hooks/scripts/asimov-log.ps1\" || powershell -NoProfile -ExecutionPolicy Bypass -File \"${CLAUDE_PLUGIN_ROOT}/hooks/scripts/asimov-log.ps1\"; exit 0",
+            "timeout": 10,
+            "statusMessage": "Asimov: log the subagent start",
+            "commandWindows": "powershell -NoProfile -ExecutionPolicy Bypass -File \"${CLAUDE_PLUGIN_ROOT}/hooks/scripts/asimov-log.ps1\"",
+            "async": true
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/run-hook.cmd\" asimov-context",
+            "shell": "bash",
+            "async": false,
+            "timeout": 15,
+            "statusMessage": "Asimov: note for the subagent",
+            "commandWindows": "powershell -NoProfile -ExecutionPolicy Bypass -File \"${CLAUDE_PLUGIN_ROOT}/hooks/run-hook.ps1\" asimov-context"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pwsh -NoProfile -File \"${CLAUDE_PLUGIN_ROOT}/hooks/scripts/asimov-log.ps1\" || powershell -NoProfile -ExecutionPolicy Bypass -File \"${CLAUDE_PLUGIN_ROOT}/hooks/scripts/asimov-log.ps1\"; exit 0",
+            "timeout": 10,
+            "statusMessage": "Asimov: log a skill call",
+            "commandWindows": "powershell -NoProfile -ExecutionPolicy Bypass -File \"${CLAUDE_PLUGIN_ROOT}/hooks/scripts/asimov-log.ps1\"",
+            "async": true
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pwsh -NoProfile -File \"${CLAUDE_PLUGIN_ROOT}/hooks/scripts/asimov-log.ps1\" || powershell -NoProfile -ExecutionPolicy Bypass -File \"${CLAUDE_PLUGIN_ROOT}/hooks/scripts/asimov-log.ps1\"; exit 0",
+            "timeout": 10,
+            "statusMessage": "Asimov: log the subagent stop",
+            "commandWindows": "powershell -NoProfile -ExecutionPolicy Bypass -File \"${CLAUDE_PLUGIN_ROOT}/hooks/scripts/asimov-log.ps1\"",
+            "async": true
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pwsh -NoProfile -File \"${CLAUDE_PLUGIN_ROOT}/hooks/scripts/asimov-log.ps1\" || powershell -NoProfile -ExecutionPolicy Bypass -File \"${CLAUDE_PLUGIN_ROOT}/hooks/scripts/asimov-log.ps1\"; exit 0",
+            "timeout": 3,
+            "statusMessage": "Asimov: log the session end",
+            "commandWindows": "powershell -NoProfile -ExecutionPolicy Bypass -File \"${CLAUDE_PLUGIN_ROOT}/hooks/scripts/asimov-log.ps1\""
+          }
+        ]
+      }
+    ]
+  }
+}

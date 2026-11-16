@@ -1,7 +1,7 @@
 {
   "name": "asimov-plugin",
-  "version": "0.12.0",
-  "description": "L3 workflow tooling — slash commands, subagents, and skills for the Design, Spec, Code, and Review+Test stages.",
+  "version": "0.13.0",
+  "description": "L3 workflow tooling — asimov-skills, subagents and skills for the Design, Spec, Code, and Review+Test stages.",
   "license": "MIT",
   "author": {
     "name": "Context&",
@@ -17,6 +17,7 @@
     "code-review"
   ],
   "skills": "./skills/",
+  "hooks": "./hooks/hooks-codex.json",
   "interface": {
     "displayName": "Asimov",
     "shortDescription": "L3 workflow tooling for design, build and review",

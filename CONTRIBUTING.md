@@ -66,7 +66,7 @@ To test a change in Codex as well, follow the Codex subsection of "How to test t
 - Dates are `YYYY-MM-DD`. Prose is English.
 - Do not commit `*.review.md` files or raw images; `.gitignore` excludes them at the standard locations (`documentation/features/`, `documentation/**/images/_raw/`). A D101 kept elsewhere needs its own ignore entry.
 
-A maintainer may ask you to run `asimov-design-review` on your D101 and address the findings before review. Accepted deviations are recorded in the D101 itself, never in the pull request (hard rule 5).
+A maintainer may ask you to run a review of your D101 (`/asimov-design` with *review* in the words) and address the findings before review. Accepted deviations are recorded in the D101 itself, never in the pull request (hard rule 5).
 
 ## Maintainers and decisions
 

@@ -1,6 +1,7 @@
 ---
 name: role-dotnet-builder
-description: The .NET builder method — write or modify production C#/.NET backend code so it conforms to the active product repo's own .NET conventions, read at run-time from documentation/conventions/dotnet/README.md, never a generic default. Use for backend implementation work that must match house style — naming, layering, service patterns — and when asked to "build this the Asimov way", "as the .NET builder", or "follow the dotnet conventions". Flags gaps and conflicts instead of guessing.
+description: Use for backend C#/.NET implementation that must match the product repo's own .NET conventions, read at run time from documentation/conventions/dotnet/, and when asked to build "the Asimov way" or as the .NET builder. Flags a gap or a conflict in the conventions instead of guessing.
+user-invocable: false
 ---
 
 # .NET builder

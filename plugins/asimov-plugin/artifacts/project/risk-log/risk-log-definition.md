@@ -8,7 +8,7 @@ since: 2026-10-30
 
 The register of one engagement's risks: what could go wrong, who owns each risk, how likely and how bad it is, and what is done about it. One page per product repo, `project/risk-log.html`, beside `documentation/` and `specs/`. It is the first artifact of the Project frame (D100 §3), the engagement the stages run inside; it hands nothing to a next stage and so has no stage contract.
 
-Read by agents: `asimov-project` through the skills `artifact-risk-log-authoring`, the only writer, and `artifact-risk-log-view`, which prints it. Read by people: the team in the repo, the customer the page is shared with, and the weekly review that reads it top-down in the chat.
+Read by agents: `asimov-project` through the files beside it, `risk-log-authoring.md`, the only writer, and `risk-log-view.md`, which prints it. Read by people: the team in the repo, the customer the page is shared with, and the weekly review that reads it top-down in the chat.
 
 Design: `documentation/features/D101-project-management-risk.html`.
 
@@ -69,7 +69,7 @@ Any state can be set from any other, under the same identifier, each with a reas
 
 `project/risk-log.html` is the register; there is no second store. What the tool reads back is only the attributes and lists the template names (`plugins/asimov-plugin/artifacts/project/risk-log/risk-log-template.html`, its leading comment); everything derived (the score, the summary table, the counts, the group headings) is rendered on every write and never read, so a hand edit to it is overwritten by the next write. A hand edit to a field or a history line is a repair (RL11). The page carries no script and links the documentation site's shared chrome.
 
-The script that reads, renders, checks and writes the page is `plugins/asimov-plugin/skills/artifact-risk-log-authoring/scripts/risk-log.ps1`; its interface is its own help.
+The script that reads, renders, checks and writes the page is `scripts/risk-log.ps1` beside this definition (`plugins/asimov-plugin/artifacts/project/risk-log/scripts/risk-log.ps1`); its interface is its own help.
 
 ## 4. Rules
 
@@ -97,7 +97,7 @@ The append-only rules, as for every record the toolkit keeps:
 
 - **Append, never rewrite.** Fields and states change; history only grows.
 - **Write through the check.** Every write goes to `risk-log.html.new` beside the page, is read back and checked against what the page held, and replaces the page by one rename; a failed check deletes the `.new`. A `.new` left by an interrupted write is finished or discarded before anything else.
-- **One writer.** Only `artifact-risk-log-authoring`, through its script, writes the page.
+- **One writer.** Only `risk-log-authoring.md`, through its script, writes the page.
 
 ## 5. Where the register departs from the discipline
 

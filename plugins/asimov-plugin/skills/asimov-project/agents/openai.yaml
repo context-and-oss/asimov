@@ -1,11 +1,9 @@
 # Codex metadata for the asimov-project asimov-skill (D100 §4.3; the Project frame).
 # The conversation lives in ../SKILL.md, the same file Claude Code reads.
 # Codex skills take no arguments: the person names the artifact and the action in the same message.
+# Implicit invocation is allowed: the description in ../SKILL.md is the trigger, and the skill's own
+# repo gate asks before writing in a repository that has no asimov.md marker.
 interface:
   display_name: "Asimov · Project"
   short_description: "The Project frame: one page per project artifact under project/, written on your go"
   default_prompt: "Use $asimov-plugin:asimov-project to work on the project's <artifact>, for example the risk log."
-
-policy:
-  # Only a person opens a project artifact; the model never selects this skill.
-  allow_implicit_invocation: false

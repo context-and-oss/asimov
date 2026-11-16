@@ -270,7 +270,7 @@ footer.site-footer a { color: var(--cyan); }
   <a href="../index.html#s6">Diagrams</a>
   <span class="spacer"></span>
   <span class="phase-chip full">Full design</span>
-  <span class="status-chip draft">Draft v0.9</span>
+  <span class="status-chip draft">Draft v0.11</span>
 </nav>
 
 <div class="layout-doc">
@@ -315,7 +315,7 @@ footer.site-footer a { color: var(--cyan); }
   <div class="meta-cell"><div class="label">Business approver</div><div class="value">Allan Borup</div></div>
   <div class="meta-cell"><div class="label">Stages</div><div class="value mono">Design · Spec · Build</div></div>
   <div class="meta-cell"><div class="label">Harnesses</div><div class="value mono">Claude Code · Codex</div></div>
-  <div class="meta-cell"><div class="label">Last updated</div><div class="value mono">2026-10-22</div></div>
+  <div class="meta-cell"><div class="label">Last updated</div><div class="value mono">2026-11-13</div></div>
   <div class="meta-cell"><div class="label">Writes</div><div class="value">one gitignored log file per session</div></div>
 </div>
 
@@ -378,7 +378,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="row cols-2"><div class="label-cell">stage</div><div><code>session</code>, <code>init</code>, <code>design</code>, <code>spec</code> or <code>build</code>, from the last asimov-skill invoked.</div></div>
     <div class="row cols-2"><div class="label-cell">feature</div><div>The word after the asimov-skill's name at its invocation; <code>-</code> before any invocation; unchanged when the input was more than one word.</div></div>
     <div class="row cols-2"><div class="label-cell">who</div><div><code>session</code>, <code>skill</code>, or the agent's shell name.</div></div>
-    <div class="row cols-2"><div class="label-cell">State file</div><div><code>.asimov/log/.&lt;id8&gt;.state</code>: stage, feature, log file name, one line per running agent (id, start time, shell); deleted at session end, or swept by the next session start once twelve hours old.</div></div>
+    <div class="row cols-2"><div class="label-cell">State file</div><div><code>.asimov/state/&lt;id8&gt;.state</code>: stage, feature, log file name, one line per running agent (id, start time, shell); deleted at session end, or swept by the next session start once twelve hours old.</div></div>
   </div>
   <ul class="gps-paths" style="margin-top:0.9rem; white-space:pre">
     <li>2026-10-19 14:01  session  -         session   started (claude-code)</li>
@@ -514,17 +514,18 @@ footer.site-footer a { color: var(--cyan); }
 <section class="s" id="s6-1">
   <h2 class="section-title"><span class="sec-ref">§6.1</span>Platform</h2>
   <p style="color: var(--text-dim); font-size: 0.95rem; line-height: 1.65;">
-    <code>hooks/hooks.json</code> at the plugin root registers one PowerShell command, <code>hooks/scripts/asimov-log.ps1</code>, for the five events (six registrations: a typed <code>/asimov-*</code> and a Skill call are two harness events), async on all but SessionEnd; the script reads the event's JSON from stdin and appends one line. The command is a <code>pwsh … || powershell …</code> chain ending in <code>exit 0</code>, so the hook shell must be Git Bash or PowerShell 7, and a machine without PowerShell gets an empty log and no hook notice. Codex reads the same manifest; it does not substitute <code>${CLAUDE_PLUGIN_ROOT}</code> but exports it as an environment alias, which the shell expands. <code>ASIMOV_LOG_RAW=1</code> adds a raw payload dump, <code>raw-&lt;id8&gt;.jsonl</code> beside the log, off by default because it carries prompt text. No escalation gate: nothing outside the log folder is written.
+    <code>hooks/hooks.json</code> at the plugin root registers one PowerShell command, <code>hooks/scripts/asimov-log.ps1</code>, for the five events (six registrations: a typed <code>/asimov-*</code> and a Skill call are two harness events), async on all but SessionEnd; the script reads the event's JSON from stdin and appends one line. The command is a <code>pwsh … || powershell …</code> chain ending in <code>exit 0</code>, so the hook shell must be Git Bash or PowerShell 7, and a machine without PowerShell gets an empty log and no hook notice. Since 2026-11-13 the same file also carries the two context hooks of <a href="D101-asimov-init.html" style="color:var(--cyan)">D101 — asimov-init</a>, synchronous, beside the log's. Codex does not read it: it reads <code>hooks/hooks-codex.json</code>, named by its manifest, which carries the context hooks alone — Codex substitutes <code>${CLAUDE_PLUGIN_ROOT}</code> in a hook command but runs the command through PowerShell on Windows (verified 2026-11-12), where the <code>pwsh … || powershell …</code> chain does not parse, so the log waits for a <code>commandWindows</code> of its own before it runs there (Q2). <code>ASIMOV_LOG_RAW=1</code> adds a raw payload dump, <code>raw-&lt;id8&gt;.jsonl</code> beside the log, off by default because it carries prompt text. No escalation gate: nothing outside the log folder is written.
   </p>
 </section>
 
 <section class="s" id="s6-3">
   <h2 class="section-title"><span class="sec-ref">§6.3</span>Code map</h2>
   <div class="codemap">
-    <div class="codemap-row"><div class="what">Hook manifest: six registrations, one async command</div><div class="where">plugins/asimov-plugin/hooks/hooks.json</div></div>
+    <div class="codemap-row"><div class="what">Hook manifest, Claude Code: the log's six registrations beside the two context hooks</div><div class="where">plugins/asimov-plugin/hooks/hooks.json</div></div>
+    <div class="codemap-row"><div class="what">Hook manifest, Codex: the context hooks only; the log not yet (Q2)</div><div class="where">plugins/asimov-plugin/hooks/hooks-codex.json</div></div>
     <div class="codemap-row"><div class="what">Hook script: payload in, line out, state file</div><div class="where">plugins/asimov-plugin/hooks/scripts/asimov-log.ps1</div></div>
     <div class="codemap-row"><div class="what">The log's definition (§4.1–§4.2 as the standard)</div><div class="where">plugins/asimov-plugin/artifacts/dot-asimov/asimov-log/asimov-log-definition.md</div></div>
-    <div class="codemap-row"><div class="what"><code>.asimov/</code> in the gitignore block</div><div class="where">commands/asimov-init.md · skills/codex-asimov-init/SKILL.md · skills/asimov-spec/SKILL.md</div></div>
+    <div class="codemap-row"><div class="what"><code>.asimov/</code> in the gitignore block</div><div class="where">skills/asimov-init/SKILL.md · skills/asimov-spec/SKILL.md</div></div>
     <div class="codemap-row"><div class="what">Path literal and maturity mirror</div><div class="where">CLAUDE.md (hard rule 9) · D100 §4.5</div></div>
   </div>
 </section>
@@ -535,13 +536,13 @@ footer.site-footer a { color: var(--cyan); }
     <div class="row head cols-2"><div>Field</div><div>Source</div></div>
     <div class="row cols-2"><div class="label-cell">repo root</div><div>The payload's <code>cwd</code> (a worktree's own root; never <code>CLAUDE_PROJECT_DIR</code>).</div></div>
     <div class="row cols-2"><div class="label-cell">session id</div><div>The payload's <code>session_id</code>, first eight characters.</div></div>
-    <div class="row cols-2"><div class="label-cell">harness</div><div><code>claude-code</code> when <code>CLAUDECODE</code> is set, <code>codex</code> when <code>PLUGIN_ROOT</code> is set without it, else <code>unknown</code>.</div></div>
+    <div class="row cols-2"><div class="label-cell">harness</div><div><code>claude-code</code> when <code>CLAUDECODE</code> is set; <code>codex</code> when <code>CODEX_SHELL</code>, <code>CODEX_HOME</code>, <code>CODEX_SANDBOX</code> or <code>CODEX_APP_RUNTIME_CLI_PATH</code> is set, or <code>PLUGIN_ROOT</code> without <code>CLAUDE_PROJECT_DIR</code>; else <code>unknown</code>. Codex sets <code>CODEX_SHELL=1</code>, <code>PLUGIN_ROOT</code> and <code>CLAUDE_PLUGIN_ROOT</code> and no <code>CODEX_HOME</code> (verified 2026-11-12).</div></div>
     <div class="row cols-2"><div class="label-cell">skill, word</div><div><code>command_name</code> and <code>command_args</code> on a typed invocation, <code>tool_input.skill</code> and <code>tool_input.args</code> on a called one; the plugin prefix stripped, the first whitespace-separated token the word.</div></div>
     <div class="row cols-2"><div class="label-cell">shell, id</div><div><code>agent_type</code> with the plugin prefix stripped; <code>agent_id</code>.</div></div>
     <div class="row cols-2"><div class="label-cell">reason</div><div><code>reason</code> on <code>SessionEnd</code>.</div></div>
   </div>
   <ul class="bullets">
-    <li class="warn">Codex: whether a skill call is matchable and whether <code>agent_type</code> is present is unverified (Q2); an agent line may read <code>agent</code> until then.</li>
+    <li class="warn">Codex: <code>agent_type</code> is present on SubagentStart (<code>default</code> for a plain subagent) and the payload has Claude Code's shape (verified 2026-11-12); whether a skill call is matchable is still unverified (Q2).</li>
   </ul>
 </section>
 
@@ -552,7 +553,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="failure-row"><div>Folder or file not writable</div><div>The session's lines are lost</div><div><span class="sev low">Low</span></div><div>None; exit 0, silent</div></div>
     <div class="failure-row"><div>State file missing at an event</div><div>Stage and feature read <code>-</code>; no seconds on stop</div><div><span class="sev low">Low</span></div><div>Recreate it from the event and continue</div></div>
     <div class="failure-row"><div>No PowerShell, or the hook shell is Windows PowerShell (no Git Bash, no <code>pwsh</code>)</div><div>No lines at all</div><div><span class="sev med">Med</span></div><div>Install <code>pwsh</code> or Git Bash; a documented requirement</div></div>
-    <div class="failure-row"><div>SessionEnd exceeds the harness's 1.5 s budget (a cold PowerShell start is 1–2 s)</div><div>No <code>ended</code> line; the state file stays</div><div><span class="sev low">Low</span></div><div>The next session start sweeps it after twelve hours</div></div>
+    <div class="failure-row"><div>SessionEnd exceeds the harness's budget (Claude Code 1.5 s; Codex clamps SessionEnd to 3 s, and the registration says 3 since 2026-11-13; a cold PowerShell start is 1–2 s)</div><div>No <code>ended</code> line; the state file stays</div><div><span class="sev low">Low</span></div><div>The next session start sweeps it after twelve hours</div></div>
     <div class="failure-row"><div>Two hooks at once (a batch of agents)</div><div>A lost start would mean a stop without seconds</div><div><span class="sev low">Low</span></div><div>A named mutex per session serialises the state write</div></div>
   </div>
 </section>
@@ -590,7 +591,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="q-card">
       <div class="q-head"><span class="q-id">Q2</span><span class="q-decider">Allan Borup</span></div>
       <div class="q-body">In Codex, which has no <code>UserPromptExpansion</code>, is a typed <code>$asimov-plugin:…</code> or a skill call matchable, and is <code>agent_type</code> present? Until then a Codex session logs no invocation line and its stage stays <code>session</code>.</div>
-      <div class="q-resolution">Resolution path: the first Codex run with the hooks installed.</div>
+      <div class="q-resolution"><strong>Part resolved 2026-11-12</strong>, from the context hook's first Codex run: the environment (<code>CODEX_SHELL</code>, <code>PLUGIN_ROOT</code>, no <code>CODEX_HOME</code>) is known and <code>Get-Harness</code> reads it; <code>agent_type</code> is present; a Codex Windows hook runs in PowerShell, so the log needs a <code>commandWindows</code> and entries in <code>hooks-codex.json</code> before it runs there. Open: whether an invocation is matchable, which the first logged Codex run answers.</div>
     </div>
     <div class="q-card">
       <div class="q-head"><span class="q-id">Q3</span><span class="q-decider">Allan Borup</span></div>
@@ -613,7 +614,7 @@ footer.site-footer a { color: var(--cyan); }
       <ul>
         <li>D101-build-stage.html — the ledger</li>
         <li>D101-codex-support.html — plugin root variables, Codex manifest</li>
-        <li>commands/asimov-init.md · skills/codex-asimov-init/SKILL.md — the gitignore block</li>
+        <li>skills/asimov-init/SKILL.md — the gitignore block</li>
       </ul>
     </div>
     <div class="refs-block">
@@ -635,7 +636,7 @@ footer.site-footer a { color: var(--cyan); }
     · <span class="mono">features/D101-asimov-log.html</span>
   </div>
   <div style="margin-top: 0.4rem">
-    D101 · Asimov run log · Asimov plugin · Draft v0.9 · 2026-10-26
+    D101 · Asimov run log · Asimov plugin · Draft v0.11 · 2026-11-13
   </div>
 </footer>
 

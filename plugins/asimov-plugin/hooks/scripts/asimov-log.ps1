@@ -10,7 +10,7 @@
 
       YYYY-MM-DD HH:MM  <stage>  <feature>  <who>  <sentence>
 
-  Its own memory is .asimov/log/.<id8>.state (stage, feature, log file name, one line per running
+  Its own memory is .asimov/state/<id8>.state (stage, feature, log file name, one line per running
   agent), deleted at session end; a state file a session end could not delete (the harness gives
   SessionEnd hooks 1.5 s) is swept by the next SessionStart once it is over twelve hours old.
   Hooks run in parallel, so the read-modify-write of the state file holds a named mutex per
@@ -20,7 +20,8 @@
   always exits 0, and writes nothing outside .asimov/. No skill and no model calls it: the harness does.
 
   Set ASIMOV_LOG_RAW=1 in the environment to also append every payload, verbatim, to
-  .asimov/log/raw-<id8>.jsonl: the way to read what a harness hands over (D101-asimov-log Q1, Q2).
+  .asimov/raw/<id8>.jsonl before any filter, where .asimov/log/ already exists: the way to read
+  what a harness hands over (D101-asimov-log Q1, Q2).
   Off by default, since a raw payload carries prompt text the log never may.
 
   Written for Windows PowerShell 5.1 and PowerShell 7 alike; pure ASCII on purpose.
@@ -55,19 +56,20 @@ function Write-Retry([string]$path, [string]$text, [bool]$append) {
 }
 
 function Read-State([string]$path) {
-  $s = @{ stage = 'session'; feature = '-'; file = ''; agents = @() }
+  $s = @{ stage = 'session'; feature = '-'; file = ''; agents = @(); lastSkill = '' }
   if (-not (Test-Path -LiteralPath $path)) { return $s }
   foreach ($line in [System.IO.File]::ReadAllLines($path)) {
     if ($line -match '^stage=(.*)$')   { $s.stage = $Matches[1]; continue }
     if ($line -match '^feature=(.*)$') { $s.feature = $Matches[1]; continue }
     if ($line -match '^file=(.*)$')    { $s.file = $Matches[1]; continue }
+    if ($line -match '^skill=(.*)$')   { $s.lastSkill = $Matches[1]; continue }
     if ($line -match '^agent=(.*)$')   { $s.agents += $Matches[1]; continue }
   }
   return $s
 }
 
 function Write-State([string]$path, $s) {
-  $lines = @("stage=$($s.stage)", "feature=$($s.feature)", "file=$($s.file)")
+  $lines = @("stage=$($s.stage)", "feature=$($s.feature)", "file=$($s.file)", "skill=$($s.lastSkill)")
   foreach ($a in $s.agents) { $lines += "agent=$a" }
   Write-Retry $path (($lines -join "`n") + "`n") $false
 }
@@ -75,7 +77,6 @@ function Write-State([string]$path, $s) {
 function Get-Stage([string]$skill) {
   switch -Regex ($skill) {
     '^asimov-init$'             { return 'init' }
-    '^codex-asimov-init$'       { return 'init' }
     '^asimov-design(-review)?$' { return 'design' }
     '^asimov-spec$'             { return 'spec' }
     '^asimov-build$'            { return 'build' }
@@ -85,7 +86,8 @@ function Get-Stage([string]$skill) {
 
 function Get-Harness {
   if ($env:CLAUDECODE) { return 'claude-code' }
-  if ($env:CODEX_HOME -or $env:CODEX_SANDBOX -or ($env:PLUGIN_ROOT -and -not $env:CLAUDE_PROJECT_DIR)) { return 'codex' }
+  # Codex (verified 2026-11-12, desktop app on Windows) sets CODEX_SHELL, CODEX_APP_RUNTIME_CLI_PATH and PLUGIN_ROOT, no CODEX_HOME.
+  if ($env:CODEX_SHELL -or $env:CODEX_HOME -or $env:CODEX_SANDBOX -or $env:CODEX_APP_RUNTIME_CLI_PATH -or ($env:PLUGIN_ROOT -and -not $env:CLAUDE_PROJECT_DIR)) { return 'codex' }
   if ($env:CLAUDE_PLUGIN_ROOT) { return 'claude-code' }
   return 'unknown'
 }
@@ -98,7 +100,7 @@ function Format-Line([string]$stage, [string]$feature, [string]$who, [string]$se
 function Remove-StaleState([string]$dir, [string]$keep) {
   try {
     $limit = (Get-Date).AddHours(-12)
-    foreach ($f in Get-ChildItem -LiteralPath $dir -Filter '.*.state' -Force -File -ErrorAction SilentlyContinue) {
+    foreach ($f in Get-ChildItem -LiteralPath $dir -Filter '*.state' -Force -File -ErrorAction SilentlyContinue) {
       if ($f.Name -ne $keep -and $f.LastWriteTime -lt $limit) { Remove-Item -LiteralPath $f.FullName -Force -ErrorAction SilentlyContinue }
     }
   } catch { }
@@ -119,7 +121,12 @@ function Invoke-Log {
   $id8 = $sid.Substring(0, [Math]::Min(8, $sid.Length))
 
   $dir = Join-Path $root '.asimov/log'
-  $statePath = Join-Path $dir ".$id8.state"
+  $stateDir = Join-Path $root '.asimov/state'   # the hook's memory; log/ holds only what a person reads
+  $statePath = Join-Path $stateDir "$id8.state"
+  $rawDir = Join-Path $root '.asimov/raw'
+
+  # The raw dump, before any filter: every payload the harness hands over, where the folder already exists (Q1, Q2).
+  if ($env:ASIMOV_LOG_RAW -eq '1' -and (Test-Path -LiteralPath $dir)) { if (-not (Test-Path -LiteralPath $rawDir)) { New-Item -ItemType Directory -Path $rawDir -Force | Out-Null }; Write-Retry (Join-Path $rawDir "$id8.jsonl") (($raw -replace "`r?`n", ' ') + "`n") $true }
 
   # Only an asimov-* invocation creates the folder; every other event logs only where it already exists.
   if ($event -ne 'PreToolUse' -and $event -ne 'UserPromptExpansion' -and -not (Test-Path -LiteralPath $dir)) { return }
@@ -145,10 +152,23 @@ function Invoke-Log {
     { $_ -eq 'PreToolUse' -or $_ -eq 'UserPromptExpansion' } {
       $skill = $null; $argText = $null
       if ($event -eq 'PreToolUse') {
-        if ([string](Get-Field $payload 'tool_name') -ne 'Skill') { return }
+        $tool = [string](Get-Field $payload 'tool_name')
         $ti = Get-Field $payload 'tool_input'
-        foreach ($k in 'skill', 'name', 'skill_name', 'command') { if (-not $skill) { $skill = [string](Get-Field $ti $k) } }
-        foreach ($k in 'args', 'arguments', 'input') { if ($null -eq $argText) { $argText = Get-Field $ti $k } }
+        if ($tool -eq 'Skill') {
+          foreach ($k in 'skill', 'name', 'skill_name', 'command') { if (-not $skill) { $skill = [string](Get-Field $ti $k) } }
+          foreach ($k in 'args', 'arguments', 'input') { if ($null -eq $argText) { $argText = Get-Field $ti $k } }
+        } else {
+          # Codex has no Skill tool (verified 2026-11-13): the model starts a skill by reading its SKILL.md,
+          # with Bash or a file-read tool. The first read of skills/asimov-<x>/SKILL.md is the invocation; the
+          # words that started it never reach this hook, so the line carries no argument.
+          $text = ''
+          foreach ($k in 'command', 'file_path', 'path', 'filePath') { $v = [string](Get-Field $ti $k); if ($v) { $text += ' ' + $v } }
+          if ($text -notmatch 'skills[\\/](asimov-[a-z-]+)[\\/]SKILL\.md') { return }
+          $skill = $Matches[1]
+          if ($state.stage -eq (Get-Stage $skill) -and $state.lastSkill -eq $skill) { return }   # one line per start, not per re-read
+          $state.lastSkill = $skill
+          $argText = ''
+        }
       } else {
         foreach ($k in 'command_name', 'skill_name', 'skill', 'name', 'command') { if (-not $skill) { $skill = [string](Get-Field $payload $k) } }
         foreach ($k in 'command_args', 'args', 'arguments', 'prompt') { if ($null -eq $argText) { $argText = Get-Field $payload $k } }
@@ -204,11 +224,10 @@ function Invoke-Log {
   if (-not (Test-Path -LiteralPath $dir)) { New-Item -ItemType Directory -Path $dir -Force | Out-Null }
   $selfIgnore = Join-Path (Split-Path -Parent $dir) '.gitignore'
   if (-not (Test-Path -LiteralPath $selfIgnore)) { Write-Retry $selfIgnore "*`n" $false }
-  if ($env:ASIMOV_LOG_RAW -eq '1') { Write-Retry (Join-Path $dir "raw-$id8.jsonl") (($raw -replace "`r?`n", ' ') + "`n") $true }
   Write-Retry (Join-Path $dir $state.file) $line $true
-  if ($saveState) { Write-State $statePath $state }
+  if ($saveState) { if (-not (Test-Path -LiteralPath $stateDir)) { New-Item -ItemType Directory -Path $stateDir -Force | Out-Null }; Write-State $statePath $state }
   elseif (Test-Path -LiteralPath $statePath) { Remove-Item -LiteralPath $statePath -Force -ErrorAction SilentlyContinue }
-  if ($event -eq 'SessionStart') { Remove-StaleState $dir ".$id8.state" }
+  if ($event -eq 'SessionStart') { Remove-StaleState $stateDir "$id8.state" }
   } catch { }
   finally {
     if ($mutex) { try { $mutex.ReleaseMutex() } catch { }; $mutex.Dispose() }

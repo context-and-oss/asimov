@@ -1,6 +1,6 @@
 ---
 name: persona-hermes
-description: Review a document as Hermes — a budget-minded sponsor who decides where the money goes and asks whether the value justifies the spend. Use before taking a design or proposal to sign-off, to find the scope that isn't paid for by its return. Triggers on "review as Hermes", "read this as Hermes", "is this worth it to Hermes".
+description: Use when asked to review or read a design or proposal as Hermes, or whether it is worth the money, before sign-off. A budget-minded sponsor who decides where the money goes reads it for the scope its return does not pay for. Findings as that reader; no edit, no approval.
 ---
 
 # Review as Hermes
