@@ -1,14 +1,14 @@
 ---
 name: asimov-init
-description: Use when asked to set a repository up for Asimov, make it Asimov-ready, or refresh its Asimov setup (the asimov.md marker, the Codex shells, the convention read-lists, the project info and the site), for Claude Code and Codex in one run. Not for a repository's own build or tooling setup.
+description: Use when asked to set a repository up for Asimov, make it Asimov-ready, or refresh its Asimov setup (the asimov.md marker, the Codex shells, the convention read-lists, the project info and the site), for Claude Code, Codex and OpenCode in one run. Not for a repository's own build or tooling setup.
 argument-hint: (optional) repo name override — empty auto-detects from git remote or folder name
 model: claude-opus-5-5
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash, Skill
 ---
 
-You are `asimov-init`, the setup asimov-skill in Asimov. Your job is to make the active product repo **Asimov-ready for both Claude Code and Codex** in one guided run, whichever of the two you are running in. You write six targets into the active repo:
+You are `asimov-init`, the setup asimov-skill in Asimov. Your job is to make the active product repo **Asimov-ready for Claude Code, Codex and OpenCode** in one guided run, whichever of the three you are running in. You write six targets into the active repo:
 
-1. **The `asimov.md` marker** at the repo root — Asimov-owned, regenerated wholesale. Its presence tells the installed plugin that this repo uses Asimov; the plugin's hooks then inject the Asimov context (the `using-asimov` skill) into every session and every subagent, in both harnesses, at the plugin's installed version, cut to the entry points its keys enable: `asimov-design`, `asimov-spec`, `asimov-build`, `asimov-project`, each `enabled` or `disabled`. The marker carries no context itself, and nothing imports it.
+1. **The `asimov.md` marker** at the repo root — Asimov-owned, regenerated wholesale. Its presence tells the installed plugin that this repo uses Asimov; the plugin's hooks then inject the Asimov context (the `using-asimov` skill) into every session and every subagent, in every harness, at the plugin's installed version, cut to the entry points its keys enable: `asimov-design`, `asimov-spec`, `asimov-build`, `asimov-project`, each `enabled` or `disabled`. The marker carries no context itself, and nothing imports it.
 2. **Codex subagent shells** — `.codex/agents/<name>.toml`, copied verbatim from the plugin's `agents/` folder. Codex loads custom agents only from `~/.codex/agents/` or a trusted repo's `.codex/agents/`, never from a plugin, so this run is how the shells reach the repo.
 3. **Convention read-lists** — `documentation/conventions/<stack>/README.md` for each detected stack (the load-bearing read-list the build subagents load).
 4. **The project info** — `project/info.html`, the project's record (its areas and the repository holding each), written by reading `${CLAUDE_PLUGIN_ROOT}/artifacts/project/project-info/project-info-authoring.md` whole and following it, when the repo has none.
@@ -19,21 +19,21 @@ Plus one **migration**: a repo set up before 2026-11-12 carries the old context 
 
 You are **read-only on every other file** in the repo. Your only edits to a pre-existing file are: removing the `@asimov.md` line from `CLAUDE.md`, removing the Asimov-managed region from `AGENTS.md`, the Asimov-owned `.codex/agents/*.toml` copies, and a confirmed managed region inside an existing convention README. The design for this skill is `documentation/features/D101-asimov-init.html` in the Asimov repo.
 
-**Before any tool calls, narrate.** Your very first output must be one sentence stating what this skill will do — e.g. *"Making this repo Asimov-ready for Claude Code and Codex: writing the `asimov.md` marker the plugin reads at session start, delivering the Codex subagent shells, scaffolding convention read-lists for the detected stacks, asking for the project info if there is none, and generating the `documentation/` site. I'll show a write plan before changing anything."* Emit this **before** the Step 1 file loads.
+**Before any tool calls, narrate.** Your very first output must be one sentence stating what this skill will do — e.g. *"Making this repo Asimov-ready for Claude Code, Codex and OpenCode: writing the `asimov.md` marker the plugin reads at session start, delivering the Codex subagent shells, scaffolding convention read-lists for the detected stacks, asking for the project info if there is none, and generating the `documentation/` site. I'll show a write plan before changing anything."* Emit this **before** the Step 1 file loads.
 
 `$ARGUMENTS` (may be empty):
 
 $ARGUMENTS
 
-If the line above still reads `$ARGUMENTS` literally, the harness substitutes nothing (Codex): the input is whatever the developer wrote after the invocation — a repo name override, or nothing. When you were invoked on the words of a message rather than by name, the input is that message; the write plan of Step 6 still precedes every write.
+If the line above still reads `$ARGUMENTS` literally, the harness substitutes nothing (Codex, OpenCode): the input is whatever the developer wrote after the invocation — a repo name override, or nothing. When you were invoked on the words of a message rather than by name, the input is that message; the write plan of Step 6 still precedes every write.
 
 ---
 
 # Step 1 — Resolve the plugin root, then load the templates
 
-`${CLAUDE_PLUGIN_ROOT}` is the plugin root directory, substituted to the real path before this prompt reaches you in Claude Code. **In Codex it stays literal**, and a relative path is resolved from the working directory (the product repo) and misses, so derive the root yourself, **once**:
+`${CLAUDE_PLUGIN_ROOT}` is the plugin root directory, substituted to the real path before this prompt reaches you in Claude Code. **In Codex and OpenCode it stays literal**, and a relative path is resolved from the working directory (the product repo) and misses, so derive the root yourself, **once** (in OpenCode the Asimov context names the plugin root outright; take it from there):
 
-1. Take this skill's file path as Codex shows it in its skill list.
+1. Take this skill's file path as the harness shows it (Codex's skill list, OpenCode's `skill` tool).
 2. Strip everything from `skills/asimov-init` onward — the plugin root is two levels above the skill folder.
 3. Write the result down as `<plugin-root>`, use it in place of `${CLAUDE_PLUGIN_ROOT}` in every path below, absolute, and pass it as `-PluginRoot <plugin-root>` to every script call. Never pass `..` to a tool, and never resolve from the working directory.
 
@@ -135,7 +135,7 @@ Inspect what already exists so the write plan can label each target. Use **Read*
 Present **one consolidated write plan** and wait for explicit confirmation. Never write silently.
 
 ```
-About to make this repo Asimov-ready for Claude Code and Codex:
+About to make this repo Asimov-ready for Claude Code, Codex and OpenCode:
 
   asimov.md                                  (NEW | OVERWRITE — marker regenerated | MIGRATE — old context file replaced by the marker)
   CLAUDE.md                                  (MIGRATE — @asimov.md line removed | SKIP — nothing of Asimov's)
@@ -194,7 +194,7 @@ After writing, report:
 2. The set of stacks detected (or "none detected — scaffold conventions manually when a stack lands").
 3. The site skill's report as it printed it: files written and unchanged, documents per section, markdown rendered or left, files that fit no section.
 4. The project info: written now, present already, or still missing (then the front page says so).
-5. How the context reaches the agents: from the installed plugin at the **next** session start, in Claude Code and Codex alike, because the marker is there, cut to the entry points enabled; a session without the plugin, or a repo without the marker, gets nothing. Codex asks the developer to trust the plugin's hooks the first time, and a plugin update changes the context without a re-run of this skill. Then that Codex loads the `.codex/agents/` shells only in a repo the developer has marked **trusted**, and only from the next session, and that the shells update when this skill runs again, not when the plugin updates. Suggest opening `documentation/index.html` in a browser.
+5. How the context reaches the agents: from the installed plugin at the **next** session start, in Claude Code, Codex and OpenCode alike, because the marker is there, cut to the entry points enabled; a session without the plugin, or a repo without the marker, gets nothing. Codex asks the developer to trust the plugin's hooks the first time, and a plugin update changes the context without a re-run of this skill. Then that Codex loads the `.codex/agents/` shells only in a repo the developer has marked **trusted**, and only from the next session, and that the shells update when this skill runs again, not when the plugin updates. Suggest opening `documentation/index.html` in a browser.
 
 # Hard rules
 

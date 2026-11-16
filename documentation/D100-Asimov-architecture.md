@@ -1,6 +1,6 @@
 # D100 — Asimov Architecture
 
-Architecture of the `asimov` repo — the marketplace that ships the L3 workflow's AI-assisted stages as one installable plugin, to Claude Code and Codex from one plugin folder.
+Architecture of the `asimov` repo — the marketplace that ships the L3 workflow's AI-assisted stages as one installable plugin, to Claude Code, Codex and OpenCode from one plugin folder.
 
 ---
 
@@ -40,7 +40,7 @@ The toolkit does **not** enforce the L3 process — that lives in product repos.
 
 ## 4. Components
 
-The toolkit ships as a single marketplace containing one plugin — one plugin folder, installed by Claude Code and by Codex. Seven kinds of **component** live in it; the stage contracts (§4.5) are the newest.
+The toolkit ships as a single marketplace containing one plugin — one plugin folder, installed by Claude Code, by Codex and, as a module, by OpenCode. Seven kinds of **component** live in it; the stage contracts (§4.5) are the newest.
 
 > **Terminology.** A *component* is a part of the toolkit itself — the marketplace, the plugin, a slash command, a subagent, a skill, a definition or template. An *artifact* is something the toolkit writes into a product repo — a D101, a persona review skill, the `asimov.md` marker — and is what the `artifacts/` folder (§4.5) is organised around. The two words are not interchanged in this document.
 
@@ -58,7 +58,7 @@ Alternatives considered:
 
 ### 4.2 Asimov Plugin
 
-The sole plugin in the marketplace. Lives under `plugins/asimov-plugin/` with two plugin manifests side by side — `.claude-plugin/plugin.json` for Claude Code and `.codex-plugin/plugin.json` for Codex, both named `asimov-plugin`. The plugin's job is to expose every asimov-skill, subagent, and skill the toolkit publishes. Developers install once; in Claude Code, the asimov-skills, subagents, and the shipped skills (§4.6) become available across all product repos. Codex loads the skills, the asimov-skills among them (§4.3, §4.6).
+The sole plugin in the marketplace. Lives under `plugins/asimov-plugin/` with two plugin manifests side by side — `.claude-plugin/plugin.json` for Claude Code and `.codex-plugin/plugin.json` for Codex, both named `asimov-plugin`. The plugin's job is to expose every asimov-skill, subagent, and skill the toolkit publishes. Developers install once; in Claude Code, the asimov-skills, subagents, and the shipped skills (§4.6) become available across all product repos. Codex loads the skills, the asimov-skills among them (§4.3, §4.6). OpenCode has no plugin folder of skills and agents: it loads the plugin as a JavaScript module, `.opencode/plugins/asimov.js`, reached through the repo root's `index.js` (a local path in `opencode.json`'s `plugins`) or `package.json` (a git spec); on load the module registers every skill with the host's `skill` tool, every `agents/*.md` shell as a subagent (the shell's body plus its role skill as the system prompt, the session's model, `edit` denied for the read-only shells) and runs the context hook itself (§4.7). Since 2026-11-16; no run log there, and the design is still open in `features/D101-opencode-support.html`.
 
 ### 4.3 Slash commands and asimov-skills
 
@@ -172,13 +172,13 @@ A `SKILL.md` under `plugins/asimov-plugin/skills/<name>/`, discovered automatica
 | `tool-deck-authoring` | Tool | Writes a slide deck from `resources/deck/`: finds out the audience, the length, the line and the theme, shows the outline, waits for the go, writes one self-contained HTML file from the template with the theme pasted in, renders it before reporting. Model-invoked: triggers on a request for a presentation, a deck, slides, a pitch, a talk. The `tool-*` family is a skill over a resource rather than an artifact; the subject is the resource's folder name. Never writes an artifact's deck (the planned A100 has its own skill over the same resource). |
 | `asimov-project` | Asimov-skill | Entry point (§4.3; model-invocable, a repo gate on `asimov.md`) of the Project frame: the conversation of one project-artifact run, the artifact and the action read from the message. Reads `<artifact>-authoring.md` and `<artifact>-view.md` by path, one pair per project artifact (`risk-log-authoring.md` and `risk-log-view.md` first; `project-info-authoring.md` alone), and composes `pm-advisor`; carries no method. Ships with `agents/openai.yaml` for Codex. |
 | `artifact-site-authoring` | Artifact method | The documentation site's only writer: runs `scripts/site.ps1` (PowerShell 5.1 and 7; markdown rendered on 7), which scans `documentation/`, reads the project info for the areas, fills the site templates and writes `index.html`, `_chrome.css`, `_site/**` and the nav block of every indexed document, whole and idempotent, with `-Plan` and `-Check` beside the write; relays the report and never authors a document. Called by `asimov-init` for its site target and by hand to refresh the site. |
-| `using-asimov` | Standing context | The context every session in a marked repo gets: the entry points and their precedence over generic skills, the agents and the delegation order, the layout, the working agreement — in part blocks the context hook (§4.7) cuts to the marker\'s `enabled` keys, with the harness\'s invocation syntax; `subagent.md` beside it is the subagent\'s note. The one skill named for its reader, after superpowers\' `using-superpowers`; invoked by name only to read it again. Since 2026-11-13. |
+| `using-asimov` | Standing context | The context every session in a marked repo gets: the entry points and their precedence over generic skills, the agents and the delegation order, the layout, the working agreement — in part blocks the context hook (§4.7) cuts to the marker\'s `enabled` keys, with the harness\'s invocation syntax; `subagent.md` beside it is the subagent\'s note. The one skill named for its reader; invoked by name only to read it again. Since 2026-11-13. |
 
 The `processes/` corpus `pm-advisor` reads is exported from the Learn/Engineer/Deliver vault, not maintained here: `processes/README.md` is its meta-entry and carries the draft-status caveat; `processes/delivery-model-framework.md` is its map. It ships in install scope so the skill can resolve it under `${CLAUDE_PLUGIN_ROOT}/processes/`. That variable is a Claude Code substitution, so `pm-advisor`, the one skill that uses it, finds its corpus only in Claude Code (§7.4); a method file names its siblings by file name and the rest as `<plugin-root>/…`, three folders above it, so nothing in it is substituted.
 
 ### 4.7 Hooks
 
-The plugin ships two hooks. The **context hook**, `hooks/asimov-context` (bash, builtins only, started through the polyglot `hooks/run-hook.cmd`, and on Codex-for-Windows through `hooks/run-hook.ps1` because Codex's Windows hook shell is PowerShell), fires on SessionStart and SubagentStart: where `asimov.md` marks the working directory it injects the `using-asimov` skill into the session, or its subagent note into a subagent, cut to the entry points the marker's `asimov-<name>: enabled | disabled` keys allow, with the harness's own invocation syntax, the repo name from the folder and the stacks from `documentation/conventions/`; without a marker it prints nothing. It is the pattern superpowers uses: the context lives in the plugin, follows the plugin version, and touches no file of the repo (decided and verified in both harnesses 2026-11-12/13; design `features/D101-asimov-init.html`). It is registered twice: in `hooks/hooks.json` for Claude Code and in `hooks/hooks-codex.json` for Codex, which reads the file its manifest's `hooks` key names and needs a `commandWindows` per hook; the two files move together.
+The plugin ships two hooks. The **context hook**, `hooks/asimov-context` (bash, builtins only, started through the polyglot `hooks/run-hook.cmd`, and on Codex-for-Windows through `hooks/run-hook.ps1` because Codex's Windows hook shell is PowerShell), fires on SessionStart and SubagentStart: where `asimov.md` marks the working directory it injects the `using-asimov` skill into the session, or its subagent note into a subagent, cut to the entry points the marker's `asimov-<name>: enabled | disabled` keys allow, with the harness's own invocation syntax, the repo name from the folder and the stacks from `documentation/conventions/`; without a marker it prints nothing. The pattern: the context lives in the plugin, follows the plugin version, and touches no file of the repo (decided and verified in both harnesses 2026-11-12/13; design `features/D101-asimov-init.html`). It is registered twice: in `hooks/hooks.json` for Claude Code and in `hooks/hooks-codex.json` for Codex, which reads the file its manifest's `hooks` key names and needs a `commandWindows` per hook; the two files move together. OpenCode has no shell hooks: the plugin module (§4.2) runs the same script in its session hooks with `ASIMOV_HARNESS=opencode` (the `@asimov-<name>` spelling) and puts the result into the first user message, the subagent note where the session has a parent.
 
 The **run log** is the older hook: `hooks/hooks.json` fires `hooks/scripts/asimov-log.ps1`, and together they are the run log (§4.5): on SessionStart, the invocation of an `asimov-*` skill (a typed `/asimov-*` is a `UserPromptExpansion` event, a Skill call a `PreToolUse` one), SubagentStart, SubagentStop and SessionEnd, the script reads the payload from stdin and appends one line to `.asimov/log/<date>-<session>.log` under the repo the payload names. It runs async, prints nothing and exits 0 whatever happens, so a hook can never block a run or reach the chat; it keeps a small state file beside the log for the stage, the feature and the running agents, deleted at session end. The hooks are the only mechanical observer of a run: a skill that wants something recorded writes the ledger, never the log. The log is registered for Claude Code only so far: Codex runs Windows hooks through PowerShell, where the `pwsh … || powershell …` chain does not parse, so the log waits for a `commandWindows` and its entries in `hooks-codex.json` (D101 Q2, part resolved 2026-11-12: Codex substitutes `${CLAUDE_PLUGIN_ROOT}`, sets `CODEX_SHELL=1` and `PLUGIN_ROOT`, and sends `agent_type`). In Claude Code the log needs Git Bash or PowerShell 7 as the hook shell. Design: `features/D101-asimov-log.html`.
 
@@ -203,17 +203,19 @@ asimov/
 ├── .agents/
 │   └── plugins/
 │       └── marketplace.json              ← Codex marketplace manifest (§4.1)
+├── index.js, package.json                ← the OpenCode entry: both point at the plugin module (§4.2)
 ├── plugins/
 │   └── asimov-plugin/
 │       ├── .claude-plugin/
 │       │   └── plugin.json               ← Claude Code plugin manifest (§4.2)
 │       ├── .codex-plugin/
 │       │   └── plugin.json               ← Codex plugin manifest (§4.2)
+│       ├── .opencode/plugins/asimov.js   ← OpenCode plugin module: registers skills/ and agents/, runs the context hook (§4.2, §4.7)
 │       ├── hooks/                        ← harness hooks (§4.7)
 │       │   ├── hooks.json                ← Claude Code: the run log's six registrations + the two context hooks
 │       │   ├── hooks-codex.json          ← Codex (named by its manifest): the two context hooks, each with a commandWindows
 │       │   ├── asimov-context            ← the context hook: bash, builtins only; reads asimov.md, injects using-asimov cut to the enabled parts
-│       │   ├── run-hook.cmd              ← polyglot shim (cmd finds Git Bash; Unix execs bash), after superpowers
+│       │   ├── run-hook.cmd              ← polyglot shim (cmd finds Git Bash; Unix execs bash)
 │       │   ├── run-hook.ps1              ← Codex on Windows: PowerShell side of the shim
 │       │   └── scripts/asimov-log.ps1    ← the log writer; never a skill or a model
 │       ├── (commands/)                   ← slash commands (§4.3), Claude Code only; none ship, the folder exists only when one does (conventions-check.md, not built yet, would go here)

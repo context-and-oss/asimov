@@ -301,7 +301,7 @@ footer.site-footer a { color: var(--cyan); }
   <a href="../index.html#s6">Diagrams</a>
   <span class="spacer"></span>
   <span class="phase-chip full">Full design</span>
-  <span class="status-chip draft">Draft v0.10</span>
+  <span class="status-chip draft">Draft v0.11</span>
 </nav>
 
 <div class="layout-doc">
@@ -352,7 +352,7 @@ footer.site-footer a { color: var(--cyan); }
   <div class="meta-cell"><div class="label">Version</div><div class="value mono">0.10</div></div>
   <div class="meta-cell"><div class="label">Model</div><div class="value mono">claude-opus-5-5 (bound by Claude Code; Codex runs the session's)</div></div>
   <div class="meta-cell"><div class="label">Outputs</div><div class="value mono">asimov.md (marker) · .codex/agents/ · conventions · project info · site · .gitignore</div></div>
-  <div class="meta-cell"><div class="label">Last updated</div><div class="value mono">2026-11-13</div></div>
+  <div class="meta-cell"><div class="label">Last updated</div><div class="value mono">2026-11-16</div></div>
   <div class="meta-cell"><div class="label">Archetype</div><div class="value">Greenfield (evolves /docs-init)</div></div>
 </div>
 
@@ -824,7 +824,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="decision-row">
       <div class="decided">The context comes from the plugin's hooks; the repo carries only a marker (2026-11-13)</div>
       <div class="alt">The context as files in the repo — <code>asimov.md</code> imported from <code>CLAUDE.md</code>, a copy in an <code>AGENTS.md</code> region — the shape from 2026-09-15 to 2026-11-13</div>
-      <div class="why">Both files went stale with every plugin release until someone re-ran the setup, the same text stood twice, and each write touched a file the developer owns. Superpowers showed the alternative: a SessionStart hook injecting a skill, with nothing in the repo. Verified in Claude Code and the Codex desktop app on 2026-11-12: both inject from a plugin <code>hooks.json</code>, Codex substitutes <code>${CLAUDE_PLUGIN_ROOT}</code> too, and a subagent gets its own note. The context now follows the plugin version, Claude Code and Codex read the same skill, and the developer's files are left alone; the price is a marker in the repo and a hook trust prompt in Codex.</div>
+      <div class="why">Both files went stale with every plugin release until someone re-ran the setup, the same text stood twice, and each write touched a file the developer owns. The alternative is a SessionStart hook injecting a skill, with nothing in the repo. Verified in Claude Code and the Codex desktop app on 2026-11-12: both inject from a plugin <code>hooks.json</code>, Codex substitutes <code>${CLAUDE_PLUGIN_ROOT}</code> too, and a subagent gets its own note. The context now follows the plugin version, Claude Code and Codex read the same skill, and the developer's files are left alone; the price is a marker in the repo and a hook trust prompt in Codex.</div>
     </div>
     <div class="decision-row">
       <div class="decided">The marker names the entry points one key each, <code>asimov-&lt;name&gt;: enabled | disabled</code></div>
@@ -1045,7 +1045,7 @@ footer.site-footer a { color: var(--cyan); }
     <li>skills/using-asimov/subagent.md — the note: conventions, flag-don't-guess, layout lines per part, the role-agent line</li>
   </ul>
   <div class="callout">
-    <strong>One skill, two hooks, no file to go stale.</strong> The hook renders the skill at the plugin's installed version: <code>{{INVOKE:x}}</code> becomes <code>/x</code> in Claude Code and <code>$asimov-plugin:x</code> in Codex, <code>{{REPO}}</code> the working directory's folder, <code>{{STACKS}}</code> the folders under <code>documentation/conventions/</code>, <code>{{USING}}</code> the enabled parts; a block whose part is disabled is dropped with its marker lines, and a blank line left behind is collapsed. A marker without frontmatter — the old context file — counts as all enabled, so a repo from before 2026-11-13 is served on the next plugin update without a run (R21, R22).
+    <strong>One skill, two hooks, no file to go stale.</strong> The hook renders the skill at the plugin's installed version: <code>{{INVOKE:x}}</code> becomes <code>/x</code> in Claude Code, <code>$asimov-plugin:x</code> in Codex and <code>@x</code> in OpenCode (where the plugin module runs the script, Q6), <code>{{REPO}}</code> the working directory's folder, <code>{{STACKS}}</code> the folders under <code>documentation/conventions/</code>, <code>{{USING}}</code> the enabled parts; a block whose part is disabled is dropped with its marker lines, and a blank line left behind is collapsed. A marker without frontmatter — the old context file — counts as all enabled, so a repo from before 2026-11-13 is served on the next plugin update without a run (R21, R22).
   </div>
 
   <div class="subhead">Index bucket taxonomy (inherited from /docs-init)</div>
@@ -1313,7 +1313,7 @@ footer.site-footer a { color: var(--cyan); }
     </div>
     <div class="q-card">
       <div class="q-head"><span class="q-id">Q6</span><span class="q-decider">Allan Borup</span></div>
-      <div class="q-body">opencode reads no <code>hooks.json</code>. Does it get the marker through a hook form of its own, or the old <code>AGENTS.md</code> region after all? Resolution path: decided in <code>D101-opencode-support.html</code> (PR 37), which must align with the marker before it merges.</div>
+      <div class="q-body">OpenCode reads no <code>hooks.json</code>. Does it get the marker through a hook form of its own, or the old <code>AGENTS.md</code> region after all? <strong>Resolved 2026-11-16:</strong> a hook form of its own. OpenCode loads the plugin as a module (<code>.opencode/plugins/asimov.js</code>), which runs the same <code>asimov-context</code> script in OpenCode's session hooks with <code>ASIMOV_HARNESS=opencode</code> and reads the same marker; <code>{{INVOKE:x}}</code> becomes <code>@x</code>. No region, no file in the repo. <code>D101-opencode-support.html</code> (PR 37) must align with this before it merges.</div>
     </div>
   </div>
 </section>
