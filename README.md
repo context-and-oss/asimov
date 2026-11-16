@@ -1,6 +1,6 @@
 # Asimov
 
-Plugin for Claude Code and Codex. Feature design docs done properly, plus subagents that code and review the way your repo already does.
+Plugin for Claude Code, Codex and OpenCode. Feature design docs done properly, plus subagents that code and review the way your repo already does.
 
 - `/asimov-design` – interviews you, writes a D101 (feature design) as HTML to `documentation/features/`; name a D101 and *review* and it checks it against its bar, lists what's missing
 - `/asimov-init` – sets up a repo for both tools in one run: the `asimov.md` marker, the Codex agent shells, convention read-lists, project info, docs site. The Asimov context itself comes from the plugin at session start, wherever the marker is
@@ -31,6 +31,16 @@ codex plugin add asimov-plugin@asimov-marketplace
 - Local clone: `codex plugin marketplace add <path-to-clone>`
 - Update: `codex plugin marketplace upgrade asimov-marketplace`, then start a new session
 - Codex loads the plugin's skills, the entry points among them, and its hooks: approve the plugin's two hooks when the app asks, then every session in a repo with `asimov.md` gets the Asimov context. Run the setup as `$asimov-plugin:asimov-init` — the same skill as `/asimov-init`; it writes the marker, the conventions, the project info, the site and the agent shells in `.codex/agents/` (Codex asks before that write). See [D101-codex-support](documentation/features/D101-codex-support.html).
+
+OpenCode (2.x), in `~/.config/opencode/opencode.json`:
+
+```
+{ "plugins": ["asimov-plugin@git+https://github.com/context-and-oss/asimov.git"] }
+```
+
+- Local clone: `{ "plugins": ["<path-to-clone>"] }` (an absolute path; `~` is not expanded)
+- Update: a git spec is cached per install; remove and add it again, or point at a clone and pull
+- OpenCode has no plugin folder, so the plugin is a module: it registers the skills (`@asimov-design` names one), the five agents as subagents, and injects the Asimov context where `asimov.md` marks the repo. No run log, and every agent runs the session's model. Design still open: [D101-opencode-support](documentation/features/D101-opencode-support.html).
 
 ## Try it
 

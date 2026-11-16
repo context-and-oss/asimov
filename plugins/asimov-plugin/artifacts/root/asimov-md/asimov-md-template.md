@@ -30,4 +30,4 @@ asimov-project: {{ASIMOV-PROJECT}}
 
 # Asimov
 
-This repository uses the Asimov toolkit (https://github.com/context-and-oss/asimov). With `asimov-plugin` installed, Claude Code and Codex load the Asimov context from the plugin at session start; this file only marks the repository and says which entry points are in use. Refresh the setup with `/asimov-init`.
+This repository uses the Asimov toolkit (https://github.com/context-and-oss/asimov). With `asimov-plugin` installed, Claude Code, Codex and OpenCode load the Asimov context from the plugin at session start; this file only marks the repository and says which entry points are in use. Refresh the setup with `/asimov-init`.

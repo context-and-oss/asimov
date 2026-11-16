@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Inject the Asimov context from the plugin, the way superpowers injects its using-superpowers skill.
+# Inject the Asimov context from the plugin.
 #
 # Fired by hooks/hooks.json (Claude Code) and hooks/hooks-codex.json (Codex) on SessionStart and
 # SubagentStart through run-hook.cmd. Reads the event's JSON from stdin, looks for asimov.md at the
@@ -90,7 +90,10 @@ if [ -n "${CLAUDECODE:-}" ]; then harness="claude-code"
 elif [ -n "${CODEX_SHELL:-}" ] || [ -n "${CODEX_HOME:-}" ] || [ -n "${CODEX_SANDBOX:-}" ] || [ -n "${CODEX_APP_RUNTIME_CLI_PATH:-}" ] || [ -n "${PLUGIN_ROOT:-}" ]; then harness="codex"
 elif [ -n "${CLAUDE_PLUGIN_ROOT:-}" ]; then harness="claude-code"
 fi
-prefix="/"; [ "$harness" = "codex" ] && prefix='$asimov-plugin:'
+# A plugin that runs this script in-process names its harness outright (the OpenCode plugin sets opencode).
+[ -n "${ASIMOV_HARNESS:-}" ] && harness="$ASIMOV_HARNESS"
+prefix="/"
+case "$harness" in codex) prefix='$asimov-plugin:' ;; opencode) prefix="@" ;; esac
 
 version="?"
 if [ -r "${PLUGIN_ROOT}/.claude-plugin/plugin.json" ]; then
@@ -113,8 +116,8 @@ if [ -z "$using" ]; then
     text="Asimov: the plugin is installed and asimov.md marks this repository, but its \`using\` names no part, so no Asimov context is loaded. Edit the marker or run ${prefix}asimov-init to change that."
   else exit 0; fi
 else
-  # The session text is the using-asimov skill's body (frontmatter dropped), as superpowers injects using-superpowers;
-  # the subagent note sits beside it in the same skill folder.
+  # The session text is the using-asimov skill's body (frontmatter dropped); the subagent note sits beside it
+  # in the same skill folder.
   if [ "$event" = "SessionStart" ]; then tpl="${PLUGIN_ROOT}/skills/using-asimov/SKILL.md"; else tpl="${PLUGIN_ROOT}/skills/using-asimov/subagent.md"; fi
   [ -r "$tpl" ] || exit 0
   raw="$(<"$tpl")"
@@ -144,7 +147,7 @@ text="${text//\{\{STACKS\}\}/$stacks}"
 text="${text//\{\{USING\}\}/$using_text}"
 text="${text//\{\{AGENT\}\}/$agent}"
 
-# JSON string escaping with parameter substitution, as superpowers does.
+# JSON string escaping with parameter substitution.
 s="$text"
 s="${s//\\/\\\\}"; s="${s//\"/\\\"}"; s="${s//$'\n'/\\n}"; s="${s//$'\r'/\\r}"; s="${s//$'\t'/\\t}"
 

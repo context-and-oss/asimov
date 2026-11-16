@@ -56,3 +56,7 @@ packages/.local-feed/
 packages/out/
 packages/.sample-packages/
 packages/test/Asimov.Conventions.Sample/.editorconfig
+
+# OpenCode package install (the plugin is plain JS, no dependencies; a local npm install leaves this behind)
+node_modules/
+package-lock.json
