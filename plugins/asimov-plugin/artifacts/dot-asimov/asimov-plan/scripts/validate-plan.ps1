@@ -1057,6 +1057,13 @@ foreach ($Task in $AllTasks) {
     if ($res.Count -eq 0) { Add-Row '6' 'Stops' 'Pass' "$($stopLines.Count) Stops line(s), each naming something of this task." } else { Add-Row '6' 'Stops' 'Flag' ($why -join '; ') }
   }
 
+  # 6b Scaffolding commands: a task that owns a folder whole (a glob in create) names its template commands in its section 4
+  if (@($Create | Where-Object { Test-IsGlob $_ }).Count -gt 0) {
+    $cmdSpans = @([regex]::Matches(($Sec4 -join "`n"), '`([^`]+)`') | ForEach-Object { $_.Groups[1].Value } | Where-Object { $_ -match '^(dotnet|npm|npx|ng|yarn|pnpm|node|pwsh|powershell|bash)\s' })
+    if ($cmdSpans.Count -eq 0) { Add-Row '6b' 'Scaffolding commands' 'Fail' 'create owns a folder whole (a glob) and section 4 names no template command in a code span' }
+    else { Add-Row '6b' 'Scaffolding commands' 'Pass' "$($cmdSpans.Count) template command(s) named in section 4" }
+  }
+
   # 7 Boundary
   $res = @(); $why = @()
   if ((RowOf 'S7').Result -eq 'Fail') { $res += 'Fail'; $why += 'S7 fails' }

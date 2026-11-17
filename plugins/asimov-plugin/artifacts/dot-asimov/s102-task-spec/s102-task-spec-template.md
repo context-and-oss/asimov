@@ -107,7 +107,9 @@
     rg, Select-String or findstr.
   - 4 Constraints: a Must's code span is never a call (name(args)) and never a
     loop or an algorithm; no code span anywhere reads as a signature
-    (Type Name(Type param)).
+    (Type Name(Type param)). A task that owns a folder whole (a glob in
+    create, a scaffolding task) names its template commands here in code
+    spans (dotnet new ..., ng new ...), or the check fails it.
   - Sizes, Warn only: 3 non-test owned files; 3 own scenarios for a builder,
     5 for a tester or a test-first builder; @review-focus scenarios not counted.
   - No placeholder (TBD, TODO, "handle edge cases", "similar to T00n", a
