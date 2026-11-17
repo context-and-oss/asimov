@@ -39,7 +39,7 @@ The repo answers most members for a product that exists. For a product that does
 | Stacks | the project files | the D101s' §6.1 |
 | Run, locally | `launchSettings.json`, `package.json` scripts, a `script/` folder, the README | `.NET`: F5 on the solution in Visual Studio and `dotnet run --project <api>` from a terminal, the UI served through the API's SPA proxy in development; a single stack: its template's run command |
 | Run, environments | the E100s, the pipelines under `.github/` or `.azure/` | *none yet* |
-| Layout | the solution file, the folders | `src/<Part>/`, `test/<Part>.Tests/`, `<Product>.slnx` at the root with every project, an Angular part under `src/<Part>/` and in the solution through the API's project file |
+| Layout | the solution file, the folders | `src/<Part>/`, `test/<Part>.Tests/`, `<Product>.slnx` at the root with every project, an Angular part under `src/<Part>/` and in the solution through the API's project file; the root `.gitignore` ignores build output (`bin/`, `obj/`, `node_modules/`, `.angular/`, `dist/`), so a Foundation commits no artefacts |
 | Decisions | an existing D100, `docs/adr/`, `documentation/decisions/` | AD1 the stacks and the layout, AD2 how the product starts; each as the owner confirmed them |
 | Context, Connections, Constraints | the D101s' §6.1 and §6.5, the README | asked, one question each, only when nothing names them |
 
