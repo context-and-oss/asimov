@@ -30,6 +30,7 @@ A plan clears one bar: **what it renders to clears the S101's and the S102s' bar
 
 | Doc | Stage | What it answers |
 |---|---|---|
+| **D100** or any architecture that meets `contracts/architecture.md` | Before Design | The product's parts, how it starts, where each part lives, what was decided; the Foundation realises it |
 | **D101** or any design that meets `contracts/design.md` | Design | What feature, what scope, what rules, what verifiable outcomes |
 | **`contracts/specification.md`** | Spec → Build | The members a plan provides, plan part and task part, and the line between what the spec fixes and what the builder decides |
 | **Plan** | Spec | The whole specification as the writer writes it and the person approves it |
@@ -44,10 +45,10 @@ A plan clears one bar: **what it renders to clears the S101's and the S102s' bar
 
 The plan's frontmatter and tree are the S101's (`s101-implementation-plan-definition.md` §4.1, §4.3, §4.4), with `spec: plan`; its six plan sections are the S101's body (§4.2, §4.5 to §4.9); each task section is an S102 (`s102-task-spec-definition.md` §4.1 to §4.7): the yaml block is the header's three machine-read members, the five numbered sections are the body. The template beside this file, `asimov-plan-template.md`, fixes the shape, and its leading comment the rules a writer with only the template needs.
 
-Two rules are the plan's own, learned from a greenfield run:
+Two rules are the plan's own, learned from two greenfield runs:
 
-- **The Foundation scaffolds.** When the repo has no project for a stack the design names, the plan has a Foundation whose task creates the solution, the projects and the test project with the template commands the conventions or the person named, owns the folders those templates write as globs, and names the commands in its §4. The template's own files are then owned, not review findings, and the first slice builds against a solution that exists.
-- **The person is asked what no default should settle.** The layout of a new stack (source and test roots, the solution file and its format, the target framework, the test commands) is a fixed question `asimov-spec` asks before the cut when a stack has no project yet; the writer records the answers as constraints in §2 with the source *author, at the cut*. A layout invented as a default and changed later cost one run a re-cut, a new approval and a new ledger.
+- **The Foundation realises the architecture.** When a part the design names is `planned` in the product's D100 (no project for its stack yet), the plan has a Foundation whose scaffolding task creates the solution, the projects and the test projects exactly as the D100's §6 Layout says, with the stack's template commands, owns the folders the templates write as globs and names the commands in its §4. The Foundation's checkpoint is the D100's §5.1 start: the product starts as written there and the baseline tests pass; its `check` is the test command. The template's own files are then owned, not review findings, and the first slice builds against a product that runs.
+- **Layout and start are never the plan's to decide.** A plan invents no root, no solution file, no target framework and no way to start the product; it reads them from the D100 and the conventions and records what it realised in §2 with the source *D100 §6* or *D100 §5.1*. A part the design names that no architecture carries is a gap the design stage closes (a `design:` assumption; `asimov-spec` stops on it before the cut). The run that asked these in chat and took defaults cost a re-cut, a new approval, a new ledger and a Foundation that could not start.
 
 ## 5. Lifecycle
 
