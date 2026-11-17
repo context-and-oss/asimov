@@ -45,7 +45,7 @@
 .PARAMETER Failed
   With -Op verify and without -Passed: the task ids that failed, comma-separated.
 .PARAMETER Choice
-  With -Op ruling: resume, discard or stop.
+  With -Op ruling: retry (resume is accepted as the same), discard, re-plan or stop.
 .PARAMETER Note
   With -Op ruling: the person's note, if any.
 .PARAMETER Hash
@@ -235,7 +235,7 @@ function Read-Ledger {
     if ($null -eq $cur) { continue }
     $mS = [regex]::Match($raw, '^\s+status:\s*(.*)$'); if ($mS.Success) { $cur.Status = $mS.Groups[1].Value.Trim(); continue }
     $mC = [regex]::Match($raw, '^\s+commit:\s*(.*)$'); if ($mC.Success) { $cur.Commit = (Strip-Quotes $mC.Groups[1].Value); continue }
-    $mG = [regex]::Match($raw, '^\s+go:\s*(.*)$')
+    $mG = [regex]::Match($raw, '^\s+committed:\s*(.*)$')
     if ($mG.Success) { $g = $mG.Groups[1].Value.Trim(); if ($g -ne 'none') { $fm = Parse-FlowMap $g; $cur.GoBy = [string]$fm['by']; $cur.GoDate = [string]$fm['date'] }; continue }
     $mT = [regex]::Match($raw, '^\s*-\s*\{(.*)\}\s*$')
     if ($mT.Success) {
@@ -260,7 +260,7 @@ function Render-Ledger($L) {
     [void]$sb.Append('  - id: ' + $ph.Id + "`n")
     [void]$sb.Append('    status: ' + $ph.Status + "`n")
     if ($ph.Commit -eq 'none' -or $ph.Commit -eq '') { [void]$sb.Append("    commit: none`n") } else { [void]$sb.Append('    commit: "' + $ph.Commit + '"' + "`n") }
-    if ($ph.GoBy -eq '') { [void]$sb.Append("    go: none`n") } else { [void]$sb.Append('    go: { by: "' + $ph.GoBy + '", date: "' + $ph.GoDate + '" }' + "`n") }
+    if ($ph.GoBy -eq '') { [void]$sb.Append("    committed: none`n") } else { [void]$sb.Append('    committed: { by: "' + $ph.GoBy + '", date: "' + $ph.GoDate + '" }' + "`n") }
     [void]$sb.Append("    tasks:`n")
     foreach ($t in $ph.Tasks) {
       [void]$sb.Append('      - { id: ' + $t.Id + ', status: ' + $t.Status + ', attempts: ' + $t.Attempts + ', agent: ' + $t.Agent + ', model: ' + $t.Model + ' }' + "`n")

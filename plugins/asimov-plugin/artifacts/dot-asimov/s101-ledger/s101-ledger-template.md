@@ -38,13 +38,13 @@ phases:
   - id: P0
     status: committed
     commit: "<hash>"
-    go: { by: "{{BY}}", date: "{{YYYY-MM-DD}}" }
+    committed: { by: "{{BY}}", date: "{{YYYY-MM-DD}}" }
     tasks:
       - { id: T001, status: done, attempts: 1, agent: giskard-the-dotnet-developer, model: claude-haiku-4-5 }
   - id: P1
     status: building
     commit: none
-    go: none
+    committed: none
     tasks:
       - { id: T002, status: built, attempts: 1, agent: calvin-the-test-author, model: claude-sonnet-5-5 }
       - { id: T003, status: running, attempts: 2, agent: giskard-the-dotnet-developer, model: claude-sonnet-5-5 }
@@ -64,7 +64,7 @@ phases:
 <Powell's report for the phase, verbatim>
 
 ### commit · <hash>
-go by {{BY}} on {{YYYY-MM-DD}} · <n> files · ledger
+by {{BY}} on {{YYYY-MM-DD}} · <n> files
 
 ## P1 · <phase name>
 

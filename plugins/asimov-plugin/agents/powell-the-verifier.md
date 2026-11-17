@@ -1,6 +1,6 @@
 ---
 name: powell-the-verifier
-description: Verifies a built phase against its task specs, running every done-when and the checkpoint exactly as written and reporting pass or fail per check. Use after a phase is built and reviewed, before the person is asked to commit it. Read-only on the code; the shell only runs the checks.
+description: Verifies a built phase against its task specs, running every done-when and the checkpoint exactly as written and reporting pass or fail per check. Use after a phase is built and reviewed, before the phase is committed. Read-only on the code; the shell only runs the checks.
 model: claude-sonnet-5-5
 tools: Read, Grep, Glob, Bash
 skills:

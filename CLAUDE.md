@@ -95,7 +95,7 @@ plugins/asimov-plugin/                         ← the plugin (install scope)
 │   │       ├── s101-ledger-definition.md      ← the resumable bar; statuses, append-only body, five checks
 │   │       ├── s101-ledger-template.md        ← frontmatter as machine state, body as the record
 │   │       ├── s101-ledger-operations.md      ← method file: the build ledger — start, position (five checks), record every attempt/report/ruling, close; the only writer of S101-<slug>.ledger.md
-│   │       └── scripts/ledger.ps1             ← its method: the eleven ledger operations as one script (PowerShell 5.1 and 7), run inline by asimov-build; the fingerprint computed as the S101 definition §6's awk does
+│   │       └── scripts/ledger.ps1             ← its method: the ledger operations as one script (PowerShell 5.1 and 7), run inline by asimov-build; the fingerprint computed as the S101 definition §6's awk does
 │   └── project/                               ← artifacts that land in the product repo's project/ (the Project frame); one folder per artifact
 │       ├── risk-log/                          ← the risk log: definition, template and method files; the page lands at project/risk-log.html
 │       │   ├── risk-log-definition.md         ← fields, five states, RL1–RL17, the bar (kept), where it departs from the Risk management discipline
