@@ -75,7 +75,8 @@ if (-not $PluginRoot) { $PluginRoot = Split-Path -Parent (Split-Path -Parent (Sp
 $TemplatePath = Join-Path $PluginRoot 'artifacts/project/project-info/project-info-template.html'
 $Utf8 = New-Object System.Text.UTF8Encoding $false
 
-$Path = [System.IO.Path]::GetFullPath((Join-Path (Get-Location).Path $Path))
+if (-not [System.IO.Path]::IsPathRooted($Path)) { $Path = Join-Path (Get-Location).Path $Path }
+$Path = [System.IO.Path]::GetFullPath($Path)
 $ProjectDir = Split-Path -Parent $Path
 $RepoRoot = Split-Path -Parent $ProjectDir
 $DocRoot = Join-Path $RepoRoot 'documentation'
@@ -146,6 +147,18 @@ function Doc-Href([System.IO.FileInfo]$f) {
 # ---------------------------------------------------------------------------------------------
 # Render from a model
 # ---------------------------------------------------------------------------------------------
+# the identity rows as the page carries them: Project number and Customer always (empty when not given),
+# Language left out (it is the html lang), then the rest in the order given; the renderer and the check share it
+function Ordered-Fields($fields) {
+  $ordered = New-Object System.Collections.ArrayList
+  foreach ($want in 'Project number', 'Customer') {
+    $f = $fields | Where-Object { $_.field -eq $want } | Select-Object -First 1
+    if ($f) { [void]$ordered.Add($f) } else { [void]$ordered.Add([ordered]@{ field = $want; value = '' }) }
+  }
+  foreach ($f in $fields) { if ($f.field -notin 'Project number', 'Customer', 'Language') { [void]$ordered.Add($f) } }
+  return @($ordered)
+}
+
 function Render-Page([hashtable]$model) {
   $tpl = Read-Text $TemplatePath
   $tpl = [regex]::Replace($tpl, '(?s)\n<!--\n  Page template for the project info.*?\n-->\n', "`n", 1)
@@ -153,14 +166,12 @@ function Render-Page([hashtable]$model) {
   $fieldTpl = Get-Block $tpl 'field'
   $rows = ''
   $ordered = New-Object System.Collections.ArrayList
-  foreach ($want in 'Project number', 'Customer') {
-    $f = $model.fields | Where-Object { $_.field -eq $want } | Select-Object -First 1
-    if ($f) { [void]$ordered.Add($f) } else { [void]$ordered.Add([ordered]@{ field = $want; value = '' }) }
-  }
   $langName = @{ en = 'English'; da = 'Danish'; de = 'German'; sv = 'Swedish'; nb = 'Norwegian'; nl = 'Dutch'; fr = 'French'; es = 'Spanish' }
   $ln = $model.lang; if ($langName.ContainsKey($ln)) { $ln = $langName[$ln] }
+  $identity = @(Ordered-Fields $model.fields)
+  [void]$ordered.Add($identity[0]); [void]$ordered.Add($identity[1])
   [void]$ordered.Add([ordered]@{ field = 'Language'; value = $ln })
-  foreach ($f in $model.fields) { if ($f.field -notin 'Project number', 'Customer', 'Language') { [void]$ordered.Add($f) } }
+  for ($i = 2; $i -lt $identity.Count; $i++) { [void]$ordered.Add($identity[$i]) }
   foreach ($f in $ordered) {
     $v = $f.value; $cls = ''
     if (-not $v) { $v = 'not set'; $cls = ' class="unset"' }
@@ -211,7 +222,7 @@ function Compare-Model([hashtable]$want, [hashtable]$got) {
   for ($i = 0; $i -lt @($want.areas).Count; $i++) {
     if ($got.areas[$i].area -ne $want.areas[$i].area -or $got.areas[$i].repo -ne $want.areas[$i].repo) { return "area $($i + 1) differs after render" }
   }
-  $wf = @($want.fields | Where-Object { $_.field -ne 'Language' }); $gf = @($got.fields)
+  $wf = @(Ordered-Fields $want.fields); $gf = @($got.fields)
   if ($gf.Count -ne $wf.Count) { return "fields: wanted $($wf.Count), page reads $($gf.Count)" }
   for ($i = 0; $i -lt $wf.Count; $i++) { if ($gf[$i].field -ne $wf[$i].field -or $gf[$i].value -ne $wf[$i].value) { return "field '$($wf[$i].field)' differs after render" } }
   if ($got.shared -ne $want.shared) { return 'shared line differs after render' }
