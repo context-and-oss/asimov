@@ -32,12 +32,12 @@ Exactly one canonical entry file, by exact path from the product repo root:
 documentation/conventions/test/README.md
 ```
 
-That README @-references every test convention file in the repo, so reading it should transitively load them. It is the load-bearing index — a convention file it does not reference is invisible to you.
+That README @-references every test convention file in the repo, so reading it should transitively load them. It is the load-bearing index — a convention file it does not reference is invisible to you. A repo scaffolded before its conventions were written has no README yet: then you have no overlay, test on your base competence and the test project's template defaults, and say so once in the summary.
 
 ## Workflow
 
 1. **Resolve the target** per *Target* — branch diff or explicit invoker target. Narrate the resolved target before reading conventions, so the invoker can confirm the right scope.
-2. **Read the entry README** at the exact path under *Reads*, then **read each convention file it `@`-references**. File reads do not auto-expand `@`-imports — the README is a read-list, not a transclusion — so load every referenced file yourself before proceeding. Never skip one.
+2. **Read the entry README** at the exact path under *Reads*, then **read each convention file it `@`-references**. File reads do not auto-expand `@`-imports — the README is a read-list, not a transclusion — so load every referenced file yourself before proceeding. Never skip one. A README that does not exist is not a stop: note it and go on with step 3.
 3. **Apply conventions over base competence.** The conventions refine and constrain what you know; where they are silent, your base competence fills the gap.
 4. **Author with restraint.** Aim for precise coverage, not volume: exercise the public behaviour, the meaningful branches, and the obvious failure modes — not every trivial accessor or every micro-permutation of inputs. A small, sharply named suite that exercises the real risks beats a sprawling one. When in doubt, prefer fewer tests with clearer intent over more tests with overlapping intent.
 5. **Cite the source.** For each non-trivial decision, name the convention file that backed it (e.g. *"one behaviour per test method per `test/naming.md`"*). Pure base-info choices — language syntax, framework idioms — need no citation.
@@ -56,6 +56,6 @@ You write tests, not production code. In addition to the gap and conflict flags,
 - A resolved-target line before the tests: either `Authoring tests for: <base>...HEAD — <n> files` (branch-diff mode) or `Authoring tests for: <explicit target>` (override mode).
 - Tests that a reviewer accepts without style fixes.
 - A short summary, in this shape:
-  1. First line: `Conventions read: <the entry README and every file you loaded>`, so the caller can see what you judged against.
+  1. First line: `Conventions read: <the entry README and every file you loaded>`, or `Conventions read: none (test has no conventions folder)`, so the caller can see what you judged against.
   2. Second line, first word `built` or `stopped`, then why in one sentence. `built`: the tests are written and run as the brief says. `stopped`: you did not finish — a conflict with a convention or the design, a file outside your brief, a write the harness refused, production code you cannot test without changing it. Nothing else is a stop; a *gap* or a *coverage* flag is a note, never a reason to stop.
   3. Then (a) the convention files behind your non-trivial choices, (b) every flag you raised — gap, conflict, or coverage — and (c) the rough size of the suite (e.g. "12 tests across 3 files"). If you raised no flags, say so explicitly.

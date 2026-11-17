@@ -49,6 +49,8 @@ $ErrorActionPreference = 'Stop'
 try { [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 } catch { }
 
 . (Join-Path $PSScriptRoot 'plan-lib.ps1')
+# a command that serves until it is stopped has no exit code to read: never a check, never a done-when
+$ServingCmd = '(?i)\b(dotnet\s+(run|watch)|ng\s+serve|npm\s+(start|run\s+(start|dev|serve))|yarn\s+(start|dev)|pnpm\s+(start|dev))\b'
 
 if ($PluginRoot -eq '') { $PluginRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $PSScriptRoot))) }  # artifacts/dot-asimov/<artifact>/scripts/ -> the plugin root
 if (-not [System.IO.Path]::IsPathRooted($Plan)) { $Plan = Join-Path (Get-Location).Path $Plan }
@@ -653,9 +655,10 @@ foreach ($ph in $Phases) {
   if ($dl -match '(?i)\btests?\b[^.]*\b(green|red|pass|passes|passing)\b') { $res += 'Flag'; $why += "$($ph.Id) delivers reads as a test result; the checkpoint carries that, delivers says what the phase adds" }
   if ($ck.Trim() -eq '') { $res += 'Fail'; $why += "$($ph.Id) check is empty" }
   elseif ($ck -match '(?i)\b(grep|rg|Select-String|findstr)\b') { $res += 'Fail'; $why += "$($ph.Id) check searches the source: '$ck'" }
+  elseif ($ck -match $ServingCmd) { $res += 'Fail'; $why += "$($ph.Id) check serves until stopped and has no exit to read: '$ck'" }
   elseif ($ck -notmatch '\S+\s+\S+' -and $ck -notmatch '\.(ps1|sh|cmd)$') { $res += 'Fail'; $why += "$($ph.Id) check has no runnable form: '$ck'" }
 }
-Finish-Row '4' 'Stoppable phases' $res $why 'Every checkpoint is a sentence; every check is a command that is not a search.'
+Finish-Row '4' 'Stoppable phases' $res $why 'Every checkpoint is a sentence; every check is a command that exits and is not a search.'
 
 # 5 Interface closure
 $c = Combine @('G5', 'F3'); $rs = Worst $c.Results; $sentence = 'Contracts table consistent; every task header closes.'
@@ -918,6 +921,7 @@ foreach ($Task in $AllTasks) {
   for ($i = 0; $i -lt $Body.Count - 1; $i++) { if ($Body[$i] -match '(?i)^\s*(#+\s*)?\**steps\**\s*:?\s*$' -and $Body[$i + 1] -match '^\s*(\d+\.|[-*])\s') { $res += 'Fail'; $why += 'a list under a Steps heading' } }
   foreach ($sl in $ScenarioLines) { if ($sl -match "(?:[\w.-]+/)+[\w.-]+$SrcExt") { $res += 'Fail'; $why += "a Scenario names a path: $($sl.Trim())" } }
   foreach ($d in $DoneItems) { if ($d -match '(?i)\b(grep|rg|Select-String|findstr)\b') { $res += 'Fail'; $why += "a done-when searches the source: $($d.Trim())" } }
+  foreach ($d in $DoneItems) { if ($d -match $ServingCmd) { $res += 'Fail'; $why += "a done-when names a command that serves until stopped: $($d.Trim())" } }
   $OwnedOnDisk = @(@($Modify) + @($TestFiles) | Where-Object { -not (Test-IsGlob $_) -and (Test-Path -LiteralPath (Resolve-RepoPath $_)) })
   $known = @($Contracts.Keys) + @($ConsumedNames) + @($Produces)
   $knownShort = @($known | ForEach-Object { ($_ -split '\.')[-1] })
@@ -1037,6 +1041,7 @@ foreach ($Task in $AllTasks) {
     }
   }
   $s7 = RowOf 'S7'; if ($s7.Reason -match 'searches the source') { $res += 'Fail'; $why += 'a done-when searches the source (S7)' }
+  if ($s7.Reason -match 'serves until stopped') { $res += 'Fail'; $why += 'a done-when names a serving command with no exit (S7)' }
   if ($res.Count -eq 0) { Add-Row '5' 'Done-when' 'Pass' "$($DoneItems.Count) item(s), each a name or command with a result." } else { Add-Row '5' 'Done-when' (Worst $res) (($why | Select-Object -Unique) -join '; ') }
 
   # 6 Stops

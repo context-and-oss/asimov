@@ -22,7 +22,8 @@
     The builder decides HOW: every method body, every private name, every
     test's code. No code block in this file holds a body, a test or a step; the
     only code blocks are Gherkin. A done-when never searches the source for the
-    spec's own text.
+    spec's own text, and never names a command that serves until stopped
+    (dotnet run, ng serve, npm start): it has no exit to read.
 
   THE HEADER
   - role, tier, after and traces are copied verbatim from the task's line in
@@ -98,7 +99,7 @@
     row, a header entry, a word of the design, or declared in a file the header
     names (a consumed path, an owned file); a framework exception is fine.
   - 3 Done-when: every numbered item holds a code span (a class, a file, a
-    command) AND a result word: green, red, passes, fails, exits, prints,
+    command that exits; never dotnet run, ng serve or npm start) AND a result word: green, red, passes, fails, exits, prints,
     returns, is, are, equals, contains, met. A builder with a tester of its
     stack in its phase names, in a code span, a test class the tester's §3
     names in a code span (copy it from there; a command both share does not

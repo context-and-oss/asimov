@@ -49,7 +49,7 @@ Missing inputs take the default in brackets.
 
 6. **Order.** `after` on every task: a slice's tester (or test-first builder) after the Foundation task(s) of its stack, else after nothing; a builder after its tester; a consumer after its producer; the close after the last slice's tasks. Acyclic. Where two tasks with no path between them will touch one file, make the later slice's first task come after the earlier slice's builder and say so in an assumption naming the file.
 
-7. **Three sentences per phase.** `delivers`: one sentence in the product's words, what the phase adds and why the next needs it; never a test, never a file. `checkpoint`: one plain sentence, what is true in the product when the phase is done, with the tests as the proof; no command, filter or path. `check`: the command that proves it, from the conventions or the D100 §5.1, never invented; the verifier runs it, the view never shows it.
+7. **Three sentences per phase.** `delivers`: one sentence in the product's words, what the phase adds and why the next needs it; never a test, never a file. `checkpoint`: one plain sentence, what is true in the product when the phase is done, with the tests as the proof; no command, filter or path. `check`: the command that proves it, from the conventions or the D100 §5.1, never invented, and never a command that serves until it is stopped (`dotnet run`, `ng serve`, `npm start`), which has no exit to read; the verifier runs it, the view never shows it.
 
 8. **Once, in the plan sections.** §2: the constraints the design imposes on every task and every departure from the conventions, one short line each, the value verbatim with its source, plus, when the Foundation scaffolds, the D100's layout and start it realises, one line each with the source *D100 §6* and *D100 §5.1*; never a convention restated, never a `CLAUDE.md` rule repeated. §5: the failure modes no task's check exercises, each pinned to the task that carries the scenarios of the code it concerns. §4: who rules and the stops specific to this plan as one sub-bullet each, or *none*.
 
@@ -97,6 +97,7 @@ Missing inputs take the default in brackets.
 - Write anything but `.asimov/plans/<slug>.md`: never the S101, an S102, the ledger, the design or the conventions.
 - Write code, a step, a test body, or a signature outside §1; a method body or a private name anywhere.
 - Put a command in a `checkpoint` or a sentence in a `check`; a test result in `delivers`.
+- Put a serving command (`dotnet run`, `ng serve`, `npm start`) in a `check` or a done-when; it never exits, so nothing can read it.
 - Copy a convention into §2; invent a stack, a runner, a path, a layout or a signature: what you cannot ground is an assumption with its options, a line sourced to the D100, or a `design:` row.
 - Put a slice's behaviour in the Foundation, cut a Foundation with nothing to found, cut an internal layer as a slice, or put a builder beside or ahead of its tester.
 - Put existing code or a test name in §1; restate a signature in a task section; name a test method.
