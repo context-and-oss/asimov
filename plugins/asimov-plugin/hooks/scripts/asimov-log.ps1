@@ -187,6 +187,7 @@ function Get-FeatureFromText([string]$text) {
   # the feature slug a tool input names: specs/<slug>/ or D101-<slug>; the first found. No other word of the input is read.
   if (-not $text) { return '' }
   if ($text -cmatch 'specs[\\/]+([a-z0-9][a-z0-9-]*)[\\/]') { return $Matches[1] }
+  if ($text -cmatch 'plans[\\/]+([a-z0-9][a-z0-9-]*)\.(?:design\.|review\.)?md') { return $Matches[1] }
   if ($text -cmatch 'D101-([a-z0-9][a-z0-9-]*)\.(html|md)') { return $Matches[1] }   # a design file, never the d101-* artifact folder
   return ''
 }

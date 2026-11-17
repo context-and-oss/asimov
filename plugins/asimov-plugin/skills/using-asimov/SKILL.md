@@ -15,7 +15,7 @@ Each stage this repository uses has one skill. When the person's words match a s
 - **Design** — {{INVOKE:asimov-design}}: a feature to design, a D101 under `documentation/features/` to write, continue, edit or review, a legacy markdown D101 to render. In your skill list; invoke it when the words match.
 <!-- /part -->
 <!-- part: spec -->
-- **Spec** — {{INVOKE:asimov-spec}}: plan a Full-design D101 or an approved ticket into `specs/<slug>/`; the person's go approves the plan. In your skill list; invoke it when the words match.
+- **Spec** — {{INVOKE:asimov-spec}}: plan a Full-design D101 or an approved ticket into `.asimov/plans/<slug>.md`, rendered to `.asimov/specs/<slug>/`; the person's go approves the plan. In your skill list; invoke it when the words match.
 <!-- /part -->
 <!-- part: build -->
 - **Build** — {{INVOKE:asimov-build}}: build a `ready` plan phase by phase with the agents; the person's go commits each phase. In your skill list; invoke it when the words match.
@@ -37,7 +37,7 @@ For a change to source or test files, in this order:
 3. For a prominent change (several files, a new public surface, a new feature) ask the person whether they want a full testing pass and whether Baley should review. Never schedule a review on your own.
 4. Findings from Baley go back to the person before any builder loops.
 
-Edit inline, no delegation: config files, documentation, plan and spec files, one-line mechanical fixes. When a `ready` plan exists under `specs/`, do not build it by hand; say so and invoke {{INVOKE:asimov-build}}.
+Edit inline, no delegation: config files, documentation, plan and spec files, one-line mechanical fixes. When a `ready` plan exists under `.asimov/specs/`, do not build it by hand; say so and invoke {{INVOKE:asimov-build}}.
 
 <!-- /part -->
 ## Layout
@@ -47,7 +47,7 @@ Edit inline, no delegation: config files, documentation, plan and spec files, on
 - `documentation/features/D101-*.html` — the feature designs
 <!-- /part -->
 <!-- part: spec -->
-- `specs/<slug>/` — the S101 plan, the S102 task specs, the build ledger
+- `.asimov/plans/<slug>.md` — the plan the Spec stage writes; `.asimov/specs/<slug>/` — the S101, the S102s and the build ledger it renders to (working state, not committed)
 <!-- /part -->
 <!-- part: project -->
 - `project/` — the project pages

@@ -9,10 +9,10 @@ The method for the one file that holds a build's run state. `asimov-build` calls
 ## The call
 
 ```
-pwsh -NoProfile -File "<plugin-root>/artifacts/documentation/s101-ledger/scripts/ledger.ps1" -Op <operation> -S101 specs/<slug>/S101-<slug>.md [the operation's inputs]
+pwsh -NoProfile -File "<plugin-root>/artifacts/dot-asimov/s101-ledger/scripts/ledger.ps1" -Op <operation> -S101 .asimov/specs/<slug>/S101-<slug>.md [the operation's inputs]
 ```
 
-`pwsh` (PowerShell 7) or `powershell` (Windows PowerShell 5.1; add `-ExecutionPolicy Bypass`), whichever the machine has; the script runs on both. The ledger's path is derived from the S101's (`S101-<slug>.ledger.md` beside it) and the repo root from the folder above `specs/`, so the script runs from any working directory; the script itself reads nothing of the plugin.
+`pwsh` (PowerShell 7) or `powershell` (Windows PowerShell 5.1; add `-ExecutionPolicy Bypass`), whichever the machine has; the script runs on both. The ledger's path is derived from the S101's (`S101-<slug>.ledger.md` beside it) and the repo root from the folder above `.asimov/specs/`, so the script runs from any working directory; the script itself reads nothing of the plugin.
 
 **Text goes in through a file or stdin, never as an argument.** A builder's summary or a report is multi-line: write it to a file and pass `-TextFile <path>`, or pipe it on stdin with a heredoc (`… -Op review -S101 … -Phase P1 <<'EOF'` … `EOF`). `-Text` is for a one-liner.
 

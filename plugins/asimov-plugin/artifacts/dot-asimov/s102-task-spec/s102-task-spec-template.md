@@ -6,9 +6,12 @@
 
   WHO READS THIS FILE
   - The builder, as its brief; the author, to see what the builder will be told;
-    s102-task-spec-authoring.md writes it, scripts/validate-s102.ps1 checks it,
-    both beside this file. The file in the plugin is the source of truth (D100 §7.4).
-  - Written to specs/{{SLUG}}/S102-{{SLUG}}-{{NNN}}-{{TASK-SLUG}}.md,
+    render-plan.ps1 writes it from the task's section of the plan
+    (.asimov/plans/<slug>.md, the plan artifact under
+    artifacts/dot-asimov/asimov-plan/), validate-plan.ps1 checks the plan it is
+    rendered from; nobody writes it by hand. The file in the plugin is the
+    source of truth (D100 §7.4).
+  - Written to .asimov/specs/{{SLUG}}/S102-{{SLUG}}-{{NNN}}-{{TASK-SLUG}}.md,
     beside the S101 whose task line it expands; {{NNN}} is the task id's
     number, T003 → 003; {{TASK-SLUG}} is three to five words of the title in
     kebab-case, never the whole title. There is no S102 without an S101.
@@ -123,7 +126,7 @@
 -->
 ---
 spec: S102
-s101: specs/{{SLUG}}/S101-{{SLUG}}.md
+s101: .asimov/specs/{{SLUG}}/S101-{{SLUG}}.md
 task: "{{TASK-ID}}"
 title: "{{TITLE}}"
 role: dotnet-builder

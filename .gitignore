@@ -26,18 +26,11 @@ documentation/**/images/_raw/
 # artifact; committing it would duplicate a PR's own review thread.
 documentation/features/*.review.md
 
-# Spec-stage validation sidecar — the last run's reports and default-taken
-# assumptions, written by asimov-spec and overwritten by
-# the next run (s101-implementation-plan-definition §9, D101-spec-stage.html §6.8).
-# A cache, never a record; the assumptions themselves live in the S101.
-specs/*/S101-*.review.md
-# Design cache — a design that is not a file in the repo (a ticket thread),
-# normalised into the shape the S101 definition §9 fixes, for the blind validation
-# reader. The source's tool is the record; asimov-spec rewrites this on every
-# run (S101 definition §3.1, §9).
-specs/*/design.md
-# Asimov run log — one text line per harness event, written by the plugin's
-# hooks (asimov-log-definition.md, D101-asimov-log.html). Working state, never a record.
+# Asimov working state — the Spec stage's plans (.asimov/plans/), the S101, S102s and
+# ledger it renders to (.asimov/specs/), the run log the hooks write (.asimov/log/).
+# Working state, never a record; the code and the D101 are what is committed
+# (asimov-plan-definition.md §6, s101-ledger-definition.md §7). specs/ under this
+# repo root holds the risk log's plan from before 2026-11-17, kept as history.
 .asimov/
 # Claude Code local state
 .claude/settings.local.json

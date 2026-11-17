@@ -13,7 +13,7 @@ You are `asimov-init`, the setup asimov-skill in Asimov. Your job is to make the
 3. **Convention read-lists** — `documentation/conventions/<stack>/README.md` for each detected stack (the load-bearing read-list the build subagents load).
 4. **The project info** — `project/info.html`, the project's record (its areas and the repository holding each), written by reading `${CLAUDE_PLUGIN_ROOT}/artifacts/project/project-info/project-info-authoring.md` whole and following it, when the repo has none.
 5. **The documentation site** — `documentation/index.html`, `_chrome.css`, `_site/` and the nav block in every document, written whole through `artifact-site-authoring`.
-6. **`.gitignore`** — the five Asimov run-cache patterns.
+6. **`.gitignore`** — the three Asimov run-cache patterns.
 
 Plus one **migration**: a repo set up before 2026-11-12 carries the old context file (a full `asimov.md` without frontmatter), an `@asimov.md` import line in `CLAUDE.md` and an Asimov-managed region in `AGENTS.md`. The marker replaces the first; the run removes the line and the region, which Asimov wrote, and nothing else in those two files.
 
@@ -128,7 +128,7 @@ Inspect what already exists so the write plan can label each target. Use **Read*
 - **Each detected stack `README.md`** → `NEW` (scaffold from template) if absent; `MERGE` if present **with** an `<!-- asimov:start -->`…`<!-- asimov:end -->` region (refresh only that region; the read-list below the end marker is the team's and is never written); `MERGE — read-list moved below the markers` if that region still holds `@`-reference lines (a file scaffolded before the read-list became user-owned): the run moves those lines out of the region before refreshing it; `ASK` if present **without** markers (do not modify until the developer agrees to inserting a region).
 - **`project/info.html`** → `NEW` if absent (asked for in Step 7); `SKIP — present` otherwise.
 - **The site** (`documentation/index.html`, `_chrome.css`, `_site/`, the nav blocks) → `WRITE — whole` always; the skill writes only what changed and removes stale pages.
-- **`.gitignore`** → the five Asimov patterns below: `NEW` if the file is absent; `APPEND` if it exists and any pattern is missing (only the missing ones are added, under one comment line); `SKIP` if every pattern is already there.
+- **`.gitignore`** → the three Asimov patterns below: `NEW` if the file is absent; `APPEND` if it exists and any pattern is missing (only the missing ones are added, under one comment line); `SKIP` if every pattern is already there.
 
 # Step 6 — Confirm
 
@@ -173,13 +173,11 @@ Only after confirmation. Apply each target's rule:
    - Present without markers (and the developer agreed in Step 6) → insert the marker block above the existing text; the existing text becomes the user-owned part. Otherwise skip and note it.
 6. **Project info** — when `project/info.html` is absent, ask the person, in one message, for: the project's name, its one line (what it does, for whom), its areas (for a product spanning several systems, the systems) with the repository holding each, and the fixed people (project lead, product owner; may be skipped). The repository this run is in is the one that holds the areas documented here. Then read `${CLAUDE_PLUGIN_ROOT}/artifacts/project/project-info/project-info-authoring.md` whole and follow it with the verb `create`, confirm what it says will be stored, and write as it says. Present → nothing.
 7. **The site** — invoke `artifact-site-authoring` with the verb `write`; relay its report. It writes `index.html`, `_chrome.css`, `_site/` and the nav block of every document the site indexes, whole, and removes stale pages; nothing else.
-8. **`.gitignore`** — the Design- and Spec-stage caches the toolkit writes beside its artifacts, the run log its hooks write under `.asimov/`, and a risk-log write interrupted before its rename (`project/*.new`), must never be committed; they are a run's working state, not a record. Add the patterns that are missing, verbatim, after one comment line, at the end of the file (or as a new file holding only this block). **Change no other line.**
+8. **`.gitignore`** — the Design-stage review notes the toolkit writes beside its artifacts, the Spec stage's plans and specs and the run log under `.asimov/`, and a risk-log write interrupted before its rename (`project/*.new`), must never be committed; they are a run's working state, not a record. Add the patterns that are missing, verbatim, after one comment line, at the end of the file (or as a new file holding only this block). **Change no other line.**
 
    ```
    # Asimov run caches and log — written by the asimov-* skills and the plugin's hooks, never a record (see asimov.md)
    documentation/features/*.review.md
-   specs/*/S101-*.review.md
-   specs/*/design.md
    .asimov/
    project/*.new
    ```
@@ -208,4 +206,4 @@ After writing, report:
 
 # Repo handling
 
-The `documentation/` taxonomy (Step 4), the `asimov.md` root location and its four `asimov-<entry point>` keys (read by `hooks/asimov-context`), the `.codex/agents/` delivery folder, the `<stack>` slugs and the five `.gitignore` patterns (Step 7, item 8: the `documentation/features/*.review.md` and `specs/*/…` caches, the `.asimov/` log folder and the risk log's interrupted write `project/*.new`) are the conventions shared with `asimov-design`, `asimov-spec`, `asimov-build`, `asimov-project`, the `artifact-*` skills and the plugin's hooks. If the active repo uses a different layout, fork the patterns here and in those together — they share the path convention and must stay in lockstep (D100 hard rule 9).
+The `documentation/` taxonomy (Step 4), the `asimov.md` root location and its four `asimov-<entry point>` keys (read by `hooks/asimov-context`), the `.codex/agents/` delivery folder, the `<stack>` slugs and the three `.gitignore` patterns (Step 7, item 8: the `documentation/features/*.review.md` cache, the `.asimov/` log folder and the risk log's interrupted write `project/*.new`) are the conventions shared with `asimov-design`, `asimov-spec`, `asimov-build`, `asimov-project`, the `artifact-*` skills and the plugin's hooks. If the active repo uses a different layout, fork the patterns here and in those together — they share the path convention and must stay in lockstep (D100 hard rule 9).

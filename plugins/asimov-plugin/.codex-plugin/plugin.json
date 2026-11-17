@@ -1,6 +1,6 @@
 {
   "name": "asimov-plugin",
-  "version": "0.13.0",
+  "version": "0.14.0",
   "description": "L3 workflow tooling — asimov-skills, subagents and skills for the Design, Spec, Code, and Review+Test stages.",
   "license": "MIT",
   "author": {

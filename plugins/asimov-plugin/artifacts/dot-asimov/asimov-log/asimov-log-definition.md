@@ -32,7 +32,7 @@ YYYY-MM-DD HH:MM  <stage>  <feature>  <who>  <sentence>
 |---|---|
 | time | Local clock, minute resolution |
 | stage | `session`, `init`, `design`, `spec` or `build`: the last asimov-skill invoked in the session; `session` before any |
-| feature | The first word after the asimov-skill's name at its invocation; in Codex, where those words never reach the hook, the slug of the first `specs/<slug>/` or `D101-<slug>.html` (`.md`) path a tool input names after the invocation; `-` before either; unchanged when the input was more than one word |
+| feature | The first word after the asimov-skill's name at its invocation; in Codex, where those words never reach the hook, the slug of the first `.asimov/plans/<slug>.md`, `.asimov/specs/<slug>/` or `D101-<slug>.html` (`.md`) path a tool input names after the invocation; `-` before either; unchanged when the input was more than one word |
 | who | `session`, `skill`, or the agent's name: its shell (`giskard-the-dotnet-developer`) where the harness names one; else the name its spawn message opens with (`You are Giskard, …` → `giskard`, `Act as the S101 plan writer for …` → `s101-plan-writer`); else `agent` |
 | sentence | English, one line, from the table in §3. Never prompt, code or diff text (D101 R4); the one piece of model text is a round's headline, the first line of the agent's answer, markdown stripped, cut at 80 characters, a path under the repo made relative |
 

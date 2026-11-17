@@ -18,7 +18,7 @@ Design: `documentation/features/D101-build-stage.html` §4.2, §6.4.
 
 - **Resume.** A run that stopped, or died, continues from the ledger without rebuilding a task that is done (D101 R9). The frontmatter says where it stood; nothing else does.
 - **Record.** Every attempt, every report from Powell and Baley, every ruling by the person, with who and when. The S101 never carries any of it (D101 R8, R10).
-- **Evidence in the PR.** The ledger is committed with each phase, so the reviewer who opens the PR sees what was verified and reviewed, and by what (D100 Q5).
+- **Evidence in the commit.** The ledger is working state under `.asimov/`, never committed (since 2026-11-17, with the plan and the specs); each phase's commit message carries the checkpoint sentence and Baley's and Powell's one-line results, so the reviewer who opens the PR sees what was verified and reviewed, and by what (D100 Q5). The full reports stay in the ledger on the machine that built the phase.
 
 ## 2. The bar: resumable
 
@@ -59,7 +59,7 @@ A phase with several review or verify rounds has several such headings; nothing 
 - **Append, never rewrite.** The frontmatter's statuses move; the body only grows. A ledger with a report removed is not the record.
 - **Write before the next step.** A task's `running` is written before the agent is spawned, `built` before the next task starts, a phase's `passed` before the gate is shown. A dead run is then one step behind at most.
 - **One ledger, one plan.** The ledger's `fingerprint` is the S101's approval fingerprint. A resume recomputes the S101's fingerprint; a mismatch refuses the run (D101 §4.6).
-- **Committed with the phase.** The go's commit holds the phase's owned files and the ledger, nothing else. Between gos the ledger is a modified file in the working tree, like the phase's code.
+- **Beside the phase, never in it.** The go's commit holds the phase's owned files, nothing else; the ledger records the hash. The ledger lives under `.asimov/`, gitignored, so a run resumes on the machine that started it, and a clone starts a run afresh from the plan.
 - **Verbatim reports, words in chat.** The ledger holds the reports as the agents returned them; the chat shows one line each (D101 NF1). Nothing is summarised into the ledger.
 - **No product entity in the toolkit.** The ledger in a product repo names the product's files and tests; this definition and the template never do (hard rule 7).
 
@@ -84,6 +84,6 @@ Run by the ledger script, `scripts/ledger.ps1` beside this file, before every re
 
 ## 7. Placement and naming
 
-`specs/<feature-slug>/S101-<feature-slug>.ledger.md`, beside the plan it belongs to. The suffix form, not a new document code, because a ledger is run state and not a reviewed artifact; the same form as the gitignored `S101-<feature-slug>.review.md`, but committed. One ledger per plan; a plan built again after `done` starts from `draft` through `asimov-spec`, and the old ledger goes with the old plan in git.
+`.asimov/specs/<feature-slug>/S101-<feature-slug>.ledger.md`, beside the plan it belongs to. The suffix form, not a new document code, because a ledger is run state and not a reviewed artifact; the same form as the gitignored `.asimov/plans/<feature-slug>.review.md`, but committed. One ledger per plan; a plan built again after `done` starts from `draft` through `asimov-spec`, and the old ledger goes with the old plan in git.
 
 The path is a lockstep literal with the specs folder (`CLAUDE.md` hard rule 9).

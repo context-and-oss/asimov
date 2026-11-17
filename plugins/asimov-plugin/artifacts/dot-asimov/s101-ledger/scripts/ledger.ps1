@@ -5,7 +5,7 @@
 .DESCRIPTION
   Implements the operations of artifacts/documentation/s101-ledger/s101-ledger-operations.md
   (beside this script's folder) on the one file that holds a
-  build's run state, specs/<slug>/S101-<slug>.ledger.md, beside the plan it belongs
+  build's run state, .asimov/specs/<slug>/S101-<slug>.ledger.md, beside the plan it belongs
   to (s101-ledger-definition.md). The frontmatter is machine state and is rewritten with the
   statuses moved; the body is the record and is only ever appended to. Every call does one
   operation and prints one line for the chat (position prints a short block). It spawns nothing,
@@ -56,7 +56,7 @@
   The product repo root (for the L5 git check). Defaults to two folders above the S101.
 
 .EXAMPLE
-  pwsh -NoProfile -File ledger.ps1 -Op start -S101 specs/x/S101-x.md -By "A. Person"
+  pwsh -NoProfile -File ledger.ps1 -Op start -S101 .asimov/specs/x/S101-x.md -By "A. Person"
 .EXAMPLE
   pwsh -NoProfile -File ledger.ps1 -Op task -S101 <s101> -Task T001 -Status running -Agent giskard-the-dotnet-developer -Model claude-sonnet-5-5
 .EXAMPLE
@@ -120,7 +120,7 @@ if ($Slug -eq '') { Fail-Run "not an S101 path: $S101" }
 $LedgerPath = Join-Path $SpecDir ("S101-" + $Slug + ".ledger.md")
 $LedgerName = Split-Path -Leaf $LedgerPath
 if ($RepoRoot -eq '') {
-  $m = [regex]::Match($S101.Replace('\', '/'), '^(.*)/specs/[^/]+/[^/]+$')
+  $m = [regex]::Match($S101.Replace('\', '/'), '^(.*)/.asimov/specs/[^/]+/[^/]+$')
   if ($m.Success) { $RepoRoot = $m.Groups[1].Value } else { $RepoRoot = (Get-Location).Path }
 }
 

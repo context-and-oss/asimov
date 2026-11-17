@@ -5,9 +5,10 @@
 
   WHO READS THIS FILE
   - asimov-build, through scripts/ledger.ps1, to resume and to record.
-  - The PR reviewer, for what was verified and reviewed in each phase.
-  - Written to specs/{{SLUG}}/S101-{{SLUG}}.ledger.md, beside the
-    plan; committed with each phase's go.
+  - The person who built the phase, for what was verified and reviewed; the
+    PR reviewer reads the one-line results in each phase's commit message.
+  - Written to .asimov/specs/{{SLUG}}/S101-{{SLUG}}.ledger.md, beside the
+    rendered S101; working state under .asimov/, never committed.
   - Strip THIS comment from the rendered file.
 
   THE FRONTMATTER is machine state: statuses move, nothing else changes.
@@ -30,7 +31,7 @@
 ---
 ledger: S101
 slug: "{{SLUG}}"
-s101: specs/{{SLUG}}/S101-{{SLUG}}.md
+s101: .asimov/specs/{{SLUG}}/S101-{{SLUG}}.md
 fingerprint: "{{FINGERPRINT}}"
 started: { by: "{{BY}}", date: "{{YYYY-MM-DD}}" }
 phases:

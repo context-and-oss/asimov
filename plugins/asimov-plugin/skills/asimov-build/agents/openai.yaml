@@ -6,4 +6,4 @@
 interface:
   display_name: "Asimov · Build"
   short_description: "Build a ready plan phase by phase with the Asimov agents; your go commits each phase"
-  default_prompt: "Use $asimov-plugin:asimov-build to build the plan specs/<slug>/S101-<slug>.md."
+  default_prompt: "Use $asimov-plugin:asimov-build to build the plan .asimov/specs/<slug>/S101-<slug>.md."

@@ -8,7 +8,7 @@ since: 2026-09-25
 
 The written standard an S101 (implementation plan) must meet before any of its tasks is handed to a build subagent. An S101 turns one **design**, a D101 at `Full design` or a ticket that meets the bar in §3.1, into an ordered, dependency-aware set of S102 task specs, and states everything the run needs *once*: contracts, constraints, coverage, escalation routing. It is the **plan** part of a specification as `contracts/specification.md` defines it; the S102 is the **task** part (`s102-task-spec-definition.md`).
 
-Read by agents: `asimov-spec` through the method files beside this one, `s101-implementation-plan-authoring.md` and `s101-implementation-plan-validation.md` (with `scripts/validate-s101.ps1`), and the orchestrator that dispatches S102s, which reads it as its control document. A person sees the plan through the view those asimov-skills print (the cut, the end of a run, the reviewer's read); the file itself is written for the agents and kept exact and short.
+Read by agents: `asimov-spec` through the plan artifact's method files under `artifacts/dot-asimov/asimov-plan/`, `asimov-plan-authoring.md` and `asimov-plan-validation.md` (with `scripts/validate-plan.ps1`), and the orchestrator that dispatches S102s, which reads it as its control document. A person sees the plan through the view those asimov-skills print (the cut, the end of a run, the reviewer's read); the file itself is written for the agents and kept exact and short.
 
 Design: `documentation/features/D101-spec-stage.html`. Research: `documentation/research/S101-S102-spec-stage-research.md`, `documentation/research/specification-contract-research.md`.
 
@@ -42,7 +42,7 @@ An S101 clears one bar. **Dispatch-ready** means the person or orchestrator runn
 
 Two words for two checks. **Validation** is the spec check *before* code: does the S101 clear this bar, does every S102 clear its own, and do they agree with each other (§8, `s102-task-spec-definition.md` §8). **Verification** is the code check *after* build: run the done-when of each S102 against what was built. This definition covers validation; verification belongs to the Build workflow.
 
-The author sees the plan twice. Once as the **cut**: the S101 alone, no S102 beside it, checked and then shown by `asimov-spec` before any task spec is written; the author says *go*, corrects it, or stops. That go is the approval. Once more at the end, when every S102 exists and the plan has been validated as a whole: `ready` when the plan on disk is the one approved, or what changed and the question to approve again when it is not. The author reads the plan as the view `s101-implementation-plan-view.md` (beside this file) fixes and the findings as one line each; a raw report never reaches a person.
+The author sees the plan twice. Once as the **cut**: the S101 alone, no S102 beside it, checked and then shown by `asimov-spec` before any task spec is written; the author says *go*, corrects it, or stops. That go is the approval. Once more at the end, when every S102 exists and the plan has been validated as a whole: `ready` when the plan on disk is the one approved, or what changed and the question to approve again when it is not. The author reads the plan as the view `asimov-plan-view.md` (beside this file) fixes and the findings as one line each; a raw report never reaches a person.
 
 ## 3. Relationship to other documents
 
@@ -65,7 +65,7 @@ The author sees the plan twice. Once as the **cut**: the S101 alone, no S102 bes
 
 ### 3.1 The bar on the design
 
-What a design must contain for a plan to be cut from it is the contract `contracts/design.md` in the plugin; the S101 reads a design only through its members. A D101 meets the contract at `Full design`, and its definition §3.1 says which section provides which member. A design that is not a file in the repo (a ticket thread, a page elsewhere) is normalised by `asimov-spec` into `specs/<feature-slug>/design.md`, in the shape §9 fixes, with ids assigned once in reading order; on a re-run the ids the plan's coverage map already holds are kept and a new item takes the next free number (the contract's rule). The coverage map (§4.8) then carries each id with the source's wording, so the plan stands with only the link beside it. A design that misses a required member is refused with what is missing; the fix goes into the design, never into a copy.
+What a design must contain for a plan to be cut from it is the contract `contracts/design.md` in the plugin; the S101 reads a design only through its members. A D101 meets the contract at `Full design`, and its definition §3.1 says which section provides which member. A design that is not a file in the repo (a ticket thread, a page elsewhere) is normalised by `asimov-spec` into `.asimov/plans/<feature-slug>.design.md`, in the shape §9 fixes, with ids assigned once in reading order; on a re-run the ids the plan's coverage map already holds are kept and a new item takes the next free number (the contract's rule). The coverage map (§4.8) then carries each id with the source's wording, so the plan stands with only the link beside it. A design that misses a required member is refused with what is missing; the fix goes into the design, never into a copy.
 
 ### 3.2 How the S101 meets `contracts/specification.md`
 
@@ -200,7 +200,7 @@ One canonical list. Every check is asked of the S101 alone, with the design and 
 | 9 | Is the S101 free of code, steps and test bodies, free of run state, and free of prose that retells the graph? | Separation |
 | 10 | Is every model tier a recommendation consistent with its meaning in §5? | Model choice |
 
-Validation (`s101-implementation-plan-validation.md`, beside this file) is **hard on shape, soft on content**: it fails a missing header field, a missing plan member, a cycle, a builder ahead of its tester, an orphan task, a broken link, an intersecting parallel pair, a consumed name with no producer and no path on disk; it does not judge whether the phases are sensible, whether a Foundation was needed, or whether the review focus is the right five. That is the reviewer's. It runs in two modes: **graph-only** on the S101 alone, at the cut, where a check that needs the S102s is reported as *not yet*, never as Pass; and **full** once every S102 exists, re-answering every row. The check is a script, `scripts/validate-s101.ps1` beside this file (since 2026-10-08; the checklist in `s101-implementation-plan-validation.md` is its specification and the fallback): every row is answered by enumeration from the files' text and from lookups, in about a second, so two runs on an unchanged plan agree by construction and nothing is carried between modes. The two LLM validators it replaced cost a two-task run some 120k tokens and gave different answers on unchanged text. **A Fail means a builder would be stuck or build the wrong thing.** A defect the run should know about but that would stop no builder (a long title, a command inside a checkpoint sentence) is a Flag, whatever row it falls under.
+Validation (`asimov-plan-validation.md`, in the plan artifact's folder) is **hard on shape, soft on content**: it fails a missing header field, a missing plan member, a cycle, a builder ahead of its tester, an orphan task, a broken link, an intersecting parallel pair, a consumed name with no producer and no path on disk; it does not judge whether the phases are sensible, whether a Foundation was needed, or whether the review focus is the right five. That is the reviewer's. It runs in two modes: **graph-only** on the S101 alone, at the cut, where a check that needs the S102s is reported as *not yet*, never as Pass; and **full** once every S102 exists, re-answering every row. The check is a script, `scripts/validate-plan.ps1` beside this file (since 2026-10-08; the checklist in `asimov-plan-validation.md` is its specification and the fallback): every row is answered by enumeration from the files' text and from lookups, in about a second, so two runs on an unchanged plan agree by construction and nothing is carried between modes. The two LLM validators it replaced cost a two-task run some 120k tokens and gave different answers on unchanged text. **A Fail means a builder would be stuck or build the wrong thing.** A defect the run should know about but that would stop no builder (a long title, a command inside a checkpoint sentence) is a Flag, whatever row it falls under.
 
 ### 8.1 Size thresholds
 
@@ -217,9 +217,9 @@ A cycle, an orphan or an intersecting parallel pair is shape and fails; size onl
 
 ## 9. Placement and naming
 
-An S101 lives in the product repo at `specs/<feature-slug>/S101-<feature-slug>.md`, beside its S102s (`S102-<feature-slug>-<NNN>-<task-slug>.md`, the task slug three to five words of the title). `<feature-slug>` is the D101's slug, so `documentation/features/D101-permissions.html` plans to `specs/permissions/S101-permissions.md`; for a ticket it is the ticket key in kebab-case, so `PROJ-123` plans to `specs/proj-123/S101-proj-123.md`. Markdown body with YAML frontmatter, as every spec format in current use (research §2).
+An S101 lives in the product repo at `.asimov/specs/<feature-slug>/S101-<feature-slug>.md`, beside its S102s (`S102-<feature-slug>-<NNN>-<task-slug>.md`, the task slug three to five words of the title). `<feature-slug>` is the D101's slug, so `documentation/features/D101-permissions.html` plans to `.asimov/specs/permissions/S101-permissions.md`; for a ticket it is the ticket key in kebab-case, so `PROJ-123` plans to `.asimov/specs/proj-123/S101-proj-123.md`. Markdown body with YAML frontmatter, as every spec format in current use (research §2).
 
-For a plan cut from a design that is not a file in the repo, the normalised design sits beside it as a gitignored cache, `specs/<feature-slug>/design.md`: the contract's members, quoted from the source and numbered, in this shape:
+For a plan cut from a design that is not a file in the repo, the normalised design sits beside it as a gitignored cache, `.asimov/plans/<feature-slug>.design.md`: the contract's members, quoted from the source and numbered, in this shape:
 
 ```markdown
 # Design — <title>
@@ -270,12 +270,12 @@ Approval: <who> · <YYYY-MM-DD> · <where: a comment, a status> · verified | un
 
 `asimov-spec` writes it at the start of a run from the fetch or from pasted text, and rewrites it when it is missing on a re-check; the authoring and validation skills read it as the design. It is never committed and never edited by hand: a correction goes into the source, and the next run reads it.
 
-Beside the plan, both asimov-skills write one gitignored sidecar, `S101-<feature-slug>.review.md`. Overwritten by the next run, read by no skill, never a record; the same role as `asimov-design`'s review notes, `D101-<slug>.review.md`. One shape, so a reader learns it once:
+Beside the plan, both asimov-skills write one gitignored sidecar, `.asimov/plans/<feature-slug>.review.md`. Overwritten by the next run, read by no skill, never a record; the same role as `asimov-design`'s review notes, `D101-<slug>.review.md`. One shape, so a reader learns it once:
 
 ```markdown
 # Validation — S101-<feature-slug>
 
-S101: specs/<feature-slug>/S101-<feature-slug>.md v<version>
+S101: .asimov/specs/<feature-slug>/S101-<feature-slug>.md v<version>
 Design: <design.ref> v<design.version> | <design.ref> read <design.read> · cache <design.cache>
 Date: <YYYY-MM-DD>
 Mode: graph-only | full
@@ -300,4 +300,4 @@ Writer: <the harness's token figure after the plan writer's last message> · <n>
 
 `Blind` is false when any S102 report was produced by the caller's own reading rather than by the script or a fresh subagent; `Engine` records which check ran as the script and which, on a machine without PowerShell, as an LLM reading of the checklist. `Writer` records the figure the harness reported for the plan writer after its last message and how many writers the run spawned, so the rollover threshold is set from measured runs, never guessed again.
 
-The specs folder, with its two gitignored siblings `S101-<feature-slug>.review.md` and `design.md`, is a shared path convention in the sense of hard rule 7 and a lockstep literal in the sense of hard rule 9: both asimov-skills, the four artifact skills, `.gitignore`, `CLAUDE.md` and D100 §5 and §9 move together.
+The specs folder, with its two gitignored siblings `.asimov/plans/<feature-slug>.review.md` and `design.md`, is a shared path convention in the sense of hard rule 7 and a lockstep literal in the sense of hard rule 9: both asimov-skills, the four artifact skills, `.gitignore`, `CLAUDE.md` and D100 §5 and §9 move together.
