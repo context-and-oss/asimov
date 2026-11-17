@@ -242,7 +242,7 @@ $IsHtmlDesign = ($designPath -match '\.html?$')
 $DesignIds = @()
 if ($designText -ne '') {
   if ($IsHtmlDesign) {
-    foreach ($m in [regex]::Matches($designText, 'class="(?:id|ac-id)"[^>]*>\s*((?:R|NF|AC|OOS)\d+)\s*<')) { $DesignIds += $m.Groups[1].Value }
+    foreach ($m in [regex]::Matches($designText, 'class="(?:id|ac-id|req-id|q-id)"[^>]*>\s*((?:R|NF|AC|OOS)\d+)\s*<')) { $DesignIds += $m.Groups[1].Value }
   } else {
     foreach ($m in [regex]::Matches($designText, '(?m)^\s*(?:[-*]\s*|\d+\.\s*|#+\s*)?((?:R|NF|AC|OOS)\d+)\b')) { $DesignIds += $m.Groups[1].Value }
   }
@@ -646,9 +646,10 @@ $res = @(); $why = @()
 foreach ($ph in $Phases) {
   $cp = $ph.Checkpoint; $ck = $ph.Check
   if ($cp -match '(?i)\b(code exists|implemented|is implemented|done)\b\s*$' -or $cp -match '(?i)^\s*(implemented|code exists)') { $res += 'Fail'; $why += "$($ph.Id) checkpoint reads as a claim, not a state: '$cp'" }
-  if ($cp -match '`|\b(dotnet|npm|ng|pwsh|powershell|bash|make|yarn|pnpm)\b|--\w|[\w.-]+/[\w.-]+\.\w+') { $res += 'Flag'; $why += "$($ph.Id) checkpoint carries a command or a path; it belongs in check" }
+  # case-sensitive: a command word is lowercase, and a product term such as "Make now" is not a command
+  if ($cp -cmatch '`|\b(dotnet|npm|ng|pwsh|powershell|bash|make|yarn|pnpm)\b|--\w|[\w.-]+/[\w.-]+\.\w+') { $res += 'Flag'; $why += "$($ph.Id) checkpoint carries a command or a path; it belongs in check" }
   $dl = $ph.Delivers
-  if ($dl -match '`|\b(dotnet|npm|ng|pwsh|powershell|bash|make|yarn|pnpm)\b|--\w|[\w.-]+/[\w.-]+\.\w+') { $res += 'Flag'; $why += "$($ph.Id) delivers carries a command or a path; it says what the phase adds, in the product's words" }
+  if ($dl -cmatch '`|\b(dotnet|npm|ng|pwsh|powershell|bash|make|yarn|pnpm)\b|--\w|[\w.-]+/[\w.-]+\.\w+') { $res += 'Flag'; $why += "$($ph.Id) delivers carries a command or a path; it says what the phase adds, in the product's words" }
   if ($dl -match '(?i)\btests?\b[^.]*\b(green|red|pass|passes|passing)\b') { $res += 'Flag'; $why += "$($ph.Id) delivers reads as a test result; the checkpoint carries that, delivers says what the phase adds" }
   if ($ck.Trim() -eq '') { $res += 'Fail'; $why += "$($ph.Id) check is empty" }
   elseif ($ck -match '(?i)\b(grep|rg|Select-String|findstr)\b') { $res += 'Fail'; $why += "$($ph.Id) check searches the source: '$ck'" }
@@ -816,7 +817,7 @@ foreach ($Task in $AllTasks) {
     }
   }
   foreach ($p in $Modify) {
-    if (Test-IsGlob $p) { if ((Expand-Owned $p).Count -eq 0 -and -not (Created-Upstream $p)) { $res += 'Flag'; $why += "modify glob '$p' matches nothing today" } }
+    if (Test-IsGlob $p) { if (@(Expand-Owned $p).Count -eq 0 -and -not (Created-Upstream $p)) { $res += 'Flag'; $why += "modify glob '$p' matches nothing today" } }
     elseif (-not (Test-Path -LiteralPath (Resolve-RepoPath $p)) -and -not (Created-Upstream $p)) { $res += 'Fail'; $why += "modify path '$p' does not exist and no upstream task creates it" }
     if ($p -match $GeneratedRx) { $res += 'Flag'; $why += "'$p' looks generated; it belongs under regenerates" }
     if ($p -match '(?i)(^|/)[^/]*tests?[^/]*\.(cs|ts|js)$|(^|/)tests?/') { $res += 'Flag'; $why += "'$p' is a test file listed under modify; it belongs under test" }

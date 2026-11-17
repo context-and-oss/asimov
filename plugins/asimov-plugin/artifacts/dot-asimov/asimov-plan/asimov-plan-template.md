@@ -81,7 +81,7 @@
     build, restore or generator rewrites (lock files, generated clients,
     snapshots), globs allowed, outside size and disjointness. A scaffolding
     task (dotnet new, ng new) owns the folders its template writes as globs
-    (src/HomeBar.Api/**) and names the template command in its section 4,
+    (src/<Name>/**) and names the template command in its section 4,
     so the template's own files (appsettings, launch settings, a starter
     test) are owned, never a review finding. consumes: contract names
     spelled as section 1 spells them; existing code as "Name (repo-relative
