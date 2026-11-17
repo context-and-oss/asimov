@@ -15,5 +15,5 @@ This repository uses the Asimov toolkit, plugin `asimov-plugin` {{VERSION}}, for
 - `project/` — the project pages
 <!-- /part -->
 <!-- part: build -->
-- An Asimov role agent follows its role skill; the person's go, not yours, closes a phase.
+- An Asimov role agent follows its role skill; the build, not you, closes a phase.
 <!-- /part -->

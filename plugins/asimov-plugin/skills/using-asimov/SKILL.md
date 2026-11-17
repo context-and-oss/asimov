@@ -15,10 +15,10 @@ Each stage this repository uses has one skill. When the person's words match a s
 - **Design** — {{INVOKE:asimov-design}}: a feature to design, a D101 under `documentation/features/` to write, continue, edit or review, a legacy markdown D101 to render. In your skill list; invoke it when the words match.
 <!-- /part -->
 <!-- part: spec -->
-- **Spec** — {{INVOKE:asimov-spec}}: plan a Full-design D101 or an approved ticket into `.asimov/plans/<slug>.md`, rendered to `.asimov/specs/<slug>/`; the person's go approves the plan. In your skill list; invoke it when the words match.
+- **Spec** — {{INVOKE:asimov-spec}}: plan a Full-design D101 or an approved ticket into `.asimov/plans/<slug>.md`, rendered to `.asimov/specs/<slug>/`; the person's go approves the plan; the product's architecture (`documentation/D100-<area>.html`, written by asimov-design) is what a plan's Foundation realises. In your skill list; invoke it when the words match.
 <!-- /part -->
 <!-- part: build -->
-- **Build** — {{INVOKE:asimov-build}}: build a `ready` plan phase by phase with the agents; the person's go commits each phase. In your skill list; invoke it when the words match.
+- **Build** — {{INVOKE:asimov-build}}: build a `ready` plan phase by phase with the agents; each phase committed on the feature branch, no gate inside the build; a stop proposes its ruling. In your skill list; invoke it when the words match.
 <!-- /part -->
 <!-- part: project -->
 - **Project** — {{INVOKE:asimov-project}}: the project pages under `project/`, the risk log and the project info; `pm-advisor` answers questions about the delivery model. In your skill list; invoke it when the words match.
