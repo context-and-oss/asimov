@@ -647,9 +647,9 @@ foreach ($ph in $Phases) {
   $cp = $ph.Checkpoint; $ck = $ph.Check
   if ($cp -match '(?i)\b(code exists|implemented|is implemented|done)\b\s*$' -or $cp -match '(?i)^\s*(implemented|code exists)') { $res += 'Fail'; $why += "$($ph.Id) checkpoint reads as a claim, not a state: '$cp'" }
   # case-sensitive: a command word is lowercase, and a product term such as "Make now" is not a command
-  if ($cp -cmatch '`|\b(dotnet|npm|ng|pwsh|powershell|bash|make|yarn|pnpm)\b|--\w|[\w.-]+/[\w.-]+\.\w+') { $res += 'Flag'; $why += "$($ph.Id) checkpoint carries a command or a path; it belongs in check" }
+  if ($cp -cmatch '`|\b(dotnet|npm|ng|pwsh|powershell|bash|yarn|pnpm)\b|--\w|[\w.-]+/[\w.-]+\.\w+') { $res += 'Flag'; $why += "$($ph.Id) checkpoint carries a command or a path; it belongs in check" }
   $dl = $ph.Delivers
-  if ($dl -cmatch '`|\b(dotnet|npm|ng|pwsh|powershell|bash|make|yarn|pnpm)\b|--\w|[\w.-]+/[\w.-]+\.\w+') { $res += 'Flag'; $why += "$($ph.Id) delivers carries a command or a path; it says what the phase adds, in the product's words" }
+  if ($dl -cmatch '`|\b(dotnet|npm|ng|pwsh|powershell|bash|yarn|pnpm)\b|--\w|[\w.-]+/[\w.-]+\.\w+') { $res += 'Flag'; $why += "$($ph.Id) delivers carries a command or a path; it says what the phase adds, in the product's words" }
   if ($dl -match '(?i)\btests?\b[^.]*\b(green|red|pass|passes|passing)\b') { $res += 'Flag'; $why += "$($ph.Id) delivers reads as a test result; the checkpoint carries that, delivers says what the phase adds" }
   if ($ck.Trim() -eq '') { $res += 'Fail'; $why += "$($ph.Id) check is empty" }
   elseif ($ck -match '(?i)\b(grep|rg|Select-String|findstr)\b') { $res += 'Fail'; $why += "$($ph.Id) check searches the source: '$ck'" }
