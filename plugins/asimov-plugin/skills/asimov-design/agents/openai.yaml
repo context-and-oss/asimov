@@ -5,5 +5,5 @@
 # repo gate asks before writing in a repository that has no asimov.md marker.
 interface:
   display_name: "Asimov · Design"
-  short_description: "Design, continue, edit or review a feature design (D101), or render a legacy markdown one"
-  default_prompt: "Use $asimov-plugin:asimov-design to design <the feature>, or to continue, edit or review the D101 <slug> under documentation/features/."
+  short_description: "Design, continue, edit or review a feature design (D101), write the product's architecture (D100), or render a legacy markdown D101"
+  default_prompt: "Use $asimov-plugin:asimov-design to design <the feature>, to continue, edit or review the D101 <slug> under documentation/features/, or to write the architecture (D100)."
