@@ -77,7 +77,7 @@ Run by the ledger script, `scripts/ledger.ps1` beside this file, before every re
 | # | Check | Tests |
 |---|---|---|
 | L1 | Frontmatter parses as YAML and every key of §3.1 is present | Shape |
-| L2 | `fingerprint` equals the S101's recomputed fingerprint | Same plan |
+| L2 | `fingerprint` equals the S101's recomputed fingerprint; after a re-plan the `carry` operation moves it, keeping the committed phases whose tasks are unchanged | Same plan |
 | L3 | Every phase and task id of the ledger exists in the S101's tree, and every task of the tree is in the ledger | Same tree |
 | L4 | At most one phase is `building`, `built` or `passed`; every phase before it is `committed` or `discarded`; every phase after it is `pending` | One position |
 | L5 | A `committed` phase has a commit hash that exists on the branch | Evidence |

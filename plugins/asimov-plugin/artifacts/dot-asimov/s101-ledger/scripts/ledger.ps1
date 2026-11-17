@@ -68,7 +68,7 @@
 #>
 [CmdletBinding()]
 param(
-  [Parameter(Mandatory = $true)][ValidateSet('start', 'position', 'task', 'attempt', 'review', 'verify', 'fail', 'stop', 'ruling', 'commit', 'close')][string]$Op,
+  [Parameter(Mandatory = $true)][ValidateSet('start', 'position', 'task', 'attempt', 'review', 'verify', 'fail', 'stop', 'ruling', 'commit', 'carry', 'close')][string]$Op,
   [Parameter(Mandatory = $true)][string]$S101,
   [string]$By = '',
   [string]$Task = '',
@@ -384,6 +384,13 @@ try {
       $rulings = [regex]::Matches($L.Body, "(?m)^### ruling $Dot ([^\n]*)\n([^\n]*)")
       if ($rulings.Count -gt 0) { $last = $rulings[$rulings.Count - 1]; Write-Output ('          last ruling: ' + $last.Groups[1].Value + ' ' + $Dot + ' ' + $last.Groups[2].Value) }
       else { Write-Output '          last ruling: none' }
+      # a stop after the last ruling that carries a proposed ruling: the next run takes it unless the words say otherwise
+      $stops = [regex]::Matches($L.Body, "(?m)^### stop $Dot ([^\n]*)\nproposed: ([^\n]*)")
+      if ($stops.Count -gt 0) {
+        $lastStop = $stops[$stops.Count - 1]
+        $afterRuling = ($rulings.Count -eq 0) -or ($lastStop.Index -gt $rulings[$rulings.Count - 1].Index)
+        if ($afterRuling) { Write-Output ('          proposed: ' + $lastStop.Groups[2].Value + ' (' + $lastStop.Groups[1].Value + ')') }
+      }
     }
 
     'task' {
@@ -461,22 +468,26 @@ try {
       $L = Read-Ledger
       $f = Find-Task $L $Task; if ($null -eq $f) { throw "no task $Task in the ledger" }
       $f.Task.Status = 'stopped'
+      if ($Note -ne '') { Append-Body $L ('### stop ' + $Dot + ' ' + $Task + ' ' + $Dot + ' ' + $Today) ('proposed: ' + $Note) }
       Save-Ledger $L
-      Write-Output "ledger  $Task stopped"
+      if ($Note -ne '') { Write-Output "ledger  $Task stopped $Dot proposed: $Note" } else { Write-Output "ledger  $Task stopped" }
     }
 
     'ruling' {
       Require $Phase 'Phase'; Require $By 'By'; Require $Choice 'Choice'
-      if (@('resume', 'discard', 'stop') -notcontains $Choice) { throw '-Choice must be resume, discard or stop' }
+      if (@('resume', 'retry', 'discard', 're-plan', 'stop') -notcontains $Choice) { throw '-Choice must be retry (or resume), discard, re-plan or stop' }
+      if ($Choice -eq 'resume') { $Choice = 'retry' }
       $L = Read-Ledger
       $ph = Find-Phase $L $Phase; if ($null -eq $ph) { throw "no phase $Phase in the ledger" }
       $line = $Choice; if ($Note -ne '') { $line += " $Dot " + $Note }
       Append-Body $L ('### ruling ' + $Dot + ' ' + $Today + ' ' + $Dot + ' ' + $By) $line
-      if ($Choice -eq 'resume') {
+      if ($Choice -eq 'retry') {
         foreach ($t in $ph.Tasks) { if ($t.Status -eq 'stopped' -or $t.Status -eq 'failed') { $t.Status = 'pending'; $t.Attempts = 0 } }
-      } elseif ($Choice -eq 'discard') {
-        $ph.Status = 'discarded'
-        foreach ($t in $ph.Tasks) { $t.Status = 'pending'; $t.Attempts = 0 }
+      } elseif ($Choice -eq 'discard' -or $Choice -eq 're-plan') {
+        if ($ph.Status -ne 'committed') {
+          $ph.Status = 'discarded'
+          foreach ($t in $ph.Tasks) { $t.Status = 'pending'; $t.Attempts = 0 }
+        }
       }
       Save-Ledger $L
       Write-Output "ledger  ruling by $By $Dot $Choice"
@@ -491,6 +502,36 @@ try {
       $ph.Status = 'committed'; $ph.Commit = $Hash; $ph.GoBy = $By; $ph.GoDate = $Today
       Save-Ledger $L
       Write-Output "ledger  $Phase committed $Dot $Hash"
+    }
+
+    'carry' {
+      Require $By 'By'
+      $L = Read-Ledger
+      if ($Plan.ApprovedFingerprint -eq '') { throw 'the plan is not approved (approved: none); run asimov-spec first' }
+      if ($Plan.ApprovedFingerprint -ne $Plan.Fingerprint) { throw 'the plan changed after it was approved; approve it again with asimov-spec' }
+      $old = $L.Fingerprint
+      $kept = @(); $reset = @()
+      $newPhases = New-Object System.Collections.Generic.List[object]
+      foreach ($ph in $Plan.Phases) {
+        $was = $null
+        foreach ($x in $L.Phases) { if ($x.Id -eq $ph.Id) { $was = $x; break } }
+        $sameTasks = $false
+        if ($null -ne $was) { $sameTasks = ((@($was.Tasks | ForEach-Object { $_.Id }) -join ',') -eq (@($ph.Tasks) -join ',')) }
+        if ($null -ne $was -and $was.Status -eq 'committed' -and $sameTasks) {
+          $newPhases.Add($was); $kept += $ph.Id
+        } else {
+          $p = [pscustomobject]@{ Id = $ph.Id; Status = 'pending'; Commit = 'none'; GoBy = ''; GoDate = ''; Tasks = (New-Object System.Collections.Generic.List[object]) }
+          foreach ($tid in $ph.Tasks) { $p.Tasks.Add([pscustomobject]@{ Id = $tid; Status = 'pending'; Attempts = 0; Agent = 'none'; Model = 'none' }) }
+          $newPhases.Add($p); $reset += $ph.Id
+        }
+      }
+      $L.Phases = $newPhases
+      $L.Fingerprint = $Plan.Fingerprint
+      $keptText = if ($kept.Count -gt 0) { $kept -join ', ' } else { 'none' }
+      $resetText = if ($reset.Count -gt 0) { $reset -join ', ' } else { 'none' }
+      Append-Body $L ('## re-plan ' + $Dot + ' ' + $Today + ' ' + $Dot + ' ' + $By) ('fingerprint ' + $old + ' ' + [string][char]0x2192 + ' ' + $Plan.Fingerprint + " $Dot kept " + $keptText + " $Dot pending " + $resetText)
+      Save-Ledger $L
+      Write-Output ("ledger  carried to " + $Plan.Fingerprint + " $Dot kept " + $keptText + " $Dot pending " + $resetText)
     }
 
     'close' {
