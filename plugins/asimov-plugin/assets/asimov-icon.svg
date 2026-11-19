@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Asimov">
+  <!-- One person (the circle) holding three agents (the squares) in reins; the shape is an A. -->
+  <rect width="64" height="64" rx="14" fill="#0a1424"/>
+  <path d="M32 15 L13 47 M32 15 V47 M32 15 L51 47" fill="none" stroke="#4fc3f7" stroke-width="3.5" stroke-linecap="round"/>
+  <rect x="6.5" y="40.5" width="13" height="13" rx="3.2" fill="#4fc3f7"/>
+  <rect x="25.5" y="40.5" width="13" height="13" rx="3.2" fill="#4fc3f7"/>
+  <rect x="44.5" y="40.5" width="13" height="13" rx="3.2" fill="#4fc3f7"/>
+  <circle cx="32" cy="14" r="7.5" fill="#fff"/>
+</svg>

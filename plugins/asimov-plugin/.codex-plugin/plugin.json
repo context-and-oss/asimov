@@ -22,6 +22,9 @@
     "displayName": "Asimov",
     "shortDescription": "L3 workflow tooling for design, build and review",
     "developerName": "Context&",
-    "category": "Productivity"
+    "category": "Productivity",
+    "brandColor": "#4FC3F7",
+    "composerIcon": "./assets/asimov-icon.png",
+    "logo": "./assets/asimov-icon.png"
   }
 }

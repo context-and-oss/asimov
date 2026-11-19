@@ -214,6 +214,7 @@ asimov/
 │       ├── .codex-plugin/
 │       │   └── plugin.json               ← Codex plugin manifest (§4.2)
 │       ├── .opencode/plugins/asimov.js   ← OpenCode plugin module: registers skills/ and agents/, runs the context hook (§4.2, §4.7)
+│       ├── assets/                       ← the plugin's icon (asimov-icon.svg, its 512 px PNG), named by the Codex manifest's interface
 │       ├── hooks/                        ← harness hooks (§4.7)
 │       │   ├── hooks.json                ← Claude Code: the run log's six registrations + the two context hooks
 │       │   ├── hooks-codex.json          ← Codex (named by its manifest): the two context hooks, each with a commandWindows

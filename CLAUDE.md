@@ -13,6 +13,7 @@ plugins/asimov-plugin/                         ← the plugin (install scope)
 ├── .claude-plugin/plugin.json                 ← plugin manifest
 ├── .codex-plugin/plugin.json                  ← Codex plugin manifest (same asimov-plugin; "skills": "./skills/")
 ├── .opencode/plugins/asimov.js                ← OpenCode V2 plugin (2026-11-16): registers skills/ with the host's skill tool and agents/*.md as subagents (body + role skill as the system prompt, no model, edit denied where tools: has no Write/Edit), and runs hooks/asimov-context in the session hooks; loaded through the repo root's index.js / package.json
+├── assets/                                    ← the plugin's icon: asimov-icon.svg (the source) and its 512 px PNG, named by .codex-plugin/plugin.json (composerIcon, logo, brandColor)
 ├── hooks/                                     ← harness hooks (D100 §4.7)
 │   ├── hooks.json                             ← Claude Code: the run log's six registrations (D101-asimov-log) + the two context hooks (D101-asimov-init)
 │   ├── hooks-codex.json                       ← Codex, named by .codex-plugin/plugin.json: the two context hooks and the log's five, each with a commandWindows; moves with hooks.json
