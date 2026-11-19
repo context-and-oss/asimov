@@ -2,7 +2,6 @@
 name: asimov-build
 description: Use when asked to build, implement or resume a ready plan under .asimov/specs/<slug>/ with the Asimov agents, to re-plan a build with a change, or to see where a build stands. The Build stage of a repository that uses Asimov (asimov.md at its root). Not for a change that has no plan.
 argument-hint: the slug of a ready plan under .asimov/specs/; with a ruling after a stop (retry <note> · discard · re-plan <words> · done T<nnn>); empty lists the plans and their status
-model: claude-sonnet-5-5
 allowed-tools: Read, Glob, Grep, Write, Edit, Bash, Skill, Agent
 ---
 

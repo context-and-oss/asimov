@@ -63,7 +63,7 @@ OpenCode (2.x), in `~/.config/opencode/opencode.json`:
 - Planned: `/conventions-check`. See [D100 §9](documentation/D100-Asimov-architecture.md#9-not-yet-built).
 - Every artifact carries a maturity level (`assess` / `trial` / `adopt` / `hold`). The producing skill or command tells you if it's not at `adopt`.
 - Needs PowerShell for the Spec- and Build-stage checks, the ledger script and the run-log hooks: `pwsh` (PowerShell 7, on Windows, Linux and macOS) or Windows PowerShell 5.1. Without it those checks cannot run and the run log stays empty; nothing else is affected.
-- Requires Claude Code with plugin support and access to the models the skills and commands pin. Map in [model-choice.md](documentation/model-choice.md). Codex with plugin support runs the same entry points (`$asimov-plugin:asimov-init`, `$asimov-plugin:asimov-design`, `$asimov-plugin:asimov-spec`, `$asimov-plugin:asimov-build`); none of them binds a model in Codex, which runs the session's.
+- Requires Claude Code with plugin support and access to the models the agents pin; the entry points run on the session's model. Map and recommendations in [model-choice.md](documentation/model-choice.md). Codex with plugin support runs the same entry points (`$asimov-plugin:asimov-init`, `$asimov-plugin:asimov-design`, `$asimov-plugin:asimov-spec`, `$asimov-plugin:asimov-build`).
 
 ## Skills and commands you type
 
@@ -155,7 +155,7 @@ packages/                                 NuGet packages, released with the plug
 
 documentation/                            repo docs (not inside install scope)
 ├── D100-Asimov-architecture.md            why + how
-├── model-choice.md                        which model runs which command/subagent (maintainer contract)
+├── model-choice.md                        which model runs which subagent, which is recommended per entry point (maintainer contract)
 ├── ai-transition-levels-and-zones.md      the Levels & Zones vocabulary Asimov uses (L0–L5, Z1–Z3, the L3 stages)
 ├── index.html + _chrome.css               the rendered documentation site
 ├── features/                              one D101 per artifact or role family

@@ -54,7 +54,7 @@
   <ul>
     <li><strong>One home per method.</strong> A procedure lives in one skill or one method file. The entry point that uses it names it and never restates it, so a hand edit and a run follow the same rules.</li>
     <li><strong>Two levels, never three.</strong> An entry point carries the conversation and no method. A method file reads its artifact and calls no skill.</li>
-    <li><strong>Same file in every tool.</strong> What you type is <code>/asimov-spec</code> in Claude Code, <code>$asimov-plugin:asimov-spec</code> in Codex and <code>@asimov-spec</code> in OpenCode; the file underneath is one. Codex and OpenCode ignore the model a skill pins and run the session's.</li>
+    <li><strong>Same file in every tool.</strong> What you type is <code>/asimov-spec</code> in Claude Code, <code>$asimov-plugin:asimov-spec</code> in Codex and <code>@asimov-spec</code> in OpenCode; the file underneath is one. No skill pins a model; each runs on the session's.</li>
     <li><strong>Reads by path, never a copy.</strong> A skill reads the definition, the template and the contract from the plugin, and your conventions from your repo. There is no copy to drift.</li>
     <li><strong>Yours live in your repo.</strong> A custom persona is a skill under <code>.claude/skills/persona-&lt;slug&gt;/</code>. The plugin ships the form and the standard readers; the concrete reader stays yours.</li>
   </ul>

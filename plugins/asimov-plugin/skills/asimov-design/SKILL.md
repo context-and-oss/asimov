@@ -2,8 +2,6 @@
 name: asimov-design
 description: Use when asked to design a feature or a change, to write, continue or edit a D101 feature design, to review or gap-check one, to render a legacy markdown D101 to HTML, or to write or update the product's architecture (D100). The Design stage of a repository that uses Asimov (asimov.md at its root).
 argument-hint: nothing, a feature brief or pasted ticket, a D101 slug or path to continue, edit or review, the path of a legacy .md to render, or 'architecture' with what changed
-model: claude-opus-5-5
-effort: xhigh
 allowed-tools: Read, Glob, Grep, Write, Edit, Bash, Skill
 ---
 

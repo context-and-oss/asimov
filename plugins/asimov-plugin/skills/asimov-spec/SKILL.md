@@ -2,7 +2,6 @@
 name: asimov-spec
 description: Use when asked to plan a feature or a ticket into tasks, to write, re-cut or re-check a plan under .asimov/plans/ and the S101 and S102s it renders to, from a D101 at Full design, a Jira ticket or ticket text. The Spec stage of a repository that uses Asimov (asimov.md at its root).
 argument-hint: a D101 slug or path, a Jira link or key, or the ticket text — empty lists what the skill accepts
-model: claude-sonnet-5-5
 allowed-tools: Read, Glob, Grep, Write, Edit, Bash, Skill, Agent, mcp__.*Atlassian.*__getJiraIssue
 ---
 
