@@ -149,7 +149,7 @@
       <p class="note">It reports where it stopped reading, and what to cut.</p>
     </div>
     <div class="ex">
-      <div class="cap"><p>Once the design is signed, <code>/asimov-spec</code> cuts it into task specs. An agent builds each one, reading the spec and your conventions from your repo.</p></div>
+      <div class="cap"><p>Once the design is signed, <code>/asimov-spec</code> cuts it into one plan, a task spec per task. <code>/asimov-build</code> hands each to an agent, which reads the spec and your conventions from your repo.</p></div>
       <div class="draw">
         <div class="doc" aria-label="The same design document, now complete and approved">
           <div class="h">Your design document</div>
@@ -161,10 +161,11 @@
           <div class="row hot"><span class="n">§6</span><span class="lines">Technical design: a stateless export service, one endpoint, yesterday and this month as presets.</span></div>
         </div>
         <div class="arrow"><svg viewBox="0 0 44 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h38M30 4l10 8-10 8"/></svg></div>
-        <div class="term" aria-label="Giskard building the feature in Claude Code">
+        <div class="term" aria-label="The build in Claude Code, Giskard on task 003">
           <div class="bar"><i></i><i></i><i></i><span>claude</span></div>
-          <div class="ln you">&gt; Build task 003 of the invoice export plan as Giskard</div>
-          <div class="ln tool wrap">⏺ Read(specs/self-service-invoice-export/S102-self-service-invoice-export-003-export-service.md)</div>
+          <div class="ln you">&gt; /asimov-build self-service-invoice-export</div>
+          <div class="ln tool">⏺ Giskard(T003 · the export service)</div>
+          <div class="ln tool wrap">⏺ Read(.asimov/specs/self-service-invoice-export/S102-self-service-invoice-export-003-export-service.md)</div>
           <div class="ln res">⎿ Read 48 lines</div>
           <div class="ln tool">⏺ Read(documentation/conventions/dotnet/services.md)</div>
           <div class="ln res">⎿ Read 62 lines</div>
@@ -172,12 +173,12 @@
           <div class="ln res">⎿ Wrote 84 lines</div>
           <div class="ln tool">⏺ Write(src/Invoicing/InvoiceExportController.cs)</div>
           <div class="ln res">⎿ Wrote 31 lines</div>
-          <div class="ln ai wrap">⏺ Done. InvoiceExportService as the plan names it, stateless per services.md §2. The slice test is green. Nothing in the spec needed a question.</div>
+          <div class="ln ai wrap">⏺ Phase 1 built. InvoiceExportService as the plan names it, stateless per services.md §2. Baley reviewed it, Powell ran every check, the phase is committed.</div>
           <div class="input">&gt; <span class="cur"></span></div>
           <div class="hint">? for shortcuts</div>
         </div>
       </div>
-      <p class="note">Calvin wrote the slice test first, Baley reviews, and a person approves the pull request.</p>
+      <p class="note">Calvin wrote the slice test first. Nothing in the spec needed a question, and a person approves the pull request.</p>
     </div>
   </div>
 
