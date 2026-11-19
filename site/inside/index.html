@@ -37,7 +37,7 @@
   <p class="lede">Commands, skills, artifacts, personas, agents, and the model an engagement runs on. Click any box to read about it.</p>
 
   <div class="figure">
-<svg class="insidemap" viewBox="0 0 1200 400" style="min-width:900px" role="img" aria-label="Map of what is inside the plugin. Project management frames everything: the engagement around the work, Proposal, Scoping, Development, Operations. Inside the frame, from left to right: you describe a feature; a command writes artifacts into your repository, a D101 design, an S101 plan with its S102 task specs, convention read-lists and asimov.md; personas read the design as the people who sign and report where they stopped; agents read your conventions and return code, tests, findings and the ledger. Every box opens its page.">
+<svg class="insidemap" viewBox="0 0 1200 400" style="min-width:900px" role="img" aria-label="Map of what is inside the plugin. Project management frames everything: the engagement around the work, Proposal, Scoping, Development, Operations. Inside the frame, from left to right: you describe a feature; a command writes artifacts into your repository, the architecture and a D101 design, one plan with its task specs, convention read-lists and the asimov.md marker; personas read the design as the people who sign and report where they stopped; agents read your conventions and return code, tests and findings. Every box opens its page.">
   <style>
     .insidemap { font-family: 'Inter', system-ui, sans-serif; }
     .insidemap text { font-size: 13px; fill: var(--text, #fff); }
@@ -105,14 +105,15 @@
 
   <!-- ─── commands ─── -->
   <a class="writes" href="../inside/commands.html">
-    <title>Open Commands — what you type, in either tool</title>
+    <title>Open Commands — what you type, in every tool</title>
     <rect x="204" y="140" width="230" height="184" rx="10"/>
     <text class="head mono" x="220" y="166">COMMANDS<tspan class="go" dx="8">→</tspan></text>
-    <text class="sub" x="220" y="186">what you type, in either tool</text>
+    <text class="sub" x="220" y="186">what you type, in every tool</text>
     <text class="mono" x="220" y="212" style="font-size:12px">/asimov-design</text>
     <text class="mono" x="220" y="234" style="font-size:12px">/asimov-spec</text>
     <text class="mono" x="220" y="256" style="font-size:12px">/asimov-build</text>
-    <text class="mono" x="220" y="278" style="font-size:12px">/asimov-init</text>
+    <text class="mono" x="220" y="278" style="font-size:12px">/asimov-project</text>
+    <text class="mono" x="220" y="300" style="font-size:12px">/asimov-init</text>
   </a>
 
   <!-- ─── your repository, with the artifacts inside ─── -->
@@ -123,16 +124,16 @@
   </g>
   <text class="lbl mono" x="504" y="152">ARTIFACTS</text>
   <a class="writes" href="../artifacts/documentation/d101.html">
-    <title>Open D101 — the feature design</title>
+    <title>Open D101 — the feature design, on the area's architecture</title>
     <rect x="504" y="160" width="240" height="44" rx="8"/>
-    <text x="520" y="178" style="font-weight:700">D101 design</text>
-    <text class="sub" x="520" y="195">one per feature, two bars</text>
+    <text x="520" y="178" style="font-weight:700">D100 architecture, D101 designs</text>
+    <text class="sub" x="520" y="195">one per area, one per feature</text>
     <text class="go" x="730" y="195" text-anchor="end">→</text>
   </a>
   <a class="writes" href="../artifacts/documentation/index.html">
     <title>Open Documentation — the plan and its task specs</title>
     <rect x="504" y="210" width="240" height="44" rx="8"/>
-    <text x="520" y="228" style="font-weight:700">S101 plan, S102 task specs</text>
+    <text x="520" y="228" style="font-weight:700">The plan and its task specs</text>
     <text class="sub" x="520" y="245">one plan per design, one spec per task</text>
     <text class="go" x="730" y="245" text-anchor="end">→</text>
   </a>
@@ -144,10 +145,10 @@
     <text class="go" x="730" y="295" text-anchor="end">→</text>
   </a>
   <a class="writes" href="../artifacts/general/asimov-md.html">
-    <title>Open asimov.md — the one file Asimov owns</title>
+    <title>Open asimov.md — the marker</title>
     <rect x="504" y="310" width="240" height="44" rx="8"/>
     <text x="520" y="328" style="font-weight:700">asimov.md</text>
-    <text class="sub" x="520" y="345">the one file Asimov owns</text>
+    <text class="sub" x="520" y="345">the marker: this repo uses Asimov</text>
     <text class="go" x="730" y="345" text-anchor="end">→</text>
   </a>
 
@@ -162,7 +163,7 @@
 
   <!-- ─── agents ─── -->
   <a class="reads" href="../inside/agents.html">
-    <title>Open Agents — builders, a tester and a reviewer in your house style</title>
+    <title>Open Agents — builders, a tester, a reviewer and a verifier in your house style</title>
     <rect x="834" y="250" width="340" height="96" rx="10"/>
     <text class="head mono" x="850" y="276">AGENTS<tspan class="go" dx="8">→</tspan></text>
     <text class="sub" x="850" y="298">read your conventions, write code and tests</text>
@@ -198,10 +199,10 @@
 
 
   <h2>Three layers</h2>
-  <p>Asimov-skills and agents on top: the conversation and the identity, nothing else. Skills in the middle: every method, one family per column. At the bottom, what each skill works on: role skills on your code, artifact skills on your documents, both in your repository; the advisor on the delivery model. Personas have nothing of their own; they read the artifacts the artifact skills write. The same skill works whichever tool runs it, and when you do the step by hand. <a href="../inside/skills.html">What a skill is, family by family →</a></p>
+  <p>Asimov-skills and agents on top: the conversation and the identity, nothing else. Skills in the middle: every method, one family per column. At the bottom, what each skill works on: role skills on your code, method files on your documents, both in your repository; the advisor on the delivery model. Personas have nothing of their own; they read the artifacts the method files write. The same skill works whichever tool runs it, and when you do the step by hand. <a href="../inside/skills.html">What a skill is, family by family →</a></p>
 
   <div class="figure">
-<svg class="insidemap layers" viewBox="0 0 1200 520" style="min-width:900px" role="img" aria-label="Layer diagram, three bands. Top band, what you use: agents (Giskard, Daneel, Calvin, Baley, Powell), the asimov-skills you type (/asimov-design, /asimov-spec, /asimov-build, /asimov-init), and plain questions to a persona or the delivery model. Middle band, skills: role skills for the agents, artifact skills for writing and checking a D101, an S101, an S102 and the build ledger, the standard persona skills, the pm-advisor. Bottom band, what each skill works on: your code under the role skills and your artifacts under the artifact skills, both inside your repository; the delivery model under the advisor; the personas read your artifacts too. Every box opens its page.">
+<svg class="insidemap layers" viewBox="0 0 1200 520" style="min-width:900px" role="img" aria-label="Layer diagram, three bands. Top band, what you use: agents (Giskard, Daneel, Calvin, Baley, Powell), the asimov-skills you type (/asimov-design, /asimov-spec, /asimov-build, /asimov-project, /asimov-init), and plain questions to a persona or the delivery model. Middle band, skills: role skills for the agents, two artifact skills and the method files that write and check a D100, a D101, a plan and the build ledger, the standard persona skills, the pm-advisor. Bottom band, what each skill works on: your code under the role skills and your artifacts under the method files, both inside your repository; the delivery model under the advisor; the personas read your artifacts too. Every box opens its page.">
   <style>
     .layers .skill rect { fill: var(--violet, #ab47bc); fill-opacity: 0.14; stroke: var(--violet, #ab47bc); stroke-width: 1.5; }
     .layers .skill .go, .layers .skill .head { fill: var(--violet, #ab47bc); }
@@ -250,10 +251,10 @@
     <title>Open Commands — the asimov-skills you type</title>
     <rect x="316" y="44" width="270" height="100" rx="10"/>
     <text class="head mono" x="332" y="68">ASIMOV-*<tspan class="go" dx="8">→</tspan></text>
-    <text class="mono" x="332" y="88" style="font-size:12px">/asimov-design · -design-review</text>
-    <text class="mono" x="332" y="104" style="font-size:12px">/asimov-spec · /asimov-build</text>
+    <text class="mono" x="332" y="88" style="font-size:12px">/asimov-design · /asimov-spec</text>
+    <text class="mono" x="332" y="104" style="font-size:12px">/asimov-build · /asimov-project</text>
     <text class="mono" x="332" y="120" style="font-size:12px">/asimov-init</text>
-    <text class="sub" x="332" y="138">they compose skills, never carry one</text>
+    <text class="sub" x="332" y="138">they carry the conversation, never a method</text>
   </a>
   <a class="skill" href="../artifacts/documentation/index.html">
     <title>Open Documentation — the artifacts and their method files</title>
@@ -298,7 +299,7 @@
     <text class="head mono" x="916" y="222">PM-*</text>
     <text class="sub" x="916" y="242">advises from the delivery model</text>
     <text class="mono" x="916" y="264" style="font-size:12px">pm-advisor</text>
-    <text class="sub" x="916" y="310">first of a planned family</text>
+    <text class="sub" x="916" y="310">the advisor of the project frame</text>
   </a>
 
   <!-- ─── bottom band: what each skill works on ─── -->
@@ -318,8 +319,8 @@
     <title>Open Documentation — the artifacts a feature passes through</title>
     <rect x="316" y="416" width="254" height="66" rx="8"/>
     <text x="332" y="436" style="font-weight:700">Your artifacts</text>
-    <text class="sub mono" x="332" y="455">D101 · S101 · S102 · ledger</text>
-    <text class="sub mono" x="332" y="471">conventions · asimov.md</text>
+    <text class="sub mono" x="332" y="455">D100 · D101 · plan · specs · ledger</text>
+    <text class="sub mono" x="332" y="471">conventions · asimov.md · project/</text>
     <text class="go" x="556" y="436" text-anchor="end">→</text>
   </a>
   <a class="contract" href="../inside/project-management.html">
