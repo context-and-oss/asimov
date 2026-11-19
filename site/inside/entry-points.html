@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Entry points · Asimov</title>
-<meta name="description" content="The commands you type in Claude Code or Codex, and what each one does.">
+<meta name="description" content="The entry points a run starts from in Claude Code, Codex or OpenCode, and what each one does.">
 <link rel="stylesheet" href="../site.css">
 </head>
 <body class="has-subnav">
@@ -34,25 +34,34 @@
 
 <main class="page">
   <h1>Entry points</h1>
-  <p class="lede">What you type, in Claude Code or Codex.</p>
+  <p class="lede">Five skills a run starts from, in Claude Code, Codex or OpenCode.</p>
 
-  <p>Each one reads the repo's definitions and conventions at run time. There is no copy inside the plugin to drift. The same name works in both tools: <code>/asimov-spec</code> in Claude Code is <code>$asimov-plugin:asimov-spec</code> in Codex, one file underneath.</p>
+  <p>Name one, or just say what you want: in a repo with <code>asimov.md</code>, the words of your message start the right one. Each carries the conversation of one run and reads its method from the plugin at run time, so nothing is copied into your repo to drift.</p>
 
   <div style="overflow-x:auto">
   <table>
-    <tr><th>Command</th><th>Stage</th><th>What it does</th></tr>
-    <tr><td><code>/asimov-init</code></td><td>Setup</td><td>Writes the <code>asimov.md</code> marker, copies the Codex agent shells into <code>.codex/agents/</code>, scaffolds convention read-lists, asks for the project info, generates the docs site; touches neither <code>CLAUDE.md</code> nor <code>AGENTS.md</code>. One run readies the repo for both tools; the context reaches every session from the plugin's hooks.</td></tr>
-    <tr><td><code>/asimov-design</code></td><td>Design</td><td>Interview → D101 as HTML. Stops after the business design; run again for the technical design. Name a legacy markdown D101 and it renders it to HTML instead. Name a D101 and <em>review</em>: the gap check against the bar plus the persona reads, no edit, no verdict. Starts on your words too, in a repo with <code>asimov.md</code>.</td></tr>
-    <tr><td><code>artifact-persona-authoring</code></td><td>Design</td><td>Shows the persona roster, then interview → a custom persona skill in your repo.</td></tr>
-    <tr><td><code>/asimov-spec</code></td><td>Spec</td><td>Reads a full-design D101, or an approved ticket, and the repo. At most five questions, then the cut as a plan view, checked before you see it; your <em>go</em> approves the plan; then one task spec per task, each checked blind and marked validated, then the plan as a whole; ready when it still matches your go. Name a ready plan again and it re-checks it.</td></tr>
-    <tr><td><code>/asimov-build</code></td><td>Build</td><td>Builds a ready plan phase by phase on a feature branch: each task to the agent its role names, fresh, with its task spec as the only brief. Once a phase is built, Baley reviews the diff against the task specs, then Powell runs every done-when and the checkpoint, and the phase is committed on the feature branch. No gate inside the build: a failed task is rebuilt with the findings, three attempts, and a stop proposes its ruling, which the next run takes. Never a pull request.</td></tr>
+    <tr><th>Claude Code</th><th>Codex</th><th>OpenCode</th></tr>
+    <tr><td><code>/asimov-spec</code></td><td><code>$asimov-plugin:asimov-spec</code></td><td><code>@asimov-spec</code></td></tr>
+  </table>
+  </div>
+
+  <div style="overflow-x:auto">
+  <table>
+    <tr><th>Entry point</th><th>Stage</th><th>What a run does</th></tr>
+    <tr><td><code>asimov-init</code></td><td>Setup</td><td>Shows a write plan, then writes the <code>asimov.md</code> marker, the Codex agent shells, a convention read-list per stack, the project info and the docs site. Touches neither <code>CLAUDE.md</code> nor <code>AGENTS.md</code>.</td></tr>
+    <tr><td><code>asimov-design</code></td><td>Design</td><td>Interview → D101 as HTML. Stops after the business design; run again for the technical design. Say <em>review</em> for the gap check and the persona reads: no edit, no verdict. Say <em>architecture</em> for the area's D100.</td></tr>
+    <tr><td><code>asimov-spec</code></td><td>Spec</td><td>Reads a full-design D101, or an approved ticket, with the architecture and the repo. Questions in one message, then the whole plan in one file, checked by a script before you see the cut. Your <em>go</em> approves it and renders one task spec per task.</td></tr>
+    <tr><td><code>asimov-build</code></td><td>Build</td><td>Builds an approved plan phase by phase on a feature branch: each task to the agent its role names, Baley reviews, Powell runs every check, the phase is committed. No gate inside the build; a stop proposes what to do, and the next run takes it. Never a pull request.</td></tr>
+    <tr><td><code>asimov-project</code></td><td>The frame</td><td>Keeps the engagement's pages under <code>project/</code>: the risk log first. Not a stage, kept while the stages run.</td></tr>
   </table>
   </div>
 
   <ul>
-    <li><strong>A command interviews before it writes.</strong> It asks for what the artifact needs and stops when the artifact's own bar says so.</li>
-    <li><strong>A command that reviews never edits.</strong> Findings go to you; the verdict stays a person's.</li>
-    <li><strong>Every command tells you how mature its artifact is</strong> before its first question, when the level is below adopt. See <a href="../artifacts/documentation/index.html#maturity">Maturity</a>.</li>
+    <li><strong>An entry point asks before it writes.</strong> It asks for what the artifact needs and stops when the artifact's own bar says so.</li>
+    <li><strong>A review never edits.</strong> Findings go to you; the verdict stays a person's.</li>
+    <li><strong>You decide between stages, never inside one.</strong> The signed design, the plan's go, the pull request.</li>
+    <li><strong>Each tells you how mature its artifact is</strong> before its first question, when the level is below adopt. See <a href="../artifacts/documentation/index.html#maturity">Maturity</a>.</li>
+    <li><strong>Not an entry point:</strong> <code>artifact-persona-authoring</code>, <code>tool-deck-authoring</code> and the personas are plain skills you ask for. See <a href="../inside/skills.html">Skills</a>.</li>
   </ul>
 
 </main>
