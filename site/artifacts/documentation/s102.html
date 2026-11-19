@@ -37,7 +37,7 @@
   <p class="lede">One per task. The whole brief a fresh build agent receives, sized for one sitting. <span class="chip assess">assess</span></p>
 
   <dl class="meta">
-    <dt>Produced by</dt><dd><code>/asimov-spec</code>, one per task in the plan's graph, after your go at the cut.</dd>
+    <dt>Produced by</dt><dd><code>asimov-spec</code>, one per task in the plan's graph, after your go at the cut.</dd>
     <dt>Validated by</dt><dd>A fresh subagent with no conversation history, right after each one is written. It sees the task spec, the plan, the design and the repo, and nothing else. A clean check is the task spec's approval: it is marked <em>validated</em> with the date. No person approves a task spec.</dd>
     <dt>Lands in</dt><dd><code>specs/&lt;feature&gt;/S102-&lt;feature&gt;-NNN-&lt;task&gt;.md</code></dd>
     <dt>Source</dt><dd><a href="https://github.com/context-and-oss/asimov/blob/main/plugins/asimov-plugin/artifacts/documentation/s102-task-spec/s102-task-spec-definition.md">Definition</a> · <a href="https://github.com/context-and-oss/asimov/blob/main/plugins/asimov-plugin/artifacts/documentation/s102-task-spec/s102-task-spec-template.md">Template</a> · <a href="https://github.com/context-and-oss/asimov/blob/main/plugins/asimov-plugin/contracts/specification.md">The specification contract</a> · <a href="https://github.com/context-and-oss/asimov/blob/main/documentation/features/D101-spec-stage.html">The Spec-stage D101</a></dd>
@@ -84,7 +84,7 @@
   <p>A bug fix from the board skips the design document, not the plan. Its approved ticket is the design, and its plan may have one task; the task then traces to the ids the plan gave the ticket's items.</p>
 
   <h2>Where it comes from, where it goes</h2>
-  <p>One of several under an S101, or the only one. Inside <code>/asimov-build</code>, Giskard, Daneel and Calvin build from it, Baley reviews the diff against it, and Powell runs its done-when. <a href="../../artifacts/documentation/index.html">The document model →</a></p>
+  <p>One of several under an S101, or the only one. Inside <code>asimov-build</code>, Giskard, Daneel and Calvin build from it, Baley reviews the diff against it, and Powell runs its done-when. <a href="../../artifacts/documentation/index.html">The document model →</a></p>
 
   <p>Definition, template and skills exist since 2026-10-02. The first real run showed every task spec carrying method bodies and test classes, so the shape was re-cut on the specification contract on 2026-10-05. That is what <span class="chip assess">assess</span> means: use it, and expect the shape to move.</p>
 
