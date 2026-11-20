@@ -32,6 +32,9 @@
   Where the S101 and S102s are written. Defaults to <repo>/.asimov/specs/<slug>/.
 .PARAMETER RepoRoot
   The product repo root. Defaults to the folder two above .asimov/plans/.
+.PARAMETER PluginRoot
+  Accepted and unused: a caller in Codex passes it to every script call, and this script reads
+  nothing of the plugin but plan-lib.ps1 beside it.
 
 .OUTPUTS
   One line per thing done: approved, rendered, removed, kept. Exit 0 when the files were written,
@@ -45,7 +48,8 @@ param(
   [string]$By = '',
   [string]$Date = '',
   [string]$OutDir = '',
-  [string]$RepoRoot = ''
+  [string]$RepoRoot = '',
+  [string]$PluginRoot = ''
 )
 
 Set-StrictMode -Version 2

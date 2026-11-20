@@ -161,7 +161,7 @@ The proposal is the ruling whose reason you can name, by the cause:
 
 **The rulings**, applied at Step 01 of the next run (or at once when the words carry one in this run):
 
-- **retry** → the stopped task is `pending` with three new attempts; the note reaches the builder's prompt after the findings and Baley's and Powell's as `Ruling by <by>: <note>`, so a substitute command or an accepted deviation reaches the one it concerns. Step 02.
+- **retry** → the stopped task is `pending` with three new attempts, and a discarded phase is `pending` again, so it is the next one built; the note reaches the builder's prompt after the findings and Baley's and Powell's as `Ruling by <by>: <note>`, so a substitute command or an accepted deviation reaches the one it concerns. Step 02.
 - **discard** → `git checkout -- <every modified owned file of the phase, and every changed file matching its regenerates globs>` and `rm` of every `owns.create` file of the phase that exists; the ledger marks the phase `discarded`; print `discard P<n> files reset to <hash>`. Then *"Say `re-plan <what should change>` and I continue, or `retry` to build P<n> again as it is."* Finish.
 - **re-plan** → Step 07.
 - **done T<nnn>** → the task `built`; Step 02 continues the phase.
@@ -172,8 +172,8 @@ The proposal is the ruling whose reason you can name, by the cause:
 The person's words change the plan; the plan is the only place a specification changes, and the committed phases stay. In order:
 
 1. The open phase, if any, is discarded as in Step 06 (its uncommitted files reset) and the ledger records the ruling with the words as its note.
-2. Invoke **`asimov-spec`** through the Skill tool with `<slug>` and the words; it takes them as the first `cut_feedback` of an update, re-cuts, checks, shows the new cut and takes the person's go, which renders the S101 and S102s again. The go is the plan's one gate; a person who changed the plan sees what changed. A re-cut that ends without a go ends this run too: *"the plan is not approved; run `/asimov-build <slug>` when it is."*
-3. Run the ledger script with `carry` (`by` = `git config user.name`): the ledger moves to the new fingerprint and keeps every committed phase whose id and task ids are unchanged; every other phase is pending. Print its line.
+2. Invoke **`asimov-spec`** through the Skill tool with `<slug>`, the phrase *re-plan from the build* and the words (the phrase is what lets it re-cut a plan that is `in progress`); it takes them as the first `cut_feedback` of an update, re-cuts, checks, shows the new cut and takes the person's go, which renders the S101 and S102s again. The go is the plan's one gate; a person who changed the plan sees what changed. A re-cut that ends without a go ends this run too: *"the plan is not approved; run `/asimov-build <slug>` when it is."*
+3. Run the ledger script with `carry` (`by` = `git config user.name`): the ledger moves to the new fingerprint and keeps the committed phases whose id and task ids are unchanged, up to the first phase that changed; that phase and every phase after it are pending, since they were built on it. Print its line, and **Edit** the S101 header back to `status: in progress` (the render set it `ready`).
 4. Print *"Building P<n>, <t> tasks."* and Step 02.
 
 # States you may be asked about

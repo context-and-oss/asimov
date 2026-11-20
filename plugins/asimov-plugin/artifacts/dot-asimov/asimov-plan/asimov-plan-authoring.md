@@ -88,9 +88,9 @@ Missing inputs take the default in brackets.
 ## Modes
 
 - **new.** No plan exists. Version `0.1`.
-- **update.** The design's items are unchanged. Start from the plan on disk, keep every task in `keep`, re-cut around them, bump the version when an approval with a fingerprint is on disk.
-- **rewrite.** An id missing or added, or the content changed. Plan from the design alone; `keep` is empty; bump the version when an approval is on disk.
-- **Any cut round after the first** (`cut_feedback` present). Start from the plan on disk, which may carry hand edits, apply the feedback, rewrite in place. The version stays while `approved:` is `none`.
+- **update.** The design's items are unchanged. Start from the plan on disk, keep every task in `keep`, re-cut around them. The version stays: `render-plan.ps1` bumps it at the next approval.
+- **rewrite.** An id missing or added, or the content changed. Plan from the design alone; `keep` is empty. The version stays, as in an update.
+- **Any cut round after the first** (`cut_feedback` present). Start from the plan on disk, which may carry hand edits, apply the feedback, rewrite in place. The version stays.
 
 ## Never
 
@@ -101,7 +101,7 @@ Missing inputs take the default in brackets.
 - Copy a convention into §2; invent a stack, a runner, a path, a layout or a signature: what you cannot ground is an assumption with its options, a line sourced to the D100, or a `design:` row.
 - Put a slice's behaviour in the Foundation, cut a Foundation with nothing to found, cut an internal layer as a slice, or put a builder beside or ahead of its tester.
 - Put existing code or a test name in §1; restate a signature in a task section; name a test method.
-- Set a status other than `draft`; write, change or drop the `approved:` line; touch a plan whose S101 is `in progress` or `done` (return *refused* with the status).
+- Set a status other than `draft`; write, change or drop the `approved:` line; touch a plan whose S101 is `done` (return *refused* with the status). A plan whose S101 is `in progress` is the caller's to refuse: it reaches you only as a re-plan from the build, and is re-cut like any update.
 - Ask a question or wait: a missing answer takes its default and becomes an assumption.
 - Write a placeholder; open a section with the template's sentence; leave a template description in.
 - Judge the plan beyond the script (step 18), render it, or call any skill.

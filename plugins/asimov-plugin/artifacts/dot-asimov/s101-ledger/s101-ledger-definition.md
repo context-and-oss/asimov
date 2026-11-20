@@ -40,7 +40,7 @@ Three things make it so: the fingerprint of the approval it was started from, a 
 | `phases` | one entry per phase of the plan, in the plan's order: `id`, `status`, `commit` (the hash once committed, else `none`), `committed` (`{ by, date }` once committed, else `none`), `tasks` |
 | `phases[].tasks` | one entry per task of the phase: `id`, `status`, `attempts` (count), `agent` (the shell name of the last attempt), `model` (the model it ran on, or `session` in Codex) |
 
-Phase statuses: `pending` → `building` → `built` → `passed` → `committed`; `discarded` from `building`, `built` or `passed` by a ruling. Task statuses are the D101 §4.3 lifecycle: `pending` → `running` → `built` → `done`; `failed` from `built`; `running` again from `failed` by a retry; `stopped` from `failed`.
+Phase statuses: `pending` → `building` → `built` → `passed` → `committed`; `discarded` from `building`, `built` or `passed` by a ruling; `pending` again from `discarded` by a `retry`. Task statuses are the D101 §4.3 lifecycle: `pending` → `running` → `built` → `done`; `failed` from `built`; `running` again from `failed` by a retry; `stopped` from `failed`.
 
 ### 3.2 Body
 
@@ -79,7 +79,7 @@ Run by the ledger script, `scripts/ledger.ps1` beside this file, before every re
 | # | Check | Tests |
 |---|---|---|
 | L1 | Frontmatter parses as YAML and every key of §3.1 is present | Shape |
-| L2 | `fingerprint` equals the S101's recomputed fingerprint; after a re-plan the `carry` operation moves it, keeping the committed phases whose tasks are unchanged | Same plan |
+| L2 | `fingerprint` equals the S101's recomputed fingerprint; after a re-plan the `carry` operation moves it, keeping the committed phases whose tasks are unchanged, up to the first phase that changed | Same plan |
 | L3 | Every phase and task id of the ledger exists in the S101's tree, and every task of the tree is in the ledger | Same tree |
 | L4 | At most one phase is `building`, `built` or `passed`; every phase before it is `committed` or `discarded`; every phase after it is `pending` | One position |
 | L5 | A `committed` phase has a commit hash that exists on the branch | Evidence |

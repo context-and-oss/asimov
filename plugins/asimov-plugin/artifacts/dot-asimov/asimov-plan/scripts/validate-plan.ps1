@@ -89,9 +89,19 @@ $script:RepoFileList = $null
 function Get-RepoFiles {
   if ($null -eq $script:RepoFileList) {
     $root = (Resolve-Path -LiteralPath $RepoRoot).Path
-    $script:RepoFileList = @(Get-ChildItem -LiteralPath $root -Recurse -File -Force -ErrorAction SilentlyContinue |
-      Where-Object { $_.FullName -notmatch '[\\/](\.git|node_modules|bin|obj)[\\/]' } |
-      ForEach-Object { $_.FullName.Substring($root.Length).TrimStart('\', '/') -replace '\\', '/' })
+    # walked by hand so a skipped folder is never entered (node_modules alone can hold a hundred thousand files)
+    $skip = @('.git', 'node_modules', 'bin', 'obj')
+    $found = New-Object System.Collections.Generic.List[string]
+    $todo = New-Object System.Collections.Generic.Stack[string]
+    $todo.Push($root)
+    while ($todo.Count -gt 0) {
+      $dir = $todo.Pop()
+      foreach ($e in @(Get-ChildItem -LiteralPath $dir -Force -ErrorAction SilentlyContinue)) {
+        if ($e.PSIsContainer) { if ($skip -notcontains $e.Name) { $todo.Push($e.FullName) } }
+        else { $found.Add(($e.FullName.Substring($root.Length).TrimStart('\', '/') -replace '\\', '/')) }
+      }
+    }
+    $script:RepoFileList = @($found | Sort-Object)
   }
   return $script:RepoFileList
 }

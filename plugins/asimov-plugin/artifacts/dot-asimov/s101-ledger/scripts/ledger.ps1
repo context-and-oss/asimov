@@ -3,7 +3,7 @@
   The build ledger's operations, as a script: start, position, record, rule, commit, close.
 
 .DESCRIPTION
-  Implements the operations of artifacts/documentation/s101-ledger/s101-ledger-operations.md
+  Implements the operations of artifacts/dot-asimov/s101-ledger/s101-ledger-operations.md
   (beside this script's folder) on the one file that holds a
   build's run state, .asimov/specs/<slug>/S101-<slug>.ledger.md, beside the plan it belongs
   to (s101-ledger-definition.md). The frontmatter is machine state and is rewritten with the
@@ -482,6 +482,8 @@ try {
       $line = $Choice; if ($Note -ne '') { $line += " $Dot " + $Note }
       Append-Body $L ('### ruling ' + $Dot + ' ' + $Today + ' ' + $Dot + ' ' + $By) $line
       if ($Choice -eq 'retry') {
+        # a discarded phase is built again as it is: pending, so the build's next phase is this one
+        if ($ph.Status -eq 'discarded') { $ph.Status = 'pending' }
         foreach ($t in $ph.Tasks) { if ($t.Status -eq 'stopped' -or $t.Status -eq 'failed') { $t.Status = 'pending'; $t.Attempts = 0 } }
       } elseif ($Choice -eq 'discard' -or $Choice -eq 're-plan') {
         if ($ph.Status -ne 'committed') {
@@ -510,19 +512,21 @@ try {
       if ($Plan.ApprovedFingerprint -eq '') { throw 'the plan is not approved (approved: none); run asimov-spec first' }
       if ($Plan.ApprovedFingerprint -ne $Plan.Fingerprint) { throw 'the plan changed after it was approved; approve it again with asimov-spec' }
       $old = $L.Fingerprint
-      $kept = @(); $reset = @()
+      # Kept is a prefix: once a phase is set pending, every phase after it is too (check L4: nothing
+      # committed after the open phase), since a later phase was built on the one that changed.
+      $kept = @(); $reset = @(); $broken = $false
       $newPhases = New-Object System.Collections.Generic.List[object]
       foreach ($ph in $Plan.Phases) {
         $was = $null
         foreach ($x in $L.Phases) { if ($x.Id -eq $ph.Id) { $was = $x; break } }
         $sameTasks = $false
         if ($null -ne $was) { $sameTasks = ((@($was.Tasks | ForEach-Object { $_.Id }) -join ',') -eq (@($ph.Tasks) -join ',')) }
-        if ($null -ne $was -and $was.Status -eq 'committed' -and $sameTasks) {
+        if (-not $broken -and $null -ne $was -and $was.Status -eq 'committed' -and $sameTasks) {
           $newPhases.Add($was); $kept += $ph.Id
         } else {
           $p = [pscustomobject]@{ Id = $ph.Id; Status = 'pending'; Commit = 'none'; GoBy = ''; GoDate = ''; Tasks = (New-Object System.Collections.Generic.List[object]) }
           foreach ($tid in $ph.Tasks) { $p.Tasks.Add([pscustomobject]@{ Id = $tid; Status = 'pending'; Attempts = 0; Agent = 'none'; Model = 'none' }) }
-          $newPhases.Add($p); $reset += $ph.Id
+          $newPhases.Add($p); $reset += $ph.Id; $broken = $true
         }
       }
       $L.Phases = $newPhases

@@ -196,7 +196,7 @@ function Get-FeatureFromText([string]$text) {
 
 function Get-TranscriptStats([string]$path) {
   # Cumulative tokens, tool calls and the last answer's text of one transcript. Two shapes:
-  #   Codex rollout: event_msg/token_count rows carry total_token_usage (cumulative); response_item/function_call is a tool call;
+  #   Codex rollout: event_msg/token_count rows carry total_token_usage (cumulative); response_item/function_call, custom_tool_call, local_shell_call and web_search_call are tool calls;
   #                  response_item/message with role assistant is an answer.
   #   Claude Code:   type=assistant rows carry message.usage, repeated for every content block of one message id;
   #                  a tool_use block is a tool call; a text block is an answer.
@@ -214,11 +214,14 @@ function Get-TranscriptStats([string]$path) {
         if ($line.Contains('"type":"response_item"')) {
           # Codex rollout rows: a tool call, an answer, or neither
           $codex = $true
-          if ($line.Contains('"type":"function_call"')) { $calls++ }
+          if ($line.Contains('"type":"function_call"') -or $line.Contains('"type":"custom_tool_call"') -or $line.Contains('"type":"local_shell_call"') -or $line.Contains('"type":"web_search_call"')) { $calls++ }
           elseif ($line.Contains('"type":"message"') -and $line.Contains('"role":"assistant"')) { $lastMsg = $line }
           continue
         }
-        if ($line.Contains('"type":"event_msg"') -and $line.Contains('"token_count"')) { $codex = $true; $lastTok = $line; continue }
+        if ($line.Contains('"type":"event_msg"') -and $line.Contains('"token_count"')) {
+          # a token_count row may carry info: null; only a row with numbers is the cumulative count
+          $codex = $true; if ($line.Contains('"total_token_usage"')) { $lastTok = $line }; continue
+        }
         if ($codex) { continue }
         if (-not $line.Contains('"type":"assistant"')) { continue }
         if ($line -match '"id":"(msg_[A-Za-z0-9_-]+)"' -and $Matches[1] -ne $lastId) {
