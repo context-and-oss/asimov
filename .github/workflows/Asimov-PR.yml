@@ -29,18 +29,14 @@ jobs:
           [ "$entry" = "$plugin" ]        || { echo "::error::marketplace.json entry '$entry' ≠ plugin.json '$plugin'"; exit 1; }
           echo "ok: $plugin"
 
-      - name: Command, asimov-skill and subagent models match model-choice.md (hard rule 2)
+      - name: Command and subagent models match model-choice.md; no skill declares one (hard rule 2)
         run: |
           set -euo pipefail
           shopt -s nullglob
           fail=0
-          # Commands (none ship today) and agent shells must declare a model. Skills normally declare none;
-          # an asimov-skill (skills/asimov-*/SKILL.md) does, and is checked by its folder name.
-          for f in plugins/asimov-plugin/commands/*.md plugins/asimov-plugin/agents/*.md plugins/asimov-plugin/skills/asimov-*/SKILL.md; do
-            case "$f" in
-              */SKILL.md) name=$(basename "$(dirname "$f")") ;;
-              *)          name=$(basename "$f" .md) ;;
-            esac
+          # Commands (none ship today) and agent shells must declare a model.
+          for f in plugins/asimov-plugin/commands/*.md plugins/asimov-plugin/agents/*.md; do
+            name=$(basename "$f" .md)
             model=$(awk 'NR==1 && $0!="---"{exit} /^---$/{c++; if(c==2) exit; next} c==1 && /^model:/{sub(/^model:[ \t]*/,""); print; exit}' "$f")
             if [ -z "$model" ]; then
               echo "::error file=$f::no model: in frontmatter"; fail=1; continue
@@ -49,6 +45,13 @@ jobs:
               echo "::error file=$f::model '$model' has no matching row for '$name' in documentation/model-choice.md"; fail=1; continue
             fi
             echo "ok: $name → $model"
+          done
+          # A skill runs on the session's model: neither model: nor effort: in any SKILL.md frontmatter.
+          for f in plugins/asimov-plugin/skills/*/SKILL.md; do
+            pin=$(awk 'NR==1 && $0!="---"{exit} /^---$/{c++; if(c==2) exit; next} c==1 && /^(model|effort):/{print; exit}' "$f")
+            if [ -n "$pin" ]; then
+              echo "::error file=$f::a skill declares no model or effort, found '$pin'"; fail=1
+            fi
           done
           exit $fail
 

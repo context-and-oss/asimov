@@ -219,10 +219,15 @@ function Scope-Tokens([string]$rel) {
   return @($parts[1..($parts.Count - 2)])
 }
 function Area-Of([string]$rel) {
-  # the area whose name is a token of the file name (D100-<Area>-..., D101-<area>-...)
+  # the area whose name is a token of the file name (D100-<Area>-..., D101-<area>-...),
+  # or a run of tokens after the family (D100-<area>.html, the area in kebab-case: D100-home-bar -> Home Bar)
   $stem = [System.IO.Path]::GetFileNameWithoutExtension($rel).ToLowerInvariant()
   $tokens = @($stem.Split('-') | ForEach-Object { Key $_ })
   foreach ($a in $Areas) { if ($tokens -contains $a.key) { return $a } }
+  for ($k = 2; $k -lt $tokens.Count; $k++) {
+    $joined = ($tokens[1..$k] -join '')
+    foreach ($a in $Areas) { if ($joined -eq $a.key) { return $a } }
+  }
   return $null
 }
 
@@ -294,7 +299,7 @@ $SectionEmptyWhat = @{
   reference    = 'The material behind the designs belongs here: analyses (documentation/analysis/), research notes (documentation/reference/) and the contracts other parties own (a folder per party under reference/).'
 }
 $SectionEmptyHow = @{
-  architecture = 'Write documentation/D100-&lt;Area&gt;-architecture.html for an area, and D100-&lt;Project&gt;-architecture.html for the landscape; conventions go under documentation/conventions/&lt;stack&gt;/. The site picks them up on its next run.'
+  architecture = 'Write documentation/D100-&lt;area&gt;.html for an area (/asimov-design writes it), and D100-&lt;Project&gt;-architecture.html for the landscape; conventions go under documentation/conventions/&lt;stack&gt;/. The site picks them up on its next run.'
   environments = 'Write documentation/E100-&lt;Project&gt;-&lt;Area&gt;-environments.html with a section 3 of Name | dev | test | prod tables; the site renders the tables here on its next run.'
   features     = 'Design a feature with /asimov-design; it lands at documentation/features/D101-&lt;slug&gt;.html and appears here on the site''s next run.'
   testing      = 'Write documentation/T100-&lt;Project&gt;-test-strategy.html and documentation/T101-&lt;Area&gt;-test-plan.html; the site lists them here on its next run.'

@@ -1,9 +1,7 @@
 ---
 name: asimov-design
-description: Use when asked to design a feature or a change, to write, continue or edit a D101 feature design, to review or gap-check one, or to render a legacy markdown D101 to HTML. The Design stage of a repository that uses Asimov (asimov.md at its root).
-argument-hint: nothing, a feature brief or pasted ticket, a D101 slug or path to continue, edit or review, or the path of a legacy .md to render
-model: claude-opus-5-5
-effort: xhigh
+description: Use when asked to design a feature or a change, to write, continue or edit a D101 feature design, to review or gap-check one, to render a legacy markdown D101 to HTML, or to write or update the product's architecture (D100). The Design stage of a repository that uses Asimov (asimov.md at its root).
+argument-hint: nothing, a feature brief or pasted ticket, a D101 slug or path to continue, edit or review, the path of a legacy .md to render, or 'architecture' with what changed
 allowed-tools: Read, Glob, Grep, Write, Edit, Bash, Skill
 ---
 
@@ -66,6 +64,7 @@ If file 1 cannot be read, stop and report the path. The authoring file `d101-fea
 | A D101 **and** sections to change (*"update §4.4"*, *"add a decision row"*, *"fix the side-nav"*) | An edit | Read it; resolve the phase; the sections named are the agenda, no question about what to work on. `Business design` → Phase B against the file (Step 04 onward); `Full design` → the update (Step 08). |
 | A D101 **and** a request to review, gap-check, check against the bar, or read it as a persona | A review | Read it; resolve the phase; Step 10. No interview. |
 | A path to a `D101-*.md` without such a request | A legacy markdown D101 | Step 09, the render. No interview. |
+| The word *architecture* or *D100*, or a path to a `documentation/D100-*.html` | The architecture | Step 11. The product's one D100 per area, written or updated; the rest of the words say what changed. |
 | Anything else: a sentence, a pasted ticket, meeting notes | A new feature | Phase A. The slug is settled in Step 02. |
 
 Never read a flag or an argument order; there are none. The author may pivot after your one line; accept it. A review asked for with no D101 in the repo is answered in one line and an offer to start Phase A.
@@ -220,6 +219,20 @@ Then the footer, matching the phase, and stop. No fixes, no verdict, nothing bey
 
 Asked in the review to *"just fix it"*: that is a design run against the file. Say so, and that naming the file with the findings to act on starts one; never edit the D101 inside the review.
 
+# Step 11 — The architecture
+
+The product's architecture is one D100 per area (`documentation/D100-<area>.html`), the document a D101 names parts and decisions from and the Spec stage's Foundation realises. It is written once and changed when the product changes shape; a run of this step writes or updates one.
+
+**Read**, with the file-read tool: `${CLAUDE_PLUGIN_ROOT}/artifacts/documentation/d100-architecture/d100-architecture-definition.md` (the maturity block for the notice, §2 the bar, §6 the checks, §7 the placement) and, beside it, **`d100-architecture-authoring.md` whole**, which is the method: it names what to read in the repo, what to find out from the owner, the rendering, the preview and the invariants. The maturity notice follows the Step 00 table with *the D100 architecture* as the artifact.
+
+**Resolve the target.** The area from `project/info.html` (one area: its slug; several: the one the words name, else ask which); the path `documentation/D100-<area>.html`. Existing → an update: say so with its status chip, read it whole, the words are the agenda. Absent → the first write.
+
+**Find out, in one message.** After the authoring file's repo reads, state in **one** message what the repo answered (the parts found, the stacks, the start it found or did not, the layout) and, for every member the repo does not answer, the default the authoring file states, so the owner takes them with one word or corrects any. Ask only what no default covers: the owner's name, the outside systems and the boundary when no D101 names them, a constraint. A product that does not exist yet (no project file for a stack the D101s name) gets its parts marked `planned` and its start and layout from the defaults, recorded as AD1 and AD2. Never more than one round of questions; a correction after the write is an update run.
+
+**Preview, write, report.** Answer the definition §6's checks D1–D8 as the authoring file says, fix a Fail, then **apply the authoring file** for the write (the first write at `Draft v0.1`, an update with the version bumped). Report the path, the parts, the start line, the decisions, and the check lines; name any D101 whose §6.1 restates what the D100 now carries, as a line the author may act on. `Draft` → `Approved` is the owner's move, never recorded here.
+
+**A review of a D100** asked for in the words: the check lines D1–D8 on the file as it stands, printed, and written to `documentation/D100-<area>.review.md` beside it; the D100 unchanged.
+
 # States you may be asked about
 
 - **Stopped after the business design**: the file at `Business design`, §6 open; the next run offers §2–§5 or the technical design.
@@ -227,11 +240,12 @@ Asked in the review to *"just fix it"*: that is a design run against the file. S
 - **Returned to Phase B**: a §6 question changed the business design; nothing written, the author decides where to resume.
 - **Rendered**: a legacy `.md` has an `.html` beside it; the `.md` is untouched.
 - **Reviewed**: findings printed and cached in `D101-<slug>.review.md`; the D101 unchanged; the next design run offers the notes.
+- **Architecture written**: `documentation/D100-<area>.html` at `Draft v<n>`, its parts, start and decisions reported; a D101 names the parts from it, a plan's Foundation realises its §5 and §6.
 
 # Hard rules
 
 - **One write per run, one phase per run.** Phase A writes nothing. The file after Phase B is a deliberate, marked-incomplete deliverable, not a half-draft. **Never Phase B and Phase C in one run**: the stop is the mechanism this skill exists for. A review run writes only the notes.
-- **Write only the D101, its mockups, and the notes.** `documentation/features/D101-<slug>.html`, `documentation/features/mockups/d101-<slug>/`, the `D101-<slug>.review.md` a review writes beside its target, and the deletion of those notes after a write that used them. Never a legacy `.md`, never a file elsewhere.
+- **Write only the D101, its mockups, the D100 and the notes.** `documentation/features/D101-<slug>.html`, `documentation/features/mockups/d101-<slug>/`, `documentation/D100-<area>.html` on the architecture path, the `D101-<slug>.review.md` or `D100-<area>.review.md` a review writes beside its target, and the deletion of those notes after a write that used them. Never a legacy `.md`, never a file elsewhere.
 - **A review is read-only on the D101.** In Step 10 never call Edit, and Write targets only the target's `.review.md` sibling, same directory, same slug; never a fixed `documentation/features/` location regardless of where the target lives. `Write` is a tool-level grant, not a path-level one; the scope is your discipline to keep, checked by `git diff` on the target after a run (definition §4.10).
 - **Resolve the phase before offering or judging anything.** The menu and the bar depend on it. A `Business design` document is never reviewed against §8b; an open §6 is *Open*, never Fail.
 - **Run only what was picked.** Menu, wait, run the picks. Never all three unasked. Reviews stay distinct: no persona read in the gap tables, no combined verdict or score across reviews.
@@ -240,4 +254,4 @@ Asked in the review to *"just fix it"*: that is a design run against the file. S
 - **The authoring and review invariants bind here.** No fabrication, no mechanism invented to fill §6, no template or definition drift, the status axis never moved, stop at Design, no verdict or aggregated score, no invented findings, never author or propose an acceptance, never a maturity level in the document: defined once in the authoring and review files (*Invariants*), never restated here. This file adds only the sequence rules above.
 - **Never record an approval.** The business approver's name in §1 is a target. `Draft` is the only status you ever cause to be written. You set no phase in a review and show the status without changing it (definition §2.3).
 - **Re-read at run-time.** Load the definition at the start of every run; the authoring file has you load the template on every write. The file in the plugin is the source of truth.
-- **Paths are a hard-rule-9 literal.** `documentation/features/D101-<slug>.html`, its `mockups/d101-<slug>/` sibling, the `D101-<slug>.review.md` notes and the persona paths `skills/persona-*` and `.claude/skills/persona-*` move together across `asimov-design`, the D101 artifact's authoring and review files, `artifact-persona-authoring`, `.gitignore`, the template's leading comment, `asimov-md-template.md`, `CLAUDE.md` and D100. A repo without `documentation/features/` or a `D100-*` still gets its D101: draft anyway, mark missing cross-references `TBD — verify` in §10 and raise them in §9; an author who wants to stop because the repo is not ready is not pushed past their stop.
+- **Paths are a hard-rule-9 literal.** `documentation/features/D101-<slug>.html`, its `mockups/d101-<slug>/` sibling, the `D101-<slug>.review.md` notes, `documentation/D100-<area>.html` with its `.review.md` and the persona paths `skills/persona-*` and `.claude/skills/persona-*` move together across `asimov-design`, the D101 artifact's authoring and review files, `artifact-persona-authoring`, `.gitignore`, the template's leading comment, `asimov-md-template.md`, `CLAUDE.md` and D100. A repo without `documentation/features/` or a `D100-*` still gets its D101: draft anyway, mark missing cross-references `TBD — verify` in §10 and raise them in §9; an author who wants to stop because the repo is not ready is not pushed past their stop.

@@ -5,5 +5,5 @@
 # repo gate asks before writing in a repository that has no asimov.md marker.
 interface:
   display_name: "Asimov · Spec"
-  short_description: "Plan a D101 or a ticket into an S101 and its S102s; your go approves the plan"
-  default_prompt: "Use $asimov-plugin:asimov-spec to plan the D101 <slug> into specs/<slug>/."
+  short_description: "Plan a D101 or a ticket into one plan; your go renders the S101 and S102s the build runs on"
+  default_prompt: "Use $asimov-plugin:asimov-spec to plan the D101 <slug> into .asimov/plans/<slug>.md."

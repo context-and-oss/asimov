@@ -1,6 +1,6 @@
 {
   "name": "asimov-plugin",
-  "version": "0.13.0",
+  "version": "0.15.0",
   "description": "Asimov for OpenCode V2 — registers the plugin's skills and injects the Asimov context (plugins/asimov-plugin/.opencode/plugins/asimov.js)",
   "type": "module",
   "main": "plugins/asimov-plugin/.opencode/plugins/asimov.js",

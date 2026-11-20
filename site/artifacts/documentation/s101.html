@@ -6,6 +6,7 @@
 <title>S101 — Implementation plan · Asimov</title>
 <meta name="description" content="S101: the task graph one D101 becomes, and what every task must respect, stated once. Written by asimov-spec, shown as a cut before any task spec exists.">
 <link rel="stylesheet" href="../../site.css">
+<link rel="icon" type="image/svg+xml" href="../../img/asimov-icon.svg">
 </head>
 <body class="has-subnav">
 <nav class="nav"><div class="in">
@@ -37,9 +38,9 @@
   <p class="lede">One per feature. The task graph a design becomes, and what every task must respect, stated once. <span class="chip assess">assess</span></p>
 
   <dl class="meta">
-    <dt>Produced by</dt><dd><code>/asimov-spec</code>, named in a message with the D101, or with a Jira link for a bug fix that needs no D101. One run: it reads the design and the repo, asks at most five questions, shows you the cut, and expands it on your go.</dd>
+    <dt>Produced by</dt><dd><code>asimov-spec</code>, named in a message with the D101, or with a Jira link for a bug fix that needs no D101. One run: it reads the design and the repo, asks at most five questions, shows you the cut, and expands it on your go.</dd>
     <dt>Validated by</dt><dd>The same run: a blind check per task spec and the plan checks, before it is <em>ready</em>. Name a ready plan again and it is re-checked; one edited by hand is approved again.</dd>
-    <dt>Built by</dt><dd><code>/asimov-build</code>: phase by phase, each task to its agent with its task spec; Baley then Powell check the phase; your go commits it with the <a href="#ledger">ledger</a>.</dd>
+    <dt>Built by</dt><dd><code>asimov-build</code>: phase by phase, each task to its agent with its task spec; Baley then Powell check the phase; your go commits it with the <a href="#ledger">ledger</a>.</dd>
     <dt>Lands in</dt><dd><code>specs/&lt;feature&gt;/S101-&lt;feature&gt;.md</code>, beside its S102s.</dd>
     <dt>Source</dt><dd><a href="https://github.com/context-and-oss/asimov/blob/main/plugins/asimov-plugin/artifacts/documentation/s101-implementation-plan/s101-implementation-plan-definition.md">Definition</a> · <a href="https://github.com/context-and-oss/asimov/blob/main/plugins/asimov-plugin/artifacts/documentation/s101-implementation-plan/s101-implementation-plan-template.md">Template</a> · <a href="https://github.com/context-and-oss/asimov/blob/main/plugins/asimov-plugin/contracts/specification.md">The specification contract</a> · <a href="https://github.com/context-and-oss/asimov/blob/main/documentation/features/D101-spec-stage.html">The Spec-stage D101</a></dd>
     <dt>Read by</dt><dd>Agents: every task spec as it is written, and the build run as its control document. People never read the file; they read the <strong>plan view</strong> it renders to in chat, at the cut, at the end of a run, and as the reviewer.</dd>
@@ -71,7 +72,7 @@
   </ul>
 
   <h2>The cut, before the expansion</h2>
-  <p>Nothing but this file exists when you first see the plan. <code>/asimov-spec</code> shows the plan view: the phases with their checkpoints, one line per task, the coverage line, the assumptions, and what the checks left, one line each; a check it can fix is fixed before you see the cut. Then it waits.</p>
+  <p>Nothing but this file exists when you first see the plan. <code>asimov-spec</code> shows the plan view: the phases with their checkpoints, one line per task, the coverage line, the assumptions, and what the checks left, one line each; a check it can fix is fixed before you see the cut. Then it waits.</p>
   <ul>
     <li><strong>go</strong> approves the plan: written into its header with your name, the date and the version you saw. Then every task spec is written and checked blind, each marked <em>validated</em> when it clears, the plan is checked whole, and the view is shown once more: <em>ready</em>, or what changed since your go and the question to approve the new version.</li>
     <li><strong>Free text</strong> re-cuts and shows the cut again. Edit the file by hand and say <em>read again</em>, and it is read as the graph.</li>

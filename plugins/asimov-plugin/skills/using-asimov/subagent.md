@@ -9,11 +9,11 @@ This repository uses the Asimov toolkit, plugin `asimov-plugin` {{VERSION}}, for
 - `documentation/features/D101-*.html` — the feature designs
 <!-- /part -->
 <!-- part: spec -->
-- `specs/<slug>/` — the plan, the task specs, the build ledger
+- `.asimov/plans/<slug>.md` — the plan; `.asimov/specs/<slug>/` — the S101, the task specs, the build ledger
 <!-- /part -->
 <!-- part: project -->
 - `project/` — the project pages
 <!-- /part -->
 <!-- part: build -->
-- An Asimov role agent follows its role skill; the person's go, not yours, closes a phase.
+- An Asimov role agent follows its role skill; the build, not you, closes a phase.
 <!-- /part -->

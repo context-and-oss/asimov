@@ -22,7 +22,7 @@ Frontmatter with one key per entry point, one per line, `enabled` or `disabled`,
 | Key | Enables in the context |
 |---|---|
 | `asimov-design` | `asimov-design` (its design and review paths), the personas, `documentation/features/` |
-| `asimov-spec` | `asimov-spec`, `specs/` |
+| `asimov-spec` | `asimov-spec`, `.asimov/plans/`, `.asimov/specs/` |
 | `asimov-build` | `asimov-build`, the agents, the delegation rule |
 | `asimov-project` | `asimov-project`, `pm-advisor`, `project/` |
 

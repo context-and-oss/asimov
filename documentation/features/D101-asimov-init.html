@@ -301,7 +301,7 @@ footer.site-footer a { color: var(--cyan); }
   <a href="../index.html#s6">Diagrams</a>
   <span class="spacer"></span>
   <span class="phase-chip full">Full design</span>
-  <span class="status-chip draft">Draft v0.11</span>
+  <span class="status-chip draft">Draft v0.12</span>
 </nav>
 
 <div class="layout-doc">
@@ -349,15 +349,15 @@ footer.site-footer a { color: var(--cyan); }
 <div class="meta-strip">
   <div class="meta-cell"><div class="label">Owner</div><div class="value">Allan Borup</div></div>
   <div class="meta-cell"><div class="label">Approver</div><div class="value">Allan Borup</div></div>
-  <div class="meta-cell"><div class="label">Version</div><div class="value mono">0.10</div></div>
+  <div class="meta-cell"><div class="label">Version</div><div class="value mono">0.12</div></div>
   <div class="meta-cell"><div class="label">Model</div><div class="value mono">claude-opus-5-5 (bound by Claude Code; Codex runs the session's)</div></div>
   <div class="meta-cell"><div class="label">Outputs</div><div class="value mono">asimov.md (marker) · .codex/agents/ · conventions · project info · site · .gitignore</div></div>
-  <div class="meta-cell"><div class="label">Last updated</div><div class="value mono">2026-11-16</div></div>
+  <div class="meta-cell"><div class="label">Last updated</div><div class="value mono">2026-11-19</div></div>
   <div class="meta-cell"><div class="label">Archetype</div><div class="value">Greenfield (evolves /docs-init)</div></div>
 </div>
 
 <div class="doc-scope">
-  <strong>Scope:</strong> The Asimov setup entry point shipped by <code>asimov-plugin</code>: the asimov-skill <code>asimov-init</code>, one file both tools read (<code>/asimov-init</code> in Claude Code, <code>$asimov-plugin:asimov-init</code> in Codex). Run once in a product repo to make it Asimov-ready for both tools: it writes the <code>asimov.md</code> marker, scaffolds detected-stack convention read-lists under <code>documentation/conventions/</code>, asks for the project info, writes the documentation site and copies the plugin's <code>agents/*.toml</code> shells into <code>.codex/agents/</code> — whichever tool it runs in. The Asimov context itself is not a file in the repo: the plugin's SessionStart and SubagentStart hooks inject the <code>using-asimov</code> skill wherever the marker is, at the plugin's installed version (since 2026-11-13; until then the context was an <code>asimov.md</code> imported from <code>CLAUDE.md</code> and a region in <code>AGENTS.md</code>, which a run now migrates away). Read-only on every other file in the repo. Renames and absorbs the former <code>/docs-init</code>; since 2026-11-12 it also absorbs the <code>/asimov-init</code> slash command and the Codex-only <code>codex-asimov-init</code> skill that shipped one entry point per tool, each writing only its own tool's context. §2–§5 are tool-neutral; §6.1 holds what still differs per tool (how the plugin is found, which model binds, how the hook is launched).
+  <strong>Scope:</strong> The Asimov setup entry point shipped by <code>asimov-plugin</code>: the asimov-skill <code>asimov-init</code>, one file both tools read (<code>/asimov-init</code> in Claude Code, <code>$asimov-plugin:asimov-init</code> in Codex). Run once in a product repo to make it Asimov-ready for both tools: it writes the <code>asimov.md</code> marker, scaffolds detected-stack convention read-lists under <code>documentation/conventions/</code>, asks for the project info, writes the documentation site and copies the plugin's <code>agents/*.toml</code> shells into <code>.codex/agents/</code> — whichever tool it runs in. The Asimov context itself is not a file in the repo: the plugin's SessionStart and SubagentStart hooks inject the <code>using-asimov</code> skill wherever the marker is, at the plugin's installed version (since 2026-11-13; until then the context was an <code>asimov.md</code> imported from <code>CLAUDE.md</code> and a region in <code>AGENTS.md</code>, which a run now migrates away). Read-only on every other file in the repo. Renames and absorbs the former <code>/docs-init</code>; since 2026-11-12 it also absorbs the <code>/asimov-init</code> slash command and the Codex-only <code>codex-asimov-init</code> skill that shipped one entry point per tool, each writing only its own tool's context. §2–§5 are tool-neutral; §6.1 holds what still differs per tool (how the plugin is found, how the hook is launched).
 </div>
 
 
@@ -453,7 +453,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="req"><div class="id">NF3</div><div class="body">The generated <code>index.html</code> is pure static HTML + CSS — no JavaScript, no client-side behaviour — and links to <code>_chrome.css</code> rather than inlining it.</div></div>
     <div class="req"><div class="id">NF4</div><div class="body">All templates are re-read at the start of every invocation; the file in the plugin is the run-time source of truth.</div></div>
     <div class="req"><div class="id">NF5</div><div class="body">The skill's first output is a one-sentence narration of what it will do, emitted before any tool call.</div></div>
-    <div class="req"><div class="id">NF6</div><div class="body">The skill's frontmatter pins <code>claude-opus-5-5</code>, matching its row in <code>model-choice.md §1</code>; Claude Code binds it, Codex ignores the key and runs the session's model.</div></div>
+    <div class="req"><div class="id">NF6</div><div class="body">The skill's frontmatter declares no model and no effort: it runs on the session's model in every tool. <code>model-choice.md §1.3</code> recommends Opus 5.5 or above.</div></div>
     <div class="req"><div class="id">NF7</div><div class="body">The Asimov-managed region in an existing convention README is delimited by explicit <code>&lt;!-- asimov:start --&gt;</code>/<code>&lt;!-- asimov:end --&gt;</code> markers so a re-run refreshes exactly that region. The same markers delimited the <code>AGENTS.md</code> region until 2026-11-13; a run now recognises them only to remove it (R4).</div></div>
     <div class="req"><div class="id">NF9</div><div class="body">The context hook is bash with builtins only, started through <code>run-hook.cmd</code> (and <code>run-hook.ps1</code> where the hook shell is PowerShell); it reads the marker and the conventions folders and nothing else, never waits on stdin longer than five seconds, always exits 0, and prints nothing where no marker is.</div></div>
     <div class="req"><div class="id">NF8</div><div class="body">The skill is model-invocable: its frontmatter carries no <code>disable-model-invocation</code> and its <code>agents/openai.yaml</code> no <code>allow_implicit_invocation: false</code>; the write plan of Step 6 precedes every write, whoever started the run (reversed 2026-11-13).</div></div>
@@ -807,9 +807,9 @@ footer.site-footer a { color: var(--cyan); }
       <div class="why">One entry point is the whole point — "make this repo Asimov-ready". The docs-site step is one of four; a separate command splits the mental model and doubles maintenance for no real standalone use case.</div>
     </div>
     <div class="decision-row">
-      <div class="decided">Pin <code>claude-opus-5-5</code> in the skill's frontmatter; Claude Code binds it, Codex runs the session's model</div>
-      <div class="alt">Keep <code>/docs-init</code>'s Sonnet (then <code>claude-sonnet-4-6</code>)</div>
-      <div class="why">Authoring repo-orienting <code>asimov.md</code> prose, judging stack detection from ambiguous markers, and safely merging into existing files demand more judgment than mechanical docs-indexing. The run is infrequent (once per repo) so cost is secondary. Codex ignores the frontmatter key, so the choice binds in Claude Code only.</div>
+      <div class="decided">No model in the skill's frontmatter; the session's model runs it, Opus 5.5 or above recommended (2026-11-19)</div>
+      <div class="alt">Pin <code>claude-opus-5-5</code>, as the command did</div>
+      <div class="why">Authoring repo-orienting <code>asimov.md</code> prose, judging stack detection from ambiguous markers, and safely merging into existing files demand more judgment than mechanical docs-indexing. The run is infrequent (once per repo) so cost is secondary. A pin bound in Claude Code only, changed the model mid-session when the model started the skill, and went stale with every model release.</div>
     </div>
     <div class="decision-row">
       <div class="decided">For Codex, render the context template straight into an <code>AGENTS.md</code> managed region, from the same render as <code>asimov.md</code> <em>(2026-10-01; superseded 2026-11-13 by the hook, below)</em></div>
@@ -865,7 +865,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="row cols-3"><div class="label-cell">Form</div><div>Asimov-skill, one <code>SKILL.md</code></div><div>The same file, found through the Codex plugin manifest's <code>skills/</code></div></div>
     <div class="row cols-3"><div class="label-cell">File</div><div><code>plugins/asimov-plugin/skills/asimov-init/SKILL.md</code></div><div>The same, plus <code>agents/openai.yaml</code> beside it (display name, implicit invocation off)</div></div>
     <div class="row cols-3"><div class="label-cell">Invocation</div><div><code>/asimov-init</code>, optional repo-name argument</div><div><code>$asimov-plugin:asimov-init</code>, optional repo-name text after it</div></div>
-    <div class="row cols-3"><div class="label-cell">Model</div><div><code>claude-opus-5-5</code> in frontmatter (NF6)</div><div>The same frontmatter, ignored; Codex runs the session's model</div></div>
+    <div class="row cols-3"><div class="label-cell">Model</div><div>The session's model; none in frontmatter (NF6)</div><div>The session's model</div></div>
     <div class="row cols-3"><div class="label-cell">Finds the plugin</div><div><code>${CLAUDE_PLUGIN_ROOT}</code>, which Claude Code substitutes with the real path before the prompt runs</div><div>Derives <code>&lt;plugin-root&gt;</code> from its own file path — two levels above the skill folder — and verifies it by reading the first template; on a miss, a Glob search under <code>&lt;home&gt;/.codex/plugins/cache/</code> for that template, then stop and report</div></div>
     <div class="row cols-3"><div class="label-cell">Targets</div><div>Every target of §4.3</div><div>Every target of §4.3; the <code>.codex/agents/</code> write waits for the developer's approval in the sandbox</div></div>
     <div class="row cols-3"><div class="label-cell">Model-invocable</div><div>No <code>disable-model-invocation</code> in the frontmatter; the write plan is the gate (NF8)</div><div>No <code>policy</code> block in <code>openai.yaml</code>, so Codex may select it too (NF8)</div></div>
@@ -1010,7 +1010,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="codemap-row"><div class="what">Output — landing page + chrome (consumer repo)</div><div class="where">documentation/index.html · documentation/_chrome.css</div></div>
     <div class="codemap-row"><div class="what">Migration — the Asimov region an earlier setup wrote, removed (consumer repo)</div><div class="where">AGENTS.md</div></div>
     <div class="codemap-row"><div class="what">Output — Codex subagent shell copies (consumer repo, read by Codex)</div><div class="where">.codex/agents/&lt;subagent&gt;.toml</div></div>
-    <div class="codemap-row"><div class="what">Model declaration (sync'd index; bound by Claude Code only)</div><div class="where">documentation/model-choice.md §1</div></div>
+    <div class="codemap-row"><div class="what">Recommended model (none declared)</div><div class="where">documentation/model-choice.md §1.3</div></div>
   </div>
 </section>
 
@@ -1270,7 +1270,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="ac-row"><div class="ac-id">AC17</div><div class="ac-verifies"><span class="verify-chip">NF3</span></div><div>The generated <code>index.html</code> contains no <code>&lt;script&gt;</code> and links to <code>_chrome.css</code> rather than inlining it.</div></div>
     <div class="ac-row"><div class="ac-id">AC18</div><div class="ac-verifies"><span class="verify-chip">R14</span></div><div>With no argument, the repo name used in the Asimov context and the index equals the last path segment of the git remote origin URL (trailing <code>.git</code> stripped).</div></div>
     <div class="ac-row"><div class="ac-id">AC19</div><div class="ac-verifies"><span class="verify-chip">NF5</span></div><div>The skill's first line of output is a one-sentence statement of intent, emitted before any tool call.</div></div>
-    <div class="ac-row"><div class="ac-id">AC20</div><div class="ac-verifies"><span class="verify-chip">NF6</span></div><div>The skill's <code>model:</code> frontmatter is <code>claude-opus-5-5</code>, matching its row in <code>model-choice.md §1</code>, marked <em>Claude Code only</em>.</div></div>
+    <div class="ac-row"><div class="ac-id">AC20</div><div class="ac-verifies"><span class="verify-chip">NF6</span></div><div>The skill's frontmatter carries no <code>model:</code> and no <code>effort:</code>, and <code>model-choice.md §1.3</code> has its row.</div></div>
     <div class="ac-row"><div class="ac-id">AC21</div><div class="ac-verifies"><span class="verify-chip">R17</span><span class="verify-chip">R19</span></div><div>In a repo whose architecture doc describes a named pipeline, the index carries a flow band with kind-typed nodes and a matching legend; in a repo with no documented pipeline and no sibling cast, the index goes straight from hero to the §1 catalogue with no invented showcase.</div></div>
     <div class="ac-row"><div class="ac-id">AC22</div><div class="ac-verifies"><span class="verify-chip">R18</span></div><div>In a repo whose <code>features/</code> holds 3+ sibling D101s of one category, the index carries an entity gallery with one tile per sibling linking to its doc; with fewer than three siblings, no gallery is emitted.</div></div>
     <div class="ac-row"><div class="ac-id">AC23</div><div class="ac-verifies"><span class="verify-chip">R13</span></div><div>With the three definitions at <code>assess</code>, the run prints exactly one maturity chat line before its first question; with a definition at <code>adopt</code>, that artifact appears in no line; and no generated file (the marker, README, <code>index.html</code>) contains a maturity level.</div></div>
@@ -1281,7 +1281,7 @@ footer.site-footer a { color: var(--cyan); }
     <div class="ac-row"><div class="ac-id">AC28</div><div class="ac-verifies"><span class="verify-chip">R23</span></div><div>With an <code>AGENTS.md</code> holding a start marker and no end marker (or two marker pairs), the plan shows the target as ASK and the file is byte-identical after the run.</div></div>
     <div class="ac-row"><div class="ac-id">AC29</div><div class="ac-verifies"><span class="verify-chip">R24</span></div><div>After a Codex run, <code>.codex/agents/</code> holds one <code>.toml</code> per file in the plugin's <code>agents/</code>, each byte-identical to its source; editing a copy and re-running restores it.</div></div>
     <div class="ac-row"><div class="ac-id">AC30</div><div class="ac-verifies"><span class="verify-chip">NF1</span></div><div>A Claude Code <code>/asimov-init</code> run and a Codex <code>$asimov-plugin:asimov-init</code> run produce byte-identical files for every target, the marker and the <code>.codex/agents/</code> copies included.</div></div>
-    <div class="ac-row"><div class="ac-id">AC31</div><div class="ac-verifies"><span class="verify-chip">NF6</span></div><div>A Codex run of the skill, whose frontmatter reads <code>model: claude-opus-5-5</code>, does not fail on the key and runs on the session's model.</div></div>
+    <div class="ac-row"><div class="ac-id">AC31</div><div class="ac-verifies"><span class="verify-chip">NF6</span></div><div>A run of the skill in Claude Code and in Codex stays on the session's model.</div></div>
     <div class="ac-row"><div class="ac-id">AC32</div><div class="ac-verifies"><span class="verify-chip">NF8</span></div><div>The skill's frontmatter carries no <code>disable-model-invocation</code> and its <code>agents/openai.yaml</code> no <code>allow_implicit_invocation: false</code>; it appears in Claude Code's <code>/</code> menu and skill listing and in Codex's skill list, a message asking to set the repo up for Asimov starts it in either tool, and the write plan still precedes every write.</div></div>
     <div class="ac-row"><div class="ac-id">AC33</div><div class="ac-verifies"><span class="verify-chip">R25</span></div><div>The plan shows the four entry points with the current marker's values as the default; answering with one to disable writes that key <code>disabled</code> and the others <code>enabled</code>; answering <code>none</code> writes all four <code>disabled</code>.</div></div>
   </div>
@@ -1372,7 +1372,7 @@ footer.site-footer a { color: var(--cyan); }
     · <span class="mono">features/D101-asimov-init.html</span>
   </div>
   <div style="margin-top: 0.4rem">
-    D101 · asimov-init · Asimov plugin · Full design · Draft v0.10 · 2026-11-13
+    D101 · asimov-init · Asimov plugin · Full design · Draft v0.12 · 2026-11-19
   </div>
 </footer>
 

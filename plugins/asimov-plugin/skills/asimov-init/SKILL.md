@@ -2,7 +2,6 @@
 name: asimov-init
 description: Use when asked to set a repository up for Asimov, make it Asimov-ready, or refresh its Asimov setup (the asimov.md marker, the Codex shells, the convention read-lists, the project info and the site), for Claude Code, Codex and OpenCode in one run. Not for a repository's own build or tooling setup.
 argument-hint: (optional) repo name override — empty auto-detects from git remote or folder name
-model: claude-opus-5-5
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash, Skill
 ---
 
@@ -13,7 +12,7 @@ You are `asimov-init`, the setup asimov-skill in Asimov. Your job is to make the
 3. **Convention read-lists** — `documentation/conventions/<stack>/README.md` for each detected stack (the load-bearing read-list the build subagents load).
 4. **The project info** — `project/info.html`, the project's record (its areas and the repository holding each), written by reading `${CLAUDE_PLUGIN_ROOT}/artifacts/project/project-info/project-info-authoring.md` whole and following it, when the repo has none.
 5. **The documentation site** — `documentation/index.html`, `_chrome.css`, `_site/` and the nav block in every document, written whole through `artifact-site-authoring`.
-6. **`.gitignore`** — the five Asimov run-cache patterns.
+6. **`.gitignore`** — the three Asimov run-cache patterns.
 
 Plus one **migration**: a repo set up before 2026-11-12 carries the old context file (a full `asimov.md` without frontmatter), an `@asimov.md` import line in `CLAUDE.md` and an Asimov-managed region in `AGENTS.md`. The marker replaces the first; the run removes the line and the region, which Asimov wrote, and nothing else in those two files.
 
@@ -105,7 +104,7 @@ Determine which stacks the repo uses, to decide which convention read-lists to s
 | `angular` | `**/angular.json` | `documentation/conventions/angular/README.md` |
 | `test` | `**/*.Tests.csproj` / `**/*Tests.csproj`, or `**/*.spec.ts`, present alongside a detected stack | `documentation/conventions/test/README.md` |
 
-**Flag, don't guess (D100 §7.2.1).** Detect from real markers only. The `test` stack fires only on a test marker (above), never merely because another stack was found. If **no** stack is found, scaffold no convention folder and record "no stack detected" for the report — do not invent a default stack.
+**Flag, don't guess (D100 §7.2.1).** Detect from real markers only. The `test` stack fires only on a test marker (above), never merely because another stack was found. If **no** stack is found, scaffold no convention folder and record "no stack detected" for the report — do not invent a default stack. A product that does not exist yet gets its conventions when its Foundation has scaffolded the stacks: run this again then.
 
 # Step 4 — The project info and the site
 
@@ -128,7 +127,7 @@ Inspect what already exists so the write plan can label each target. Use **Read*
 - **Each detected stack `README.md`** → `NEW` (scaffold from template) if absent; `MERGE` if present **with** an `<!-- asimov:start -->`…`<!-- asimov:end -->` region (refresh only that region; the read-list below the end marker is the team's and is never written); `MERGE — read-list moved below the markers` if that region still holds `@`-reference lines (a file scaffolded before the read-list became user-owned): the run moves those lines out of the region before refreshing it; `ASK` if present **without** markers (do not modify until the developer agrees to inserting a region).
 - **`project/info.html`** → `NEW` if absent (asked for in Step 7); `SKIP — present` otherwise.
 - **The site** (`documentation/index.html`, `_chrome.css`, `_site/`, the nav blocks) → `WRITE — whole` always; the skill writes only what changed and removes stale pages.
-- **`.gitignore`** → the five Asimov patterns below: `NEW` if the file is absent; `APPEND` if it exists and any pattern is missing (only the missing ones are added, under one comment line); `SKIP` if every pattern is already there.
+- **`.gitignore`** → the three Asimov patterns below: `NEW` if the file is absent; `APPEND` if it exists and any pattern is missing (only the missing ones are added, under one comment line); `SKIP` if every pattern is already there.
 
 # Step 6 — Confirm
 
@@ -165,7 +164,7 @@ Only after confirmation. Apply each target's rule:
 1. **`asimov.md`** — render `asimov-md-template.md`: substitute `{{ASIMOV-DESIGN}}`, `{{ASIMOV-SPEC}}`, `{{ASIMOV-BUILD}}` and `{{ASIMOV-PROJECT}}` with `enabled` or `disabled` as chosen in Step 6; strip the leading authoring comment, so the file starts with its `---` frontmatter line. **Write** to `asimov.md` (overwrite if present).
 2. **`CLAUDE.md`** — `MIGRATE` only: remove the one line that reads exactly `@asimov.md`, and one blank line directly above it when the removal would leave two blank lines in a row. **Change no other line.** Never add a line and never create the file: the plugin's hook carries the context now.
 3. **`AGENTS.md`** — `MIGRATE` only: remove the text from the `<!-- asimov:start` line through the `<!-- asimov:end -->` line, both included, plus one blank line directly above when the removal would leave two in a row. **Change no other line.** When nothing but whitespace remains, the file existed only for the region: delete it and say so in the report. Never add a region and never create the file.
-4. **`.codex/agents/*.toml`** — copy each shell from the plugin's `agents/` folder **byte for byte** into `.codex/agents/` (create the folder), overwriting what is there: use a file copy (`cp` via **Bash**), never a read-and-rewrite that could change encoding or line endings. Never edit their content — they are Asimov-owned and point at the role skills in the plugin. **In Codex the sandbox refuses this write until the developer approves it** — when Codex asks, that is the prompt to approve. In a run that cannot ask, do not retry another way: report the shells as `SKIP — Codex needs your approval to write into .codex/agents/` and say how to finish (approve the write in an interactive Codex session and re-run).
+4. **`.codex/agents/*.toml`** — copy each shell from the plugin's `agents/` folder **byte for byte** into `.codex/agents/` (create the folder), overwriting what is there: use a file copy (`cp` via **Bash**, or `Copy-Item` in PowerShell on Windows, where a bare `bash` may be the WSL stub with no distribution behind it; Git Bash is `C:\Program Files\Gitinash.exe`), never a read-and-rewrite that could change encoding or line endings. Never edit their content — they are Asimov-owned and point at the role skills in the plugin. **In Codex the sandbox refuses this write until the developer approves it** — when Codex asks, that is the prompt to approve. In a run that cannot ask, do not retry another way: report the shells as `SKIP — Codex needs your approval to write into .codex/agents/` and say how to finish (approve the write in an interactive Codex session and re-run).
 5. **Convention READMEs** — for each detected stack, render `conventions-readme-template.md` (substitute `{{STACK}}`, `{{REPO-NAME}}`; strip the leading comment). The region between the markers is Asimov's (the heading and the explanation); the read-list and the notes below the end marker are the team's, seeded once and never written again:
    - Absent → **Write** the rendered file, whole.
    - Present with `asimov:start`/`asimov:end` markers → replace **only** the text between the markers, wholesale; **change no line outside them**. The read-list is outside; it keeps whatever the team wrote, example lines included.
@@ -173,13 +172,11 @@ Only after confirmation. Apply each target's rule:
    - Present without markers (and the developer agreed in Step 6) → insert the marker block above the existing text; the existing text becomes the user-owned part. Otherwise skip and note it.
 6. **Project info** — when `project/info.html` is absent, ask the person, in one message, for: the project's name, its one line (what it does, for whom), its areas (for a product spanning several systems, the systems) with the repository holding each, and the fixed people (project lead, product owner; may be skipped). The repository this run is in is the one that holds the areas documented here. Then read `${CLAUDE_PLUGIN_ROOT}/artifacts/project/project-info/project-info-authoring.md` whole and follow it with the verb `create`, confirm what it says will be stored, and write as it says. Present → nothing.
 7. **The site** — invoke `artifact-site-authoring` with the verb `write`; relay its report. It writes `index.html`, `_chrome.css`, `_site/` and the nav block of every document the site indexes, whole, and removes stale pages; nothing else.
-8. **`.gitignore`** — the Design- and Spec-stage caches the toolkit writes beside its artifacts, the run log its hooks write under `.asimov/`, and a risk-log write interrupted before its rename (`project/*.new`), must never be committed; they are a run's working state, not a record. Add the patterns that are missing, verbatim, after one comment line, at the end of the file (or as a new file holding only this block). **Change no other line.**
+8. **`.gitignore`** — the Design-stage review notes the toolkit writes beside its artifacts, the Spec stage's plans and specs and the run log under `.asimov/`, and a risk-log write interrupted before its rename (`project/*.new`), must never be committed; they are a run's working state, not a record. Add the patterns that are missing, verbatim, after one comment line, at the end of the file (or as a new file holding only this block). **Change no other line.**
 
    ```
    # Asimov run caches and log — written by the asimov-* skills and the plugin's hooks, never a record (see asimov.md)
    documentation/features/*.review.md
-   specs/*/S101-*.review.md
-   specs/*/design.md
    .asimov/
    project/*.new
    ```
@@ -191,7 +188,7 @@ If `documentation/` does not exist, the site skill creates it with its own files
 After writing, report:
 
 1. Each target written / skipped / migrated, with the action and (for skips) the reason. The Codex subagent shells count as one target; if they were skipped because Codex could not get approval to write them, say that first, with how to finish.
-2. The set of stacks detected (or "none detected — scaffold conventions manually when a stack lands").
+2. The set of stacks detected (or "none detected — run the setup again once the Foundation has scaffolded a stack").
 3. The site skill's report as it printed it: files written and unchanged, documents per section, markdown rendered or left, files that fit no section.
 4. The project info: written now, present already, or still missing (then the front page says so).
 5. How the context reaches the agents: from the installed plugin at the **next** session start, in Claude Code, Codex and OpenCode alike, because the marker is there, cut to the entry points enabled; a session without the plugin, or a repo without the marker, gets nothing. Codex asks the developer to trust the plugin's hooks the first time, and a plugin update changes the context without a re-run of this skill. Then that Codex loads the `.codex/agents/` shells only in a repo the developer has marked **trusted**, and only from the next session, and that the shells update when this skill runs again, not when the plugin updates. Suggest opening `documentation/index.html` in a browser.
@@ -208,4 +205,4 @@ After writing, report:
 
 # Repo handling
 
-The `documentation/` taxonomy (Step 4), the `asimov.md` root location and its four `asimov-<entry point>` keys (read by `hooks/asimov-context`), the `.codex/agents/` delivery folder, the `<stack>` slugs and the five `.gitignore` patterns (Step 7, item 8: the `documentation/features/*.review.md` and `specs/*/…` caches, the `.asimov/` log folder and the risk log's interrupted write `project/*.new`) are the conventions shared with `asimov-design`, `asimov-spec`, `asimov-build`, `asimov-project`, the `artifact-*` skills and the plugin's hooks. If the active repo uses a different layout, fork the patterns here and in those together — they share the path convention and must stay in lockstep (D100 hard rule 9).
+The `documentation/` taxonomy (Step 4), the `asimov.md` root location and its four `asimov-<entry point>` keys (read by `hooks/asimov-context`), the `.codex/agents/` delivery folder, the `<stack>` slugs and the three `.gitignore` patterns (Step 7, item 8: the `documentation/features/*.review.md` cache, the `.asimov/` log folder and the risk log's interrupted write `project/*.new`) are the conventions shared with `asimov-design`, `asimov-spec`, `asimov-build`, `asimov-project`, the `artifact-*` skills and the plugin's hooks. If the active repo uses a different layout, fork the patterns here and in those together — they share the path convention and must stay in lockstep (D100 hard rule 9).

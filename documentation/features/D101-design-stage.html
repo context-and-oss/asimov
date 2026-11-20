@@ -270,7 +270,7 @@ footer.site-footer a { color: var(--cyan); }
   <a href="../index.html#s6">Diagrams</a>
   <span class="spacer"></span>
   <span class="phase-chip full">Full design</span>
-  <span class="status-chip draft">Draft v0.5</span>
+  <span class="status-chip draft">Draft v0.6</span>
 </nav>
 
 <div class="layout-doc">
@@ -319,7 +319,7 @@ footer.site-footer a { color: var(--cyan); }
   <div class="meta-cell"><div class="label">Business approver</div><div class="value">Allan Borup</div></div>
   <div class="meta-cell"><div class="label">Maturity</div><div class="value mono">trial</div></div>
   <div class="meta-cell"><div class="label">Pieces</div><div class="value mono">1 asimov-skill · 2 skills</div></div>
-  <div class="meta-cell"><div class="label">Last updated</div><div class="value mono">2026-11-13</div></div>
+  <div class="meta-cell"><div class="label">Last updated</div><div class="value mono">2026-11-19</div></div>
   <div class="meta-cell"><div class="label">Models</div><div class="value">Opus 5.5</div></div>
 </div>
 
@@ -532,7 +532,7 @@ footer.site-footer a { color: var(--cyan); }
   <ul class="bullets">
     <li>Prompt files only; a change lands on the next invocation after a plugin update.</li>
     <li>Review allow-list <code>Read, Glob, Grep, Skill, Write</code>; never <code>Edit</code>. Authoring adds <code>Write, Edit, Bash</code>.</li>
-    <li>Frontmatter <code>model</code> binds in Claude Code only; Codex runs the session's model (D101-spec-stage §6.1).</li>
+    <li>The frontmatter declares no model or effort; the session's model runs the skill in every tool (<code>model-choice.md</code> §1.3 recommends Opus 5.5 at <code>xhigh</code>).</li>
     <li><code>documentation/features/D101-*</code> is a shared literal in asimov-skills, skills, template, <code>.gitignore</code> (hard rule 9).</li>
   </ul>
   <div class="callout warn"><strong>⚠ Write is a tool grant, not a path grant.</strong> The one-path scope is prompt discipline plus a git-diff check.</div>
@@ -741,7 +741,7 @@ footer.site-footer a { color: var(--cyan); }
     · <span class="mono">features/D101-design-stage.html</span>
   </div>
   <div style="margin-top: 0.4rem">
-    D101 · Design stage · asimov-plugin · Draft v0.5 · 2026-11-13
+    D101 · Design stage · asimov-plugin · Draft v0.6 · 2026-11-19
   </div>
 </footer>
 

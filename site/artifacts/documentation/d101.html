@@ -6,6 +6,7 @@
 <title>D101 — Feature design · Asimov</title>
 <meta name="description" content="D101, the feature design: one per feature, two bars, two axes, a hard stop before technology.">
 <link rel="stylesheet" href="../../site.css">
+<link rel="icon" type="image/svg+xml" href="../../img/asimov-icon.svg">
 </head>
 <body class="has-subnav">
 <nav class="nav"><div class="in">
@@ -37,8 +38,8 @@
   <p class="lede">One design per feature. Written by interview, rendered as a self-contained HTML page next to the code. <span class="chip trial">trial</span></p>
 
   <dl class="meta">
-    <dt>Produced by</dt><dd><code>/asimov-design</code>. Run twice: business design, then technical design.</dd>
-    <dt>Reviewed by</dt><dd><code>/asimov-design</code> with <em>review</em> in the words: the gap check plus the persona reads. Never edits the file, never approves.</dd>
+    <dt>Produced by</dt><dd><code>asimov-design</code>. Run twice: business design, then technical design.</dd>
+    <dt>Reviewed by</dt><dd><code>asimov-design</code> with <em>review</em> in the words: the gap check plus the persona reads. Never edits the file, never approves.</dd>
     <dt>Lands in</dt><dd><code>documentation/features/D101-&lt;feature&gt;.html</code></dd>
     <dt>Source</dt><dd><a href="https://github.com/context-and-oss/asimov/blob/main/plugins/asimov-plugin/artifacts/documentation/asimov-design/asimov-design-definition.md">Definition</a> · <a href="https://github.com/context-and-oss/asimov/blob/main/plugins/asimov-plugin/artifacts/documentation/asimov-design/asimov-design-template.html">Template</a> · <a href="https://github.com/context-and-oss/asimov/blob/main/documentation/features/D101-design-stage.html">Its own D101</a></dd>
     <dt>Read by</dt><dd>The business approver, a reviewer who is not the author, the personas, and the agents that build from it.</dd>
@@ -129,10 +130,10 @@
     <li><strong>Phase</strong>: business design → full design. Moved by the author when the technical design is in.</li>
     <li><strong>Status</strong>: draft → approved. Moved by the business approver, normally once the technical half exists, because the estimate depends on it.</li>
   </ul>
-  <p>Neither implies the other. No command ever records an approval.</p>
+  <p>Neither implies the other. No run ever records an approval.</p>
 
   <h2>The stop</h2>
-  <p>After the business design the command stops and declares the technical section open in the file. The personas and the approver read it with no technology chosen. The technical half needs a second run.</p>
+  <p>After the business design the run stops and declares the technical section open in the file. The personas and the approver read it with no technology chosen. The technical half needs a second run.</p>
 
   <h2>Who reads it</h2>
   <ul>
@@ -148,7 +149,7 @@
   <h2>Why HTML, and the review cache</h2>
   <ul>
     <li>HTML renders for the approver and parses for the agent. <a href="../../why.html#why-html">Why HTML →</a></li>
-    <li>A review run of <code>/asimov-design</code> leaves its findings in a sibling <code>.review.md</code>; the next design run offers them and deletes the file once used. A cache, not a record.</li>
+    <li>A review run of <code>asimov-design</code> leaves its findings in a sibling <code>.review.md</code>; the next design run offers them and deletes the file once used. A cache, not a record.</li>
   </ul>
 
   <h2>What it looks like</h2>

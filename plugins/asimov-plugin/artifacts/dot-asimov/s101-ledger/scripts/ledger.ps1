@@ -3,9 +3,9 @@
   The build ledger's operations, as a script: start, position, record, rule, commit, close.
 
 .DESCRIPTION
-  Implements the operations of artifacts/documentation/s101-ledger/s101-ledger-operations.md
+  Implements the operations of artifacts/dot-asimov/s101-ledger/s101-ledger-operations.md
   (beside this script's folder) on the one file that holds a
-  build's run state, specs/<slug>/S101-<slug>.ledger.md, beside the plan it belongs
+  build's run state, .asimov/specs/<slug>/S101-<slug>.ledger.md, beside the plan it belongs
   to (s101-ledger-definition.md). The frontmatter is machine state and is rewritten with the
   statuses moved; the body is the record and is only ever appended to. Every call does one
   operation and prints one line for the chat (position prints a short block). It spawns nothing,
@@ -45,7 +45,7 @@
 .PARAMETER Failed
   With -Op verify and without -Passed: the task ids that failed, comma-separated.
 .PARAMETER Choice
-  With -Op ruling: resume, discard or stop.
+  With -Op ruling: retry (resume is accepted as the same), discard, re-plan or stop.
 .PARAMETER Note
   With -Op ruling: the person's note, if any.
 .PARAMETER Hash
@@ -56,7 +56,7 @@
   The product repo root (for the L5 git check). Defaults to two folders above the S101.
 
 .EXAMPLE
-  pwsh -NoProfile -File ledger.ps1 -Op start -S101 specs/x/S101-x.md -By "A. Person"
+  pwsh -NoProfile -File ledger.ps1 -Op start -S101 .asimov/specs/x/S101-x.md -By "A. Person"
 .EXAMPLE
   pwsh -NoProfile -File ledger.ps1 -Op task -S101 <s101> -Task T001 -Status running -Agent giskard-the-dotnet-developer -Model claude-sonnet-5-5
 .EXAMPLE
@@ -68,7 +68,7 @@
 #>
 [CmdletBinding()]
 param(
-  [Parameter(Mandatory = $true)][ValidateSet('start', 'position', 'task', 'attempt', 'review', 'verify', 'fail', 'stop', 'ruling', 'commit', 'close')][string]$Op,
+  [Parameter(Mandatory = $true)][ValidateSet('start', 'position', 'task', 'attempt', 'review', 'verify', 'fail', 'stop', 'ruling', 'commit', 'carry', 'close')][string]$Op,
   [Parameter(Mandatory = $true)][string]$S101,
   [string]$By = '',
   [string]$Task = '',
@@ -120,7 +120,7 @@ if ($Slug -eq '') { Fail-Run "not an S101 path: $S101" }
 $LedgerPath = Join-Path $SpecDir ("S101-" + $Slug + ".ledger.md")
 $LedgerName = Split-Path -Leaf $LedgerPath
 if ($RepoRoot -eq '') {
-  $m = [regex]::Match($S101.Replace('\', '/'), '^(.*)/specs/[^/]+/[^/]+$')
+  $m = [regex]::Match($S101.Replace('\', '/'), '^(.*)/.asimov/specs/[^/]+/[^/]+$')
   if ($m.Success) { $RepoRoot = $m.Groups[1].Value } else { $RepoRoot = (Get-Location).Path }
 }
 
@@ -235,7 +235,7 @@ function Read-Ledger {
     if ($null -eq $cur) { continue }
     $mS = [regex]::Match($raw, '^\s+status:\s*(.*)$'); if ($mS.Success) { $cur.Status = $mS.Groups[1].Value.Trim(); continue }
     $mC = [regex]::Match($raw, '^\s+commit:\s*(.*)$'); if ($mC.Success) { $cur.Commit = (Strip-Quotes $mC.Groups[1].Value); continue }
-    $mG = [regex]::Match($raw, '^\s+go:\s*(.*)$')
+    $mG = [regex]::Match($raw, '^\s+committed:\s*(.*)$')
     if ($mG.Success) { $g = $mG.Groups[1].Value.Trim(); if ($g -ne 'none') { $fm = Parse-FlowMap $g; $cur.GoBy = [string]$fm['by']; $cur.GoDate = [string]$fm['date'] }; continue }
     $mT = [regex]::Match($raw, '^\s*-\s*\{(.*)\}\s*$')
     if ($mT.Success) {
@@ -260,7 +260,7 @@ function Render-Ledger($L) {
     [void]$sb.Append('  - id: ' + $ph.Id + "`n")
     [void]$sb.Append('    status: ' + $ph.Status + "`n")
     if ($ph.Commit -eq 'none' -or $ph.Commit -eq '') { [void]$sb.Append("    commit: none`n") } else { [void]$sb.Append('    commit: "' + $ph.Commit + '"' + "`n") }
-    if ($ph.GoBy -eq '') { [void]$sb.Append("    go: none`n") } else { [void]$sb.Append('    go: { by: "' + $ph.GoBy + '", date: "' + $ph.GoDate + '" }' + "`n") }
+    if ($ph.GoBy -eq '') { [void]$sb.Append("    committed: none`n") } else { [void]$sb.Append('    committed: { by: "' + $ph.GoBy + '", date: "' + $ph.GoDate + '" }' + "`n") }
     [void]$sb.Append("    tasks:`n")
     foreach ($t in $ph.Tasks) {
       [void]$sb.Append('      - { id: ' + $t.Id + ', status: ' + $t.Status + ', attempts: ' + $t.Attempts + ', agent: ' + $t.Agent + ', model: ' + $t.Model + ' }' + "`n")
@@ -384,6 +384,13 @@ try {
       $rulings = [regex]::Matches($L.Body, "(?m)^### ruling $Dot ([^\n]*)\n([^\n]*)")
       if ($rulings.Count -gt 0) { $last = $rulings[$rulings.Count - 1]; Write-Output ('          last ruling: ' + $last.Groups[1].Value + ' ' + $Dot + ' ' + $last.Groups[2].Value) }
       else { Write-Output '          last ruling: none' }
+      # a stop after the last ruling that carries a proposed ruling: the next run takes it unless the words say otherwise
+      $stops = [regex]::Matches($L.Body, "(?m)^### stop $Dot ([^\n]*)\nproposed: ([^\n]*)")
+      if ($stops.Count -gt 0) {
+        $lastStop = $stops[$stops.Count - 1]
+        $afterRuling = ($rulings.Count -eq 0) -or ($lastStop.Index -gt $rulings[$rulings.Count - 1].Index)
+        if ($afterRuling) { Write-Output ('          proposed: ' + $lastStop.Groups[2].Value + ' (' + $lastStop.Groups[1].Value + ')') }
+      }
     }
 
     'task' {
@@ -461,22 +468,28 @@ try {
       $L = Read-Ledger
       $f = Find-Task $L $Task; if ($null -eq $f) { throw "no task $Task in the ledger" }
       $f.Task.Status = 'stopped'
+      if ($Note -ne '') { Append-Body $L ('### stop ' + $Dot + ' ' + $Task + ' ' + $Dot + ' ' + $Today) ('proposed: ' + $Note) }
       Save-Ledger $L
-      Write-Output "ledger  $Task stopped"
+      if ($Note -ne '') { Write-Output "ledger  $Task stopped $Dot proposed: $Note" } else { Write-Output "ledger  $Task stopped" }
     }
 
     'ruling' {
       Require $Phase 'Phase'; Require $By 'By'; Require $Choice 'Choice'
-      if (@('resume', 'discard', 'stop') -notcontains $Choice) { throw '-Choice must be resume, discard or stop' }
+      if (@('resume', 'retry', 'discard', 're-plan', 'stop') -notcontains $Choice) { throw '-Choice must be retry (or resume), discard, re-plan or stop' }
+      if ($Choice -eq 'resume') { $Choice = 'retry' }
       $L = Read-Ledger
       $ph = Find-Phase $L $Phase; if ($null -eq $ph) { throw "no phase $Phase in the ledger" }
       $line = $Choice; if ($Note -ne '') { $line += " $Dot " + $Note }
       Append-Body $L ('### ruling ' + $Dot + ' ' + $Today + ' ' + $Dot + ' ' + $By) $line
-      if ($Choice -eq 'resume') {
+      if ($Choice -eq 'retry') {
+        # a discarded phase is built again as it is: pending, so the build's next phase is this one
+        if ($ph.Status -eq 'discarded') { $ph.Status = 'pending' }
         foreach ($t in $ph.Tasks) { if ($t.Status -eq 'stopped' -or $t.Status -eq 'failed') { $t.Status = 'pending'; $t.Attempts = 0 } }
-      } elseif ($Choice -eq 'discard') {
-        $ph.Status = 'discarded'
-        foreach ($t in $ph.Tasks) { $t.Status = 'pending'; $t.Attempts = 0 }
+      } elseif ($Choice -eq 'discard' -or $Choice -eq 're-plan') {
+        if ($ph.Status -ne 'committed') {
+          $ph.Status = 'discarded'
+          foreach ($t in $ph.Tasks) { $t.Status = 'pending'; $t.Attempts = 0 }
+        }
       }
       Save-Ledger $L
       Write-Output "ledger  ruling by $By $Dot $Choice"
@@ -491,6 +504,38 @@ try {
       $ph.Status = 'committed'; $ph.Commit = $Hash; $ph.GoBy = $By; $ph.GoDate = $Today
       Save-Ledger $L
       Write-Output "ledger  $Phase committed $Dot $Hash"
+    }
+
+    'carry' {
+      Require $By 'By'
+      $L = Read-Ledger
+      if ($Plan.ApprovedFingerprint -eq '') { throw 'the plan is not approved (approved: none); run asimov-spec first' }
+      if ($Plan.ApprovedFingerprint -ne $Plan.Fingerprint) { throw 'the plan changed after it was approved; approve it again with asimov-spec' }
+      $old = $L.Fingerprint
+      # Kept is a prefix: once a phase is set pending, every phase after it is too (check L4: nothing
+      # committed after the open phase), since a later phase was built on the one that changed.
+      $kept = @(); $reset = @(); $broken = $false
+      $newPhases = New-Object System.Collections.Generic.List[object]
+      foreach ($ph in $Plan.Phases) {
+        $was = $null
+        foreach ($x in $L.Phases) { if ($x.Id -eq $ph.Id) { $was = $x; break } }
+        $sameTasks = $false
+        if ($null -ne $was) { $sameTasks = ((@($was.Tasks | ForEach-Object { $_.Id }) -join ',') -eq (@($ph.Tasks) -join ',')) }
+        if (-not $broken -and $null -ne $was -and $was.Status -eq 'committed' -and $sameTasks) {
+          $newPhases.Add($was); $kept += $ph.Id
+        } else {
+          $p = [pscustomobject]@{ Id = $ph.Id; Status = 'pending'; Commit = 'none'; GoBy = ''; GoDate = ''; Tasks = (New-Object System.Collections.Generic.List[object]) }
+          foreach ($tid in $ph.Tasks) { $p.Tasks.Add([pscustomobject]@{ Id = $tid; Status = 'pending'; Attempts = 0; Agent = 'none'; Model = 'none' }) }
+          $newPhases.Add($p); $reset += $ph.Id; $broken = $true
+        }
+      }
+      $L.Phases = $newPhases
+      $L.Fingerprint = $Plan.Fingerprint
+      $keptText = if ($kept.Count -gt 0) { $kept -join ', ' } else { 'none' }
+      $resetText = if ($reset.Count -gt 0) { $reset -join ', ' } else { 'none' }
+      Append-Body $L ('## re-plan ' + $Dot + ' ' + $Today + ' ' + $Dot + ' ' + $By) ('fingerprint ' + $old + ' ' + [string][char]0x2192 + ' ' + $Plan.Fingerprint + " $Dot kept " + $keptText + " $Dot pending " + $resetText)
+      Save-Ledger $L
+      Write-Output ("ledger  carried to " + $Plan.Fingerprint + " $Dot kept " + $keptText + " $Dot pending " + $resetText)
     }
 
     'close' {

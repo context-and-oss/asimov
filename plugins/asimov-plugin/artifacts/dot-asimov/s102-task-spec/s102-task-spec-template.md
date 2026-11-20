@@ -6,9 +6,12 @@
 
   WHO READS THIS FILE
   - The builder, as its brief; the author, to see what the builder will be told;
-    s102-task-spec-authoring.md writes it, scripts/validate-s102.ps1 checks it,
-    both beside this file. The file in the plugin is the source of truth (D100 §7.4).
-  - Written to specs/{{SLUG}}/S102-{{SLUG}}-{{NNN}}-{{TASK-SLUG}}.md,
+    render-plan.ps1 writes it from the task's section of the plan
+    (.asimov/plans/<slug>.md, the plan artifact under
+    artifacts/dot-asimov/asimov-plan/), validate-plan.ps1 checks the plan it is
+    rendered from; nobody writes it by hand. The file in the plugin is the
+    source of truth (D100 §7.4).
+  - Written to .asimov/specs/{{SLUG}}/S102-{{SLUG}}-{{NNN}}-{{TASK-SLUG}}.md,
     beside the S101 whose task line it expands; {{NNN}} is the task id's
     number, T003 → 003; {{TASK-SLUG}} is three to five words of the title in
     kebab-case, never the whole title. There is no S102 without an S101.
@@ -19,7 +22,8 @@
     The builder decides HOW: every method body, every private name, every
     test's code. No code block in this file holds a body, a test or a step; the
     only code blocks are Gherkin. A done-when never searches the source for the
-    spec's own text.
+    spec's own text, and never names a command that serves until stopped
+    (dotnet run, ng serve, npm start): it has no exit to read.
 
   THE HEADER
   - role, tier, after and traces are copied verbatim from the task's line in
@@ -86,7 +90,7 @@
   No section opens with a sentence from this template; the rendered file holds
   content only.
 
-  THE SHAPE CHECK (scripts/validate-s102.ps1, beside this file): what it needs beyond the above
+  THE SHAPE CHECK (asimov-plan/scripts/validate-plan.ps1, on the plan this file is rendered from): what it needs beyond the above
   - Header: every key of this template, owns with its four lists (regenerates:
     [] when nothing is regenerated); after and traces equal to the task line.
   - 2 Behaviour: one scenario tagged @review-focus (the tag on the line above
@@ -95,7 +99,7 @@
     row, a header entry, a word of the design, or declared in a file the header
     names (a consumed path, an owned file); a framework exception is fine.
   - 3 Done-when: every numbered item holds a code span (a class, a file, a
-    command) AND a result word: green, red, passes, fails, exits, prints,
+    command that exits; never dotnet run, ng serve or npm start) AND a result word: green, red, passes, fails, exits, prints,
     returns, is, are, equals, contains, met. A builder with a tester of its
     stack in its phase names, in a code span, a test class the tester's §3
     names in a code span (copy it from there; a command both share does not
@@ -103,7 +107,9 @@
     rg, Select-String or findstr.
   - 4 Constraints: a Must's code span is never a call (name(args)) and never a
     loop or an algorithm; no code span anywhere reads as a signature
-    (Type Name(Type param)).
+    (Type Name(Type param)). A task that owns a folder whole (a glob in
+    create, a scaffolding task) names its template commands here in code
+    spans (dotnet new ..., ng new ...), or the check fails it.
   - Sizes, Warn only: 3 non-test owned files; 3 own scenarios for a builder,
     5 for a tester or a test-first builder; @review-focus scenarios not counted.
   - No placeholder (TBD, TODO, "handle edge cases", "similar to T00n", a
@@ -123,7 +129,7 @@
 -->
 ---
 spec: S102
-s101: specs/{{SLUG}}/S101-{{SLUG}}.md
+s101: .asimov/specs/{{SLUG}}/S101-{{SLUG}}.md
 task: "{{TASK-ID}}"
 title: "{{TITLE}}"
 role: dotnet-builder

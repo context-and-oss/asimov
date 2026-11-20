@@ -5,9 +5,10 @@
 
   WHO READS THIS FILE
   - asimov-build, through scripts/ledger.ps1, to resume and to record.
-  - The PR reviewer, for what was verified and reviewed in each phase.
-  - Written to specs/{{SLUG}}/S101-{{SLUG}}.ledger.md, beside the
-    plan; committed with each phase's go.
+  - The person who built the phase, for what was verified and reviewed; the
+    PR reviewer reads the one-line results in each phase's commit message.
+  - Written to .asimov/specs/{{SLUG}}/S101-{{SLUG}}.ledger.md, beside the
+    rendered S101; working state under .asimov/, never committed.
   - Strip THIS comment from the rendered file.
 
   THE FRONTMATTER is machine state: statuses move, nothing else changes.
@@ -30,20 +31,20 @@
 ---
 ledger: S101
 slug: "{{SLUG}}"
-s101: specs/{{SLUG}}/S101-{{SLUG}}.md
+s101: .asimov/specs/{{SLUG}}/S101-{{SLUG}}.md
 fingerprint: "{{FINGERPRINT}}"
 started: { by: "{{BY}}", date: "{{YYYY-MM-DD}}" }
 phases:
   - id: P0
     status: committed
     commit: "<hash>"
-    go: { by: "{{BY}}", date: "{{YYYY-MM-DD}}" }
+    committed: { by: "{{BY}}", date: "{{YYYY-MM-DD}}" }
     tasks:
       - { id: T001, status: done, attempts: 1, agent: giskard-the-dotnet-developer, model: claude-haiku-4-5 }
   - id: P1
     status: building
     commit: none
-    go: none
+    committed: none
     tasks:
       - { id: T002, status: built, attempts: 1, agent: calvin-the-test-author, model: claude-sonnet-5-5 }
       - { id: T003, status: running, attempts: 2, agent: giskard-the-dotnet-developer, model: claude-sonnet-5-5 }
@@ -63,7 +64,7 @@ phases:
 <Powell's report for the phase, verbatim>
 
 ### commit · <hash>
-go by {{BY}} on {{YYYY-MM-DD}} · <n> files · ledger
+by {{BY}} on {{YYYY-MM-DD}} · <n> files
 
 ## P1 · <phase name>
 

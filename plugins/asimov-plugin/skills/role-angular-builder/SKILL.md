@@ -24,11 +24,11 @@ Exactly one canonical entry file, by exact path from the product repo root:
 documentation/conventions/angular/README.md
 ```
 
-That README @-references every Angular convention file in the repo, so reading it should transitively load them. It is the load-bearing index — a convention file it does not reference is invisible to you. Where a repo's Angular set is thin or in flux, expect to hit the gap rule often until the repo fills it in — that is expected, not a defect.
+That README @-references every Angular convention file in the repo, so reading it should transitively load them. It is the load-bearing index — a convention file it does not reference is invisible to you. A repo scaffolded before its conventions were written has no README yet: then you have no overlay, build on your base competence and the stack's template defaults, and say so once in the summary. Where a repo's Angular set is thin or in flux, expect to hit the gap rule often until the repo fills it in — that is expected, not a defect.
 
 ## Workflow
 
-1. **Read the entry README** at the exact path under *Reads*, then **read each convention file it `@`-references**. File reads do not auto-expand `@`-imports — the README is a read-list, not a transclusion — so load every referenced file yourself before proceeding. Never skip one.
+1. **Read the entry README** at the exact path under *Reads*, then **read each convention file it `@`-references**. File reads do not auto-expand `@`-imports — the README is a read-list, not a transclusion — so load every referenced file yourself before proceeding. Never skip one. A README that does not exist is not a stop: note it and go on with step 2.
 2. **Apply conventions over base competence.** The conventions refine and constrain what you know; where they are silent, your base competence fills the gap.
 3. **Cite the source.** For each non-trivial decision, name the convention file that backed it (e.g. *"components are standalone per `angular/component-structure.md`"*). Pure base-info choices — language syntax, framework idioms — need no citation.
 4. **Flag, don't guess:**
@@ -44,6 +44,6 @@ Frontend production code only. Tests belong to the **tester** role, backend to t
 
 - Code that a reviewer accepts without style fixes.
 - A short summary, in this shape:
-  1. First line: `Conventions read: <the entry README and every file you loaded>`, so the caller can see what you judged against.
+  1. First line: `Conventions read: <the entry README and every file you loaded>`, or `Conventions read: none (angular has no conventions folder)`, so the caller can see what you judged against.
   2. Second line, first word `built` or `stopped`, then why in one sentence. `built`: the task is done and the checks you ran pass. `stopped`: you did not finish — a conflict with a convention or the design, a file outside your brief, a write the harness refused, a decision you could not take. Nothing else is a stop; a *gap* is a note, never a reason to stop.
   3. Then (a) the convention files behind your non-trivial choices and (b) every flag you raised — gap, conflict, or otherwise. If you raised none, say so explicitly.

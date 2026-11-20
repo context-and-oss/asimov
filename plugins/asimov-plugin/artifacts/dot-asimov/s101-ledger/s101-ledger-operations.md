@@ -4,15 +4,15 @@
 
 The method for the one file that holds a build's run state. `asimov-build` calls it and never touches the ledger itself; it writes the ledger and nothing else. The bar, the keys, the statuses and the five checks are the definition's (`s101-ledger-definition.md`, beside this file); the shape is the template's beside it.
 
-**The method is a script.** Every operation below is implemented in `scripts/ledger.ps1`, and the caller runs it inline through Bash: no method text to load, no definition to re-read, no whole-file rewrite in the conversation. The first build run did these eleven operations by hand, each one a read of the definition, the template, the S101 and the ledger and a write of the whole file; the script does the same in one call and the same way twice. The table stays here as the script's specification and as the fallback where no PowerShell exists.
+**The method is a script.** Every operation below is implemented in `scripts/ledger.ps1`, and the caller runs it inline through Bash: no method text to load, no definition to re-read, no whole-file rewrite in the conversation. The first build run did these operations by hand, each one a read of the definition, the template, the S101 and the ledger and a write of the whole file; the script does the same in one call and the same way twice. The table stays here as the script's specification and as the fallback where no PowerShell exists.
 
 ## The call
 
 ```
-pwsh -NoProfile -File "<plugin-root>/artifacts/documentation/s101-ledger/scripts/ledger.ps1" -Op <operation> -S101 specs/<slug>/S101-<slug>.md [the operation's inputs]
+pwsh -NoProfile -File "<plugin-root>/artifacts/dot-asimov/s101-ledger/scripts/ledger.ps1" -Op <operation> -S101 .asimov/specs/<slug>/S101-<slug>.md [the operation's inputs]
 ```
 
-`pwsh` (PowerShell 7) or `powershell` (Windows PowerShell 5.1; add `-ExecutionPolicy Bypass`), whichever the machine has; the script runs on both. The ledger's path is derived from the S101's (`S101-<slug>.ledger.md` beside it) and the repo root from the folder above `specs/`, so the script runs from any working directory; the script itself reads nothing of the plugin.
+`pwsh` (PowerShell 7) or `powershell` (Windows PowerShell 5.1; add `-ExecutionPolicy Bypass`), whichever the machine has; the script runs on both. The ledger's path is derived from the S101's (`S101-<slug>.ledger.md` beside it) and the repo root from the folder above `.asimov/specs/`, so the script runs from any working directory; the script itself reads nothing of the plugin.
 
 **Text goes in through a file or stdin, never as an argument.** A builder's summary or a report is multi-line: write it to a file and pass `-TextFile <path>`, or pipe it on stdin with a heredoc (`… -Op review -S101 … -Phase P1 <<'EOF'` … `EOF`). `-Text` is for a one-liner.
 
@@ -29,10 +29,11 @@ pwsh -NoProfile -File "<plugin-root>/artifacts/documentation/s101-ledger/scripts
 | `review` | `-Phase P<n>`, the report as text | Appends `### review` with the report verbatim. | `ledger  P<n> review recorded` |
 | `verify` | `-Phase P<n>`, the report as text, and `-Passed` or `-Failed T…,T…` | Appends `### verify` with the report verbatim; `-Passed` sets the phase `passed` and its tasks `done`, else each named task `failed`. | `ledger  P<n> passed` or `ledger  P<n> failed: T…` |
 | `fail` | `-Task T<nnn>` | Sets a task `failed` from a review Fail. | `ledger  T<nnn> failed` |
-| `stop` | `-Task T<nnn>` | Sets the task `stopped`. | `ledger  T<nnn> stopped` |
-| `ruling` | `-Phase P<n> -By <name> -Choice resume\|discard\|stop [-Note <text>]` | Appends `### ruling · <date> · <by>` with the choice and note; `resume` sets the phase's stopped and failed tasks `pending` with `attempts: 0`; `discard` sets the phase `discarded` and every task of it `pending`, `attempts: 0`. The caller resets the files. | `ledger  ruling by <by> · <choice>` |
-| `commit` | `-Phase P<n> -By <name> -Hash <hash> -Files <n>` | Appends `### commit · <hash>` with the go, by and date, and the file count; sets the phase `committed` with `commit` and `go`. | `ledger  P<n> committed · <hash>` |
-| `close` | — | Says whether every phase is `committed` or `discarded`, so the caller can set the S101 `done`. | `ledger  complete` or `ledger  <n> phases not committed (P…)` |
+| `stop` | `-Task T<nnn> [-Note <the proposed ruling>]` | Sets the task `stopped`; with `-Note`, appends `### stop · T<nnn> · <date>` and `proposed: <note>`, the ruling the next run takes unless the words carry another (`position` prints it while no ruling follows). | `ledger  T<nnn> stopped · proposed: <note>` |
+| `ruling` | `-Phase P<n> -By <name> -Choice retry\|discard\|re-plan\|stop [-Note <text>]` | Appends `### ruling · <date> · <by>` with the choice and the note. `retry` (`resume` is accepted as the same) sets the phase's stopped and failed tasks `pending` with their attempts reset, and a `discarded` phase `pending`, so it is built again; `discard` and `re-plan` mark an uncommitted phase `discarded` with every task `pending`; `stop` records only. | `ledger  ruling by <by> · <choice>` |
+| `commit` | `-Phase P<n> -By <name> -Hash <hash> -Files <n>` | Appends `### commit · <hash>` with by and date, and the file count; sets the phase `committed` with `commit` and `committed`. | `ledger  P<n> committed · <hash>` |
+| `carry` | `-By <name>` | After a re-plan: moves the ledger to the S101's new fingerprint (refuses when the plan is not approved or changed after its approval), keeps the `committed` phases whose id and task ids are unchanged up to the first phase that is not one, sets that phase and every phase after it `pending` with pending tasks (L4: nothing committed after the open phase), and appends `## re-plan · <date> · <by>` with the old and new fingerprints and what was kept. | `ledger  carried to <fingerprint> · kept P0, P1 · pending P2, P3` |
+| `close` | — | Says whether every phase is `committed` or `discarded`, so the caller can set the S101 `done`. | `ledger  complete` or `ledger  <k> phases not committed (<ids>)` |
 
 Every operation is one call: the frontmatter is rewritten with the statuses moved, the body only appended to (definition §4). Two changes are two calls.
 
@@ -48,5 +49,5 @@ Every operation is one call: the frontmatter is rewritten with the statuses move
 
 ## Used by
 
-- `asimov-build`, every step (start, position, task, attempt, review, verify, fail, stop, ruling, commit, close), the script run inline through Bash.
+- `asimov-build`, every step (start, position, task, attempt, review, verify, fail, stop, ruling, commit, carry, close), the script run inline through Bash.
 - By hand: "where did the build of `<slug>` stop", "show me P1's verify report".
