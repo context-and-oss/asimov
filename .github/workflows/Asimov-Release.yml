@@ -54,16 +54,23 @@ jobs:
 
       - name: Bump plugin version and create release tags
         run: |
-          # Stamp the plugin version to equal the release tag (e.g. 3.0.0).
-          manifest="plugins/asimov-plugin/.claude-plugin/plugin.json"
-          tmp="$(mktemp)"
-          jq --arg v "$TAG" '.version = $v' "$manifest" > "$tmp" \
-            && mv "$tmp" "$manifest"
+          # Stamp the plugin version to equal the release tag (e.g. 3.0.0) in every file
+          # a tool reads it from: Claude Code, Codex and OpenCode each detect an update by it.
+          manifests=(
+            "plugins/asimov-plugin/.claude-plugin/plugin.json"
+            "plugins/asimov-plugin/.codex-plugin/plugin.json"
+            "package.json"
+          )
+          for manifest in "${manifests[@]}"; do
+            tmp="$(mktemp)"
+            jq --arg v "$TAG" '.version = $v' "$manifest" > "$tmp"
+            mv "$tmp" "$manifest"
+          done
 
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add plugins/asimov-plugin/.claude-plugin/plugin.json
-          
+          git add "${manifests[@]}"
+
           # Off-main commit: it lands only on tags, never on the protected main branch.
           git commit -m "chore(release): asimov-plugin $TAG"
 
